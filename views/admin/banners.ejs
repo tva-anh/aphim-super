@@ -1,0 +1,97 @@
+<%- include('partials/head', { title: 'Quản Lý Banners & Slider', activePage: 'banners' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'banners' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Banners & Hero Slider' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-main-title">Quản Lý Banners & Slider Trang Chủ</h1>
+          <p class="page-sub-title">Cấu hình slider phim hot trên đầu trang chủ, popup thông báo sự kiện và vị trí quảng cáo tài trợ</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-primary" onclick="AdminCore.openAddBannerModal()">
+            <i data-lucide="plus-circle"></i> Thêm Banner Mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner Visual Cards Grid -->
+      <div class="banners-grid">
+        <!-- Banner 1 -->
+        <div class="banner-card">
+          <div class="banner-preview-wrap">
+            <img src="https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg" alt="Banner" class="banner-img">
+            <div class="banner-overlay-badge"><span class="badge badge-gold">Vị trí #1 (Hero Main)</span></div>
+          </div>
+          <div class="banner-body">
+            <h4 class="banner-title">Lật Mặt 7: Một Điều Ước</h4>
+            <p class="banner-desc">Phim chiếu rạp ăn khách nhất 2024 của đạo diễn Lý Hải</p>
+            <div class="banner-meta">
+              <span><i data-lucide="link"></i> /phim/lat-mat-7-mot-dieu-uoc</span>
+              <span class="status-pill active"><span class="dot"></span> Đang chạy</span>
+            </div>
+            <div class="banner-actions">
+              <button class="btn btn-xs btn-outline" onclick="AdminCore.editBanner(1)"><i data-lucide="edit"></i> Sửa</button>
+              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteBanner(1)"><i data-lucide="trash-2"></i> Xóa</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner 2 -->
+        <div class="banner-card">
+          <div class="banner-preview-wrap">
+            <img src="https://phimimg.com/upload/vod/20231128-1/593fcabff3c7fa823d53a25b3cf54707.jpg" alt="Banner" class="banner-img">
+            <div class="banner-overlay-badge"><span class="badge badge-cyan">Vị trí #2 (Hero Slider)</span></div>
+          </div>
+          <div class="banner-body">
+            <h4 class="banner-title">Ninh An Như Mộng</h4>
+            <p class="banner-desc">Siêu phẩm cổ trang ngôn tình đỉnh cao Bạch Lộc x Trương Lăng Hách</p>
+            <div class="banner-meta">
+              <span><i data-lucide="link"></i> /phim/ninh-an-nhu-mong</span>
+              <span class="status-pill active"><span class="dot"></span> Đang chạy</span>
+            </div>
+            <div class="banner-actions">
+              <button class="btn btn-xs btn-outline" onclick="AdminCore.editBanner(2)"><i data-lucide="edit"></i> Sửa</button>
+              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteBanner(2)"><i data-lucide="trash-2"></i> Xóa</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner 3 -->
+        <div class="banner-card">
+          <div class="banner-preview-wrap">
+            <img src="https://phimimg.com/upload/vod/20240325-1/bb432f8b5aef74f07a78eb594b41394f.jpg" alt="Banner" class="banner-img">
+            <div class="banner-overlay-badge"><span class="badge badge-pink">Vị trí #3 (Hero Slider)</span></div>
+          </div>
+          <div class="banner-body">
+            <h4 class="banner-title">Dữ Phượng Hành</h4>
+            <p class="banner-desc">Triệu Lệ Dĩnh x Lâm Canh Tân tái hợp trong siêu phẩm tiên hiệp</p>
+            <div class="banner-meta">
+              <span><i data-lucide="link"></i> /phim/du-phuong-hanh</span>
+              <span class="status-pill active"><span class="dot"></span> Đang chạy</span>
+            </div>
+            <div class="banner-actions">
+              <button class="btn btn-xs btn-outline" onclick="AdminCore.editBanner(3)"><i data-lucide="edit"></i> Sửa</button>
+              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteBanner(3)"><i data-lucide="trash-2"></i> Xóa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

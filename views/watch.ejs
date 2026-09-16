@@ -1,0 +1,736 @@
+﻿<!DOCTYPE html>
+<html class="dark" lang="vi">
+
+<head>
+    <%- include('partials/head') %>
+        <link rel="stylesheet" href="/css/watch-page.css" />
+</head>
+
+<body class="bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
+    <!-- Cinema Dimmer Overlay -->
+    <div id="cinemaOverlay" onclick="toggleCinemaMode()" title="Nhấn vào đây để bật lại đèn"></div>
+
+    <!-- Navigation Header -->
+    <%- include('partials/header') %>
+
+        <!-- Main Container -->
+        <main
+            class="app-container relative z-10 pt-4 sm:pt-6 pb-16 md:pb-24 space-y-4.5 md:space-y-5 watch-main-container">
+
+            <div class="space-y-2 watch-top-bar" style="margin-bottom: 14px !important;">
+                <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap w-full">
+                    <div
+                        class="flex items-center flex-nowrap gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold select-none overflow-hidden whitespace-nowrap max-w-full watch-breadcrumb-bar flex-1 min-w-0">
+                        <a class="hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap"
+                            href="/">Trang chủ</a>
+                        <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; display: inline-block !important;"
+                            class="text-gray-200 mx-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                            stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                        <a id="breadcrumb-category"
+                            class="hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap"
+                            href="/danh-sach?list=phim-bo">Phim Bộ</a>
+                        <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; display: inline-block !important;"
+                            class="text-gray-200 mx-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                            stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                        <span id="breadcrumb-movie-name"
+                            class="text-white font-extrabold truncate flex-1 min-w-0">...</span>
+                        <span id="watchBreadcrumbEpName"
+                            class="text-[#fcd576] font-extrabold flex-shrink-0 whitespace-nowrap">...</span>
+                    </div>
+
+                    <!-- 🎁 Watch-to-Earn Pill (Tách riêng trên thanh tiêu đề, cân đối hoàn hảo trên cả Mobile & Desktop) -->
+                    <div id="watchToEarnPill"
+                        class="watch-to-earn-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold select-none cursor-pointer transition-all flex-shrink-0 shadow-sm"
+                        onclick="if(window.GamificationCore) window.GamificationCore.showGamificationToast('🎁 Bạn đang xem phim: Hệ thống tự động đếm thời gian xem thực tế để tăng Xu & XP khi đạt các mốc 15 phút & 45 phút!')"
+                        title="Xem phim tích luỹ Xu & XP mỗi ngày">
+                        <span class="watch-to-earn-dot"
+                            style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;animation:pulse 2s infinite;"></span>
+                        <span id="watchToEarnText" class="watch-to-earn-text font-extrabold text-xs">🚀 Cày Xu:
+                            0/15p</span>
+                    </div>
+                </div>
+
+                <!-- Dismissible Warning Banner (Ultra-thin border, sleek left-aligned thin text, no border box on [Đổi trình phát]) -->
+                <div id="dismissibleNotice"
+                    class="mt-1.5 flex items-center justify-between bg-[#161822]/80 border border-white/10 rounded-lg px-3.5 py-1.5 text-xs text-gray-300 shadow-sm backdrop-blur-md transition-all"
+                    style="margin-bottom: 14px !important;">
+                    <div class="flex items-center gap-2 text-left justify-start min-w-0">
+                        <span
+                            class="material-icons-round text-amber-400/90 text-sm flex-shrink-0 notice-info-icon">info</span>
+                        <span class="font-normal text-[11.5px] sm:text-[12.5px] text-gray-300 leading-snug">Nếu video bị
+                            lỗi hoặc không tải được, bạn hãy bấm nút <span
+                                class="text-white font-semibold notice-btn-highlight">[Đổi trình phát]</span> ở phần Cấu
+                            hình để chuyển đổi trình phát nhé!</span>
+                    </div>
+                    <button type="button" onclick="document.getElementById('dismissibleNotice').remove()"
+                        class="notice-close-btn text-gray-400 hover:text-white transition-colors p-1 ml-2 flex-shrink-0"
+                        title="ng thng bo">
+                        <span class="material-icons-round text-sm">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main 2-Column Grid Layout (70% Player Column / 30% Sticky Sidebar) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start mb-24 pb-16">
+
+                <!-- ================================================================= -->
+                <!-- LEFT COLUMN: Player + Controls + Episodes + Gallery + Comments (~70%) -->
+                <!-- ================================================================= -->
+                <div class="lg:col-span-8 space-y-6" id="player-and-controls">
+
+                    <!-- 2. Khung Player + Thanh điều khiển (Card dính liền hoà trộn hoàn toàn) -->
+                    <div id="main-player-box"
+                        class="relative w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 z-[9990] group">
+                        <!-- Aspect 16:9 Video Player Box -->
+                        <div class="relative w-full aspect-video bg-black overflow-hidden">
+                            <div id="playerPlaceholder"
+                                class="absolute inset-0 w-full h-full flex flex-col items-center justify-center cursor-pointer overflow-hidden group/overlay"
+                                onclick="window.startActualPlayback && window.startActualPlayback()">
+
+                                <!-- Ambient Cinematic Radial Backdrop -->
+                                <div
+                                    class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(252,211,77,0.08)_0%,_rgba(18,20,29,0.95)_70%,_#0a0c10_100%)] pointer-events-none">
+                                </div>
+
+                                <!-- Center Glowing Dual-Ring Spinner & Play Icon -->
+                                <div class="relative z-20 flex flex-col items-center justify-center gap-4">
+                                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+                                        <!-- Outer Golden Spinning Ring -->
+                                        <div
+                                            class="absolute inset-0 rounded-full border-2 border-transparent border-t-[#fcd576] border-r-[#f59e0b] animate-spin shadow-[0_0_20px_rgba(252,211,77,0.5)]">
+                                        </div>
+                                        <!-- Inner Neon Violet Spinning Ring -->
+                                        <div
+                                            class="absolute inset-2 rounded-full border-2 border-transparent border-b-[#a855f7] border-l-[#818cf8] animate-[spin_1.5s_linear_infinite_reverse]">
+                                        </div>
+                                        <!-- Center Glowing Play Button Icon -->
+                                        <div
+                                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#f59e0b] to-[#fcd576] text-[#0a0c10] flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.6)] transform transition-transform duration-300 group-hover/overlay:scale-110">
+                                            <span
+                                                class="material-icons-round text-2xl sm:text-3xl ml-0.5">play_arrow</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- --- 3D CINEMATIC PREMIUM META BLOCK --- -->
+                                <div class="player-overlay-meta absolute bottom-0 left-0 right-0 z-20 pointer-events-none"
+                                    style="
+                                    background: linear-gradient(to top, rgba(5,5,15,0.98) 0%, rgba(5,5,15,0.85) 40%, rgba(5,5,15,0.4) 70%, transparent 100%);
+                                    padding: 60px 24px 20px 24px;
+                                ">
+                                    <!-- 3D Perspective Depth Container -->
+                                    <div style="
+                                    perspective: 800px;
+                                    perspective-origin: 20% 100%;
+                                ">
+                                        <div class="player-meta-3d-card" style="
+                                        transform: rotateX(1deg) rotateY(-0.5deg);
+                                        transform-style: preserve-3d;
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 10px;
+                                    ">
+                                            <!-- Row 1: Studio Badge + Quality/Sub Badges -->
+                                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+
+                                                <!-- APHIM STUDIO Badge  3D Gold Foil -->
+                                                <span class="badge-aphim-studio" style="
+                                                position: relative;
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 5px;
+                                                background: linear-gradient(135deg, #ffe87c 0%, #f59e0b 45%, #b45309 100%);
+                                                color: #0a0c10;
+                                                font-weight: 900;
+                                                font-size: 9.5px;
+                                                letter-spacing: 1.5px;
+                                                text-transform: uppercase;
+                                                padding: 4px 11px;
+                                                border-radius: 4px;
+                                                border-top: 1px solid rgba(255,240,120,0.9);
+                                                border-left: 1px solid rgba(255,240,120,0.6);
+                                                border-right: 1px solid rgba(120,70,0,0.5);
+                                                border-bottom: 1px solid rgba(120,70,0,0.5);
+                                                box-shadow:
+                                                    0 1px 0 rgba(255,255,255,0.35) inset,
+                                                    0 -1px 0 rgba(0,0,0,0.3) inset,
+                                                    2px 4px 12px rgba(245,158,11,0.55),
+                                                    0 2px 4px rgba(0,0,0,0.6),
+                                                    4px 6px 16px rgba(0,0,0,0.4);
+                                                transform: translateZ(6px);
+                                                text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+                                            ">
+                                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"
+                                                        style="opacity:0.85">
+                                                        <path
+                                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                                    </svg>
+                                                    APHIM STUDIO
+                                                </span>
+
+                                                <!-- Quality Badge  FHD -->
+                                                <span id="playerQualityBadge" style="
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 4px;
+                                                background: rgba(15, 20, 40, 0.75);
+                                                backdrop-filter: blur(8px);
+                                                -webkit-backdrop-filter: blur(8px);
+                                                border: 1px solid rgba(99,179,237,0.5);
+                                                color: #93c5fd;
+                                                font-weight: 800;
+                                                font-size: 9.5px;
+                                                letter-spacing: 1.2px;
+                                                text-transform: uppercase;
+                                                padding: 4px 10px;
+                                                border-radius: 4px;
+                                                box-shadow:
+                                                    0 0 12px rgba(96,165,250,0.3),
+                                                    0 2px 4px rgba(0,0,0,0.5),
+                                                    inset 0 1px 0 rgba(147,197,253,0.15);
+                                                transform: translateZ(4px);
+                                            ">
+                                                    <svg width="7" height="7" viewBox="0 0 24 24" fill="currentColor">
+                                                        <circle cx="12" cy="12" r="10" />
+                                                    </svg>
+                                                    FHD
+                                                </span>
+
+                                                <!-- Sub/Dub Badge -->
+                                                <span id="playerSubBadge" style="
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 4px;
+                                                background: rgba(40, 15, 65, 0.75);
+                                                backdrop-filter: blur(8px);
+                                                -webkit-backdrop-filter: blur(8px);
+                                                border: 1px solid rgba(168,85,247,0.55);
+                                                color: #d8b4fe;
+                                                font-weight: 800;
+                                                font-size: 9.5px;
+                                                letter-spacing: 1.2px;
+                                                text-transform: uppercase;
+                                                padding: 4px 10px;
+                                                border-radius: 4px;
+                                                box-shadow:
+                                                    0 0 12px rgba(168,85,247,0.35),
+                                                    0 2px 4px rgba(0,0,0,0.5),
+                                                    inset 0 1px 0 rgba(216,180,254,0.12);
+                                                transform: translateZ(4px);
+                                            ">
+                                                    VIETSUB
+                                                </span>
+
+                                                <!-- Live CDN Status Pill -->
+                                                <div class="badge-quality-sub" style="
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 6px;
+                                                background: rgba(10, 20, 10, 0.65);
+                                                backdrop-filter: blur(8px);
+                                                border: 1px solid rgba(52,211,153,0.45);
+                                                padding: 4px 10px;
+                                                border-radius: 4px;
+                                                box-shadow:
+                                                    0 0 10px rgba(52,211,153,0.25),
+                                                    0 2px 4px rgba(0,0,0,0.5);
+                                                transform: translateZ(4px);
+                                            ">
+                                                    <span style="
+                                                    width: 6px; height: 6px;
+                                                    border-radius: 50%;
+                                                    background: #34d399;
+                                                    box-shadow: 0 0 6px #34d399, 0 0 12px rgba(52,211,153,0.6);
+                                                    animation: pulse-cdn 1.4s ease-in-out infinite;
+                                                    flex-shrink: 0;
+                                                "></span>
+                                                    <span
+                                                        style="color: #6ee7b7; font-weight: 700; font-size: 9px; letter-spacing: 0.9px; text-transform: uppercase; white-space: nowrap;">
+                                                        CDN LIVE
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Row 2: Movie Title (3D Text Effect) -->
+                                            <div
+                                                style="transform: translateZ(10px); display: flex; flex-direction: column; gap: 4px;">
+                                                <h1 id="playerMovieTitle" style="
+                                                    margin: 0;
+                                                    font-family: 'Inter', system-ui, sans-serif;
+                                                    font-size: clamp(18px, 2.5vw, 32px);
+                                                    font-weight: 900;
+                                                    letter-spacing: -0.5px;
+                                                    line-height: 1.15;
+                                                    background: linear-gradient(135deg, #ffffff 0%, #fde68a 40%, #fbbf24 70%, #ffffff 100%);
+                                                    -webkit-background-clip: text;
+                                                    -webkit-text-fill-color: transparent;
+                                                    background-clip: text;
+                                                    filter: drop-shadow(0 2px 16px rgba(251,191,36,0.5)) drop-shadow(0 4px 8px rgba(0,0,0,0.9));
+                                                    text-shadow: none;
+                                                    animation: shimmer-title 3s ease-in-out infinite;
+                                                ">
+                                                    Đang tải dữ liệu phim...
+                                                </h1>
+
+                                                <!-- Episode name + status -->
+                                                <div
+                                                    style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                    <span id="playerEpSubtitle" style="
+                                                    color: rgba(203,213,225,0.75);
+                                                    font-size: 11px;
+                                                    font-weight: 500;
+                                                    letter-spacing: 0.3px;
+                                                    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+                                                ">Vui lòng chờ trong giây lát để hệ thống khởi tạo trình phát tốc độ
+                                                        cao</span>
+                                                </div>
+                                            </div>
+
+                                        </div><!-- /3d-card -->
+                                    </div><!-- /perspective -->
+
+                                </div><!-- /player-overlay-meta -->
+
+                                <!-- 3D Meta Keyframe Animations (injected once) -->
+        <link rel="stylesheet" href="/css/watch-page.css" />
+
+                            </div>
+                        </div>
+
+                        <!-- 3. Thanh điều khiển DÍNH LIỀN ngay dưới ô chiếu phim (Bố cục 2 hàng trên Mobile & 1 hàng trên Desktop) -->
+                        <div
+                            class="player-ctrl-bar w-full text-xs md:text-[13px] font-medium text-gray-200 select-none">
+                            <div
+                                class="player-ctrl-bar-container w-full space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+                                <!-- Hàng 1: Các nút hành động (Yêu thích, Thêm vào, Chia sẻ, Báo lỗi) -->
+                                <div class="player-ctrl-bar-actions-row flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                    <button type="button" id="favoriteMovieBtn" class="player-ctrl-item">
+                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                        </svg>
+                                        <span class="whitespace-nowrap">Yêu thích</span>
+                                    </button>
+                                    <button type="button" id="saveMovieBtn" class="player-ctrl-item">
+                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                                        </svg>
+                                        <span>Thêm vào</span>
+                                    </button>
+                                    <button type="button" onclick="shareMovie()" class="player-ctrl-item">
+                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                                        </svg>
+                                        <span>Chia sẻ</span>
+                                    </button>
+                                    <button type="button" onclick="reportError()"
+                                        class="player-ctrl-item player-ctrl-report-btn hover:text-red-400">
+                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
+                                        </svg>
+                                        <span>Báo lỗi</span>
+                                    </button>
+                                </div>
+
+                                <!-- Hàng 2: Các nút công tắc cài đặt (Chuyển tập, Bỏ qua GT, Rạp phim) -->
+                                <div class="player-ctrl-bar-toggles-row flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                    <button type="button" onclick="toggleAutoNextBadge()" class="player-ctrl-item">
+                                        <span>Chuyển tập</span>
+                                        <span id="badgeAutoNext" class="badge-status-on">ON</span>
+                                        <input type="checkbox" id="toggleAutoNext" class="hidden" checked>
+                                    </button>
+                                    <button type="button" onclick="toggleAutoSkipBadge()" class="player-ctrl-item">
+                                        <span>Bỏ qua giới thiệu</span>
+                                        <span id="badgeAutoSkip" class="badge-status-off">OFF</span>
+                                        <input type="checkbox" id="toggleAutoSkip" class="hidden">
+                                    </button>
+                                    <button type="button" id="cinemaModeBtn" onclick="toggleBadgeCinemaMode()"
+                                        class="player-ctrl-item">
+                                        <span>Rạp phim</span>
+                                        <span id="badgeCinema" class="badge-status-off">OFF</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Khối "DANH SÁCH TẬP" (Giữ nguyên luồng Image 2, trang trí đẹp chuẩn Image 1) -->
+                    <div class="w-full space-y-5">
+                        <!-- Title Line: DANH SÁCH TẬP (1 TẬP) -->
+                        <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px;"
+                            class="flex items-center justify-between">
+                            <h2 style="color: #ffffff; font-weight: 800; font-size: 17px; letter-spacing: 0.5px;"
+                                class="flex items-center gap-2">
+                                DANH SÁCH TẬP <span id="episode-count"
+                                    style="color: #94a3b8; font-weight: 500; font-size: 13px; margin-left: 4px;">(1
+                                    TẬP)</span>
+                            </h2>
+                        </div>
+
+                        <!-- Main Server Selection Rows Grouped by Language (Vietsub / Thuyết Minh) -->
+                        <div id="server-list" class="w-full space-y-2" style="margin-top: 14px;">
+                            <!-- Dynamic Server Groups Rendered by JS -->
+                        </div>
+
+                        <!-- Search & Sort Row: [Tìm tập...]  ...  [Đảo thứ tự] -->
+                        <div id="episode-search-container" class="flex items-center justify-between gap-3 flex-wrap"
+                            style="margin-top: 14px;">
+                            <div class="relative" style="width: 220px; max-width: 100%;">
+                                <span class="material-icons-round"
+                                    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px;">search</span>
+                                <input type="text" id="search-episode-input" placeholder="Tìm tập..."
+                                    style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 7px 12px 7px 32px; color: #ffffff; font-size: 13px; outline: none; width: 100%;" />
+                            </div>
+                            <button type="button" id="sort-episodes-btn"
+                                style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; border-radius: 20px; padding: 6px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                class="hover:bg-white/15 transition-all">
+                                <span>Đảo thứ tự</span>
+                            </button>
+                        </div>
+
+                        <!-- Episode Buttons Grid: [Tập FULL] / [Tập 1] [Tập 2] -->
+                        <div id="episode-list"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 14px; margin-bottom: 14px; max-height: 340px; overflow-y: auto;"
+                            class="custom-scrollbar pr-1">
+                            <!-- Dynamic Episode Grid Buttons Rendered by JS -->
+                        </div>
+
+                        <!-- SVAP Alternate Server Section (Rendered dynamically by JS renderVersions) -->
+                        <div id="watch-versions-container" class="w-full"></div>
+                    </div>
+
+                    <!-- 5. Gallery hình ảnh (Conditional - Shown only if images exist) -->
+        <link rel="stylesheet" href="/css/watch-page.css" />
+                    <div id="movie-gallery-container" class="hidden w-full space-y-3">
+                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-1.5 tracking-tight">
+                            HÌNH ẢNH <span id="movie-gallery-count"
+                                class="text-slate-400 font-semibold text-sm sm:text-base ml-1">(0 ảnh)</span>
+                        </h2>
+                        <div id="movie-gallery-scroll" class="flex gap-3 overflow-x-auto pb-2"
+                            style="scrollbar-width: none; -ms-overflow-style: none;">
+                            <!-- Dynamic Thumbnails -->
+                        </div>
+                    </div>
+
+                    <!-- 6. Khối Bình luận (Rebuild 100% chuẩn Image 1) -->
+                    <div id="comments-section" class="w-full text-left space-y-4 mb-24 pb-16"
+                        style="margin-bottom: 90px !important;">
+                        <div class="ap-cmt-header-wrap flex items-center justify-between gap-4 flex-wrap mb-4">
+                            <div class="flex items-center gap-2.5">
+                                <svg style="width: 22px; height: 22px; fill: #ffffff; flex-shrink: 0;"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 12c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm6 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm6 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z" />
+                                </svg>
+                                <h3
+                                    class="text-base sm:text-lg font-bold text-white flex items-center gap-1.5 tracking-tight">
+                                    Bình luận <span id="ap-cmt-count-span"
+                                        class="text-slate-300 font-semibold text-base sm:text-lg">(0)</span>
+                                </h3>
+                            </div>
+                            <div
+                                class="inline-flex items-center bg-[#12141d] border border-white/10 rounded-lg p-1 shadow-sm select-none">
+                                <button type="button" id="ap-tab-cmt"
+                                    class="px-3.5 py-1 rounded-md text-xs sm:text-sm font-bold bg-white text-black transition-all shadow-sm">Bình
+                                    luận</button>
+                                <button type="button" id="ap-tab-rating"
+                                    class="px-3.5 py-1 rounded-md text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-all">Đánh
+                                    giá</button>
+                            </div>
+                        </div>
+
+                        <div class="ap-cmt-wrapper">
+                            <div class="ap-cmt-input-container mb-5">
+                                <div class="text-xs sm:text-sm text-gray-400 mb-3 select-none">
+                                    Vui lòng <span class="text-[#fcd576] font-bold cursor-pointer hover:underline"
+                                        onclick="if(window.showAuthModal){window.showAuthModal('login');}else{alert('Vui lòng đăng nhập!');}">đăng
+                                        nhập</span> để tham gia bình luận.
+                                </div>
+
+                                <div style="position: relative; width: 100%; background: #181a24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 14px 16px 12px 16px; transition: border-color 0.2s;"
+                                    class="focus-within:border-[#fcd576]/50">
+                                    <textarea class="ap-cmt-textarea" id="ap-input-main" placeholder="Viết bình luận"
+                                        maxlength="1000" rows="3"
+                                        style="width: 100%; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 14px; resize: none; font-family: inherit; box-sizing: border-box; padding-right: 65px; min-height: 70px;"></textarea>
+                                    <span class="ap-char-count" id="ap-count-main"
+                                        style="position: absolute; top: 14px; right: 16px; font-size: 11px; color: #64748b; font-weight: 500; user-select: none;">0
+                                        / 1000</span>
+
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+                                        <div style="display: flex; align-items: center; gap: 16px;">
+                                            <label
+                                                style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                                                <span class="ap-toggle"
+                                                    style="position: relative; width: 32px; height: 18px; display: inline-flex; align-items: center; flex-shrink: 0;">
+                                                    <input type="checkbox" id="ap-spoiler-main"
+                                                        style="opacity: 0; width: 0; height: 0; position: absolute;"
+                                                        onchange="const tr=this.nextElementSibling; const th=tr.nextElementSibling; const lb=this.parentElement.nextElementSibling; if(this.checked){tr.style.background='#fcd576';tr.style.borderColor='#fcd576';th.style.transform='translateX(14px)';th.style.background='#12141d';if(lb)lb.style.color='#fcd576';}else{tr.style.background='#282c3c';tr.style.borderColor='rgba(255,255,255,0.2)';th.style.transform='translateX(0)';th.style.background='#80889c';if(lb)lb.style.color='#94a3b8';}">
+                                                    <span class="ap-toggle-track"
+                                                        style="position: absolute; inset: 0; background: #282c3c; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; transition: all 0.2s; pointer-events: none;"></span>
+                                                    <span class="ap-toggle-thumb"
+                                                        style="position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #80889c; transition: all 0.2s; pointer-events: none;"></span>
+                                                </span>
+                                                <span class="ap-spoiler-label"
+                                                    style="font-size: 13px; color: #94a3b8;">Tiết lộ?</span>
+                                            </label>
+
+                                            <div class="ap-ava-select" id="ap-ava-select-main">
+                                                <button type="button" class="ap-btn-ava"
+                                                    style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px; background: transparent; border: none; color: #fcd576; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: opacity 0.2s;"
+                                                    onclick="document.getElementById('ap-ava-drop-main')?.classList.toggle('show')">
+                                                    <span style="font-size: 18px; line-height: 1;">👤</span>
+                                                    <span style="color: #fcd576;">Popo</span>
+                                                </button>
+                                                <div class="ap-ava-dropdown" id="ap-ava-drop-main"></div>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" class="ap-send-btn" id="ap-btn-main"
+                                            onclick="window.submitComment('', 'main')" disabled
+                                            style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: #fcd576; font-weight: 700; font-size: 14px; cursor: pointer; padding: 2px 4px; transition: opacity 0.2s;">
+                                            <span>Gửi</span>
+                                            <svg style="width: 16px; height: 16px; fill: #fcd576; flex-shrink: 0;"
+                                                viewBox="0 0 24 24">
+                                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ap-cmt-list">
+                                <div style="text-align:center;color:#6b7280;padding:20px;width:100%;">⏳ Đang tải bình
+                                    luận...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- RIGHT COLUMN: Sticky Sidebar (~30%) -->
+                <!-- ================================================================= -->
+                <aside id="sidebar-col" style="will-change: transform; transform: translateZ(0);"
+                    class="lg:col-span-4 space-y-6 lg:space-y-8 sticky top-20">
+
+                    <!-- Sleek Movie Info Summary Card (Auto-Aligned Height with Left Player Box) -->
+                    <div id="main-movie-info-card"
+                        style="background-color: #151722; border: none; box-sizing: border-box;"
+                        class="rounded-2xl p-5 md:p-6 pb-6 md:pb-7 flex flex-col justify-between space-y-5 shadow-xl">
+                        <div class="flex gap-4 items-start">
+                            <!-- Poster with top-left Badge -->
+                            <div style="border: 1px solid rgba(255, 255, 255, 0.1);"
+                                class="relative w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden flex-shrink-0 bg-gray-800 shadow-md">
+                                <img id="sidebar-poster" src="" alt="Poster" class="w-full h-full object-cover" />
+                                <span id="sidebar-poster-badge" style="background-color: #38bdf8; color: #ffffff;"
+                                    class="absolute top-1.5 left-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md shadow">Song
+                                    ngữ</span>
+                            </div>
+
+                            <!-- Main Info Column -->
+                            <div class="space-y-3.5 md:space-y-4 min-w-0 flex-1">
+                                <h3 id="sidebar-movie-name"
+                                    class="text-white font-extrabold text-base sm:text-lg leading-snug line-clamp-2">
+                                    Đang tải...</h3>
+                                <p id="sidebar-movie-origin" style="color: #f59e0b; display: none;"
+                                    class="text-xs sm:text-sm font-medium truncate mt-1"></p>
+
+                                <!-- Connected Badges Row (Image 2 exact style) -->
+                                <div class="flex flex-wrap items-center gap-2 pt-1.5">
+                                    <!-- IMDb Score (Amber Gold Outline Pill) -->
+                                    <span
+                                        style="background-color: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #f59e0b;"
+                                        class="px-2.5 py-0.5 rounded-md text-xs font-extrabold inline-flex items-center gap-1 shadow-sm">
+                                        <span>IMDb</span> <span id="sidebar-imdb-score">9.2</span>
+                                    </span>
+
+                                    <!-- Connected Pill Group: FHD | [CC] VS.1 | 1 Tập | 2026 -->
+                                    <div
+                                        class="inline-flex items-center rounded-lg overflow-hidden text-xs font-bold shadow-md">
+                                        <span id="sidebar-quality-badge"
+                                            style="background-color: #a5b4fc; color: #0f172a;"
+                                            class="px-2.5 py-1 font-extrabold">FHD</span>
+                                        <span id="sidebar-lang-badge" style="background-color: #a7f3d0; color: #064e3b;"
+                                            class="px-2.5 py-1 font-extrabold inline-flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" />
+                                            </svg>
+                                            <span id="sidebar-lang-text">VS.1</span>
+                                        </span>
+                                        <span id="sidebar-ep-badge" style="background-color: #374151; color: #ffffff;"
+                                            class="px-2.5 py-1 font-bold">1 Tập</span>
+                                        <span id="sidebar-year-badge" style="background-color: #ffffff; color: #000000;"
+                                            class="px-2.5 py-1 font-extrabold">2026</span>
+                                    </div>
+                                </div>
+
+                                <!-- Genres Row (Vibrant Colored Badges) -->
+                                <div id="sidebar-genres-row" class="flex flex-wrap gap-2 pt-1.5">
+                                    <span
+                                        style="background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;"
+                                        class="px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">Đang tải thể
+                                        loại...</span>
+                                </div>
+
+                                <!-- Aired Status Pill (Amber Highlight) -->
+                                <div class="pt-1.5">
+                                    <span id="sidebar-aired-status-pill"
+                                        style="background-color: #2a1d12; border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;"
+                                        class="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 shadow-sm">
+                                        <span style="color: #f59e0b;">⭐</span>
+                                        <span id="sidebar-aired-status-text"> chiếu: Full tập</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description & Information Link Row (Divider removed) -->
+                        <div style="border-top: none;"
+                            class="pt-2 md:pt-3 space-y-3 flex-1 flex flex-col justify-between min-h-0">
+                            <p id="sidebar-description-text"
+                                style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;"
+                                class="line-clamp-10">
+                                Tóm tắt nội dung phim đang được tải...
+                            </p>
+                            <div class="flex items-center justify-between pt-1">
+                                <a id="sidebar-info-link" href="/phim/<%= movie ? movie.slug : '' %>"
+                                    style="color: #f59e0b !important; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;"
+                                    class="font-bold text-xs sm:text-sm transition-colors cursor-pointer hover:opacity-80">
+                                    <span style="color: #f59e0b !important;">Thông tin phim</span>
+                                    <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; color: #f59e0b !important; fill: none; stroke: #f59e0b; stroke-width: 2.5; display: inline-block;"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" id="sidebarFavoriteMovieBtn"
+                                        style="background-color: #202332; border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8;"
+                                        class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-white transition-colors"
+                                        title="Yêu thích">
+                                        <span class="material-icons-round text-sm">favorite_border</span>
+                                    </button>
+                                    <button type="button" id="sidebarSaveMovieBtn"
+                                        style="background-color: #202332; border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8;"
+                                        class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-white transition-colors"
+                                        title="Thêm vào danh sách">
+                                        <span class="material-icons-round text-sm">playlist_add</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Integrated Cast Block (Diễn viên) directly inside Movie Info Card -->
+                        <div id="sidebar-cast-section"
+                            class="border-t border-white/10 pt-4 mt-2 space-y-2.5 pb-2 md:pb-3 overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <h3
+                                    class="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+                                    DIỄN VIÊN
+                                </h3>
+                                <span
+                                    class="text-[11px] text-gray-400 font-medium select-none pointer-events-none opacity-80">Vuốt
+                                    ngang &rsaquo;</span>
+                            </div>
+                            <div id="sidebar-cast" data-drag-scroll="true"
+                                class="flex flex-nowrap gap-3 items-center justify-start text-center overflow-x-auto scrollbar-none py-1 select-none scroll-smooth">
+                                <!-- Dynamic Circular Cast Avatars -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bảng Xếp Hạng Top Phim Tuần -->
+                    <div id="top-weekly-sidebar" class="w-full">
+                        <!-- Dynamic Top 10 Weekly Ranking Items -->
+                    </div>
+
+
+
+                </aside>
+
+            </div>
+
+            <!-- Generous Footer Spacer -->
+            <div style="height: 90px; width: 100%; clear: both; display: block;" class="w-full"></div>
+        </main>
+
+        <!-- Footer Partial -->
+        <%- include('partials/footer') %>
+
+            <!-- Page Scripts & Setup -->
+            <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+            <script src="/js/api.js?v=100" defer></script>
+            <script src="/js/user.js?v=100" defer></script>
+            <script src="/js/gamification-core.js?v=101" defer></script>
+            <script src="/js/rating.js?v=100" defer></script>
+            <script src="/js/tmdb-api.js?v=100" defer></script>
+            <script src="/js/playlist-service.js?v=100" defer></script>
+            <script src="/js/playlist-modal.js?v=210" defer></script>
+            <script src="/js/top-weekly-sidebar.js?v=100" defer></script>
+            <script src="/js/watch.js?v=10008" defer></script>
+            <script src="/js/firebase-comments.js?v=20020" defer></script>
+            <script src="/js/watch-ui-init.js?v=1" defer></script>
+    <div id="reportMovieModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300" id="reportMovieModalCard">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div class="flex items-center gap-2 text-[#fcd576] font-bold text-base">
+                    <span class="material-icons-round text-xl">report_problem</span>
+                    <span>Báo Lỗi Phim Cho Admin</span>
+                </div>
+                <button type="button" onclick="closeReportModal()" class="text-gray-400 hover:text-white p-1 transition-colors">
+                    <span class="material-icons-round text-lg">close</span>
+                </button>
+            </div>
+
+            <form id="reportMovieForm" onsubmit="submitMovieReport(event)" class="space-y-3.5 text-left">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Tên phim & Tập</label>
+                    <input type="text" id="reportMovieTitleDisplay" readonly class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-medium text-[#fcd576] outline-none cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Vấn đề gặp phải <span class="text-red-400">*</span></label>
+                    <select id="reportIssueType" required class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#fcd576]">
+                        <option value="Server không phát / Video bị lỗi đen màn hình">🔴 Server không phát / Video bị lỗi đen màn hình</option>
+                        <option value="Sai tập phim / Bị đảo thứ tự / Thiếu tập">⚠️ Sai tập phim / Bị đảo thứ tự / Thiếu tập</option>
+                        <option value="Lỗi âm thanh / Mất tiếng / Lệch tiếng">🔇 Lỗi âm thanh / Mất tiếng / Lệch tiếng</option>
+                        <option value="Lỗi phụ đề Vietsub / Phụ đề không khớp">📝 Lỗi phụ đề Vietsub / Phụ đề không khớp</option>
+                        <option value="Video bị giật lag / Tải chậm liên tục">🐌 Video bị giật lag / Tải chậm liên tục</option>
+                        <option value="Vấn đề khác">💡 Vấn đề khác</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Mô tả thêm (nếu có)</label>
+                    <textarea id="reportIssueDesc" rows="2.5" placeholder="Chi tiết thời điểm bị lỗi hoặc mô tả chi tiết..." class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#fcd576] resize-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold rounded-lg transition-colors">Hủy</button>
+                    <button type="submit" id="btnSubmitReport" class="px-5 py-2 bg-[#ff9900] hover:bg-[#ffaa22] text-black text-xs font-extrabold rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-icons-round text-base">send</span>
+                        <span>Gửi Báo Lỗi</span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="reportSuccessState" class="hidden text-center py-4 space-y-2">
+                <div class="w-12 h-12 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center text-emerald-400 mx-auto">
+                    <span class="material-icons-round text-2xl">check</span>
+                </div>
+                <h4 class="text-white font-bold text-sm">Gửi Báo Lỗi Thành Công!</h4>
+                <p class="text-gray-300 text-xs">Cảm ơn bạn. Đội ngũ Kỹ thuật A Phim Super sẽ kiểm tra và khắc phục sự cố ngay.</p>
+                <button type="button" onclick="closeReportModal()" class="mt-3 px-4 py-1.5 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold rounded-lg">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

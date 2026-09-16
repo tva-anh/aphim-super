@@ -1,0 +1,41 @@
+<!-- Auto Inactivity Lock Screen Modal -->
+<div class="lock-screen-backdrop" id="lockScreenModal">
+  <div class="lock-screen-card">
+    <div class="lock-icon-wrap">
+      <i data-lucide="shield-alert"></i>
+    </div>
+    <h2 class="lock-title">Phiên Làm Việc Đã Tạm Khóa</h2>
+    <p class="lock-desc">Do không có tương tác hoặc theo lệnh bảo mật. Nhập mã PIN hoặc mật khẩu Admin để tiếp tục.</p>
+
+    <div class="lock-admin-profile">
+      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Admin" class="lock-avatar">
+      <div>
+        <div class="lock-admin-name">Super Admin Pro</div>
+        <div class="lock-admin-email">admin@aphim.io.vn</div>
+      </div>
+    </div>
+
+    <form id="lockScreenForm" onsubmit="event.preventDefault(); return unlockAdminScreen();">
+      <div class="form-group">
+        <label for="unlockPassword" class="form-label">Mật khẩu hoặc mã PIN:</label>
+        <div class="input-password-wrap">
+          <input type="password" id="unlockPassword" class="form-control" placeholder="Nhập mật khẩu để mở khóa..." autofocus required>
+          <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('unlockPassword')">
+            <i data-lucide="eye"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div id="unlockError" class="lock-error-msg" style="display:none;">Mật khẩu không chính xác. Vui lòng thử lại!</div>
+
+      <div class="lock-actions">
+        <button type="submit" class="btn btn-primary btn-block">
+          <i data-lucide="unlock"></i> Mở Khóa Phiên
+        </button>
+        <button type="button" class="btn btn-ghost btn-block" onclick="window.location.href='/admin/login'">
+          Đăng xuất tài khoản
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

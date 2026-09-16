@@ -1,0 +1,164 @@
+<%- include('partials/head', { title: 'Cài Đặt Hệ Thống & Bảo Mật', activePage: 'settings' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'settings' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Cài Đặt Hệ Thống & Security' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-main-title">Cấu Hình Hệ Thống & Bảo Mật Enterprise</h1>
+          <p class="page-sub-title">Quản lý nguồn API phim, thiết lập thời gian tự động đồng bộ tập mới, khóa an toàn và sao lưu dữ liệu</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-primary" onclick="AdminCore.saveAllSettings()">
+            <i data-lucide="save"></i> Lưu Cấu Hình
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings Tabs & Panels Grid -->
+      <div class="settings-grid">
+        <!-- Panel 1: API Phim & Crawler Endpoints -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="database" class="text-cyan"></i> Nguồn Dữ Liệu API Phim</h3>
+              <p class="card-desc">Cấu hình endpoint từ KKPhim & Ophim</p>
+            </div>
+          </div>
+
+          <div class="form-body">
+            <div class="form-group">
+              <label class="form-label">API Phim Chính (KKPhim / PhimApi):</label>
+              <input type="text" class="form-control" value="https://phimapi.com" id="settingPrimaryApi">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">API Phim Phụ (Ophim Backup):</label>
+              <input type="text" class="form-control" value="https://ophim1.com" id="settingBackupApi">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Chu kỳ tự động đồng bộ phim mới:</label>
+              <select class="form-control" id="settingCrawlerInterval">
+                <option value="5">Mỗi 5 phút (Realtime)</option>
+                <option value="15" selected>Mỗi 15 phút (Khuyên dùng)</option>
+                <option value="60">Mỗi 1 giờ</option>
+                <option value="manual">Chỉ đồng bộ thủ công</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Gamification & Tỷ giá Xu -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="sparkles" class="text-gold"></i> Tỷ Giá Nạp Xu & Gamification</h3>
+              <p class="card-desc">Quy định điểm thưởng streak và hệ số nạp tiền</p>
+            </div>
+          </div>
+
+          <div class="form-body">
+            <div class="form-group">
+              <label class="form-label">Tỷ giá nạp tiền (10.000 VNĐ = ? Xu):</label>
+              <input type="number" class="form-control" value="100" id="settingCoinRate">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Thưởng hoàn thành Streak 7 ngày:</label>
+              <input type="number" class="form-control" value="50" id="settingStreakReward">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cộng XP mỗi tập phim xem xong:</label>
+              <input type="number" class="form-control" value="25" id="settingWatchXp">
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Bảo mật & Khóa an toàn -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="shield-check" class="text-emerald"></i> Bảo Mật & Phòng Thủ</h3>
+              <p class="card-desc">Bảo vệ tài khoản quản trị và dữ liệu người dùng</p>
+            </div>
+          </div>
+
+          <div class="form-body">
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">Tự động khóa màn hình khi không tương tác (30 phút)</div>
+                <div class="switch-desc">Yêu cầu nhập lại mật khẩu Admin nếu rời máy</div>
+              </div>
+              <input type="checkbox" checked id="settingAutoLock">
+            </div>
+
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">Che dữ liệu nhạy cảm khách hàng (Data Masking)</div>
+                <div class="switch-desc">Ẩn email và số điện thoại trên bảng điều khiển</div>
+              </div>
+              <input type="checkbox" checked id="settingDataMask">
+            </div>
+
+            <div class="switch-row">
+              <div>
+                <div class="switch-label">Chống tấn công Clickjacking (Frame Guard)</div>
+                <div class="switch-desc">Chặn nhúng iframe ngoài tên miền cho phép</div>
+              </div>
+              <input type="checkbox" checked id="settingFrameGuard">
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Sao Lưu & Dọn Dẹp Bộ Nhớ Cache -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="hard-drive" class="text-rose"></i> Sao Lưu & Dọn Dẹp</h3>
+              <p class="card-desc">Bảo trì và giải phóng bộ nhớ máy chủ</p>
+            </div>
+          </div>
+
+          <div class="form-body">
+            <div class="action-card-row">
+              <div>
+                <div class="font-medium">Xóa Cache Bộ Nhớ (Redis & Memory)</div>
+                <div class="text-dim">Giải phóng RAM và làm mới dữ liệu API tức thì</div>
+              </div>
+              <button class="btn btn-outline" onclick="AdminCore.clearServerCache()">
+                <i data-lucide="refresh-cw"></i> Xóa Cache
+              </button>
+            </div>
+
+            <div class="action-card-row" style="margin-top: 16px;">
+              <div>
+                <div class="font-medium">Sao Lưu Toàn Bộ Cấu Hình & Database (JSON)</div>
+                <div class="text-dim">Lần sao lưu gần nhất: 12/09/2026 14:00</div>
+              </div>
+              <button class="btn btn-primary" onclick="AdminCore.backupDatabase()">
+                <i data-lucide="download"></i> Tải Bản Sao Lưu
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

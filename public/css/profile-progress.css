@@ -1,0 +1,368 @@
+/* ════════════════════════════════════════════════════════════
+   PROFILE PROGRESS & JOURNEY — Gamification UI
+   ════════════════════════════════════════════════════════════ */
+
+.journey-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* --- Section Title --- */
+.journey-section {
+    background: #13131f;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+    padding: 24px;
+}
+
+.journey-label {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* --- Progress Card --- */
+.progress-stats-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 10px;
+}
+
+.xp-current { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 600; }
+.xp-next { font-size: 14px; color: #a855f7; font-weight: 700; }
+
+.progress-bar-wrap {
+    width: 100%;
+    height: 10px;
+    background: rgba(20, 20, 35, 0.6);
+    border: 1px solid rgba(168,85,247,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(168,85,247,0.05);
+}
+
+.progress-bar-wrap::before {
+    content: '';
+    display: none; /* Removed so empty track doesn't glow */
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fcd576, #f59e0b, #e8b94f);
+    background-size: 200% 100%;
+    animation: fillGradientMove 3s ease infinite;
+    border-radius: 10px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Dùng filter drop-shadow thay vì box-shadow để tránh viền sáng khi width = 0 */
+    filter: drop-shadow(0 0 8px rgba(168,85,247,0.5));
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes fillGradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Stats Grid --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.stat-card {
+    background: #13131f;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-3px);
+    background: #1a1a2e;
+}
+
+.stat-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-info { display: flex; flex-direction: column; }
+.stat-value { font-size: 20px; font-weight: 800; color: #fff; line-height: 1; }
+.stat-label { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; font-weight: 600; }
+
+/* Icon Colors */
+.icon-xp { background: rgba(234,179,8,0.1); color: #eab308; }
+.icon-lv { background: rgba(168,85,247,0.1); color: #a855f7; }
+.icon-eye { background: rgba(34,197,94,0.1); color: #22c55e; }
+.icon-heart { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+/* --- Journey Timeline --- */
+.journey-timeline-wrap {
+    position: relative;
+    padding: 10px 0 20px;
+    overflow-x: auto;
+    scrollbar-width: none; /* Hide scrollbar for Chrome/Safari below */
+}
+.journey-timeline-wrap::-webkit-scrollbar { display: none; }
+
+.journey-timeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    min-width: max-content;
+    padding: 0 10px;
+}
+
+.journey-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 90px;
+    position: relative;
+    opacity: 0.35;
+    filter: grayscale(1);
+    transition: all 0.4s;
+}
+
+.journey-step.unlocked {
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+.journey-step.active {
+    transform: scale(1.1);
+}
+
+.step-icon-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.journey-step.unlocked .step-icon-wrap {
+    background: rgba(168,85,247,0.08);
+    border-color: rgba(168,85,247,0.3);
+    color: #a855f7;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.journey-step.active .step-icon-wrap {
+    border-color: #a855f7;
+    box-shadow: 0 0 20px rgba(168,85,247,0.4);
+}
+
+/* Connecting Lines */
+.journey-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 32px;
+    left: 77px;
+    width: 26px;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    z-index: 0;
+}
+
+.journey-step.unlocked:not(:last-child)::after {
+    background: linear-gradient(90deg, #a855f7, rgba(255,255,255,0.06));
+}
+
+.step-info { text-align: center; }
+.step-name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; }
+.step-lv { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 600; margin-top: 2px; }
+
+/* --- Attendance Button --- */
+.attendance-btn {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #e8b94f, #d4a017);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.attendance-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(232,185,79,0.4);
+}
+
+.attendance-btn:disabled {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.3);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Custom Icons from screenshot */
+.step-icon-wrap .material-icons-round { font-size: 28px; }
+
+/* Scroll Buttons for Timeline */
+.timeline-controls {
+    display: flex;
+    gap: 8px;
+}
+.control-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.control-btn:hover { background: rgba(255,255,255,0.1); }
+
+/* ==========================================================
+   RESPONSIVE MOBILE UI - A PHIM GAMIFICATION
+   ========================================================== */
+@media (max-width: 768px) {
+    .journey-container {
+        gap: 14px;
+    }
+
+    .journey-section {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .journey-label {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    /* Optimize Attendance Button for inline fit */
+    .attendance-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 8px;
+        gap: 4px;
+    }
+    .attendance-btn .material-icons-round {
+        font-size: 16px;
+    }
+
+    /* PROGRESS BAR */
+    .progress-stats-top {
+        margin-bottom: 6px;
+    }
+    .xp-current, .xp-next {
+        font-size: 12px;
+    }
+    .progress-bar-wrap {
+        height: 8px;
+    }
+
+    /* --- STATS GRID (FIXED 2x2 on Mobile) --- */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important; /* Buộc layout 2 cột */
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 14px 12px;
+        gap: 10px;
+        border-radius: 12px;
+        align-items: center;
+    }
+
+    .stat-icon-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+    .stat-icon-box .material-icons-round {
+        font-size: 18px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+        font-weight: 700;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        white-space: nowrap;
+        margin-top: 1px;
+    }
+
+    /* --- JOURNEY TIMELINE --- */
+    .journey-timeline {
+        gap: 28px; /* Giảm khoảng cách cho sát hơn tí cho cân */
+        padding: 0 4px;
+    }
+
+    .journey-step {
+        width: 70px; /* Bóp gọn container cho timeline step */
+    }
+
+    .step-icon-wrap {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+    }
+    .step-icon-wrap .material-icons-round {
+        font-size: 22px;
+    }
+
+    /* Nối giữa các step (cần calibrate lại vị trí line) */
+    .journey-step:not(:last-child)::after {
+        top: 27px;
+        left: 62px;
+        width: 16px;
+    }
+
+    .step-name {
+        font-size: 11px;
+    }
+    .step-lv {
+        font-size: 9px;
+    }
+    
+    /* Journey text hint */
+    .journey-section > p[style*="font-size:13px"] {
+        font-size: 12px !important;
+        margin-bottom: 12px !important;
+    }
+}

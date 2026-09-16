@@ -1,0 +1,106 @@
+/* ============================================================
+   A PHIM — Portrait Ambient Cards (Style from Screenshot)
+   ============================================================ */
+
+.portrait-card {
+    flex: none;
+    width: 140px; /* Mobile */
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .portrait-card {
+        flex: 0 0 calc((100% - 4rem) / 5);
+        width: calc((100% - 4rem) / 5);
+    }
+}
+@media (min-width: 1024px) {
+    .portrait-card {
+        flex: 0 0 calc((100% - 5rem) / 6);
+        width: calc((100% - 5rem) / 6);
+    }
+}
+@media (min-width: 1280px) {
+    .portrait-card {
+        flex: 0 0 calc((100% - 7rem) / 8);
+        width: calc((100% - 7rem) / 8);
+    }
+}
+
+.portrait-poster-w {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    background: #111218;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.portrait-poster-w img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.portrait-card:hover .portrait-poster-w img {
+    transform: scale(1.1);
+}
+
+/* Badge at bottom right area as in screenshot */
+.portrait-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(15, 16, 22, 0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 5;
+}
+
+.portrait-episode {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 6;
+}
+
+/* Title & Subtitle below */
+.portrait-info {
+    padding: 0 4px;
+}
+
+.portrait-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+}
+
+.portrait-card:hover .portrait-title {
+    color: #ffd700;
+}
+
+.portrait-subtitle {
+    font-size: 0.75rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

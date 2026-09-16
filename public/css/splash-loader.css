@@ -1,0 +1,363 @@
+/* Splash Screen Loader - Beautiful loading screen */
+#splashLoader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0f1016;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.45s cubic-bezier(0.3, 0.8, 0.4, 1),
+        filter 0.4s ease-out;
+}
+
+#splashLoader.splash-fade-out {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: scale(1.08) !important;
+    filter: blur(10px);
+}
+
+/* Background collage of movie posters */
+.splash-background-collage {
+    position: absolute;
+    top: -25%;
+    left: -15%;
+    width: 130%;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 12px;
+    transform: rotate(-10deg);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.splash-poster-item {
+    aspect-ratio: 2/3;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Dark gradient overlay covering the collage - top portion very clear (25%), fading to solid dark at 70% */
+.splash-background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+        rgba(15, 16, 22, 0.25) 0%, 
+        rgba(15, 16, 22, 0.55) 28%, 
+        rgba(15, 16, 22, 0.88) 52%, 
+        rgba(15, 16, 22, 1) 70%, 
+        #0f1016 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .splash-background-collage {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+        top: -18%;
+        left: -15%;
+        width: 130%;
+        transform: rotate(-6deg);
+        opacity: 0.40; /* Brighter on mobile too */
+    }
+}
+
+/* Logo container with pulse animation */
+.splash-logo-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 30px;
+}
+
+/* Animated rings around logo */
+.splash-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid #f2f20d;
+    border-radius: 50%;
+    animation: splash-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.splash-ring:nth-child(1) {
+    width: 100%;
+    height: 100%;
+    animation-delay: 0s;
+}
+
+.splash-ring:nth-child(2) {
+    width: 120%;
+    height: 120%;
+    animation-delay: 0.3s;
+    opacity: 0.7;
+}
+
+.splash-ring:nth-child(3) {
+    width: 140%;
+    height: 140%;
+    animation-delay: 0.6s;
+    opacity: 0.4;
+}
+
+@keyframes splash-pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* Logo image */
+.splash-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    animation: splash-float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(242, 242, 13, 0.5));
+}
+
+@keyframes splash-float {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) translateY(0px);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) translateY(-10px);
+    }
+}
+
+/* Brand name */
+.splash-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    animation: splash-fade-in 1s ease-out;
+}
+
+.splash-brand .highlight {
+    color: #f2f20d;
+    text-shadow: 0 0 20px rgba(242, 242, 13, 0.5);
+}
+
+/* Tagline */
+.splash-tagline {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.9rem;
+    color: #f2f20d;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+    animation: splash-fade-in 1s ease-out 0.3s both;
+}
+
+/* Loading bar container */
+.splash-loading-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Loading bar fill */
+.splash-loading-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f2f20d 0%, #ffd700 50%, #f2f20d 100%);
+    background-size: 200% 100%;
+    border-radius: 2px;
+    animation: splash-loading 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(242, 242, 13, 0.5);
+}
+
+@keyframes splash-loading {
+    0% {
+        width: 0%;
+        background-position: 0% 50%;
+    }
+
+    50% {
+        width: 70%;
+        background-position: 100% 50%;
+    }
+
+    100% {
+        width: 100%;
+        background-position: 0% 50%;
+    }
+}
+
+/* Loading text */
+.splash-loading-text {
+    margin-top: 20px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    animation: splash-fade-in 1s ease-out 0.6s both;
+}
+
+@keyframes splash-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Particles background effect */
+.splash-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.splash-particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #f2f20d;
+    border-radius: 50%;
+    opacity: 0;
+    animation: splash-particle-float 3s ease-in-out infinite;
+}
+
+.splash-particle:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.splash-particle:nth-child(2) {
+    left: 20%;
+    animation-delay: 0.5s;
+}
+
+.splash-particle:nth-child(3) {
+    left: 30%;
+    animation-delay: 1s;
+}
+
+.splash-particle:nth-child(4) {
+    left: 40%;
+    animation-delay: 1.5s;
+}
+
+.splash-particle:nth-child(5) {
+    left: 50%;
+    animation-delay: 2s;
+}
+
+.splash-particle:nth-child(6) {
+    left: 60%;
+    animation-delay: 2.5s;
+}
+
+.splash-particle:nth-child(7) {
+    left: 70%;
+    animation-delay: 3s;
+}
+
+.splash-particle:nth-child(8) {
+    left: 80%;
+    animation-delay: 3.5s;
+}
+
+.splash-particle:nth-child(9) {
+    left: 90%;
+    animation-delay: 4s;
+}
+
+@keyframes splash-particle-float {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100vh) scale(1);
+        opacity: 0;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .splash-logo-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .splash-logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .splash-brand {
+        font-size: 2rem;
+    }
+
+    .splash-tagline {
+        font-size: 0.75rem;
+    }
+
+    .splash-loading-bar {
+        width: 150px;
+    }
+}

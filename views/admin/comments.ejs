@@ -1,0 +1,124 @@
+<%- include('partials/head', { title: 'Kiểm Duyệt Bình Luận & Chat', activePage: 'comments' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'comments' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Kiểm Duyệt Bình Luận & Phòng Chat' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-main-title">Kiểm Duyệt Bình Luận & Phòng Chat Trực Tiếp</h1>
+          <p class="page-sub-title">Dữ liệu bình luận thực tế từ khán giả theo thời gian thực (Realtime MongoDB)</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-outline" onclick="AdminCore.loadAdminComments()">
+            <i data-lucide="refresh-cw"></i> Làm Mới
+          </button>
+          <button class="btn btn-primary" onclick="AdminCore.approveAllPendingComments()">
+            <i data-lucide="check-check"></i> Duyệt Hàng Loạt
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick KPI Cards for Comments -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+        <div class="glass-card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Tổng Bình Luận</span>
+            <div class="kpi-icon-wrap icon-cyan"><i data-lucide="message-square"></i></div>
+          </div>
+          <div class="kpi-value" id="cmtTotalCount">--</div>
+        </div>
+
+        <div class="glass-card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Đã Phê Duyệt</span>
+            <div class="kpi-icon-wrap icon-emerald"><i data-lucide="check-circle-2"></i></div>
+          </div>
+          <div class="kpi-value text-emerald" id="cmtApprovedCount">--</div>
+        </div>
+
+        <div class="glass-card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Chờ Duyệt</span>
+            <div class="kpi-icon-wrap icon-amber"><i data-lucide="clock"></i></div>
+          </div>
+          <div class="kpi-value text-amber" id="cmtPendingCount">--</div>
+        </div>
+
+        <div class="glass-card kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Đã Ẩn / Vi Phạm</span>
+            <div class="kpi-icon-wrap icon-rose"><i data-lucide="shield-alert"></i></div>
+          </div>
+          <div class="kpi-value text-rose" id="cmtHiddenCount">--</div>
+        </div>
+      </div>
+
+      <!-- Moderation Filter Ribbon -->
+      <div class="glass-card filter-ribbon-card">
+        <div class="filter-row">
+          <div class="search-input-wrap">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="commentSearchInput" class="form-control filter-input" placeholder="Tìm theo nội dung, người gửi, email hoặc phim...">
+          </div>
+
+          <select id="commentStatusFilter" class="form-control filter-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="approved">Đã Phê Duyệt</option>
+            <option value="pending">Chờ Phê Duyệt</option>
+            <option value="hidden">Đã Ẩn / Bị Chặn</option>
+          </select>
+
+          <button class="btn btn-secondary" onclick="AdminCore.resetCommentFilters()">
+            <i data-lucide="rotate-ccw"></i> Đặt Lại
+          </button>
+        </div>
+      </div>
+
+      <!-- Comments Table -->
+      <div class="glass-card table-wrapper-card">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Người Gửi</th>
+                <th>Phim</th>
+                <th>Nội Dung Bình Luận</th>
+                <th>Trạng Thái</th>
+                <th>Thời Gian</th>
+                <th style="text-align: right;">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody id="commentsTableBody">
+              <tr>
+                <td colspan="6" class="text-center" style="padding: 40px;">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim);">
+                    <i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Đang tải danh sách bình luận thật...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div id="commentsPagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-subtle);">
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

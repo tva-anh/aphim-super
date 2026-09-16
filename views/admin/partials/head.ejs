@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+
+    <title><%= typeof title !== 'undefined' ? title : 'Admin Suite' %> | APhim Super Enterprise</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js for Pro Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Enterprise Master Admin Stylesheet -->
+    <link rel="stylesheet" href="/css/admin-enterprise.css">
+    
+    <style>
+      /* Smooth transitions and warm cream custom scrollbar */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #f5f0e6; }
+      ::-webkit-scrollbar-thumb { background: #dcd3c4; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+    </style>
+</head>
+<body data-page="<%= typeof activePage !== 'undefined' ? activePage : 'dashboard' %>">

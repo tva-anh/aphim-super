@@ -1,0 +1,351 @@
+/* ================================================================
+   A PHIM — Sticky Navigation — Midnight Cinema Theme v2
+   ================================================================ */
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    transition:
+        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.35s ease-in-out,
+        opacity 0.2s ease-in-out,
+        border-color 0.35s ease-in-out,
+        box-shadow 0.35s ease-in-out;
+    /* Mặc định: trong suốt hoàn toàn */
+    background: transparent !important;
+    backdrop-filter: none;
+
+    /* Safe area—Notch/Dynamic Island */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+
+    overflow: visible;
+    will-change: transform, opacity;
+}
+
+nav > div {
+    min-height: 64px;
+}
+
+/* Scrolled state — Glassmorphism cao cấp */
+nav.scrolled {
+    background: rgba(5, 5, 8, 0.82) !important;
+    backdrop-filter: blur(32px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+    box-shadow: var(--shadow-nav, 0 1px 40px rgba(0, 0, 0, 0.55)) !important;
+    border-bottom: 1px solid rgba(232, 185, 79, 0.07) !important;
+}
+
+/* Hidden — ẩn khi scroll xuống (MOBILE ONLY) */
+nav.nav-hidden {
+    transform: translateY(calc(-100% - env(safe-area-inset-top)));
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Visible — hiện khi scroll lên */
+nav.nav-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body {
+    padding-top: 0;
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+}
+
+nav .group {
+    position: relative;
+}
+
+nav .group:hover > div[class*="absolute"] {
+    z-index: 10000;
+}
+
+nav .container {
+    position: static;
+}
+
+#mobileMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 9998;
+    max-height: calc(100svh - 64px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+nav + * {
+    margin-top: 0;
+}
+
+/* Landscape iPhone */
+@media (orientation: landscape) and (max-height: 500px) {
+    nav {
+        padding-top: max(env(safe-area-inset-top), 10px);
+    }
+    nav > div {
+        min-height: 60px;
+    }
+}
+
+/* ── Nav Item — hover glow với màu gold ấm ── */
+nav .nav-item:hover,
+nav .nav-pill:hover,
+nav .btn-pill:hover {
+    background: rgba(232, 185, 79, 0.08) !important;
+    border-color: rgba(232, 185, 79, 0.28) !important;
+    box-shadow:
+        0 0 18px rgba(232, 185, 79, 0.18),
+        0 0 35px rgba(232, 185, 79, 0.08),
+        inset 0 0 10px rgba(232, 185, 79, 0.08) !important;
+    transform: translateY(-2px);
+    color: var(--accent-gold, #e8b94f) !important;
+}
+
+nav .nav-item {
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ── Dropdown — Dark Cinema Glass (đã override bằng inline style) ── */
+/* Fallback cho các trang không có inline override */
+nav .group:hover > div[class*="absolute"],
+#categoryDropdown,
+nav .group > div[class*="absolute"] {
+    background-color: rgba(5, 5, 8, 0.96) !important;
+    background-image: none !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    border: 1px solid rgba(232, 185, 79, 0.12) !important;
+    box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.70),
+        0 0 50px rgba(232, 185, 79, 0.05) !important;
+    border-radius: 1rem !important;
+    overflow: hidden !important;
+}
+
+/* ── Dropdown Links ── */
+nav .group > div[class*="absolute"] a,
+#categoryDropdown a {
+    position: relative !important;
+    overflow: hidden !important;
+    transition: all 0.25s ease !important;
+    color: rgba(240, 240, 245, 0.85) !important;
+    font-weight: 500 !important;
+    text-shadow: none !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Left accent bar khi hover */
+nav .group > div[class*="absolute"] a::before,
+#categoryDropdown a::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+    width: 3px !important;
+    background: linear-gradient(180deg, #e8b94f, #f59e0b) !important;
+    transform: scaleY(0) !important;
+    transition: transform 0.25s ease !important;
+    box-shadow: 0 0 10px rgba(232, 185, 79, 0.5) !important;
+}
+
+nav .group > div[class*="absolute"] a:hover::before,
+#categoryDropdown a:hover::before {
+    transform: scaleY(1) !important;
+}
+
+nav .group > div[class*="absolute"] a:hover,
+#categoryDropdown a:hover {
+    background: linear-gradient(90deg, rgba(232, 185, 79, 0.12), transparent) !important;
+    color: var(--accent-gold, #e8b94f) !important;
+    padding-left: 1.75rem !important;
+}
+
+/* Caret rotation */
+nav .group:hover .group-hover\:rotate-180 {
+    transform: rotate(180deg) !important;
+}
+
+/* ── Mobile menu — gold hover ── */
+#mobileMenu a:hover {
+    background: rgba(232, 185, 79, 0.12) !important;
+    color: var(--accent-gold, #e8b94f) !important;
+    box-shadow: inset 0 0 12px rgba(232, 185, 79, 0.08) !important;
+    border-radius: 0.5rem !important;
+    padding-left: 1.5rem !important;
+}
+
+nav .group:hover .nav-item {
+    background: rgba(232, 185, 79, 0.08) !important;
+    border-color: rgba(232, 185, 79, 0.28) !important;
+    box-shadow:
+        0 0 18px rgba(232, 185, 79, 0.18),
+        inset 0 0 10px rgba(232, 185, 79, 0.08) !important;
+    color: var(--accent-gold, #e8b94f) !important;
+}
+
+#mobileMenu a {
+    transition: all 0.3s ease;
+}
+
+/* ── Mobile 480px ── */
+@media (max-width: 480px) {
+    nav .container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        gap: 0.4rem !important;
+        justify-content: flex-start !important;
+    }
+
+    nav .container > div.flex.items-center.gap-4 {
+        margin-left: auto !important;
+    }
+
+    nav a.group.flex {
+        gap: 0.35rem !important;
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+    }
+
+    nav .w-10.h-10 {
+        width: 2rem !important;
+        height: 2rem !important;
+        min-width: 2rem !important;
+        border-width: 1.5px !important;
+    }
+    nav .w-6.h-6 {
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+    }
+
+    nav .text-2xl {
+        font-size: 1.15rem !important;
+        line-height: 1.25rem !important;
+        white-space: nowrap !important;
+        letter-spacing: -0.025em !important;
+    }
+    nav .text-\[10px\] {
+        font-size: 0.55rem !important;
+        line-height: 0.75rem !important;
+        margin-top: -1px !important;
+    }
+
+    nav .gap-4 {
+        gap: 0.5rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    nav a[href="login.html"],
+    nav a.bg-primary {
+        white-space: nowrap !important;
+        font-size: 0.75rem !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+        border-radius: 9999px !important;
+        line-height: 1.1 !important;
+        font-weight: 700 !important;
+    }
+
+    nav .material-icons-round {
+        font-size: 20px !important;
+    }
+
+    nav button#mobileMenuBtn {
+        padding: 0px !important;
+        display: flex;
+        align-items: center;
+        margin-left: 0.15rem;
+    }
+}
+
+/* ── 1024px–1279px ── */
+@media (min-width: 1024px) and (max-width: 1279px) {
+    nav .nav-item {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        font-size: 0.7rem !important;
+        white-space: nowrap !important;
+    }
+
+    nav .hidden.lg\:flex > div {
+        gap: 0rem !important;
+        padding: 0.25rem 0.35rem !important;
+        transform: scale(0.92);
+        transform-origin: center;
+    }
+
+    nav .nav-item {
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+        padding-top: 0.35rem !important;
+        padding-bottom: 0.35rem !important;
+        font-size: 0.72rem !important;
+    }
+
+    nav a.group.flex {
+        flex-shrink: 0;
+    }
+
+    nav > div {
+        gap: 0.5rem !important;
+    }
+
+    nav a[href="login.html"],
+    nav a.bg-primary {
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+        padding-top: 0.35rem !important;
+        padding-bottom: 0.35rem !important;
+        font-size: 0.7rem !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* ── Desktop ≥ 1024px — Pill refinement ── */
+@media (min-width: 1024px) {
+    nav .hidden.lg\:flex > div {
+        padding-top: 0.25rem !important;
+        padding-bottom: 0.25rem !important;
+        padding-left: 0.4rem !important;
+        padding-right: 0.4rem !important;
+        gap: 0.15rem !important;
+        transform: scale(0.95);
+        transition: transform 0.3s ease, padding 0.3s ease;
+    }
+
+    nav .nav-item {
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    nav .container {
+        height: 60px !important;
+    }
+}

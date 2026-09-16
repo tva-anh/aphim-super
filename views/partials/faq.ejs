@@ -1,0 +1,358 @@
+<!-- ==============================================
+     SECTION: CÂU HỎI THƯỜNG GẶP (FAQ)
+     ============================================== -->
+<section class="faq-section faq-collapsed" style="margin-top: 70px; margin-bottom: 40px; width: 100%;">
+    <style>
+        /* Mobile FAQ See More Toggle */
+        @media (max-width: 767px) {
+            .faq-toggle-mobile-wrap {
+                display: flex !important;
+                justify-content: flex-end !important;
+                margin-top: 14px !important;
+            }
+            
+            /* Hide Column 2 (items 6-10) on mobile when collapsed */
+            .faq-section.faq-collapsed #faqMobileExtraCol {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .faq-toggle-mobile-wrap {
+                display: none !important;
+            }
+            #faqMobileExtraCol {
+                display: block !important;
+            }
+        }
+
+        .faq-toggle-mobile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 153, 0, 0.12);
+            color: #ff9900;
+            border: 1px solid rgba(255, 153, 0, 0.3);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .faq-toggle-mobile-btn:hover {
+            background: rgba(255, 153, 0, 0.22);
+            border-color: #ff9900;
+            transform: translateY(-1px);
+        }
+
+        .faq-toggle-mobile-btn .faq-toggle-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        /* Light Mode Styling for Mobile FAQ Toggle Button */
+        html.light-mode .faq-toggle-mobile-btn {
+            background: #fef3c7 !important;
+            color: #b45309 !important;
+            border: 1px solid #f59e0b !important;
+            box-shadow: 0 2px 8px rgba(78, 64, 45, 0.08) !important;
+        }
+
+        html.light-mode .faq-toggle-mobile-btn:hover {
+            background: #fde68a !important;
+            color: #92400e !important;
+            border-color: #d97706 !important;
+        }
+    </style>
+
+    <!-- Header Aligned with Sections & Large Top Spacing -->
+    <div style="margin-bottom: 24px;">
+        <h2 style="font-size: 22px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
+            CÂU HỎI THƯỜNG GẶP (FAQ)
+        </h2>
+        <p style="font-size: 13px; color: #9ca3af; margin: 0; font-weight: 500;">
+            Giải đáp các thắc mắc phổ biến khi trải nghiệm xem phim tại A Phim
+        </p>
+    </div>
+
+    <!-- FAQ Grid: 2 Columns on Desktop, 1 Column on Mobile -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 md:gap-4">
+
+        <!-- Column 1 (Items 1-5) -->
+        <div class="space-y-3.5 md:space-y-4">
+            
+            <!-- Item 1 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        A Phim có miễn phí xem phim không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        A Phim hoàn toàn miễn phí 100%, không thu phí thành viên, không yêu cầu đăng ký tài khoản. Toàn bộ kho phim Vietsub, lồng tiếng, thuyết minh đều có sẵn để xem online ngay khi bạn truy cập website.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        Chất lượng phim tại A Phim như thế nào?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Phim trên A Phim hỗ trợ độ phân giải cao Full HD (1080p), 4K sắc nét với âm thanh sống động, mang lại trải nghiệm xem phim mượt mà và chân thực nhất.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        Server xem phim của A Phim có ổn định không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        A Phim sử dụng hệ thống máy chủ CDN băng thông lớn, nhiều server dự phòng tốc độ cực nhanh giúp hạn chế tối đa tình trạng giật lag hay nghẽn mạng vào giờ cao điểm.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        Phim chiếu rạp mới ra có trên A Phim không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        A Phim luôn tổng hợp và cập nhật nhanh nhất các bom tấn chiếu rạp HOT nhất trong nước và quốc tế ngay khi có bản đẹp Vietsub / Thuyết minh.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        A Phim chuyên về phim và cả anime đúng không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Đúng vậy. A Phim sở hữu kho phim điện ảnh, phim truyền hình đa quốc gia (Hàn Quốc, Trung Quốc, Âu Mỹ...) cùng hàng ngàn series Anime vietsub mới nhất.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Column 2 (Items 6-10, hidden on mobile by default) -->
+        <div class="space-y-3.5 md:space-y-4" id="faqMobileExtraCol">
+            
+            <!-- Item 6 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        A Phim cập nhật phim mới mỗi ngày không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Kho phim tại A Phim được hệ thống tự động cập nhật liên tục hàng giờ. Các tập phim mới, phim bộ đang phát sóng hay phim lẻ chiếu rạp nóng hổi luôn có mặt sớm nhất.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 7 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        Xem phim A Phim trên điện thoại và Smart TV được không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Có. Giao diện A Phim được thiết kế responsive tối ưu mượt mà cho mọi thiết bị bao gồm iPhone, Android, iPad, Máy tính bảng, Laptop và Smart TV qua trình duyệt web.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 8 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        A Phim có hỗ trợ tua nhanh, phụ đề tuỳ chỉnh không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Trình phát phim của A Phim tích hợp đầy đủ tính năng tua nhanh/lùi, lưu tiến trình tập đang xem, chuyển server dự phòng và hỗ trợ phím tắt tiện lợi.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 9 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        A Phim có phim lồng tiếng và thuyết minh không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Có. Bên cạnh các bản Vietsub chuẩn, A Phim cung cấp đầy đủ các bản phim lồng tiếng Việt và thuyết minh chất lượng cao phục vụ nhu cầu xem phim của mọi lứa tuổi.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Item 10 -->
+            <div class="faq-card" style="background: #181926; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
+                <button type="button" class="faq-btn" style="width: 100%; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; user-select: none; background: transparent; border: none; outline: none;" onclick="toggleFaqCard(this)">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 14px; line-height: 1.4; padding-right: 8px;">
+                        Tốc độ tải trang A Phim có nhanh không?
+                    </span>
+                    <svg class="faq-chevron" style="width: 22px; height: 22px; fill: #9ca3af; transition: transform 0.3s ease; flex-shrink: 0;" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </button>
+                <div class="faq-body" style="display: none; padding: 12px 18px 16px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.02);">
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin: 0;">
+                        Trang web A Phim được ứng dụng công nghệ tối ưu hóa tốc độ cao (Turbo Load & Caching), cho tốc độ tải trang phản hồi tức thì chưa tới 1 giây.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Mobile "Xem thêm" / "Thu gọn" Button (Bottom Right Corner) -->
+    <div class="faq-toggle-mobile-wrap">
+        <button type="button" id="faqToggleMobileBtn" onclick="toggleFaqMobile()" class="faq-toggle-mobile-btn">
+            <span id="faqToggleMobileText">Xem thêm</span>
+            <svg id="faqToggleMobileIcon" viewBox="0 0 24 24" class="faq-toggle-icon">
+                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+            </svg>
+        </button>
+    </div>
+</section>
+
+<script>
+let isFaqMobileExpanded = false;
+
+function initFaqMobileState() {
+    const faqSection = document.querySelector('.faq-section');
+    if (!faqSection) return;
+    
+    if (window.innerWidth < 768) {
+        if (!isFaqMobileExpanded) {
+            faqSection.classList.add('faq-collapsed');
+        } else {
+            faqSection.classList.remove('faq-collapsed');
+        }
+    } else {
+        faqSection.classList.remove('faq-collapsed');
+    }
+}
+
+function toggleFaqMobile() {
+    const faqSection = document.querySelector('.faq-section');
+    const textEl = document.getElementById('faqToggleMobileText');
+    const iconEl = document.getElementById('faqToggleMobileIcon');
+    if (!faqSection) return;
+
+    isFaqMobileExpanded = !isFaqMobileExpanded;
+
+    if (isFaqMobileExpanded) {
+        faqSection.classList.remove('faq-collapsed');
+        if (textEl) textEl.textContent = 'Thu gọn';
+        if (iconEl) iconEl.style.transform = 'rotate(180deg)';
+    } else {
+        faqSection.classList.add('faq-collapsed');
+        if (textEl) textEl.textContent = 'Xem thêm';
+        if (iconEl) iconEl.style.transform = 'rotate(0deg)';
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFaqMobileState);
+} else {
+    initFaqMobileState();
+}
+window.addEventListener('resize', initFaqMobileState);
+
+function toggleFaqCard(btnEl) {
+    const cardEl = btnEl.closest('.faq-card');
+    const bodyEl = cardEl.querySelector('.faq-body');
+    const iconEl = btnEl.querySelector('.faq-chevron');
+    const isLight = document.documentElement.classList.contains('light-mode');
+
+    const isHidden = window.getComputedStyle(bodyEl).display === 'none';
+
+    if (isHidden) {
+        bodyEl.style.display = 'block';
+        iconEl.style.transform = 'rotate(180deg)';
+        iconEl.style.fill = '#d97706';
+        if (isLight) {
+            cardEl.style.borderColor = '#d97706';
+            cardEl.style.background = '#ffffff';
+        } else {
+            cardEl.style.borderColor = 'rgba(255, 255, 255, 0.22)';
+            cardEl.style.background = '#20222e';
+        }
+    } else {
+        bodyEl.style.display = 'none';
+        iconEl.style.transform = 'rotate(0deg)';
+        iconEl.style.fill = isLight ? '#78716c' : '#9ca3af';
+        if (isLight) {
+            cardEl.style.borderColor = '#e7e0d3';
+            cardEl.style.background = '#ffffff';
+        } else {
+            cardEl.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+            cardEl.style.background = '#181921';
+        }
+    }
+}
+</script>
+

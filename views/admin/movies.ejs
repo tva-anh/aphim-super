@@ -1,0 +1,169 @@
+<%- include('partials/head', { title: 'Quản Lý Kho Phim API', activePage: 'movies' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'movies' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Kho Phim & Đồng Bộ API' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-main-title">Quản Lý Kho Phim & API Stream</h1>
+          <p class="page-sub-title">Đồng bộ tự động từ nguồn Ophim / KKPhim, quản lý ẩn/hiện, ghim nổi bật và kiểm duyệt DMCA</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-outline" onclick="AdminCore.syncMoviesNow()">
+            <i data-lucide="refresh-cw"></i> Đồng Bộ API Ngay
+          </button>
+          <button class="btn btn-primary" onclick="AdminCore.openAddCustomMovie()">
+            <i data-lucide="plus-circle"></i> Thêm Phim Tùy Biến
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Search & Multi-Filter Ribbon -->
+      <div class="glass-card filter-ribbon-card">
+        <div class="filter-row">
+          <!-- Search Input -->
+          <div class="search-input-wrap">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="movieSearchInput" class="form-control filter-input" placeholder="Tìm tên phim, slug, diễn viên, đạo diễn...">
+          </div>
+
+          <!-- Type Filter -->
+          <select id="movieTypeFilter" class="form-control filter-select">
+            <option value="">Tất cả loại phim</option>
+            <option value="phim-bo">Phim Bộ</option>
+            <option value="phim-le">Phim Lẻ</option>
+            <option value="hoat-hinh">Hoạt Hình / Anime</option>
+            <option value="tv-shows">TV Shows</option>
+          </select>
+
+          <!-- Category Filter -->
+          <select id="movieCategoryFilter" class="form-control filter-select">
+            <option value="">Tất cả thể loại</option>
+            <option value="hanh-dong">Hành Động</option>
+            <option value="tinh-cam">Tình Cảm</option>
+            <option value="co-trang">Cổ Trang</option>
+            <option value="kinh-di">Kinh Dị</option>
+            <option value="hai-huoc">Hài Hước</option>
+            <option value="vien-tuong">Viễn Tưởng</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="movieStatusFilter" class="form-control filter-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang hiển thị</option>
+            <option value="hidden">Đã ẩn khỏi web</option>
+            <option value="dmca">Báo cáo DMCA / Bị chặn</option>
+            <option value="featured">Phim Nổi Bật (Hero)</option>
+          </select>
+
+          <button class="btn btn-secondary" onclick="AdminCore.resetMovieFilters()">
+            <i data-lucide="rotate-ccw"></i> Đặt Lại
+          </button>
+        </div>
+
+        <!-- Filter Tags / Quick Counters & View Mode Switcher -->
+        <div class="filter-summary-bar">
+          <div class="filter-left-stats">
+            <span>Tìm thấy <strong id="movieMatchCount" class="text-primary font-bold">18.420</strong> phim trong hệ thống</span>
+            <div class="filter-tags">
+              <span class="badge badge-emerald" id="movieActiveBadge"><i data-lucide="check"></i> Đang Hoạt Động</span>
+              <span class="badge badge-cyan"><i data-lucide="refresh-cw"></i> Realtime API Sync</span>
+              <span class="badge badge-gold"><i data-lucide="star"></i> CDN Fast HLS</span>
+            </div>
+          </div>
+
+          <!-- View Mode Switcher -->
+          <div class="view-mode-toggle">
+            <button class="view-btn active" id="btnViewTable" onclick="AdminCore.switchMovieView('table')" title="Xem dạng Bảng dữ liệu">
+              <i data-lucide="table"></i>
+            </button>
+            <button class="view-btn" id="btnViewGrid" onclick="AdminCore.switchMovieView('grid')" title="Xem dạng Poster Cinema Grid">
+              <i data-lucide="layout-grid"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cinema Poster Visual Grid (Hidden by default, toggled via JS) -->
+      <div class="cinema-poster-grid" id="cinemaPosterGrid" style="display: none;">
+        <!-- Dynamically rendered by AdminCore.loadAdminMovies() -->
+      </div>
+
+      <!-- Batch Action Bar (Appears when rows are selected) -->
+      <div class="batch-action-bar" id="batchActionBar" style="display:none;">
+        <div class="batch-info">
+          <span class="batch-count" id="selectedCount">0</span> mục đã được chọn
+        </div>
+        <div class="batch-buttons">
+          <button class="btn btn-xs btn-outline" onclick="AdminCore.batchSetStatus('featured')">
+            <i data-lucide="star"></i> Ghim Nổi Bật
+          </button>
+          <button class="btn btn-xs btn-outline" onclick="AdminCore.batchSetStatus('hidden')">
+            <i data-lucide="eye-off"></i> Ẩn Khỏi Web
+          </button>
+          <button class="btn btn-xs btn-danger" onclick="AdminCore.batchBlockDMCA()">
+            <i data-lucide="shield-alert"></i> Chặn DMCA
+          </button>
+          <button class="btn btn-xs btn-ghost" onclick="AdminCore.clearMovieSelection()">
+            Hủy chọn
+          </button>
+        </div>
+      </div>
+
+      <!-- Master Movies Table -->
+      <div class="glass-card table-wrapper-card">
+        <div class="table-responsive">
+          <table class="data-table" id="moviesMasterTable">
+            <thead>
+              <tr>
+                <th style="width: 40px;">
+                  <input type="checkbox" id="selectAllMovies" onchange="AdminCore.toggleSelectAllMovies(this)">
+                </th>
+                <th>Phim / Tên Gốc</th>
+                <th>Phân Loại</th>
+                <th>Năm</th>
+                <th>Số Tập</th>
+                <th>Chất Lượng</th>
+                <th>Trạng Thái</th>
+                <th style="text-align: right;">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="moviesTableBody">
+              <tr>
+                <td colspan="8" class="text-center" style="padding: 40px; color: var(--text-dim);">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px;"></i> Đang tải danh sách phim thật từ nguồn API...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination -->
+        <div class="table-pagination" id="moviesPaginationBar">
+          <div class="pagination-info" id="moviesPaginationInfo">
+            Đang tải dữ liệu phim...
+          </div>
+          <div class="pagination-controls" id="moviesPaginationControls">
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

@@ -1,0 +1,72 @@
+/* ============================================
+   CHAT MOBILE - TIN NHẮN RỘNG HƠN
+   ============================================ */
+
+/* Trên mobile, tin nhắn rộng hơn để tận dụng không gian */
+@media (max-width: 768px) {
+
+    /* Tin nhắn rộng hơn - từ 85% lên 95% */
+    .tg-msg-wrapper {
+        max-width: 95% !important;
+    }
+
+    /* Messages area padding nhỏ hơn để có thêm không gian */
+    .messages-area {
+        padding: 12px 8px !important;
+    }
+
+    /* Bubble padding tối ưu */
+    .tg-msg-bubble {
+        padding: 8px 12px 6px !important;
+    }
+
+    /* Avatar nhỏ hơn một chút để tiết kiệm không gian */
+    .tg-avatar-wrap {
+        width: 28px !important;
+    }
+
+    .tg-avatar {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .tg-avatar-spacer {
+        width: 28px !important;
+    }
+
+    /* Gap giữa avatar và bubble nhỏ hơn */
+    .tg-msg-wrapper {
+        gap: 8px !important;
+    }
+
+    /* Font size tối ưu cho mobile */
+    .tg-msg-text {
+        font-size: 14.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Name nhỏ hơn */
+    .tg-msg-name {
+        font-size: 12px !important;
+    }
+
+    /* Time nhỏ hơn */
+    .tg-msg-time {
+        font-size: 10px !important;
+    }
+}
+
+/* Trên màn hình rất nhỏ (< 375px), tin nhắn gần như full width */
+@media (max-width: 375px) {
+    .tg-msg-wrapper {
+        max-width: 98% !important;
+    }
+
+    .messages-area {
+        padding: 10px 6px !important;
+    }
+
+    .tg-msg-wrapper {
+        gap: 6px !important;
+    }
+}

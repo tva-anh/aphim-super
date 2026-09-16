@@ -1,0 +1,417 @@
+/* ============================================================
+   A PHIM - Touch Speed CSS
+   Mục tiêu: loại bỏ 300ms tap delay & cung cấp instant feedback
+   ============================================================ */
+
+/* ── 1. Xóa 300ms tap delay toàn site ──────────────────────
+   
+   không cần chờ để phát hiện double-tap zoom.
+   Kết quả: click/touchend kích hoạt NGAY (0ms delay) ────── */
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+label,
+select,
+summary,
+/* Các element đặc biệt của site */
+.mm-nav-full,
+.mm-card-item,
+.mm-burger-btn,
+.mm-close-btn,
+.mm-upgrade-btn,
+.mm-footer-link,
+.movie-card,
+.movie-card-w,
+.movie-card-w-sm,
+.nav-item,
+[data-href],
+[onclick] {
+    
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    /* Ngăn text select khi tap nhanh */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Cho phép select text trong input/textarea */
+input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* ── 2. Tap ripple feedback ─────────────────────────────────
+   Hiển thị gợn sóng tức thì khi ngón tay chạm màn hình
+   trước cả khi animation xảy ra. ────────────────────────── */
+.tap-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.tap-ripple-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(0);
+    animation: tap-ripple-expand 0.45s ease-out forwards;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+@keyframes tap-ripple-expand {
+    0% {
+        transform: scale(0);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ── 3. Instant active state (không cần chờ :hover) ────────
+   Trên mobile :hover không trigger, dùng :active thay thế.
+   Chuyển đổi phải CỰC NHANH (0.05s) để cảm giác tức thì. ─ */
+.mm-nav-full:active,
+.mm-card-item:active {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: scale(0.97);
+    transition: transform 0.05s ease-out, background 0.05s ease-out !important;
+}
+
+.nav-item:active {
+    background: rgba(255, 255, 255, 0.12) !important;
+    transition: background 0.05s ease-out !important;
+}
+
+.mm-burger-btn:active {
+    opacity: 0.7;
+    transition: opacity 0.05s ease-out !important;
+}
+
+/* Movie card active state */
+.movie-card:active,
+.movie-card-w:active,
+.movie-card-w-sm:active,
+a[href]:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+    transition: transform 0.05s ease-out, opacity 0.05s ease-out !important;
+}
+
+/* ── 4. Drawer slide animation — rút ngắn xuống 0.22s ──────
+   0.35s → 0.22s: giảm 40%, người dùng cảm nhận nhanh hơn
+   rõ rệt mà vẫn đủ mượt. ─────────────────────────────────── */
+/* FIX: transition bao gồm visibility để delay hidden đúng timing */
+#mm-drawer {
+    /* Khi đóng: ẩn hoàn toàn sau 0.22s animation xong */
+    -webkit-transition: -webkit-transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0.22s !important;
+    transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0.22s !important;
+}
+#mm-drawer.open {
+    /* Khi mở: hiện ngay lập tức (visibility 0s delay = 0) */
+    -webkit-transition: -webkit-transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0s !important;
+    transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0s !important;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+#mm-overlay {
+    transition: opacity 0.22s ease !important;
+}
+
+/* ── 5. Page exit transition — nhanh, không gây khó chịu ───
+   Khi chuyển trang: fade-out body trong 80ms.
+   Đủ để người dùng biết trang đang chuyển, không chờ lâu. ─ */
+body.page-exiting {
+    opacity: 0 !important;
+    transition: opacity 0.08s ease-out !important;
+    pointer-events: none !important;
+}
+
+/* ── 6. Skeleton loading — hiện ngay khi page load ─────────
+   Thêm will-change để browser chuẩn bị GPU layer trước. ─── */
+.skeleton-card,
+.skeleton-poster,
+.skeleton-title,
+.skeleton-subtitle {
+    will-change: background-position;
+}
+
+/* ── 7. Scroll performance ──────────────────────────────────
+   Thêm overscroll-behavior để tránh page bounce gây lag. ─── */
+body { /* removed overscroll-behavior-y to fix desktop wheel */
+    /* Tăng tốc scroll trên iOS */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Các container có scroll ngang */
+.scrollbar-hide, .custom-scrollbar, [class*="overflow-x-auto"],
+#mm-drawer-scroll,
+#episode-list {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+/* ── 8. GPU acceleration cho overlay ───────────────────────
+   Drawer GPU đã được xử lý trong section 4 (#mm-drawer.open)
+   Không set will-change/translateZ trên drawer khi đóng
+   → tránh compositing layer leak gây đường dọc mờ. ────────── */
+/* ============================================================
+   A PHIM - Touch Speed CSS
+   Mục tiêu: loại bỏ 300ms tap delay & cung cấp instant feedback
+   ============================================================ */
+
+/* ── 1. Xóa 300ms tap delay toàn site ──────────────────────
+   
+   không cần chờ để phát hiện double-tap zoom.
+   Kết quả: click/touchend kích hoạt NGAY (0ms delay) ────── */
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+label,
+select,
+summary,
+/* Các element đặc biệt của site */
+.mm-nav-full,
+.mm-card-item,
+.mm-burger-btn,
+.mm-close-btn,
+.mm-upgrade-btn,
+.mm-footer-link,
+.movie-card,
+.movie-card-w,
+.movie-card-w-sm,
+.nav-item,
+[data-href],
+[onclick] {
+    
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    /* Ngăn text select khi tap nhanh */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Cho phép select text trong input/textarea */
+input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* ── 2. Tap ripple feedback ─────────────────────────────────
+   Hiển thị gợn sóng tức thì khi ngón tay chạm màn hình
+   trước cả khi animation xảy ra. ────────────────────────── */
+.tap-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.tap-ripple-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(0);
+    animation: tap-ripple-expand 0.45s ease-out forwards;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+@keyframes tap-ripple-expand {
+    0% {
+        transform: scale(0);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ── 3. Instant active state (không cần chờ :hover) ────────
+   Trên mobile :hover không trigger, dùng :active thay thế.
+   Chuyển đổi phải CỰC NHANH (0.05s) để cảm giác tức thì. ─ */
+.mm-nav-full:active,
+.mm-card-item:active {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: scale(0.97);
+    transition: transform 0.05s ease-out, background 0.05s ease-out !important;
+}
+
+.nav-item:active {
+    background: rgba(255, 255, 255, 0.12) !important;
+    transition: background 0.05s ease-out !important;
+}
+
+.mm-burger-btn:active {
+    opacity: 0.7;
+    transition: opacity 0.05s ease-out !important;
+}
+
+/* Movie card active state */
+.movie-card:active,
+.movie-card-w:active,
+.movie-card-w-sm:active,
+a[href]:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+    transition: transform 0.05s ease-out, opacity 0.05s ease-out !important;
+}
+
+/* ── 4. Drawer slide animation — rút ngắn xuống 0.22s ──────
+   0.35s → 0.22s: giảm 40%, người dùng cảm nhận nhanh hơn
+   rõ rệt mà vẫn đủ mượt. ─────────────────────────────────── */
+/* FIX: transition bao gồm visibility để delay hidden đúng timing */
+#mm-drawer {
+    /* Khi đóng: ẩn hoàn toàn sau 0.22s animation xong */
+    -webkit-transition: -webkit-transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0.22s !important;
+    transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0.22s !important;
+}
+#mm-drawer.open {
+    /* Khi mở: hiện ngay lập tức (visibility 0s delay = 0) */
+    -webkit-transition: -webkit-transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0s !important;
+    transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0s !important;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+#mm-overlay {
+    transition: opacity 0.22s ease !important;
+}
+
+/* ── 5. Page exit transition — nhanh, không gây khó chịu ───
+   Khi chuyển trang: fade-out body trong 80ms.
+   Đủ để người dùng biết trang đang chuyển, không chờ lâu. ─ */
+body.page-exiting {
+    opacity: 0 !important;
+    transition: opacity 0.08s ease-out !important;
+    pointer-events: none !important;
+}
+
+/* ── 6. Skeleton loading — hiện ngay khi page load ─────────
+   Thêm will-change để browser chuẩn bị GPU layer trước. ─── */
+.skeleton-card,
+.skeleton-poster,
+.skeleton-title,
+.skeleton-subtitle {
+    will-change: background-position;
+}
+
+/* ── 7. Scroll performance ──────────────────────────────────
+   Thêm overscroll-behavior để tránh page bounce gây lag. ─── */
+body { /* removed overscroll-behavior-y to fix desktop wheel */
+    /* Tăng tốc scroll trên iOS */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Các container có scroll ngang */
+.scrollbar-hide, .custom-scrollbar, [class*="overflow-x-auto"],
+#mm-drawer-scroll,
+#episode-list {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+/* ── 8. GPU acceleration cho overlay ───────────────────────
+   Drawer GPU đã được xử lý trong section 4 (#mm-drawer.open)
+   Không set will-change/translateZ trên drawer khi đóng
+   → tránh compositing layer leak gây đường dọc mờ. ────────── */
+#mm-overlay {
+    will-change: opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ── 9. Prefetch indicator — subtle loading bar ───────────── */
+#page-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, #f2f20d, #ffd700, #f2f20d);
+    background-size: 200% 100%;
+    z-index: 99999;
+    transition: width 0.1s ease-out;
+    animation: progress-shimmer 1.5s linear infinite;
+    pointer-events: none;
+    opacity: 0;
+}
+
+#page-progress-bar.active {
+    opacity: 1;
+}
+
+@keyframes progress-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 🎯 ULTRA-SMOOTH 60FPS TOUCH SCROLLING FOR MOBILE */
+.overflow-x-auto,
+[style*="overflow-x: auto"],
+[style*="overflow-x:auto"],
+.interests-wrapper,
+#heroThumbnails,
+.mobile-thumb-wrapper,
+.cat-tab-container,
+.de-cu-slider,
+.ranking-grid-container,
+.section-header-tabs,
+.scrollbar-hide {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    touch-action: pan-x pan-y !important;
+    scroll-behavior: auto !important;
+}
+
+html {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+}
+
+body {
+    max-width: 100vw !important;
+    position: relative !important;
+}
+
+.overflow-x-auto > *,
+.interests-wrapper > *,
+#heroThumbnails > *,
+.scrollbar-hide > * {
+    flex-shrink: 0 !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-drag: none !important;
+}
+
+.overflow-x-auto img,
+.interests-wrapper img,
+#heroThumbnails img,
+.scrollbar-hide img {
+    pointer-events: auto !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+}
+
+@media (max-width: 767px) {
+    .overflow-x-auto,
+    .interests-wrapper,
+    #topMoviesContainer,
+    .scrollbar-hide {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+.is-dragging { scroll-snap-type: none !important; scroll-behavior: auto !important; cursor: grabbing !important; }
+.overflow-x-auto, .snap-x { will-change: scroll-position; transform: translateZ(0); }

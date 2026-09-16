@@ -1,0 +1,607 @@
+/* css/top-comments.css */
+
+.top-comments-section {
+    background-color: transparent !important;
+    position: relative;
+    z-index: 10;
+}
+
+.tc-dashboard {
+    background: transparent;
+    padding: 10px 0;
+    margin-bottom: 40px;
+}
+
+
+/* --- REBUILT LAYOUT --- */
+.tc-main-wrapper {
+    background: transparent;
+    border: 1px solid #2d2e3b;
+    border-radius: 16px;
+    box-shadow: none;
+    position: relative;
+    margin-top: 30px;
+    display: block; /* Remove flex */
+    overflow: hidden;
+}
+
+
+
+/* Mascot floating */
+.tc-mascot-absolute {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through to cards behind */
+    z-index: 20;
+    display: flex;
+    align-items: flex-end;
+}
+
+.tc-mascot-img-absolute {
+    width: 115%;
+    max-width: none;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(10px 0px 20px rgba(0,0,0,0.6));
+    pointer-events: none;
+    position: relative;
+    bottom: -5px; 
+    left: 0;
+    z-index: 20;
+    transform-origin: bottom center;
+}
+
+.tc-container {
+    padding: 16px 20px; /* Very tight vertical padding to eliminate gaps */
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+/* We use padding on specific elements so cards can scroll behind the mascot */
+@media (min-width: 1024px) {
+    
+    
+    /* Spacer to push initial cards right, but they can scroll left into the void */
+    .tc-featured-wrapper::before {
+        content: '';
+        flex: 0 0 240px;
+        display: block;
+    }
+    
+    /* For the grid, we add a left margin or padding to push it right, 
+       so the mascot doesn't cover the 'Sôi Nổi Nhất' column permanently. */
+    .tc-grid-container {
+        padding-left: 240px;
+    }
+}
+
+.tc-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px; /* Reduced gap under title */
+}
+
+.tc-featured-wrapper {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 12px; /* Reduced gap under cards */
+    scrollbar-width: none;
+}
+
+.tc-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    margin: 12px -20px; /* Reduced margins */
+}
+
+.tc-realtime-area { background: transparent; display: flex; flex-direction: column; gap: 16px; height: 284px; overflow: hidden; position: relative; }
+
+.tc-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Top Row: Large Featured Comments (Horizontal Carousel) */
+.tc-featured-wrapper {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 24px;
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.tc-featured-wrapper::-webkit-scrollbar {
+    display: none;
+    /* Chrome */
+}
+
+.tc-featured-card {
+    flex: 0 0 240px; /* Thu nhỏ card */
+    border-radius: 12px;
+    padding: 14px; /* Giảm padding để gọn hơn */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: transparent;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.tc-featured-bg-blur {
+    position: absolute;
+    inset: -20%;
+    width: 140%;
+    height: 140%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px); /* Làm rõ ảnh nền hơn */
+    z-index: 0;
+}
+
+.tc-featured-bg-overlay {
+    position: absolute;
+    inset: 0;
+    /* Trên sáng dưới tối để nổi bật text */
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+    z-index: 1;
+}
+
+.tc-featured-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tc-featured-card-content, .tc-featured-movie {
+    position: relative;
+    z-index: 2;
+}
+
+.tc-featured-card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.tc-featured-user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tc-avatar-large {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.tc-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tc-avatar-large .material-icons-round {
+    color: #94a3b8;
+    font-size: 24px;
+}
+
+.tc-featured-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tc-featured-name .gender-icon {
+    font-size: 14px;
+    color: #ffd700;
+}
+
+.tc-featured-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+    padding-right: 70px; /* Nhường chỗ cho poster bên phải */
+}
+
+.tc-featured-movie {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    width: 45px;
+    height: 65px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    outline: none !important;
+    z-index: 2;
+}
+
+.tc-metrics {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-top: auto;
+}
+
+.tc-metric {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tc-metric .material-icons-round {
+    font-size: 16px;
+    color: #94a3b8; /* Xám nhạt/Trắng */
+}
+
+/* Divider */
+.tc-divider {
+    height: 1px;
+    background: #2d2e3b;
+    margin: 0 -24px 24px -24px;
+}
+
+/* Bottom Grid: 4 Columns */
+.tc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.tc-grid>div {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Đẩy nút "Xem thêm" xuống tận cùng cho thẳng hàng các cột */
+.tc-grid>div>.mt-4 {
+    margin-top: auto;
+}
+
+/* Kẻ vạch dọc ngăn cách giữa 4 cột trên Desktop chạm sát khung */
+.tc-grid>div:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    /* Dựa vào gap: 24px (chia đôi là 12) */
+    top: -24px;
+    /* Đâm thẳng lên vạch chia ngang bên trên */
+    bottom: -24px;
+    /* Đâm thẳng xuống viền hộp bên dưới */
+    width: 1px;
+    background: #2d2e3b;
+}
+
+@media (max-width: 1024px) {
+    .tc-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px 24px;
+    }
+
+    /* Vạch trên Tablet chỉ hiện giữa 2 cột thay vì 4 */
+    .tc-grid>div::after {
+        display: none;
+    }
+
+    .tc-grid>div:nth-child(odd)::after {
+        display: block;
+    }
+}
+
+@media (max-width: 640px) {
+    .tc-grid {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 24px;
+        padding-bottom: 16px;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+    }
+
+    .tc-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tc-grid>div {
+        flex: 0 0 85%;
+        scroll-snap-align: center;
+    }
+
+    /* Bỏ rãnh dọc trên Mobile vuốt ngang */
+    .tc-grid>div::after {
+        display: none !important;
+    }
+}
+
+/* Column Header */
+.tc-col-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: #f8fafc;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tc-col-header .material-icons-round {
+    color: #ffd700;
+    font-size: 18px;
+}
+
+/* Sôi Nổi Nhất & Yêu Thích Nhất Items */
+.tc-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: auto;
+    gap: 16px;
+}
+
+.tc-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    padding-right: 8px;
+}
+
+.tc-list-rank {
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+    width: 20px;
+}
+
+.tc-list-dash {
+    color: #4ade80;
+    font-size: 14px;
+}
+
+.tc-list-thumbnail {
+    width: 32px;
+    height: 44px;
+    border-radius: 4px;
+    object-fit: cover;
+    background: #1e293b;
+}
+
+.tc-list-info {
+    flex: 1;
+    min-width: 0;
+    /* forces truncation */
+}
+
+.tc-list-title {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tc-list-title:hover {
+    color: #ffd700;
+}
+
+.tc-list-meta {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Thể Loại Hot Items */
+.tc-genre-list { display: flex; flex-direction: column; justify-content: flex-start; height: auto; gap: 16px; }
+
+.tc-genre-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tc-genre-pill {
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #fff;
+}
+
+/* Colors for Genre Pills */
+.tc-genre-c1 {
+    background-color: #be185d;
+}
+
+/* Pink */
+.tc-genre-c2 {
+    background-color: #1d4ed8;
+}
+
+/* Blue */
+.tc-genre-c3 {
+    background-color: #6d28d9;
+}
+
+/* Purple */
+.tc-genre-c4 {
+    background-color: #65a30d;
+}
+
+/* Green */
+.tc-genre-c5 {
+    background-color: #b45309;
+}
+
+/* Orange */
+
+/* Bình Luận Mới (Real-time Comments Area) */
+.tc-realtime-area {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: flex-start;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+}
+
+.tc-realtime-comment {
+    background: #17181e;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    animation: slideInDown 0.4s ease forwards;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.tc-realtime-comment.removing {
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.tc-realtime-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tc-realtime-avatar .material-icons-round {
+    font-size: 20px;
+    color: #94a3b8;
+}
+
+.tc-realtime-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.tc-realtime-top {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.tc-realtime-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.tc-realtime-text {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tc-realtime-movie {
+    font-size: 0.7rem;
+    color: #ffd700;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tc-realtime-movie .material-icons-round {
+    font-size: 10px;
+}
+
+/* Optional fading overlay for bottom of realtime area */
+.tc-realtime-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #1c1d25 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.tc-view-more {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+.tc-view-more:hover {
+    color: #f8fafc;
+}
+.tc-header { padding-bottom: 12px !important; }
+.tc-featured-wrapper { padding-bottom: 12px !important; }
+.tc-divider { margin: 12px -20px !important; }
+.tc-container { padding: 16px 20px !important; }
+.tc-realtime-area { height: 284px !important; gap: 16px !important; }
+
+@media (max-width: 768px) {
+    .tc-mascot-absolute {
+        width: 110px !important;
+        left: auto !important;
+        right: -10px !important;
+        bottom: -5px !important;
+    }
+}

@@ -1,0 +1,378 @@
+/* ================================================================
+   Hero Mobile Fixes — A-Phim Cinema (MotChill / SofaFlix Style)
+   Chỉ áp dụng cho giao diện trình duyệt Mobile (≤ 767px)
+   Desktop (≥ 768px): Giữ nguyên bố cục dọc bên trái chuẩn Cinema
+   ================================================================ */
+
+@media (max-width: 767px) {
+    /* 1. Chiều cao tổng thể khu vực Hero trên Mobile: gọn gàng vừa vặn tầm nhìn */
+    main.relative.h-screen {
+        min-height: 0 !important; /* Xóa 100svh để ôm sát khít nội dung */
+        height: auto !important; /* Tự động giãn nếu nội dung dài, không gò bó */
+        max-height: none !important;
+        position: relative !important;
+        display: flex !important;
+        overflow: visible !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important; /* Chảy mượt từ trên xuống dưới */
+        padding-bottom: 0 !important; /* Xóa đệm đáy */
+    }
+
+    /* 2. Ảnh nền Hero: NẰM NGANG LẠI (Landscape phía trên), không zoom dọc cắt hình */
+    main.relative.h-screen .hero-mask-fade {
+        position: absolute !important;
+        inset: 0 !important;
+        height: 100svh !important; /* Độc lập với main, luôn phủ kín màn hình bằng màu đen */
+        background-color: #0b0f19 !important;
+        z-index: 0 !important;
+    }
+
+    #heroBg, #heroBgNext {
+        height: 100svh !important; /* GIỮ NGUYÊN TỶ LỆ HÌNH ẢNH BAN ĐẦU, KHÔNG ZOOM CẮT HÌNH KHI MAIN DÀI RA */
+    }
+
+    #heroImage {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 85svh !important; /* 85svh để giữ nguyên tỷ lệ bất chấp main cao bao nhiêu */
+        object-fit: cover !important;
+        object-position: center top !important;
+        transform: scale(1) !important;
+        -webkit-mask-image: linear-gradient(180deg, black 0%, black 62%, rgba(0,0,0,0.45) 82%, transparent 100%) !important;
+        mask-image: linear-gradient(180deg, black 0%, black 62%, rgba(0,0,0,0.45) 82%, transparent 100%) !important;
+        z-index: 1 !important;
+    }
+
+    /* Lớp phủ gradient chuyển mượt từ ảnh ngang trên đầu xuống nền tối ở nửa dưới nơi đặt text */
+    main.relative.h-screen .hero-mask-fade::after {
+        content: '' !important;
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 12 !important;
+        background: linear-gradient(
+            180deg,
+            rgba(11, 15, 25, 0.02) 0%,
+            rgba(11, 15, 25, 0.08) 35%,
+            rgba(11, 15, 25, 0.35) 55%,
+            rgba(11, 15, 25, 0.75) 72%,
+            #0b0f19 86%,
+            #0b0f19 100%
+        ) !important;
+        pointer-events: none !important;
+    }
+
+    /* 3. Nội dung (Title, Subtitle, Badges, Buttons): XẾP DỌC CANH GIỮA TỪ TRÊN XUỐNG */
+    #heroContent {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important; /* Cứ chảy tự nhiên từ trên xuống */
+        align-items: center !important;
+        text-align: center !important;
+        padding-top: 110px !important; /* ĐẨY LOGO XUỐNG DƯỚI ĐỂ KHÔNG DÍNH HEADER */
+        padding-bottom: 0px !important; /* Giao phó khoảng cách dưới cho luồng tự nhiên */
+        height: auto !important; /* Gỡ chiều cao tĩnh */
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: 100% !important;
+        z-index: 25 !important;
+    }
+
+    #heroContent .max-w-3xl {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        margin-top: 0 !important;
+        width: 100% !important;
+        gap: 16px !important; /* TRỌNG TÂM: Giãn cách ĐỀU TĂM TẮP 16px giữa mọi thành phần */
+    }
+
+    #heroContent .space-y-3 {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    /* Fix cố định chiều cao khu vực Logo/Tiêu đề để không bị nhảy hay chạy giao diện khi chuyển slide */
+    .hero-title-slot,
+    #heroContent .max-w-3xl > .space-y-3:first-child {
+        min-height: auto !important; /* XÓA min-height tạo khoảng trống khổng lồ dư thừa */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 0 !important; /* Chuyển quyền quyết định khoảng cách cho thẻ cha */
+        gap: 8px !important; /* Khoảng cách siêu nhỏ cân đối giữa Logo và Tiêu đề phụ */
+    }
+
+    /* Tiêu đề & Logo tên phim canh giữa ngang, kích thước to rõ ấn tượng hơn */
+    #heroTitle {
+        font-family: 'Space Grotesk', 'Be Vietnam Pro', sans-serif !important;
+        font-weight: 900 !important;
+        font-size: 2.2rem !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.8) !important;
+    }
+
+    #heroTitle[style*="display: none"] {
+        display: none !important;
+    }
+
+    #heroTitleImg {
+        max-height: 96px !important;
+        width: auto !important;
+        margin: 0 auto !important; /* Xóa margin đáy để dùng gap của thẻ cha */
+        display: block !important;
+        filter: drop-shadow(0 4px 14px rgba(0,0,0,0.9)) !important;
+    }
+
+    #heroTitleImg[style*="display: none"] {
+        display: none !important;
+    }
+
+    /* Subtitle tiếng Anh/gốc */
+    #heroSubtitle {
+        text-align: center !important;
+        margin: 0 auto !important;
+        font-size: 0.95rem !important;
+        color: #e8b94f !important;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8) !important;
+    }
+
+    /* Badges (IMDb, năm, Full, HD): xếp ngang canh giữa */
+    #heroBadges {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin: 0 auto !important; /* Xóa margin dư thừa */
+        width: 100% !important;
+    }
+
+    #heroBadges span {
+        padding: 3px 10px !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        border-radius: 6px !important;
+    }
+
+    /* Genres: xếp ngang canh giữa */
+    #heroGenres {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin: 0 auto !important; /* Xóa margin dư thừa */
+    }
+
+    #heroGenres button {
+        padding: 4px 10px !important;
+        font-size: 0.72rem !important;
+        border-radius: 6px !important;
+    }
+
+    /* Description: canh giữa, giới hạn 2 dòng súc tích */
+    #heroDescription {
+        text-align: center !important;
+        margin: 0 auto !important; /* Xóa margin dư thừa */
+        max-width: 92% !important;
+        font-size: 0.84rem !important;
+        line-height: 1.45 !important;
+        color: rgba(255, 255, 255, 0.88) !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    /* Cụm nút bấm Xem Ngay & Info: canh giữa tuyệt đối dưới mô tả */
+    #heroContent .pt-4.flex.items-center.gap-6 {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 14px !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important; /* Xóa padding thừa để đảm bảo giãn cách đúng 16px */
+    }
+
+    #heroPlayBtn {
+        margin: 0 !important;
+    }
+
+    #heroPlayBtn .play-btn-circle {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    #heroPlayBtn svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    /* 4. Thumbnails tròn phim: Chuyển sang Natural Flow, nằm ngay sau Hero Content */
+    div.hero-thumbnails-container,
+    #heroSection .hero-thumbnails-container {
+        display: block !important;
+        position: relative !important; /* DÙNG NATURAL FLOW */
+        bottom: auto !important; 
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        margin-top: 24px !important; /* Cách Nút Play đúng 24px */
+        margin-bottom: 24px !important; /* Cách Danh mục bên dưới đúng 24px */
+        z-index: 45 !important;
+        transform: none !important;
+    }
+
+    .mobile-thumb-wrapper {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        padding: 0 18px !important;
+        overflow: visible !important;
+        margin-top: 24px !important; /* CANH ĐỀU TRÊN DƯỚI */
+        margin-bottom: 8px !important;
+    }
+
+    #heroThumbnails {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 10px !important;
+        max-width: 100% !important;
+        width: auto !important;
+        margin: 0 auto !important;
+        padding: 10px 16px !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+    }
+
+    .hero-thumb-item {
+        border-radius: 50% !important;
+        border-width: 1.5px !important;
+        border-color: rgba(255, 255, 255, 0.45) !important;
+        width: 30px !important;
+        height: 30px !important;
+        flex-shrink: 0 !important;
+        overflow: visible !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.85) !important;
+    }
+
+    .hero-thumb-item.hero-thumb-active {
+        border-width: 2.5px !important;
+        border-color: #f2f20d !important;
+        transform: scale(1.18) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.85) !important;
+    }
+
+    /* 5. Mục "Bạn đang quan tâm gì?": Nằm dưới main, thuận theo Natural Flow */
+    /* Ensure hero section shrinks to fit contents on mobile */
+    #heroSection, #hero-banner, main.relative.h-screen {
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        padding-bottom: 8px !important; /* Spacing at very bottom of banner */
+    }
+
+    section.interests-section,
+    body .interests-section {
+        display: block !important;
+        position: relative !important; /* KHÔNG DÙNG ABSOLUTE */
+        bottom: auto !important; 
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        z-index: 40 !important;
+        padding-top: 0 !important; /* Margin 24px từ Thumbnails đã lo việc này */
+        padding-bottom: 8px !important; /* Giảm khoảng trống dưới */
+        margin-bottom: 0 !important;
+        background: transparent !important; /* Chìm vào nền gradient tối gốc */
+        transform: translateY(0) !important;
+    }
+
+    .interests-section h3 {
+        font-size: 0.95rem !important;
+        margin-bottom: 4px !important;
+        text-align: center !important;
+    }
+    
+    /* 6. Fix lỗi viền đen chia cắt và DỜI BXH LÊN ĐỂ LẤP KHOẢNG TRỐNG */
+    body .bg-void, div.bg-void {
+        margin-top: -2px !important; /* KÉO BXH LÊN NGƯỢC LẠI ĐỂ LẤP KHOẢNG TRỐNG */
+        position: relative !important;
+        z-index: 30 !important; /* Giảm z-index xuống 30 để luồn DƯỚI interests-section (40), không cắt ngang thẻ */
+        padding-top: 0px !important; /* �� c�n b?ng qua margin-top */ /* Trả lại 24px để cân bằng khoảng cách với các section dưới */
+        background: transparent !important; /* Ép trong suốt để không tạo đường kẻ cắt ngang */
+        background-color: transparent !important;
+    }
+    body .bg-void::before, div.bg-void::before {
+        display: none !important; /* Xóa bỏ lớp gradient giả vì nền đã trong suốt */
+    }
+
+    /* 7. Thu nhỏ font chữ tiêu đề section và icon lướt trên mobile cho gọn gàng */
+    section h2, 
+    .container h2,
+    h2.text-xl.md\:text-2xl {
+        font-size: 1.15rem !important; /* ~18.4px, nhỏ gọn hơn text-xl (20px) */
+        font-weight: 800 !important;
+        letter-spacing: -0.01em !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Thu nhỏ các icon chevron (nút lướt) ở bên cạnh tiêu đề */
+    section h2 + .flex > button,
+    section .flex.justify-between > .flex > button,
+    .top-movies-section .flex.gap-3 > button {
+        width: 32px !important;
+        height: 32px !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    section h2 + .flex > button span,
+    section .flex.justify-between > .flex > button span,
+    .top-movies-section .flex.gap-3 > button span {
+        font-size: 1.15rem !important;
+    }
+
+    /* 8. Cân bằng khoảng cách (Equal Spacing) cho mọi section trên mobile */
+    .bg-void section {
+        padding-top: 16px !important; /* Khoảng cách ĐỀU NHAU giữa các section */
+        padding-bottom: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Khoảng cách từ tiêu đề đến danh sách phim */
+    .bg-void section .mb-3,
+    .bg-void section .mb-6 {
+        margin-bottom: 12px !important;
+    }
+    
+    /* Gọn gàng padding của thẻ chứa phim */
+    #topMoviesContainer,
+    .bg-void section .py-4,
+    .bg-void section .overflow-x-auto {
+        padding-top: 0 !important;
+        padding-bottom: 8px !important; /* 8px pb + 16px pt (next section) = 24px gap */
+    }
+}
+

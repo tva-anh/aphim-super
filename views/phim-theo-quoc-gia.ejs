@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="bg-[#1f2331] text-white antialiased">
+    <%- include('partials/header') %>
+
+    <!-- Main Container: Adjusted Top Padding to match homepage -->
+    <main class="app-container pt-4 sm:pt-5 pb-12 min-h-screen">
+        
+        <!-- Header Section: Title & Top Quick Pagination (Exact Image 2 & 4 Layout) -->
+        <div class="mb-4 sm:mb-6">
+            <div class="flex items-center justify-between gap-3 flex-nowrap">
+                <!-- Title Left (Gold Color as requested) -->
+                <h1 id="pageTitle" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#fcd576] tracking-tight truncate max-w-[60%] sm:max-w-[75%]">
+                    Quốc Gia Thái Lan
+                </h1>
+
+                <!-- Quick Pagination Right (Image 4 exact design: Trang 1 / 52 < >) -->
+                <div id="topQuickPageWrap" class="flex items-center gap-2 text-xs sm:text-sm text-gray-300 font-medium ml-auto flex-shrink-0">
+                    <span class="text-gray-300 text-xs sm:text-sm font-medium mr-1 whitespace-nowrap">Trang <span id="topCurrentPage" class="text-white font-bold">1</span> / <span id="topTotalPages" class="text-gray-300 font-bold">50</span></span>
+                    <button type="button" id="topPrevPageBtn" onclick="changePage(-1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#20222d] hover:bg-[#2a2d3d] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <button type="button" id="topNextPageBtn" onclick="changePage(1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#20222d] hover:bg-[#2a2d3d] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Toggle Button (Matching Image 2: Clean Funnel Icon + Bộ lọc + Compact Down Chevron) -->
+            <div class="mt-4 sm:mt-5 mb-4 sm:mb-5">
+                <button type="button" onclick="toggleFilterPanel()" class="inline-flex items-center gap-1.5 text-white font-bold text-sm sm:text-base transition-opacity cursor-pointer hover:opacity-80 select-none">
+                    <svg width="18" height="18" style="width: 18px !important; height: 18px !important; min-width: 18px !important; display: inline-block !important;" class="text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5l-6.75 7.875v5.625l-3 1.5v-7.125L3.75 4.5z" />
+                    </svg>
+                    <span class="whitespace-nowrap">Bộ lọc</span>
+                    <svg width="12" height="12" style="width: 12px !important; height: 12px !important; min-width: 12px !important; display: inline-block !important;" class="text-gray-400 flex-shrink-0 ml-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Collapsible Filter Panel (Sofaflix Style with Gold Accent) -->
+            <%- include('partials/filter-panel') %>
+        </div>
+
+        <!-- Movie Grid Container (Image 1 & 2: 8 Columns Grid) -->
+        <div id="movieGrid" class="grid-8-cols mt-6 sm:mt-8 min-h-[400px]">
+            <!-- Skeleton Loader -->
+            <div class="col-span-full py-16 flex flex-col items-center justify-center text-gray-400">
+                <div class="w-10 h-10 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
+                <span class="mt-3 text-sm font-medium text-gray-300">Đang tải phim theo quốc gia...</span>
+            </div>
+        </div>
+
+        <!-- Pagination Section (Refined: Spaced out circular arrow buttons with compact sleek icons) -->
+        <div id="paginationWrap" class="hidden flex items-center justify-center gap-4 sm:gap-6 my-14 text-gray-300 font-medium text-sm">
+            <button id="prevPageBtn" onclick="changePage(-1)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#252836] hover:bg-[#32364a] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer shadow-md disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 flex-shrink-0">
+                <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3.75 12m0 0l6.75-6.75M3.75 12h16.5" />
+                </svg>
+            </button>
+
+            <!-- Pill Badge Container for Page Input (Exact Image 3 Design) -->
+            <div class="flex items-center gap-2.5 px-5 sm:px-6 py-1.5 rounded-full bg-[#252836] border border-white/10 shadow-md">
+                <span class="text-gray-300 font-semibold text-sm">Trang</span>
+                <input type="number" id="pageInput" min="1" value="1" onchange="jumpToPage(this.value)" class="w-14 h-8 bg-[#1a1c24] text-white text-center font-bold text-sm rounded-md focus:outline-none focus:border-[#ff9900] transition-colors page-input-dark">
+                <span class="text-gray-400 font-bold">/</span>
+                <span id="totalPagesText" class="font-bold text-gray-300">1</span>
+            </div>
+
+            <button id="nextPageBtn" onclick="changePage(1)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#252836] hover:bg-[#32364a] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer shadow-md disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 flex-shrink-0">
+                <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L20.25 12m0 0l-6.75 6.75M20.25 12H3.75" />
+                </svg>
+            </button>
+        </div>
+
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Multi-Source API & Universal Card Script -->
+    <script>
+    (function() {
+        const countryMap = {
+            'viet-nam': 'Quốc Gia Việt Nam',
+            'trung-quoc': 'Quốc Gia Trung Quốc',
+            'han-quoc': 'Quốc Gia Hàn Quốc',
+            'nhat-ban': 'Quốc Gia Nhật Bản',
+            'thai-lan': 'Quốc Gia Thái Lan',
+            'au-my': 'Quốc Gia Âu Mỹ',
+            'dai-loan': 'Quốc Gia Đài Loan',
+            'hong-kong': 'Quốc Gia Hồng Kông',
+            'an-do': 'Quốc Gia Ấn Độ',
+            'anh': 'Quốc Gia Anh',
+            'phap': 'Quốc Gia Pháp',
+            'canada': 'Quốc Gia Canada',
+            'duc': 'Quốc Gia Đức',
+            'tay-ban-nha': 'Quốc Gia Tây Ban Nha',
+            'tho-nhi-ky': 'Quốc Gia Thổ Nhĩ Kỳ',
+            'indonesia': 'Quốc Gia Indonesia'
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let country = urlParams.get('country') || 'viet-nam';
+        let currentPage = parseInt(urlParams.get('page')) || 1;
+        let totalPages = 1;
+
+        // Set Page Title
+        const pageTitleEl = document.getElementById('pageTitle');
+        if (pageTitleEl) {
+            pageTitleEl.textContent = countryMap[country] || ('Quốc Gia ' + country.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+        }
+
+        // Toggle Filter Panel
+        window.toggleFilterPanel = function() {
+            const panel = document.getElementById('filterPanel');
+            if (panel) panel.classList.toggle('hidden');
+        };
+
+        window.applyFilterPanel = function() {
+            const selectedCountry = document.getElementById('filterCountry')?.value;
+            const selectedCat = window.selectedCategoryPill || document.getElementById('filterCategory')?.value;
+            const selectedList = document.getElementById('filterList')?.value;
+
+            if (selectedCat) {
+                window.location.href = '/categories?category=' + selectedCat;
+            } else if (selectedList) {
+                window.location.href = '/danh-sach?list=' + selectedList;
+            } else if (selectedCountry) {
+                window.location.href = '/phim-theo-quoc-gia?country=' + selectedCountry;
+            } else {
+                window.location.reload();
+            }
+        };
+
+        async function loadMovies(page) {
+            currentPage = page;
+            const gridEl = document.getElementById('movieGrid');
+            gridEl.innerHTML = `
+                <div class="col-span-full py-16 flex flex-col items-center justify-center text-gray-400">
+                    <div class="w-10 h-10 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
+                    <span class="mt-3 text-sm font-medium text-gray-300">Đang tải trang ${page}...</span>
+                </div>
+            `;
+
+            try {
+                const res = await window.APhimCore.fetchMovieGridData('country', country, page);
+                totalPages = res.totalPages || 50;
+                if (res.titlePage && pageTitleEl) {
+                    pageTitleEl.textContent = 'Quốc Gia ' + res.titlePage.replace(/^(Phim|Quốc Gia)\s+/i, '');
+                }
+
+                if (!res.items || !res.items.length) {
+                    gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400 font-medium">Không tìm thấy phim của quốc gia này.</div>';
+                    return;
+                }
+
+                gridEl.innerHTML = res.items.map(movie => window.APhimCore.createGridCardHTML(movie)).join('');
+                updatePaginationUI(page, totalPages);
+            } catch (err) {
+                console.warn(err);
+                gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-red-400 font-medium">Có lỗi khi kết nối dữ liệu phim theo quốc gia. Vui lòng thử lại sau.</div>';
+            }
+        }
+
+        function updatePaginationUI(page, total) {
+            const paginationWrap = document.getElementById('paginationWrap');
+            const pageInput = document.getElementById('pageInput');
+            const totalPagesText = document.getElementById('totalPagesText');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+
+            if (paginationWrap) paginationWrap.classList.remove('hidden');
+            if (pageInput) {
+                pageInput.value = page;
+                pageInput.max = total;
+            }
+            if (totalPagesText) totalPagesText.textContent = total;
+
+            if (prevBtn) prevBtn.disabled = page <= 1;
+            if (nextBtn) nextBtn.disabled = page >= total;
+
+            // Top Quick Pagination sync
+            const topCur = document.getElementById('topCurrentPage');
+            const topTot = document.getElementById('topTotalPages');
+            const topPrev = document.getElementById('topPrevPageBtn');
+            const topNext = document.getElementById('topNextPageBtn');
+            if (topCur) topCur.textContent = page;
+            if (topTot) topTot.textContent = total;
+            if (topPrev) topPrev.disabled = page <= 1;
+            if (topNext) topNext.disabled = page >= total;
+        }
+
+        window.changePage = function(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadMovies(newPage);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+
+        window.jumpToPage = function(val) {
+            let p = parseInt(val) || 1;
+            if (p < 1) p = 1;
+            if (p > totalPages) p = totalPages;
+            loadMovies(p);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Initialize Load
+        loadMovies(currentPage);
+    })();
+    </script>
+</body>
+</html>

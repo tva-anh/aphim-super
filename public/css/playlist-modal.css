@@ -1,0 +1,674 @@
+/* ══════════════════════════════════════════════════════════════════
+   APhim Playlist Modal – Netflix / Spotify / YouTube Music Standard
+   Responsive Bottom Sheet (Mobile) & Glassmorphic Modal (Desktop)
+   Full Light Mode & Dark Mode Support
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Modal Overlay ── */
+.ap-pl-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ap-pl-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* ── Modal Container / Sheet ── */
+.ap-pl-sheet {
+    background: #141824;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    width: 440px;
+    max-width: 92vw;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+    font-family: 'Montserrat', 'Inter', system-ui, -apple-system, sans-serif;
+    color: #f8fafc;
+    box-sizing: border-box;
+    overflow: hidden;
+    transform: scale(0.94) translateY(12px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ap-pl-overlay.active .ap-pl-sheet {
+    transform: scale(1) translateY(0);
+}
+
+/* ── Drag Handle (Mobile only) ── */
+.ap-pl-drag-handle {
+    display: none;
+    width: 44px;
+    height: 4.5px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    margin: 10px auto 4px auto;
+    cursor: grab;
+}
+
+/* ── Modal Header ── */
+.ap-pl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 22px 14px 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ap-pl-header-info h3 {
+    font-size: 17px;
+    font-weight: 800;
+    margin: 0 0 3px 0;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ap-pl-header-info .ap-pl-header-sub {
+    font-size: 12.5px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.ap-pl-close-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.ap-pl-close-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    transform: scale(1.06);
+}
+
+/* ── Movie Preview Card (Top streaming benchmark feature) ── */
+.ap-pl-movie-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 22px 10px 22px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+}
+
+.ap-pl-movie-poster {
+    width: 44px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+}
+
+.ap-pl-movie-poster-fallback {
+    width: 44px;
+    height: 60px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.ap-pl-movie-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.ap-pl-movie-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.ap-pl-movie-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.ap-pl-movie-year {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    background: rgba(252, 213, 118, 0.15);
+    color: #fcd576;
+    border: 1px solid rgba(252, 213, 118, 0.3);
+    border-radius: 6px;
+}
+
+.ap-pl-movie-hint {
+    font-size: 11.5px;
+    color: #64748b;
+}
+
+/* ── Playlist List Container ── */
+.ap-pl-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 22px;
+    max-height: 330px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.ap-pl-body::-webkit-scrollbar {
+    width: 5px;
+}
+.ap-pl-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+/* ── Playlist Item ── */
+.ap-pl-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.025);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ap-pl-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-1px);
+}
+
+.ap-pl-item:active {
+    transform: scale(0.985);
+}
+
+.ap-pl-item.is-added {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.45);
+}
+
+.ap-pl-item.is-added:hover {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.6);
+}
+
+/* ── Checkbox Indicator ── */
+.ap-pl-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ap-pl-item:hover .ap-pl-check {
+    border-color: #fcd576;
+}
+
+.ap-pl-item.is-added .ap-pl-check {
+    background: linear-gradient(135deg, #fcd576, #f59e0b);
+    border-color: #f59e0b;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+.ap-pl-check-icon {
+    display: none;
+    color: #1a1000;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.ap-pl-item.is-added .ap-pl-check-icon {
+    display: block;
+}
+
+/* ── Playlist Details ── */
+.ap-pl-item-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.ap-pl-item-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.ap-pl-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.ap-pl-item-chip {
+    display: none;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fcd576;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.ap-pl-item.is-added .ap-pl-item-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* ── Empty State ── */
+.ap-pl-empty {
+    text-align: center;
+    padding: 36px 16px;
+    color: #94a3b8;
+}
+
+.ap-pl-empty-icon {
+    font-size: 38px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.ap-pl-empty-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 4px;
+}
+
+.ap-pl-empty-desc {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* ── Modal Footer ── */
+.ap-pl-footer {
+    padding: 14px 22px 20px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ap-pl-btn-create-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%);
+    border: 1px solid #d97706;
+    color: #1a1000;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.32);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: inherit;
+}
+
+.ap-pl-btn-create-trigger:hover {
+    background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+    transform: translateY(-1px);
+}
+
+.ap-pl-btn-create-trigger:active {
+    transform: scale(0.985);
+}
+
+/* ── Create Playlist Modal / View ── */
+.ap-pl-form-group {
+    margin-bottom: 16px;
+}
+
+.ap-pl-form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+}
+
+.ap-pl-form-input,
+.ap-pl-form-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+    font-size: 13.5px;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.ap-pl-form-input:focus,
+.ap-pl-form-textarea:focus {
+    border-color: #fcd576;
+    box-shadow: 0 0 0 3px rgba(252, 213, 118, 0.25);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.ap-pl-form-textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+.ap-pl-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.ap-pl-btn-cancel {
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.ap-pl-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.ap-pl-btn-confirm {
+    padding: 10px 22px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%);
+    border: 1px solid #d97706;
+    color: #1a1000;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    transition: all 0.2s ease;
+}
+
+.ap-pl-btn-confirm:hover {
+    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+    transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE BOTTOM SHEET RESPONSIVE DESIGN (< 640px)
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    .ap-pl-overlay {
+        align-items: flex-end;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    .ap-pl-sheet {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 24px 24px 0 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        max-height: 85vh;
+        transform: translateY(100%);
+        padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    }
+
+    .ap-pl-overlay.active .ap-pl-sheet {
+        transform: translateY(0);
+    }
+
+    .ap-pl-drag-handle {
+        display: block;
+    }
+
+    .ap-pl-header {
+        padding: 12px 18px 12px 18px;
+    }
+
+    .ap-pl-header-info h3 {
+        font-size: 16px;
+    }
+
+    .ap-pl-movie-card {
+        margin: 10px 18px 8px 18px;
+        padding: 8px 12px;
+    }
+
+    .ap-pl-movie-poster {
+        width: 38px;
+        height: 52px;
+    }
+
+    .ap-pl-movie-name {
+        font-size: 13px;
+    }
+
+    .ap-pl-body {
+        padding: 4px 18px;
+        max-height: 48vh;
+    }
+
+    .ap-pl-footer {
+        padding: 12px 18px 16px 18px;
+    }
+
+    .ap-pl-item {
+        padding: 10px 12px;
+    }
+
+    .ap-pl-item-title {
+        font-size: 13px;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LIGHT MODE OVERRIDES – Crisp, High Contrast & Aesthetic
+   ══════════════════════════════════════════════════════════════════ */
+html.light-mode .ap-pl-sheet {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18), 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light-mode .ap-pl-drag-handle {
+    background: #cbd5e1 !important;
+}
+
+html.light-mode .ap-pl-header {
+    border-bottom-color: #f1f5f9 !important;
+}
+
+html.light-mode .ap-pl-header-info h3 {
+    color: #0f172a !important;
+}
+
+html.light-mode .ap-pl-header-info .ap-pl-header-sub {
+    color: #475569 !important;
+}
+
+html.light-mode .ap-pl-close-btn {
+    background: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+    color: #64748b !important;
+}
+
+html.light-mode .ap-pl-close-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+html.light-mode .ap-pl-movie-card {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html.light-mode .ap-pl-movie-name {
+    color: #0f172a !important;
+}
+
+html.light-mode .ap-pl-movie-hint {
+    color: #64748b !important;
+}
+
+html.light-mode .ap-pl-item {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html.light-mode .ap-pl-item:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+html.light-mode .ap-pl-item.is-added {
+    background: #fffbeb !important;
+    border-color: #f59e0b !important;
+}
+
+html.light-mode .ap-pl-item.is-added:hover {
+    background: #fef3c7 !important;
+}
+
+html.light-mode .ap-pl-check {
+    border-color: #94a3b8 !important;
+}
+
+html.light-mode .ap-pl-item.is-added .ap-pl-check {
+    background: linear-gradient(135deg, #fcd576, #f59e0b) !important;
+    border-color: #d97706 !important;
+}
+
+html.light-mode .ap-pl-item-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .ap-pl-item-meta {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+html.light-mode .ap-pl-item-chip {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+    border-color: #fde68a !important;
+}
+
+html.light-mode .ap-pl-empty-title {
+    color: #0f172a !important;
+}
+
+html.light-mode .ap-pl-empty-desc {
+    color: #64748b !important;
+}
+
+html.light-mode .ap-pl-footer {
+    border-top-color: #f1f5f9 !important;
+}
+
+html.light-mode .ap-pl-btn-create-trigger {
+    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important;
+    border-color: #d97706 !important;
+    color: #1a1000 !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35) !important;
+}
+
+html.light-mode .ap-pl-form-label {
+    color: #334155 !important;
+}
+
+html.light-mode .ap-pl-form-input,
+html.light-mode .ap-pl-form-textarea {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+html.light-mode .ap-pl-form-input:focus,
+html.light-mode .ap-pl-form-textarea:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+    background: #fffdf9 !important;
+}
+
+html.light-mode .ap-pl-btn-cancel {
+    background: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+    color: #334155 !important;
+}
+
+html.light-mode .ap-pl-btn-cancel:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}

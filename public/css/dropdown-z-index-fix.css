@@ -1,0 +1,16 @@
+/* Dropdown Z-Index Fix */
+/* Đảm bảo dropdown luôn hiển thị trên cùng */
+
+nav .group:hover>div[class*="absolute"] {
+    z-index: 9999 !important;
+}
+
+/* Đảm bảo dropdown không bị che bởi nội dung khác */
+nav .relative.group>div.absolute {
+    z-index: 9999 !important;
+}
+
+/* Fix cho tất cả dropdown trong navigation */
+nav div[class*="opacity-0"][class*="invisible"] {
+    z-index: 9999 !important;
+}

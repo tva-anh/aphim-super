@@ -1,0 +1,799 @@
+<!-- High-End Sofaflix Style Collapsible Filter Panel with Custom Floating Dropdowns -->
+<div id="filterPanel" class="hidden mt-3 sm:mt-4 p-4 sm:p-6 rounded-2xl bg-[#181926] border border-white/10 sm:border-white/12 shadow-xl shadow-black/40 transition-all">
+    
+    <!-- Section 1: TIÊU CHÍ LỌC (Spacious 2 Equal Columns Grid matching Image #1 & #2) -->
+    <div>
+        <h3 class="text-xs sm:text-sm font-extrabold text-gray-200 uppercase tracking-wider mb-4 sm:mb-5">TIÊU CHÍ LỌC</h3>
+        <div class="filter-criteria-grid grid grid-cols-2 gap-2.5">
+            
+            <!-- 1. Chủ đề -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterTopic">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Chủ đề</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterTopic" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Tất cả</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterTopic" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="">Tất cả</option>
+                        <option value="hot">Phim Hot</option>
+                        <option value="dexuat">Đề Xuất</option>
+                        <option value="am-nhac">Âm Nhạc</option>
+                        <option value="bi-an">Bí Ẩn</option>
+                        <option value="chien-tranh">Chiến Tranh</option>
+                        <option value="chinh-kich">Chính Kịch</option>
+                        <option value="co-trang">Cổ Trang</option>
+                        <option value="gay-can">Gây Cấn</option>
+                        <option value="gia-dinh">Gia Đình</option>
+                        <option value="gia-tuong">Giả Tưởng</option>
+                        <option value="hai-huoc">Hài Hước</option>
+                        <option value="hanh-dong">Hành Động</option>
+                        <option value="hinh-su">Hình Sự</option>
+                        <option value="hoat-hinh">Hoạt Hình</option>
+                        <option value="hoc-duong">Học Đường</option>
+                        <option value="khoa-hoc">Khoa Học</option>
+                        <option value="vien-tuong">Viễn Tưởng</option>
+                        <option value="kinh-di">Kinh Dị</option>
+                        <option value="kinh-dien">Kinh Điển</option>
+                        <option value="lang-man">Lãng Mạn</option>
+                        <option value="lich-su">Lịch Sử</option>
+                        <option value="mien-tay">Miền Tây</option>
+                        <option value="phieu-luu">Phiêu Lưu</option>
+                        <option value="phim-hai">Phim Hài</option>
+                        <option value="phim-ngan">Phim Ngắn</option>
+                        <option value="phim-nhac">Phim Nhạc</option>
+                        <option value="short-drama">Short Drama</option>
+                        <option value="tai-lieu">Tài Liệu</option>
+                        <option value="tam-ly">Tâm Lý</option>
+                        <option value="than-thoai">Thần Thoại</option>
+                        <option value="the-thao">Thể Thao</option>
+                        <option value="tinh-cam">Tình Cảm</option>
+                        <option value="tre-em">Trẻ Em</option>
+                        <option value="tv-shows">TV Shows</option>
+                        <option value="vo-thuat">Võ Thuật</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, '', 'Tất cả')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tất cả</span></div>
+                    <div onclick="selectCustomOption(this, 'hot', 'Phim Hot')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phim Hot</span></div>
+                    <div onclick="selectCustomOption(this, 'dexuat', 'Đề Xuất')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Đề Xuất</span></div>
+                    <div onclick="selectCustomOption(this, 'am-nhac', 'Âm Nhạc')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Âm Nhạc</span></div>
+                    <div onclick="selectCustomOption(this, 'bi-an', 'Bí Ẩn')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Bí Ẩn</span></div>
+                    <div onclick="selectCustomOption(this, 'chien-tranh', 'Chiến Tranh')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Chiến Tranh</span></div>
+                    <div onclick="selectCustomOption(this, 'chinh-kich', 'Chính Kịch')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Chính Kịch</span></div>
+                    <div onclick="selectCustomOption(this, 'co-trang', 'Cổ Trang')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Cổ Trang</span></div>
+                    <div onclick="selectCustomOption(this, 'gay-can', 'Gây Cấn')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Gây Cấn</span></div>
+                    <div onclick="selectCustomOption(this, 'gia-dinh', 'Gia Đình')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Gia Đình</span></div>
+                    <div onclick="selectCustomOption(this, 'gia-tuong', 'Giả Tưởng')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Giả Tưởng</span></div>
+                    <div onclick="selectCustomOption(this, 'hai-huoc', 'Hài Hước')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hài Hước</span></div>
+                    <div onclick="selectCustomOption(this, 'hanh-dong', 'Hành Động')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hành Động</span></div>
+                    <div onclick="selectCustomOption(this, 'hinh-su', 'Hình Sự')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hình Sự</span></div>
+                    <div onclick="selectCustomOption(this, 'hoat-hinh', 'Hoạt Hình')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hoạt Hình</span></div>
+                    <div onclick="selectCustomOption(this, 'hoc-duong', 'Học Đường')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Học Đường</span></div>
+                    <div onclick="selectCustomOption(this, 'khoa-hoc', 'Khoa Học')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Khoa Học</span></div>
+                    <div onclick="selectCustomOption(this, 'vien-tuong', 'Viễn Tưởng')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Viễn Tưởng</span></div>
+                    <div onclick="selectCustomOption(this, 'kinh-di', 'Kinh Dị')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Kinh Dị</span></div>
+                    <div onclick="selectCustomOption(this, 'kinh-dien', 'Kinh Điển')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Kinh Điển</span></div>
+                    <div onclick="selectCustomOption(this, 'lang-man', 'Lãng Mạn')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Lãng Mạn</span></div>
+                    <div onclick="selectCustomOption(this, 'lich-su', 'Lịch Sử')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Lịch Sử</span></div>
+                    <div onclick="selectCustomOption(this, 'mien-tay', 'Miền Tây')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Miền Tây</span></div>
+                    <div onclick="selectCustomOption(this, 'phieu-luu', 'Phiêu Lưu')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phiêu Lưu</span></div>
+                    <div onclick="selectCustomOption(this, 'phim-hai', 'Phim Hài')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phim Hài</span></div>
+                    <div onclick="selectCustomOption(this, 'phim-ngan', 'Phim Ngắn')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phim Ngắn</span></div>
+                    <div onclick="selectCustomOption(this, 'phim-nhac', 'Phim Nhạc')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phim Nhạc</span></div>
+                    <div onclick="selectCustomOption(this, 'short-drama', 'Short Drama')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Short Drama</span></div>
+                    <div onclick="selectCustomOption(this, 'tai-lieu', 'Tài Liệu')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tài Liệu</span></div>
+                    <div onclick="selectCustomOption(this, 'tam-ly', 'Tâm Lý')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tâm Lý</span></div>
+                    <div onclick="selectCustomOption(this, 'than-thoai', 'Thần Thoại')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Thần Thoại</span></div>
+                    <div onclick="selectCustomOption(this, 'the-thao', 'Thể Thao')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Thể Thao</span></div>
+                    <div onclick="selectCustomOption(this, 'tinh-cam', 'Tình Cảm')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tình Cảm</span></div>
+                    <div onclick="selectCustomOption(this, 'tre-em', 'Trẻ Em')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Trẻ Em</span></div>
+                    <div onclick="selectCustomOption(this, 'tv-shows', 'TV Shows')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>TV Shows</span></div>
+                    <div onclick="selectCustomOption(this, 'vo-thuat', 'Võ Thuật')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Võ Thuật</span></div>
+                </div>
+            </div>
+
+            <!-- 2. Quốc gia -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterCountry">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Quốc gia</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterCountry" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Tất cả</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterCountry" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="">Tất cả</option>
+                        <option value="viet-nam">Việt Nam</option>
+                        <option value="trung-quoc">Trung Quốc</option>
+                        <option value="han-quoc">Hàn Quốc</option>
+                        <option value="nhat-ban">Nhật Bản</option>
+                        <option value="thai-lan">Thái Lan</option>
+                        <option value="au-my">Âu Mỹ</option>
+                        <option value="dai-loan">Đài Loan</option>
+                        <option value="hong-kong">Hồng Kông</option>
+                        <option value="an-do">Ấn Độ</option>
+                        <option value="anh">Anh</option>
+                        <option value="phap">Pháp</option>
+                        <option value="duc">Đức</option>
+                        <option value="tay-ban-nha">Tây Ban Nha</option>
+                        <option value="tho-nhi-ky">Thổ Nhĩ Kỳ</option>
+                        <option value="ha-lan">Hà Lan</option>
+                        <option value="uc">Úc</option>
+                        <option value="y">Ý</option>
+                        <option value="canada">Canada</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, '', 'Tất cả')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tất cả</span></div>
+                    <div onclick="selectCustomOption(this, 'viet-nam', 'Việt Nam')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Việt Nam</span></div>
+                    <div onclick="selectCustomOption(this, 'trung-quoc', 'Trung Quốc')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Trung Quốc</span></div>
+                    <div onclick="selectCustomOption(this, 'han-quoc', 'Hàn Quốc')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hàn Quốc</span></div>
+                    <div onclick="selectCustomOption(this, 'nhat-ban', 'Nhật Bản')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Nhật Bản</span></div>
+                    <div onclick="selectCustomOption(this, 'thai-lan', 'Thái Lan')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Thái Lan</span></div>
+                    <div onclick="selectCustomOption(this, 'au-my', 'Âu Mỹ')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Âu Mỹ</span></div>
+                    <div onclick="selectCustomOption(this, 'dai-loan', 'Đài Loan')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Đài Loan</span></div>
+                    <div onclick="selectCustomOption(this, 'hong-kong', 'Hồng Kông')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hồng Kông</span></div>
+                    <div onclick="selectCustomOption(this, 'an-do', 'Ấn Độ')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Ấn Độ</span></div>
+                    <div onclick="selectCustomOption(this, 'anh', 'Anh')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Anh</span></div>
+                    <div onclick="selectCustomOption(this, 'phap', 'Pháp')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Pháp</span></div>
+                    <div onclick="selectCustomOption(this, 'duc', 'Đức')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Đức</span></div>
+                    <div onclick="selectCustomOption(this, 'tay-ban-nha', 'Tây Ban Nha')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tây Ban Nha</span></div>
+                    <div onclick="selectCustomOption(this, 'tho-nhi-ky', 'Thổ Nhĩ Kỳ')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Thổ Nhĩ Kỳ</span></div>
+                    <div onclick="selectCustomOption(this, 'ha-lan', 'Hà Lan')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hà Lan</span></div>
+                    <div onclick="selectCustomOption(this, 'uc', 'Úc')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Úc</span></div>
+                    <div onclick="selectCustomOption(this, 'y', 'Ý')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Ý</span></div>
+                    <div onclick="selectCustomOption(this, 'canada', 'Canada')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Canada</span></div>
+                </div>
+            </div>
+
+            <!-- 3. Trạng thái -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterStatus">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Trạng thái</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterStatus" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Tất cả</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterStatus" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="">Tất cả</option>
+                        <option value="completed">Đã xong</option>
+                        <option value="ongoing">Đang chiếu</option>
+                        <option value="trailer">Sắp chiếu</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, '', 'Tất cả')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tất cả</span></div>
+                    <div onclick="selectCustomOption(this, 'completed', 'Đã xong')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Đã xong</span></div>
+                    <div onclick="selectCustomOption(this, 'ongoing', 'Đang chiếu')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Đang chiếu</span></div>
+                    <div onclick="selectCustomOption(this, 'trailer', 'Sắp chiếu')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Sắp chiếu</span></div>
+                </div>
+            </div>
+
+            <!-- 4. Năm -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterYear">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Năm</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterYear" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Tất cả</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterYear" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="">Tất cả</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                        <option value="2013">2013</option>
+                        <option value="2012">2012</option>
+                        <option value="2011">2011</option>
+                        <option value="2010">2010</option>
+                        <option value="truoc-2010">Trước 2010</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, '', 'Tất cả')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tất cả</span></div>
+                    <div onclick="selectCustomOption(this, '2026', '2026')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2026</span></div>
+                    <div onclick="selectCustomOption(this, '2025', '2025')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2025</span></div>
+                    <div onclick="selectCustomOption(this, '2024', '2024')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2024</span></div>
+                    <div onclick="selectCustomOption(this, '2023', '2023')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2023</span></div>
+                    <div onclick="selectCustomOption(this, '2022', '2022')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2022</span></div>
+                    <div onclick="selectCustomOption(this, '2021', '2021')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2021</span></div>
+                    <div onclick="selectCustomOption(this, '2020', '2020')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2020</span></div>
+                    <div onclick="selectCustomOption(this, '2019', '2019')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2019</span></div>
+                    <div onclick="selectCustomOption(this, '2018', '2018')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2018</span></div>
+                    <div onclick="selectCustomOption(this, '2017', '2017')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2017</span></div>
+                    <div onclick="selectCustomOption(this, '2016', '2016')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2016</span></div>
+                    <div onclick="selectCustomOption(this, '2015', '2015')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2015</span></div>
+                    <div onclick="selectCustomOption(this, '2014', '2014')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2014</span></div>
+                    <div onclick="selectCustomOption(this, '2013', '2013')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2013</span></div>
+                    <div onclick="selectCustomOption(this, '2012', '2012')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2012</span></div>
+                    <div onclick="selectCustomOption(this, '2011', '2011')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2011</span></div>
+                    <div onclick="selectCustomOption(this, '2010', '2010')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>2010</span></div>
+                    <div onclick="selectCustomOption(this, 'truoc-2010', 'Trước 2010')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Trước 2010</span></div>
+                </div>
+            </div>
+
+            <!-- 5. Ngôn ngữ -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterLang">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Ngôn ngữ</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterLang" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Tất cả</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterLang" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="">Tất cả</option>
+                        <option value="vietsub">Vietsub</option>
+                        <option value="thuyet-minh">Thuyết minh</option>
+                        <option value="long-tieng">Lồng tiếng</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, '', 'Tất cả')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tất cả</span></div>
+                    <div onclick="selectCustomOption(this, 'vietsub', 'Vietsub')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Vietsub</span></div>
+                    <div onclick="selectCustomOption(this, 'thuyet-minh', 'Thuyết minh')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Thuyết minh</span></div>
+                    <div onclick="selectCustomOption(this, 'long-tieng', 'Lồng tiếng')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Lồng tiếng</span></div>
+                </div>
+            </div>
+
+            <!-- 6. Sắp xếp -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterSort">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Sắp xếp</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterSort" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Năm phát hành</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterSort" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="year">Năm phát hành</option>
+                        <option value="modified">Mới cập nhật</option>
+                        <option value="view">Lượt xem</option>
+                        <option value="name">Tên phim A-Z</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, 'year', 'Năm phát hành')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Năm phát hành</span></div>
+                    <div onclick="selectCustomOption(this, 'modified', 'Mới cập nhật')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Mới cập nhật</span></div>
+                    <div onclick="selectCustomOption(this, 'view', 'Lượt xem')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Lượt xem</span></div>
+                    <div onclick="selectCustomOption(this, 'name', 'Tên phim A-Z')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tên phim A-Z</span></div>
+                </div>
+            </div>
+
+            <!-- 7. Thứ tự -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterOrder">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Thứ tự</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterOrder" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Giảm dần</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterOrder" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="desc">Giảm dần</option>
+                        <option value="asc">Tăng dần</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, 'desc', 'Giảm dần')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Giảm dần</span></div>
+                    <div onclick="selectCustomOption(this, 'asc', 'Tăng dần')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tăng dần</span></div>
+                </div>
+            </div>
+
+            <!-- 8. Loại phim -->
+            <div class="custom-dropdown-wrap relative" data-dropdown="filterList">
+                <div onclick="toggleCustomDropdown(this)" class="custom-dropdown-trigger relative bg-[#141520] hover:bg-[#1b1c2b] border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2 sm:py-2.5 flex items-center justify-between transition-all cursor-pointer group min-h-[38px] select-none">
+                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap mr-2 select-none">Loại phim</span>
+                    <div class="flex items-center gap-1.5 ml-auto flex-shrink-0 select-none">
+                        <span id="label_filterList" class="filter-dropdown-val text-[11px] sm:text-xs font-semibold text-right whitespace-nowrap">Tất cả</span>
+                        <svg width="9" height="9" class="dropdown-chevron filter-dropdown-chevron transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                    <select id="filterList" onchange="updateFilterLabel(this)" class="hidden">
+                        <option value="">Tất cả</option>
+                        <option value="phim-bo">Phim Bộ</option>
+                        <option value="phim-le">Phim Lẻ</option>
+                        <option value="hoat-hinh">Hoạt Hình</option>
+                        <option value="tv-shows">TV Shows</option>
+                        <option value="short-drama">Short Drama</option>
+                    </select>
+                </div>
+                <div class="custom-dropdown-menu hidden absolute top-[calc(100%+6px)] left-0 w-full min-w-[180px] bg-[#1e2030] border border-white/15 rounded-xl shadow-2xl z-50 py-1.5 max-h-48 sm:max-h-56 overflow-y-auto">
+                    <div onclick="selectCustomOption(this, '', 'Tất cả')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#fcd576] bg-[#2c3048] font-bold hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Tất cả</span></div>
+                    <div onclick="selectCustomOption(this, 'phim-bo', 'Phim Bộ')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phim Bộ</span></div>
+                    <div onclick="selectCustomOption(this, 'phim-le', 'Phim Lẻ')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Phim Lẻ</span></div>
+                    <div onclick="selectCustomOption(this, 'hoat-hinh', 'Hoạt Hình')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Hoạt Hình</span></div>
+                    <div onclick="selectCustomOption(this, 'tv-shows', 'TV Shows')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>TV Shows</span></div>
+                    <div onclick="selectCustomOption(this, 'short-drama', 'Short Drama')" class="dropdown-option px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-200 hover:bg-[#2c3048] hover:text-[#fcd576] cursor-pointer transition-colors flex items-center justify-between"><span>Short Drama</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Section 2: DANH SÁCH A-Z (Exact 8 Columns Grid matching Image #1) -->
+    <div class="mt-5 pt-1">
+        <h3 class="text-xs sm:text-sm font-extrabold text-gray-300 uppercase tracking-wider block" style="margin-bottom: 14px !important;">DANH SÁCH A-Z</h3>
+        <div id="azFilterWrap" class="az-filter-wrap">
+            <button type="button" data-az="" onclick="selectAZFilter(this, '')" class="filter-az-btn active-filter-btn">All</button>
+            <button type="button" data-az="#" onclick="selectAZFilter(this, '#')" class="filter-az-btn inactive-filter-btn">#</button>
+            <% const letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']; %>
+            <% letters.forEach(letter => { %>
+                <button type="button" data-az="<%= letter %>" onclick="selectAZFilter(this, '<%= letter %>')" class="filter-az-btn inactive-filter-btn"><%= letter %></button>
+            <% }); %>
+        </div>
+    </div>
+
+    <!-- Section 3: THỂ LOẠI (Clean Equal Responsive Grid aligned straight on both left & right edges) -->
+    <div class="mt-5 pt-1">
+        <h3 class="text-xs sm:text-sm font-extrabold text-gray-300 uppercase tracking-wider block" style="margin-bottom: 14px !important;">THỂ LOẠI</h3>
+        <div id="catFilterWrap" class="cat-filter-wrap">
+            <button type="button" data-cat="" onclick="selectCategoryFilter(this, '')" class="filter-cat-btn active-filter-btn">Tất cả</button>
+            <% const catList = [
+                { id: 'am-nhac', name: 'Âm Nhạc' },
+                { id: 'bi-an', name: 'Bí Ẩn' },
+                { id: 'chien-tranh', name: 'Chiến Tranh' },
+                { id: 'chinh-kich', name: 'Chính Kịch' },
+                { id: 'tv-shows', name: 'TV Shows' },
+                { id: 'co-trang', name: 'Cổ Trang' },
+                { id: 'gay-can', name: 'Gây Cấn' },
+                { id: 'gia-dinh', name: 'Gia Đình' },
+                { id: 'gia-tuong', name: 'Giả Tưởng' },
+                { id: 'hai-huoc', name: 'Hài Hước' },
+                { id: 'hanh-dong', name: 'Hành Động' },
+                { id: 'hinh-su', name: 'Hình Sự' },
+                { id: 'hoat-hinh', name: 'Hoạt Hình' },
+                { id: 'hoc-duong', name: 'Học Đường' },
+                { id: 'khoa-hoc', name: 'Khoa Học' },
+                { id: 'vien-tuong', name: 'Viễn Tưởng' },
+                { id: 'kinh-di', name: 'Kinh Dị' },
+                { id: 'kinh-dien', name: 'Kinh Điển' },
+                { id: 'lang-man', name: 'Lãng Mạn' },
+                { id: 'lich-su', name: 'Lịch Sử' },
+                { id: 'mien-tay', name: 'Miền Tây' },
+                { id: 'phieu-luu', name: 'Phiêu Lưu' },
+                { id: 'phim-hai', name: 'Phim Hài' },
+                { id: 'phim-ngan', name: 'Phim Ngắn' },
+                { id: 'phim-nhac', name: 'Phim Nhạc' },
+                { id: 'short-drama', name: 'Short Drama' },
+                { id: 'tai-lieu', name: 'Tài Liệu' },
+                { id: 'tam-ly', name: 'Tâm Lý' },
+                { id: 'than-thoai', name: 'Thần Thoại' },
+                { id: 'the-thao', name: 'Thể Thao' },
+                { id: 'tinh-cam', name: 'Tình Cảm' },
+                { id: 'tre-em', name: 'Trẻ Em' },
+                { id: 'vo-thuat', name: 'Võ Thuật' }
+            ]; %>
+            <% catList.forEach(c => { %>
+                <button type="button" data-cat="<%= c.id %>" onclick="selectCategoryFilter(this, '<%= c.id %>')" class="filter-cat-btn inactive-filter-btn"><%= c.name %></button>
+            <% }); %>
+        </div>
+    </div>
+
+    <!-- Section 4: Action Footer Buttons (Tìm kiếm & Xóa) -->
+    <div class="mt-6 pt-2 flex items-center gap-3">
+        <button type="button" onclick="applyFilterPanel()" class="px-7 py-2.5 rounded-xl bg-[#fcd576] hover:bg-[#fce08b] text-black font-extrabold text-xs sm:text-sm transition-all cursor-pointer shadow-lg shadow-[#fcd576]/10">
+            Tìm Kiếm
+        </button>
+        <button type="button" onclick="resetFilterPanel()" class="px-6 py-2.5 rounded-xl bg-[#222432] hover:bg-[#2c2f42] border border-white/5 text-gray-300 font-bold text-xs sm:text-sm transition-all cursor-pointer">
+            Xóa
+        </button>
+    </div>
+</div>
+
+<style>
+    .custom-dropdown-menu {
+        max-height: 190px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    @media (min-width: 640px) {
+        .custom-dropdown-menu {
+            max-height: 220px !important;
+        }
+    }
+    .custom-dropdown-menu::-webkit-scrollbar {
+        width: 5px !important;
+    }
+    .custom-dropdown-menu::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.25) !important;
+        border-radius: 4px !important;
+    }
+    .custom-dropdown-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.25) !important;
+        border-radius: 4px !important;
+    }
+    .custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: #fcd576 !important;
+    }
+
+    /* Mobile Layout Default (< 640px) */
+    .az-filter-wrap {
+        display: grid !important;
+        grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+    }
+    .cat-filter-wrap {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+    .filter-az-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 30px !important;
+        border-radius: 7px !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        transition: all 0.2s ease !important;
+        text-align: center !important;
+    }
+    .filter-cat-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 34px !important;
+        border-radius: 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        transition: all 0.2s ease !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        padding: 0 4px !important;
+    }
+
+    /* Desktop Layout (>= 640px) - Compact Inline Flex-Wrap matching Image #1 */
+    @media (min-width: 640px) {
+        .filter-criteria-grid {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 10px 12px !important;
+        }
+        .filter-criteria-grid > .custom-dropdown-wrap {
+            width: auto !important;
+            flex: 0 0 auto !important;
+        }
+        .filter-criteria-grid .custom-dropdown-trigger {
+            padding: 6px 14px !important;
+            height: 36px !important;
+            min-height: 36px !important;
+            border-radius: 10px !important;
+        }
+
+        .az-filter-wrap {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+        }
+        .filter-az-btn {
+            width: auto !important;
+            min-width: 32px !important;
+            padding: 0 11px !important;
+            height: 32px !important;
+            border-radius: 6px !important;
+            font-size: 12px !important;
+            flex: 0 0 auto !important;
+        }
+
+        .cat-filter-wrap {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+        .filter-cat-btn {
+            width: auto !important;
+            padding: 0 14px !important;
+            height: 34px !important;
+            border-radius: 8px !important;
+            font-size: 12.5px !important;
+            flex: 0 0 auto !important;
+        }
+    }
+    .filter-dropdown-val {
+        color: #fcd576;
+    }
+    .filter-dropdown-chevron {
+        color: #fcd576;
+        width: 9px !important;
+        height: 9px !important;
+        min-width: 9px !important;
+        min-height: 9px !important;
+        max-width: 9px !important;
+        max-height: 9px !important;
+        display: inline-block !important;
+    }
+    .active-filter-btn {
+        background-color: #fcd576 !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: 1px solid #fcd576 !important;
+        box-shadow: 0 2px 8px rgba(252, 213, 118, 0.3) !important;
+    }
+    .inactive-filter-btn {
+        background-color: #222432 !important;
+        color: #cbd5e1 !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+    .inactive-filter-btn:hover {
+        background-color: #2c2f42 !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* ─── LIGHT MODE ADAPTATION (Nền kem / sáng) ─── */
+    html.light-mode #filterPanel {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
+    }
+    html.light-mode #filterPanel h3 {
+        color: #0f172a !important;
+        font-weight: 800 !important;
+    }
+    html.light-mode .custom-dropdown-trigger {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    html.light-mode .custom-dropdown-trigger:hover {
+        background: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+    }
+    html.light-mode .custom-dropdown-trigger > span:first-child {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+    html.light-mode .filter-dropdown-val {
+        color: #b45309 !important;
+        font-weight: 800 !important;
+    }
+    html.light-mode .filter-dropdown-chevron {
+        color: #b45309 !important;
+        stroke: #b45309 !important;
+    }
+    html.light-mode .custom-dropdown-menu {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
+    }
+    html.light-mode .custom-dropdown-menu .dropdown-option {
+        color: #334155 !important;
+    }
+    html.light-mode .custom-dropdown-menu .dropdown-option:hover {
+        background: #fef3c7 !important;
+        color: #b45309 !important;
+    }
+    html.light-mode .custom-dropdown-menu .dropdown-option.bg-\[\#2c3048\] {
+        background: #fef3c7 !important;
+        color: #b45309 !important;
+        font-weight: 800 !important;
+    }
+    html.light-mode .inactive-filter-btn {
+        background-color: #f1f5f9 !important;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 600 !important;
+    }
+    html.light-mode .inactive-filter-btn:hover {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+        border-color: #94a3b8 !important;
+    }
+    html.light-mode .active-filter-btn {
+        background-color: #f59e0b !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border: 1px solid #d97706 !important;
+        box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4) !important;
+    }
+    html.light-mode button[onclick="resetFilterPanel()"] {
+        background: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #475569 !important;
+    }
+    html.light-mode button[onclick="resetFilterPanel()"]:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+</style>
+
+<script>
+window.selectedAZ = '';
+window.selectedCategoryPill = '';
+
+window.toggleCustomDropdown = function(triggerEl) {
+    const wrap = triggerEl.closest('.custom-dropdown-wrap');
+    if (!wrap) return;
+    const menu = wrap.querySelector('.custom-dropdown-menu');
+    const chevron = wrap.querySelector('.dropdown-chevron');
+    
+    const isOpened = !menu.classList.contains('hidden');
+    
+    // Close all open dropdowns
+    document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.add('hidden'));
+    document.querySelectorAll('.dropdown-chevron').forEach(c => c.style.transform = 'rotate(0deg)');
+    
+    if (!isOpened) {
+        menu.classList.remove('hidden');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+    }
+};
+
+window.selectCustomOption = function(optionEl, val, labelText) {
+    const wrap = optionEl.closest('.custom-dropdown-wrap');
+    if (!wrap) return;
+    
+    // Update hidden select
+    const select = wrap.querySelector('select');
+    if (select) {
+        select.value = val;
+        select.dispatchEvent(new Event('change'));
+    }
+    
+    // Update label text
+    const labelSpan = wrap.querySelector('[id^="label_"]');
+    if (labelSpan) {
+        labelSpan.innerText = labelText;
+    }
+    
+    // Highlight active option
+    wrap.querySelectorAll('.dropdown-option').forEach(opt => {
+        opt.classList.remove('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+        opt.classList.add('text-gray-200');
+    });
+    optionEl.classList.add('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+    optionEl.classList.remove('text-gray-200');
+    
+    // Close menu & reset chevron
+    const menu = wrap.querySelector('.custom-dropdown-menu');
+    const chevron = wrap.querySelector('.dropdown-chevron');
+    if (menu) menu.classList.add('hidden');
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+};
+
+// Close when clicking outside
+if (!window.dropdownOutsideListenerAdded) {
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-dropdown-wrap')) {
+            document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.add('hidden'));
+            document.querySelectorAll('.dropdown-chevron').forEach(c => c.style.transform = 'rotate(0deg)');
+        }
+    });
+    window.dropdownOutsideListenerAdded = true;
+}
+
+window.updateFilterLabel = function(selectEl) {
+    if (!selectEl) return;
+    const lbl = document.getElementById('label_' + selectEl.id);
+    if (lbl && selectEl.selectedIndex >= 0) {
+        lbl.innerText = selectEl.options[selectEl.selectedIndex].text;
+    }
+};
+
+window.selectAZFilter = function(btn, val) {
+    document.querySelectorAll('.filter-az-btn').forEach(b => {
+        b.classList.remove('active-filter-btn');
+        b.classList.add('inactive-filter-btn');
+    });
+    btn.classList.remove('inactive-filter-btn');
+    btn.classList.add('active-filter-btn');
+    window.selectedAZ = val;
+};
+
+window.selectCategoryFilter = function(btn, val) {
+    document.querySelectorAll('.filter-cat-btn').forEach(b => {
+        b.classList.remove('active-filter-btn');
+        b.classList.add('inactive-filter-btn');
+    });
+    btn.classList.remove('inactive-filter-btn');
+    btn.classList.add('active-filter-btn');
+    window.selectedCategoryPill = val;
+};
+
+window.resetFilterPanel = function() {
+    const ids = ['filterTopic', 'filterCountry', 'filterStatus', 'filterYear', 'filterLang', 'filterList'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            window.updateFilterLabel(el);
+        }
+        const wrap = document.querySelector(`.custom-dropdown-wrap[data-dropdown="${id}"]`);
+        if (wrap) {
+            wrap.querySelectorAll('.dropdown-option').forEach((opt, idx) => {
+                opt.classList.remove('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+                opt.classList.add('text-gray-200');
+                if (idx === 0) {
+                    opt.classList.add('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+                    opt.classList.remove('text-gray-200');
+                }
+            });
+        }
+    });
+
+    const sort = document.getElementById('filterSort');
+    if (sort) {
+        sort.value = 'year';
+        window.updateFilterLabel(sort);
+    }
+    const wrapSort = document.querySelector('.custom-dropdown-wrap[data-dropdown="filterSort"]');
+    if (wrapSort) {
+        wrapSort.querySelectorAll('.dropdown-option').forEach((opt, idx) => {
+            opt.classList.remove('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+            opt.classList.add('text-gray-200');
+            if (idx === 0) {
+                opt.classList.add('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+                opt.classList.remove('text-gray-200');
+            }
+        });
+    }
+
+    const order = document.getElementById('filterOrder');
+    if (order) {
+        order.value = 'desc';
+        window.updateFilterLabel(order);
+    }
+    const wrapOrder = document.querySelector('.custom-dropdown-wrap[data-dropdown="filterOrder"]');
+    if (wrapOrder) {
+        wrapOrder.querySelectorAll('.dropdown-option').forEach((opt, idx) => {
+            opt.classList.remove('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+            opt.classList.add('text-gray-200');
+            if (idx === 0) {
+                opt.classList.add('bg-[#2c3048]', 'text-[#fcd576]', 'font-bold');
+                opt.classList.remove('text-gray-200');
+            }
+        });
+    }
+
+    // Reset A-Z pills
+    const firstAZ = document.querySelector('.filter-az-btn');
+    if (firstAZ) window.selectAZFilter(firstAZ, '');
+
+    // Reset Category pills
+    const firstCat = document.querySelector('.filter-cat-btn');
+    if (firstCat) window.selectCategoryFilter(firstCat, '');
+};
+
+// Auto update labels on load
+function initFilterLabels() {
+    ['filterTopic', 'filterCountry', 'filterStatus', 'filterYear', 'filterLang', 'filterSort', 'filterOrder', 'filterList'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) window.updateFilterLabel(el);
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFilterLabels);
+} else {
+    initFilterLabels();
+}
+</script>

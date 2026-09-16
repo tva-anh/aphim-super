@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        /* Ensure body padding-top clears the fixed navbar with comfortable space */
+        body {
+            padding-top: 64px !important;
+        }
+        @media (max-width: 1280px) {
+            body {
+                padding-top: 60px !important;
+            }
+        }
+
+        /* Horizontal Carousel Slider for PHIM MỚI ĐỀ CỬ (Scrollbar Completely Hidden) */
+        .de-cu-slider {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            overflow-x: auto !important;
+            scroll-behavior: smooth !important;
+            padding-bottom: 5px !important;
+            scrollbar-width: none !important; /* Firefox */
+            -ms-overflow-style: none !important; /* IE/Edge */
+        }
+        .de-cu-slider::-webkit-scrollbar {
+            display: none !important; /* Chrome, Safari, Opera */
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* ── BẢNG XẾP HẠNG PHIM HOT (HORIZONTAL SLIDER ON MOBILE, GRID ON DESKTOP) ── */
+        .ranking-grid-container {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-behavior: smooth !important;
+            gap: 12px !important;
+            padding-bottom: 8px !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        .ranking-grid-container::-webkit-scrollbar {
+            display: none !important;
+        }
+        .ranking-grid-container .ranking-card {
+            flex: 0 0 270px !important;
+            width: 270px !important;
+            min-width: 270px !important;
+        }
+        @media (min-width: 640px) {
+            .ranking-grid-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                overflow-x: visible !important;
+            }
+            .ranking-grid-container .ranking-card {
+                flex: none !important;
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+        }
+        @media (min-width: 1024px) {
+            .ranking-grid-container {
+                grid-template-columns: repeat(5, 1fr) !important;
+            }
+        }
+
+        .ranking-card {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 14px !important;
+            padding: 10px 8px !important;
+            position: relative !important;
+            overflow: hidden !important;
+            transition: all 0.25s ease !important;
+            text-decoration: none !important;
+            box-sizing: border-box !important;
+            min-height: 110px !important;
+        }
+        .ranking-card:hover {
+            transform: translateY(-2px) !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Top 3 Glowing Card Borders matching Image */
+        .ranking-card-1 {
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+            border-right: 3.5px solid #38bdf8 !important;
+            background: linear-gradient(90deg, #181b26 65%, rgba(56, 189, 248, 0.1) 100%) !important;
+            padding: 12px 14px !important;
+        }
+        .ranking-card-2 {
+            border: 1px solid rgba(244, 63, 94, 0.4) !important;
+            border-right: 3.5px solid #f43f5e !important;
+            background: linear-gradient(90deg, #181b26 65%, rgba(244, 63, 94, 0.1) 100%) !important;
+            padding: 12px 14px !important;
+        }
+        .ranking-card-3 {
+            border: 1px solid rgba(234, 179, 8, 0.4) !important;
+            border-right: 3.5px solid #eab308 !important;
+            background: linear-gradient(90deg, #181b26 65%, rgba(234, 179, 8, 0.1) 100%) !important;
+            padding: 12px 14px !important;
+        }
+        .ranking-card-1:hover {
+            background: #212534 !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25) !important;
+        }
+        .ranking-card-2:hover {
+            background: #212534 !important;
+            border-color: #f43f5e !important;
+            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.25) !important;
+        }
+        .ranking-card-3:hover {
+            background: #212534 !important;
+            border-color: #eab308 !important;
+            box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25) !important;
+        }
+
+        /* ── ONE-BY-ONE SEQUENTIAL SPOTLIGHT (CHỚP + PHÓNG TO LẦN LƯỢT TỪNG SỐ MỘT - CHỈ CHỚP TRÊN SỐ, KHÔNG BỊ Ô VUÔNG KHIẾN HỎNG KHUNG) ── */
+        @keyframes spotlightStepBlue {
+            0% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #38bdf8;
+            }
+            4% {
+                transform: scale(1.25);
+                text-shadow: 0 0 8px #38bdf8, 0 0 16px rgba(56, 189, 248, 0.9);
+                -webkit-text-stroke-color: #7dd3fc;
+            }
+            8%, 100% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #38bdf8;
+            }
+        }
+
+        @keyframes spotlightStepPink {
+            0% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #f43f5e;
+            }
+            4% {
+                transform: scale(1.25);
+                text-shadow: 0 0 8px #f43f5e, 0 0 16px rgba(244, 63, 94, 0.9);
+                -webkit-text-stroke-color: #fb7185;
+            }
+            8%, 100% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #f43f5e;
+            }
+        }
+
+        @keyframes spotlightStepGold {
+            0% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #eab308;
+            }
+            4% {
+                transform: scale(1.25);
+                text-shadow: 0 0 8px #eab308, 0 0 16px rgba(234, 179, 8, 0.9);
+                -webkit-text-stroke-color: #fde047;
+            }
+            8%, 100% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #eab308;
+            }
+        }
+
+        @keyframes spotlightStepSlate {
+            0% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #475569;
+            }
+            4% {
+                transform: scale(1.22);
+                text-shadow: 0 0 8px #94a3b8, 0 0 14px rgba(148, 163, 184, 0.85);
+                -webkit-text-stroke-color: #cbd5e1;
+            }
+            8%, 100% {
+                transform: scale(1);
+                text-shadow: none;
+                -webkit-text-stroke-color: #475569;
+            }
+        }
+
+        /* Large Neon Outline Rank Numbers */
+        .ranking-num {
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif !important;
+            font-size: 44px !important;
+            font-weight: 900 !important;
+            line-height: 1 !important;
+            color: transparent !important;
+            -webkit-text-stroke: 2px #475569 !important;
+            min-width: 36px !important;
+            text-align: center !important;
+            flex-shrink: 0 !important;
+            user-select: none !important;
+            transition: transform 0.2s ease !important;
+            display: inline-block !important;
+            will-change: transform !important;
+            animation-duration: 5s !important;
+            animation-timing-function: ease-in-out !important;
+            animation-iteration-count: infinite !important;
+            animation-name: spotlightStepSlate;
+        }
+        .ranking-num-1 {
+            -webkit-text-stroke: 2.2px #38bdf8 !important;
+            animation-name: spotlightStepBlue !important;
+        }
+        .ranking-num-2 {
+            -webkit-text-stroke: 2.2px #f43f5e !important;
+            animation-name: spotlightStepPink !important;
+        }
+        .ranking-num-3 {
+            -webkit-text-stroke: 2.2px #eab308 !important;
+            animation-name: spotlightStepGold !important;
+        }
+
+        /* Dedicated Staggered Delays (Ensures 1-by-1 Sequential Spotlight) */
+        .rank-delay-0 { animation-delay: 0.0s !important; }
+        .rank-delay-1 { animation-delay: 0.5s !important; }
+        .rank-delay-2 { animation-delay: 1.0s !important; }
+        .rank-delay-3 { animation-delay: 1.5s !important; }
+        .rank-delay-4 { animation-delay: 2.0s !important; }
+        .rank-delay-5 { animation-delay: 2.5s !important; }
+        .rank-delay-6 { animation-delay: 3.0s !important; }
+        .rank-delay-7 { animation-delay: 3.5s !important; }
+        .rank-delay-8 { animation-delay: 4.0s !important; }
+        .rank-delay-9 { animation-delay: 4.5s !important; }
+
+        .ranking-poster-box {
+            width: 58px !important;
+            min-width: 58px !important;
+            height: 84px !important;
+            border-radius: 9px !important;
+            overflow: hidden !important;
+            flex-shrink: 0 !important;
+            background: #0d0f1a !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.55) !important;
+        }
+        .ranking-poster-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
+
+        .ranking-info {
+            flex: 1 !important;
+            min-width: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+        }
+
+        .ranking-title-vi {
+            font-size: 14.5px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            line-height: 1.3 !important;
+        }
+
+        .ranking-title-en {
+            font-size: 12px !important;
+            color: #94a3b8 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        .ranking-meta-row {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-top: 4px !important;
+        }
+
+        .ranking-crown-icon {
+            font-size: 13px !important;
+        }
+
+        .ranking-badge-pill {
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            padding: 2px 7px !important;
+            border-radius: 4px !important;
+            text-transform: uppercase !important;
+            line-height: 1.3 !important;
+        }
+        .badge-vs {
+            background: rgba(16, 185, 129, 0.2) !important;
+            color: #34d399 !important;
+            border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        }
+        .badge-tm {
+            background: rgba(236, 72, 153, 0.2) !important;
+            color: #f472b6 !important;
+            border: 1px solid rgba(236, 72, 153, 0.35) !important;
+        }
+
+    </style>
+</head>
+<body class="bg-[#1f2331] text-white antialiased">
+    <%- include('partials/header') %>
+
+    <!-- 1. Global Container Specification (1420px Max-Width & 24px Padding) -->
+    <main class="app-container py-3">
+
+        <!-- ==============================================
+             SECTION 0: PHIM MỚI ĐỀ CỬ (HORIZONTAL SLIDER WITH VERTICAL 2:3 CARDS)
+             ============================================== -->
+        <section style="margin-top: 10px;">
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">PHIM MỚI ĐỀ CỬ</h2>
+                </div>
+                <div class="flex items-center gap-2 section-header-nav">
+                    <button onclick="scrollSlider(-350)" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#f97316] hover:text-black flex items-center justify-center text-white transition-colors">
+                        <span class="material-icons-round text-sm">chevron_left</span>
+                    </button>
+                    <button onclick="scrollSlider(350)" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#f97316] hover:text-black flex items-center justify-center text-white transition-colors">
+                        <span class="material-icons-round text-sm">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Horizontal Scroll Slider (Vertical 2:3 Cards) -->
+            <div id="slider-de-cu" class="de-cu-slider">
+                <!-- Loaded via JS -->
+            </div>
+        </section>
+
+
+        <!-- ==============================================
+             SECTION 1: PHIM BỘ MỚI CẬP NHẬT (PHOTO #3 EXACT 5-COLUMN GRID: 12 ITEMS TOTAL)
+             ============================================== -->
+        <section>
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">PHIM BỘ MỚI CẬP NHẬT</h2>
+                    <div class="section-header-tabs">
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-bo', 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1')" class="section-header-tab active">Mới cập nhật</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-bo', 'https://phimapi.com/v1/api/quoc-gia/han-quoc?page=1')" class="section-header-tab inactive">Hàn Quốc</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-bo', 'https://phimapi.com/v1/api/quoc-gia/trung-quoc?page=1')" class="section-header-tab inactive">Trung Quốc</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-bo', 'https://phimapi.com/v1/api/quoc-gia/au-my?page=1')" class="section-header-tab inactive">Âu Mỹ</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-bo', 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=2')" class="section-header-tab inactive">Phim Bộ Full</button>
+                    </div>
+                </div>
+                <a href="/danh-sach?list=phim-bo" class="section-header-link">
+                    Xem tất cả &gt;
+                </a>
+            </div>
+
+            <div id="grid-phim-bo" class="phimmoi-section-grid">
+                <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
+            </div>
+        </section>
+
+
+        <!-- ==============================================
+             SECTION 1.5: BẢNG XẾP HẠNG PHIM HOT (HORIZONTAL 10-ITEM SHOWCASE MATCHING USER IMAGE)
+             ============================================== -->
+        <section style="margin-top: 24px; margin-bottom: 24px;">
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">
+                        BẢNG XẾP HẠNG PHIM HOT
+                    </h2>
+                    <div class="section-header-tabs">
+                        <button type="button" onclick="switchRankingTab(this, 'phim-bo')" class="section-header-tab active">Phim Bộ</button>
+                        <button type="button" onclick="switchRankingTab(this, 'phim-le')" class="section-header-tab inactive">Phim Lẻ</button>
+                        <button type="button" onclick="switchRankingTab(this, 'phim-moi-cap-nhat')" class="section-header-tab inactive">Mới Cập Nhật</button>
+                        <button type="button" onclick="switchRankingTab(this, 'hoat-hinh')" class="section-header-tab inactive">Hoạt Hình</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grid-bang-xep-hang" class="ranking-grid-container">
+                <div class="col-span-full py-12 flex items-center justify-center text-gray-400">
+                    <div class="inline-block w-8 h-8 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
+                    <span class="ml-3 text-sm font-medium">Đang tải Bảng Xếp Hạng...</span>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- ==============================================
+             SECTION 2: PHIM CHIẾU RẠP MỚI
+             ============================================== -->
+        <section>
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">PHIM CHIẾU RẠP MỚI</h2>
+                    <div class="section-header-tabs">
+                        <a href="#" class="section-header-tab active">Mới cập nhật</a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grid-chieu-rap" class="phimmoi-section-grid">
+                <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
+            </div>
+        </section>
+
+
+        <!-- ==============================================
+             SECTION 3: PHIM LẺ MỚI CẬP NHẬT
+             ============================================== -->
+        <section>
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">PHIM LẺ MỚI CẬP NHẬT</h2>
+                    <div class="section-header-tabs">
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/danh-sach/phim-le?page=1')" class="section-header-tab active">Mới cập nhật</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/the-loai/hanh-dong?page=1')" class="section-header-tab inactive">Hành Động</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/the-loai/hoat-hinh?page=1')" class="section-header-tab inactive">Hoạt Hình</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/the-loai/kinh-di?page=1')" class="section-header-tab inactive">Kinh Dị</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grid-phim-le" class="phimmoi-section-grid">
+                <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
+            </div>
+        </section>
+
+
+        <!-- ==============================================
+             SECTION 4: PHIM MỚI THỊNH HÀNH
+             ============================================== -->
+        <section>
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">PHIM MỚI THỊNH HÀNH</h2>
+                    <div class="section-header-tabs">
+                        <button type="button" onclick="switchSectionTab(this, 'grid-trending', 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1')" class="section-header-tab active">Phim Bộ</button>
+                        <button type="button" onclick="switchSectionTab(this, 'grid-trending', 'https://phimapi.com/v1/api/danh-sach/phim-le?page=1')" class="section-header-tab inactive">Phim Lẻ</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grid-trending" class="phimmoi-section-grid">
+                <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
+            </div>
+        </section>
+
+
+        <!-- ==============================================
+             SECTION 5: PHIM HOẠT HÌNH & ANIME
+             ============================================== -->
+        <section>
+            <div class="section-header">
+                <div class="section-header-left">
+                    <h2 class="section-header-title">PHIM HOẠT HÌNH & ANIME</h2>
+                    <div class="section-header-tabs">
+                        <a href="#" class="section-header-tab active">Mới cập nhật</a>
+                    </div>
+                </div>
+            </div>
+            <div id="grid-anime" class="phimmoi-section-grid">
+                <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
+            </div>
+        </section>
+
+
+        <!-- ==============================================
+             SECTION 6: CÂU HỎI THƯỜNG GẶP (FAQ)
+             ============================================== -->
+        <%- include('partials/faq') %>
+
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Dynamic PhimMoi Render Script -->
+    <script>
+    (function() {
+        const API_BASE = 'https://phimapi.com';
+
+        function getImgUrl(url) {
+            if (!url) return '/images/no-poster.jpg';
+            if (url.startsWith('http')) return url;
+            return 'https://phimimg.com/' + url.replace(/^\//, '');
+        }
+
+        window.scrollSlider = function(amount) {
+            const slider = document.getElementById('slider-de-cu');
+            if (slider) {
+                slider.scrollBy({ left: amount, behavior: 'smooth' });
+            }
+        };
+
+        // 🎯 ICONIC PHIMMOI HOLLOW STROKE PLAY TRIANGLE
+        const PLAY_SVG_HTML = `<svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>`;
+
+        // Helper to format language badges matching Photo 2
+        function formatLangBadges(lang) {
+            if (!lang) return `<span class="badge-tag badge-tag-pd">Vietsub</span>`;
+            const str = lang.toLowerCase();
+            let badges = [];
+
+            const hasSn = str.includes('song ngữ') || str.includes('song ngu');
+            const hasSub = str.includes('sub') || str.includes('phụ đề') || str.includes('phu de') || str.includes('p.đề');
+            const hasTm = str.includes('thuyết minh') || str.includes('thuyet minh') || str.includes('t.minh');
+            const hasLt = str.includes('lồng tiếng') || str.includes('long tieng') || str.includes('l.tiếng');
+
+            if (hasSn) {
+                badges.push(`<span class="badge-tag badge-tag-sn">Song ngữ</span>`);
+            }
+            if (hasSub) {
+                badges.push(`<span class="badge-tag badge-tag-pd">${(hasTm || hasLt) ? 'P.Đề' : 'Vietsub'}</span>`);
+            }
+            if (hasTm) {
+                badges.push(`<span class="badge-tag badge-tag-tm">T.Minh</span>`);
+            }
+            if (hasLt) {
+                badges.push(`<span class="badge-tag badge-tag-lt">L.Tiếng</span>`);
+            }
+
+            if (badges.length === 0) {
+                badges.push(`<span class="badge-tag badge-tag-pd">${lang}</span>`);
+            }
+
+            return badges.join('');
+        }
+
+        // Helper to format episode badge (Yellow for Full / Hoàn Tất)
+        function getEpBadgeHTML(epText) {
+            const text = epText || 'Full';
+            const str = text.toLowerCase();
+            const isFull = str.includes('full') || str.includes('hoàn tất') || str.includes('hoan tat');
+            const badgeClass = isFull ? 'badge-ep-yellow' : 'badge-ep-orange';
+            return `<span class="${badgeClass}">${text}</span>`;
+        }
+
+        // 1. Render Vertical 2:3 Movie Card (For PHIM MỚI ĐỀ CỬ Slider Only)
+        function createDeCuCardHTML(movie) {
+            const watchUrl = '/phim/' + movie.slug;
+            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const epText = movie.episode_current || 'Tập 1';
+            const langBadges = formatLangBadges(movie.lang || 'Vietsub');
+            const isFull = epText.toLowerCase().includes('full') || epText.toLowerCase().includes('hoàn tất');
+
+            return `
+                <div class="de-cu-card">
+                    <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block">
+                        <div class="de-cu-poster-wrap">
+                            <div class="de-cu-top-badges">
+                                ${langBadges}
+                                <span class="badge-fhd">FHD</span>
+                            </div>
+
+                            <img src="${img}" alt="${movie.name}" loading="lazy" />
+
+                            <div class="phimmoi-play-overlay">
+                                <div class="phimmoi-play-btn">
+                                    ${PLAY_SVG_HTML}
+                                </div>
+                            </div>
+
+                            <div class="de-cu-bottom-badge ${isFull ? 'badge-ep-yellow' : ''}">${epText}</div>
+                        </div>
+
+                        <div class="de-cu-title-wrap">
+                            <div class="de-cu-title-vi">${movie.name}</div>
+                            <div class="de-cu-title-en">${movie.origin_name || ''}</div>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
+
+        // 2. Render Featured Card
+        function createFeaturedCardHTML(movie) {
+            const watchUrl = '/phim/' + movie.slug;
+            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const epText = movie.episode_current || 'Tập 1';
+            const epBadgeHTML = getEpBadgeHTML(epText);
+            const langBadges = formatLangBadges(movie.lang || 'Vietsub');
+
+            return `
+                <div class="featured-card-item">
+                    <a href="${watchUrl}" title="${movie.name}" class="block w-full h-full relative" style="text-decoration:none;">
+                        <div class="landscape-poster-wrap">
+                            <div class="card-top-badges">
+                                ${epBadgeHTML}
+                                ${langBadges}
+                            </div>
+
+                            <img src="${img}" alt="${movie.name}" loading="lazy" class="single-feature-img" />
+
+                            <div class="phimmoi-play-overlay">
+                                <div class="phimmoi-play-btn">
+                                    ${PLAY_SVG_HTML}
+                                </div>
+                            </div>
+
+                            <div class="card-bottom-overlay">
+                                <div class="card-title-vi">${movie.name}</div>
+                                <div class="card-title-en">${movie.origin_name || ''} ${movie.year ? '(' + movie.year + ')' : ''}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
+
+        // 3. Render Normal Card Item (1x1 in Unified Grid)
+        function createNormalCardHTML(movie) {
+            const watchUrl = '/phim/' + movie.slug;
+            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const epText = movie.episode_current || 'Full';
+            const epBadgeHTML = getEpBadgeHTML(epText);
+            const langBadges = formatLangBadges(movie.lang || 'Vietsub');
+
+            return `
+                <div class="normal-card-item">
+                    <a href="${watchUrl}" title="${movie.name}" class="block" style="text-decoration:none;">
+                        <div class="landscape-poster-wrap">
+                            <div class="card-top-badges">
+                                ${epBadgeHTML}
+                                ${langBadges}
+                            </div>
+
+                            <img src="${img}" alt="${movie.name}" loading="lazy" />
+
+                            <div class="phimmoi-play-overlay">
+                                <div class="phimmoi-play-btn">
+                                    ${PLAY_SVG_HTML}
+                                </div>
+                            </div>
+
+                            <div class="card-bottom-overlay">
+                                <div class="card-title-vi">${movie.name}</div>
+                                ${movie.origin_name ? `<div class="card-title-en">${movie.origin_name}</div>` : ''}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
+
+        // 🎯 Tab Switching Handler for Section Filters
+        window.switchSectionTab = function(btnElement, containerId, apiUrl) {
+            const tabsContainer = btnElement.closest('.section-header-tabs');
+            if (tabsContainer) {
+                const tabs = tabsContainer.querySelectorAll('.section-header-tab');
+                tabs.forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.classList.add('inactive');
+                });
+                btnElement.classList.remove('inactive');
+                btnElement.classList.add('active');
+            }
+
+            const gridEl = document.getElementById(containerId);
+            if (gridEl) {
+                gridEl.innerHTML = `
+                    <div class="col-span-full py-12 flex items-center justify-center text-gray-400">
+                        <div class="inline-block w-8 h-8 border-4 border-[#ff6a00] border-t-transparent rounded-full animate-spin"></div>
+                        <span class="ml-3 text-sm font-medium">Đang tải phim...</span>
+                    </div>
+                `;
+            }
+
+            loadUnifiedSection(apiUrl, containerId, 12);
+        };
+
+        // 🎯 EXACT PHOTO #3 5-COLUMN RENDER LOGIC: 12 Items Total (1 Featured + 6 Right + 5 Bottom = 12 items, 3 FULL ROWS)
+        async function loadUnifiedSection(arg1, arg2, arg3, arg4 = 12) {
+            let type = 'list';
+            let paramVal = 'phim-moi-cap-nhat';
+            let containerId = '';
+            let limitCount = 12;
+
+            if (typeof arg1 === 'string' && (arg1.startsWith('http') || arg1.startsWith('/v1/api/'))) {
+                // Called via switchSectionTab(apiUrl, containerId, 12)
+                type = arg1;
+                paramVal = '';
+                containerId = arg2;
+                limitCount = arg3 || 12;
+            } else {
+                // Called via loadUnifiedSection(type, paramVal, containerId, limitCount)
+                type = arg1;
+                paramVal = arg2;
+                containerId = arg3;
+                limitCount = arg4 || 12;
+            }
+
+            try {
+                const res = await window.APhimCore.fetchMovieGridData(type, paramVal, 1);
+                const items = res?.items || [];
+                if (!items.length) return;
+
+                const gridEl = document.getElementById(containerId);
+                if (gridEl) {
+                    const featuredHTML = createFeaturedCardHTML(items[0]);
+                    const normalCount = limitCount - 1; // 11 normal cards
+                    const normalHTML = items.slice(1, normalCount + 1).map(m => createNormalCardHTML(m)).join('');
+                    gridEl.innerHTML = featuredHTML + normalHTML;
+                }
+            } catch (err) {
+                console.warn('Lỗi API section:', type, paramVal, err);
+            }
+        }
+
+
+        // 🎯 RENDER BẢNG XẾP HẠNG CARD (HORIZONTAL LAYOUT MATCHING USER IMAGE)
+        function createRankingCardHTML(movie, index) {
+            const watchUrl = '/phim/' + movie.slug;
+            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const rank = index + 1;
+            
+            let rankClass = '';
+            let numClass = '';
+            if (rank === 1) { rankClass = 'ranking-card-1'; numClass = 'ranking-num-1'; }
+            else if (rank === 2) { rankClass = 'ranking-card-2'; numClass = 'ranking-num-2'; }
+            else if (rank === 3) { rankClass = 'ranking-card-3'; numClass = 'ranking-num-3'; }
+
+            const lang = (movie.lang || 'Vietsub').toLowerCase();
+            const epText = (movie.episode_current || 'Full').trim();
+
+            let badgeVS_TM = '';
+            if (lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh')) {
+                badgeVS_TM = `<span class="ranking-badge-pill badge-tm">TM.${epText.replace(/[^0-9]/g, '') || 'Full'}</span>`;
+            } else {
+                badgeVS_TM = `<span class="ranking-badge-pill badge-vs">VS.${epText.replace(/[^0-9]/g, '') || 'Full'}</span>`;
+            }
+
+            return `
+                <a href="${watchUrl}" title="${movie.name}" class="ranking-card ${rankClass}">
+                    <div class="ranking-num ${numClass} rank-delay-${index}">${rank}</div>
+                    <div class="ranking-poster-box">
+                        <img class="ranking-poster-img" src="${img}" alt="${movie.name}" loading="lazy" onError="window.APhimCore.handleImgError(this)" />
+                    </div>
+                    <div class="ranking-info">
+                        <div class="ranking-title-vi" title="${movie.name}">${movie.name}</div>
+                        <div class="ranking-title-en" title="${movie.origin_name || ''}">${movie.origin_name || ''}</div>
+                        <div class="ranking-meta-row">
+                            <span class="ranking-crown-icon">👑</span>
+                            ${badgeVS_TM}
+                        </div>
+                    </div>
+                </a>
+            `;
+        }
+
+        window.switchRankingTab = async function(btnElement, paramVal) {
+            const tabsContainer = btnElement.closest('.section-header-tabs');
+            if (tabsContainer) {
+                tabsContainer.querySelectorAll('.section-header-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.classList.add('inactive');
+                });
+                btnElement.classList.remove('inactive');
+                btnElement.classList.add('active');
+            }
+
+            const gridEl = document.getElementById('grid-bang-xep-hang');
+            if (gridEl) {
+                gridEl.innerHTML = `
+                    <div class="col-span-full py-12 flex items-center justify-center text-gray-400">
+                        <div class="inline-block w-8 h-8 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
+                        <span class="ml-3 text-sm font-medium">Đang cập nhật Bảng Xếp Hạng...</span>
+                    </div>
+                `;
+            }
+
+            try {
+                const res = await window.APhimCore.fetchMovieGridData('list', paramVal, 1);
+                const items = res.items || [];
+                if (gridEl && items.length) {
+                    gridEl.innerHTML = items.slice(0, 10).map((m, idx) => createRankingCardHTML(m, idx)).join('');
+                }
+            } catch (e) {
+                console.warn('Lỗi load Bảng xếp hạng:', e);
+            }
+        };
+
+        async function loadRankingSection() {
+            try {
+                const res = await window.APhimCore.fetchMovieGridData('list', 'phim-bo', 1);
+                const items = res.items || [];
+                const gridEl = document.getElementById('grid-bang-xep-hang');
+                if (gridEl && items.length) {
+                    gridEl.innerHTML = items.slice(0, 10).map((m, idx) => createRankingCardHTML(m, idx)).join('');
+                }
+            } catch (err) {
+                console.warn('Lỗi Bảng Xếp Hạng:', err);
+            }
+        }
+
+        // Load Phim Mới Đề Cử Slider (Vertical Cards)
+        async function loadDeCuSlider() {
+            try {
+                const res = await window.APhimCore.fetchMovieGridData('list', 'phim-moi-cap-nhat', 1);
+                const items = res.items || [];
+                const sliderEl = document.getElementById('slider-de-cu');
+                if (sliderEl && items.length) {
+                    sliderEl.innerHTML = items.slice(0, 16).map(m => createDeCuCardHTML(m)).join('');
+                }
+            } catch (err) {
+                console.warn('Lỗi Slider Đề Cử:', err);
+            }
+        }
+
+        function loadWhenNearViewport(containerId, loadSection) {
+            const container = document.getElementById(containerId);
+            if (!container || !('IntersectionObserver' in window)) {
+                loadSection();
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                if (!entries.some(entry => entry.isIntersecting)) return;
+                observer.disconnect();
+                loadSection();
+            }, { rootMargin: '250px 0px' });
+
+            observer.observe(container);
+        }
+
+        // Load the first row immediately; defer lower rows until the user is approaching them.
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDeCuSlider();
+            loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
+            loadWhenNearViewport('grid-bang-xep-hang', loadRankingSection);
+            loadWhenNearViewport('grid-chieu-rap', () => loadUnifiedSection('list', 'phim-chieu-rap', 'grid-chieu-rap', 12));
+            loadWhenNearViewport('grid-phim-le', () => loadUnifiedSection('list', 'phim-le', 'grid-phim-le', 12));
+            loadWhenNearViewport('grid-trending', () => loadUnifiedSection('list', 'phim-moi-cap-nhat', 'grid-trending', 12));
+            loadWhenNearViewport('grid-anime', () => loadUnifiedSection('list', 'hoat-hinh', 'grid-anime', 12));
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        input, select, textarea {
+            background-color: #181921 !important;
+            color: #ffffff !important;
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover,
+        textarea:-webkit-autofill:focus {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0px 1000px #1f2331 inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
+</head>
+<body class="bg-[#1f2331] text-gray-200 min-h-screen pt-28 md:pt-32 flex flex-col font-sans">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative py-12 md:py-16 bg-gradient-to-b from-[#1c1e2b] via-[#1f2331] to-[#1f2331] border-b border-white/5 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+            <div class="app-container relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#ff9900]/15 text-[#ff9900] border border-[#ff9900]/30 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    Kết Nối Với Chúng Tôi
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+                    LIÊN HỆ & HỖ TRỢ
+                </h1>
+                <p class="text-gray-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed font-medium">
+                    Bạn cần báo lỗi phim, hợp tác quảng cáo hay có ý kiến đóng góp cho A Phim Super? Vui lòng gửi tin nhắn hoặc kết nối trực tiếp qua các kênh hỗ trợ bên dưới.
+                </p>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="py-12 md:py-16">
+            <div class="app-container grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                
+                <!-- Left: Contact Channels -->
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="w-1.5 h-6 bg-[#ff9900] rounded-sm"></span>
+                        <h2 class="text-xl font-bold text-white">Kênh Hỗ Trợ Trực Tuyến</h2>
+                    </div>
+
+                    <!-- Telegram Card -->
+                    <a href="https://t.me/dautayonly" target="_blank" class="flex items-center gap-4 p-5 md:p-6 bg-[#20222d] border border-white/10 rounded-2xl hover:border-blue-400/50 hover:bg-[#252836] transition-all group shadow-xl">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform flex-shrink-0">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.18 3.44-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.73-.24-1.31-.36-1.26-.77.03-.21.32-.42.87-.64 3.41-1.48 5.68-2.46 6.83-2.94 3.25-1.36 3.93-1.59 4.37-1.59.1 0 .31.02.43.09.1.06.18.14.2.25.01.12.01.19.01.37z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-base">Kênh Telegram Hỗ Trợ 24/7</div>
+                            <div class="text-gray-400 text-xs mt-0.5">@dautayonly - Phản hồi siêu tốc trong vài phút</div>
+                        </div>
+                    </a>
+
+                    <!-- Email Card -->
+                    <a href="mailto:support@aphim.io.vn" class="flex items-center gap-4 p-5 md:p-6 bg-[#20222d] border border-white/10 rounded-2xl hover:border-[#ff9900]/50 hover:bg-[#252836] transition-all group shadow-xl">
+                        <div class="w-12 h-12 rounded-xl bg-[#ff9900]/15 border border-[#ff9900]/30 flex items-center justify-center text-[#ff9900] group-hover:scale-110 transition-transform flex-shrink-0">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-base">Email Hợp Tác & Bản Quyền</div>
+                            <div class="text-gray-400 text-xs mt-0.5">support@aphim.io.vn</div>
+                        </div>
+                    </a>
+
+                    <!-- Discord Card -->
+                    <a href="https://t.me/dautayonly" target="_blank" class="flex items-center gap-4 p-5 md:p-6 bg-[#20222d] border border-white/10 rounded-2xl hover:border-indigo-400/50 hover:bg-[#252836] transition-all group shadow-xl">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform flex-shrink-0">
+                            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-base">Cộng Đồng Discord</div>
+                            <div class="text-gray-400 text-xs mt-0.5">Tham gia giao lưu và cập nhật phim mới</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Right: Interactive Form -->
+                <div class="bg-[#20222d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-5 shadow-2xl">
+                    <h2 class="text-xl font-bold text-white mb-2">Gửi Tin Nhắn Phản Hồi</h2>
+                    
+                    <form id="contactForm" onsubmit="submitContactForm(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wide mb-1.5">Họ và tên</label>
+                            <input type="text" id="contactName" required placeholder="Nhập tên của bạn..." 
+                                   class="w-full bg-[#181921] text-white border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ff9900] transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wide mb-1.5">Địa chỉ Email</label>
+                            <input type="email" id="contactEmail" required placeholder="example@gmail.com..." 
+                                   class="w-full bg-[#181921] text-white border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ff9900] transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wide mb-1.5">Chủ đề cần hỗ trợ</label>
+                            <select id="contactTopic" class="w-full bg-[#181921] text-white border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ff9900] transition-all">
+                                <option value="Báo lỗi phim / Server không phát">Báo lỗi phim / Server không phát</option>
+                                <option value="Góp ý nâng cấp tính năng website">Góp ý nâng cấp website</option>
+                                <option value="Hợp tác quảng cáo & Bản quyền">Hợp tác quảng cáo & Bản quyền</option>
+                                <option value="Vấn đề tài khoản / Xu / Gamification">Vấn đề tài khoản / Xu</option>
+                                <option value="Vấn đề khác">Vấn đề khác</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wide mb-1.5">Nội dung tin nhắn</label>
+                            <textarea id="contactMessage" required rows="4" placeholder="Mô tả chi tiết vấn đề hoặc ý kiến đóng góp của bạn..." 
+                                      class="w-full bg-[#181921] text-white border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#ff9900] transition-all resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" id="btnContactSubmit"
+                                style="background-color: #ff9900 !important; color: #000000 !important; font-weight: 800 !important; width: 100% !important;" 
+                                class="py-3.5 rounded-xl hover:opacity-90 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                            <svg class="w-4 h-4 fill-black" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            <span>Gửi Tin Nhắn Phản Hồi</span>
+                        </button>
+                    </form>
+
+                    <div id="contactSuccessMsg" class="hidden p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm text-center font-semibold">
+                        ✓ Cảm ơn bạn! Tin nhắn của bạn đã được gửi thành công. Đội ngũ A Phim Super sẽ kiểm tra và phản hồi sớm nhất.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+    async function submitContactForm(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnContactSubmit');
+        const name = document.getElementById('contactName')?.value || '';
+        const email = document.getElementById('contactEmail')?.value || '';
+        const topic = document.getElementById('contactTopic')?.value || 'Liên hệ chung';
+        const message = document.getElementById('contactMessage')?.value || '';
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳ Đang gửi tin nhắn...</span>';
+        }
+
+        const payload = {
+            type: 'contact',
+            userName: name,
+            userEmail: email,
+            issueType: topic,
+            description: message,
+            currentUrl: window.location.href
+        };
+
+        try {
+            await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            console.warn('Lỗi gửi phản hồi:', err);
+        } finally {
+            document.getElementById('contactForm')?.classList.add('hidden');
+            document.getElementById('contactSuccessMsg')?.classList.remove('hidden');
+        }
+    }
+    </script>
+</body>
+</html>

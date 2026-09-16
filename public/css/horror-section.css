@@ -1,0 +1,96 @@
+.horror-section {
+    background: transparent !important;
+}
+
+.horror-banner-gradient {
+    background: linear-gradient(90deg, rgba(5, 5, 8, 0.45) 15%, transparent 60%) !important;
+}
+
+.horror-banner-overlay {
+    background: linear-gradient(0deg, rgba(5, 5, 8, 0.50) 5%, transparent 40%) !important;
+}
+
+.horror-glass-tag {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+.horror-thumbnail-active {
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.horror-thumbnail-scroll {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.horror-thumbnail-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.horror-thumbnail {
+    transition: all 0.3s ease;
+}
+
+.horror-thumbnail:hover {
+    opacity: 1 !important;
+    transform: translateY(-4px);
+}
+
+/* Fix: Đảm bảo thumbnails không bị đè */
+.horror-banner-content {
+    max-height: 60%;
+    overflow: visible;
+}
+
+/* Đảm bảo thumbnails luôn ở trên cùng */
+.horror-thumbnails-container {
+    z-index: 20;
+    pointer-events: auto;
+}
+
+/* Mobile Responsive - Tối ưu cho điện thoại */
+@media (max-width: 768px) {
+    .horror-banner-content {
+        max-height: 50%;
+    }
+
+    /* Giảm kích thước thumbnails trên mobile */
+    .horror-thumbnail-scroll {
+        gap: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    /* Bỏ ép chiều cao và tỉ lệ để sử dụng css nội tuyến horror-stage flex tự do */
+
+    /* Tối ưu padding cho mobile */
+    .horror-thumbnails-container {
+        bottom: 0.75rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* Giảm kích thước text trên mobile */
+    .horror-section h2 {
+        font-size: 1.25rem !important;
+        line-height: 1.5rem !important;
+    }
+
+    /* Đảm bảo mobile thumbnail strip không bị cắt */
+    .horror-stage {
+        min-height: 580px !important;
+    }
+}
+
+/* Tablet responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .horror-thumbnail-scroll {
+        gap: 0.75rem !important;
+    }
+
+    .horror-section section {
+        aspect-ratio: 16/9 !important;
+    }
+}

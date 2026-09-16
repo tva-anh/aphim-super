@@ -1,0 +1,85 @@
+<aside class="admin-sidebar" id="adminSidebar">
+  <!-- Brand Logo -->
+  <div class="sidebar-header">
+    <a href="/admin" class="sidebar-brand">
+      <div class="brand-logo-icon">
+        <i data-lucide="clapperboard"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">APHIM SUPER</span>
+        <span class="brand-badge">ENTERPRISE</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Main Navigation Links -->
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">HỆ THỐNG QUẢN TRỊ</div>
+
+    <a href="/admin" class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="layout-dashboard"></i></div>
+      <span class="nav-item-label">Tổng Quan KPI</span>
+      <span class="badge badge-primary">LIVE</span>
+    </a>
+
+    <a href="/admin/movies" class="nav-item <%= activePage === 'movies' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="film"></i></div>
+      <span class="nav-item-label">Kho Phim API</span>
+      <span class="badge badge-cyan" id="sidebarMovieCount">API SYNC</span>
+    </a>
+
+    <a href="/admin/users" class="nav-item <%= activePage === 'users' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="users"></i></div>
+      <span class="nav-item-label">Thành Viên & Xu/XP</span>
+      <span class="badge badge-gold">VIP</span>
+    </a>
+
+    <a href="/admin/subscriptions" class="nav-item <%= activePage === 'subscriptions' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="crown"></i></div>
+      <span class="nav-item-label">Gói VIP & Doanh Thu</span>
+      <span class="badge badge-emerald">PRO</span>
+    </a>
+
+    <div class="nav-section-title">NỘI DUNG & TƯƠNG TÁC</div>
+
+    <a href="/admin/banners" class="nav-item <%= activePage === 'banners' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="image"></i></div>
+      <span class="nav-item-label">Banners & Slider</span>
+    </a>
+
+    <a href="/admin/comments" class="nav-item <%= activePage === 'comments' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="message-square"></i></div>
+      <span class="nav-item-label">Bình Luận & Chat</span>
+      <span class="badge badge-pink" id="sidebarCommentCount">MOD</span>
+    </a>
+
+    <div class="nav-section-title">HỆ THỐNG & BẢO MẬT</div>
+
+    <a href="/admin/settings" class="nav-item <%= activePage === 'settings' ? 'active' : '' %>">
+      <div class="nav-item-icon"><i data-lucide="settings"></i></div>
+      <span class="nav-item-label">Cấu Hình & Security</span>
+    </a>
+
+    <a href="/" target="_blank" class="nav-item external-link">
+      <div class="nav-item-icon"><i data-lucide="external-link"></i></div>
+      <span class="nav-item-label">Xem Trang Web Khách</span>
+    </a>
+  </nav>
+
+  <!-- Sidebar Footer: Admin Profile & Auto-lock status -->
+  <div class="sidebar-footer">
+    <div class="admin-user-card">
+      <div class="user-avatar-wrap">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Super Admin" class="user-avatar" id="currentAdminAvatar">
+        <div class="status-indicator online"></div>
+      </div>
+      <div class="user-info">
+        <div class="user-name" id="currentAdminName">Super Admin Pro</div>
+        <div class="user-role">ROOT ACCESS</div>
+      </div>
+      <button class="icon-btn" id="btnAdminLogout" title="Đăng Xuất">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+
+<head>
+    <%- include('partials/head') %>
+    <script id="dotlottie-script" src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
+    <style>
+        /* ─── FULL SEAMLESS ZERO-PADDING BODY ON /phim (BACKDROP AT TOP 0) ─── */
+        body.page-phim-detail,
+        html:not(.light-mode) body.page-phim-detail {
+            padding-top: 0 !important;
+            background-color: #1f2331 !important;
+            background: #1f2331 !important;
+            color: #f1f5f9;
+        }
+
+        html.light-mode body.page-phim-detail {
+            padding-top: 0 !important;
+            background-color: #f5f0e6 !important;
+            background: #f5f0e6 !important;
+            color: #1c1917 !important;
+        }
+
+        main.movie-content-zone {
+            background: transparent !important;
+            padding-top: 84px !important;
+        }
+
+        /* ─── TRANSPARENT HEADER ON /phim (CINEMATIC BACKDROP PASSTHROUGH) ─── */
+        body.page-phim-detail #sofa-header:not(.scrolled),
+        body.page-phim-detail header#sofa-header:not(.scrolled),
+        body.page-phim-detail header:not(.scrolled) {
+            background: transparent !important;
+            background-color: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+            transition: background 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        backdrop-filter 0.35s ease,
+                        -webkit-backdrop-filter 0.35s ease,
+                        border-color 0.35s ease,
+                        box-shadow 0.35s ease !important;
+        }
+
+        /* Scrolled state */
+        body.page-phim-detail #sofa-header.scrolled,
+        body.page-phim-detail header#sofa-header.scrolled {
+            background: rgba(13, 18, 30, 0.9) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55) !important;
+        }
+
+        html.light-mode body.page-phim-detail #sofa-header.scrolled,
+        html.light-mode body.page-phim-detail header#sofa-header.scrolled {
+            background: rgba(245, 240, 230, 0.94) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-bottom: 1px solid #e7e0d3 !important;
+            box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
+        }
+
+        /* 🎨 DEFAULT: HORIZONTAL BACKDROP GRADIENT (Fades lower, shows more image) 🎨 */
+        .backdrop-gradient,
+        html:not(.light-mode) .backdrop-gradient {
+            background: linear-gradient(180deg,
+                    rgba(15, 23, 42, 0.35) 0%,
+                    rgba(15, 23, 42, 0.05) 40%,
+                    rgba(31, 35, 49, 0.4) 70%,
+                    rgba(31, 35, 49, 0.95) 90%,
+                    #1f2331 100%) !important;
+        }
+
+        html.light-mode .backdrop-gradient {
+            background: linear-gradient(180deg,
+                    rgba(30, 25, 20, 0.25) 0%,
+                    rgba(30, 25, 20, 0.02) 40%,
+                    rgba(245, 240, 230, 0.4) 70%,
+                    rgba(245, 240, 230, 0.95) 90%,
+                    #f5f0e6 100%) !important;
+        }
+
+        /* 🎨 AGGRESSIVE: VERTICAL BACKDROP GRADIENT (Fades earlier to cover stretched image) 🎨 */
+        .is-vertical-bg .backdrop-gradient,
+        html:not(.light-mode) .is-vertical-bg .backdrop-gradient {
+            background: linear-gradient(180deg,
+                    rgba(15, 23, 42, 0.35) 0%,
+                    rgba(15, 23, 42, 0.05) 20%,
+                    rgba(31, 35, 49, 0.98) 45%,
+                    #1f2331 60%,
+                    #1f2331 100%) !important;
+        }
+
+        html.light-mode .is-vertical-bg .backdrop-gradient {
+            background: linear-gradient(180deg,
+                    rgba(30, 25, 20, 0.25) 0%,
+                    rgba(30, 25, 20, 0.02) 20%,
+                    rgba(245, 240, 230, 0.98) 45%,
+                    #f5f0e6 60%,
+                    #f5f0e6 100%) !important;
+        }
+
+        /* Removed #movieHeroBackdrop explicit filters to allow Tailwind blur classes to work */
+
+        /* 📱 Mobile Movie Detail Backdrop: Extend long down across poster, title and buttons */
+        @media (max-width: 768px) {
+            .movie-hero-backdrop-wrap {
+                height: 980px !important;
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%) !important;
+                mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%) !important;
+            }
+            html.light-mode .backdrop-gradient {
+                background: linear-gradient(180deg,
+                        rgba(30, 25, 20, 0.22) 0%,
+                        rgba(30, 25, 20, 0.04) 30%,
+                        rgba(245, 240, 230, 0.85) 75%,
+                        #f5f0e6 90%,
+                        #f5f0e6 100%) !important;
+            }
+            html:not(.light-mode) .backdrop-gradient {
+                background: linear-gradient(180deg,
+                        rgba(15, 23, 42, 0.3) 0%,
+                        rgba(15, 23, 42, 0.06) 30%,
+                        rgba(31, 35, 49, 0.85) 75%,
+                        #1f2331 90%,
+                        #1f2331 100%) !important;
+            }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar,
+        .scrollbar-hide::-webkit-scrollbar {
+            width: 0px !important;
+            height: 0px !important;
+            display: none !important;
+        }
+        .scrollbar-hide {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        
+        /* Mobile Action Buttons Symmetrical 3x2 Grid Alignment */
+        @media (max-width: 639px) {
+            .movie-actions-container {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+                width: 100% !important;
+                margin-top: 12px !important;
+                margin-bottom: 16px !important;
+            }
+            .movie-actions-container > div:first-child,
+            .movie-actions-container > div.ml-auto {
+                display: contents !important;
+            }
+            .movie-actions-container a,
+            .movie-actions-container button,
+            .movie-actions-container #watchNowBtn,
+            .movie-actions-container #headerRatingBtn {
+                grid-column: span 1 / span 1 !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+                height: 40px !important;
+                padding: 0 4px !important;
+                justify-content: center !important;
+                font-size: 11.5px !important;
+                box-sizing: border-box !important;
+            }
+            /* Thứ tự hàng nút 1 trên mobile: Lưu phim (trái) -> XEM NGAY (giữa) -> Thêm vào (phải) */
+            .movie-actions-container #favoriteMovieBtn {
+                order: 1 !important;
+            }
+            .movie-actions-container #watchNowBtn {
+                order: 2 !important;
+            }
+            .movie-actions-container #saveMovieBtn {
+                order: 3 !important;
+            }
+            .movie-actions-container > div:first-child > button:nth-child(4) {
+                order: 4 !important;
+            }
+            .movie-actions-container > div:first-child > button:nth-child(5) {
+                order: 5 !important;
+            }
+            .movie-actions-container #headerRatingBtn {
+                order: 6 !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="page-phim-detail bg-[#1f2331] text-gray-100 font-display min-h-screen w-full">
+    <!-- Ambient Background (7 Orbs for Full Coverage) -->
+    <div class="ambient-bg">
+        <div class="ambient-orb ambient-orb-1"></div>
+        <div class="ambient-orb ambient-orb-2"></div>
+        <div class="ambient-orb ambient-orb-3"></div>
+        <div class="ambient-orb ambient-orb-4"></div>
+        <div class="ambient-orb ambient-orb-5"></div>
+        <div class="ambient-orb ambient-orb-6"></div>
+        <div class="ambient-orb ambient-orb-7"></div>
+        <div class="ambient-noise"></div>
+        <div class="ambient-grain"></div>
+    </div>
+    <!-- Navigation -->
+    <%- include('partials/header') %>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+    <main class="relative pt-[78px] sm:pt-[86px] min-h-screen pb-20 movie-content-zone overflow-x-hidden w-full max-w-[100vw] m-0">
+        <!-- Full-Bleed Movie Backdrop Hero Image Behind Header (Top 0 to Hero Bottom) -->
+        <div class="movie-hero-backdrop-wrap absolute top-0 left-0 right-0 w-full h-[620px] sm:h-[680px] lg:h-[750px] z-0 overflow-hidden pointer-events-none" style="-webkit-mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%); mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);">
+            <div class="relative w-full h-full bg-transparent">
+                <img id="movieHeroBackdrop" alt="Background" class="w-full h-full object-cover object-center transition-opacity duration-700 opacity-70 lg:opacity-40 blur-xl lg:blur-2xl"
+                    src="<%= typeof movie !== 'undefined' && movie && (movie.thumb_url || movie.poster_url) ? ((movie.thumb_url || movie.poster_url).startsWith('http') ? (movie.thumb_url || movie.poster_url) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url).replace(/^\//, '')) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' %>" fetchpriority="high" />
+                <div class="absolute inset-0 backdrop-gradient"></div>
+            </div>
+        </div>
+
+        <div class="app-container relative z-10">
+            <div class="flex items-center flex-nowrap gap-1.5 sm:gap-2 text-xs sm:text-sm mb-3 sm:mb-6 font-semibold overflow-hidden whitespace-nowrap w-full max-w-full [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
+                <a class="text-white/80 hover:text-[#fcd576] transition-colors flex-shrink-0 font-medium whitespace-nowrap" href="/">Trang chủ</a>
+                <span class="material-icons-round text-base text-white/60 flex-shrink-0">chevron_right</span>
+                <span id="breadcrumb-movie-name" class="text-white font-bold truncate flex-1 min-w-0"></span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 xl:gap-10 mt-0 relative z-10">
+                <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 lg:gap-6">
+                    <style>
+                        .custom-mobile-poster { width: 100%; max-width: 240px; margin: 0 auto; }
+                        @media (min-width: 640px) { .custom-mobile-poster { max-width: 260px; } }
+                        @media (min-width: 1024px) { .custom-mobile-poster { max-width: 275px; margin: 0; } }
+                    </style>
+                    <div
+                        class="custom-mobile-poster mx-auto lg:mx-0 relative aspect-[2/3] rounded-[20px] lg:rounded-2xl overflow-hidden shadow-2xl shadow-black/90 lg:shadow-black/50 group bg-transparent">
+                        <img alt="Poster"
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                            src="<%= typeof movie !== 'undefined' && movie && (movie.poster_url || movie.thumb_url) ? (movie.poster_url || movie.thumb_url) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' %>" fetchpriority="high" />
+                        <div id="posterQualityBadge"
+                            class="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded shadow-lg uppercase tracking-wider cinematic-gold-badge">
+                            Full HD</div>
+                    </div>
+                    <!-- DESKTOP EPISODES (Hidden on mobile) -->
+                    <div class="hidden lg:block w-full mt-2 sm:mt-3">
+                        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                            Danh sách tập phim
+                        </h2>
+                        <!-- Thanh tìm kiếm tập phim (Desktop) -->
+                        <div id="episode-search-desktop" class="flex items-center gap-2 mb-4 w-full" style="display: none;">
+                            <div class="relative flex-1 w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" style="left: 10px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" id="search-episode-input-desktop" placeholder="Tìm tập..." class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#fcd576]/50 transition-colors" style="padding-left: 32px !important;">
+                            </div>
+                            <button id="sort-episodes-btn-desktop" class="flex-shrink-0 bg-white/5 border border-white/10 rounded-lg w-[38px] h-[38px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                <span class="material-icons-round text-[18px]">swap_vert</span>
+                            </button>
+                        </div>
+
+                        <!-- Grid 2 cột cân xứng 2 bên -->
+                        <div class="max-h-[400px] overflow-y-auto custom-scrollbar pr-1 pb-2 w-full">
+                            <div class="grid grid-cols-2 gap-2.5 w-full" id="episodes-desktop">
+                                <!-- JS will render episodes here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top phim tuần này (Nằm ở Cột trái, canh ngang mục Diễn viên bên cột phải) -->
+                    <aside id="top-weekly-sidebar" class="hidden lg:block w-full mt-6">
+                        <!-- Nội dung được render từ js/top-weekly-sidebar.js -->
+                    </aside>
+                </div>
+
+                <div class="lg:col-span-8 xl:col-span-9 w-full min-w-0 flex flex-col justify-start items-start pb-0 text-left -mt-2 lg:mt-0">
+                    <style>
+                        .cinematic-gold-title {
+                            font-family: 'Space Grotesk', 'Be Vietnam Pro', system-ui, sans-serif !important;
+                            font-weight: 900 !important;
+                            color: #ffffff !important;
+                            -webkit-text-fill-color: #ffffff !important;
+                            display: inline-block !important;
+                            -webkit-font-smoothing: antialiased !important;
+                            -moz-osx-font-smoothing: grayscale !important;
+                            text-rendering: optimizeLegibility !important;
+                            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+                            letter-spacing: -0.01em !important;
+                            line-height: 1.2 !important;
+                        }
+                        html.light-mode .cinematic-gold-title {
+                            color: #1c1917 !important;
+                            -webkit-text-fill-color: #1c1917 !important;
+                            text-shadow: none !important;
+                        }
+                        .cinematic-sub-title {
+                            font-family: 'Space Grotesk', 'Be Vietnam Pro', system-ui, sans-serif !important;
+                            font-weight: 700 !important;
+                            color: #fcd576 !important;
+                            -webkit-font-smoothing: antialiased !important;
+                            -moz-osx-font-smoothing: grayscale !important;
+                            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+                            letter-spacing: 0.5px !important;
+                            display: block !important;
+                            margin-top: 4px !important;
+                            line-height: 1.3 !important;
+                        }
+                        html.light-mode .cinematic-sub-title {
+                            color: #d97706 !important;
+                            -webkit-text-fill-color: #d97706 !important;
+                            text-shadow: none !important;
+                        }
+                        .cinematic-gold-btn {
+                            background: linear-gradient(135deg, #FFEFA6 0%, #FCD576 40%, #D69F3D 100%) !important;
+                            color: #ffffff !important;
+                            font-weight: 800 !important;
+                            box-shadow: 0 6px 20px rgba(214, 159, 61, 0.45) !important;
+                            border: none !important;
+                            outline: none !important;
+                            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                        }
+                        .cinematic-gold-btn * {
+                            color: #ffffff !important;
+                            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+                        }
+                        .cinematic-gold-btn:hover {
+                            background: linear-gradient(135deg, #FFF6C8 0%, #FFE08C 40%, #E5AA45 100%) !important;
+                            box-shadow: 0 8px 25px rgba(214, 159, 61, 0.65) !important;
+                            transform: translateY(-2px) !important;
+                            border: none !important;
+                        }
+                        .cinematic-gold-badge {
+                            background: linear-gradient(135deg, #FFEFA6 0%, #FCD576 45%, #D69F3D 100%) !important;
+                            color: #0d0f1a !important;
+                            font-weight: 900 !important;
+                            box-shadow: 0 4px 14px rgba(214, 159, 61, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+                            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+                            letter-spacing: 1px !important;
+                        }
+                        .cinematic-gold-bar {
+                            background: linear-gradient(to bottom, #FFF4B8 0%, #FCD576 50%, #D69F3D 100%) !important;
+                            box-shadow: 0 0 12px rgba(252, 213, 118, 0.6), 0 0 4px rgba(214, 159, 61, 0.8) !important;
+                            border-radius: 9999px !important;
+                        }
+                        .cinematic-gold-rating {
+                            background: linear-gradient(135deg, rgba(214, 159, 61, 0.2) 0%, rgba(252, 213, 118, 0.1) 100%) !important;
+                            color: #fcd576 !important;
+                            border: 1px solid rgba(252, 213, 118, 0.4) !important;
+                            box-shadow: 0 4px 14px rgba(214, 159, 61, 0.25) !important;
+                            font-weight: 800 !important;
+                        }
+                    </style>
+                    <h1 class="mb-2 lg:mb-4 text-center lg:text-left w-full">
+                        <span class="sr-only">Xem Phim <%= typeof movie !== 'undefined' && movie && movie.name ? movie.name : 'Đang tải...' %> Vietsub Thuyết Minh Full HD - <%= typeof movie !== 'undefined' && movie && movie.origin_name ? movie.origin_name : '' %></span>
+                        <span class="block text-2xl sm:text-4xl lg:text-5xl cinematic-gold-title" aria-hidden="true"><%= typeof movie !== 'undefined' && movie && movie.name ? movie.name : 'Đang tải...' %></span>
+                        <span class="text-sm sm:text-xl lg:text-2xl cinematic-sub-title" aria-hidden="true"><%= typeof movie !== 'undefined' && movie && movie.origin_name ? movie.origin_name : '' %></span>
+                    </h1>
+
+                    <div
+                        class="movie-info-container flex flex-nowrap justify-center lg:justify-start items-center gap-x-2 md:gap-4 mb-2 md:mb-3 lg:mb-4 text-[11px] sm:text-sm md:text-base text-center lg:text-left overflow-hidden w-full">
+                        <span
+                            class="flex items-center gap-1 px-3 py-1 rounded-full backdrop-blur-sm cinematic-gold-rating">
+                            <span class="material-icons-round text-lg">star</span>
+                            8.7/10
+                        </span>
+                        <span class="text-gray-500">•</span>
+                        <span class="text-gray-300 font-medium">2022</span>
+                        <span class="text-gray-500">•</span>
+                        <span class="text-gray-300 font-medium">45-60 phút/tập</span>
+                    </div>
+
+                    <div
+                        class="movie-actions-container flex flex-wrap items-center justify-between gap-3 sm:gap-4 mt-4 md:mt-6 lg:mt-7 mb-4 md:mb-6 lg:mb-7 w-full">
+                        <!-- Nhóm các nút hành động bên trái (Xem ngay, Yêu thích, Thêm vào, Chia sẻ, Bình luận) -->
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <a href="/xem-phim/<%= typeof slug !== 'undefined' ? slug : '' %>" id="watchNowBtn"
+                                class="group relative px-6 h-11 sm:h-12 lg:px-7 rounded-full transition-all duration-300 flex items-center justify-center gap-2 flex-shrink-0 cinematic-gold-btn shadow-xl hover:scale-105 active:scale-95">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                <span class="text-xs sm:text-sm whitespace-nowrap uppercase tracking-wider font-bold text-white">XEM NGAY</span>
+                            </a>
+                            
+                            <button id="favoriteMovieBtn"
+                                class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                                <span class="text-xs sm:text-sm whitespace-nowrap">Lưu phim</span>
+                            </button>
+
+                            <button id="saveMovieBtn"
+                                class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                <span class="text-xs sm:text-sm whitespace-nowrap">Thêm vào</span>
+                            </button>
+
+                            <button onclick="if(typeof shareMovie==='function'){shareMovie();}else if(navigator.clipboard){navigator.clipboard.writeText(location.href);alert('Đã sao chép liên kết phim!');}"
+                                class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                </svg>
+                                <span class="text-xs sm:text-sm whitespace-nowrap">Chia sẻ</span>
+                            </button>
+
+                            <button onclick="document.getElementById('comments-section')?.scrollIntoView({behavior:'smooth'})"
+                                class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+                                </svg>
+                                <span class="text-xs sm:text-sm whitespace-nowrap">Bình luận</span>
+                            </button>
+                        </div>
+
+                        <!-- Mục Đánh giá màu xanh dương nằm góc bên phải -->
+                        <div class="ml-auto flex-shrink-0">
+                            <button id="headerRatingBtn" onclick="document.getElementById('comments-section')?.scrollIntoView({behavior:'smooth'});"
+                                class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 border border-blue-300/30 cursor-pointer">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <span id="headerRatingScore" class="font-black text-base sm:text-lg">0</span>
+                                <span class="text-xs sm:text-sm font-medium tracking-wide">Đánh giá</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- HỆ THỐNG TAB THÔNG TIN PHIM (Match Hình 1 - 5) -->
+                    <div class="ap-movie-tab-system w-full mb-8">
+                        <!-- Thanh chuyển Tab Navigation -->
+                        <div class="flex items-center gap-6 sm:gap-8 border-b border-white/10 pb-1 mb-6 overflow-x-auto custom-scrollbar">
+                            <button type="button" onclick="switchMovieTab('episodes')" id="tab-btn-episodes" class="ap-tab-btn active font-bold text-sm sm:text-base cursor-pointer py-2.5 text-[#fcd576] border-b-2 border-[#fcd576] whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
+                                Tập phim
+                            </button>
+                            <button type="button" onclick="switchMovieTab('gallery')" id="tab-btn-gallery" class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-white/85 hover:text-white border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
+                                Gallery
+                            </button>
+                            <button type="button" onclick="switchMovieTab('ost')" id="tab-btn-ost" class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-white/85 hover:text-white border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
+                                OST
+                            </button>
+                            <button type="button" onclick="switchMovieTab('cast')" id="tab-btn-cast" class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-white/85 hover:text-white border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
+                                Diễn viên
+                            </button>
+                            <button type="button" onclick="switchMovieTab('recommend')" id="tab-btn-recommend" class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-white/85 hover:text-white border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
+                                Đề xuất
+                            </button>
+                        </div>
+
+                        <!-- Tab 1: Tập phim (Match Hình 1) -->
+                        <div id="tab-panel-episodes" class="ap-tab-panel w-full pl-0 ml-0">
+                            <!-- DESKTOP SERVER LIST: Nằm dưới nút xem ngay, chỉ hiện trên Desktop -->
+                            <div id="desktop-server-wrapper" class="hidden lg:block w-full mb-4 pl-0 ml-0">
+                                <div id="server-list-desktop" class="flex flex-wrap items-center gap-2 mb-4 w-full pl-0 ml-0"></div>
+                            </div>
+
+                            <!-- MOBILE EPISODES (Hidden on desktop) -->
+                            <div class="block lg:hidden w-full mt-1 sm:mt-1.5 mb-3 pl-0 ml-0">
+                                <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                                    <svg class="w-5 h-5 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l7 4.5-7 4.5z"/></svg>
+                                    Danh sách tập phim
+                                </h2>
+                                <div id="server-list-mobile" class="flex flex-wrap items-center gap-2 mb-3 w-full"></div>
+                                
+                                <!-- Thanh tìm kiếm tập phim (Mobile) -->
+                                <div id="episode-search-mobile" class="flex items-center gap-2 mb-3 w-full" style="display: none;">
+                                    <div class="relative flex-1 w-full">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" style="left: 10px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                        <input type="text" id="search-episode-input-mobile" placeholder="Tìm tập..." class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#fcd576]/50 transition-colors" style="padding-left: 32px !important;">
+                                    </div>
+                                    <button id="sort-episodes-btn-mobile" class="flex-shrink-0 bg-white/5 border border-white/10 rounded-lg w-[38px] h-[38px] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                        <svg class="w-4 h-4 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/></svg>
+                                    </button>
+                                </div>
+
+                                <div class="overflow-y-auto custom-scrollbar pr-1.5 pb-2" style="max-height: 260px;">
+                                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2" id="episodes-mobile">
+                                        <!-- JS will render episodes here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Gallery (Match Hình 2) -->
+                        <div id="tab-panel-gallery" class="ap-tab-panel w-full hidden space-y-6">
+                            <div>
+                                <h3 class="text-white font-bold text-base md:text-lg mb-3">Videos</h3>
+                                <div class="w-full bg-[#181b26] border border-white/5 rounded-2xl p-10 flex flex-col items-center justify-center gap-3 text-center">
+                                    <svg class="w-12 h-12 text-gray-500 stroke-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span class="text-gray-400 text-sm font-medium">Đang cập nhật...</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-base md:text-lg mb-3">Ảnh</h3>
+                                <div id="tab-gallery-images" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                    <!-- Gallery Images Rendered via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: OST (Match Hình 3) -->
+                        <div id="tab-panel-ost" class="ap-tab-panel w-full hidden">
+                            <div class="w-full bg-[#181b26] border border-white/5 rounded-2xl p-12 flex flex-col items-center justify-center gap-3 text-center">
+                                <svg class="w-12 h-12 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="text-gray-400 text-sm font-medium">Đang cập nhật...</span>
+                            </div>
+                        </div>
+
+                        <!-- Tab 4: Diễn viên (Match Hình 4) -->
+                        <div id="tab-panel-cast" class="ap-tab-panel w-full hidden">
+                            <h3 class="text-white font-bold text-base md:text-lg mb-4">Diễn viên</h3>
+                            <div id="tab-cast-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                <!-- Cast Grid Rendered via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Tab 5: Đề xuất (Match Hình 5) -->
+                        <div id="tab-panel-recommend" class="ap-tab-panel w-full hidden">
+                            <h3 class="text-white font-bold text-base md:text-lg mb-4">Có thể bạn sẽ thích</h3>
+                            <div id="tab-recommend-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                <!-- Recommendations Rendered via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function switchMovieTab(tabName) {
+                            var panels = document.querySelectorAll('.ap-tab-panel');
+                            panels.forEach(function(p) { p.classList.add('hidden'); });
+
+                            var btns = document.querySelectorAll('.ap-tab-btn');
+                            btns.forEach(function(b) {
+                                b.classList.remove('text-[#fcd576]', 'border-[#fcd576]', 'active');
+                                b.classList.add('text-white/85', 'border-transparent', 'font-bold');
+                            });
+
+                            var targetPanel = document.getElementById('tab-panel-' + tabName);
+                            if (targetPanel) {
+                                targetPanel.classList.remove('hidden');
+                            }
+
+                            var targetBtn = document.getElementById('tab-btn-' + tabName);
+                            if (targetBtn) {
+                                targetBtn.classList.remove('text-white/85', 'text-gray-400', 'border-transparent');
+                                targetBtn.classList.add('text-[#fcd576]', 'border-[#fcd576]', 'font-bold', 'active');
+                            }
+                        }
+
+                        function toggleMobileMoreMovieInfo() {
+                            var details = document.getElementById('movie-expandable-details');
+                            var text = document.getElementById('toggleMoreMovieInfoText');
+                            var icon = document.getElementById('toggleMoreMovieInfoIcon');
+                            if (!details) return;
+                            var isHidden = details.classList.contains('hidden');
+                            if (isHidden) {
+                                details.classList.remove('hidden');
+                                details.classList.add('flex');
+                                if (text) text.textContent = 'Thu gọn';
+                                if (icon) icon.style.transform = 'rotate(180deg)';
+                            } else {
+                                details.classList.add('hidden');
+                                details.classList.remove('flex');
+                                if (text) text.textContent = 'Xem thêm';
+                                if (icon) icon.style.transform = 'rotate(0deg)';
+                            }
+                        }
+                    </script>
+
+                    <!-- CÁC MỤC THÔNG TIN PHIM TRẮN SANG TRỌNG KHÔNG VIỀN BỌC NGOÀI LỚN -->
+                    <div class="flex flex-col gap-8 w-full mb-10 text-left">
+                        <!-- Khối 1: Nội dung phim -->
+                        <div id="movie-content-section" class="w-full text-left">
+                            <h2 class="text-lg font-bold text-white mb-3">Nội dung phim</h2>
+                            <div id="movie-content"
+                                class="text-gray-300 leading-relaxed text-sm md:text-[14.5px] font-light text-justify px-0 break-words">
+                                Đang tải nội dung phim...
+                            </div>
+                            <!-- Nút Xem thêm / Thu gọn cho mobile (bên phải góc dưới) -->
+                            <div class="w-full flex justify-end items-center mt-2 lg:hidden" style="display: flex; justify-content: flex-end; width: 100%;">
+                                <button id="toggleMoreMovieInfoBtn" onclick="toggleMobileMoreMovieInfo()" type="button" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 10px; font-size: 11px; font-weight: 600; line-height: 1.2; border-radius: 9999px; margin-left: auto; width: auto; max-width: max-content; flex-shrink: 0;" class="text-[#fcd576] hover:text-[#fbbf24] bg-white/5 hover:bg-white/10 border border-[#fcd576]/30 transition-all duration-200 active:scale-95 cursor-pointer shadow-sm whitespace-nowrap">
+                                    <span id="toggleMoreMovieInfoText">Xem thêm</span>
+                                    <svg id="toggleMoreMovieInfoIcon" style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; flex-shrink: 0; transition: transform 0.3s ease;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Khối bọc Diễn viên & Metadata (Mặc định ẩn trên Mobile, bấm nút xem thêm để mở; luôn hiện trên Desktop) -->
+                        <div id="movie-expandable-details" class="hidden lg:flex flex-col gap-8 w-full">
+                            <!-- Khối 2: Diễn viên (Hình tròn lướt ngang) -->
+                            <div id="movie-cast-side-section" class="w-full text-left pt-2">
+                                <h2 class="text-lg font-bold text-white mb-3">Diễn viên</h2>
+                                <div id="movie-cast-side-grid" class="flex items-start justify-start gap-4 w-full overflow-x-auto scrollbar-hide py-2">
+                                    <!-- JS render ảnh diễn viên tròn dạng hàng ngang cuộn mượt -->
+                                </div>
+                            </div>
+
+                            <!-- Khối 3: 6 Ô Thẻ Thông Tin Phim Chuyên Nghiệp (Thể loại, Quốc gia, Thời lượng...) -->
+                            <div id="movie-metadata-container" class="w-full pt-2">
+                                <!-- JS addMovieMetadata() render 6 ô thẻ tại đây -->
+                            </div>
+                        </div>
+
+                        <!-- Khối 4: Đánh Giá & Emoji Reaction Card Riêng Biệt -->
+                        <div id="movie-reaction-card" class="w-full bg-[#313646]/90 border border-white/10 backdrop-blur-xl rounded-2xl p-4 sm:p-5 shadow-xl">
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                                <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                                    <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg flex-shrink-0" style="background-color: rgba(251, 191, 36, 0.18); border: 1px solid rgba(251, 191, 36, 0.3);">
+                                        <svg class="w-4 h-4 flex-shrink-0" style="fill: #fbbf24 !important;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        <span id="sidebar-rating-score" class="text-white font-bold text-sm sm:text-base leading-none">8.5</span>
+                                    </div>
+                                    <div class="text-center sm:text-left">
+                                        <p class="text-gray-200 font-bold text-xs sm:text-sm">Bạn nghĩ gì về phim này?</p>
+                                        <p class="text-gray-400 text-[11px]">Đánh giá và chia sẻ cảm xúc của bạn</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-center sm:justify-end gap-3 sm:gap-5 w-full sm:w-auto">
+                                    <button onclick="castReaction('te')" class="flex flex-col items-center gap-1 group cursor-pointer hover:opacity-80 transition-opacity px-1.5">
+                                        <span class="text-2xl sm:text-3xl transform group-hover:scale-125 transition-transform duration-200">😭</span>
+                                        <span class="text-[10px] sm:text-xs text-gray-400 font-medium">Tệ</span>
+                                    </button>
+                                    <button onclick="castReaction('tam')" class="flex flex-col items-center gap-1 group cursor-pointer hover:opacity-80 transition-opacity px-1.5">
+                                        <span class="text-2xl sm:text-3xl transform group-hover:scale-125 transition-transform duration-200">🙁</span>
+                                        <span class="text-[10px] sm:text-xs text-gray-400 font-medium">Tạm</span>
+                                    </button>
+                                    <button onclick="castReaction('hay')" class="flex flex-col items-center gap-1 group cursor-pointer hover:opacity-80 transition-opacity px-1.5">
+                                        <span class="text-3xl sm:text-4xl transform group-hover:scale-125 transition-transform duration-200">😊</span>
+                                        <span class="text-[10px] sm:text-xs text-gray-400 font-medium">Hay</span>
+                                    </button>
+                                    <button onclick="castReaction('thich')" class="flex flex-col items-center gap-1 group cursor-pointer hover:opacity-80 transition-opacity px-1.5">
+                                        <span class="text-2xl sm:text-3xl transform group-hover:scale-125 transition-transform duration-200">😘</span>
+                                        <span class="text-[10px] sm:text-xs text-gray-400 font-medium">Thích</span>
+                                    </button>
+                                    <button onclick="castReaction('tuyet')" class="flex flex-col items-center gap-1 group cursor-pointer hover:opacity-80 transition-opacity px-1.5">
+                                        <span class="text-2xl sm:text-3xl transform group-hover:scale-125 transition-transform duration-200">😍</span>
+                                        <span class="text-[10px] sm:text-xs text-gray-400 font-medium">Tuyệt</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bình luận (Mở rộng 100% chiều rộng toàn bộ Cột phải) -->
+                    <div id="comments-section" class="w-full mt-6 mb-16">
+                        <div style="text-align:center;color:#6b7280;padding:20px;width:100%;">⏳ Đang tải bình luận...</div>
+                    </div>
+                </div>
+            </div>
+
+</main>
+
+    <!-- Footer -->
+    <%- include('partials/footer') %>
+
+    <!-- App Guide Popup -->
+    <div id="aphim-guide-overlay" onclick="if(event.target===this)aphimCloseGuide()" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;">
+        <div style="position:relative;width:100%;max-width:460px;background:#0d0f1a;border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.8);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.25);">
+                <span style="font-size:0.82rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.06em;">Hướng dẫn cài đặt A Phim</span>
+                <button onclick="aphimCloseGuide()" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:#aaa;font-size:1rem;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">✕</button>
+            </div>
+            <div style="padding:14px;overflow-y:auto;max-height:78vh;">
+                <picture>
+                    <source srcset="/quangcao/HD_cai_app.webp" type="image/webp" />
+                    <img src="/quangcao/HD_cai_app.png" alt="Huong dan cai dat" width="920" height="1380" loading="lazy" decoding="async" style="width:100%;height:auto;border-radius:8px;display:block;"/>
+                </picture>
+            </div>
+        </div>
+    </div>
+    <script>
+        function aphimOpenGuide(){var e=document.getElementById('aphim-guide-overlay');if(e){e.style.display='flex';document.body.style.overflow='hidden';}}
+        function aphimCloseGuide(){var e=document.getElementById('aphim-guide-overlay');if(e){e.style.display='none';document.body.style.overflow='';}}
+        document.addEventListener('keydown',function(e){if(e.key==='Escape')aphimCloseGuide();});
+    </script>
+
+    <script src="/js/search-icon-enhance.js?v=99" defer></script>
+    <script src="/js/image-optimization.js?v=200" defer></script>
+    <script src="/js/seo-optimizer.js?v=99" defer></script>
+    <script src="/js/api.js?v=99" defer></script>
+    <script src="/js/premium-ad-blocker.js?v=99" defer></script>
+    <script src="/js/user.js?v=99" defer></script>
+    <script src="/js/rating.js?v=99" defer></script>
+    <script src="/js/tmdb-api.js?v=99" defer></script>
+    <script src="/js/playlist-service.js" defer></script>
+    <script src="/js/playlist-modal.js?v=210" defer></script>
+    <script src="/js/movie-detail.js?v=200" defer></script>
+    <script src="/js/movie-slider.js?v=99" defer></script>
+    <script src="/js/categories-dropdown.js?v=99" defer></script>
+    <script src="/js/countries-dropdown.js?v=99" defer></script>
+    <script src="/js/dropdown-hover-fix.js?v=99" defer></script>
+    <script src="/js/sticky-nav.js?v=99" defer></script>
+
+    <!-- ====== Sidebar & Comments ====== -->
+    <script src="/js/top-weekly-sidebar.js?v=10010" defer></script>
+    <script src="/js/firebase-comments.js?v=20020" defer></script>
+
+    <script src="/js/nav-active-indicator.js?v=99" defer></script>
+
+    <!-- ====== MOBILE SWIPE GUARD ====== -->
+    <script>
+    (function() {
+        var SWIPE_THRESHOLD = 8;
+        function initMobileSwipeGuard() {
+            var sliders = document.querySelectorAll('.overflow-x-auto, .snap-x, .scrollbar-hide, #heroThumbnails, .interests-wrapper, .mobile-thumb-wrapper, .cat-tab-container');
+            sliders.forEach(function(slider) {
+                if (slider.getAttribute('data-swipe-guard-attached')) return;
+                slider.setAttribute('data-swipe-guard-attached', 'true');
+                var startX = 0, startY = 0, isSwiping = false;
+                slider.addEventListener('touchstart', function(e) {
+                    if (!e.touches || e.touches.length === 0) return;
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                    isSwiping = false;
+                    slider.setAttribute('data-swipe', 'pending');
+                }, { passive: true });
+                slider.addEventListener('touchmove', function(e) {
+                    if (!e.touches || e.touches.length === 0) return;
+                    var dx = Math.abs(e.touches[0].clientX - startX);
+                    var dy = Math.abs(e.touches[0].clientY - startY);
+                    if (dx > SWIPE_THRESHOLD || dy > SWIPE_THRESHOLD) {
+                        isSwiping = true;
+                        slider.setAttribute('data-swipe', 'swiping');
+                    }
+                }, { passive: true });
+                slider.addEventListener('touchend', function() {
+                    if (isSwiping) {
+                        slider.setAttribute('data-swipe', 'done');
+                        setTimeout(function() {
+                            slider.removeAttribute('data-swipe');
+                        }, 300);
+                    } else {
+                        slider.removeAttribute('data-swipe');
+                    }
+                    isSwiping = false;
+                }, { passive: true });
+                slider.addEventListener('click', function(e) {
+                    if (slider.getAttribute('data-swipe') === 'done') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }, true);
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMobileSwipeGuard);
+        } else {
+            initMobileSwipeGuard();
+        }
+        window.initMobileSwipeGuard = initMobileSwipeGuard;
+    })();
+    </script>
+
+    <!-- ====== CINEMATIC GLASS HEADER SCROLL CONTROLLER ====== -->
+    <script>
+    (function() {
+        function checkHeaderScroll() {
+            const header = document.getElementById('sofa-header') || document.querySelector('header');
+            if (!header) return;
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+            if (scrollY > 40) {
+                header.classList.add('scrolled');
+                header.style.removeProperty('background');
+                header.style.removeProperty('background-color');
+                header.style.removeProperty('backdrop-filter');
+                header.style.removeProperty('-webkit-backdrop-filter');
+                header.style.removeProperty('box-shadow');
+                header.style.removeProperty('border');
+                header.style.removeProperty('border-bottom');
+            } else {
+                header.classList.remove('scrolled', 'sofa-header-scrolled');
+                header.style.setProperty('background', 'transparent', 'important');
+                header.style.setProperty('background-color', 'transparent', 'important');
+                header.style.setProperty('backdrop-filter', 'none', 'important');
+                header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+                header.style.setProperty('box-shadow', 'none', 'important');
+                header.style.setProperty('border', 'none', 'important');
+                header.style.setProperty('border-bottom', 'none', 'important');
+            }
+        }
+
+        window.addEventListener('scroll', checkHeaderScroll, { passive: true });
+        window.addEventListener('load', checkHeaderScroll);
+        document.addEventListener('DOMContentLoaded', checkHeaderScroll);
+        checkHeaderScroll();
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!-- Command Palette Modal (Ctrl + K) -->
+<div class="cmd-palette-backdrop" id="cmdPaletteBackdrop">
+  <div class="cmd-palette-modal" id="cmdPaletteModal">
+    <div class="cmd-search-wrap">
+      <i data-lucide="search" class="cmd-search-icon"></i>
+      <input type="text" id="cmdSearchInput" class="cmd-search-input" placeholder="Gõ từ khóa, tìm phim, thành viên, hoặc lệnh nhanh (ví dụ: 'phim', 'vip', 'cache')..." autocomplete="off">
+      <span class="cmd-badge">ESC</span>
+    </div>
+
+    <div class="cmd-results" id="cmdResults">
+      <div class="cmd-group-label">ĐIỀU HƯỚNG NHANH</div>
+      <a href="/admin" class="cmd-item active" data-action="nav">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Bảng Điều Khiển KPI & Doanh Thu</span>
+        <span class="cmd-hint">Trang chủ</span>
+      </a>
+      <a href="/admin/movies" class="cmd-item" data-action="nav">
+        <i data-lucide="film"></i>
+        <span>Kho Phim & Đồng Bộ API Ophim/KKPhim</span>
+        <span class="cmd-hint">Quản lý phim</span>
+      </a>
+      <a href="/admin/users" class="cmd-item" data-action="nav">
+        <i data-lucide="users"></i>
+        <span>Danh Sách Thành Viên & Cấp Xu / XP / Streak</span>
+        <span class="cmd-hint">Gamification</span>
+      </a>
+      <a href="/admin/subscriptions" class="cmd-item" data-action="nav">
+        <i data-lucide="crown"></i>
+        <span>Gói VIP, Bảng Giá & Nạp Xu</span>
+        <span class="cmd-hint">Thanh toán</span>
+      </a>
+      <a href="/admin/banners" class="cmd-item" data-action="nav">
+        <i data-lucide="image"></i>
+        <span>Banners Hero & Quảng Cáo Slider</span>
+        <span class="cmd-hint">Giao diện</span>
+      </a>
+      <a href="/admin/comments" class="cmd-item" data-action="nav">
+        <i data-lucide="message-square"></i>
+        <span>Kiểm Duyệt Bình Luận & Phòng Chat Trực Tuyến</span>
+        <span class="cmd-hint">Kiểm duyệt</span>
+      </a>
+      <a href="/admin/settings" class="cmd-item" data-action="nav">
+        <i data-lucide="settings"></i>
+        <span>Cài Đặt Hệ Thống, API Keys & Bảo Mật</span>
+        <span class="cmd-hint">Cấu hình</span>
+      </a>
+
+      <div class="cmd-group-label">THAO TÁC HỆ THỐNG NHANH</div>
+      <div class="cmd-item" data-action="action-clear-cache">
+        <i data-lucide="refresh-cw" class="text-cyan"></i>
+        <span>Xóa Bộ Nhớ Đệm Cache Redis / Memory</span>
+        <span class="cmd-hint">Lệnh</span>
+      </div>
+      <div class="cmd-item" data-action="action-toggle-masking">
+        <i data-lucide="eye-off" class="text-pink"></i>
+        <span>Bật/Tắt Che Dữ Liệu Bảo Mật Khách Hàng</span>
+        <span class="cmd-hint">Bảo mật</span>
+      </div>
+      <div class="cmd-item" data-action="action-lock-screen">
+        <i data-lucide="lock" class="text-rose"></i>
+        <span>Khóa Màn Hình Quản Trị Viên Ngay</span>
+        <span class="cmd-hint">Khóa</span>
+      </div>
+    </div>
+
+    <div class="cmd-footer">
+      <div class="cmd-hints">
+        <span><kbd>↑</kbd> <kbd>↓</kbd> Di chuyển</span>
+        <span><kbd>↵</kbd> Chọn</span>
+        <span><kbd>ESC</kbd> Đóng</span>
+      </div>
+      <div class="cmd-powered">APhim Super Enterprise v2.5</div>
+    </div>
+  </div>
+</div>

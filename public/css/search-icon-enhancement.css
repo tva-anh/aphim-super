@@ -1,0 +1,67 @@
+/* Enhanced Search Icon Styles */
+
+/* Make search icons more beautiful with smooth transitions */
+.material-icons-round.search-icon,
+a[href*="search"] .material-icons-round,
+button .material-icons-round {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover effect for search icons */
+a[href*="search"]:hover .material-icons-round {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Search button with glow effect */
+a[href*="search"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+a[href*="search"]::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+a[href*="search"]:hover::before {
+    opacity: 1;
+}
+
+/* Search input container enhancement */
+.search-container {
+    position: relative;
+}
+
+.search-container .material-icons-round {
+    transition: all 0.3s ease;
+}
+
+.search-container:focus-within .material-icons-round {
+    color: #ffd700 !important;
+    transform: scale(1.05);
+}
+
+/* Pulse animation for search icon */
+@keyframes searchPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.search-icon-pulse {
+    animation: searchPulse 2s ease-in-out infinite;
+}

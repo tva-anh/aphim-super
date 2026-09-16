@@ -1,0 +1,31 @@
+[
+  {
+    "type": "contact",
+    "userName": "a",
+    "userEmail": "aphim8386@gmail.com",
+    "issueType": "Góp ý nâng cấp tính năng website",
+    "description": "hợp tác đe",
+    "currentUrl": "http://localhost:3005/lien-he",
+    "createdAt": "2026-09-15T12:51:41.009Z"
+  },
+  {
+    "userName": "Test User",
+    "episode": "Tap 5",
+    "issueType": "Video bi loi",
+    "type": "report_movie",
+    "description": "Test tu server - Google Sheet da hoat dong!",
+    "userEmail": "test@aphim.com",
+    "movieName": "Phim Test 123",
+    "currentUrl": "http://localhost:3005/xem-phim/test",
+    "createdAt": "2026-09-15T13:43:05.480Z"
+  },
+  {
+    "type": "contact",
+    "userName": "demo1",
+    "userEmail": "aphim8386@gmail.com",
+    "issueType": "Hợp tác quảng cáo & Bản quyền",
+    "description": "hợp tác nhe",
+    "currentUrl": "http://localhost:3005/lien-he",
+    "createdAt": "2026-09-15T13:44:14.306Z"
+  }
+]

@@ -1,0 +1,308 @@
+/* Navigation Pill Effect Styles */
+
+/* Glass morphism pill effect */
+.nav-pill {
+    position: relative;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    display: inline-block;
+}
+
+/* Spotlight effect that follows mouse */
+.nav-pill::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(242, 242, 13, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.nav-pill:hover::before {
+    width: 200%;
+    height: 200%;
+}
+
+/* Glow border on hover */
+.nav-pill:hover {
+    background: rgba(242, 242, 13, 0.12);
+    border-color: rgba(242, 242, 13, 0.4);
+    box-shadow:
+        0 0 25px rgba(242, 242, 13, 0.25),
+        inset 0 0 25px rgba(242, 242, 13, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Text glow */
+.nav-pill:hover .nav-text {
+    color: #f2f20d;
+    text-shadow: 0 0 10px rgba(242, 242, 13, 0.5);
+}
+
+.nav-text {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    color: #d1d5db;
+}
+
+/* Active state */
+.nav-pill.active {
+    background: rgba(242, 242, 13, 0.15);
+    border-color: rgba(242, 242, 13, 0.5);
+    box-shadow:
+        0 0 30px rgba(242, 242, 13, 0.3),
+        inset 0 0 20px rgba(242, 242, 13, 0.15);
+}
+
+.nav-pill.active .nav-text {
+    color: #f2f20d;
+    font-weight: 700;
+}
+
+/* Animated gradient border */
+@keyframes rotate-gradient {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.nav-pill::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 9999px;
+    background: conic-gradient(from 0deg,
+            transparent 0deg,
+            rgba(242, 242, 13, 0.4) 90deg,
+            transparent 180deg,
+            rgba(242, 242, 13, 0.4) 270deg,
+            transparent 360deg);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: rotate-gradient 3s linear infinite;
+    z-index: -1;
+}
+
+.nav-pill:hover::after {
+    opacity: 1;
+}
+
+/* Ripple effect on click */
+@keyframes ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+.nav-pill.ripple-active::before {
+    animation: ripple 0.6s ease-out;
+}
+
+/* Logo glow */
+.logo-glow {
+    filter: drop-shadow(0 0 20px rgba(242, 242, 13, 0.4));
+    transition: all 0.4s ease;
+}
+
+.logo-glow:hover {
+    filter: drop-shadow(0 0 30px rgba(242, 242, 13, 0.6));
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Dropdown with pill style */
+.dropdown-pill {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.dropdown-item {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: linear-gradient(180deg, #f2f20d, #ffd700);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.dropdown-item:hover::before {
+    transform: scaleY(1);
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(90deg, rgba(242, 242, 13, 0.1), transparent);
+    padding-left: 1.5rem;
+}
+
+/* Button with pill effect */
+.btn-pill {
+    position: relative;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #f2f20d, #ffd700);
+    overflow: hidden;
+    transition: all 0.4s ease;
+    display: inline-block;
+}
+
+.btn-pill::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+}
+
+.btn-pill:hover::before {
+    left: 100%;
+}
+
+.btn-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(242, 242, 13, 0.4);
+}
+
+/* Glass navbar */
+.glass-nav {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Smooth transitions */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Icon hover effect */
+.icon-pill {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-pill:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Stagger animation for mobile menu */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.nav-pill.stagger-item {
+    animation: slideIn 0.3s ease forwards;
+}
+
+.nav-pill.stagger-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.nav-pill.stagger-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.nav-pill.stagger-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.nav-pill.stagger-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.nav-pill.stagger-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.nav-pill.stagger-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+/* Pulse animation for active state */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 20px rgba(242, 242, 13, 0.3),
+            inset 0 0 20px rgba(242, 242, 13, 0.15);
+    }
+
+    50% {
+        box-shadow:
+            0 0 30px rgba(242, 242, 13, 0.4),
+            inset 0 0 30px rgba(242, 242, 13, 0.2);
+    }
+}
+
+.nav-pill.active {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .nav-pill {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-pill {
+        width: 100%;
+        text-align: center;
+    }
+}

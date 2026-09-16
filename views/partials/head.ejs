@@ -1,0 +1,201 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<script>
+    (function() {
+        try {
+            var savedTheme = localStorage.getItem('aphim_theme');
+            // Mặc định cho người dùng mới lần đầu vào: Nền Kem Sáng (light-mode)
+            // Chỉ khi người dùng chủ động bấm chuyển sang 'dark' thì mới là Dark Mode
+            if (savedTheme !== 'dark') {
+                document.documentElement.classList.add('light-mode');
+            }
+        } catch(e) {}
+    })();
+</script>
+<script src="/js/anti-devtools.js?v=99"></script>
+
+<title><%= typeof title !== 'undefined' ? title : 'APhim Super | Xem Phim Lẻ Mới 2026 | Phim Online Net Full HD Vietsub' %></title>
+<meta name="description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'APhim Super - Website xem phim online net mượt không giật lag. Tổng hợp kho phim lẻ mới, phim vietsub mới nhất 2026, phim bộ hay nhất cập nhật liên tục Full HD miễn phí.' %>" />
+<meta name="keywords" content="phim le moi, phim online net, phim vietsub, phim moi hay nhat, xem phim full hd, aphim, phim chieu rap, xem phim online" />
+
+<!-- Canonical & Open Graph -->
+<link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.io.vn/' %>" />
+<meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'APhim Super' %>" />
+<meta property="og:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Website xem phim online net mượt không giật lag.' %>" />
+<meta property="og:image" content="/android-chrome-512x512.png" />
+<meta property="og:type" content="website" />
+
+<!-- Favicon & PWA Manifest -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0b0c10">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+<!-- Turbo Performance Preconnect -->
+<link rel="preconnect" href="https://phimapi.com" crossorigin>
+<link rel="preconnect" href="https://phimimg.com" crossorigin>
+<link rel="preconnect" href="https://img.ophimimg.com" crossorigin>
+<link rel="preconnect" href="https://img.ophim.live" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://phimapi.com">
+<link rel="dns-prefetch" href="https://phimimg.com">
+<link rel="dns-prefetch" href="https://img.ophimimg.com">
+<link rel="dns-prefetch" href="https://img.ophim.live">
+
+<!-- TailwindCSS + Material Icons + Custom Styles -->
+<link rel="stylesheet" href="/css/tailwind.min.css?v=25">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/navigation-modern.css?v=21">
+<link rel="stylesheet" href="/css/navigation-pill-v2.css?v=21">
+<link rel="stylesheet" href="/css/nav-desktop-v2.css?v=62">
+<link rel="stylesheet" href="/css/material-icons-fix.css?v=21">
+<link rel="stylesheet" href="/css/bottom-nav.css?v=205">
+<link rel="stylesheet" href="/css/avatar-frames.css?v=100">
+
+<style>
+    /* Super Motchill Carbon Cinematic Styling */
+    :root {
+        --bg-main: #1f2331;
+        --bg-card: #20222d;
+        --bg-hover: #1e2230;
+        --primary-orange: #ff9900;
+        --primary-gold: #f2f20d;
+        --badge-orange: #f97316;
+    }
+    html {
+        background-color: #1f2331 !important;
+        background: #1f2331 !important;
+        color: #e2e8f0;
+        font-family: 'Be Vietnam Pro', 'Nunito', sans-serif;
+    }
+    body {
+        padding-top: 64px !important;
+    }
+    @media (max-width: 1280px) {
+        body {
+            padding-top: 60px !important;
+        }
+    }
+    .motchill-section-title {
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 1.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .motchill-section-title span.highlight {
+        color: var(--primary-orange);
+    }
+    .motchill-filter-pill {
+        background: rgba(255, 153, 0, 0.15);
+        color: var(--primary-orange);
+        border: 1px solid rgba(255, 153, 0, 0.3);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+    /* Feature Card Layout 1/3 vs 2/3 */
+    .motchill-grid-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    @media (min-width: 1024px) {
+        .motchill-grid-container {
+            grid-template-columns: 3.5fr 8.5fr;
+        }
+    }
+    .motchill-feature-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        min-height: 420px;
+    }
+    .motchill-feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        border-color: transparent;
+    }
+    .motchill-thumb-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    @media (min-width: 640px) {
+        .motchill-thumb-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    .motchill-movie-card {
+        position: relative;
+        background: var(--bg-card);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.3s ease;
+    }
+    .motchill-movie-card:hover {
+        transform: translateY(-4px);
+        border-color: transparent;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    .motchill-poster-wrap {
+        position: relative;
+        aspect-ratio: 2/3;
+        width: 100%;
+        overflow: hidden;
+    }
+    .motchill-poster-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    .motchill-movie-card:hover .motchill-poster-wrap img {
+        transform: scale(1.06);
+    }
+    .motchill-badge-stack {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        z-index: 10;
+    }
+    .motchill-badge {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #fff;
+        text-transform: uppercase;
+        backdrop-filter: blur(4px);
+    }
+    .badge-orange { background: #f97316; }
+    .badge-blue { background: #2563eb; }
+    .badge-gold { background: #eab308; color: #000; }
+    .badge-dark { background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255,255,255,0.2); }
+</style>
+<link rel="stylesheet" href="/css/movie-cards-v2.css?v=10003">
+<link rel="stylesheet" href="/css/light-mode.css?v=2128">
+<link rel="stylesheet" href="/css/profile-banner-aura.css?v=4">
+<link rel="stylesheet" href="/css/playlist-modal.css?v=2">
+<script src="/js/config.js?v=100"></script>
+<script src="/js/toast-system.js?v=100"></script>
+<script src="/js/aphim-core-api.js?v=10001"></script>
+<script src="/js/nav-instant-suggest.js?v=10001"></script>

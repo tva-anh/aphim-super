@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="bg-[#1f2331] text-gray-200 min-h-screen pt-28 md:pt-32 flex flex-col font-sans">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow py-8 md:py-12 pb-24 md:pb-32">
+        <!-- Hero Section -->
+        <section class="relative py-10 md:py-14 bg-gradient-to-b from-[#1c1e2b] via-[#181921] to-[#181921] border-b border-white/10 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+            <div class="app-container relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#fcd576]/10 text-[#fcd576] border border-[#fcd576]/20 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                    Quy Định & Thỏa Thuận
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+                    ĐIỀU KHOẢN SỬ DỤNG
+                </h1>
+                <p class="text-gray-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed font-medium">
+                    Vui lòng đọc kỹ các điều khoản sử dụng dưới đây trước khi truy cập và trải nghiệm dịch vụ xem phim tại A Phim Super.
+                </p>
+            </div>
+        </section>
+
+        <!-- Main Content (Bulletproof Flexbox Gap & Explicit Margin Bottom) -->
+        <section class="py-12 md:py-16">
+            <div class="app-container max-w-4xl mx-auto flex flex-col gap-7 md:gap-9">
+
+                <!-- Clause 1 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        1. Chấp nhận điều khoản
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        Khi truy cập, xem phim hoặc sử dụng bất kỳ tính năng nào trên <strong class="text-[#fcd576]">A Phim Super</strong>, bạn mặc nhiên đồng ý tuân thủ tất cả các quy định và điều khoản dịch vụ được niêm yết công khai tại đây. Trường hợp không đồng ý với bất kỳ nội dung nào, vui lòng dừng sử dụng dịch vụ.
+                    </p>
+                </div>
+
+                <!-- Clause 2 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        2. Quyền sở hữu trí tuệ & Thông báo bản quyền (DMCA Notice)
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        A Phim Super hoạt động như một công cụ tìm kiếm và tổng hợp các liên kết video công khai trên mạng Internet. Tất cả các nội dung phim ảnh được phát trên trình phát đều được lưu trữ trên các máy chủ đám mây của bên thứ ba. Chúng tôi không chủ động lưu trữ hay đăng tải các tệp video này trên hệ thống máy chủ riêng.
+                    </p>
+                    <div class="p-4 bg-[#181921] border border-white/10 rounded-xl space-y-2 mt-3">
+                        <div class="text-white font-bold text-sm">Gửi khiếu nại bản quyền:</div>
+                        <p class="text-gray-300 text-xs md:text-sm leading-relaxed">
+                            Nếu bạn là chủ sở hữu bản quyền hợp pháp và nhận thấy có nội dung vi phạm, vui lòng gửi thông báo khiếu nại bản quyền DMCA đầy đủ thông tin tới email:
+                        </p>
+                        <a href="mailto:dmca@aphim.io.vn" class="inline-flex items-center gap-2 px-3.5 py-2 bg-[#fcd576]/10 text-[#fcd576] border border-[#fcd576]/30 rounded-lg text-xs font-bold hover:bg-[#fcd576] hover:text-black transition-all">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            dmca@aphim.io.vn
+                        </a>
+                        <p class="text-gray-400 text-xs italic pt-1">Chúng tôi sẽ tiếp nhận và phản hồi gỡ bỏ liên kết vi phạm trong vòng 24 đến 48 giờ làm việc.</p>
+                    </div>
+                </div>
+
+                <!-- Clause 3 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        3. Hành vi nghiêm cấm khi khai thác hệ thống
+                    </h2>
+                    <ul class="list-disc pl-6 space-y-2.5 text-gray-300 text-sm md:text-base leading-relaxed">
+                        <li>Sử dụng các phần mềm tự động, cào dữ liệu (bot, crawler, scraper) gây quá tải hạ tầng mạng của website.</li>
+                        <li>Thực hiện các hành vi tấn công từ chối dịch vụ (DDOS), phát tán vi-rút hoặc mã độc hại.</li>
+                        <li>Đăng tải bình luận chứa từ ngữ thù xách, vi phạm pháp luật hoặc quảng cáo rác (spam).</li>
+                    </ul>
+                </div>
+
+                <!-- Clause 4 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        4. Giới hạn trách nhiệm pháp lý
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        Website được vận hành trên tinh thần chia sẻ giải trí phi lợi nhuận. A Phim Super không đảm bảo dịch vụ luôn diễn ra mà hoàn toàn không có trục trặc kỹ thuật do đường truyền Internet quốc tế. Chúng tôi không chịu trách nhiệm với những thiệt hại trực tiếp hay gián tiếp phát sinh ngoài ý muốn từ việc truy cập website.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

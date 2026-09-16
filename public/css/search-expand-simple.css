@@ -1,0 +1,109 @@
+/* ============================================================
+   SIMPLE EXPANDABLE SEARCH - Hover to Expand
+   ============================================================ */
+
+.search-expand-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    transition: all 0.4s ease;
+}
+
+.search-expand-input {
+    position: absolute;
+    right: 40px;
+    width: 0;
+    height: 40px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #000;
+    font-size: 14px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    transition: all 0.4s ease;
+    opacity: 0;
+    font-weight: 500;
+    caret-color: transparent;
+}
+
+.search-expand-wrapper:hover .search-expand-input,
+.search-expand-input:focus {
+    width: 280px;
+    padding: 0 16px;
+    background: #f2f20d;
+    border: 2px solid #f2f20d;
+    border-radius: 20px 0 0 20px;
+    opacity: 1;
+    caret-color: #000;
+}
+
+.search-expand-input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.search-expand-icon {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1;
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+.search-expand-icon:hover {
+    background: rgba(242, 242, 13, 0.1);
+    animation: none;
+}
+
+.search-expand-icon .material-icons-round {
+    color: #f2f20d;
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.search-expand-wrapper:hover .search-expand-icon {
+    background: #f2f20d;
+    border-radius: 0 20px 20px 0;
+    animation: none;
+}
+
+.search-expand-wrapper:hover .search-expand-icon .material-icons-round {
+    color: #000;
+}
+
+/* Glow Pulse Animation - STRONGER */
+@keyframes glowPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(242, 242, 13, 0.5),
+            0 0 20px rgba(242, 242, 13, 0.4),
+            0 0 30px rgba(242, 242, 13, 0.3),
+            0 0 40px rgba(242, 242, 13, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(242, 242, 13, 0.8),
+            0 0 30px rgba(242, 242, 13, 0.7),
+            0 0 40px rgba(242, 242, 13, 0.6),
+            0 0 50px rgba(242, 242, 13, 0.5),
+            0 0 60px rgba(242, 242, 13, 0.4),
+            0 0 70px rgba(242, 242, 13, 0.3);
+    }
+}
+
+/* Mobile - Hide on small screens */
+@media (max-width: 768px) {
+    .search-expand-wrapper {
+        display: none;
+    }
+}

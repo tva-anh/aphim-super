@@ -1,0 +1,252 @@
+/* ============================================================
+   A PHIM — Bảng Xếp Hạng Top Phim Hot (Fixed Height — No Layout Shift)
+   ============================================================ */
+
+/* ── Container: align-items: flex-start, KHÔNG dùng items-end ── */
+#topMoviesContainer,
+#comingSoonContainer,
+[id$="Container"].flex {
+    align-items: flex-start !important;
+}
+
+/* ── Ranking Item: cố định chiều cao ── */
+.ranking-item {
+    flex: none;
+    width: 140px;               /* Mobile */
+    /* Cố định chiều cao = poster + info cứng */
+    display: flex;
+    flex-direction: column;
+    padding: 0;                 /* Bỏ padding để không làm lệch */
+    gap: 12px;
+}
+
+@media (min-width: 768px) {
+    .ranking-item {
+        width: 190px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .ranking-item {
+        /* Hiển thị chính xác 7 thẻ trên màn hình Desktop để vừa khít 100% container (gap-7 = 1.75rem * 6 = 10.5rem) */
+        flex: 0 0 calc((100% - 10.5rem) / 7);
+        width: calc((100% - 10.5rem) / 7);
+    }
+}
+
+/* Mobile: Bỏ hoàn toàn staggered effect — nguồn gây lệch chiều cao */
+.ranking-item:nth-child(odd),
+.ranking-item:nth-child(even) {
+    transform: none !important;
+}
+
+/* Desktop hover — chỉ scale nhẹ, không translate */
+@media (hover: hover) and (pointer: fine) {
+    .ranking-item:hover {
+        transform: scale(1.03) !important;
+        z-index: 20;
+    }
+}
+
+/* ── Poster Wrapper: cố định tỉ lệ 2:3 ── */
+.ranking-poster-w {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;       /* Cố định tỉ lệ, không bị text đẩy */
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0f1016;
+    /* Dùng box-shadow thay border để không thay đổi kích thước */
+    box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.08), 0 10px 25px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.2s ease;
+    flex-shrink: 0;             /* Không co lại */
+}
+
+/* Hover border highlight */
+@media (hover: hover) and (pointer: fine) {
+    .ranking-item:hover .ranking-poster-w {
+        box-shadow: 0 0 0 1.5px rgba(255, 215, 0, 0.5), 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* ── Rank #1: dùng outline thay border — không ảnh hưởng kích thước ── */
+.ranking-item[data-rank="1"] .ranking-poster-w {
+    outline: 3px solid #ffd700;
+    outline-offset: -1px;       /* Vào trong, không làm card to hơn */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    /* KHÔNG dùng transform: scale() — gây lệch layout */
+}
+
+/* ── Badges at bottom ── */
+.ranking-badges-bottom {
+    position: absolute;
+    bottom: 8px;
+    left: 4px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+}
+
+.badge-pd, .badge-lt, .badge-tm {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 6px;
+    color: white;
+    text-transform: uppercase;
+}
+
+.badge-pd { background: #16a34a; border-radius: 4px; }
+.badge-lt { background: #2563eb; border-radius: 4px; }
+.badge-tm { background: #0ea5e9; border-radius: 4px; }
+
+/* ── Circle Icon bottom right ── */
+.ranking-icon-circle {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.ranking-icon-circle .material-icons-round {
+    font-size: 16px;
+    color: white;
+}
+
+/* Poster image */
+.ranking-poster-w img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .ranking-item:hover .ranking-poster-w img {
+        transform: scale(1.08);
+    }
+}
+
+/* ── Info Row: cố định chiều cao ── */
+.ranking-info-w {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 8px 4px;
+    /* Cố định chiều cao để tất cả card có info row bằng nhau */
+    min-height: 70px;
+    flex-shrink: 0;
+}
+
+.rank-big-number {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    color: #ffd700;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    font-family: 'Outfit', sans-serif;
+    min-width: 36px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.ranking-text-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ranking-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.ranking-sub {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.ranking-extra {
+    font-size: 0.7rem;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Navigation arrows ── */
+.ranking-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    z-index: 30;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.top-movies-section:hover .ranking-nav {
+    opacity: 1;
+}
+
+/* --- ĐỒNG BỘ CĂN LỀ Y HỆT MỤC "BẠN ĐANG QUAN TÂM GÌ" --- */
+@media (min-width: 1024px) {
+    #continueWatchingContainer,
+    #topMoviesContainer,
+    #romanceContainer,
+    #animationContainer,
+    #actionMoviesContainer,
+    #adventureContainer,
+    #mythologyRankingContainer,
+    #vietnamMoviesGrid,
+    #comingSoonContainer,
+    #latestMoviesGrid,
+    #comedyContainer,
+    #dramaContainer,
+    #sofaflixContainer {
+        margin-left: -1.25rem !important;
+        margin-right: -1.25rem !important;
+        width: calc(100% + 2.5rem) !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+/* Xóa margin của thẻ đầu tiên/cuối cùng để sát mép hoàn toàn khi áp dụng margin âm */
+[id$="Container"] > div:first-child,
+[id$="Grid"] > div:first-child,
+.ranking-item:first-child {
+    margin-left: 0 !important;
+}
+[id$="Container"] > div:last-child,
+[id$="Grid"] > div:last-child,
+.ranking-item:last-child {
+    margin-right: 0 !important;
+}

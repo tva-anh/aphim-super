@@ -1,0 +1,322 @@
+.interests-section {
+    padding: 1rem 0 0;
+    margin-top: 0;
+    background: transparent;
+    overflow: hidden;
+    position: relative;
+    z-index: 20;
+}
+
+/* Ambient Glow - REMOVED TO PREVENT COLOR BREAK */
+.interests-section::before {
+    display: none;
+}
+
+.interests-wrapper {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start;
+}
+
+.interests-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.interest-card {
+    flex: 0 0 240px;
+    height: 140px;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card-color, #3b82f6);
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 767px) {
+    .interests-section {
+        position: relative !important;
+        bottom: auto !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 40 !important;
+        width: 100% !important;
+    }
+    .interest-card {
+        flex: 0 0 190px !important;
+        height: 90px !important;
+        border-radius: 12px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .interests-section {
+        position: absolute !important;
+        bottom: 20px !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 40 !important;
+        width: 100% !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .interest-card {
+        flex: 0 0 210px;
+        height: 120px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .interests-wrapper {
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 1.25rem !important;
+        overflow-x: visible !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: -1.25rem !important;
+        margin-right: -1.25rem !important;
+        width: calc(100% + 2.5rem) !important;
+    }
+    .interest-card {
+        flex: none !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 140px;
+    }
+}
+
+.interest-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Background Image positioned on the right side with left fade mask (like SVAP in Screenshot 1) */
+.interest-bg-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 86%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.8s ease, opacity 1s ease;
+    z-index: 1;
+    opacity: 0.95;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 38%);
+    mask-image: linear-gradient(to right, transparent 0%, black 38%);
+}
+
+.interest-card:hover .interest-bg-img {
+    transform: scale(1.08);
+    opacity: 1;
+}
+
+/* Overlay fade đáy - Disabled for brightness as requested */
+.interest-card::after {
+    display: none;
+}
+
+/* Color Tint Overlay - Disabled for brightness */
+.interest-card::before {
+    display: none;
+}
+
+.interest-card:hover::before {
+    opacity: 0.5;
+}
+
+/* Content */
+.interest-content {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-width: 75%;
+}
+
+.interest-title {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 1px 2px rgba(0,0,0,0.95);
+}
+
+@media (max-width: 767px) {
+    .interest-content {
+        padding: 0.75rem !important; /* Giảm padding */
+    }
+    .interest-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.1rem !important;
+    }
+}
+
+.interest-action {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.85);
+}
+
+.interest-action .material-icons-round {
+    font-size: 0.75rem;
+}
+
+@media (max-width: 767px) {
+    .interest-action {
+        font-size: 0.6rem !important;
+    }
+    .interest-action .material-icons-round {
+        font-size: 0.7rem !important;
+    }
+}
+
+/* Circle Icon */
+.interest-icon-circle {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 2rem;
+    height: 2rem;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.interest-icon-circle .material-icons-round {
+    font-size: 1rem;
+    color: white;
+}
+
+/* Category Specific Overrides (if needed) */
+.cat-hot::before { opacity: 0.6; }
+
+/* ✅ Lottie Icon Container — cùng kích thước với interest-icon-circle cũ */
+.interest-lottie-circle {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 2rem;          /* 32px — khớp với icon cũ */
+    height: 2rem;         /* 32px — khớp với icon cũ */
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    z-index: 10;
+    pointer-events: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* ✨ Màu đầy đủ + glow trắng nổi bật trên nền tối */
+    filter: brightness(1.3) drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+}
+
+.interest-lottie-circle > div {
+    width: 65%;
+    height: 65%;
+}
+
+@media (max-width: 767px) {
+    .interest-lottie-circle {
+        top: 0.6rem !important;
+        left: 0.6rem !important;
+        width: 1.6rem !important;
+        height: 1.6rem !important;
+    }
+}
+
+/* --- MOBILE UI OVERRIDES (FLEX WRAP + 2 COLUMNS + SPACING FIX) --- */
+@media (max-width: 767px) {
+    .interests-section {
+        overflow: visible !important;
+        margin-bottom: 110px !important; /* Force space for the 3rd row to prevent overlap */
+    }
+    .interests-wrapper {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        gap: 0.6rem !important;
+        overflow: visible !important;
+        padding-bottom: 1rem !important;
+    }
+    .interest-card {
+        flex: 0 0 calc(50% - 0.3rem) !important; /* 2 columns, perfectly spaced */
+        width: auto !important;
+        height: 95px !important;
+        border-radius: 12px !important;
+    }
+    .interest-content {
+        padding: 0.7rem !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        justify-content: flex-end !important;
+    }
+    .interest-title {
+        font-size: 1.05rem !important; 
+        font-weight: 900 !important;
+        margin-bottom: 0.2rem !important;
+        line-height: 1.1 !important;
+        text-shadow: 0 2px 6px rgba(0,0,0,1), 0 1px 2px rgba(0,0,0,1) !important;
+    }
+    .interest-action {
+        font-size: 0.65rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+    }
+    .interest-lottie-circle {
+        top: 0.7rem !important;
+        left: 0.7rem !important;
+        width: 1.8rem !important;
+        height: 1.8rem !important;
+    }
+    .interest-bg-img {
+        width: 100% !important; 
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 50%) !important;
+        mask-image: linear-gradient(to right, transparent 0%, black 50%) !important;
+    }
+}
+
+/* FINAL MOBILE LAYOUT FIX - OVERRIDE TAILWIND ABSOLUTE */
+@media (max-width: 767px) {
+    .interests-section, body .interests-section {
+        position: relative !important;
+        bottom: auto !important;
+        margin-bottom: 0px !important; /* Proper margin to push BXH down */
+        height: auto !important;
+    }
+    .interests-wrapper {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        gap: 0.6rem !important;
+        padding-bottom: 10px !important; /* MASSIVE PADDING TO FIX OVERLAP */
+    }
+    .interest-card {
+        flex: 0 0 calc(50% - 0.3rem) !important;
+        margin-bottom: 0 !important;
+    }
+}

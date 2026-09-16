@@ -1,0 +1,311 @@
+.coming-soon-section {
+    background: transparent !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hide any dynamic ads inserted inside coming-soon section */
+.coming-soon-section .adm-infeed {
+    display: none !important;
+}
+
+.coming-soon-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Removed the red/amber radial gradient to sync with the main homepage background */
+    background: transparent;
+    pointer-events: none;
+}
+
+.cs-top10-card {
+    position: relative;
+    flex-shrink: 0;
+    width: 100px;
+}
+
+@media (min-width: 768px) {
+    .cs-top10-card {
+        width: 120px;
+    }
+}
+
+/* Poster Container with Perspective */
+.cs-poster-perspective {
+    perspective: 1000px;
+    margin-bottom: 16px;
+}
+
+.cs-poster-container {
+    position: relative;
+    aspect-ratio: 2/3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #2a2d34;
+    transform: rotateY(-15deg) scale(0.95);
+    transform-style: preserve-3d;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cs-top10-card:hover .cs-poster-container {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+}
+
+.cs-poster-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.cs-top10-card:hover .cs-poster-container img {
+    transform: scale(1.05);
+}
+
+/* Rank Number - Smaller and Compact */
+.cs-rank-number {
+    font-size: 2rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #F5C518;
+    opacity: 0.9;
+    line-height: 1;
+    margin-right: 12px;
+    flex-shrink: 0;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+@media (min-width: 768px) {
+    .cs-rank-number {
+        font-size: 2.5rem;
+    }
+}
+
+/* Special styling for top 3 */
+.cs-top10-card:nth-child(1) .cs-rank-number {
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 2px 2px 8px rgba(0, 0, 0, 0.8);
+    animation: pulse-gold 2s ease-in-out infinite;
+}
+
+.cs-top10-card:nth-child(2) .cs-rank-number {
+    color: #c0c0c0;
+    text-shadow: 0 0 20px rgba(192, 192, 192, 0.6), 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.cs-top10-card:nth-child(3) .cs-rank-number {
+    color: #cd7f32;
+    text-shadow: 0 0 20px rgba(205, 127, 50, 0.6), 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes pulse-gold {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+/* Movie Info Container */
+.cs-movie-info-container {
+    display: flex;
+    align-items: flex-start;
+}
+
+.cs-movie-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cs-movie-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cs-movie-subtitle {
+    font-size: 0.75rem;
+    color: #B3B3B3;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cs-movie-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #B3B3B3;
+    flex-wrap: wrap;
+}
+
+.cs-age-rating {
+    background: #374151;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #ffffff;
+}
+
+/* Badges on Poster */
+.cs-badges-container {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    display: flex;
+    gap: 4px;
+    z-index: 3;
+}
+
+.cs-badge {
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+}
+
+.cs-badge-episode {
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+}
+
+.cs-badge-quality {
+    background: rgba(16, 185, 129, 0.9);
+    color: #ffffff;
+}
+
+.cs-badge-lang {
+    background: rgba(59, 130, 246, 0.9);
+    color: #ffffff;
+}
+
+/* Rating Badge */
+.cs-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245, 158, 11, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+.cs-rating .material-icons-round {
+    font-size: 14px;
+}
+
+/* Hover Effect - Play Icon */
+.cs-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 4;
+}
+
+.cs-top10-card:hover .cs-play-overlay {
+    opacity: 1;
+}
+
+.cs-play-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #F5C518 0%, #d4a017 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(245, 197, 24, 0.6);
+    animation: pulse-play 1.5s ease-in-out infinite;
+}
+
+.cs-play-icon .material-icons-round {
+    font-size: 28px;
+    color: #000;
+}
+
+@keyframes pulse-play {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Navigation Arrows */
+.cs-nav-arrow {
+    position: absolute;
+    top: 100px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.cs-nav-arrow:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.cs-nav-arrow-left {
+    left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.cs-nav-arrow-right {
+    right: 0;
+    border-radius: 8px 0 0 8px;
+}
+
+#comingSoonContainer:hover .cs-nav-arrow {
+    opacity: 1;
+}
+
+/* Scrollbar Hide */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Smooth Scroll */
+.cs-scroll-container {
+    scroll-behavior: smooth;
+}

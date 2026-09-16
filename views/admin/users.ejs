@@ -1,0 +1,127 @@
+<%- include('partials/head', { title: 'Quản Lý Thành Viên & Xu/XP', activePage: 'users' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'users' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Thành Viên & Gamification' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-main-title">Quản Lý Thành Viên & Gamification (Xu/XP)</h1>
+          <p class="page-sub-title">Cộng/trừ Xu, cấp VIP, quản lý chuỗi điểm danh Streak 7 ngày, mở khóa huy hiệu và phân quyền</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-outline" onclick="AdminCore.exportUsersCSV()">
+            <i data-lucide="download"></i> Xuất Dữ Liệu
+          </button>
+          <button class="btn btn-primary" onclick="AdminCore.openAddUserModal()">
+            <i data-lucide="user-plus"></i> Tạo Tài Khoản Mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick KPI Strip for Gamification & Users -->
+      <div class="kpi-mini-grid">
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-primary"><i data-lucide="users"></i></div>
+          <div>
+            <div class="mini-label">TỔNG THÀNH VIÊN</div>
+            <div class="mini-value" id="kpiTotalUsers">Đang tải...</div>
+          </div>
+        </div>
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-gold"><i data-lucide="coins"></i></div>
+          <div>
+            <div class="mini-label">TỔNG XU LƯU THÔNG</div>
+            <div class="mini-value" id="kpiTotalXu">Đang tải...</div>
+          </div>
+        </div>
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-emerald"><i data-lucide="flame"></i></div>
+          <div>
+            <div class="mini-label">USER MỚI HÔM NAY</div>
+            <div class="mini-value" id="kpiNewUsers">Đang tải...</div>
+          </div>
+        </div>
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-pink"><i data-lucide="crown"></i></div>
+          <div>
+            <div class="mini-label">GÓI VIP ĐANG HOẠT ĐỘNG</div>
+            <div class="mini-value" id="kpiVipActive">Đang tải...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="glass-card filter-ribbon-card">
+        <div class="filter-row">
+          <div class="search-input-wrap">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="userSearchInput" class="form-control filter-input" placeholder="Tìm theo tên, email, ID hoặc số điện thoại...">
+          </div>
+
+          <select id="userRoleFilter" class="form-control filter-select">
+            <option value="">Tất cả phân quyền</option>
+            <option value="admin">Quản Trị Viên (Admin)</option>
+            <option value="mod">Kiểm Duyệt Viên (Mod)</option>
+            <option value="vip">Thành Viên VIP</option>
+            <option value="member">Thành Viên Thường</option>
+          </select>
+
+          <select id="userStreakFilter" class="form-control filter-select">
+            <option value="">Chuỗi Điểm Danh (Streak)</option>
+            <option value="7">Streak 7 Ngày (Max)</option>
+            <option value="3">Streak 3-6 Ngày</option>
+            <option value="0">Chưa Điểm Danh</option>
+          </select>
+
+          <select id="userStatusFilter" class="form-control filter-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang Hoạt Động</option>
+            <option value="banned">Bị Khóa / Cấm</option>
+          </select>
+
+          <button class="btn btn-secondary" onclick="AdminCore.resetUserFilters()">
+            <i data-lucide="rotate-ccw"></i> Đặt Lại
+          </button>
+        </div>
+      </div>
+
+      <!-- Master Users Table -->
+      <div class="glass-card table-wrapper-card">
+        <div class="table-responsive">
+          <table class="data-table" id="usersMasterTable">
+            <thead>
+              <tr>
+                <th>Thành Viên</th>
+                <th>Phân Quyền / VIP</th>
+                <th>Số Dư Xu</th>
+                <th>Cấp Độ / XP</th>
+                <th>Streak 7 Ngày</th>
+                <th>Trạng Thái</th>
+                <th>Ngày Tham Gia</th>
+                <th style="text-align: right;">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="8" class="text-center">Đang tải dữ liệu...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

@@ -1,0 +1,48 @@
+<header class="admin-header">
+  <div class="header-left">
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <i data-lucide="menu"></i>
+    </button>
+    <div class="header-breadcrumb">
+      <span class="breadcrumb-item"><i data-lucide="shield-check" class="text-emerald"></i> APhim Enterprise</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current"><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Bảng Điều Khiển' %></span>
+    </div>
+  </div>
+
+  <!-- Command Palette search pill -->
+  <div class="header-center">
+    <button class="command-palette-trigger" id="cmdPaletteTrigger">
+      <i data-lucide="search"></i>
+      <span>Tìm phim, user, câu lệnh...</span>
+      <kbd>Ctrl + K</kbd>
+    </button>
+  </div>
+
+  <!-- Header Right Actions -->
+  <div class="header-right">
+    <!-- Server status ping -->
+    <div class="system-status-pill" title="Trạng thái hệ thống">
+      <span class="status-dot pinging"></span>
+      <span class="status-text">99.98% Uptime</span>
+    </div>
+
+    <!-- Data masking privacy toggle -->
+    <button class="header-action-btn" id="btnToggleMasking" title="Chế độ bảo mật che thông tin nhạy cảm (Email/Phone)">
+      <i data-lucide="eye-off" id="maskingIcon"></i>
+    </button>
+
+    <!-- Quick Lock Screen -->
+    <button class="header-action-btn" id="btnQuickLock" title="Khóa màn hình làm việc (30s)">
+      <i data-lucide="lock"></i>
+    </button>
+
+    <!-- Notification Dropdown Toggle -->
+    <div class="notification-wrap">
+      <button class="header-action-btn notification-btn" id="btnNotification">
+        <i data-lucide="bell"></i>
+        <span class="notification-badge" id="notificationCount">3</span>
+      </button>
+    </div>
+  </div>
+</header>

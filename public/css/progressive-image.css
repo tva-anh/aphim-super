@@ -1,0 +1,95 @@
+/* ============================================================
+   A PHIM - Progressive Image Loading (Blur-Up Technique)
+   Chiến lược: Load placeholder siêu nhỏ (~500B) tức thì,
+   sau khi full-quality load xong → fade-in mượt mà.
+   Áp dụng CHỈ trên mobile (JS kiểm tra isMobile trước).
+   ============================================================ */
+
+/* ── Wrapper bọc ngoài ảnh (giúp clip overflow khi scale) ── */
+.img-progressive-wrap {
+    position: relative;
+    overflow: hidden;
+    /* Giữ background-color để không bị trắng trống khi đang load */
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Placeholder đang blur ── */
+.img-progressive {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.45s ease-out, transform 0.45s ease-out, opacity 0.3s ease-out;
+    will-change: filter, transform;
+}
+
+/* Trạng thái đang load: blur + scale nhẹ để che viền mờ */
+.img-progressive.img-loading {
+    filter: blur(12px);
+    transform: scale(1.08);
+    opacity: 0.85;
+}
+
+/* Trạng thái đã load xong: sắc nét hoàn toàn */
+.img-progressive.img-loaded {
+    filter: blur(0px);
+    transform: scale(1);
+    opacity: 1;
+    will-change: auto; /* Giải phóng GPU layer sau khi xong */
+}
+
+/* ── Shimmer animation khi placeholder đang tải ── */
+.img-progressive-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.06) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: progressive-shimmer 1.5s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    opacity: 1;
+}
+
+/* Ẩn shimmer sau khi ảnh đã load */
+.img-progressive-wrap.img-wrap-loaded::before {
+    opacity: 0;
+    animation: none;
+}
+
+@keyframes progressive-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ── Đảm bảo ảnh nằm trên shimmer layer ── */
+.img-progressive-wrap .img-progressive {
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Không áp dụng blur-up trên Desktop ──
+   Class này được JS gán khi isMobile = false → load thẳng full */
+.img-progressive.img-desktop {
+    filter: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+    will-change: auto !important;
+}
+
+/* ── Tối ưu performance: tắt animation khi prefer-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+    .img-progressive,
+    .img-progressive-wrap::before {
+        transition: none !important;
+        animation: none !important;
+        filter: none !important;
+        transform: none !important;
+    }
+}

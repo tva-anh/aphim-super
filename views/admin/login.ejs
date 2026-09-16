@@ -1,0 +1,54 @@
+<%- include('partials/head', { title: 'Đăng Nhập Quản Trị Viên', activePage: 'login' }) %>
+
+<div class="login-wrapper">
+  <!-- Glowing Ambient Lights -->
+  <div class="login-glow-1"></div>
+  <div class="login-glow-2"></div>
+
+  <div class="login-card glass-panel">
+    <div class="login-header">
+      <div class="brand-logo-icon large">
+        <i data-lucide="clapperboard"></i>
+      </div>
+      <h1 class="login-brand-title">APHIM SUPER</h1>
+      <div class="login-badge"><i data-lucide="shield-check"></i> CỔNG BẢO MẬT ENTERPRISE</div>
+      <p class="login-sub-text">Đăng nhập tài khoản Super Admin để truy cập toàn bộ hệ thống</p>
+    </div>
+
+    <form id="adminLoginForm" onsubmit="event.preventDefault(); return AdminCore.handleLogin();">
+      <div class="form-group">
+        <label class="form-label" for="loginEmail">Email hoặc Tên Đăng Nhập:</label>
+        <div class="input-with-icon">
+          <i data-lucide="user" class="input-icon"></i>
+          <input type="text" id="loginEmail" class="form-control" required placeholder="admin@aphim.io.vn" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Mật khẩu Quản Trị:</label>
+        <div class="input-with-icon">
+          <i data-lucide="lock" class="input-icon"></i>
+          <input type="password" id="loginPassword" class="form-control" required placeholder="••••••••" autocomplete="current-password">
+        </div>
+      </div>
+
+      <div class="login-options-row">
+        <label class="remember-wrap">
+          <input type="checkbox" checked id="rememberAdmin">
+          <span>Ghi nhớ phiên đăng nhập</span>
+        </label>
+        <a href="javascript:void(0)" onclick="alert('Vui lòng liên hệ Trưởng nhóm DevOps để khôi phục mã khóa bảo mật!')" class="forgot-link">Quên mật khẩu?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-login-submit" id="btnLoginSubmit">
+        <i data-lucide="log-in"></i> Đăng Nhập Hệ Thống
+      </button>
+
+      <div class="login-security-notice">
+        <i data-lucide="shield"></i> Phiên kết nối được mã hóa AES-256 & giám sát IP tự động
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/scripts') %>

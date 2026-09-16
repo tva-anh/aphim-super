@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "F:\\Wesite Xem Phim Super\\logs\\.15be61f37d8b73c0cef7a45e81186bd78eb2fd2e-audit.json",
+    "files": [
+        {
+            "date": 1789490224766,
+            "name": "F:\\Wesite Xem Phim Super\\logs\\error-2026-09-15.log",
+            "hash": "7986262b0ea90f054310553bc164de80aae77a4dd993f95cbeba33be95dbd7c0"
+        },
+        {
+            "date": 1789492133804,
+            "name": "F:\\Wesite Xem Phim Super\\logs\\error-2026-09-16.log",
+            "hash": "8e1bbd3332788af68cf858ae54458ff7e916defb135024406cdbc8c7e45b3447"
+        }
+    ],
+    "hashType": "sha256"
+}

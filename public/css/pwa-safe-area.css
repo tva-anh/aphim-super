@@ -1,0 +1,674 @@
+/**
+ * PWA SAFE AREA INSETS
+ * Fix cho iPhone notch/Dynamic Island khi thêm vào màn hình chính
+ * Theo chuẩn của Instagram, Twitter, Netflix, TikTok
+ */
+
+/* ============================================
+   ROOT VARIABLES - Safe Area Insets
+   ============================================ */
+:root {
+    /* iOS Safe Area Insets */
+    --sat: env(safe-area-inset-top);
+    --sar: env(safe-area-inset-right);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+
+    /* Fallback values for non-PWA */
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+}
+
+/* ============================================
+   PT-SAFE CLASS - Always apply safe area
+   ============================================ */
+.pt-safe {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+/* Navigation specific - ensure it works */
+nav.pt-safe,
+#mainNav.pt-safe {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+/* ============================================
+   DETECT PWA MODE (Standalone)
+   ============================================ */
+@media (display-mode: standalone) {
+    /* PWA mode detected - apply safe area fixes */
+
+    /* BODY - Only horizontal and bottom padding */
+    /* NAVIGATION HEADER - Push down from notch */
+    nav,
+    header,
+    .nav-container,
+    .navigation-modern,
+    .sticky-nav {
+        padding-top: calc(var(--sat) + 12px) !important;
+        margin-top: 0 !important;
+    }
+
+    /* Navigation with pt-safe class - add extra 12px in PWA mode */
+    nav.pt-safe,
+    header.pt-safe,
+    #mainNav.pt-safe {
+        padding-top: calc(var(--sat) + 12px) !important;
+    }
+
+    /* Navigation container inside nav */
+    nav .container,
+    nav>div {
+        /* Container height should remain fixed */
+        min-height: 56px !important;
+    }
+
+    /* Mobile inline search - ensure proper positioning */
+    .mobile-inline-search {
+        margin-top: 0px !important;
+        position: relative !important;
+    }
+
+    .mobile-inline-search-icon,
+    .mobile-inline-search-input {
+        /* Ensure search elements don't have extra top margin */
+        margin-top: 0px !important;
+    }
+
+    /* Auth container and mobile menu button */
+    #authContainer,
+    #mobileMenuBtn {
+        margin-top: 0px !important;
+    }
+
+    /* Mobile Menu Dropdown - Already has safe area in sticky-nav.css */
+    /* Just ensure no extra top padding */
+    #mobileMenu {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* BACK BUTTON - Adjust position */
+    .back-button,
+    .btn-back,
+    [class*="back-btn"] {
+        top: calc(var(--sat) + 16px) !important;
+    }
+
+    /* PROFILE PAGE - Special handling */
+    body.profile-page {
+        padding-top: 0px !important;
+    }
+
+    /* MAIN CONTENT - Minimal padding-top in PWA mode */
+    body.profile-page main,
+    body.profile-page #profileMain {
+        padding-top: calc(var(--sat) + 68px) !important;
+    }
+
+    /* PROFILE HERO CARD - NO extra margin */
+    .profile-hero-card {
+        margin-top: 0px !important;
+    }
+
+    /* PROFILE HEADER - NO extra padding, nav already has it */
+    .profile-cover,
+    .profile-header {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* Profile cover edit button - adjust for nav height */
+    .profile-cover-edit-btn {
+        top: 14px !important;
+    }
+
+    /* FIXED HEADERS - All pages */
+    .fixed-header,
+    .sticky-header,
+    [style*="position: fixed"][style*="top: 0"] {
+        top: var(--sat) !important;
+    }
+
+    /* SEARCH BAR - Adjust position (chỉ áp dụng cho search bar chính, không phải sp-search-*) */
+    .search-container,
+    .search-bar,
+    .searchbar,
+    .search-wrapper {
+        margin-top: calc(var(--sat) + 8px) !important;
+    }
+    /* Reset: sp-search-* trên search page KHÔNG nhận margin-top thừa từ PWA */
+    [class^="sp-search"],
+    [class*=" sp-search"] {
+        margin-top: 0 !important;
+    }
+
+    /* MODAL HEADERS */
+    .modal-header,
+    .dialog-header {
+        padding-top: calc(var(--sat) + 16px) !important;
+    }
+
+    /* BOTTOM NAVIGATION - Adjust for home indicator */
+    .bottom-nav,
+    .tab-bar,
+    [class*="bottom-"] {
+        padding-bottom: calc(var(--sab) + 8px) !important;
+    }
+
+    /* FLOATING ACTION BUTTON - Adjust for home indicator */
+    .fab,
+    .floating-button,
+    .chat-fab {
+        bottom: calc(var(--sab) + 20px) !important;
+    }
+}
+
+/* ============================================
+   SPECIFIC PAGE FIXES
+   ============================================ */
+
+/* WATCH PAGE - Trang xem phim */
+@media (display-mode: standalone) {
+    body.watch-page {
+        padding-top: 0 !important;
+    }
+
+    /* Main content phải tránh nav có safe area */
+    body.watch-page #watchMain {
+        padding-top: calc(var(--sat) + 68px) !important;
+    }
+}
+
+/* PRICING PAGE - Trang thanh toán */
+@media (display-mode: standalone) {
+    body.pricing-page {
+        padding-top: 0 !important;
+    }
+
+    /* Desktop pricing main */
+    body.pricing-page #pricingMain {
+        padding-top: calc(var(--sat) + 80px) !important;
+    }
+
+    /* Mobile swipe pricing: đẩy xuống đúng dưới nav + safe area */
+    body.pricing-page #pricingMobileSwipe {
+        padding-top: calc(var(--sat) + 70px) !important;
+    }
+
+    /* Tab toggle + cards không bị dính lên nav */
+    body.pricing-page .msw-tabs {
+        padding-top: 10px !important;
+    }
+}
+
+/* PROFILE PAGE */
+
+
+@media (display-mode: standalone) {
+
+    /* Profile page body */
+    .profile-page {
+        padding-top: var(--sat) !important;
+    }
+
+    /* Profile back button */
+    .profile-page .back-button,
+    .profile-page .btn-back,
+    .profile-page button[onclick*="history.back"],
+    .profile-page a[onclick*="history.back"] {
+        top: calc(var(--sat) + 20px) !important;
+        left: calc(var(--sal) + 16px) !important;
+        z-index: 100 !important;
+    }
+
+    /* Profile cover/header */
+    .profile-cover,
+    .profile-header {
+        padding-top: calc(var(--sat) + 16px) !important;
+        margin-top: 0 !important;
+    }
+
+    /* Profile avatar - push down */
+    .profile-avatar-container {
+        margin-top: calc(var(--sat) + 0px) !important;
+    }
+
+    /* Profile tabs navigation */
+    .profile-tabs,
+    .tab-navigation,
+    .tab-btn {
+        margin-top: 8px !important;
+    }
+
+    /* All tab content sections */
+    .tab-content {
+        padding-top: 16px !important;
+    }
+
+    /* Profile cards inside tabs */
+    .profile-card {
+        margin-top: 0 !important;
+    }
+
+    /* Tiến trình (Progress) section */
+    #journeyTab,
+    #journeyTab .journey-container {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    #journeyTab .journey-section {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+
+    .stat-card,
+    .progress-section {
+        margin-top: 0 !important;
+    }
+
+    /* Thông tin cá nhân (Personal Info) section */
+    #profileTab,
+    #profileTab .profile-card {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    /* Cửa hàng (Shop) section */
+    #shopTab,
+    #shopTab .shop-container {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    #shopTab .profile-card,
+    .shop-tabs,
+    .shop-grid {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    /* Gói thành viên (Subscription) section */
+    #subscriptionTab,
+    #subscriptionTab .profile-card,
+    .subscription-card {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    /* Phim yêu thích (Favorites) section */
+    #favoritesTab,
+    #favoritesTab .profile-card,
+    #favoritesList,
+    .favorites-grid-container {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    /* Lịch sử xem (History) section */
+    #historyTab,
+    #historyTab .profile-card,
+    #historyList {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    /* Giao dịch (Transactions) section */
+    #transactionsTab,
+    #transactionsTab .profile-card,
+    #transactionsList {
+        margin-top: 0 !important;
+        padding-top: 0px !important;
+    }
+
+    /* Danh sách (Lists) section - if exists */
+    #listsTab,
+    #listsTab .profile-card {
+        margin-top: 0 !important;
+        padding-top: 16px !important;
+    }
+
+    /* Settings section - if exists */
+    #settingsTab,
+    #settingsTab .profile-card {
+        margin-top: 0 !important;
+        padding-top: 16px !important;
+    }
+
+    /* Menu buttons in profile */
+    .profile-menu,
+    .profile-menu-item,
+    .menu-list {
+        margin-top: 8px !important;
+    }
+
+    /* Mobile View Header - "Quay lại menu" */
+    #mobileContentHeader,
+    .mobile-view-header {
+        margin-top: 0px !important;
+        padding-top: 12px !important;
+        margin-bottom: 20px !important;
+        /* Keep original margin-bottom */
+    }
+
+    /* Profile main container - NO extra padding */
+    .profile-container,
+    [class*="profile-"] {
+        padding-top: 0px !important;
+    }
+
+    /* All section headers in profile - NO extra padding */
+    .section-header,
+    .profile-section-header {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* Journey container (Tiến trình) - NO extra padding */
+    .journey-container {
+        padding-top: 0px !important;
+    }
+
+    /* Journey section header */
+    .journey-section {
+        margin-top: 0px !important;
+    }
+
+    /* Journey label */
+    .journey-label {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* Shop container - NO extra padding */
+    .shop-container {
+        padding-top: 0px !important;
+    }
+
+    /* Shop header */
+    .shop-header {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+
+    /* All h2, h3 inside tabs - NO extra padding */
+    .tab-content h2,
+    .tab-content h3 {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* Profile cards - Standard padding only */
+    .profile-card {
+        padding-top: 20px !important;
+        margin-top: 0px !important;
+    }
+
+    /* First profile card in each tab - NO extra padding */
+    .tab-content .profile-card:first-child {
+        padding-top: 20px !important;
+        margin-top: 0px !important;
+    }
+
+    /* Tab content - NO extra padding */
+    .tab-content {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* First element in each tab - NO extra padding */
+    .tab-content>*:first-child {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    /* Journey stats grid - NO extra margin */
+    .stats-grid {
+        margin-top: 0px !important;
+    }
+
+    /* Shop grid - NO extra margin */
+    .shop-grid {
+        margin-top: 0px !important;
+    }
+}
+
+/* HISTORY PAGE (Lịch sử xem) */
+@media (display-mode: standalone) {
+
+    .history-page nav,
+    .history-page header {
+        padding-top: calc(var(--sat) + 16px) !important;
+    }
+
+    .history-page .back-button {
+        top: calc(var(--sat) + 20px) !important;
+    }
+}
+
+/* FAVORITES PAGE (Phim yêu thích) */
+@media (display-mode: standalone) {
+
+    .favorites-page nav,
+    .favorites-page header {
+        padding-top: calc(var(--sat) + 16px) !important;
+    }
+
+    .favorites-page .back-button {
+        top: calc(var(--sat) + 20px) !important;
+    }
+}
+
+/* SHOP PAGE (Cửa hàng) */
+@media (display-mode: standalone) {
+
+    .shop-page nav,
+    .shop-page header {
+        padding-top: calc(var(--sat) + 16px) !important;
+    }
+
+    .shop-page .back-button {
+        top: calc(var(--sat) + 20px) !important;
+    }
+
+    /* Shop tabs */
+    .shop-tabs {
+        padding-top: 8px !important;
+    }
+}
+
+/* SUBSCRIPTION PAGE (Gói thành viên) */
+@media (display-mode: standalone) {
+
+    .subscription-page nav,
+    .subscription-page header {
+        padding-top: calc(var(--sat) + 16px) !important;
+    }
+
+    .subscription-page .back-button {
+        top: calc(var(--sat) + 20px) !important;
+    }
+}
+
+/* ============================================
+   LANDSCAPE MODE ADJUSTMENTS
+   ============================================ */
+@media (display-mode: standalone) and (orientation: landscape) {
+
+    /* In landscape, notch is on the side */
+    nav,
+    header {
+        padding-left: calc(var(--sal) + 16px) !important;
+        padding-right: calc(var(--sar) + 16px) !important;
+    }
+
+    /* Reduce top padding in landscape */
+    nav,
+    header {
+        padding-top: calc(var(--sat) + 8px) !important;
+    }
+}
+
+/* ============================================
+   IPHONE SPECIFIC FIXES
+   ============================================ */
+
+/* iPhone X, XS, 11 Pro, 12 mini, 13 mini (notch) */
+@supports (padding: max(0px)) {
+    @media (display-mode: standalone) {
+        nav,
+        header {
+            padding-top: max(calc(var(--sat) + 12px), 56px) !important;
+        }
+    }
+}
+
+/* iPhone 14 Pro, 15 Pro (Dynamic Island) */
+@supports (padding: max(0px)) {
+    @media (display-mode: standalone) and (min-height: 852px) {
+        nav,
+        header {
+            padding-top: max(calc(var(--sat) + 12px), 71px) !important;
+        }
+    }
+}
+
+/* ============================================
+   ANDROID PWA SUPPORT
+   ============================================ */
+@media (display-mode: standalone) {
+    /* Android typically has smaller safe areas */
+    @supports not (padding: env(safe-area-inset-top)) {
+        nav,
+        header {
+            padding-top: 36px !important;
+        }
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Add safe area padding manually */
+.safe-top {
+    padding-top: var(--sat) !important;
+}
+
+.safe-right {
+    padding-right: var(--sar) !important;
+}
+
+.safe-bottom {
+    padding-bottom: var(--sab) !important;
+}
+
+.safe-left {
+    padding-left: var(--sal) !important;
+}
+
+.safe-all {
+    padding-top: var(--sat) !important;
+    padding-right: var(--sar) !important;
+    padding-bottom: var(--sab) !important;
+    padding-left: var(--sal) !important;
+}
+
+/* Margin variants */
+.safe-mt {
+    margin-top: var(--sat) !important;
+}
+
+.safe-mr {
+    margin-right: var(--sar) !important;
+}
+
+.safe-mb {
+    margin-bottom: var(--sab) !important;
+}
+
+.safe-ml {
+    margin-left: var(--sal) !important;
+}
+
+/* ============================================
+   DEBUG MODE (Development only)
+   ============================================ */
+.debug-safe-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 999999;
+}
+
+.debug-safe-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--sat);
+    background: rgba(255, 0, 0, 0.3);
+    border-bottom: 2px solid red;
+}
+
+.debug-safe-area::after {
+    content: 'Safe Area Top: ' var(--sat);
+    position: absolute;
+    top: calc(var(--sat) + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
+@media (display-mode: standalone) {
+
+    nav,
+    header,
+    .back-button,
+    .profile-cover {
+        transition: padding 0.3s ease, margin 0.3s ease, top 0.3s ease !important;
+    }
+}
+
+/* ============================================
+   15. GLOBAL PROFILE VIEWPORT & SAFE AREA FIXES
+   Applied globally to both standard web and PWA
+   ============================================ */
+
+/* Force dynamic viewport height on all profile-page templates */
+body.profile-page {
+    min-height: 100dvh !important; /* Accounts for expanding/collapsing browser bars */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Extended bottom breathing room for mobile/tablet views */
+@media (max-width: 1024px) {
+    body.profile-page main {
+        /* Combines standard margin, iOS safe-area-inset-bottom, and browser address bar overhead (~60-80px) */
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 140px) !important;
+    }
+    
+    /* Ensure that lists with internal scrollbars have enough padding-bottom for the final element */
+    #favoritesList,
+    #historyList,
+    #transactionsList,
+    #playlistsList {
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 50px) !important;
+    }
+}

@@ -1,0 +1,147 @@
+/* ================================================================
+   A PHIM — Design Tokens (CSS Variables) — Midnight Cinema Theme
+   Đây là file nguồn duy nhất cho toàn bộ hệ thống màu sắc.
+   Import trước TẤT CẢ các file CSS khác.
+   ================================================================ */
+
+:root {
+
+  /* ── BASE BACKGROUNDS (PERFECT BRIGHT GRAY) ────────────────── */
+  --bg-void:          #1e2130;     /* Nền navy premium (đồng bộ)   */
+  --bg-deep:          #2a2e39;     /* Nền chính sáng lý tưởng      */
+  --bg-surface:       #343946;     /* Card bề mặt                 */
+  --bg-elevated:      #3f4555;     /* Hover state                 */
+  --bg-card:          rgba(42, 46, 57, 0.82);
+  --bg-glass:         rgba(42, 46, 57, 0.45);
+  --bg-glass-light:   rgba(255, 255, 255, 0.10);
+  --bg-glass-nav:     rgba(31, 34, 43, 0.94);
+
+  /* ── ACCENT COLORS ──────────────────────────────────────────── */
+  /* Thay màu vàng chói #f2f20d bằng vàng ấm áp cinema           */
+  --accent-gold:      #e8b94f;     /* Vàng ấm chính               */
+  --accent-amber:     #f59e0b;     /* Hổ phách — điểm nhấn phụ   */
+  --accent-gold-dim:  #c49a30;     /* Vàng tối — pressed state    */
+  --accent-rose:      #f43f5e;     /* Đỏ hồng — cảnh báo/18+     */
+  --accent-teal:      #14b8a6;     /* Teal — hoạt hình/sci-fi     */
+  --accent-green:     #10b981;     /* Xanh lá — badge chất lượng  */
+
+  /* Glow shadows */
+  --accent-glow-xs:   0 0 8px  rgba(232, 185, 79, 0.18);
+  --accent-glow-sm:   0 0 14px rgba(232, 185, 79, 0.22);
+  --accent-glow-md:   0 0 28px rgba(232, 185, 79, 0.28);
+  --accent-glow-lg:   0 0 50px rgba(232, 185, 79, 0.35);
+
+  /* ── TEXT COLORS ────────────────────────────────────────────── */
+  --text-primary:     #f0f0f5;     /* Trắng nhẹ — tránh pure white */
+  --text-secondary:   #9899b0;     /* Xám lạnh                    */
+  --text-muted:       #5a5b72;     /* Xám đậm — placeholder       */
+  --text-accent:      #e8b94f;     /* Vàng ấm — link / highlight  */
+  --text-inverse:     #050508;     /* Chữ tối — dùng trên nền vàng*/
+
+  /* ── GRADIENT TEXT ──────────────────────────────────────────── */
+  --gradient-gold-text: linear-gradient(135deg, #e8b94f 0%, #f0f0f5 55%, #e8b94f 100%);
+  --gradient-brand:     linear-gradient(135deg, #e8b94f 0%, #f59e0b 100%);
+
+  /* ── BORDERS ────────────────────────────────────────────────── */
+  --border-subtle:    rgba(255, 255, 255, 0.06);
+  --border-medium:    rgba(255, 255, 255, 0.10);
+  --border-strong:    rgba(255, 255, 255, 0.18);
+  --border-accent:    rgba(232, 185, 79, 0.30);
+  --border-accent-sm: rgba(232, 185, 79, 0.15);
+
+  /* ── BLUR ───────────────────────────────────────────────────── */
+  --blur-sm:  blur(8px);
+  --blur-md:  blur(16px);
+  --blur-lg:  blur(24px);
+  --blur-xl:  blur(40px);
+
+  /* ── BORDER RADIUS ──────────────────────────────────────────── */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-card: 12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-pill: 9999px;
+
+  /* ── TRANSITIONS ────────────────────────────────────────────── */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:    cubic-bezier(0.0, 0, 0.2, 1);
+  --transition-fast: 0.18s var(--ease-smooth);
+  --transition-med:  0.32s var(--ease-smooth);
+  --transition-slow: 0.50s var(--ease-smooth);
+
+  /* ── SHADOWS ────────────────────────────────────────────────── */
+  --shadow-card:  0 4px 20px rgba(0, 0, 0, 0.40);
+  --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.65);
+  --shadow-nav:   0 1px 40px rgba(0, 0, 0, 0.55);
+  --shadow-float: 0 16px 40px rgba(0, 0, 0, 0.50);
+
+  /* ── AMBIENT ORB COLORS ─────────────────────────────────────── */
+  --orb-1: #1a237e;   /* Indigo sâu   */
+  --orb-2: #4a0072;   /* Purple đậm   */
+  --orb-3: #1b5e20;   /* Xanh lá tối  */
+  --orb-4: #b71c1c;   /* Đỏ drama     */
+  --orb-5: #0d47a1;   /* Xanh đậm phụ */
+}
+
+/* ── UTILITY CLASSES từ token ───────────────────────────────── */
+
+/* Background */
+.bg-void     { background-color: var(--bg-void) !important; }
+.bg-deep     { background-color: var(--bg-deep) !important; }
+.bg-surface  { background-color: var(--bg-surface) !important; }
+.bg-elevated { background-color: var(--bg-elevated) !important; }
+
+/* Text */
+.text-gold    { color: var(--accent-gold) !important; }
+.text-amber   { color: var(--accent-amber) !important; }
+.text-primary-dt { color: var(--text-primary) !important; }
+
+/* Accent gradient text */
+.gradient-text-gold {
+  background: var(--gradient-gold-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button gold gradient */
+.btn-gold {
+  background: var(--gradient-brand);
+  color: var(--text-inverse);
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 20px rgba(232, 185, 79, 0.30);
+  transition: all var(--transition-med);
+  border: none;
+  cursor: pointer;
+}
+.btn-gold:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(232, 185, 79, 0.48),
+              var(--accent-glow-md);
+}
+
+/* Glass panel */
+.glass-panel {
+  background:   var(--bg-glass);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* Scrollbar thống nhất */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.12);
+                              border-radius: var(--radius-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
+
+/* Global alignment fix for max-w-[1600px] container */
+.max-w-\[1600px\] {
+    max-width: 1600px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}

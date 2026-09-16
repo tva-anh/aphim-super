@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="bg-[#1f2331] text-gray-200 min-h-screen pt-28 md:pt-32 flex flex-col font-sans">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow py-8 md:py-12 pb-28 md:pb-36">
+        <div class="app-container max-w-4xl mx-auto space-y-16 md:space-y-20">
+            
+            <!-- Header Section (Generous padding & bottom divider) -->
+            <div class="text-center space-y-4 pt-2 pb-8 border-b border-white/10">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-[#fcd576]/10 text-[#fcd576] border border-[#fcd576]/20 rounded-full text-xs font-bold uppercase tracking-wider">
+                    Giới Thiệu Website
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight uppercase leading-snug">
+                    APHIM SUPER - XEM PHIM ONLINE CHẤT LƯỢNG CAO
+                </h1>
+                <p class="text-gray-400 text-sm md:text-base max-w-3xl mx-auto leading-relaxed font-normal pt-1">
+                    Nền tảng phát trực tuyến phim Vietsub, Thuyết minh chất lượng 4K/Full HD mượt mà và miễn phí.
+                </p>
+            </div>
+
+            <!-- SECTION 1: SỨ MỆNH & GIÁ TRỊ CỐT LÕI (Generous top/bottom margin) -->
+            <div class="space-y-6 pt-4 pb-6 border-b border-white/10">
+                <h2 class="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">
+                    SỨ MỆNH & GIÁ TRỊ CỐT LÕI
+                </h2>
+
+                <div class="space-y-4 pt-2">
+                    <!-- Expandable Item 1 -->
+                    <div class="bg-[#1f212d] border border-white/10 rounded-2xl overflow-hidden shadow-lg transition-all">
+                        <div class="p-5 md:p-6 flex items-center justify-between cursor-pointer select-none" onclick="toggleAboutExpand(this)">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-9 h-9 rounded-lg bg-[#fcd576]/10 flex items-center justify-center text-[#fcd576] font-bold text-sm">01</div>
+                                <h3 class="text-base font-bold text-white">Sứ mệnh mang rạp phim thu nhỏ về ngôi nhà bạn</h3>
+                            </div>
+                            <button type="button" class="px-3.5 py-1.5 bg-white/5 hover:bg-[#fcd576]/20 text-[#fcd576] text-xs font-bold rounded-lg transition-all flex items-center gap-1">
+                                <span class="expand-label">Đọc tiếp</span>
+                                <span class="expand-arrow transition-transform">▾</span>
+                            </button>
+                        </div>
+                        <div class="about-expand-body hidden px-5 md:px-6 pb-6 pt-1 border-t border-white/5 text-gray-300 text-sm leading-relaxed space-y-3">
+                            <p>
+                                A Phim Super được xây dựng dựa trên mong muốn mang lại trải nghiệm xem phim chất lượng rạp chiếu ngay tại không gian sống riêng tư của mỗi khán giả Việt. Chúng tôi hiểu rằng nhu cầu xem phim giải trí trực tuyến ngày càng cao, nhưng rào cản từ quảng cáo cờ bạc độc hại và giật lag mạng lại gây cản trở trải nghiệm người dùng.
+                            </p>
+                            <p>
+                                Với công nghệ phát chuẩn 4K, hệ thống tự động cân bằng tải và lưu tiến trình tập đang xem, A Phim Super giúp bạn thoải mái thưởng thức phim cùng gia đình mà không gặp bất kỳ trở ngại nào.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Item 2 -->
+                    <div class="bg-[#1f212d] border border-white/10 rounded-2xl overflow-hidden shadow-lg transition-all">
+                        <div class="p-5 md:p-6 flex items-center justify-between cursor-pointer select-none" onclick="toggleAboutExpand(this)">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-9 h-9 rounded-lg bg-[#fcd576]/10 flex items-center justify-center text-[#fcd576] font-bold text-sm">02</div>
+                                <h3 class="text-base font-bold text-white">Cam kết trải nghiệm an toàn & Không quảng cáo độc hại</h3>
+                            </div>
+                            <button type="button" class="px-3.5 py-1.5 bg-white/5 hover:bg-[#fcd576]/20 text-[#fcd576] text-xs font-bold rounded-lg transition-all flex items-center gap-1">
+                                <span class="expand-label">Đọc tiếp</span>
+                                <span class="expand-arrow transition-transform">▾</span>
+                            </button>
+                        </div>
+                        <div class="about-expand-body hidden px-5 md:px-6 pb-6 pt-1 border-t border-white/5 text-gray-300 text-sm leading-relaxed space-y-3">
+                            <p>
+                                Sự an toàn của người dùng là ưu tiên hàng đầu tại A Phim Super. Chúng tôi cam kết tuyệt đối không phát tán mã độc, không chèn pop-up quảng cáo ẩn hay các liên kết lừa đảo làm tổn hại thiết bị của khán giả.
+                            </p>
+                            <p>
+                                Toàn bộ kết nối trên nền tảng được bảo vệ bằng giao thức mã hóa SSL 256-bit chuẩn quốc tế, giúp bạn xem phim an tâm tuyệt đối trên cả điện thoại cá nhân và máy tính làm việc.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Item 3 -->
+                    <div class="bg-[#1f212d] border border-white/10 rounded-2xl overflow-hidden shadow-lg transition-all">
+                        <div class="p-5 md:p-6 flex items-center justify-between cursor-pointer select-none" onclick="toggleAboutExpand(this)">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-9 h-9 rounded-lg bg-[#fcd576]/10 flex items-center justify-center text-[#fcd576] font-bold text-sm">03</div>
+                                <h3 class="text-base font-bold text-white">Cập nhật kho phim nhanh nhất theo lịch phát sóng toàn cầu</h3>
+                            </div>
+                            <button type="button" class="px-3.5 py-1.5 bg-white/5 hover:bg-[#fcd576]/20 text-[#fcd576] text-xs font-bold rounded-lg transition-all flex items-center gap-1">
+                                <span class="expand-label">Đọc tiếp</span>
+                                <span class="expand-arrow transition-transform">▾</span>
+                            </button>
+                        </div>
+                        <div class="about-expand-body hidden px-5 md:px-6 pb-6 pt-1 border-t border-white/5 text-gray-300 text-sm leading-relaxed space-y-3">
+                            <p>
+                                Kho phim tại A Phim Super được cập nhật liên tục hàng giờ. Các tập phim bộ Hàn Quốc, Trung Quốc, Âu Mỹ đang gây bão hay các series Anime đình đám đều được đội ngũ cập nhật tập mới chỉ sau vài giờ so với lịch phát sóng tại quốc gia gốc.
+                            </p>
+                            <p>
+                                Bên cạnh đó, tính năng Tìm kiếm phim theo chữ cái A-Z và Lọc theo thể loại/quốc gia giúp khán giả dễ dàng tìm thấy bộ phim yêu thích chỉ trong vài cú nhấp chuột.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: CHỈ SỐ NỔI BẬT (Generous top/bottom margin) -->
+            <div class="space-y-6 pt-4 pb-6 border-b border-white/10">
+                <h2 class="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">
+                    CHỈ SỐ NỔI BẬT
+                </h2>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5 pt-2">
+                    <div class="bg-[#1f212d] border border-white/10 p-6 rounded-2xl text-center space-y-1.5 shadow-lg hover:border-[#fcd576]/30 transition-colors">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-[#fcd576]">100,000+</div>
+                        <div class="text-gray-400 text-xs font-medium">Kho Phim Đa Dạng</div>
+                    </div>
+
+                    <div class="bg-[#1f212d] border border-white/10 p-6 rounded-2xl text-center space-y-1.5 shadow-lg hover:border-[#fcd576]/30 transition-colors">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-[#fcd576]">4K / Full HD</div>
+                        <div class="text-gray-400 text-xs font-medium">Độ Phân Giải Sắc Nét</div>
+                    </div>
+
+                    <div class="bg-[#1f212d] border border-white/10 p-6 rounded-2xl text-center space-y-1.5 shadow-lg hover:border-[#fcd576]/30 transition-colors">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-[#fcd576]">0 Giây</div>
+                        <div class="text-gray-400 text-xs font-medium">Tải Trang Siêu Tốc</div>
+                    </div>
+
+                    <div class="bg-[#1f212d] border border-white/10 p-6 rounded-2xl text-center space-y-1.5 shadow-lg hover:border-[#fcd576]/30 transition-colors">
+                        <div class="text-2xl sm:text-3xl font-extrabold text-[#fcd576]">100%</div>
+                        <div class="text-gray-400 text-xs font-medium">Miễn Phí Trọn Đời</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: TÍNH NĂNG NỔI BẬT (Generous top/bottom margin) -->
+            <div class="space-y-6 pt-4 pb-6 border-b border-white/10">
+                <h2 class="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">
+                    TÍNH NĂNG NỔI BẬT
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 pt-2">
+                    <!-- Feature 1 -->
+                    <div class="bg-[#1f212d] border border-white/10 p-6 md:p-7 rounded-2xl space-y-4 shadow-lg hover:border-[#fcd576]/30 transition-all">
+                        <div class="w-11 h-11 rounded-xl bg-[#fcd576]/10 border border-[#fcd576]/20 flex items-center justify-center text-[#fcd576]">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.5 2.54l2.27 2.27C21.46 15.42 22 13.78 22 12c0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05C5.94 2.55 2 6.82 2 12c0 5.52 4.48 10 10 10 2.57 0 4.92-.97 6.72-2.56l-2.14-2.14C15.25 18.47 13.7 19 12 19zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm1.65 7.35L11 11.71V8h1.5v3.09l2.2 2.2-1.05 1.06z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-bold text-white">Tốc độ mượt mà</h3>
+                        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
+                            Hệ thống máy chủ CDN băng thông lớn cho phép tải phim ngay tức thì, không bị hiện tượng giật lag hay xoay tròn khi xem.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bg-[#1f212d] border border-white/10 p-6 md:p-7 rounded-2xl space-y-4 shadow-lg hover:border-[#fcd576]/30 transition-all">
+                        <div class="w-11 h-11 rounded-xl bg-[#fcd576]/10 border border-[#fcd576]/20 flex items-center justify-center text-[#fcd576]">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-bold text-white">Vietsub & Thuyết minh</h3>
+                        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
+                            Cung cấp đầy đủ các bản phim Phụ đề tiếng Việt chuẩn và Thuyết minh / Lồng tiếng mượt mà cho mọi lứa tuổi.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bg-[#1f212d] border border-white/10 p-6 md:p-7 rounded-2xl space-y-4 shadow-lg hover:border-[#fcd576]/30 transition-all">
+                        <div class="w-11 h-11 rounded-xl bg-[#fcd576]/10 border border-[#fcd576]/20 flex items-center justify-center text-[#fcd576]">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M4 6h16v10H4z" opacity=".3"/><path d="M20 4H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 12H4V6h16v10zM9 18h6v2H9z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-bold text-white">Đa nền tảng</h3>
+                        <p class="text-gray-400 text-xs md:text-sm leading-relaxed">
+                            Tương thích mượt mà trên Điện thoại, Máy tính, iPad và Smart TV mà không cần cài đặt rườm rà.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: MẸO TRẢI NGHIỆM PHIM TỐI ƯU -->
+            <div class="space-y-6 pt-4 pb-6">
+                <h2 class="text-xl md:text-2xl font-extrabold text-white uppercase tracking-wide">
+                    MẸO TRẢI NGHIỆM PHIM TỐI ƯU
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 pt-2">
+                    <div class="bg-[#1f212d] border border-white/10 p-6 md:p-7 rounded-2xl space-y-4 shadow-lg">
+                        <div class="text-[#fcd576] font-bold text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h14v3H5z"/></svg>
+                            Phím Tắt Tiện Ích Trên PC / Laptop
+                        </div>
+                        <ul class="text-gray-300 text-xs md:text-sm space-y-2.5 leading-relaxed">
+                            <li><strong class="text-white">Phím Space / K:</strong> Bật / Tạm dừng video.</li>
+                            <li><strong class="text-white">Phím Mũi Tên Trái / Phải:</strong> Tua lùi / Tua tới 10 giây.</li>
+                            <li><strong class="text-white">Phím F:</strong> Bật / Tháo chế độ toàn màn hình (Fullscreen).</li>
+                            <li><strong class="text-white">Phím M:</strong> Bật / Tắt tiếng âm thanh (Mute).</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-[#1f212d] border border-white/10 p-6 md:p-7 rounded-2xl space-y-4 shadow-lg">
+                        <div class="text-[#fcd576] font-bold text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
+                            Phát Phim Lên Smart TV & Chromecast
+                        </div>
+                        <p class="text-gray-300 text-xs md:text-sm leading-relaxed">
+                            Bạn có thể dễ dàng trình chiếu phim từ điện thoại hoặc trình duyệt Chrome lên Smart TV màn hình lớn bằng cách bấm vào biểu tượng Cast / AirPlay ngay trên trình phát video của A Phim Super.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+    function toggleAboutExpand(headerEl) {
+        const cardEl = headerEl.closest('.bg-\\[\\#1f212d\\]');
+        const bodyEl = cardEl.querySelector('.about-expand-body');
+        const labelEl = headerEl.querySelector('.expand-label');
+        const arrowEl = headerEl.querySelector('.expand-arrow');
+
+        const isHidden = bodyEl.classList.contains('hidden');
+
+        if (isHidden) {
+            bodyEl.classList.remove('hidden');
+            labelEl.textContent = 'Thu gọn';
+            arrowEl.style.transform = 'rotate(180deg)';
+            cardEl.style.borderColor = 'rgba(252, 213, 118, 0.4)';
+        } else {
+            bodyEl.classList.add('hidden');
+            labelEl.textContent = 'Đọc tiếp';
+            arrowEl.style.transform = 'rotate(0deg)';
+            cardEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        }
+    }
+    </script>
+</body>
+</html>

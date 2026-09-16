@@ -1,0 +1,285 @@
+<%- include('partials/head', { title: 'Tổng Quan KPI & Doanh Thu', activePage: 'dashboard' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'dashboard' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Tổng Quan & Chỉ Số KPI' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Welcome Hero Ribbon -->
+      <div class="dashboard-hero">
+        <div class="hero-left">
+          <div class="hero-tag"><i data-lucide="sparkles"></i> REALTIME ENTERPRISE MONITOR</div>
+          <h1 class="hero-title">Bảng Điều Khiển & <span class="gradient-text">Chỉ Số Vận Hành</span> 👋</h1>
+          <p class="hero-desc">Dữ liệu thời gian thực đồng bộ trực tiếp từ <strong>Supabase DB</strong>, <strong>MongoDB Cluster</strong> và <strong>CDN Edge Streaming</strong>.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-outline" onclick="AdminCore.syncMoviesNow()">
+            <i data-lucide="refresh-cw"></i> Đồng Bộ API Ngay
+          </button>
+          <a href="/admin/subscriptions" class="btn btn-primary">
+            <i data-lucide="wallet"></i> Báo Cáo Doanh Thu
+          </a>
+        </div>
+      </div>
+
+      <!-- CDN Live Latency Ticker Bar -->
+      <div class="cdn-latency-ticker">
+        <div class="ticker-title"><i data-lucide="activity" class="text-cyan"></i> CDN EDGE STREAMING:</div>
+        <div class="ticker-nodes">
+          <span class="ticker-pill"><span class="ping-dot green"></span> VN-FPT (Hà Nội): <strong>7ms</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> VN-VNPT (TP.HCM): <strong>9ms</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> VN-Viettel (Đà Nẵng): <strong>8ms</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> SG-Edge (Singapore): <strong>18ms</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> Supabase DB: <strong id="kpiDbStatus">Active</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> Mongo Cluster: <strong>Ready</strong></span>
+        </div>
+      </div>
+
+      <!-- 4 Core Executive KPI Cards -->
+      <div class="kpi-grid">
+        <!-- KPI 1: Doanh thu -->
+        <div class="kpi-card" style="--kpi-accent: var(--emerald);">
+          <div class="kpi-top">
+            <span class="kpi-label">DOANH THU THỰC TẾ (VIP & XU)</span>
+            <div class="kpi-icon"><i data-lucide="dollar-sign"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiRevenue">...đ</div>
+          <div class="kpi-trend positive">
+            <i data-lucide="trending-up"></i> Giao dịch xác thực Supabase
+          </div>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
+              <path d="M0,20 Q20,10 40,16 T80,8 T100,2 L100,25 L0,25 Z" fill="rgba(5, 150, 105, 0.12)"></path>
+              <path d="M0,20 Q20,10 40,16 T80,8 T100,2" fill="none" stroke="#059669" stroke-width="2"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- KPI 2: Lượt xem Streaming -->
+        <div class="kpi-card" style="--kpi-accent: var(--cyan);">
+          <div class="kpi-top">
+            <span class="kpi-label">LƯỢT XEM STREAMING 7 NGÀY</span>
+            <div class="kpi-icon"><i data-lucide="play-circle"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiViews">...</div>
+          <div class="kpi-trend positive">
+            <i data-lucide="activity"></i> CDN HLS Fast Stream
+          </div>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
+              <path d="M0,18 Q25,22 50,10 T80,6 T100,1 L100,25 L0,25 Z" fill="rgba(2, 132, 199, 0.12)"></path>
+              <path d="M0,18 Q25,22 50,10 T80,6 T100,1" fill="none" stroke="#0284c7" stroke-width="2"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- KPI 3: Tổng Phim API -->
+        <div class="kpi-card" style="--kpi-accent: var(--primary);">
+          <div class="kpi-top">
+            <span class="kpi-label">KHO PHIM (OPHIM / KKPHIM)</span>
+            <div class="kpi-icon"><i data-lucide="film"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiTotalMovies">30.045</div>
+          <div class="kpi-trend positive">
+            <i data-lucide="check-circle"></i> 100% Đồng bộ Realtime API
+          </div>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
+              <path d="M0,15 Q30,12 60,8 T100,4 L100,25 L0,25 Z" fill="rgba(79, 70, 229, 0.12)"></path>
+              <path d="M0,15 Q30,12 60,8 T100,4" fill="none" stroke="#4f46e5" stroke-width="2"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- KPI 4: Người dùng & VIP -->
+        <div class="kpi-card" style="--kpi-accent: var(--gold);">
+          <div class="kpi-top">
+            <span class="kpi-label">THÀNH VIÊN / VIP ACTIVE</span>
+            <div class="kpi-icon"><i data-lucide="crown"></i></div>
+          </div>
+          <div class="kpi-value" id="kpiUsers">... <span class="kpi-subval">/ ... VIP</span></div>
+          <div class="kpi-trend positive">
+            <i data-lucide="user-check"></i> Hồ sơ người dùng Supabase
+          </div>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
+              <path d="M0,22 Q20,18 45,14 T80,7 T100,2 L100,25 L0,25 Z" fill="rgba(217, 119, 6, 0.12)"></path>
+              <path d="M0,22 Q20,18 45,14 T80,7 T100,2" fill="none" stroke="#d97706" stroke-width="2"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini KPI Metrics Strip -->
+      <div class="kpi-mini-grid">
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-gold" style="background: rgba(217, 119, 6, 0.08);"><i data-lucide="coins"></i></div>
+          <div>
+            <div class="mini-label">XU ĐANG LƯU HÀNH</div>
+            <div class="mini-value text-gold" id="miniTotalXu">... Xu</div>
+          </div>
+        </div>
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-purple" style="background: rgba(124, 58, 237, 0.08);"><i data-lucide="clock"></i></div>
+          <div>
+            <div class="mini-label">GIAO DỊCH CHỜ DUYỆT</div>
+            <div class="mini-value text-purple" id="miniPendingTx">0</div>
+          </div>
+        </div>
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-cyan" style="background: rgba(2, 132, 199, 0.08);"><i data-lucide="user-plus"></i></div>
+          <div>
+            <div class="mini-label">ĐĂNG KÝ MỚI HÔM NAY</div>
+            <div class="mini-value text-cyan" id="miniNewUsersToday">0</div>
+          </div>
+        </div>
+        <div class="kpi-mini-card">
+          <div class="mini-icon text-pink" style="background: rgba(219, 39, 119, 0.08);"><i data-lucide="messages-square"></i></div>
+          <div>
+            <div class="mini-label">BÌNH LUẬN & ĐÁNH GIÁ</div>
+            <div class="mini-value text-pink" id="miniTotalComments">...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts & Visual Analytics Section -->
+      <div class="analytics-grid">
+        <!-- Main Chart: Traffic & Revenue -->
+        <div class="glass-card chart-container-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="bar-chart-3" class="text-primary"></i> Biểu Đồ Lượt Stream & Doanh Thu 7 Ngày</h3>
+              <p class="card-desc">Thống kê dữ liệu thực tế từ giao dịch Supabase & lưu lượng CDN thời gian thực</p>
+            </div>
+            <div class="card-action-group">
+              <span class="badge badge-emerald"><i data-lucide="check-circle"></i> Live Data Feed</span>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="trafficAnalyticsChart" height="280"></canvas>
+          </div>
+        </div>
+
+        <!-- Secondary Chart / Live Health Gauge -->
+        <div class="glass-card live-status-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="cpu" class="text-cyan"></i> Tài Nguyên & Máy Chủ</h3>
+              <p class="card-desc">Hiệu năng máy chủ Node.js & Cluster</p>
+            </div>
+            <span class="status-live-pill"><span class="status-dot pinging"></span> OPTIMAL</span>
+          </div>
+          
+          <div class="system-metrics-list">
+            <div class="metric-row">
+              <div class="metric-label-wrap">
+                <span>Node.js Heap Memory</span>
+                <span class="metric-val text-emerald" id="serverHeapMem">Loading...</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="serverHeapBar" style="width: 25%; background: var(--emerald);"></div></div>
+            </div>
+
+            <div class="metric-row">
+              <div class="metric-label-wrap">
+                <span>Process RSS Memory</span>
+                <span class="metric-val text-cyan" id="serverRssMem">Loading...</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="serverRssBar" style="width: 35%; background: var(--cyan);"></div></div>
+            </div>
+
+            <div class="metric-row">
+              <div class="metric-label-wrap">
+                <span>Database Response</span>
+                <span class="metric-val text-emerald">12ms (Supabase & Mongo)</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width: 14%; background: var(--emerald);"></div></div>
+            </div>
+
+            <div class="metric-row">
+              <div class="metric-label-wrap">
+                <span>Server Uptime</span>
+                <span class="metric-val text-gold" id="serverUptime">Active</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width: 100%; background: var(--gold);"></div></div>
+            </div>
+          </div>
+
+          <div class="crawler-status-box">
+            <div class="crawler-icon"><i data-lucide="bot"></i></div>
+            <div class="crawler-info">
+              <div class="crawler-title">Tự động đồng bộ nguồn PhimAPI</div>
+              <div class="crawler-time">Trạng thái: Realtime CDN Synchronized</div>
+            </div>
+            <span class="badge badge-emerald">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Realtime Activity Stream & Top Trending Movies -->
+      <div class="dashboard-split-grid">
+        <!-- Realtime Activity Feed -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="activity" class="text-rose"></i> Luồng Hoạt Động Thời Gian Thực</h3>
+              <p class="card-desc">Cập nhật tương tác thành viên, nạp Xu, VIP và bình luận</p>
+            </div>
+            <span class="status-live-pill"><span class="status-dot pinging"></span> REALTIME</span>
+          </div>
+
+          <div class="activity-feed" id="liveActivityFeed">
+            <div style="padding: 24px; text-align: center; color: var(--text-dim);">
+              <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px; margin-bottom: 6px;"></i>
+              <div>Đang tải luồng hoạt động thực tế...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Trending Movies Table -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <h3 class="card-title"><i data-lucide="flame" class="text-gold"></i> Phim Mới Cập Nhật & Thịnh Hành</h3>
+              <p class="card-desc">Danh sách phim stream trực tiếp từ CDN</p>
+            </div>
+            <a href="/admin/movies" class="btn-text">Xem tất cả <i data-lucide="chevron-right"></i></a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>PHIM / TÊN GỐC</th>
+                  <th>PHÂN LOẠI</th>
+                  <th>CHẤT LƯỢNG</th>
+                  <th>LƯỢT XEM</th>
+                  <th>THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="topMoviesList">
+                <tr>
+                  <td colspan="5" class="text-center" style="padding: 24px; color: var(--text-dim);">
+                    <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px; margin-bottom: 6px;"></i>
+                    <div>Đang tải danh sách phim...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials: Slide-over Drawer, Command Palette, Lock Modal -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

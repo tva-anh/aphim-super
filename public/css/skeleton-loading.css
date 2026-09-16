@@ -1,0 +1,171 @@
+/* Skeleton Loading Styles */
+
+/* Skeleton animation */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+/* Base skeleton */
+.skeleton {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 100%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+/* Skeleton for movie card */
+.skeleton-card {
+    position: relative;
+    background: #282a3a;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.skeleton-poster {
+    aspect-ratio: 2/3;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 100%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-title {
+    height: 16px;
+    margin: 12px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 100%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+.skeleton-subtitle {
+    height: 12px;
+    margin: 0 12px 12px;
+    width: 60%;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 100%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+/* Progressive image loading */
+.progressive-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.progressive-image img {
+    transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+}
+
+.progressive-image img.loading {
+    opacity: 0;
+}
+
+.progressive-image img.loaded {
+    opacity: 1;
+    filter: blur(0);
+}
+
+/* Blur effect for loading images */
+.progressive-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 100%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    z-index: 1;
+}
+
+.progressive-image.loaded::before {
+    display: none;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Stagger animation for grid items */
+.grid-item {
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.grid-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.grid-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.grid-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.grid-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.grid-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.grid-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.grid-item:nth-child(7) {
+    animation-delay: 0.35s;
+}
+
+.grid-item:nth-child(8) {
+    animation-delay: 0.4s;
+}
+
+.grid-item:nth-child(9) {
+    animation-delay: 0.45s;
+}
+
+.grid-item:nth-child(10) {
+    animation-delay: 0.5s;
+}
+
+/* For items beyond 10, use a base delay */
+.grid-item:nth-child(n+11) {
+    animation-delay: 0.5s;
+}

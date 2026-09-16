@@ -1,0 +1,603 @@
+/* ==========================================
+   A PHIM NODE - PREMIUM UI/UX DESIGN
+   Glassmorphism + Ambient Glow + Micro-interactions
+   ========================================== */
+
+/* Movie Slider - Drag to Scroll Cursor */
+.overflow-x-auto.scrollbar-hide {
+    cursor: grab;
+    /* Hardware acceleration and smooth mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain; /* Prevent browser back/forward swipe interference */
+    touch-action: pan-x; /* Lock touch events to horizontal panning for faster response */
+}
+.overflow-x-auto.scrollbar-hide:active,
+.overflow-x-auto.scrollbar-hide.active {
+    cursor: grabbing;
+}
+
+/* 1. COLOR SCHEME - Deep Space / Midnight Blue */
+:root {
+    --bg-void: #1e2130;
+    --bg-card: #12131a;
+    --bg-card-hover: #1a1b24;
+    --glass-bg: rgba(18, 19, 26, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --primary-glow: rgba(239, 68, 68, 0.5);
+    --gold-glow: rgba(252, 213, 118, 0.4);
+}
+
+/* 2. GLASSMORPHISM - Navbar, Dropdowns, Chat, Popups */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+}
+
+.glass-nav {
+    background: rgba(18, 19, 26, 0.85);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-dropdown {
+    background: rgba(18, 19, 26, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+    background: rgba(18, 19, 26, 0.6);
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    background: rgba(26, 27, 36, 0.7);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 3. AMBIENT GLOW - Animated Background Orbs */
+.ambient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.4;
+    animation: float 20s ease-in-out infinite;
+}
+
+.ambient-orb-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%);
+    top: -100px;
+    left: -100px;
+    animation-delay: 0s;
+}
+
+.ambient-orb-2 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
+    top: 50%;
+    right: -100px;
+    animation-delay: 5s;
+    animation-duration: 25s;
+}
+
+.ambient-orb-3 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+    bottom: -100px;
+    left: 30%;
+    animation-delay: 10s;
+    animation-duration: 22s;
+}
+
+.ambient-orb-4 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(252, 213, 118, 0.2) 0%, transparent 70%);
+    top: 40%;
+    left: 50%;
+    animation-delay: 15s;
+    animation-duration: 28s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(50px, -50px) scale(1.1);
+    }
+    50% {
+        transform: translate(-30px, 30px) scale(0.95);
+    }
+    75% {
+        transform: translate(-50px, -30px) scale(1.05);
+    }
+}
+
+/* 4. MOVIE CARDS - Premium Hover Effects */
+.movie-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    border-color: var(--primary-glow);
+    box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.3),
+                0 0 20px rgba(239, 68, 68, 0.1);
+}
+
+.movie-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.movie-card:hover::before {
+    opacity: 1;
+}
+
+/* Quick Play Button on Hover */
+.movie-card .play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 60px;
+    height: 60px;
+    background: rgba(239, 68, 68, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.movie-card:hover .play-overlay {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.movie-card .play-overlay::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 18px solid white;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    margin-left: 4px;
+}
+
+/* 5. HERO BANNER - Premium Transitions */
+.hero-banner {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.8s ease;
+}
+
+.hero-bg.changing {
+    transform: scale(1.05);
+    opacity: 0;
+}
+
+.hero-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, #1e2130 0%, rgba(30, 33, 48, 0.8) 40%, transparent 100%);
+    z-index: 1;
+}
+
+/* Play Button - Pulse Glow */
+.play-btn-glow {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(252, 213, 118, 0.5),
+                0 0 60px rgba(252, 213, 118, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    animation: pulse-glow 2s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.play-btn-glow:hover {
+    transform: scale(1.1);
+}
+
+.play-btn-glow::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    border: 2px solid rgba(252, 213, 118, 0.5);
+    animation: rotate-ring 3s linear infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(252, 213, 118, 0.5),
+                    0 0 60px rgba(252, 213, 118, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(252, 213, 118, 0.7),
+                    0 0 80px rgba(252, 213, 118, 0.5);
+    }
+}
+
+@keyframes rotate-ring {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 6. SKELETON LOADING - Shimmer Effect */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+.skeleton-card {
+    aspect-ratio: 2/3;
+    border-radius: 12px;
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 80%;
+    margin-bottom: 12px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* 7. MICRO-INTERACTIONS */
+.btn-primary {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* 8. CHAT WIDGET - Premium Style */
+.chat-window {
+    background: rgba(18, 19, 26, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.chat-bubble {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 18px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 9. SCROLLBAR - Premium Style */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 10. LOADING STATES */
+.loading-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%
+    );
+    animation: shimmer 2s infinite;
+}
+
+/* 11. CINEMA MODE - Watch Page */
+.cinema-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cinema-mode .player-container {
+    width: 90%;
+    max-width: 1400px;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(239, 68, 68, 0.2),
+                0 0 120px rgba(239, 68, 68, 0.1);
+}
+
+/* 12. RESPONSIVE ADJUSTMENTS */
+@media (max-width: 768px) {
+    .ambient-orb {
+        filter: blur(80px);
+        opacity: 0.3;
+    }
+    
+    .ambient-orb-1 {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .ambient-orb-2 {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .movie-card:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+    
+    .play-btn-glow {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* 13. TRANSITION UTILITIES */
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 14. FOCUS STATES - Accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid rgba(239, 68, 68, 0.5);
+    outline-offset: 2px;
+}
+
+/* 15. SELECTION */
+::selection {
+    background: rgba(239, 68, 68, 0.3);
+    color: white;
+}
+/* Custom Text Gradients */
+.text-gradient-gold {
+    background: linear-gradient(to right, #e8b94f, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-blue {
+    background: linear-gradient(to right, #0ea5e9, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-red {
+    background: linear-gradient(to right, #ea580c, #ef4444);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-green {
+    background: linear-gradient(to right, #10b981, #14b8a6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-purple {
+    background: linear-gradient(to right, #9333ea, #c084fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-pink {
+    background: linear-gradient(to right, #ec4899, #f43f5e);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-crimson {
+    background: linear-gradient(to right, #dc2626, #b91c1c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+.text-gradient-orange {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+}
+
+.font-nunito { font-family: 'Nunito', sans-serif; }
+
+/* ─── Utility Animations ─── */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    from { opacity: 0.3; transform: scale(0.85); }
+    to   { opacity: 1;   transform: scale(1.1); }
+}

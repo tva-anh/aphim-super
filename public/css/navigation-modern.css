@@ -1,0 +1,329 @@
+/* Modern Navigation Styles */
+
+/* Smooth gradient animation */
+@keyframes gradient-shift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Navigation link base */
+.nav-link {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Animated underline effect */
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #f2f20d, #ffd700, #f2f20d);
+    background-size: 200% 100%;
+    transition: width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: gradient-shift 3s ease infinite;
+}
+
+.nav-link:hover::before {
+    width: 100%;
+}
+
+/* Glow effect on hover */
+.nav-link:hover {
+    text-shadow: 0 0 10px rgba(242, 242, 13, 0.6);
+    transform: translateY(-1px);
+}
+
+/* Logo pulse glow effect */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(242, 242, 13, 0.3),
+            0 0 40px rgba(242, 242, 13, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(242, 242, 13, 0.6),
+            0 0 60px rgba(242, 242, 13, 0.2);
+    }
+}
+
+.logo-box {
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.logo-box:hover {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Dropdown slide and fade animation */
+.dropdown-menu {
+    transform: translateY(-10px) scale(0.95);
+    transform-origin: top;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.group:hover .dropdown-menu {
+    transform: translateY(0) scale(1);
+}
+
+/* Dropdown item hover effect */
+.dropdown-menu a {
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-menu a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: linear-gradient(180deg, #f2f20d, #ffd700);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.dropdown-menu a:hover::before {
+    transform: scaleY(1);
+}
+
+/* Button shine effect */
+.btn-shine {
+    position: relative;
+    overflow: hidden;
+    background-size: 200% 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-shine::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    bottom: -50%;
+    left: -50%;
+    background: linear-gradient(to bottom,
+            rgba(255, 255, 255, 0),
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0));
+    transform: rotateZ(60deg) translate(-5em, 7.5em);
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn-shine:hover::after {
+    transform: rotateZ(60deg) translate(1em, -9em);
+}
+
+.btn-shine:hover {
+    background-position: 100% 0;
+}
+
+/* Glass morphism effect */
+.glass-effect {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Icon hover effects */
+.icon-hover {
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.icon-hover:hover {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Notification badge pulse */
+@keyframes badge-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+.notification-badge {
+    animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* Mobile menu slide animation */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-menu-item {
+    animation: slideDown 0.3s ease forwards;
+}
+
+/* Navbar scroll shadow */
+.navbar-scrolled {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Ripple effect on click */
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.ripple-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: rgba(242, 242, 13, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+}
+
+.ripple-effect:active::after {
+    animation: ripple 0.6s ease-out;
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for dropdown */
+.dropdown-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(242, 242, 13, 0.5);
+    border-radius: 2px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(242, 242, 13, 0.8);
+}
+
+/* Gradient text effect */
+.gradient-text {
+    background: linear-gradient(90deg, #f2f20d, #ffd700, #f2f20d);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease infinite;
+}
+
+/* Floating animation for icons */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Stagger animation for menu items */
+.stagger-item {
+    opacity: 0;
+    animation: slideDown 0.3s ease forwards;
+}
+
+.stagger-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stagger-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stagger-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stagger-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.stagger-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.stagger-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+/* =========================================================
+   A Phim: Desktop Dropdown Modern Blue Override 
+   Restores the expected blue aesthetic for all dropdown menus
+   ========================================================= */
+@media (min-width: 1024px) {
+    .group > div.absolute.top-full {
+        background-color: #2a3b5e !important;
+        background-image: linear-gradient(145deg, #2a3b5e 0%, #1e2c4a 100%) !important;
+        backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .group > div.absolute.top-full a {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        color: #e2e8f0 !important;
+        font-weight: 600 !important;
+    }
+    
+    .group > div.absolute.top-full a:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+    }
+}

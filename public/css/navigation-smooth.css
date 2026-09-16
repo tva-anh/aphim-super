@@ -1,0 +1,222 @@
+/* Navigation Smooth Performance Optimization */
+
+/* Avoid forcing GPU acceleration on navigation as it conflicts with backdrop-filter causing white flashes */
+nav {
+    /* Removed will-change to prevent premature layer allocation causing white flash on load */
+}
+
+/* Optimize navigation container */
+nav .container {
+}
+
+/* Smooth dropdown transitions with GPU acceleration */
+.nav-item,
+.relative.group button {
+    /* Removed translateZ(0) to prevent layout artifacts and white streak on load */
+}
+
+/* Optimize dropdown containers */
+.relative.group>div[class*="absolute"] {
+    /* Prevent layout shift */
+    pointer-events: none;
+    /* Remove gap and add padding instead for continuous hover area */
+    margin-top: 0 !important;
+    padding-top: 0.5rem;
+}
+
+.relative.group:hover>div[class*="absolute"],
+.relative.group:focus-within>div[class*="absolute"] {
+    pointer-events: auto;
+}
+
+/* Ensure dropdown content has proper spacing */
+.relative.group>div[class*="absolute"]>div:first-child,
+.relative.group>div[class*="absolute"]>a:first-child {
+    margin-top: 0.5rem;
+}
+
+/* Smooth opacity transitions */
+.relative.group>div[class*="opacity-0"] {
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+/* Prevent content jump when dropdown appears */
+.relative.group {
+    position: relative;
+    z-index: auto;
+}
+
+.relative.group:hover,
+.relative.group:focus-within {
+    z-index: 50;
+}
+
+/* Optimize dropdown content rendering */
+.relative.group>div[class*="absolute"] a,
+.relative.group>div[class*="absolute"] .block {
+}
+
+/* Smooth hover effects */
+.relative.group>div[class*="absolute"] a:hover,
+.relative.group>div[class*="absolute"] .block:hover {
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Prevent text rendering issues */
+.nav-item,
+.relative.group button,
+.relative.group a {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Optimize icon rotations */
+.material-icons-round {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prevent layout shift from border changes */
+.nav-item,
+.relative.group button {
+    border: 1px solid transparent;
+}
+
+/* Optimize pill container */
+.bg-white\/5.backdrop-blur-md.rounded-full {
+    /* Removed to prevent white flash artifact on load */
+    isolation: isolate;
+}
+
+/* Smooth backdrop blur */
+.backdrop-blur-md {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    /* Removed to prevent white flash artifact on load */
+}
+
+/* Prevent dropdown flicker */
+.relative.group>div[class*="absolute"] {
+    -webkit-
+}
+
+/* Optimize grid layouts in dropdowns */
+.grid {
+}
+
+/* Smooth border transitions */
+.border-white\/10,
+.border-white\/5 {
+    transition: border-color 0.15s ease;
+}
+
+/* Optimize shadow rendering */
+.shadow-2xl {
+}
+
+/* Prevent reflow on hover */
+.relative.group>div[class*="absolute"] {
+    /* Pre-allocate space to prevent layout shift */
+    contain: layout style paint;
+}
+
+/* Optimize logo animations */
+.group:hover img,
+.group:hover .w-10 {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth color transitions */
+.text-white,
+.text-primary,
+.text-gray-300 {
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Optimize background transitions */
+.bg-primary,
+.bg-surface-dark,
+.bg-white\/5 {
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prevent dropdown content from causing reflow */
+#categoryDropdown {
+    min-height: 100px;
+}
+
+/* Optimize mobile menu button */
+#mobileMenuBtn {
+}
+
+/* Smooth mobile menu transitions */
+#mobileMenu {
+    transition: opacity 0.2s ease, max-height 0.3s ease;
+}
+
+/* Performance optimization for fixed navigation */
+nav.fixed {
+    -webkit-
+}
+
+/* Reduce paint areas */
+.nav-item:hover,
+.relative.group button:hover {
+    isolation: isolate;
+}
+
+/* Optimize dropdown positioning - removed to prevent conflict */
+
+/* Prevent unnecessary repaints */
+.relative.group>div[class*="absolute"]>div {
+}
+
+/* Smooth scale transitions for hover effects */
+.group:hover .group-hover\:scale-110 {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Optimize border rendering */
+.border-primary,
+.border-white\/10 {
+}
+
+/* Prevent text selection during hover */
+.nav-item,
+.relative.group button {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+/* Optimize rounded corners rendering */
+.rounded-full,
+.rounded-xl,
+.rounded-lg {
+}
+
+/* Smooth visibility transitions */
+.invisible {
+    transition: visibility 0s linear 0.2s;
+}
+
+.group:hover>.invisible,
+.group:focus-within>.invisible {
+    transition-delay: 0s;
+}
+
+/* Optimize overflow handling */
+.overflow-hidden {
+}
+
+/* Optimize z-index stacking */
+.z-50 {
+    isolation: isolate;
+}
+
+/* Smooth font weight transitions */
+.font-bold,
+.font-semibold,
+.font-medium {
+    transition: font-weight 0.1s ease;
+}

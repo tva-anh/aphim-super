@@ -1,0 +1,136 @@
+<%- include('partials/head', { title: 'Gói VIP, Bảng Giá & Doanh Thu', activePage: 'subscriptions' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'subscriptions' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Gói VIP & Quản Lý Doanh Thu' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-main-title">Gói VIP, Bảng Giá & Doanh Thu</h1>
+          <p class="page-sub-title">Cấu hình giá các gói VIP (1 Tháng, 3 Tháng, 1 Năm), tỷ giá nạp Xu và quản lý sổ cái giao dịch ngân hàng / MoMo</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-outline" onclick="AdminCore.openAddCoinPackModal()">
+            <i data-lucide="plus"></i> Thêm Gói Nạp Xu
+          </button>
+          <button class="btn btn-primary" onclick="AdminCore.openAddVipTierModal()">
+            <i data-lucide="crown"></i> Thêm Gói VIP Mới
+          </button>
+        </div>
+      </div>
+
+      <!-- VIP Tier Pricing Cards Grid -->
+      <div class="pricing-tiers-grid">
+        <!-- VIP Tier 1: 1 Tháng -->
+        <div class="pricing-card">
+          <div class="pricing-badge badge-subtle">CƠ BẢN</div>
+          <div class="pricing-title">VIP 1 Tháng</div>
+          <div class="pricing-price">49.000đ <span class="period">/ 30 ngày</span></div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check" class="text-emerald"></i> Không quảng cáo video</li>
+            <li><i data-lucide="check" class="text-emerald"></i> Xem chất lượng Full HD 1080p</li>
+            <li><i data-lucide="check" class="text-emerald"></i> Server VIP Fast CDN</li>
+            <li><i data-lucide="check" class="text-emerald"></i> +100 Xu quà tặng</li>
+          </ul>
+          <div class="pricing-subscribers-count">
+            <i data-lucide="users"></i> <strong>1.120</strong> người đang đăng ký
+          </div>
+          <button class="btn btn-outline btn-block" onclick="AdminCore.editVipPack('vip-1-month', 'VIP 1 Tháng', 49000, 30)">
+            <i data-lucide="edit"></i> Chỉnh Sửa Gói
+          </button>
+        </div>
+
+        <!-- VIP Tier 2: 3 Tháng (Popular) -->
+        <div class="pricing-card highlighted">
+          <div class="pricing-badge badge-gold"><i data-lucide="sparkles"></i> PHỔ BIẾN NHẤT</div>
+          <div class="pricing-title">VIP 3 Tháng (Vàng)</div>
+          <div class="pricing-price">129.000đ <span class="period">/ 90 ngày</span></div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check" class="text-emerald"></i> Tất cả đặc quyền VIP 1 Tháng</li>
+            <li><i data-lucide="check" class="text-emerald"></i> Mở khóa phim rạp chiếu sớm</li>
+            <li><i data-lucide="check" class="text-emerald"></i> Huy hiệu VIP Vàng đặc biệt</li>
+            <li><i data-lucide="check" class="text-emerald"></i> +400 Xu quà tặng</li>
+          </ul>
+          <div class="pricing-subscribers-count">
+            <i data-lucide="users"></i> <strong>580</strong> người đang đăng ký
+          </div>
+          <button class="btn btn-primary btn-block" onclick="AdminCore.editVipPack('vip-3-month', 'VIP 3 Tháng (Vàng)', 129000, 90)">
+            <i data-lucide="edit"></i> Chỉnh Sửa Gói
+          </button>
+        </div>
+
+        <!-- VIP Tier 3: 1 Năm (Diamond) -->
+        <div class="pricing-card">
+          <div class="pricing-badge badge-pink">SIÊU CẤP</div>
+          <div class="pricing-title">VIP 1 Năm (Kim Cương)</div>
+          <div class="pricing-price">399.000đ <span class="period">/ 365 ngày</span></div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check" class="text-emerald"></i> Toàn bộ đặc quyền cao nhất</li>
+            <li><i data-lucide="check" class="text-emerald"></i> Chất lượng 4K Ultra HD (nếu có)</li>
+            <li><i data-lucide="check" class="text-emerald"></i> Quyền tải phim Offline</li>
+            <li><i data-lucide="check" class="text-emerald"></i> +2.000 Xu quà tặng</li>
+          </ul>
+          <div class="pricing-subscribers-count">
+            <i data-lucide="users"></i> <strong>140</strong> người đang đăng ký
+          </div>
+          <button class="btn btn-outline btn-block" onclick="AdminCore.editVipPack('vip-12-month', 'VIP 1 Năm (Kim Cương)', 399000, 365)">
+            <i data-lucide="edit"></i> Chỉnh Sửa Gói
+          </button>
+        </div>
+      </div>
+
+      <!-- Transaction Ledger Table -->
+      <div class="glass-card table-wrapper-card" style="margin-top: 24px;">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <h3 class="card-title"><i data-lucide="receipt" class="text-emerald"></i> Sổ Cái Giao Dịch Gần Đây</h3>
+            <p class="card-desc">Lịch sử nạp tiền qua Ngân hàng, MoMo, ZaloPay và thẻ cào</p>
+          </div>
+          <button class="btn btn-xs btn-outline" onclick="AdminCore.refreshTransactions()">
+            <i data-lucide="refresh-cw"></i> Làm Mới
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã GD</th>
+                <th>Khách Hàng</th>
+                <th>Gói Nạp / Mua</th>
+                <th>Số Tiền</th>
+                <th>Cổng Thanh Toán</th>
+                <th>Trạng Thái</th>
+                <th>Thời Gian</th>
+                <th style="text-align: right;">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody">
+              <tr>
+                <td colspan="8" class="text-center" style="padding: 30px; color: var(--text-dim);">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Đang tải sổ cái giao dịch thật...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

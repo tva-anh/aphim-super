@@ -1,0 +1,263 @@
+/* ═══════════════════════════════════════════════════════════════════
+   APhim Profile Banner Aura Signature
+   Delicate, soft ambient reflection positioned strictly BEHIND all content.
+   No harsh lines, no overlay on top of cards or user text.
+   ═══════════════════════════════════════════════════════════════════ */
+
+#ap-banner-aura {
+    --aura-primary: transparent;
+    --aura-secondary: transparent;
+    --aura-accent: transparent;
+    --aura-glow-top: transparent;
+    position: fixed !important;
+    top: 64px !important; /* Always sits flush directly below the 64px header across all pages */
+    left: 0 !important;
+    width: 100% !important;
+    height: 175px !important;
+    pointer-events: none !important;
+    z-index: 1 !important; /* Strictly behind content containers (z-index: 5) */
+    overflow: hidden !important;
+    opacity: 0;
+    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.3) 65%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0.3) 65%, transparent 100%);
+}
+
+/* Page /phim: Header is transparent, hero image spans from absolute top 0 -> Aura light beam sits flush at top: 0 */
+body.page-phim-detail #ap-banner-aura,
+html body.page-phim-detail #ap-banner-aura {
+    top: 0 !important;
+    height: 240px !important;
+}
+
+#ap-banner-aura.is-active {
+    opacity: 1;
+    display: block !important;
+    visibility: visible !important;
+}
+
+#ap-banner-aura:not(.is-active),
+#ap-banner-aura[data-banner='banner_default'],
+#ap-banner-aura[data-banner='none'],
+#ap-banner-aura[data-banner=''] {
+    opacity: 0 !important;
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ─── SOFT AMBIENT GLOW (BEHIND CONTENT ONLY) ─── */
+#ap-banner-aura::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 55% 120% at 18% 0%, var(--aura-accent) 0%, transparent 68%),
+        radial-gradient(ellipse 60% 120% at 82% 0%, var(--aura-secondary) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 100% at 50% 0%, var(--aura-primary) 0%, transparent 75%),
+        linear-gradient(180deg, var(--aura-glow-top) 0%, transparent 60%);
+    opacity: 0.85;
+    animation: apAuraBreathing 7s ease-in-out infinite alternate;
+}
+
+/* ─── REMOVE HORIZONTAL LINE COMPLETELY ─── */
+#ap-banner-aura::after {
+    display: none !important;
+    content: none !important;
+}
+
+@keyframes apAuraBreathing {
+    0% {
+        opacity: 0.72;
+        transform: scaleY(0.97);
+    }
+    50% {
+        opacity: 0.92;
+        transform: scaleY(1.02);
+    }
+    100% {
+        opacity: 0.72;
+        transform: scaleY(0.97);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   THEME COLOR PALETTES (DARK MODE: SOFT & ELEGANT)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. Hoàng Kim Vương Giả */
+#ap-banner-aura[data-banner='banner_gold'] {
+    --aura-primary: rgba(217, 119, 6, 0.25);
+    --aura-secondary: rgba(245, 158, 11, 0.18);
+    --aura-accent: rgba(253, 224, 71, 0.30);
+    --aura-glow-top: rgba(217, 119, 6, 0.22);
+}
+
+/* 2. Rừng Nguyên Sinh Dạ Quang */
+#ap-banner-aura[data-banner='banner_forest'] {
+    --aura-primary: rgba(5, 150, 105, 0.24);
+    --aura-secondary: rgba(16, 185, 129, 0.18);
+    --aura-accent: rgba(52, 211, 153, 0.28);
+    --aura-glow-top: rgba(16, 185, 129, 0.20);
+}
+
+/* 3. Cyberpunk Neon 2026 */
+#ap-banner-aura[data-banner='banner_cyber'] {
+    --aura-primary: rgba(126, 34, 206, 0.25);
+    --aura-secondary: rgba(6, 182, 212, 0.20);
+    --aura-accent: rgba(192, 132, 252, 0.28);
+    --aura-glow-top: rgba(147, 51, 234, 0.20);
+}
+
+/* 4. Hoa Anh Đào Sakura */
+#ap-banner-aura[data-banner='banner_sakura'] {
+    --aura-primary: rgba(190, 24, 93, 0.24);
+    --aura-secondary: rgba(244, 114, 182, 0.18);
+    --aura-accent: rgba(251, 113, 133, 0.28);
+    --aura-glow-top: rgba(236, 72, 153, 0.20);
+}
+
+/* 5. Hoàng Hôn Rực Rỡ */
+#ap-banner-aura[data-banner='banner_sunset'] {
+    --aura-primary: rgba(234, 88, 12, 0.26);
+    --aura-secondary: rgba(249, 115, 22, 0.18);
+    --aura-accent: rgba(251, 146, 60, 0.30);
+    --aura-glow-top: rgba(234, 88, 12, 0.22);
+}
+
+/* 6. Vũ Trụ Starry Night */
+#ap-banner-aura[data-banner='banner_space'] {
+    --aura-primary: rgba(67, 56, 202, 0.26);
+    --aura-secondary: rgba(124, 58, 237, 0.18);
+    --aura-accent: rgba(165, 180, 252, 0.30);
+    --aura-glow-top: rgba(79, 70, 229, 0.22);
+}
+
+/* 7. Thiên Thạch Rực Rỡ */
+#ap-banner-aura[data-banner='banner_meteor'] {
+    --aura-primary: rgba(220, 38, 38, 0.26);
+    --aura-secondary: rgba(234, 88, 12, 0.20);
+    --aura-accent: rgba(250, 204, 21, 0.30);
+    --aura-glow-top: rgba(220, 38, 38, 0.22);
+}
+
+/* 8. Bom Tấn Rạp Phim (Cinema VIP) */
+#ap-banner-aura[data-banner='banner_cinema'] {
+    --aura-primary: rgba(185, 28, 28, 0.28);
+    --aura-secondary: rgba(245, 158, 11, 0.22);
+    --aura-accent: rgba(254, 240, 138, 0.32);
+    --aura-glow-top: rgba(220, 38, 38, 0.24);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LIGHT MODE: ULTRA-SOFT PASTEL AMBIENT WASH
+   Extremely light, gentle warmth that never overwhelms or clouds content
+   ═══════════════════════════════════════════════════════════════════ */
+
+html.light-mode #ap-banner-aura {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.2) 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.7) 25%, rgba(0, 0, 0, 0.2) 55%, transparent 100%);
+}
+
+html.light-mode #ap-banner-aura::before {
+    opacity: 0.65;
+}
+
+/* 1. Hoàng Kim (Light Mode: Soft Honey Gold) */
+html.light-mode #ap-banner-aura[data-banner='banner_gold'] {
+    --aura-primary: rgba(245, 158, 11, 0.12);
+    --aura-secondary: rgba(251, 191, 36, 0.08);
+    --aura-accent: rgba(217, 119, 6, 0.14);
+    --aura-glow-top: rgba(245, 158, 11, 0.13);
+}
+
+/* 2. Rừng Nguyên Sinh (Light Mode: Soft Mint) */
+html.light-mode #ap-banner-aura[data-banner='banner_forest'] {
+    --aura-primary: rgba(5, 150, 105, 0.10);
+    --aura-secondary: rgba(16, 185, 129, 0.07);
+    --aura-accent: rgba(4, 120, 87, 0.12);
+    --aura-glow-top: rgba(5, 150, 105, 0.11);
+}
+
+/* 3. Cyberpunk Neon (Light Mode: Soft Lavender Mist) */
+html.light-mode #ap-banner-aura[data-banner='banner_cyber'] {
+    --aura-primary: rgba(126, 34, 206, 0.10);
+    --aura-secondary: rgba(14, 165, 233, 0.08);
+    --aura-accent: rgba(147, 51, 234, 0.13);
+    --aura-glow-top: rgba(126, 34, 206, 0.11);
+}
+
+/* 4. Hoa Anh Đào (Light Mode: Soft Pastel Pink) */
+html.light-mode #ap-banner-aura[data-banner='banner_sakura'] {
+    --aura-primary: rgba(190, 24, 93, 0.09);
+    --aura-secondary: rgba(236, 72, 153, 0.07);
+    --aura-accent: rgba(159, 18, 57, 0.12);
+    --aura-glow-top: rgba(219, 39, 119, 0.10);
+}
+
+/* 5. Hoàng Hôn (Light Mode: Soft Peach Glow) */
+html.light-mode #ap-banner-aura[data-banner='banner_sunset'] {
+    --aura-primary: rgba(234, 88, 12, 0.11);
+    --aura-secondary: rgba(217, 119, 6, 0.08);
+    --aura-accent: rgba(194, 65, 12, 0.14);
+    --aura-glow-top: rgba(234, 88, 12, 0.12);
+}
+
+/* 6. Vũ Trụ (Light Mode: Soft Periwinkle) */
+html.light-mode #ap-banner-aura[data-banner='banner_space'] {
+    --aura-primary: rgba(67, 56, 202, 0.10);
+    --aura-secondary: rgba(109, 40, 217, 0.07);
+    --aura-accent: rgba(79, 70, 229, 0.12);
+    --aura-glow-top: rgba(67, 56, 202, 0.11);
+}
+
+/* 7. Thiên Thạch (Light Mode: Soft Coral Amber) */
+html.light-mode #ap-banner-aura[data-banner='banner_meteor'] {
+    --aura-primary: rgba(220, 38, 38, 0.11);
+    --aura-secondary: rgba(234, 88, 12, 0.08);
+    --aura-accent: rgba(185, 28, 28, 0.14);
+    --aura-glow-top: rgba(220, 38, 38, 0.12);
+}
+
+/* 8. Bom Tấn Rạp Phim (Light Mode: Soft Champagne Crimson) */
+html.light-mode #ap-banner-aura[data-banner='banner_cinema'] {
+    --aura-primary: rgba(185, 28, 28, 0.12);
+    --aura-secondary: rgba(217, 119, 6, 0.09);
+    --aura-accent: rgba(153, 27, 27, 0.14);
+    --aura-glow-top: rgba(185, 28, 28, 0.13);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1380px) {
+    #ap-banner-aura {
+        top: 60px !important;
+        height: 150px !important;
+    }
+    body.page-phim-detail #ap-banner-aura,
+    html body.page-phim-detail #ap-banner-aura {
+        top: 0 !important;
+        height: 210px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    #ap-banner-aura {
+        top: 60px !important;
+        height: 110px !important;
+    }
+    body.page-phim-detail #ap-banner-aura,
+    html body.page-phim-detail #ap-banner-aura {
+        top: 0 !important;
+        height: 170px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #ap-banner-aura,
+    #ap-banner-aura::before {
+        transition: none !important;
+        animation: none !important;
+    }
+}

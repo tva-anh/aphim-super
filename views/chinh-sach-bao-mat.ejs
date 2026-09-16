@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="bg-[#1f2331] text-gray-200 min-h-screen pt-28 md:pt-32 flex flex-col font-sans">
+    <%- include('partials/header') %>
+
+    <main class="flex-grow py-8 md:py-12 pb-24 md:pb-32">
+        <!-- Hero Section -->
+        <section class="relative py-10 md:py-14 bg-gradient-to-b from-[#1c1e2b] via-[#181921] to-[#181921] border-b border-white/10 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+            <div class="app-container relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-500/15 text-blue-400 border border-blue-500/30 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                    Cam Kết Về Quyền Riêng Tư
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+                    CHÍNH SÁCH BẢO MẬT
+                </h1>
+                <p class="text-gray-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed font-medium">
+                    A Phim Super cam kết bảo vệ quyền riêng tư và an toàn thông tin tuyệt đối cho toàn bộ người dùng khi trải nghiệm xem phim tại hệ thống của chúng tôi.
+                </p>
+            </div>
+        </section>
+
+        <!-- Main Content (Bulletproof Flexbox Gap & Explicit Margin Bottom) -->
+        <section class="py-12 md:py-16">
+            <div class="app-container max-w-4xl mx-auto flex flex-col gap-7 md:gap-9">
+                
+                <!-- Card 1 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        1. Thu thập thông tin cá nhân
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        A Phim Super là nền tảng xem phim trực tuyến <strong class="text-[#fcd576]">hoàn toàn miễn phí</strong> và <strong class="text-white">không bắt buộc đăng ký tài khoản</strong>. Chúng tôi không thu thập các thông tin định danh cá nhân nhạy cảm như Tên thật, Số điện thoại, Căn cước công dân hay Thông tin ngân hàng của bạn.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        2. Sử dụng Cookie & Bộ nhớ trình duyệt (LocalStorage)
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        Chúng tôi sử dụng Cookie và LocalStorage trên trình duyệt để ghi nhớ các tùy chỉnh tiện ích của người dùng nhằm nâng cao trải nghiệm xem phim:
+                    </p>
+                    <ul class="list-disc pl-6 space-y-2.5 text-gray-300 text-sm md:text-base leading-relaxed">
+                        <li>Lưu lịch sử tập phim đang xem để bạn xem tiếp bất kỳ lúc nào.</li>
+                        <li>Trạng thái âm lượng, phụ đề / thuyết minh mặc định trên trình phát video.</li>
+                        <li>Danh sách các bộ phim yêu thích cá nhân hóa lưu ngay trên trình duyệt của bạn.</li>
+                    </ul>
+                    <p class="text-gray-400 text-xs italic bg-[#181921] p-3 rounded-lg border border-white/5 mt-2">
+                        * Ghi chú: Bạn có thể chủ động xóa toàn bộ Cookie hoặc dữ liệu bộ nhớ tạm này bất kỳ lúc nào trong phần Cài đặt của trình duyệt web.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        3. An toàn dữ liệu & Mã hóa kết nối
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        Toàn bộ lưu lượng truy cập trên A Phim Super đều được mã hóa an toàn qua giao thức <strong class="text-[#fcd576]">HTTPS (SSL 256-bit)</strong>. Hệ thống máy chủ CDN được bảo vệ bởi tường lửa chống tấn công mạnh mẽ, cam kết mang lại môi trường xem phim an toàn, sạch sẽ và bảo vệ thiết bị của bạn.
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        4. Liên kết tới bên thứ ba
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        Website có thể chứa các đường dẫn hoặc phát trình chơi video từ các dịch vụ lưu trữ bên thứ ba. A Phim Super không quản lý nội dung hay điều khoản quyền riêng tư trên các nền tảng độc lập này. Chúng tôi khuyến khích người dùng tham khảo chính sách của các trang web tương ứng khi chuyển hướng.
+                    </p>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="bg-[#1f212d] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl hover:border-[#fcd576]/30 transition-all" style="margin-bottom: 24px !important;">
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                        5. Cập nhật chính sách
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed text-justify">
+                        Chính sách bảo mật này có thể được điều chỉnh và nâng cấp định kỳ để đảm bảo quyền lợi tối đa cho người sử dụng. Mọi thông tin cập nhật sẽ được công bố trực tiếp tại trang này.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

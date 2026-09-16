@@ -1,0 +1,344 @@
+/* ============================================================
+   A PHIM - Ambient UI Background — Midnight Cinema v2
+   Theme: 5 Orbs chuyển động + Animated Grain Texture
+   ============================================================ */
+
+/* Khối chứa toàn bộ Ambient Background */
+.ambient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    background-color: #1e2130;
+    pointer-events: none;
+}
+
+/* Các quả cầu ánh sáng — base */
+.ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    /* Giảm blur từ 150px xuống 40px để cứu hiệu năng GPU trên màn hình lớn */
+    filter: blur(40px);
+    transform: translate3d(0,0,0); /* Force hardware compositing */
+    will-change: transform; /* Báo cho browser biết layer này sẽ chuyển động độc lập */
+}
+
+/* ── Orb 1: Brighter Slate ── */
+.ambient-orb-1 {
+    top: -20%;
+    left: -20%;
+    width: 100vw;
+    height: 100vw;
+    background: radial-gradient(circle, rgba(99, 110, 114, 0.4) 0%, transparent 70%);
+    opacity: 0.6; /* Sáng thêm 1 chút */
+    animation: orb-drift-1 40s ease-in-out infinite alternate;
+}
+
+/* ── Orb 2: Silver Glow ── */
+.ambient-orb-2 {
+    bottom: -20%;
+    right: -20%;
+    width: 100vw;
+    height: 100vw;
+    background: radial-gradient(circle, rgba(178, 190, 195, 0.25) 0%, transparent 70%);
+    opacity: 0.45;
+    animation: orb-drift-2 45s ease-in-out infinite alternate-reverse;
+}
+
+/* ── Orb 3: Soft Mist ── */
+.ambient-orb-3 {
+    top: 30%;
+    left: 20%;
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(circle, rgba(223, 230, 233, 0.15) 0%, transparent 75%);
+    opacity: 0.20;
+    animation: orb-drift-3 50s ease-in-out infinite alternate;
+}
+
+/* ── Orb 4: Smooth Shadow ── */
+.ambient-orb-4 {
+    bottom: 10%;
+    left: 10%;
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(circle, rgba(13, 15, 23, 0.4) 0%, transparent 70%);
+    filter: blur(50px);
+    opacity: 0.3;
+}
+
+/* ── Noise Layer (static — nền nhẹ) ── */
+.ambient-noise {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.015; /* Giảm để mịn hơn */
+    mix-blend-mode: soft-light;
+    z-index: 5;
+}
+
+/* ── Animated Grain Layer (học Sofaflix — tạo cinematic film feel) ── */
+.ambient-grain {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0.01; /* Rất mỏng để mịn màng */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+    /* animation: grain-shift 0.6s steps(1) infinite; */ /* Disabled for performance */
+}
+
+/* --- Animations --- */
+@keyframes orb-drift-1 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.22; }
+    33%  { transform: translate(6vw, 12vh) scale(1.08); opacity: 0.32; }
+    66%  { transform: translate(-4vw, 6vh) scale(0.95); opacity: 0.26; }
+    100% { transform: translate(3vw, -8vh) scale(1.05); opacity: 0.20; }
+}
+
+@keyframes orb-drift-2 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.18; }
+    33%  { transform: translate(-12vw, -6vh) scale(0.88); opacity: 0.26; }
+    66%  { transform: translate(6vw, -12vh) scale(1.12); opacity: 0.20; }
+    100% { transform: translate(-4vw, 8vh) scale(0.96); opacity: 0.28; }
+}
+
+@keyframes orb-drift-3 {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(22vw, -22vh) scale(1.35); }
+    100% { transform: translate(-22vw, 16vh) scale(0.78); }
+}
+
+@keyframes orb-drift-4 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.14; }
+    50%  { transform: translate(14vw, -10vh) scale(1.15); opacity: 0.22; }
+    100% { transform: translate(-6vw, 8vh) scale(0.88); opacity: 0.16; }
+}
+
+@keyframes orb-drift-5 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.10; }
+    50%  { transform: translate(-10vw, 12vh) scale(1.20); opacity: 0.18; }
+    100% { transform: translate(8vw, -10vh) scale(0.85); opacity: 0.12; }
+}
+
+/* Animated grain shift — tạo hiệu ứng film real */
+@keyframes grain-shift {
+    0%   { transform: translate(0px, 0px) scale(1.05); }
+    10%  { transform: translate(-1%, -1%) scale(1.04); }
+    20%  { transform: translate(1%, 0%) scale(1.05); }
+    30%  { transform: translate(0%, 1%) scale(1.04); }
+    40%  { transform: translate(-1%, 0%) scale(1.05); }
+    50%  { transform: translate(1%, 1%) scale(1.03); }
+    60%  { transform: translate(0%, -1%) scale(1.05); }
+    70%  { transform: translate(-1%, 1%) scale(1.04); }
+    80%  { transform: translate(1%, -1%) scale(1.05); }
+    90%  { transform: translate(-1%, 0%) scale(1.04); }
+    100% { transform: translate(0px, 0px) scale(1.05); }
+}
+
+/* Tắt animation khi người dùng prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .ambient-orb {
+        animation: none !important;
+        transform: none !important;
+        filter: blur(80px);
+    }
+    .ambient-grain {
+        animation: none !important;
+    }
+}
+
+/* Mobile: Giảm blur để tăng hiệu suất GPU */
+@media (max-width: 768px) {
+    .ambient-bg {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   Glassmorphism Overrides
+   Biến các khối nền đặc (solid) thành kính mờ lộ ambient
+   ============================================================ */
+
+/* Nền solid #1e2130 cho toàn bộ trang */
+html,
+body,
+main,
+body.bg-background-dark,
+main.bg-background-dark,
+.bg-background-dark {
+    background-color: #1e2130 !important;
+    background: #1e2130 !important;
+}
+
+/* Biến surface sang glass */
+.bg-surface-dark {
+    background-color: rgba(18, 19, 31, 0.50) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Footer glass */
+.bg-\[\#1e202c\] {
+    background-color: #1e2130 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   Section Background Resets
+   ============================================================ */
+.horror-section,
+.coming-soon-section,
+.top-movies-section,
+.country-section,
+.imdb-section,
+section.bg-background-dark,
+section[id]:not(.interests-section),
+section:not(.interests-section),
+#dynamicSections,
+#dynamicSections > div {
+    background-color: #1e2130 !important;
+    background: #1e2130 !important;
+}
+
+/* interests-section: luôn trong suốt (nền ảnh hero xuyên qua) */
+section.interests-section {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* Glass cards giữ nền riêng */
+.glass-card,
+.glass-card-premium,
+.bg-surface-dark,
+.movie-card,
+[class*="glass"],
+[class*="card"] {
+    background-color: initial;
+}
+
+/* Hero Banner Fade về ambient base color */
+.hero-bottom-gradient {
+    background: linear-gradient(
+        to top,
+        rgba(30, 33, 48, 0.98) 0%,
+        rgba(30, 33, 48, 0.88) 25%,
+        rgba(30, 33, 48, 0.42) 60%,
+        transparent 100%
+    ) !important;
+}
+
+/* Horror Section Fade */
+.horror-banner-gradient {
+    background: linear-gradient(
+        90deg,
+        rgba(30, 33, 48, 0.92) 15%,
+        transparent 60%
+    ) !important;
+}
+.horror-banner-overlay {
+    background: linear-gradient(
+        0deg,
+        rgba(30, 33, 48, 0.96) 5%,
+        transparent 40%
+    ) !important;
+}
+
+/* Inline style override: #1e202c → glass */
+[style*="background-color: #1e202c"],
+[style*="background: #1e202c"],
+[style*="background-color:#1e202c"],
+[style*="background:#1e202c"] {
+    background-color: #1e2130 !important;
+}
+/* ?? Orb 6: Deep Violet */
+.ambient-orb-6 {
+    top: 50%;
+    right: 10%;
+    width: 70vw;
+    height: 70vw;
+    background: radial-gradient(circle, rgba(108, 92, 231, 0.2) 0%, transparent 70%);
+    opacity: 0.25;
+    animation: orb-drift-6 55s ease-in-out infinite alternate;
+}
+
+/* ?? Orb 7: Warm Amber */
+.ambient-orb-7 {
+    bottom: 30%;
+    left: 40%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(253, 203, 110, 0.15) 0%, transparent 70%);
+    opacity: 0.2;
+    animation: orb-drift-7 60s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes orb-drift-6 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.15; }
+    50%  { transform: translate(-15vw, 15vh) scale(1.1); opacity: 0.25; }
+    100% { transform: translate(5vw, -10vh) scale(0.9); opacity: 0.15; }
+}
+
+@keyframes orb-drift-7 {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.1; }
+    50%  { transform: translate(10vw, -15vh) scale(1.2); opacity: 0.2; }
+    100% { transform: translate(-10vw, 5vh) scale(0.8); opacity: 0.1; }
+}
+
+
+
+/* �?ng b? m�u n?n Footer v� t?t Logo ch�m tr�n m?i trang */
+footer, footer.bg-[#07080a], footer.bg-[#1e202c] { background-color: #1e2130 !important; background: #1e2130 !important; border-top: 1px solid rgba(255, 255, 255, 0.05) !important; }
+footer img[style*='opacity: 0.04'] { display: none !important; }
+footer img[src*='apple-touch-icon.png'][style*='absolute'] { display: none !important; }
+
+
+/* Dong bo mau nen Footer va tat Logo chim tren moi trang */
+
+footer img[style*='opacity: 0.04'] { display: none !important; }
+footer img[src*='apple-touch-icon.png'][style*='absolute'] { display: none !important; }
+
+
+/* Nền rồng cho Footer */
+footer {
+    background-color: #1e2130 !important;
+    background-image: url('https://beam-images.warnermediacdn.com/2024-03/leadimage_background_hotd_eng_0.jpg?host=wbd-dotcom-drupal-prd-us-east-1.s3.amazonaws.com&w=1920') !important;
+    background-size: cover !important;
+    background-position: right 30% !important;
+    background-repeat: no-repeat !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Lớp phủ tối mờ lên trên nền rồng để chữ dễ đọc */
+footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(30, 33, 48, 0.7) !important;
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* Loại bỏ các lớp nền xám cũ */
+.bg-void, .sofaflix-section {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+
+/* --- OVERRIDES ĐẶC BIỆT CHO FOOTER VÀ LỀ --- */
+html { overflow-x: hidden !important; width: 100% !important; }
+.ambient-bg { width: 100% !important; }
+footer { width: 100vw !important; max-width: 100vw !important; margin-left: calc(-50vw + 50%) !important; margin-right: calc(-50vw + 50%) !important; position: relative; left: 50%; transform: translateX(-50%); }

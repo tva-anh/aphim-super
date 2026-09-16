@@ -1,0 +1,249 @@
+/* ============================================================
+   A PHIM — Seamless Section Blending System v2
+   ============================================================ */
+
+/* Override .backdrop-gradient (movie-detail.html) với gradient trải rộng 8 stop */
+.backdrop-gradient {
+    /* Mờ tối chân ảnh vừa phải để lộ ảnh nền phía sau sáng đẹp hơn nhưng vẫn đọc rõ chữ */
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 35, 49, 0.45) 0%,
+        rgba(31, 35, 49, 0.15) 20%,
+        rgba(31, 35, 49, 0.00) 40%,
+        rgba(31, 35, 49, 0.40) 65%,
+        rgba(31, 35, 49, 0.85) 85%,
+        #1f2331 100%
+    ) !important;
+}
+
+/* Áp dụng mask-image để xóa bỏ hoàn toàn đường viền cứng ở đáy */
+.movie-content-zone > .absolute.top-0.left-0.w-full {
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+}
+
+/* Lớp phủ gradient tối dần từ giữa màn hình xuống đáy để làm NỔI BẬT CHỮ, chống chói từ các quả cầu ánh sáng (orbs) */
+.movie-content-zone::before {
+    content: '';
+    position: absolute;
+    top: 50vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 35, 49, 0.00) 0%,
+        rgba(31, 35, 49, 0.45) 30%,
+        rgba(31, 35, 49, 0.80) 65%,
+        #1f2331 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+    display: block !important;
+}
+
+/* ============================================================
+   GLOBAL TRANSPARENT RESET
+   Ép mọi section content trở nên trong suốt, để ambient
+   background (#0a0b10 + orbs) shine-through hoàn toàn.
+   ============================================================ */
+.top-movies-section,
+.coming-soon-section,
+.horror-section,
+.country-section,
+.imdb-section,
+section[class*="py-"],
+section[class*="ambient"],
+section[class*="hero-to"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* Biến bg-background-dark của section thành transparent */
+section.bg-background-dark {
+    background-color: transparent !important;
+}
+
+/* ============================================================
+   1. HERO → CONTENT BRIDGE (section đầu tiên sau hero)
+   KHÔNG kéo sâu vào hero vì hero đã tự tối dần ở cuối.
+   Chỉ cần seal điểm tiếp giáp nhẹ nhàng.
+   ============================================================ */
+.hero-to-content-bridge {
+    position: relative;
+    margin-top: 0;    /* Xóa khoảng cách để các section áp sát nhau */
+    padding-top: 1rem; 
+    z-index: 5;
+    background: transparent !important;
+    background-image: none !important;
+}
+
+/* FADE MỀM ĐÁY HERO SLIDER VỚI MASK-IMAGE */
+.hero-mask-fade {
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 92%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 92%, transparent 100%);
+}
+
+/* Chỉ dùng fade cực nhẹ ở đỉnh để "seal" — không thêm tối */
+.hero-to-content-bridge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 34, 43, 0.18) 0%,   /* Nhẹ — hero đã tối sẵn */
+        rgba(31, 34, 43, 0.06) 50%,
+        rgba(31, 34, 43, 0.00) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .hero-to-content-bridge {
+        margin-top: 0;
+        padding-top: 1.5rem; /* Space on mobile */
+    }
+    .hero-to-content-bridge::before {
+        height: 50px;
+    }
+}
+
+/* ============================================================
+   2. AMBIENT SECTION (các section sau đó)
+   Fade nhẹ ở đỉnh và đáy để nối section với nhau mịn.
+   ============================================================ */
+.ambient-section {
+    position: relative;
+    background: transparent !important;
+    background-image: none !important;
+}
+
+/* Fade nhẹ đỉnh - DISABLED to prevent section division */
+/*.ambient-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 34, 43, 0.08) 0%,
+        rgba(31, 34, 43, 0.00) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+}*/
+
+/* SECTION DIVIDER LINE — DISABLED to prevent section division */
+/*.ambient-section + .ambient-section::before,
+.ambient-section + section::before {
+    height: 60px;
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 34, 43, 0.15) 0%,
+        rgba(31, 34, 43, 0.00) 100%
+    );
+}*/
+
+/* ============================================================
+   4. MOVIE DETAIL — CONTENT ZONE
+   Toàn bộ main dưới hero backdrop cần transparent
+   để backdrop gradient shine-through.
+   ============================================================ */
+.movie-content-zone {
+    position: relative;
+    background: transparent !important;
+}
+
+/* Container nội dung phim: glass mờ thay vì solid dark */
+.movie-content-zone .container {
+    position: relative;
+    z-index: 10;
+}
+
+/* Pseudo element tạo nền glass mờ dần từ đáy hero lên */
+.movie-content-zone::before {
+    content: '';
+    position: absolute;
+    top: 50vh;  /* Bắt đầu từ 50% chiều cao viewport trở xuống */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 35, 49, 0.00) 0%,
+        rgba(31, 35, 49, 0.45) 30%,
+        rgba(31, 35, 49, 0.80) 65%,
+        #1f2331 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================================
+   5. MOVIE DETAIL — Xóa nền tối solid khỏi vùng nội dung
+   Các div con trong main phải transparent để lộ backdrop.
+   ============================================================ */
+
+/* Chỉ targeting vùng nội dung bên dưới hero backdrop */
+.movie-content-zone > .container > .grid {
+    position: relative;
+    z-index: 5;
+}
+
+/* Glassmorphism cho các card thông tin trong movie-detail */
+.movie-content-zone .rounded-2xl[style*="background: rgba"] {
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* ============================================================
+   6. OVERRIDE MÀU NỀN CỨNG CÒN SÓT
+   ============================================================ */
+
+/* Biến nền #1e202c inline thành glass */
+[style*="background-color: #1e202c"],
+[style*="background: #1e202c"],
+[style*="background-color:#1e202c"],
+[style*="background:#1e202c"] {
+    background-color: rgba(30, 32, 44, 0.40) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* ============================================================
+   7. AMBIENT ORBS — Tăng visibility xuyên qua section
+   ============================================================ */
+.ambient-orb-1 {
+    opacity: 0.30 !important;
+}
+.ambient-orb-2 {
+    opacity: 0.24 !important;
+}
+
+/* ============================================================
+   8. MOBILE TUNING
+   ============================================================ */
+@media (max-width: 768px) {
+    .ambient-orb-1 { opacity: 0.35 !important; }
+    .ambient-orb-2 { opacity: 0.28 !important; }
+
+    .ambient-section::before { height: 30px; }
+
+    .movie-content-zone::before {
+        top: 55vh;
+    }
+}
+
+
+
+
+
+
+

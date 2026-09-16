@@ -1,0 +1,638 @@
+            /* Modern Watch Page High-End Styling */
+            .action-control-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 8px 14px;
+                background: rgba(255, 255, 255, 0.07);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 9999px;
+                color: #e2e8f0;
+                font-size: 13px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+
+            .action-control-btn:hover {
+                background: rgba(255, 255, 255, 0.15);
+                color: #ffffff;
+                border-color: rgba(255, 255, 255, 0.25);
+                transform: translateY(-1px);
+            }
+
+            .action-control-btn.active {
+                background: #ff9900 !important;
+                color: #000000 !important;
+                border-color: #ff9900 !important;
+                box-shadow: 0 4px 14px rgba(255, 153, 0, 0.4);
+            }
+
+            .action-control-btn .material-icons-round {
+                font-size: 18px;
+            }
+
+            /* Toggle Switches (Auto Next, Auto Play, Auto Skip) */
+            .toggle-checkbox:checked+.toggle-pill {
+                background-color: #ff9900;
+                border-color: #ff9900;
+            }
+
+            .toggle-checkbox:checked+.toggle-pill::after {
+                transform: translateX(16px);
+                background-color: #000000;
+            }
+
+            .toggle-pill {
+                position: relative;
+                display: inline-block;
+                width: 36px;
+                height: 20px;
+                background-color: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 9999px;
+                transition: all 0.3s ease;
+            }
+
+            .toggle-pill::after {
+                content: '';
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                width: 14px;
+                height: 14px;
+                background-color: #ffffff;
+                border-radius: 50%;
+                transition: all 0.3s ease;
+            }
+
+            /* Player Control Bar Styling (Dính liền khung chiếu phim, Nền đen Tuyệt #000000, Không Viền Tròn) */
+            .player-ctrl-bar {
+                background: #000000 !important;
+                border: none !important;
+                border-top: none !important;
+                border-radius: 0 0 16px 16px;
+                padding: 10px 16px;
+                margin-top: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .player-ctrl-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                color: #e2e8f0;
+                font-size: 14.5px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                white-space: nowrap;
+                background: transparent !important;
+                border: none !important;
+                border-radius: 8px;
+                padding: 6px 10px;
+            }
+
+            .player-ctrl-item svg {
+                width: 18px !important;
+                height: 18px !important;
+            }
+
+            .player-ctrl-item:hover {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.08) !important;
+                border-color: transparent !important;
+                transform: translateY(-1px);
+            }
+
+            .player-ctrl-item .material-icons-round {
+                color: #ffffff !important;
+                font-size: 19px;
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            .badge-status-on {
+                color: #10b981;
+                border: 1px solid rgba(16, 185, 129, 0.4);
+                background-color: rgba(16, 185, 129, 0.18);
+                padding: 2px 8px;
+                font-size: 11px;
+                font-weight: 800;
+                border-radius: 6px;
+                margin-left: 4px;
+                display: inline-block;
+                line-height: 1.2;
+                box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+            }
+
+            .badge-status-off {
+                color: #94a3b8;
+                border: none !important;
+                background-color: rgba(255, 255, 255, 0.08);
+                padding: 2px 8px;
+                font-size: 11px;
+                font-weight: 800;
+                border-radius: 6px;
+                margin-left: 4px;
+                display: inline-block;
+                line-height: 1.2;
+            }
+
+            /* Episode Grid & Server Tabs */
+            .ep-tab-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1.5px solid rgba(255, 255, 255, 0.12);
+                border-radius: 10px;
+                color: #cbd5e1;
+                font-size: 13px;
+                font-weight: 700;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+
+            .ep-tab-btn:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: #ffffff;
+            }
+
+            .ep-tab-btn.active {
+                background: linear-gradient(135deg, rgba(255, 153, 0, 0.25) 0%, rgba(242, 242, 13, 0.15) 100%) !important;
+                border-color: #ff9900 !important;
+                color: #ff9900 !important;
+                box-shadow: 0 0 12px rgba(255, 153, 0, 0.25);
+            }
+
+            .ep-grid-btn {
+                background: rgba(255, 255, 255, 0.07);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: #e2e8f0;
+                font-size: 13px;
+                font-weight: 700;
+                padding: 8px 12px;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                text-align: center;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+
+            .ep-grid-btn:hover {
+                background: rgba(255, 153, 0, 0.2);
+                color: #ff9900;
+                border-color: rgba(255, 153, 0, 0.5);
+                transform: translateY(-1px);
+            }
+
+            .ep-grid-btn.active {
+                background: linear-gradient(135deg, #ff9900 0%, #f2f20d 100%) !important;
+                color: #000000 !important;
+                border-color: #ff9900 !important;
+                font-weight: 900 !important;
+                box-shadow: 0 4px 14px rgba(255, 153, 0, 0.5);
+            }
+
+            /* SVAP Alternate Server Buttons */
+            .svap-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: 1px solid transparent;
+            }
+
+            .svap-btn-amber {
+                background: rgba(245, 158, 11, 0.15);
+                color: #fbbf24;
+                border-color: rgba(245, 158, 11, 0.3);
+            }
+
+            .svap-btn-amber:hover {
+                background: rgba(245, 158, 11, 0.3);
+            }
+
+            .svap-btn-pink {
+                background: rgba(236, 72, 153, 0.15);
+                color: #f472b6;
+                border-color: rgba(236, 72, 153, 0.3);
+            }
+
+            .svap-btn-pink:hover {
+                background: rgba(236, 72, 153, 0.3);
+            }
+
+            .svap-btn-emerald {
+                background: rgba(16, 185, 129, 0.25);
+                color: #34d399;
+                border-color: #10b981;
+                box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+            }
+
+            /* Emoji Rating Buttons */
+            .emoji-rate-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                padding: 8px 10px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .emoji-rate-btn:hover {
+                background: rgba(255, 255, 255, 0.15);
+                transform: scale(1.08);
+            }
+
+            .emoji-rate-btn.active {
+                background: rgba(255, 153, 0, 0.2);
+                border-color: #ff9900;
+            }
+
+            /* Ranking Badges */
+            .rank-badge-1 {
+                background: linear-gradient(135deg, #ffe259 0%, #ffa751 100%);
+                color: #000;
+                font-weight: 900;
+            }
+
+            .rank-badge-2 {
+                background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%);
+                color: #000;
+                font-weight: 900;
+            }
+
+            .rank-badge-3 {
+                background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%);
+                color: #fff;
+                font-weight: 900;
+            }
+
+            /* Cinema Mode Overlay */
+            #cinemaOverlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.93);
+                z-index: 9980;
+                display: none;
+                cursor: pointer;
+            }
+
+            body.cinema-active #cinemaOverlay {
+                display: block;
+            }
+
+            /* Mobile Layout Alignment Enhancements (< 640px) - Ultra Sleek & Aesthetic */
+            /* Mobile Layout Alignment Enhancements (< 640px) - Tight, Borderless & Sleek */
+            @media (max-width: 639px) {
+                .player-ctrl-bar {
+                    padding: 4px 8px 4px 8px !important;
+                    border-radius: 0 0 12px 12px !important;
+                    background: #090a10 !important;
+                }
+
+                .player-ctrl-bar-container {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 2px !important;
+                    width: 100% !important;
+                }
+
+                .player-ctrl-bar-actions-row {
+                    display: grid !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    gap: 4px !important;
+                    width: 100% !important;
+                    padding-bottom: 0 !important;
+                }
+
+                .player-ctrl-bar-toggles-row {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 4px !important;
+                    width: 100% !important;
+                    padding-top: 0 !important;
+                    border-top: none !important;
+                }
+
+                /* Both Row 1 and Row 2 buttons have identical font-size, weight and sleek dimensions */
+                .player-ctrl-bar .player-ctrl-item,
+                .player-ctrl-bar-actions-row .player-ctrl-item,
+                .player-ctrl-bar-toggles-row .player-ctrl-item {
+                    font-size: 10.5px !important;
+                    font-weight: 500 !important;
+                    color: #cbd5e1 !important;
+                    height: 24px !important;
+                    padding: 2px 2px !important;
+                    box-sizing: border-box !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 3px !important;
+                    margin: 0 !important;
+                    line-height: 1 !important;
+                    text-align: center !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item span,
+                .player-ctrl-bar-actions-row .player-ctrl-item span,
+                .player-ctrl-bar-toggles-row .player-ctrl-item span {
+                    font-size: 10.5px !important;
+                    font-weight: 500 !important;
+                    white-space: nowrap !important;
+                }
+
+                /* Row 1 Action Buttons: Minimalist borderless */
+                .player-ctrl-bar-actions-row .player-ctrl-item {
+                    background: transparent !important;
+                    border-radius: 6px !important;
+                    border: none !important;
+                    color: #94a3b8 !important;
+                }
+
+                .player-ctrl-bar-actions-row .player-ctrl-item:active {
+                    color: #ffffff !important;
+                    background: rgba(255, 255, 255, 0.06) !important;
+                }
+
+                /* Row 2 Toggle Buttons: Minimalist borderless without enclosing border */
+                .player-ctrl-bar-toggles-row .player-ctrl-item {
+                    background: transparent !important;
+                    border-radius: 6px !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    color: #cbd5e1 !important;
+                }
+
+                .player-ctrl-bar-toggles-row .player-ctrl-item:active {
+                    background: rgba(255, 255, 255, 0.06) !important;
+                    transform: scale(0.98);
+                }
+
+                .player-ctrl-report-btn {
+                    margin-left: 0 !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item svg {
+                    width: 12px !important;
+                    height: 12px !important;
+                    flex-shrink: 0 !important;
+                    opacity: 0.85;
+                }
+
+                .badge-status-on {
+                    color: #10b981 !important;
+                    background: rgba(16, 185, 129, 0.18) !important;
+                    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+                    padding: 0.5px 4px !important;
+                    font-size: 8px !important;
+                    font-weight: 800 !important;
+                    margin-left: 2px !important;
+                    border-radius: 9999px !important;
+                    line-height: 1.2 !important;
+                    box-shadow: 0 0 6px rgba(16, 185, 129, 0.25) !important;
+                }
+
+                .badge-status-off {
+                    color: #64748b !important;
+                    background: rgba(255, 255, 255, 0.06) !important;
+                    border: none !important;
+                    padding: 0.5px 4px !important;
+                    font-size: 8px !important;
+                    font-weight: 700 !important;
+                    margin-left: 2px !important;
+                    border-radius: 9999px !important;
+                    line-height: 1.2 !important;
+                }
+
+                /* Episode Search & Sort Bar Mobile Grid */
+                #episode-search-container {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 8px !important;
+                    width: 100% !important;
+                }
+
+                #episode-search-container>div:first-child {
+                    flex: 1 !important;
+                    width: 100% !important;
+                }
+
+                #sort-episodes-btn {
+                    flex-shrink: 0 !important;
+                    padding: 7px 12px !important;
+                    font-size: 12px !important;
+                }
+
+                /* Episode Grid Mobile 3 Symmetrical Equal Columns */
+                #episode-list {
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 8px !important;
+                }
+
+                .ep-grid-btn {
+                    padding: 8px 4px !important;
+                    font-size: 12px !important;
+                    height: 38px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                }
+
+                /* Mobile Video Player Overlay Scale Fix (< 640px) */
+                /* 3D Meta block mobile: compact padding */
+                #playerPlaceholder .player-overlay-meta {
+                    padding: 40px 12px 12px 12px !important;
+                }
+
+                #playerPlaceholder .player-meta-3d-card {
+                    gap: 6px !important;
+                }
+
+                #playerPlaceholder .badge-aphim-studio {
+                    font-size: 7px !important;
+                    padding: 2.5px 7px !important;
+                    letter-spacing: 1px !important;
+                }
+
+                #playerPlaceholder .badge-quality-sub {
+                    font-size: 7px !important;
+                    padding: 2.5px 7px !important;
+                }
+
+                #playerPlaceholder h3.player-movie-title,
+                #playerPlaceholder h1#playerMovieTitle {
+                    font-size: 13px !important;
+                    line-height: 1.2 !important;
+                    max-width: 200px !important;
+                }
+
+                #playerPlaceholder .badge-ep-name {
+                    font-size: 9px !important;
+                    padding: 2px 7px !important;
+                }
+
+                #play-btn,
+                #playerPlaceholder .w-\[55px\] {
+                    width: 38px !important;
+                    height: 38px !important;
+                }
+            }
+
+            /* Desktop Controls Restored & Refined (>= 640px) */
+            @media (min-width: 640px) {
+                .player-ctrl-bar-container {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
+                    gap: 10px !important;
+                    width: 100% !important;
+                }
+
+                .player-ctrl-bar-toggles-row {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    flex-wrap: nowrap !important;
+                    gap: 8px !important;
+                    width: auto !important;
+                    flex-shrink: 0 !important;
+                }
+
+                .player-ctrl-bar-actions-row {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    flex-wrap: nowrap !important;
+                    gap: 8px !important;
+                    flex: 1 !important;
+                    width: auto !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item {
+                    width: auto !important;
+                    height: auto !important;
+                    padding: 4px 8px !important;
+                    font-size: 13px !important;
+                    font-weight: 600 !important;
+                    background: transparent !important;
+                    border: none !important;
+                    border-radius: 8px !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item svg {
+                    width: 15px !important;
+                    height: 15px !important;
+                }
+
+                .badge-status-on,
+                .badge-status-off {
+                    font-size: 10px !important;
+                    padding: 1.5px 6px !important;
+                }
+
+                .player-ctrl-report-btn {
+                    margin-left: auto !important;
+                }
+            }
+
+            /* Notice Banner Spacing Alignment (Đồng bộ khoảng cách dãn cách như giao diện sáng) */
+            #dismissibleNotice {
+                margin-top: 6px !important;
+                margin-bottom: 14px !important;
+            }
+
+            /* Sidebar Cast Horizontal Slider (Hàng ngang cuộn mượt, không rớt dòng) */
+            #sidebar-cast {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #sidebar-cast::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
+
+            /* ?? Watch-to-Earn Pill Dark & Light mode Styling */
+            .watch-to-earn-pill {
+                background: rgba(245, 158, 11, 0.15) !important;
+                border: 1px solid rgba(245, 158, 11, 0.35) !important;
+                color: #fcd576 !important;
+            }
+
+            .watch-to-earn-pill:hover {
+                background: rgba(245, 158, 11, 0.25) !important;
+            }
+
+            .watch-to-earn-text {
+                color: #fcd576 !important;
+                font-weight: 800 !important;
+            }
+
+            .watch-to-earn-dot {
+                background: #f59e0b !important;
+                box-shadow: 0 0 8px #f59e0b !important;
+            }
+
+            /* Light Mode High Contrast */
+            html.light-mode .watch-to-earn-pill {
+                background: #fffbeb !important;
+                border: 1.5px solid #d97706 !important;
+                box-shadow: 0 2px 8px rgba(180, 83, 9, 0.15) !important;
+            }
+
+            html.light-mode .watch-to-earn-pill:hover {
+                background: #fef3c7 !important;
+            }
+
+            html.light-mode .watch-to-earn-text {
+                color: #78350f !important;
+                font-weight: 900 !important;
+            }
+
+            html.light-mode .watch-to-earn-dot {
+                background: #b45309 !important;
+                box-shadow: 0 0 6px #b45309 !important;
+            }
+
+            html.light-mode #watchBreadcrumbEpName {
+                color: #b45309 !important;
+                font-weight: 900 !important;
+            }
+
+            /* 📱 Mobile: Không đổ viền bọc, hiển thị phẳng liền mạch tinh tế */
+            @media (max-width: 768px) {
+
+                .watch-to-earn-pill,
+                html.light-mode .watch-to-earn-pill {
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    padding: 0 !important;
+                }
+            }
+

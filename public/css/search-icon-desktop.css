@@ -1,0 +1,117 @@
+/* Enhanced Search Icon for Desktop Only */
+
+/* Desktop search icon container */
+@media (min-width: 1024px) {
+
+    /* Search icon wrapper with background - only for links with material-icons inside */
+    a[href="search.html"]:has(.material-icons-round) {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    /* Glow effect background */
+    a[href="search.html"]:has(.material-icons-round)::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    /* Icon styling */
+    a[href="search.html"]:has(.material-icons-round) .material-icons-round {
+        font-size: 22px;
+        color: #ffd700;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3));
+    }
+
+    /* Hover effects */
+    a[href="search.html"]:has(.material-icons-round):hover {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+        border-color: rgba(255, 215, 0, 0.4);
+        transform: scale(1.1) translateY(-2px);
+        box-shadow: 0 8px 16px rgba(255, 215, 0, 0.2);
+    }
+
+    a[href="search.html"]:has(.material-icons-round):hover::before {
+        opacity: 1;
+    }
+
+    a[href="search.html"]:has(.material-icons-round):hover .material-icons-round {
+        transform: rotate(90deg) scale(1.1);
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+        color: #ffed4e;
+    }
+
+    /* Active/Click effect */
+    a[href="search.html"]:has(.material-icons-round):active {
+        transform: scale(0.95);
+    }
+
+    /* Pulse animation on page load */
+    @keyframes searchPulse {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+        }
+
+        50% {
+            box-shadow: 0 0 0 8px rgba(255, 215, 0, 0);
+        }
+    }
+
+    a[href="search.html"]:has(.material-icons-round).pulse-once {
+        animation: searchPulse 2s ease-out;
+    }
+
+    /* Shimmer effect */
+    a[href="search.html"]:has(.material-icons-round)::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%);
+        transform: rotate(45deg);
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+
+        100% {
+            transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+    }
+}
+
+/* Mobile - keep simple */
+@media (max-width: 1023px) {
+    a[href="search.html"]:has(.material-icons-round) .material-icons-round {
+        transition: color 0.2s ease;
+    }
+
+    a[href="search.html"]:has(.material-icons-round):hover .material-icons-round {
+        color: #ffd700;
+    }
+}

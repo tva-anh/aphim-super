@@ -1,0 +1,49 @@
+/* Top Movies Hot Section Styles */
+.rank-number {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+}
+
+.rank-number-top {
+    -webkit-text-stroke: 2px #FFD700;
+    text-shadow:
+        0 0 10px rgba(255, 215, 0, 0.8),
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 40px rgba(255, 215, 0, 0.4);
+    color: transparent;
+    font-style: italic;
+}
+
+.poster-top-glow {
+    box-shadow: 0 0 15px 2px rgba(255, 215, 0, 0.4);
+    border: 2px solid #FFD700;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    height: 0px;
+    display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+}
+
+.custom-scrollbar {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.poster-overlay {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 40%);
+}
+
+.top-movies-section {
+    background: linear-gradient(180deg, rgba(242, 242, 13, 0.03) 0%, transparent 100%);
+}

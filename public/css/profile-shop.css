@@ -1,0 +1,237 @@
+/* ════════════════════════════════════════════════════════════
+   PROFILE SHOP STYLES — Premium E-commerce UI
+   ════════════════════════════════════════════════════════════ */
+
+.shop-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header & Balance */
+.shop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+.shop-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+}
+.user-balance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    font-weight: 700;
+    color: #fbbf24;
+    font-size: 14px;
+}
+
+/* Category Tabs */
+.shop-categories {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.shop-cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.shop-cat-btn.active {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+    border-color: #8b5cf6;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+}
+.shop-cat-btn .count {
+    font-size: 11px;
+    background: rgba(0,0,0,0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+    opacity: 0.8;
+}
+
+/* Rarity Filters */
+.rarity-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+.rarity-btn {
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.rarity-btn:hover {
+    background: rgba(255,255,255,0.08);
+}
+.rarity-btn.active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-color: rgba(255,255,255,0.2);
+}
+.rarity-btn.active[data-rarity="common"]   { border-color:#94a3b8; color:#94a3b8; }
+.rarity-btn.active[data-rarity="rare"]      { border-color:#3b82f6; color:#3b82f6; }
+.rarity-btn.active[data-rarity="epic"]      { border-color:#a855f7; color:#a855f7; }
+.rarity-btn.active[data-rarity="legendary"] { border-color:#fbbf24; color:#fbbf24; }
+.rarity-btn.active[data-rarity="mythic"]    { border-color:#f472b6; color:#f472b6; }
+
+/* Item Grid */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    padding-bottom: 40px;
+}
+
+/* --- Edit Profile Modal Specific Styles --- */
+.ep-frame-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    background: rgba(255,255,255,0.03);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+.ep-frame-option:hover {
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-2px);
+}
+.ep-frame-option.selected {
+    background: rgba(167, 139, 250, 0.1);
+    border-color: #a78bfa;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.2);
+}
+.ep-frame-option.locked {
+    opacity: 0.7;
+}
+.ep-frame-option.locked .shop-frame-wrap {
+    filter: grayscale(0.8) brightness(0.6);
+}
+
+.ep-cover-option {
+    position: relative;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+.ep-cover-option:hover {
+    transform: scale(1.02);
+}
+.ep-cover-option.selected {
+    border-color: #e8b94f !important;
+    box-shadow: 0 0 20px rgba(232,185,79,0.3);
+}
+
+.ep-avatar-option {
+    position: relative;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid rgba(255,255,255,0.1);
+    transition: all 0.2s;
+    overflow: hidden;
+}
+.ep-avatar-option:hover {
+    transform: scale(1.1);
+    border-color: rgba(255,255,255,0.3);
+}
+.ep-avatar-option.selected {
+    border-color: #a78bfa !important;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
+}
+
+/* Custom Scrollbar for Modal grids */
+#epFrameGrid::-webkit-scrollbar,
+#epCoverGrid::-webkit-scrollbar {
+    width: 4px;
+}
+#epFrameGrid::-webkit-scrollbar-track,
+#epCoverGrid::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.02);
+}
+#epFrameGrid::-webkit-scrollbar-thumb,
+#epCoverGrid::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+#epFrameGrid::-webkit-scrollbar-thumb:hover,
+#epCoverGrid::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE OVERRIDES FOR MOBILE MODALS (FIX CHAOTIC SCROLL)
+   ════════════════════════════════════════════════════════════ */
+@media screen and (max-width: 640px) {
+    /* 1. Khống chế Frame Grid: Ép về 3 cột để items không bị thu hẹp gây loạn bố cục */
+    #epFrameGrid {
+        grid-template-columns: repeat(3, 1fr) !important; 
+        gap: 8px !important;
+        overflow-x: hidden !important; /* Cấm tuyệt đối trượt ngang lung tung */
+        overflow-y: auto !important;
+        padding-bottom: 20px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 2. Đảm bảo các frame item không gây vỡ Layout */
+    .ep-frame-option {
+        width: 100% !important;
+        min-height: 110px !important;
+        padding: 12px 4px !important;
+    }
+    
+    /* Thu nhỏ nhẹ tên khung để vừa khung */
+    .ep-frame-option p {
+        font-size: 10px !important;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+
+    /* 3. Grid ảnh bìa ép thành 1 cột cho dễ chọn trên mobile */
+    #epCoverGrid {
+        grid-template-columns: 1fr !important;
+        overflow-x: hidden !important;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    #epFrameGrid {
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 cột cực to cho máy quá bé */
+    }
+}
+

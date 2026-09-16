@@ -1,0 +1,1070 @@
+<!-- High-End Sofaflix Style Header (Single Dark Bar, Glassmorphism & Luxurious Layout) -->
+<style>
+    /* Single Dark Bar - Uniform 64px Height & Color at Top and Scrolled */
+    #sofa-header,
+    header#sofa-header,
+    header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        z-index: 9999 !important;
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        background: #1f2331 !important;
+        background-color: #1f2331 !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+        will-change: background-color, box-shadow;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    body.is-scrolling iframe {
+        pointer-events: none !important;
+    }
+
+    .sofa-header-container {
+        max-width: 1540px !important;
+        margin: 0 auto !important;
+        height: 100% !important;
+        padding: 0 24px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 16px !important;
+        box-sizing: border-box !important;
+    }
+    @media (max-width: 1023px) {
+        .sofa-header-container {
+            padding: 0 16px !important;
+        }
+    }
+    @media (max-width: 480px) {
+        .sofa-header-container {
+            padding: 0 12px !important;
+        }
+    }
+
+    /* Left Group: Hamburger & Logo & Nav Links */
+    .sofa-header-left-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 32px !important;
+        flex-shrink: 0 !important;
+        overflow: visible !important;
+    }
+
+    .sofa-left-section {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sofa-menu-btn {
+        background: transparent !important;
+        border: none !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 4px !important;
+        transition: opacity 0.2s ease, transform 0.2s ease !important;
+    }
+
+    .sofa-menu-btn svg {
+        width: 28px !important;
+        height: 28px !important;
+        stroke-width: 2.5 !important;
+    }
+
+    .sofa-menu-btn:hover {
+        opacity: 0.85 !important;
+        transform: scale(1.05) !important;
+    }
+
+    /* Logo Image (APhim Logo) */
+    .sofa-logo-link {
+        display: flex !important;
+        align-items: center !important;
+        text-decoration: none !important;
+    }
+
+    .sofa-logo-img {
+        height: 40px !important;
+        width: auto !important;
+        object-fit: contain !important;
+    }
+
+    /* Desktop Navigation Links */
+    .sofa-nav-links {
+        display: flex !important;
+        align-items: center !important;
+        gap: 20px !important;
+        margin-left: 10px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sofa-nav-item {
+        color: #ffffff !important;
+        font-family: 'Inter', system-ui, sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+        height: 64px !important;
+        line-height: 64px !important;
+        transition: color 0.18s ease !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .sofa-nav-item:hover,
+    .sofa-dropdown:hover .sofa-nav-item {
+        color: #fcd576 !important;
+    }
+
+    .sofa-dropdown-arrow {
+        width: 22px !important;
+        height: 22px !important;
+        fill: #ffffff !important;
+        opacity: 0.9 !important;
+        filter: none !important;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), fill 0.18s ease, opacity 0.18s ease !important;
+        transform-origin: center !important;
+    }
+
+    .sofa-nav-item:hover .sofa-dropdown-arrow,
+    .sofa-dropdown:hover .sofa-dropdown-arrow {
+        fill: #fcd576 !important;
+        opacity: 1 !important;
+        filter: none !important;
+        transform: rotate(180deg) !important;
+    }
+
+    .sofa-dropdown {
+        position: relative !important;
+        height: 64px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .sofa-dropdown-menu {
+        position: absolute !important;
+        top: calc(100% - 4px) !important;
+        left: 0 !important;
+        transform: translateY(8px) !important;
+        display: none !important;
+        opacity: 0 !important;
+        background-color: #1a1d26 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
+        z-index: 1000 !important;
+        transition: opacity 0.2s ease, transform 0.2s ease !important;
+    }
+
+    .sofa-dropdown:hover .sofa-dropdown-menu {
+        display: grid !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+    .sofa-dropdown-menu.grid-4 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 10px 20px !important;
+        width: 720px !important;
+    }
+
+    .sofa-dropdown-menu.grid-3 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px 20px !important;
+        width: 560px !important;
+    }
+
+    .sofa-dropdown-link {
+        color: #cbd5e1 !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
+        white-space: nowrap !important;
+    }
+
+    .sofa-dropdown-link:hover {
+        background-color: #2a2f3d !important;
+        color: #ffb74d !important;
+    }
+
+    /* Right Section: 3 Elements (Search Icon Button + Bell Icon Button + Login Button) */
+    .sofa-right-section {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+        height: 100% !important;
+    }
+
+    /* Dark Circular Icon Buttons (Search & Bell - Matched 40px Height) */
+    .sofa-icon-circle-btn {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: background-color 0.2s ease, transform 0.15s ease !important;
+        text-decoration: none !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sofa-icon-circle-btn:hover {
+        background-color: rgba(255, 255, 255, 0.18) !important;
+        transform: scale(1.05) !important;
+    }
+
+    /* Single Desktop Search Form with Embedded Inner Filter Button */
+    .sofa-desktop-search-form {
+        display: flex !important;
+        align-items: center !important;
+        align-self: center !important;
+        margin: 0 !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 20px !important;
+        padding: 0 4px 0 14px !important;
+        height: 40px !important;
+        width: 360px !important;
+        max-width: 360px !important;
+        min-width: 180px !important;
+        flex-shrink: 1 !important;
+        transition: all 0.25s ease !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    .sofa-desktop-search-form:focus-within {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-color: #fcd576 !important;
+        box-shadow: 0 0 14px rgba(252, 213, 118, 0.25) !important;
+    }
+
+    .sofa-desktop-search-icon {
+        width: 18px !important;
+        height: 18px !important;
+        color: rgba(255, 255, 255, 0.55) !important;
+        flex-shrink: 0 !important;
+        margin-right: 8px !important;
+        transition: color 0.2s ease !important;
+    }
+
+    .sofa-desktop-search-form:focus-within .sofa-desktop-search-icon {
+        color: #fcd576 !important;
+    }
+
+    .sofa-desktop-search-input,
+    .sofa-desktop-search-input:focus,
+    .sofa-desktop-search-input:focus-visible,
+    .sofa-desktop-search-input:active {
+        flex: 1 !important;
+        height: 100% !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        outline: none !important;
+        outline-offset: 0 !important;
+        color: #ffffff !important;
+        font-size: 13.5px !important;
+        font-family: inherit !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        min-width: 50px !important;
+    }
+
+    .sofa-desktop-search-input::placeholder {
+        color: rgba(255, 255, 255, 0.45) !important;
+    }
+
+    /* Inner Filter Button (Compact Pill Match INSIDE Search Bar) */
+    .sofa-inner-filter-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        height: 26px !important;
+        padding: 0 9px !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
+        border-radius: 13px !important;
+        color: rgba(255, 255, 255, 0.92) !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        margin-left: 4px !important;
+        margin-right: 2px !important;
+        transition: all 0.2s ease !important;
+        box-sizing: border-box !important;
+    }
+
+    .sofa-inner-filter-btn:hover {
+        background: #fcd576 !important;
+        color: #0d0f1a !important;
+        border-color: #fcd576 !important;
+        transform: translateY(-0.5px) !important;
+    }
+
+    .sofa-inner-filter-btn svg {
+        transition: color 0.2s ease !important;
+    }
+
+    .sofa-inner-filter-btn:hover svg {
+        color: #0d0f1a !important;
+    }
+
+    .sofa-mobile-search-btn {
+        display: none !important;
+    }
+
+    /* Rounded Rectangle Login Button (Matching Image 2: border-radius 8px, height 40px) */
+    .sofa-login-rect-btn {
+        background: #fcd576 !important;
+        color: #0d0f1a !important;
+        -webkit-text-fill-color: #0d0f1a !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        height: 40px !important;
+        padding: 0 20px !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        border: none !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+        text-shadow: none !important;
+        transition: all 0.2s ease !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sofa-login-rect-btn:hover {
+        background: #fce08b !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    /* Mobile / Desktop Search Overlay Dropdown */
+    .sofa-mobile-search-overlay {
+        position: fixed !important;
+        top: 64px !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 99998 !important;
+        background: rgba(19, 21, 31, 0.96) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+        padding: 12px 16px !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
+        display: none;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .sofa-mobile-search-overlay.open {
+        display: block !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+    .sofa-mobile-search-inner-form {
+        display: flex !important;
+        align-items: center !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        padding: 0 8px 0 14px !important;
+        height: 44px !important;
+        max-width: 600px !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .sofa-mobile-search-inner-form:focus-within {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-color: #fcd576 !important;
+        box-shadow: 0 0 12px rgba(252, 213, 118, 0.3) !important;
+    }
+
+    .sofa-mobile-search-input-icon {
+        width: 18px !important;
+        height: 18px !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+        flex-shrink: 0 !important;
+        margin-right: 8px !important;
+    }
+
+    .sofa-mobile-search-input-field {
+        flex: 1 !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-family: inherit !important;
+        box-shadow: none !important;
+    }
+
+    .sofa-mobile-search-input-field::placeholder {
+        color: rgba(255, 255, 255, 0.45) !important;
+    }
+
+    .sofa-mobile-search-close-btn {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: none !important;
+        color: #94a3b8 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .sofa-mobile-search-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+    }
+
+    /* Mobile Drawer Sidebar Styling */
+    .mobile-drawer {
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        z-index: 100000 !important;
+        display: none !important;
+        opacity: 0 !important;
+        transition: opacity 0.25s ease !important;
+    }
+
+    .mobile-drawer.open {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    .mobile-drawer-content {
+        width: 320px !important;
+        max-width: 85vw !important;
+        height: 100% !important;
+        background: rgba(22, 24, 33, 0.95) !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 24px 18px !important;
+        overflow-y: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5) !important;
+        box-sizing: border-box !important;
+    }
+
+    .drawer-close-btn {
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 999px !important;
+        padding: 8px 18px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        cursor: pointer !important;
+        align-self: flex-start !important;
+    }
+
+    .drawer-accordion-group {
+        display: flex !important;
+        flex-direction: column !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .drawer-accordion-item {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .drawer-accordion-header {
+        width: 100% !important;
+        padding: 15px 4px !important;
+        background: transparent !important;
+        border: none !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        cursor: pointer !important;
+    }
+
+    .drawer-accordion-item.active .drawer-accordion-header {
+        color: #818cf8 !important;
+    }
+
+    .drawer-accordion-icon {
+        width: 16px !important;
+        height: 16px !important;
+        fill: currentColor !important;
+        transition: transform 0.3s ease !important;
+    }
+
+    .drawer-accordion-item.active .drawer-accordion-icon {
+        transform: rotate(180deg) !important;
+    }
+
+    .drawer-accordion-body {
+        display: none !important;
+        padding: 6px 4px 16px 16px !important;
+    }
+
+    .drawer-accordion-item.active .drawer-accordion-body {
+        display: block !important;
+    }
+
+    .drawer-grid-2 {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 14px 20px !important;
+        max-height: 320px !important;
+        overflow-y: auto !important;
+    }
+
+    .drawer-sub-link {
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .drawer-quick-pills {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        margin-top: 10px !important;
+    }
+
+    .drawer-pill-btn {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+        text-decoration: none !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        text-align: center !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* ── RESPONSIVE COMPACT MEDIA QUERIES FOR 110% ZOOM & MEDIUM SCREENS (1380px - 1536px) ── */
+    @media (max-width: 1536px) {
+        .sofa-header-left-group {
+            gap: 14px !important;
+        }
+        .sofa-nav-links {
+            gap: 10px !important;
+            margin-left: 0 !important;
+        }
+        .sofa-nav-item {
+            font-size: 13px !important;
+        }
+        .sofa-desktop-search-form {
+            width: 250px !important;
+            max-width: 250px !important;
+            padding: 0 3px 0 10px !important;
+        }
+    }
+
+    @media (max-width: 1440px) {
+        .sofa-header-left-group {
+            gap: 10px !important;
+        }
+        .sofa-nav-links {
+            gap: 6px !important;
+        }
+        .sofa-nav-item {
+            font-size: 12.5px !important;
+        }
+        .sofa-desktop-search-form {
+            width: 210px !important;
+            max-width: 210px !important;
+            padding: 0 3px 0 10px !important;
+        }
+        .sofa-desktop-search-input {
+            font-size: 12px !important;
+        }
+        .sofa-inner-filter-btn {
+            padding: 0 5px !important;
+            font-size: 10.5px !important;
+            border-radius: 12px !important;
+            margin-right: 1px !important;
+        }
+    }
+
+    @media (max-width: 1380px) {
+        .sofa-header-container {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+            height: 60px !important;
+            box-sizing: border-box !important;
+        }
+
+        .sofa-header-left-group {
+            flex: none !important;
+            gap: 8px !important;
+        }
+
+        .sofa-nav-links {
+            display: none !important;
+        }
+
+        .sofa-logo-img {
+            height: 32px !important;
+        }
+
+        .sofa-right-section {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            padding-right: 0 !important;
+            gap: 8px !important;
+        }
+
+        .sofa-icon-circle-btn {
+            width: 38px !important;
+            height: 38px !important;
+        }
+
+        .sofa-desktop-search-form,
+        .sofa-filter-btn {
+            display: none !important;
+        }
+
+        .sofa-mobile-search-btn {
+            display: flex !important;
+        }
+
+        /* Mobile Login Button: Restore original Pill shape (9999px) & Flush right alignment */
+        .sofa-login-rect-btn {
+            height: 36px !important;
+            padding: 0 16px !important;
+            font-size: 13px !important;
+            border-radius: 9999px !important;
+            margin-right: 0 !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sofa-header-container {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+    }
+
+
+</style>
+
+<header id="sofa-header">
+    <div class="sofa-header-container">
+        <!-- Left Section: Hamburger Icon + Logo Image + Desktop Nav Links -->
+        <div class="sofa-header-left-group">
+            <div class="sofa-left-section">
+                <button type="button" onclick="toggleMobileHeaderMenu()" class="sofa-menu-btn" title="Danh mục" aria-label="Menu">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <a href="/" class="sofa-logo-link">
+                    <picture>
+                        <source srcset="/logo-aphim1.webp" type="image/webp" />
+                        <img src="/logo-aphim1.png" alt="APhim Logo" class="sofa-logo-img" width="240" height="100" fetchpriority="high" decoding="async" />
+                    </picture>
+                </a>
+            </div>
+
+            <!-- Desktop Navigation Links -->
+            <nav class="sofa-nav-links hidden lg:flex">
+                <!-- 1. Loại Phim ▼ -->
+                <div class="sofa-dropdown">
+                    <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">
+                        Loại Phim
+                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z" /></svg>
+                    </a>
+                    <div class="sofa-dropdown-menu grid-3">
+                        <a href="/danh-sach?list=phim-moi-cap-nhat" class="sofa-dropdown-link">Phim Mới</a>
+                        <a href="/danh-sach?list=phim-bo" class="sofa-dropdown-link">Phim Bộ</a>
+                        <a href="/danh-sach?list=phim-le" class="sofa-dropdown-link">Phim Lẻ</a>
+                        <a href="/danh-sach?list=tv-shows" class="sofa-dropdown-link">TV Shows</a>
+                        <a href="/danh-sach?list=hoat-hinh" class="sofa-dropdown-link">Hoạt Hình</a>
+                        <a href="/danh-sach?list=phim-vietsub" class="sofa-dropdown-link">Phim Vietsub</a>
+                        <a href="/danh-sach?list=phim-thuyet-minh" class="sofa-dropdown-link">Thuyết Minh</a>
+                        <a href="/danh-sach?list=phim-long-tieng" class="sofa-dropdown-link">Lồng Tiếng</a>
+                        <a href="/danh-sach?list=phim-bo-dang-chieu" class="sofa-dropdown-link">Phim Bộ Đang Chiếu</a>
+                        <a href="/danh-sach?list=phim-bo-da-xong" class="sofa-dropdown-link">Bộ Đã Xong</a>
+                        <a href="/danh-sach?list=phim-sap-chieu" class="sofa-dropdown-link">Sắp Chiếu</a>
+                        <a href="/danh-sach?list=subteam" class="sofa-dropdown-link">Subteam</a>
+                        <a href="/danh-sach?list=phim-chieu-rap" class="sofa-dropdown-link col-span-full">Phim Chiếu Rạp</a>
+                    </div>
+                </div>
+
+                <!-- 2. Thể Loại ▼ -->
+                <div class="sofa-dropdown">
+                    <a href="/categories" class="sofa-nav-item">
+                        Thể Loại
+                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z" /></svg>
+                    </a>
+                    <div class="sofa-dropdown-menu grid-4">
+                        <a href="/categories?category=hanh-dong" class="sofa-dropdown-link">Hành Động</a>
+                        <a href="/categories?category=tinh-cam" class="sofa-dropdown-link">Tình Cảm</a>
+                        <a href="/categories?category=hai-huoc" class="sofa-dropdown-link">Hài Hước</a>
+                        <a href="/categories?category=co-trang" class="sofa-dropdown-link">Cổ Trang</a>
+                        <a href="/categories?category=tam-ly" class="sofa-dropdown-link">Tâm Lý</a>
+                        <a href="/categories?category=hinh-su" class="sofa-dropdown-link">Hình Sự</a>
+                        <a href="/categories?category=chien-tranh" class="sofa-dropdown-link">Chiến Tranh</a>
+                        <a href="/categories?category=the-thao" class="sofa-dropdown-link">Thể Thao</a>
+                        <a href="/categories?category=vo-thuat" class="sofa-dropdown-link">Võ Thuật</a>
+                        <a href="/categories?category=vien-tuong" class="sofa-dropdown-link">Viễn Tưởng</a>
+                        <a href="/categories?category=phieu-luu" class="sofa-dropdown-link">Phiêu Lưu</a>
+                        <a href="/categories?category=khoa-hoc" class="sofa-dropdown-link">Khoa Học</a>
+                        <a href="/categories?category=kinh-di" class="sofa-dropdown-link">Kinh Dị</a>
+                        <a href="/categories?category=am-nhac" class="sofa-dropdown-link">Âm Nhạc</a>
+                        <a href="/categories?category=than-thoai" class="sofa-dropdown-link">Thần Thoại</a>
+                        <a href="/categories?category=tai-lieu" class="sofa-dropdown-link">Tài Liệu</a>
+                        <a href="/categories?category=gia-dinh" class="sofa-dropdown-link">Gia Đình</a>
+                        <a href="/categories?category=chinh-kich" class="sofa-dropdown-link">Chính Kịch</a>
+                        <a href="/categories?category=bi-an" class="sofa-dropdown-link">Bí Ẩn</a>
+                        <a href="/categories?category=hoc-duong" class="sofa-dropdown-link">Học Đường</a>
+                    </div>
+                </div>
+
+                <!-- 3. Quốc Gia ▼ -->
+                <div class="sofa-dropdown">
+                    <a href="/phim-theo-quoc-gia" class="sofa-nav-item">
+                        Quốc Gia
+                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z" /></svg>
+                    </a>
+                    <div class="sofa-dropdown-menu grid-4">
+                        <a href="/phim-theo-quoc-gia?country=viet-nam" class="sofa-dropdown-link">Việt Nam</a>
+                        <a href="/phim-theo-quoc-gia?country=trung-quoc" class="sofa-dropdown-link">Trung Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=han-quoc" class="sofa-dropdown-link">Hàn Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=nhat-ban" class="sofa-dropdown-link">Nhật Bản</a>
+                        <a href="/phim-theo-quoc-gia?country=thai-lan" class="sofa-dropdown-link">Thái Lan</a>
+                        <a href="/phim-theo-quoc-gia?country=au-my" class="sofa-dropdown-link">Âu Mỹ</a>
+                        <a href="/phim-theo-quoc-gia?country=dai-loan" class="sofa-dropdown-link">Đài Loan</a>
+                        <a href="/phim-theo-quoc-gia?country=hong-kong" class="sofa-dropdown-link">Hồng Kông</a>
+                        <a href="/phim-theo-quoc-gia?country=an-do" class="sofa-dropdown-link">Ấn Độ</a>
+                        <a href="/phim-theo-quoc-gia?country=anh" class="sofa-dropdown-link">Anh</a>
+                        <a href="/phim-theo-quoc-gia?country=phap" class="sofa-dropdown-link">Pháp</a>
+                        <a href="/phim-theo-quoc-gia?country=canada" class="sofa-dropdown-link">Canada</a>
+                        <a href="/phim-theo-quoc-gia?country=duc" class="sofa-dropdown-link">Đức</a>
+                        <a href="/phim-theo-quoc-gia?country=tay-ban-nha" class="sofa-dropdown-link">Tây Ban Nha</a>
+                        <a href="/phim-theo-quoc-gia?country=tho-nhi-ky" class="sofa-dropdown-link">Thổ Nhĩ Kỳ</a>
+                        <a href="/phim-theo-quoc-gia?country=indonesia" class="sofa-dropdown-link">Indonesia</a>
+                    </div>
+                </div>
+
+                <!-- 4. Ngẫu Nhiên -->
+                <a href="/danh-sach?list=phim-moi-cap-nhat" class="sofa-nav-item">Ngẫu Nhiên</a>
+
+                <!-- 5. Cộng đồng -->
+                <a href="#" class="sofa-nav-item">Cộng đồng</a>
+
+                <!-- 6. Lịch chiếu -->
+                <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">Lịch chiếu</a>
+
+                <!-- 7. Song Ngữ -->
+                <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">Song Ngữ</a>
+            </nav>
+        </div>
+
+        <!-- Right Section: Single Desktop Search Bar (With Inner Filter Button) + Bell Icon + Login Button -->
+        <div class="sofa-right-section">
+            <!-- 1. Desktop Search Form (Single Container with Embedded Inner Filter Button) -->
+            <form action="/search" method="GET" class="sofa-desktop-search-form">
+                <svg class="sofa-desktop-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" name="keyword" placeholder="Tìm kiếm phim, diễn viên..." class="sofa-desktop-search-input" autocomplete="off" />
+                <a href="/danh-sach" class="sofa-inner-filter-btn" title="Bộ lọc phim">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                    </svg>
+                    <span>Bộ lọc</span>
+                </a>
+            </form>
+
+            <!-- 2. Mobile Circular Search Button (Visible on Mobile) -->
+            <button type="button" id="sofa-mobile-search-btn" onclick="toggleMobileSearchOverlay()" class="sofa-icon-circle-btn sofa-mobile-search-btn" title="Tìm kiếm" aria-label="Tìm kiếm">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+
+            <!-- Auth / Profile Container (Dynamically updated by user-ui.js when logged in) -->
+            <div id="authContainer" style="display: inline-flex; align-items: center; gap: 10px;">
+                <a href="#" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }" class="sofa-icon-circle-btn" title="Thông báo" aria-label="Thông báo">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </a>
+                <a href="/profile" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }" class="sofa-login-rect-btn">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile / Desktop Search Overlay Dropdown -->
+<div id="sofa-mobile-search-overlay" class="sofa-mobile-search-overlay">
+    <form action="/search" method="GET" class="sofa-mobile-search-inner-form">
+        <svg class="sofa-mobile-search-input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="text" name="keyword" placeholder="Tìm kiếm phim, diễn viên..." class="sofa-mobile-search-input-field" autocomplete="off" />
+        <button type="button" onclick="closeMobileSearchOverlay()" class="sofa-mobile-search-close-btn" aria-label="Đóng tìm kiếm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </form>
+</div>
+
+<!-- Mobile Sidebar Drawer Menu -->
+<div id="sofa-mobile-drawer" class="mobile-drawer" onclick="toggleMobileHeaderMenu()">
+    <div class="mobile-drawer-content" onclick="event.stopPropagation()">
+        <!-- Top Button: Đóng Menu -->
+        <button type="button" onclick="toggleMobileHeaderMenu()" class="drawer-close-btn">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Đóng Menu
+        </button>
+
+        <!-- Accordion Group -->
+        <div class="drawer-accordion-group">
+            <!-- 1. Loại Phim Accordion -->
+            <div class="drawer-accordion-item active" id="drawer-acc-loai">
+                <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-loai')">
+                    <span>Loại Phim</span>
+                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
+                </button>
+                <div class="drawer-accordion-body">
+                    <div class="drawer-grid-2">
+                        <a href="/danh-sach?list=phim-moi-cap-nhat" class="drawer-sub-link" style="color: #818cf8 !important;">Phim Mới Cập Nhật</a>
+                        <a href="/danh-sach?list=phim-le" class="drawer-sub-link" style="color: #60a5fa !important;">Phim Lẻ</a>
+                        <a href="/danh-sach?list=phim-bo" class="drawer-sub-link" style="color: #60a5fa !important;">Phim Bộ</a>
+                        <a href="/danh-sach?list=hoat-hinh" class="drawer-sub-link" style="color: #34d399 !important;">Hoạt Hình</a>
+                        <a href="/danh-sach?list=tv-shows" class="drawer-sub-link" style="color: #c084fc !important;">TV Shows</a>
+                        <a href="/danh-sach?list=phim-chieu-rap" class="drawer-sub-link" style="color: #818cf8 !important;">Phim Chiếu Rạp</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Thể Loại Accordion -->
+            <div class="drawer-accordion-item" id="drawer-acc-theloai">
+                <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-theloai')">
+                    <span>Thể Loại</span>
+                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
+                </button>
+                <div class="drawer-accordion-body">
+                    <div class="drawer-grid-2">
+                        <a href="/categories?category=chinh-kich" class="drawer-sub-link" style="color: #818cf8 !important;">Chính Kịch</a>
+                        <a href="/categories?category=bi-an" class="drawer-sub-link" style="color: #60a5fa !important;">Bí Ẩn</a>
+                        <a href="/categories?category=tinh-cam" class="drawer-sub-link" style="color: #f472b6 !important;">Tình Cảm</a>
+                        <a href="/categories?category=tam-ly" class="drawer-sub-link" style="color: #38bdf8 !important;">Tâm Lý</a>
+                        <a href="/categories?category=hanh-dong" class="drawer-sub-link" style="color: #818cf8 !important;">Hành Động</a>
+                        <a href="/categories?category=phieu-luu" class="drawer-sub-link" style="color: #38bdf8 !important;">Phiêu Lưu</a>
+                        <a href="/categories?category=hai-huoc" class="drawer-sub-link" style="color: #f472b6 !important;">Hài Hước</a>
+                        <a href="/categories?category=khoa-hoc" class="drawer-sub-link" style="color: #c084fc !important;">Khoa Học</a>
+                        <a href="/categories?category=vien-tuong" class="drawer-sub-link" style="color: #c084fc !important;">Viễn Tưởng</a>
+                        <a href="/categories?category=gia-dinh" class="drawer-sub-link" style="color: #fbbf24 !important;">Gia Đình</a>
+                        <a href="/categories?category=co-trang" class="drawer-sub-link" style="color: #4ade80 !important;">Cổ Trang</a>
+                        <a href="/categories?category=hinh-su" class="drawer-sub-link" style="color: #f87171 !important;">Hình Sự</a>
+                        <a href="/categories?category=vo-thuat" class="drawer-sub-link" style="color: #fbbf24 !important;">Võ Thuật</a>
+                        <a href="/categories?category=than-thoai" class="drawer-sub-link" style="color: #34d399 !important;">Thần Thoại</a>
+                        <a href="/categories?category=tai-lieu" class="drawer-sub-link" style="color: #fbbf24 !important;">Tài Liệu</a>
+                        <a href="/categories?category=the-thao" class="drawer-sub-link" style="color: #a3e635 !important;">Thể Thao</a>
+                        <a href="/categories?category=chien-tranh" class="drawer-sub-link" style="color: #38bdf8 !important;">Chiến Tranh</a>
+                        <a href="/categories?category=hoc-duong" class="drawer-sub-link" style="color: #38bdf8 !important;">Trẻ Em</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Quốc Gia Accordion -->
+            <div class="drawer-accordion-item" id="drawer-acc-quocgia">
+                <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-quocgia')">
+                    <span>Quốc Gia</span>
+                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
+                </button>
+                <div class="drawer-accordion-body">
+                    <div class="drawer-grid-2">
+                        <a href="/phim-theo-quoc-gia?country=thai-lan" class="drawer-sub-link" style="color: #38bdf8 !important;">Thái Lan</a>
+                        <a href="/phim-theo-quoc-gia?country=nhat-ban" class="drawer-sub-link" style="color: #34d399 !important;">Nhật Bản</a>
+                        <a href="/phim-theo-quoc-gia?country=viet-nam" class="drawer-sub-link" style="color: #f472b6 !important;">Việt Nam</a>
+                        <a href="/phim-theo-quoc-gia?country=au-my" class="drawer-sub-link" style="color: #818cf8 !important;">Âu Mỹ</a>
+                        <a href="/phim-theo-quoc-gia?country=trung-quoc" class="drawer-sub-link" style="color: #a5b4fc !important;">Trung Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=ba-lan" class="drawer-sub-link" style="color: #60a5fa !important;">Ba Lan</a>
+                        <a href="/phim-theo-quoc-gia?country=han-quoc" class="drawer-sub-link" style="color: #f472b6 !important;">Hàn Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=anh" class="drawer-sub-link" style="color: #c084fc !important;">Anh</a>
+                        <a href="/phim-theo-quoc-gia?country=dai-loan" class="drawer-sub-link" style="color: #a5b4fc !important;">Đài Loan</a>
+                        <a href="/phim-theo-quoc-gia?country=tay-ban-nha" class="drawer-sub-link" style="color: #c084fc !important;">Tây Ban Nha</a>
+                        <a href="/phim-theo-quoc-gia?country=thuy-si" class="drawer-sub-link" style="color: #4ade80 !important;">Thụy Sĩ</a>
+                        <a href="/phim-theo-quoc-gia?country=hong-kong" class="drawer-sub-link" style="color: #f87171 !important;">Hồng Kông</a>
+                        <a href="/phim-theo-quoc-gia?country=estonia" class="drawer-sub-link" style="color: #fbbf24 !important;">Estonia</a>
+                        <a href="/phim-theo-quoc-gia?country=uc" class="drawer-sub-link" style="color: #38bdf8 !important;">Úc</a>
+                        <a href="/phim-theo-quoc-gia?country=indonesia" class="drawer-sub-link" style="color: #fbbf24 !important;">Malaysia</a>
+                        <a href="/phim-theo-quoc-gia?country=canada" class="drawer-sub-link" style="color: #a3e635 !important;">Canada</a>
+                        <a href="/phim-theo-quoc-gia?country=an-do" class="drawer-sub-link" style="color: #38bdf8 !important;">Ấn Độ</a>
+                        <a href="/phim-theo-quoc-gia?country=nga" class="drawer-sub-link" style="color: #818cf8 !important;">Nga</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Action Pills Grid at Bottom -->
+        <div class="drawer-quick-pills">
+            <a href="/danh-sach?list=phim-moi-cap-nhat" class="drawer-pill-btn">Ngẫu Nhiên</a>
+            <a href="#" class="drawer-pill-btn">Cộng Đồng</a>
+            <a href="/danh-sach?list=phim-bo" class="drawer-pill-btn">Song Ngữ</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleMobileHeaderMenu() {
+        const drawer = document.getElementById('sofa-mobile-drawer');
+        if (drawer) drawer.classList.toggle('open');
+    }
+
+    function toggleMobileSearchOverlay() {
+        const overlay = document.getElementById('sofa-mobile-search-overlay');
+        if (!overlay) return;
+        if (overlay.classList.contains('open')) {
+            closeMobileSearchOverlay();
+        } else {
+            overlay.classList.add('open');
+            const input = overlay.querySelector('input[name="keyword"]');
+            if (input) setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function closeMobileSearchOverlay() {
+        const overlay = document.getElementById('sofa-mobile-search-overlay');
+        if (overlay) overlay.classList.remove('open');
+    }
+
+    function toggleDrawerAccordion(id) {
+        const target = document.getElementById(id);
+        if (!target) return;
+        const isActive = target.classList.contains('active');
+
+        document.querySelectorAll('.drawer-accordion-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        if (!isActive) {
+            target.classList.add('active');
+        }
+    }
+
+    (function() {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        let ticking = false;
+        let scrollTimer = null;
+
+        function updateSofaHeaderScroll() {
+            const header = document.getElementById('sofa-header') || document.querySelector('header');
+            if (!header) return;
+
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+            if (scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled', 'sofa-header-scrolled');
+                header.style.backgroundColor = '';
+                header.style.background = '';
+            }
+            ticking = false;
+        }
+
+        function forceHeaderTopState() {
+            try { window.scrollTo(0, 0); } catch(e) {}
+            const header = document.getElementById('sofa-header') || document.querySelector('header');
+            if (header) {
+                header.classList.remove('scrolled', 'sofa-header-scrolled');
+                header.style.backgroundColor = '';
+                header.style.background = '';
+            }
+        }
+
+        function onScroll() {
+            if (!ticking) {
+                requestAnimationFrame(updateSofaHeaderScroll);
+                ticking = true;
+            }
+            if (!document.body.classList.contains('is-scrolling')) {
+                document.body.classList.add('is-scrolling');
+            }
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(function() {
+                document.body.classList.remove('is-scrolling');
+            }, 150);
+        }
+
+        // Run immediately
+        forceHeaderTopState();
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('load', forceHeaderTopState);
+        window.addEventListener('pageshow', forceHeaderTopState);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', forceHeaderTopState);
+        } else {
+            forceHeaderTopState();
+        }
+    })();
+</script>

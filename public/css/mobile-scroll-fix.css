@@ -1,0 +1,61 @@
+/* =====================================================
+   MOBILE SCROLL & TOUCH FIX - ULTRA SMOOTH PERFORMANCE v10
+   ===================================================== */
+
+/* ---- FIX 1: Tắt highlight xanh/cam khi chạm ---- */
+.overflow-x-auto *,
+.scrollbar-hide * {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none;
+}
+
+/* ---- FIX 2: Container scroll ngang chuẩn (ĐÃ LOẠI BỎ [id*="Container"] GÂY LAG VỜI VỌI TOÀN TRANG) ---- */
+.overflow-x-auto,
+[class*="overflow-x-auto"],
+.scrollbar-hide,
+.interests-wrapper,
+.country-scroll-container,
+.hero-thumbnails-scroll {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    scrollbar-width: none;
+    touch-action: pan-y pan-x !important;
+}
+
+/* Ẩn scrollbar trên Webkit */
+.overflow-x-auto::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar,
+.interests-wrapper::-webkit-scrollbar,
+.country-scroll-container::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* ---- FIX 3: Đảm bảo Card trong khung cuộn ngang không bị co rút ---- */
+.overflow-x-auto > *,
+.interests-wrapper > *,
+.country-scroll-container > * {
+    flex-shrink: 0 !important;
+}
+
+/* ---- FIX 4: Mobile GPU Performance Boost (Tắt blur nặng & Bật Momentum Scrolling) ---- */
+@media (max-width: 768px) {
+    html, body {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+    }
+    
+    /* Tắt bớt backdrop-filter blur tốn shader GPU khi cuộn trên mobile */
+    nav#mainNav, header, .bg-surface-dark {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    /* Vô hiệu hóa hiệu ứng hover vô dụng trên mobile để tiết kiệm CPU/GPU */
+    [class*="card"]:hover,
+    [class*="movie-item"]:hover,
+    [class*="film-item"]:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+}

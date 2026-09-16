@@ -1,0 +1,357 @@
+/* 
+   🚀 A PHIM PREMIUM UI DESIGN SYSTEM
+   Modern, Glassmorphism, and High-Conversion styles for Pricing & Checkout
+*/
+
+:root {
+    --p-gold: #e8b94f;
+    --p-gold-light: #f5cc6d;
+    --p-purple: #a855f7;
+    --p-blue: #38bdf8;
+    --p-emerald: #10b981;
+    --p-card-bg: rgba(18, 18, 31, 0.65);
+    --p-border: rgba(255, 255, 255, 0.1);
+}
+
+/* ── MODERN PRICING CARDS ── */
+.p-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.p-card {
+    position: relative;
+    background: var(--p-card-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--p-border);
+    border-radius: 24px;
+    padding: 28px 24px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+/* ── Backdrop movie image overlay ── */
+.p-card-backdrop {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center 20%;
+    opacity: 0.45; /* Sáng và trong nét như cũ */
+    border-radius: 24px;
+    z-index: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+/* All direct children above backdrop */
+.p-card > *:not(.p-card-backdrop) {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── VieON-style group hover: dim non-hovered cards ── */
+.p-pricing-grid:hover .p-card {
+    opacity: 0.72;
+    transform: scale(0.99);
+}
+
+.p-pricing-grid:hover .p-card:hover {
+    opacity: 1;
+    transform: scale(1.03);
+    border-color: #FFD700 !important;
+    box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 20px 40px rgba(0,0,0,0.5) !important;
+}
+
+.p-pricing-grid:hover .p-card:hover .p-card-backdrop {
+    opacity: 0.38;
+}
+
+@keyframes p-float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0); }
+}
+
+.p-card-featured {
+    animation: p-float 4s ease-in-out infinite;
+}
+
+.p-card-featured:hover {
+    animation-play-state: paused;
+}
+
+/* Highlight for Featured/Premium — always active gold border */
+.p-card-featured {
+    border: 2px solid #FFD700 !important;
+    background: radial-gradient(circle at top right, rgba(255,215,0,0.08), transparent),
+                var(--p-card-bg);
+    box-shadow: 0 0 24px rgba(255,215,0,0.2), 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.p-card-featured::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--p-gold), transparent);
+}
+
+/* Typography */
+.p-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+.p-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 24px;
+}
+
+.p-price {
+    font-size: 2.75rem;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+}
+
+.p-currency {
+    font-size: 1.5rem;
+    font-weight: 700;
+    opacity: 0.9;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+.p-period {
+    font-size: 1rem;
+    opacity: 0.8;
+    font-weight: 500;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+/* Features List */
+.p-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    flex: 1;
+}
+
+.p-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+.p-feature-item i {
+    font-size: 18px;
+    color: var(--p-emerald);
+}
+
+/* Bonus Box */
+.p-bonus-badge {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.p-bonus-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--p-emerald);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    transition: all 0.3s ease;
+}
+
+.p-card:hover .p-bonus-icon {
+    transform: rotate(12deg) scale(1.1);
+}
+
+/* Buttons */
+.p-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    border: none;
+}
+
+.p-btn-gold {
+    background: linear-gradient(135deg, var(--p-gold) 0%, #d4a017 100%);
+    color: #000;
+    box-shadow: 0 12px 24px rgba(232, 185, 79, 0.3);
+}
+
+.p-btn-gold:hover {
+    transform: scale(1.02);
+    box-shadow: 0 18px 36px rgba(232, 185, 79, 0.5);
+}
+
+.p-btn-outline {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.p-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+}
+
+/* ── COIN PACKAGE CARDS ── */
+.p-coin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.p-coin-card {
+    background: var(--p-card-bg);
+    border: 1px solid var(--p-border);
+    border-radius: 28px;
+    padding: 32px 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Coin card backdrop z-index fix */
+.p-coin-card > *:not(.p-card-backdrop) {
+    position: relative;
+    z-index: 1;
+}
+
+/* VieON-style group hover for coin grid */
+.p-coin-grid:hover .p-coin-card {
+    opacity: 0.72;
+    transform: scale(0.99);
+}
+.p-coin-grid:hover .p-coin-card:hover {
+    opacity: 1;
+    transform: scale(1.03);
+    border-color: #FFD700 !important;
+    box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 20px 40px rgba(0,0,0,0.5) !important;
+}
+.p-coin-grid:hover .p-coin-card:hover .p-card-backdrop {
+    opacity: 0.38;
+}
+
+.p-coin-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+/* Animation */
+@keyframes p-shine {
+    from { left: -100%; }
+    to { left: 200%; }
+}
+
+.p-shine-effect::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-25deg);
+    animation: p-shine 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+}
+
+/* ── STATUS CARD (PROFILE) ── */
+.p-status-card {
+    background: linear-gradient(135deg, rgba(232, 185, 79, 0.05) 0%, rgba(18, 18, 31, 0.8) 100%);
+    border: 1px solid rgba(232, 185, 79, 0.2);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden; /* Fix light leak */
+}
+
+.p-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.p-status-badge {
+    padding: 6px 14px;
+    background: var(--p-gold);
+    color: #000;
+    font-size: 11px;
+    font-weight: 900;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+.p-status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.p-status-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 2px;
+}
+
+.p-status-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+}

@@ -1,0 +1,474 @@
+/* ==========================================================================
+   A PHIM — Floating Side Dock
+   ========================================================================== */
+
+.floating-dock-container {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+    pointer-events: none;
+}
+
+/* Theme switching now lives in the side dock. */
+.theme-toggle-fab {
+    display: none !important;
+}
+
+/* ── Scroll To Top Button ── */
+.fd-btn-top {
+    width: 36px;
+    height: 44px;
+    border-radius: 22px 0 0 22px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: -4px 4px 16px rgba(0, 0, 0, 0.4);
+    margin-right: 0;
+    padding-right: 2px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+.fd-btn-top.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.fd-btn-top:hover {
+    background: #2a2a36;
+}
+
+/* ── The Dock ── */
+.fd-dock {
+    position: relative;
+    pointer-events: auto;
+}
+
+/* ── Collapsed Handle (Pill) ── */
+.fd-handle {
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+    border-radius: 22px 0 0 22px;
+    padding: 10px 4px 10px 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: -4px 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+}
+.fd-handle:hover {
+    background: #1a1a24;
+}
+.fd-dock.expanded .fd-handle {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.fd-indicator {
+    width: 3px;
+    height: 18px;
+    background: #22c55e;
+    border-radius: 4px;
+}
+.fd-handle .material-icons-round {
+    color: #fff;
+    font-size: 20px;
+}
+
+/* ── Expanded Menu ── */
+.fd-menu {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(120%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fd-dock.expanded .fd-menu {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    position: relative;
+}
+
+.fd-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 22px 0 0 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, filter 0.2s;
+    text-decoration: none;
+}
+.fd-btn:hover {
+    filter: brightness(1.1);
+    transform: translateX(-4px);
+}
+.fd-btn:active {
+    transform: translateX(0);
+}
+
+.fd-btn-chat {
+    background: #f2c94c;
+    color: #1a1200;
+}
+.fd-btn-chat .material-icons-round {
+    font-size: 24px;
+}
+
+.fd-btn-telegram {
+    background: #2AABEE; /* Telegram Blue */
+    color: #fff;
+}
+.fd-btn-telegram svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* ── Theme Switcher Button ── */
+.fd-btn-theme {
+    background: linear-gradient(135deg, #fcd576, #f59e0b) !important;
+    color: #1a1000 !important;
+}
+.fd-btn-theme .material-icons-round {
+    font-size: 22px;
+}
+
+/* ==========================================================================
+   LIGHT MODE THEME OVERRIDES
+   ========================================================================== */
+html.light-mode,
+html.light-mode body {
+    background-color: #f5f0e6 !important;
+    background: #f5f0e6 !important;
+    color: #1c1917 !important;
+}
+
+html.light-mode #sofa-header,
+html.light-mode header#sofa-header,
+html.light-mode header,
+html.light-mode nav.header-modern-nav {
+    background: rgba(250, 247, 242, 0.98) !important;
+    background-color: #faf7f2 !important;
+    border-bottom: 1px solid #e7e0d3 !important;
+    box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
+}
+
+html.light-mode header a,
+html.light-mode nav a,
+html.light-mode .nav-link-text,
+html.light-mode .sofa-nav-item,
+html.light-mode .nav-pill {
+    background: transparent !important;
+    border: none !important;
+    color: #292524 !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+html.light-mode .panel-card,
+html.light-mode .sidebar-card,
+html.light-mode .shop-card,
+html.light-mode .achievement-card,
+html.light-mode #main-movie-info-card {
+    background: #ffffff !important;
+    border-color: #e7e0d3 !important;
+    color: #1c1917 !important;
+    box-shadow: 0 4px 18px rgba(78, 64, 45, 0.06) !important;
+}
+
+html.light-mode .motchill-movie-card,
+html.light-mode .motchill-feature-card,
+html.light-mode .movie-card,
+html.light-mode .normal-card-item,
+html.light-mode .featured-card-item,
+html.light-mode .de-cu-card,
+html.light-mode .grid-movie-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+html.light-mode h1, html.light-mode h2, html.light-mode h3, 
+html.light-mode h4, html.light-mode h5, html.light-mode h6 {
+    color: #1c1917 !important;
+}
+
+html.light-mode .text-gray-400,
+html.light-mode .text-gray-300,
+html.light-mode .text-gray-200,
+html.light-mode .text-slate-400,
+html.light-mode .text-slate-300 {
+    color: #57534e !important;
+}
+
+html.light-mode input, 
+html.light-mode textarea, 
+html.light-mode select {
+    background-color: #ffffff !important;
+    color: #1c1917 !important;
+    border-color: #d6cebf !important;
+}
+
+html.light-mode #breadcrumb-category,
+html.light-mode a#breadcrumb-category,
+html.light-mode [id*="breadcrumb"] {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+}
+
+html.light-mode .section-header-link,
+html.light-mode .see-all-btn,
+html.light-mode .view-all-btn,
+html.light-mode .btn-see-all,
+html.light-mode .danh-sach-btn {
+    background: #e8e0d0 !important;
+    color: #1c1917 !important;
+    border: 1px solid #d6cebf !important;
+}
+
+/* Floating Side Dock Light Mode Overrides */
+html.light-mode .fd-btn-top {
+    background: linear-gradient(135deg, #ffffff 0%, #faf7f2 100%) !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e7e0d3 !important;
+    border-right: none !important;
+    color: #d97706 !important;
+    box-shadow: -6px 8px 22px rgba(78, 64, 45, 0.14) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+html.light-mode .fd-btn-top:hover {
+    background: #ffffff !important;
+    border-color: #d97706 !important;
+    color: #d97706 !important;
+    box-shadow: -8px 10px 28px rgba(217, 119, 6, 0.22) !important;
+}
+html.light-mode .fd-btn-top svg {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
+}
+
+html.light-mode .fd-handle {
+    background: linear-gradient(135deg, #ffffff 0%, #faf7f2 100%) !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e7e0d3 !important;
+    border-right: none !important;
+    box-shadow: -6px 8px 24px rgba(78, 64, 45, 0.14) !important;
+    padding: 10px 4px 10px 4px !important;
+    border-radius: 22px 0 0 22px !important;
+}
+html.light-mode .fd-handle:hover {
+    background: #ffffff !important;
+    border-color: #d6cebf !important;
+    box-shadow: -8px 10px 28px rgba(217, 119, 6, 0.22) !important;
+}
+html.light-mode .fd-handle .fd-indicator {
+    width: 4px !important;
+    height: 18px !important;
+    background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
+    border-radius: 99px !important;
+    box-shadow: 0 0 8px rgba(217, 119, 6, 0.4) !important;
+}
+html.light-mode .fd-handle .fd-handle-icon {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
+}
+
+/* ── Standalone Floating Action Button (FAB) at Bottom-Right Corner ── */
+.theme-toggle-fab {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 0 !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 38px !important;
+    height: 44px !important;
+    border-radius: 22px 0 0 22px !important;
+    border-right: none !important;
+    background: linear-gradient(135deg, #1e2330 0%, #0f1422 100%) !important;
+    border: 1px solid rgba(252, 213, 118, 0.3) !important;
+    border-right: none !important;
+    color: #fcd576 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: -6px 8px 24px rgba(0, 0, 0, 0.45), 0 0 15px rgba(252, 213, 118, 0.15) !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    z-index: 99999 !important;
+    outline: none !important;
+    pointer-events: auto !important;
+    padding-left: 2px !important;
+}
+
+.theme-toggle-fab:hover {
+    transform: translateX(-4px) !important;
+    box-shadow: -8px 12px 30px rgba(252, 213, 118, 0.4), -2px 4px 12px rgba(0, 0, 0, 0.3) !important;
+    border-color: #fcd576 !important;
+}
+
+.theme-toggle-fab:active {
+    transform: translateX(0) !important;
+}
+
+.theme-toggle-fab svg {
+    width: 20px !important;
+    height: 20px !important;
+    transition: transform 0.4s ease, color 0.3s ease !important;
+    color: #fcd576 !important;
+    stroke: #fcd576 !important;
+}
+
+.theme-toggle-fab:hover svg {
+    transform: rotate(25deg) !important;
+}
+
+@media (max-width: 768px) {
+    .theme-toggle-fab {
+        bottom: 76px !important;
+        right: 0 !important;
+        width: 36px !important;
+        height: 40px !important;
+        border-radius: 20px 0 0 20px !important;
+    }
+    .theme-toggle-fab svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+}
+
+/* Light Mode Styling for Floating Theme Switcher FAB */
+html.light-mode .theme-toggle-fab {
+    background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%) !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #f3e8d7 !important;
+    border-right: none !important;
+    color: #d97706 !important;
+    box-shadow: -6px 8px 25px rgba(217, 119, 6, 0.22), -2px 4px 10px rgba(78, 64, 45, 0.08) !important;
+}
+
+html.light-mode .theme-toggle-fab:hover {
+    background: #ffffff !important;
+    border-color: #d97706 !important;
+    box-shadow: -8px 10px 30px rgba(217, 119, 6, 0.35) !important;
+}
+
+html.light-mode .theme-toggle-fab svg {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
+}
+
+/* Expanded Dock Buttons Styling - Dark Mode Defaults */
+.fd-btn-chat {
+    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important;
+    color: #0f172a !important;
+    box-shadow: -4px 6px 16px rgba(245, 158, 11, 0.35) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+
+.fd-btn-chat svg {
+    color: #0f172a !important;
+    stroke: #0f172a !important;
+}
+
+.fd-btn-telegram {
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+    color: #ffffff !important;
+    box-shadow: -4px 6px 16px rgba(2, 132, 199, 0.35) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+
+.fd-btn-telegram svg {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+}
+
+.fd-btn-close {
+    background: linear-gradient(135deg, #3f1d24 0%, #27171a 100%) !important;
+    color: #f43f5e !important;
+    border: 1px solid rgba(244, 63, 94, 0.3) !important;
+    border-right: none !important;
+    box-shadow: -4px 6px 16px rgba(244, 63, 94, 0.2) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+
+.fd-btn-close svg {
+    color: #f43f5e !important;
+    stroke: #f43f5e !important;
+}
+
+/* Expanded Dock Buttons Styling - Light Mode Overrides */
+html.light-mode .fd-btn-chat {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+    border: 1px solid #fde68a !important;
+    border-right: none !important;
+    color: #b45309 !important;
+    box-shadow: -6px 8px 22px rgba(245, 158, 11, 0.22) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+
+html.light-mode .fd-btn-chat svg {
+    color: #b45309 !important;
+    stroke: #b45309 !important;
+}
+
+html.light-mode .fd-btn-telegram {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+    border: 1px solid #bae6fd !important;
+    border-right: none !important;
+    color: #0284c7 !important;
+    box-shadow: -6px 8px 22px rgba(2, 132, 199, 0.22) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+
+html.light-mode .fd-btn-telegram svg {
+    fill: #0284c7 !important;
+    color: #0284c7 !important;
+}
+
+html.light-mode .fd-btn-close {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
+    border: 1px solid #fecdd3 !important;
+    border-right: none !important;
+    color: #e11d48 !important;
+    box-shadow: -6px 8px 22px rgba(225, 29, 72, 0.18) !important;
+    border-radius: 20px 0 0 20px !important;
+}
+
+html.light-mode .fd-btn-close svg {
+    color: #e11d48 !important;
+    stroke: #e11d48 !important;
+}
+
+

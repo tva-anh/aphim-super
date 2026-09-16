@@ -1,0 +1,600 @@
+/* ============================================================
+   A PHIM - Mobile Menu Modern CSS (theo thiết kế Stitch)
+   Right-side drawer, cinematic glassmorphism
+   ============================================================ */
+
+/* OVERLAY */
+#mm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.65);
+    opacity: 0;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    display: none !important;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+#mm-overlay.open {
+    opacity: 1;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    display: block !important;
+    /* FIX: bỏ backdrop-filter blur → đắt tiền render trên mobile */
+}
+
+/* HIDE HEAVY ANIMATED CATFISH GIF BANNERS WHEN MOBILE DRAWER IS OPEN OR CLOSING */
+body.mm-open #aphim-catfish,
+body.mm-closing #aphim-catfish,
+body:has(#mm-drawer.open) #aphim-catfish {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+/* Giữ chat FAB ẩn trong lúc drawer đang close để tránh pop animation */
+body.mm-open .chat-fab-btn,
+body.mm-closing .chat-fab-btn {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: none !important;
+}
+
+/* DRAWER - trượt từ bên PHẢI vào */
+#mm-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 72%;
+    max-width: 290px;
+    z-index: 10005;
+    background: linear-gradient(160deg, rgba(6, 6, 12, 0.99) 0%, rgba(12, 10, 22, 1.0) 100%);
+    /* REMOVED HEAVY backdrop-filter that caused lag on animations */
+    border-left: 1px solid rgba(255, 215, 0, 0.12);
+    /* FIX: Giảm shadow spread + opacity để tránh đường dọc mờ leak ra viewport khi đóng */
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.6), inset 1px 0 0 rgba(255,255,255,0.04);
+    display: flex;
+    flex-direction: column;
+    padding: max(36px, env(safe-area-inset-top, 36px)) 18px max(24px, env(safe-area-inset-bottom, 24px));
+    overflow: hidden;
+    transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 0.3s;
+    will-change: transform;
+    /* FIX: visibility:hidden khi đóng → browser không render compositing layer */
+    visibility: hidden;
+    /* FIX: clip shadow tại edge phải màn hình, tránh sub-pixel artifact */
+    clip-path: inset(0 0 0 0);
+}
+/* Ambient glow orbs trang trí */
+#mm-drawer::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+#mm-drawer::after {
+    content: '';
+    position: absolute;
+    bottom: 60px;
+    left: -60px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+#mm-drawer > * { position: relative; z-index: 1; }
+#mm-drawer.open {
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
+    /* FIX: Khi mở → hiện ngay lập tức, will-change kích hoạt GPU */
+    visibility: visible;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 0s;
+    will-change: transform;
+}
+
+/* Scrollbar tùy chỉnh */
+#mm-drawer-scroll::-webkit-scrollbar { width: 3px; }
+#mm-drawer-scroll::-webkit-scrollbar-track { background: transparent; }
+#mm-drawer-scroll::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.15); border-radius: 10px; }
+
+/* HEADER USER */
+.mm-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+.mm-user-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+}
+.mm-avatar-wrap {
+    position: relative;
+}
+.mm-avatar-glow {
+    position: absolute;
+    inset: -4px;
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 50%;
+    filter: blur(8px);
+    transition: background 0.3s;
+}
+.mm-avatar-wrap:hover .mm-avatar-glow { background: rgba(255, 215, 0, 0.4); }
+.mm-avatar-img {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    object-fit: cover;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+}
+.mm-avatar-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.mm-avatar-dot {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    background: #5bef90;
+    border-radius: 50%;
+    border: 2px solid #000;
+}
+.mm-user-name-text {
+    font-family: 'Epilogue', 'Be Vietnam Pro', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+    color: #fff;
+    letter-spacing: -0.3px;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    line-height: 1.2;
+}
+.mm-user-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #f59e0b;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+.mm-close-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.mm-close-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* NAV SCROLL AREA */
+#mm-drawer-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Bắt buộc cho iOS mượt */
+    padding-right: 2px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); /* Tránh bị che bởi Chat FAB và Safari bar */
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+#mm-drawer-scroll > * {
+    flex-shrink: 0;
+}
+
+/* GLASS CARD base */
+.mm-glass {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+/* Full-width nav item */
+.mm-nav-full {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: rgba(255,255,255,0.9);
+    font-family: 'Epilogue', 'Be Vietnam Pro', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-transform: translateZ(0); /* Ép GPU render mượt kính mờ Safari */
+    transform: translateZ(0);
+}
+.mm-nav-full.mm-active {
+    background: linear-gradient(90deg, rgba(255,215,0,0.18) 0%, rgba(255,215,0,0.04) 100%);
+    border-left: 3px solid #f59e0b !important;
+    box-shadow: inset 10px 0 20px -10px rgba(255,215,0,0.25), 0 2px 12px rgba(255,215,0,0.1);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+}
+.mm-nav-full:hover { background: rgba(255,255,255,0.05); }
+
+.mm-nav-icon {
+    font-size: 24px !important;
+    color: rgba(170, 171, 173, 1);
+    transition: color 0.2s;
+}
+.mm-nav-full.mm-active .mm-nav-icon { color: #f59e0b !important; }
+.mm-nav-full:hover .mm-nav-icon { color: #f59e0b !important; }
+
+/* Nút Phim/Thể Loại nổi bật dạng khối Glow */
+.mm-phim-btn {
+    background: linear-gradient(135deg, rgba(236,72,153,0.15) 0%, rgba(168,85,247,0.08) 100%);
+    border: 1px solid rgba(236,72,153,0.3) !important;
+    border-left: 3px solid #f472b6 !important;
+    box-shadow: inset 0 0 20px rgba(236,72,153,0.15), 0 4px 15px rgba(0,0,0,0.5);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+.mm-phim-btn .mm-nav-full-text {
+    color: #fff !important; 
+    font-weight: 800;
+    text-shadow: 0 2px 10px rgba(244,114,182,0.4);
+}
+.mm-phim-btn .material-icons-round:first-child {
+    color: #fbcfe8 !important; 
+    filter: drop-shadow(0 0 6px rgba(244,114,182,0.8));
+}
+.mm-phim-btn:hover {
+    border-color: rgba(236,72,153,0.8) !important;
+    box-shadow: 0 0 25px rgba(236,72,153,0.3) !important;
+    background: linear-gradient(135deg, rgba(236,72,153,0.2) 0%, rgba(168,85,247,0.15) 100%);
+}
+
+/* Phim X special */
+.mm-nav-filmx {
+    background: rgba(255, 115, 81, 0.05);
+    border: 1px solid rgba(255, 115, 81, 0.1) !important;
+}
+.mm-nav-filmx:hover { background: rgba(255, 115, 81, 0.1) !important; }
+.mm-filmx-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: rgba(255, 115, 81, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.mm-filmx-icon-wrap .material-symbols-outlined { color: #ff7351 !important; font-size: 20px !important; }
+.mm-nav-filmx .mm-nav-full-text { color: rgba(255, 115, 81, 0.9) !important; }
+
+/* GRID 2 cột */
+.mm-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+.mm-card-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 14px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: rgba(255,255,255,0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-transform: translateZ(0); /* Anti Glitch */
+    transform: translateZ(0);
+    position: relative;
+    overflow: hidden;
+}
+.mm-card-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255,215,0,0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.mm-card-item:hover {
+    border-color: rgba(255,215,0,0.4) !important;
+    background: rgba(255,255,255,0.08) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.mm-card-item:hover::before { opacity: 1; }
+.mm-card-item:hover .mm-card-icon { color: #f59e0b; transform: scale(1.1); }
+.mm-card-icon {
+    font-size: 24px !important;
+    color: rgba(170, 171, 173, 1);
+    transition: color 0.2s;
+}
+.mm-card-label {
+    font-family: 'Epilogue', 'Be Vietnam Pro', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+}
+.mm-badge-new {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(91, 239, 144, 0.2);
+    color: #5bef90;
+    font-size: 7px;
+    font-weight: 700;
+    padding: 2px 4px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Màu icon nền riêng cho từng card - Tăng sáng Glow */
+.mm-card-item .mm-card-icon-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+.mm-card-item:hover .mm-card-icon-wrap { transform: scale(1.1); }
+
+/* Danh Sách - xanh dương */
+.mm-card-item.color-blue {
+    border: 1px solid rgba(59, 130, 246, 0.4) !important;
+    border-top: 1px solid rgba(59, 130, 246, 0.6) !important;
+    background: linear-gradient(135deg, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0.05) 100%) !important;
+    box-shadow: inset 0 2px 20px rgba(59,130,246,0.15), 0 8px 16px rgba(0,0,0,0.3);
+}
+.mm-card-item.color-blue .mm-card-icon { color: #93c5fd !important; filter: drop-shadow(0 0 8px rgba(96,165,250,0.6)); }
+.mm-card-item.color-blue .mm-card-label { color: #fff; font-weight: 800; text-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+.mm-card-item.color-blue:hover { border-color: rgba(59,130,246,0.8) !important; box-shadow: 0 0 25px rgba(59,130,246,0.3); }
+
+/* Thể Loại - tím (Nếu vẫn dùng dạng card ở đâu đó) */
+.mm-card-item.color-purple {
+    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    border-top: 1px solid rgba(168, 85, 247, 0.6) !important;
+    background: linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(168,85,247,0.05) 100%) !important;
+    box-shadow: inset 0 2px 20px rgba(168,85,247,0.15), 0 8px 16px rgba(0,0,0,0.3);
+}
+.mm-card-item.color-purple .mm-card-icon { color: #d8b4fe !important; filter: drop-shadow(0 0 8px rgba(192,132,252,0.6)); }
+.mm-card-item.color-purple .mm-card-label { color: #fff; font-weight: 800; text-shadow: 0 2px 8px rgba(168,85,247,0.4); }
+.mm-card-item.color-purple:hover { border-color: rgba(168,85,247,0.8) !important; box-shadow: 0 0 25px rgba(168,85,247,0.3); }
+
+/* ============================================================
+   DROPDOWN PANEL NỀN XANH DƯƠNG (như hình)
+   Dùng cho mmPhimDrop và mmLoaiDrop
+   ============================================================ */
+
+/* Wrapper nền của dropdown panel mở rộng */
+.mm-dropdown-panel-blue {
+    background: linear-gradient(160deg, #1a3a6b 0%, #1e4d8c 40%, #163672 100%) !important;
+    border-radius: 14px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 8px;
+    margin-top: 4px;
+}
+
+/* Card items bên trong panel xanh */
+.mm-dropdown-panel-blue .mm-card-item {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px;
+    padding: 10px 12px;
+    gap: 6px;
+}
+
+.mm-dropdown-panel-blue .mm-card-item .mm-card-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600;
+}
+
+.mm-dropdown-panel-blue .mm-card-item img {
+    flex-shrink: 0;
+}
+
+.mm-dropdown-panel-blue .mm-card-item:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.mm-dropdown-panel-blue .mm-card-item:hover .mm-card-label {
+    color: #ffffff !important;
+}
+
+/* Scroll area của panel xanh - smooth scroll */
+.mm-dropdown-panel-blue-scroll {
+    max-height: 280px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.mm-dropdown-panel-blue-scroll::-webkit-scrollbar { width: 3px; }
+.mm-dropdown-panel-blue-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+.mm-dropdown-panel-blue-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 4px; }
+
+/* Khám Phá - xanh lá */
+.mm-card-item.color-green {
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    border-top: 1px solid rgba(16, 185, 129, 0.6) !important;
+    background: linear-gradient(135deg, rgba(16,185,129,0.25) 0%, rgba(16,185,129,0.05) 100%) !important;
+    box-shadow: inset 0 2px 20px rgba(16,185,129,0.15), 0 8px 16px rgba(0,0,0,0.3);
+}
+.mm-card-item.color-green .mm-card-icon { color: #6ee7b7 !important; filter: drop-shadow(0 0 8px rgba(52,211,153,0.6)); }
+.mm-card-item.color-green .mm-card-label { color: #fff; font-weight: 800; text-shadow: 0 2px 8px rgba(16,185,129,0.4); }
+.mm-card-item.color-green:hover { border-color: rgba(16,185,129,0.8) !important; box-shadow: 0 0 25px rgba(16,185,129,0.3); }
+
+/* Gói Cước - cam */
+.mm-card-item.color-orange {
+    border: 1px solid rgba(249, 115, 22, 0.4) !important;
+    border-top: 1px solid rgba(249, 115, 22, 0.6) !important;
+    background: linear-gradient(135deg, rgba(249,115,22,0.25) 0%, rgba(249,115,22,0.05) 100%) !important;
+    box-shadow: inset 0 2px 20px rgba(249,115,22,0.15), 0 8px 16px rgba(0,0,0,0.3);
+}
+.mm-card-item.color-orange .mm-card-icon { color: #fdba74 !important; filter: drop-shadow(0 0 8px rgba(251,146,60,0.6)); }
+.mm-card-item.color-orange .mm-card-label { color: #fff; font-weight: 800; text-shadow: 0 2px 8px rgba(249,115,22,0.4); }
+.mm-card-item.color-orange:hover { border-color: rgba(249,115,22,0.8) !important; box-shadow: 0 0 25px rgba(249,115,22,0.3); }
+
+/* UPGRADE BANNER GOLD LUXURY */
+.mm-upgrade-banner {
+    position: relative;
+    padding: 24px;
+    border-radius: 24px;
+    overflow: hidden;
+    margin-top: 12px;
+    background: linear-gradient(135deg, #1f1a04 0%, #0d0b00 100%);
+    border: 1px solid rgba(255,215,0,0.2) !important;
+    box-shadow: 0 10px 30px rgba(255,215,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+.mm-upgrade-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(255,215,0,0.3) 0%, transparent 60%);
+    pointer-events: none;
+}
+.mm-upgrade-title {
+    font-family: 'Epilogue', 'Be Vietnam Pro', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+    color: #fff;
+    letter-spacing: -0.3px;
+    text-shadow: 0 2px 10px rgba(255,215,0,0.4);
+}
+.mm-upgrade-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+    margin-top: 4px;
+}
+.mm-upgrade-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d4af37 100%);
+    color: #3b2a00;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,215,0,0.3), inset 0 2px 0 rgba(255,255,255,0.4);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    transition: filter 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+.mm-upgrade-btn:hover { filter: brightness(1.1); box-shadow: 0 8px 25px rgba(255,215,0,0.5), inset 0 2px 0 rgba(255,255,255,0.4); }
+.mm-upgrade-btn:active { transform: scale(0.98); }
+
+/* FOOTER */
+.mm-footer {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+}
+.mm-footer-div { height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 20px; }
+.mm-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.mm-footer-version {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(170,171,173,0.4);
+    font-weight: 700;
+}
+.mm-footer-links { display: flex; gap: 24px; }
+.mm-footer-link {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(170,171,173,1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.mm-footer-link:hover { color: #f59e0b; }
+.mm-footer-link.danger { color: rgba(255,115,81,0.6); }
+.mm-footer-link.danger:hover { color: #ff7351; }
+.mm-footer-link .material-symbols-outlined { font-size: 16px !important; }
+
+/* HAMBURGER → X */
+.mm-burger-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 1200px) {
+    .mm-burger-btn {
+        display: none !important;
+    }
+}
+.mm-burger-lines {
+    width: 22px;
+    height: 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.mm-burger-lines span {
+    display: block;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+.mm-burger-btn.open .mm-burger-lines span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.mm-burger-btn.open .mm-burger-lines span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.mm-burger-btn.open .mm-burger-lines span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
