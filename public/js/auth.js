@@ -151,6 +151,12 @@ class AuthService {
             });
 
             if (!response.ok) {
+                // If token is expired or unauthorized, reset session cleanly without spamming
+                if (response.status === 401) {
+                    console.warn('[AuthService] Phiên đăng nhập đã hết hạn hoặc không hợp lệ (401). Đã tự động dọn dẹp token cũ.');
+                    this.logoutSilently();
+                    return;
+                }
                 // If header was too large, clear bloated cookies immediately
                 if (response.status === 431) {
                     this.eraseCookie(STORAGE_KEYS.USER);
@@ -213,6 +219,18 @@ class AuthService {
                 // 5. If server has no cover but local has cover, push to cloud
                 if (!serverUser.profileCover && localCover) {
                     pushPayload.profileCover = localCover;
+                    needPush = true;
+                }
+                // 6. Sync Badge / Title
+                if (serverUser.equippedBadge || serverUser.badge) {
+                    const srvBadge = serverUser.equippedBadge || serverUser.badge;
+                    localStorage.setItem('ap_equipped_badge', srvBadge);
+                    localStorage.setItem('ap_equipped_title', srvBadge);
+                } else if (localBadge && localBadge !== 'LV.15' && localBadge !== 'badge_default') {
+                    pushPayload.equippedBadge = localBadge;
+                    pushPayload.badge = localBadge;
+                    serverUser.equippedBadge = localBadge;
+                    serverUser.badge = localBadge;
                     needPush = true;
                 }
                 // Helper Merge Functions
@@ -441,18 +459,21 @@ class AuthService {
             localStorage.setItem('ap_equipped_color', color);
         }
 
-        const badge = user.equippedBadge || user.equipped_badge;
-        if (badge) localStorage.setItem('ap_equipped_badge', badge);
+        const badge = user.equippedBadge || user.equipped_badge || user.badge;
+        if (badge) {
+            localStorage.setItem('ap_equipped_badge', badge);
+            localStorage.setItem('ap_equipped_title', badge);
+        }
 
         const cover = user.profileCover || user.profile_cover;
         if (cover) localStorage.setItem('ap_profile_cover', cover);
 
-        // ĐỒNG BỘ SỐ DƯ XU VÀ TIỀN TỆ (150 Xu mặc định cho tài khoản mới)
+        // ĐỒNG BỘ SỐ DƯ XU VÀ TIỀN TỆ (20 Xu mặc định cho tài khoản mới)
         if (user.xu != null || user.coins != null) {
             const userXu = Number(user.xu != null ? user.xu : user.coins);
             localStorage.setItem('cinestream_xu', String(userXu));
         } else if (!localStorage.getItem('cinestream_xu')) {
-            localStorage.setItem('cinestream_xu', '150');
+            localStorage.setItem('cinestream_xu', '20');
         }
     }
 
@@ -487,8 +508,8 @@ class AuthService {
                     name: name || (email ? email.split('@')[0] : 'mayman1'),
                     email: email || 'demo@aphim.com',
                     role: 'user',
-                    xu: 150,
-                    coins: 150,
+                    xu: 20,
+                    coins: 20,
                     avatar: '',
                     equippedFrame: 'frame_none',
                     equippedColor: 'color_default',
@@ -506,8 +527,8 @@ class AuthService {
             name: name || (email ? email.split('@')[0] : 'mayman1'),
             email: email || 'demo@aphim.com',
             role: 'user',
-            xu: 150,
-            coins: 150,
+            xu: 20,
+            coins: 20,
             avatar: '',
             equippedFrame: 'frame_none',
             equippedColor: 'color_default',
@@ -669,6 +690,79 @@ class AuthService {
             window.location.href = '/';
         } else {
             window.location.reload();
+        }
+    }
+
+    // Silent logout when token is expired without page reload
+    logoutSilently() {
+        this.stopTokenRefresh();
+
+        const keysToRemove = [
+            STORAGE_KEYS.USER,
+            STORAGE_KEYS.TOKEN,
+            STORAGE_KEYS.TOKEN_EXPIRY,
+            STORAGE_KEYS.REMEMBER_ME,
+            STORAGE_KEYS.SUBSCRIPTION,
+            STORAGE_KEYS.FAVORITES,
+            STORAGE_KEYS.WATCH_HISTORY,
+            STORAGE_KEYS.WATCH_PROGRESS,
+            STORAGE_KEYS.PLAYLISTS,
+            'cinestream_user',
+            'cinestream_token',
+            'cinestream_token_expiry',
+            'cinestream_remember_me',
+            'cinestream_subscription',
+            'cinestream_payment_history',
+            'cinestream_notifications',
+            'A Phim_user',
+            'user',
+            'aphim_user_cache',
+            'ap_last_user_sync',
+            'ap_chosen_avatar',
+            'ap_frame_id',
+            'ap_frame_url',
+            'ap_frame_class',
+            'ap_profile_cover',
+            'user_avatar',
+            'ap_user_items',
+            'cinestream_xu',
+            'cinestream_watch_history',
+            'cinestream_watch_progress',
+            'cinestream_playlists',
+            'ap_daily_streak'
+        ];
+
+        keysToRemove.forEach(k => {
+            try { localStorage.removeItem(k); } catch (e) { }
+        });
+
+        try {
+            const allKeys = Object.keys(localStorage);
+            allKeys.forEach(k => {
+                if (k.startsWith('ap_notifs_') || k.startsWith('avatar_') || k.startsWith('ep_') || k.startsWith('cinestream_last_tab_')) {
+                    localStorage.removeItem(k);
+                }
+            });
+        } catch (e) { }
+
+        this.eraseCookie(STORAGE_KEYS.TOKEN);
+        this.eraseCookie(STORAGE_KEYS.USER);
+        this.eraseCookie('cinestream_token');
+        this.eraseCookie('cinestream_user');
+        this.eraseCookie('token');
+        this.eraseCookie('user');
+
+        this.currentUser = null;
+
+        try {
+            window.dispatchEvent(new CustomEvent('auth:logout'));
+        } catch (e) { }
+
+        if (typeof window.updateUserUI === 'function') {
+            try { window.updateUserUI(); } catch (e) { }
+        }
+        if (typeof window.updateMobileMenuUser === 'function') {
+            try { window.updateMobileMenuUser(); } catch (e) { }
         }
     }
 

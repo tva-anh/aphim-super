@@ -99,15 +99,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Scroll to Top Logic
     if (btnTop) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 250) {
+        const updateScrollTopVisibility = () => {
+            if (window.scrollY > 200) {
                 btnTop.classList.add('show');
             } else {
                 btnTop.classList.remove('show');
             }
-        }, { passive: true });
+        };
 
-        btnTop.addEventListener('click', () => {
+        window.addEventListener('scroll', updateScrollTopVisibility, { passive: true });
+        updateScrollTopVisibility();
+
+        btnTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'

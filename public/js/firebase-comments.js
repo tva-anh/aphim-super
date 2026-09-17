@@ -154,6 +154,7 @@
             const userFrameInfo = typeof getEquippedFrameInfo === 'function' ? getEquippedFrameInfo(user) : { type: 'none', value: '' };
             const userId = user.id || user._id || user.email || '';
             const userAva = avatarUrl || user.avatar || user.avatarUrl || (typeof avatarService !== 'undefined' ? avatarService.getAvatar(userId) : null) || localStorage.getItem('user_avatar') || localStorage.getItem('ap_chosen_avatar') || '';
+            const userBadge = typeof getEquippedBadge === 'function' ? getEquippedBadge(user) : (user.equippedBadge || user.badge || localStorage.getItem('ap_equipped_badge') || (user.role === 'admin' ? 'ADMIN TOP 1' : (user.isVip ? 'VIP PRO' : 'LV.' + (user.level || 15))));
             
             const commentPayload = {
                 id: 'local-' + Date.now(),
@@ -175,7 +176,8 @@
                     equippedColor: typeof getEquippedColorId === 'function' ? getEquippedColorId(user) : (user.equippedColor || localStorage.getItem('ap_equipped_color') || 'color_default'),
                     role: user.role || 'user',
                     level: user.level || 15,
-                    badge: (user.isVip || user.role === 'admin' || user.vip) ? '👑 VIP PRO' : 'LV.' + (user.level || 15)
+                    badge: userBadge,
+                    equippedBadge: userBadge
                 }
             };
 
@@ -274,7 +276,7 @@
                             equippedColor: d.user ? (d.user.equippedColor || 'color_default') : 'color_default',
                             userRole: d.user ? (d.user.role || 'user') : 'user',
                             level: d.user ? (d.user.level || 15) : 15,
-                            badge: d.user ? (d.user.badge || ((d.user.isVip || d.user.role === 'admin') ? '👑 VIP PRO' : 'LV.' + (d.user.level || 15))) : '',
+                            badge: d.user ? (d.user.equippedBadge || d.user.badge || (d.user.role === 'admin' ? 'ADMIN TOP 1' : (d.user.isVip ? 'VIP PRO' : 'LV.' + (d.user.level || 15)))) : '',
                             timestamp: new Date(d.createdAt || Date.now()),
                             isSpoiler: d.isSpoiler || false,
                             parentId: d.parent || d.parentId || null, 
@@ -602,40 +604,112 @@
         .ap-send-btn:hover { background: #e0b84e; transform: scale(1.02); }
         .ap-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         
-        /* ── AVATAR SELECTOR ── */
-        .ap-ava-select { position: relative; margin-left: auto; display: flex; align-items: center; }
-        .ap-btn-ava { white-space: nowrap; flex-shrink: 0;
-            display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #d1d5db;
-            font-size: 13px; cursor: pointer; transition: background 0.2s;
+        /* ── MODERN EMOJI & GIF SELECTOR (MATCHING USER REFERENCE) ── */
+        .ap-emoji-select { position: relative; display: inline-flex; align-items: center; }
+        .ap-btn-emoji-trigger {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 20px;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fcd576; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+            user-select: none;
         }
-        .ap-btn-ava:hover { background: rgba(255,255,255,0.1); }
-        .ap-ava-preview { width: 20px !important; height: 20px !important; border-radius: 50% !important; object-fit: cover !important; }
-        .ap-ava-dropdown {
-            position: absolute; bottom: 120%; right: 0; background: #282a3a;
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px;
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 220px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; pointer-events: none;
-            transform: translateY(10px); transition: all 0.2s ease; z-index: 100;
+        .ap-btn-emoji-trigger:hover {
+            background: rgba(252, 213, 118, 0.15); border-color: rgba(252, 213, 118, 0.4);
+            transform: translateY(-1px);
         }
-        .ap-ava-dropdown.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .ap-ava-option {
-            width: 56px !important; height: 56px !important; border-radius: 50% !important; object-fit: cover !important; cursor: pointer;
-            border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s;
-            display: block !important;
+        .ap-emoji-popover {
+            position: absolute; bottom: calc(100% + 10px); left: 0;
+            width: 290px; max-width: 90vw; background: #141724;
+            border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 18px;
+            padding: 14px 14px 12px 14px; box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 0, 0, 0.4);
+            opacity: 0; visibility: hidden; transform: translateY(12px) scale(0.96);
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 99999;
+            backdrop-filter: blur(14px); box-sizing: border-box;
         }
-        .ap-ava-option:hover { transform: scale(1.1); }
-        .ap-ava-option.selected { border-color: #fcd576; transform: scale(1.1); }
+        .ap-emoji-popover.show {
+            opacity: 1; visibility: visible; transform: translateY(0) scale(1); pointer-events: auto;
+        }
+        .ap-emoji-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px;
+        }
+        .ap-emoji-item {
+            display: flex; align-items: center; justify-content: center;
+            width: 46px; height: 46px; border-radius: 12px; font-size: 24px; line-height: 1;
+            cursor: pointer; background: transparent; border: none;
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease;
+            user-select: none; padding: 0;
+        }
+        .ap-emoji-item:hover {
+            background: rgba(255, 255, 255, 0.12); transform: scale(1.25);
+        }
+        .ap-emoji-item:active { transform: scale(0.95); }
 
-        @media (max-width: 480px) {
-            .ap-ava-dropdown { width: 180px; right: -10px; padding: 10px; gap: 6px; }
-            .ap-ava-option { width: 44px; height: 44px; }
-            .ap-btn-ava { font-size: 11px; padding: 4px 10px; }
-            .ap-ava-preview { width: 16px; height: 16px; }
-            .ap-send-btn { padding: 6px 16px; font-size: 12px; }
-            .ap-char-count { width: 100%; text-align: right; margin-bottom: 4px; }
-            .ap-ava-select { margin-left: auto; }
+        /* GIF Button & Panel */
+        .ap-gif-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 8px 16px; border-radius: 10px; background: #1e2233;
+            border: 1px solid rgba(255, 255, 255, 0.12); color: #cbd5e1;
+            font-size: 13px; font-weight: 800; letter-spacing: 0.5px;
+            cursor: pointer; transition: all 0.2s ease; width: 100%; box-sizing: border-box;
         }
+        .ap-gif-btn:hover {
+            background: #282e44; color: #ffffff; border-color: rgba(252, 213, 118, 0.5);
+            transform: translateY(-1px);
+        }
+        .ap-gif-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+            max-height: 220px; overflow-y: auto; padding-right: 4px; margin-bottom: 8px;
+        }
+        .ap-gif-item {
+            border-radius: 10px; overflow: hidden; cursor: pointer;
+            border: 1.5px solid rgba(255, 255, 255, 0.08); transition: all 0.2s ease;
+            aspect-ratio: 16/10; background: #0f121d;
+        }
+        .ap-gif-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ap-gif-item:hover { border-color: #fcd576; transform: scale(1.04); }
+
+        /* Light Mode Overrides for Emoji & GIF Popover */
+        html.light-mode .ap-emoji-popover {
+            background: #ffffff !important; border-color: #e2e8f0 !important;
+            box-shadow: 0 16px 40px rgba(78, 64, 45, 0.2) !important;
+        }
+        html.light-mode .ap-emoji-item:hover { background: #f1f5f9 !important; }
+        html.light-mode .ap-gif-btn {
+            background: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #334155 !important;
+        }
+        html.light-mode .ap-gif-btn:hover {
+            background: #e2e8f0 !important; color: #0f172a !important; border-color: #d97706 !important;
+        }
+        html.light-mode .ap-btn-emoji-trigger {
+            background: #f8fafc !important; border-color: #cbd5e1 !important; color: #d97706 !important;
+        }
+        html.light-mode .ap-btn-emoji-trigger:hover {
+            background: #f1f5f9 !important; border-color: #d97706 !important;
+        }
+
+        /* Attached GIF Live Preview in Input Box */
+        .ap-attached-gif-wrap {
+            position: relative; width: fit-content; max-width: 220px;
+            margin: 10px 0 6px 0; border-radius: 12px; overflow: hidden;
+            border: 1.5px solid rgba(252, 213, 118, 0.45);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.5); background: #0b0d14;
+            animation: apGifFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes apGifFadeIn {
+            from { opacity: 0; transform: scale(0.92) translateY(6px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .ap-gif-remove-btn {
+            position: absolute; top: 6px; right: 6px;
+            background: rgba(0,0,0,0.75); color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
+            width: 24px; height: 24px; font-size: 11px; font-weight: 700; line-height: 1;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px); transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .ap-gif-remove-btn:hover {
+            background: #ef4444; color: #ffffff; border-color: #ef4444; transform: scale(1.15);
+        }
+
 
         /* ── GIAO DIỆN BÌNH LUẬN TRẢ LỜI ĐẸP & THANH LỊCH NHƯ TIKTOK/YOUTUBE ── */
         .ap-cmt-list { 
@@ -1395,8 +1469,101 @@
         t._t = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, 3000);
     }
 
-    // ── Generate Lại Khung Đăng Nhập / Trả Lời Cũ (Đã Rebuild Chuẩn Image 1) ────────────────────────
-    function renderInputForm(boxId = null, rootId = null) {
+
+    const MODERN_COMMENT_EMOJIS = [
+        { char: '😊', name: 'Vui vẻ' },
+        { char: '😂', name: 'Cười vỡ bụng' },
+        { char: '😍', name: 'Mê mẩn' },
+        { char: '😭', name: 'Khóc ròng' },
+        { char: '😱', name: 'Kinh ngạc' },
+
+        { char: '👍', name: 'Tuyệt vời / Thích' },
+        { char: '👎', name: 'Chưa hay' },
+        { char: '🔥', name: 'Cháy quá / Siêu phẩm' },
+        { char: '👏', name: 'Vỗ tay tán thưởng' },
+        { char: '💖', name: 'Tim lấp lánh' },
+
+        { char: '🤔', name: 'Suy ngẫm / Plot twist' },
+        { char: '😎', name: 'Ngầu đét' },
+        { char: '🍿', name: 'Bắp rang bơ / Hóng phim' },
+        { char: '🎬', name: 'Điện ảnh' },
+        { char: '💯', name: '100 Điểm hoàn hảo' },
+
+        { char: '🙏', name: 'Hóng tập mới / Cảm ơn' },
+        { char: '👑', name: 'Đẳng cấp hoàng gia' },
+        { char: '⚡', name: 'Cuốn hút' },
+        { char: '🚀', name: 'Đỉnh nóc' },
+        { char: '💣', name: 'Bom tấn' }
+    ];
+
+    const TRENDING_COMMENT_GIFS = [
+        { name: 'Ăn bắp hóng phim', url: 'https://media.giphy.com/media/t3sZxY5zS5B0z5zMIz/giphy.gif' },
+        { name: 'Kinh ngạc Wow', url: 'https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif' },
+        { name: 'Bùng nổ Mind blown', url: 'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif' },
+        { name: 'Vỗ tay Clapping', url: 'https://media.giphy.com/media/l3q2XhfQ8oCkm1RwY/giphy.gif' },
+        { name: 'Khóc cảm động', url: 'https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif' },
+        { name: 'Cười vỡ bụng', url: 'https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif' },
+        { name: 'Ngầu thần thái', url: 'https://media.giphy.com/media/62PP2yEIAZF6g/giphy.gif' },
+        { name: 'Tuyệt vời 10 điểm', url: 'https://media.giphy.com/media/l41lI4bYmcsPJX9Go/giphy.gif' }
+    ];
+
+    function renderEmojiPickerHtml(pid) {
+        let emojisGrid = MODERN_COMMENT_EMOJIS.map(item => `
+            <button type="button" class="ap-emoji-item" title="${item.name}" onclick="window.insertCommentEmoji('${item.char}', '${pid}', event)">
+                ${item.char}
+            </button>
+        `).join('');
+
+        let gifsGrid = TRENDING_COMMENT_GIFS.map(g => `
+            <div class="ap-gif-item" title="${g.name}" onclick="window.insertCommentGif('${g.url}', '${pid}', event)">
+                <img src="${g.url}" loading="lazy" alt="${g.name}">
+            </div>
+        `).join('');
+
+        return `
+        <div class="ap-emoji-inner-container">
+            <!-- Emoji View -->
+            <div id="ap-emoji-view-${pid}">
+                <div class="ap-emoji-grid">
+                    ${emojisGrid}
+                </div>
+                <button type="button" class="ap-gif-btn" onclick="window.toggleGifView('${pid}', true, event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9.5H8.5v1h1.5v1H7V9h3v3.5zm3 2.5h-1V9h1v6zm4.5-4h-2v1h1.5v1H16v2h-1V9h2.5v1z"/></svg>
+                    <span>GIF</span>
+                </button>
+            </div>
+
+            <!-- GIF View -->
+            <div id="ap-gif-view-${pid}" style="display:none;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <button type="button" style="background:none; border:none; color:#fcd576; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;" onclick="window.toggleGifView('${pid}', false, event)">
+                        <span>⬅ Quay lại</span>
+                    </button>
+                    <span style="font-size:11.5px; color:#94a3b8; font-weight:600;">GIF Xu hướng</span>
+                </div>
+                <div class="ap-gif-grid">
+                    ${gifsGrid}
+                </div>
+            </div>
+        </div>
+        `;
+    }
+
+    function formatCommentText(rawText) {
+        if (!rawText) return '';
+        let formatted = sanitize(rawText);
+
+        // Render [gif:https://...]
+        formatted = formatted.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
+            return `<div class="ap-cmt-gif-wrap" style="margin: 8px 0 4px 0; max-width: 260px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 16px rgba(0,0,0,0.35);"><img src="${url}" loading="lazy" style="width: 100%; height: auto; display: block; object-fit: cover;" alt="GIF"></div>`;
+        });
+
+        formatted = formatted.replace(/\n/g, '<br>');
+        return formatted;
+    }
+
+    // ── Generate Main Input Box HTML ─────────────────────────────────
+    function renderInputForm(boxId, rootId) {
         const user = getCurrentUser();
         const pid = boxId || 'main';
         const submitPid = rootId || boxId || '';
@@ -1410,11 +1577,6 @@
                || localStorage.getItem('ap_chosen_avatar')
                || '')
             : '';
-
-        let optionsHtml = '';
-        AVATAR_LIST.forEach(link => {
-            optionsHtml += `<img src="${link}" class="ap-ava-option ${savedAva === link ? 'selected' : ''}" onclick="window.selectAvatar('${link}', '${pid}')">`;
-        });
 
         // Load Equipped Name Color & Style
         const nameColorClass = user && typeof getEquippedNameColorClass === 'function' ? getEquippedNameColorClass(user) : '';
@@ -1430,7 +1592,7 @@
             : avaInner;
 
         // User Badge / Title Sync
-        const userBadgeText = typeof getEquippedBadge === 'function' ? getEquippedBadge(user) : (user && (user.isVip || user.role === 'admin') ? 'VIP PRO' : 'LV.' + (user ? (user.level || 15) : 1));
+        const userBadgeText = typeof getEquippedBadge === 'function' ? getEquippedBadge(user) : (user ? (user.equippedBadge || user.badge || localStorage.getItem('ap_equipped_badge') || (user.role === 'admin' ? 'ADMIN TOP 1' : (user.isVip ? 'VIP PRO' : 'LV.' + (user.level || 15)))) : 'LV.15');
         const userBadgeHtml = typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(userBadgeText) : `<span style="font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.12); color: #cbd5e1; padding: 2px 7px; border-radius: 4px;">${userBadgeText}</span>`;
 
         const noticeHtml = user 
@@ -1457,7 +1619,7 @@
         <div class="ap-cmt-input-container" style="margin-bottom: 20px; width: 100%; box-sizing: border-box; overflow: visible !important;">
             ${noticeHtml}
 
-            <!-- Image 1 Form Container -->
+            <!-- Form Container -->
             <div style="position: relative; width: 100%; background: #181a24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 14px 16px 12px 16px; transition: border-color 0.2s;" class="focus-within:border-[#fcd576]/50">
                 <textarea class="ap-cmt-textarea" 
                           id="ap-input-${pid}" 
@@ -1467,10 +1629,16 @@
                           style="width: 100%; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 14px; resize: none; font-family: inherit; box-sizing: border-box; padding-right: 65px; min-height: 70px;"></textarea>
                 <span class="ap-char-count" id="ap-count-${pid}" style="position: absolute; top: 14px; right: 24px; font-size: 11px; color: #64748b; font-weight: 500; user-select: none;">0 / 1000</span>
 
+                <!-- Attached GIF Live Preview Card -->
+                <div class="ap-attached-gif-wrap" id="ap-gif-preview-${pid}" style="display: none;">
+                    <img id="ap-gif-preview-img-${pid}" src="" style="width: 100%; max-height: 150px; display: block; object-fit: cover; border-radius: 10px;" alt="GIF đã chọn">
+                    <button type="button" class="ap-gif-remove-btn" onclick="window.removeAttachedGif('${pid}', event)" title="Gỡ GIF">✕</button>
+                </div>
+
                 <!-- Bottom Toolbar -->
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
-                    <!-- Left tools: Toggle + Popo Emoji -->
-                    <div style="display: flex; align-items: center; gap: 16px;">
+                    <!-- Left tools: Toggle + Emoji/GIF Picker -->
+                    <div style="display: flex; align-items: center; gap: 14px;">
                         <!-- Spoiler Toggle Switch (Vivid Green Active Indicator) -->
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
                             <span class="ap-toggle">
@@ -1481,14 +1649,14 @@
                             <span class="ap-spoiler-label">Tiết lộ?</span>
                         </label>
 
-                        <!-- Popo Emoji Button -->
-                        <div class="ap-ava-select" id="ap-ava-select-${pid}">
-                            <button type="button" class="ap-btn-ava" style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px; background: transparent; border: none; color: #fcd576; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: opacity 0.2s;" onclick="document.getElementById('ap-ava-drop-${pid}')?.classList.toggle('show')">
-                                <span style="font-size: 18px; line-height: 1;">😊</span>
-                                <span style="color: #fcd576;">Popo</span>
+                        <!-- Modern Emoji & GIF Button (Matching User Photo Reference) -->
+                        <div class="ap-emoji-select" id="ap-emoji-select-${pid}">
+                            <button type="button" class="ap-btn-emoji-trigger" onclick="window.toggleEmojiPopover('${pid}', event)">
+                                <span style="font-size: 17px; line-height: 1;">😊</span>
+                                <span>Biểu cảm</span>
                             </button>
-                            <div class="ap-ava-dropdown" id="ap-ava-drop-${pid}">
-                                ${optionsHtml}
+                            <div class="ap-emoji-popover" id="ap-emoji-drop-${pid}">
+                                ${renderEmojiPickerHtml(pid)}
                             </div>
                         </div>
                     </div>
@@ -1508,7 +1676,7 @@
     function generateHtml(c, userEmail, isChild = false, rootId = null) {
         const initial = sanitize((c.name || 'K').charAt(0).toUpperCase());
         const tAgo = sanitize(timeAgo(c.timestamp));
-        const txt = sanitize(c.text);
+        const txt = formatCommentText(c.text);
         const localHidden = localStorage.getItem('ap_hide_' + c.id) === '1';
         const hiddenStyle = localHidden ? 'opacity: 0.4; filter: blur(1.5px);' : '';
 
@@ -1732,7 +1900,97 @@
         });
         const m = document.getElementById(mId);
         if (m) m.classList.toggle('show');
-    }
+    };
+
+    window.toggleEmojiPopover = function(pid, event) {
+        if (event) { event.stopPropagation(); }
+        const pop = document.getElementById(`ap-emoji-drop-${pid}`);
+        if (!pop) return;
+        
+        // Close other open popovers
+        document.querySelectorAll('.ap-emoji-popover.show').forEach(p => {
+            if (p.id !== `ap-emoji-drop-${pid}`) p.classList.remove('show');
+        });
+
+        if (!pop.innerHTML.trim()) {
+            pop.innerHTML = renderEmojiPickerHtml(pid);
+        }
+        pop.classList.toggle('show');
+    };
+
+    window.toggleGifView = function(pid, showGif, event) {
+        if (event) { event.stopPropagation(); }
+        const emojiView = document.getElementById(`ap-emoji-view-${pid}`);
+        const gifView = document.getElementById(`ap-gif-view-${pid}`);
+        if (emojiView && gifView) {
+            emojiView.style.display = showGif ? 'none' : 'block';
+            gifView.style.display = showGif ? 'block' : 'none';
+        }
+    };
+
+    window.insertCommentEmoji = function(emoji, pid, event) {
+        if (event) { event.stopPropagation(); }
+        const ta = document.getElementById(`ap-input-${pid}`);
+        if (!ta) return;
+
+        const start = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+        const end = ta.selectionEnd != null ? ta.selectionEnd : ta.value.length;
+        const val = ta.value;
+        ta.value = val.substring(0, start) + emoji + val.substring(end);
+        ta.selectionStart = ta.selectionEnd = start + emoji.length;
+        ta.focus();
+
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+
+        const pop = document.getElementById(`ap-emoji-drop-${pid}`);
+        if (pop) pop.classList.remove('show');
+    };
+
+    window.insertCommentGif = function(gifUrl, pid, event) {
+        if (event) { event.stopPropagation(); }
+        const ta = document.getElementById(`ap-input-${pid}`);
+        const preview = document.getElementById(`ap-gif-preview-${pid}`);
+        const previewImg = document.getElementById(`ap-gif-preview-img-${pid}`);
+        const sb = document.getElementById(`ap-btn-${pid}`);
+
+        if (ta && preview && previewImg) {
+            ta.dataset.attachedGif = gifUrl;
+            previewImg.src = gifUrl;
+            preview.style.display = 'block';
+            if (sb) {
+                sb.disabled = false;
+                sb.style.opacity = '1';
+            }
+        }
+
+        const pop = document.getElementById(`ap-emoji-drop-${pid}`);
+        if (pop) pop.classList.remove('show');
+    };
+
+    window.removeAttachedGif = function(pid, event) {
+        if (event) { event.stopPropagation(); }
+        const ta = document.getElementById(`ap-input-${pid}`);
+        const preview = document.getElementById(`ap-gif-preview-${pid}`);
+        const previewImg = document.getElementById(`ap-gif-preview-img-${pid}`);
+        const sb = document.getElementById(`ap-btn-${pid}`);
+
+        if (ta) {
+            delete ta.dataset.attachedGif;
+        }
+        if (previewImg) previewImg.src = '';
+        if (preview) preview.style.display = 'none';
+
+        if (ta && sb) {
+            sb.disabled = ta.value.trim().length < 1;
+        }
+    };
+
+    // Close emoji popovers on click outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.ap-emoji-select')) {
+            document.querySelectorAll('.ap-emoji-popover.show').forEach(pop => pop.classList.remove('show'));
+        }
+    });
 
     window.selectAvatar = function(url, pid) {
         // Save with avatarService (per-user) OR fallback to legacy key
@@ -1905,7 +2163,17 @@
 
         
         const ta = document.getElementById(`ap-input-${pid}`);
-        const text = ta.value.trim();
+        let text = ta ? ta.value.trim() : '';
+        const attachedGif = ta ? ta.dataset.attachedGif : '';
+        if (attachedGif) {
+            text = (text ? text + ' ' : '') + `[gif:${attachedGif}]`;
+        }
+
+        if (!text) {
+            showToast('Vui lòng nhập nội dung bình luận hoặc chọn GIF!', 'info');
+            return;
+        }
+
         const sc = document.getElementById(`ap-spoiler-${pid}`);
         const isSpoiler = sc ? sc.checked : false;
         
@@ -1917,7 +2185,18 @@
         });
 
         if (res.ok) {
-            ta.value = '';
+            if (ta) {
+                ta.value = '';
+                delete ta.dataset.attachedGif;
+            }
+            const preview = document.getElementById(`ap-gif-preview-${pid}`);
+            const previewImg = document.getElementById(`ap-gif-preview-img-${pid}`);
+            if (preview) preview.style.display = 'none';
+            if (previewImg) previewImg.src = '';
+            
+            const countEl = document.getElementById(`ap-count-${pid}`);
+            if (countEl) countEl.textContent = '0 / 1000';
+
             if (boxId && boxId !== 'main') {
                 const b = document.getElementById(`reply-form-${boxId}`);
                 if (b) { b.classList.remove('active'); b.innerHTML = ''; }
@@ -1930,9 +2209,9 @@
             }, 500);
         } else {
             showToast(res.msg, 'error');
-            if(btn) { btn.disabled = false; btn.innerHTML = 'Gửi <span class="material-icons-round" style="font-size:16px">send</span>'; }
+            if(btn) { btn.disabled = false; btn.innerHTML = '<span>Gửi</span><svg style="width: 16px; height: 16px; fill: #fcd576; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>'; }
         }
-    }
+    };
 
     // ── Input Length Helper ────────────────────────────────────
     function setupInputEvents(idSuffix) {
@@ -1943,9 +2222,10 @@
         const updateCount = (e) => {
             if (e && e.isComposing) return;
             const l = ta.value.trim().length;
+            const hasGif = Boolean(ta.dataset.attachedGif);
             c.textContent = `${l} / 1000`;
             c.style.color = l > 900 ? '#ef4444' : l > 700 ? '#f59e0b' : '#6b7280';
-            sb.disabled = l < 1;
+            sb.disabled = (l < 1 && !hasGif);
         };
         ta.addEventListener('input', updateCount);
         ta.addEventListener('compositionend', () => updateCount());

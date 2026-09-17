@@ -96,7 +96,7 @@ async function sendToGoogleSheet(data) {
 // ==========================================
 // POST /api/feedback
 // ==========================================
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
   try {
     const body = req.body || {};
     console.log('[Feedback] Nhận dữ liệu:', body);
@@ -105,14 +105,16 @@ router.post('/', async (req, res) => {
     const record = { ...body, createdAt: new Date().toISOString() };
     saveFeedback(record);
 
-    // Gửi lên Google Sheet
-    const sheetResult = await sendToGoogleSheet(record);
-    console.log('[Feedback] Kết quả Google Sheet:', sheetResult);
+    // Gửi lên Google Sheet bất đồng bộ (không bắt client phải chờ)
+    sendToGoogleSheet(record).then(result => {
+      console.log('[Feedback] Kết quả Google Sheet:', result);
+    }).catch(err => {
+      console.warn('[Feedback] Lỗi gửi Sheet nền:', err.message);
+    });
 
     return res.json({
       success: true,
       message: 'Đã ghi nhận phản hồi!',
-      sheetResult,
     });
   } catch (err) {
     console.error('[Feedback] Lỗi server:', err);

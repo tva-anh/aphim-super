@@ -27,6 +27,58 @@ const registerLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+/**
+ * Kiểm tra xem tên hiển thị có chứa các danh xưng đặc quyền của Admin/BQT hay không
+ */
+function isReservedAdminName(name) {
+    if (!name || typeof name !== 'string') return false;
+    
+    // Normalize: Bỏ dấu tiếng Việt, chuyển chữ thường, thay ký tự đặc biệt bằng khoảng trắng
+    const normalized = name
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/đ/g, 'd')
+        .replace(/[^a-z0-9]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    // Các từ khóa đặc quyền
+    const reservedTerms = [
+        'admin',
+        'administrator',
+        'superadmin',
+        'super admin',
+        'quan tri',
+        'quan tri vien',
+        'ban quan tri',
+        'bqt',
+        'moderator',
+        'mod aphim',
+        'aphim mod',
+        'he thong',
+        'system',
+        'support aphim',
+        'aphim support',
+        'aphim official',
+        'developer',
+        'dev aphim'
+    ];
+
+    for (const term of reservedTerms) {
+        const regex = new RegExp(`(^|\\s)${term.replace(/\s+/g, '\\s+')}(\\s|$)`, 'i');
+        if (regex.test(normalized) || regex.test(name.toLowerCase())) {
+            return true;
+        }
+        if (['admin', 'administrator', 'superadmin', 'quan tri vien', 'ban quan tri'].includes(term)) {
+            if (normalized.includes(term.replace(/\s+/g, ' '))) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // ── POST /api/auth/register ──────────────────────────────────────────────────
 router.post('/register', registerLimiter, async (req, res) => {
     try {
@@ -34,6 +86,13 @@ router.post('/register', registerLimiter, async (req, res) => {
 
         if (!email || !password || !name) {
             return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ: email, mật khẩu, tên.' });
+        }
+
+        if (isReservedAdminName(name)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Tên hiển thị chứa từ khóa đặc quyền của Admin (Admin, Quản trị viên, BQT...). Chỉ Ban Quản Trị mới có thể sử dụng tên này.'
+            });
         }
 
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -272,6 +331,18 @@ const handleUpdateProfile = async (req, res) => {
         const body = req.body || {};
 
         const name = body.name || body.displayName || body.fullName;
+
+        // Chặn người dùng thường đặt tên có chứa danh xưng đặc quyền của Admin/BQT
+        if (name !== undefined && name.trim() !== '') {
+            const userRole = req.user?.profile?.role || req.user?.user_metadata?.role;
+            const isAdmin = userRole === 'admin' || req.user?.email === 'admin@aphim.io.vn';
+            if (!isAdmin && isReservedAdminName(name)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Tên hiển thị chứa danh xưng đặc quyền của Admin (Admin, Quản trị viên, BQT...). Chỉ Ban Quản Trị mới có thể sử dụng tên này.'
+                });
+            }
+        }
         const phone = body.phone || body.phoneNumber;
         const avatar = body.avatar || body.avatar_url || body.avatarUrl;
         const equipped_frame = body.equipped_frame || body.equippedFrame;

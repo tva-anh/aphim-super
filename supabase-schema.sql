@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   equipped_frame  TEXT DEFAULT 'frame_none',
   equipped_banner TEXT DEFAULT 'banner_default',
   profile_cover   TEXT DEFAULT '',
-  xu              INTEGER NOT NULL DEFAULT 150,
-  xp              INTEGER NOT NULL DEFAULT 0,
+  xu              INTEGER NOT NULL DEFAULT 20,
+  xp              INTEGER NOT NULL DEFAULT 100,
   level           INTEGER NOT NULL DEFAULT 1,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()

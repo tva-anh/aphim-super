@@ -463,8 +463,10 @@ class APFilmChat {
     }
 
     async _fetchUserFromAPI(token) {
+        if (!token || token.startsWith('demo_token_')) return;
         try {
-            const response = await fetch(`${typeof API_CONFIG !== 'undefined' ? API_CONFIG.BACKEND_URL : 'http://localhost:5000/api'}/auth/me`, {
+            const apiBase = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
+            const response = await fetch(`${apiBase}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -487,11 +489,13 @@ class APFilmChat {
                         this._enterRoomFirebase();
                     }
                 }
-            } else {
-                console.warn('[APFilmChat] Failed to fetch user from API:', response.status);
+            } else if (response.status === 401) {
+                // Token invalid or expired - clean up quietly
+                localStorage.removeItem('cinestream_token');
+                localStorage.removeItem('cinestream_user');
             }
         } catch (error) {
-            console.error('[APFilmChat] Error fetching user from API:', error);
+            console.warn('[APFilmChat] Error fetching user from API:', error.message || error);
         }
     }
 
@@ -1778,17 +1782,22 @@ class APFilmChat {
         if (this.user && this.user.id) {
             try {
                 const token = localStorage.getItem('cinestream_token');
-                if (token) {
-                    const res = await fetch(`${typeof API_CONFIG !== 'undefined' ? API_CONFIG.BACKEND_URL : 'http://localhost:5000/api'}/auth/me`, {
+                if (token && !token.startsWith('demo_token_')) {
+                    const apiBase = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
+                    const res = await fetch(`${apiBase}/auth/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    const data = await res.json();
-                    if (data.success && data.data) {
-                        const newUser = data.data;
-                        this.user.chatRole = newUser.chatRole || 'user';
-                        this.user.avatar = newUser.avatar || this.user.avatar;
-                        this.user.frame = newUser.equippedFrameClass || this.user.frame;
-                        this._syncUserUI();
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success && data.data) {
+                            const newUser = data.data;
+                            this.user.chatRole = newUser.chatRole || 'user';
+                            this.user.avatar = newUser.avatar || this.user.avatar;
+                            this.user.frame = newUser.equippedFrameClass || this.user.frame;
+                            this._syncUserUI();
+                        }
+                    } else if (res.status === 401) {
+                        localStorage.removeItem('cinestream_token');
                     }
                 }
             } catch (e) {

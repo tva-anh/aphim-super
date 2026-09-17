@@ -575,15 +575,15 @@ function renderAccount(u) {
                                 <label class="form-label" style="font-size:11px; margin-bottom:5px;">Giới tính</label>
                                 <div class="gender-group" style="display:flex; gap:6px;">
                                     <label class="gender-option" style="flex:1; padding:8px 4px;">
-                                        <input type="radio" name="gender" value="male" ${(u.gender === 'male' || !u.gender) ? 'checked' : ''}>
+                                        <input type="radio" name="accGender" value="male" ${(u.gender === 'male' || !u.gender) ? 'checked' : ''}>
                                         <span class="gender-badge">Nam</span>
                                     </label>
                                     <label class="gender-option" style="flex:1; padding:8px 4px;">
-                                        <input type="radio" name="gender" value="female" ${u.gender === 'female' ? 'checked' : ''}>
+                                        <input type="radio" name="accGender" value="female" ${u.gender === 'female' ? 'checked' : ''}>
                                         <span class="gender-badge">Nữ</span>
                                     </label>
                                     <label class="gender-option" style="flex:1; padding:8px 4px;">
-                                        <input type="radio" name="gender" value="other" ${u.gender === 'other' ? 'checked' : ''}>
+                                        <input type="radio" name="accGender" value="other" ${u.gender === 'other' ? 'checked' : ''}>
                                         <span class="gender-badge">Khác</span>
                                     </label>
                                 </div>
@@ -654,86 +654,91 @@ function renderAccount(u) {
                 </div>
             </div>
 
-            <!-- STREAMING DEVICES MANAGEMENT -->
-            <div class="devices-container">
-                <div class="devices-header">
-                    <div class="devices-title-box">
-                        <div class="devices-title-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <!-- STREAMING DEVICES MANAGEMENT (Dữ liệu thực nhận diện từ thiết bị) -->
+            ${(function() {
+                const ua = navigator.userAgent;
+                let browser = 'Trình duyệt Web';
+                let os = 'Thiết bị';
+                let type = 'desktop';
+                let typeLabel = 'Máy tính này';
+
+                if (/Windows NT 10.0/i.test(ua)) os = 'Windows 10/11';
+                else if (/Windows NT 6.3/i.test(ua)) os = 'Windows 8.1';
+                else if (/Windows NT 6.2/i.test(ua)) os = 'Windows 8';
+                else if (/Windows NT 6.1/i.test(ua)) os = 'Windows 7';
+                else if (/Windows/i.test(ua)) os = 'Windows';
+                else if (/iPhone/i.test(ua)) { os = 'iOS (iPhone)'; type = 'mobile'; typeLabel = 'Điện thoại này'; }
+                else if (/iPad/i.test(ua)) { os = 'iPadOS'; type = 'tablet'; typeLabel = 'Máy tính bảng này'; }
+                else if (/Android/i.test(ua)) {
+                    os = 'Android';
+                    type = /Mobile/i.test(ua) ? 'mobile' : 'tablet';
+                    typeLabel = type === 'mobile' ? 'Điện thoại này' : 'Máy tính bảng này';
+                }
+                else if (/Macintosh|Mac OS X/i.test(ua)) { os = 'macOS'; type = 'desktop'; typeLabel = 'Máy tính Mac này'; }
+                else if (/Linux/i.test(ua)) { os = 'Linux'; type = 'desktop'; typeLabel = 'Máy tính Linux này'; }
+                else if (/SmartTV|Tizen|Web0S|LG NetCast/i.test(ua)) { os = 'Smart TV'; type = 'tv'; typeLabel = 'Tivi này'; }
+
+                if (/Edg\//i.test(ua)) browser = 'Microsoft Edge';
+                else if (/CocCoc/i.test(ua)) browser = 'Cốc Cốc';
+                else if (/OPR\/|Opera\//i.test(ua)) browser = 'Opera';
+                else if (/SamsungBrowser\//i.test(ua)) browser = 'Samsung Internet';
+                else if (/Chrome\//i.test(ua)) browser = 'Google Chrome';
+                else if (/Safari\//i.test(ua)) browser = 'Apple Safari';
+                else if (/Firefox\//i.test(ua)) browser = 'Mozilla Firefox';
+
+                const screenRes = (window.screen && window.screen.width) ? (window.screen.width + ' × ' + window.screen.height) : '';
+                const iconSvg = type === 'mobile' 
+                    ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5" stroke-linecap="round"/></svg>'
+                    : (type === 'tablet'
+                        ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5" stroke-linecap="round"/></svg>'
+                        : (type === 'tv'
+                            ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M7 20h10M12 17v3"/></svg>'
+                            : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
+                        )
+                    );
+
+                return `
+                <div class="devices-container">
+                    <div class="devices-header">
+                        <div class="devices-title-box">
+                            <div class="devices-title-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <div>
+                                <div class="devices-title">Thiết bị đang xem & Đăng nhập (1 thiết bị)</div>
+                                <div class="devices-sub">Quản lý phiên đăng nhập thực tế và bảo mật tài khoản</div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="devices-title">Thiết bị đang xem & Đăng nhập (3 thiết bị)</div>
-                            <div class="devices-sub">Quản lý phiên đăng nhập và bảo mật tài khoản từ xa</div>
+                        <button class="btn-logout-all" onclick="logoutOtherDevices()">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Đăng xuất thiết bị khác
+                        </button>
+                    </div>
+
+                    <div class="device-list">
+                        <!-- Real Device -->
+                        <div class="device-item active-device">
+                            <div class="device-info">
+                                <div class="device-icon-box ${type}">
+                                    ${iconSvg}
+                                </div>
+                                <div>
+                                    <div class="device-name">${browser} trên ${os} (${typeLabel})</div>
+                                    <div class="device-meta">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        Phiên đăng nhập hiện tại${screenRes ? ' • Màn hình: ' + screenRes : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="device-badge-active">
+                                <span class="pulse-dot"></span>
+                                Đang xem (Hiện tại)
+                            </div>
                         </div>
                     </div>
-                    <button class="btn-logout-all" onclick="logoutOtherDevices()">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Đăng xuất thiết bị khác
-                    </button>
                 </div>
-
-                <div class="device-list">
-                    <!-- Device 1: PC Chrome -->
-                    <div class="device-item active-device">
-                        <div class="device-info">
-                            <div class="device-icon-box desktop">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            </div>
-                            <div>
-                                <div class="device-name">Chrome trên Windows 11 (Máy tính này)</div>
-                                <div class="device-meta">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                    Hà Nội, Việt Nam • IP: 113.190.xxx.xxx
-                                </div>
-                            </div>
-                        </div>
-                        <div class="device-badge-active">
-                            <span class="pulse-dot"></span>
-                            Đang xem (Hiện tại)
-                        </div>
-                    </div>
-
-                    <!-- Device 2: iPhone -->
-                    <div class="device-item">
-                        <div class="device-info">
-                            <div class="device-icon-box mobile">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5" stroke-linecap="round"/></svg>
-                            </div>
-                            <div>
-                                <div class="device-name">APhim App - iPhone 15 Pro Max</div>
-                                <div class="device-meta">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    TP. Hồ Chí Minh • Hoạt động 25 phút trước
-                                </div>
-                            </div>
-                        </div>
-                        <div class="device-badge-saved">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                            Đã lưu mật khẩu
-                        </div>
-                    </div>
-
-                    <!-- Device 3: LG Smart TV -->
-                    <div class="device-item">
-                        <div class="device-info">
-                            <div class="device-icon-box tv">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M7 20h10M12 17v3"/></svg>
-                            </div>
-                            <div>
-                                <div class="device-name">LG OLED Smart TV 4K (Phòng Khách)</div>
-                                <div class="device-meta">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    Đà Nẵng • Hoạt động hôm qua
-                                </div>
-                            </div>
-                        </div>
-                        <div class="device-badge-tv">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/></svg>
-                            Smart TV App 4K
-                        </div>
-                    </div>
-                </div>
-            </div>
+                `;
+            })()}
         </div>
     `;
 }
@@ -2998,14 +3003,23 @@ function equipShopItem(cat, id) {
     const item = ((allShopData && allShopData.badge) || []).find(b => b.id === id);
     const badgeText = item ? item.badgeText : id;
     localStorage.setItem('ap_equipped_badge', badgeText);
+    localStorage.setItem('ap_equipped_title', badgeText);
     if (currentUser) {
       currentUser.equippedBadge = badgeText;
-      try { localStorage.setItem('cinestream_user', JSON.stringify(currentUser)); } catch (e) { }
+      currentUser.badge = badgeText;
+      try { 
+        localStorage.setItem('A Phim_user', JSON.stringify(currentUser));
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        localStorage.setItem('cinestream_user', JSON.stringify(currentUser)); 
+      } catch (e) { }
     }
     if (typeof authService !== 'undefined') {
-      if (authService.currentUser) authService.currentUser.equippedBadge = badgeText;
+      if (authService.currentUser) {
+        authService.currentUser.equippedBadge = badgeText;
+        authService.currentUser.badge = badgeText;
+      }
       if (typeof authService.saveUser === 'function' && currentUser) authService.saveUser(currentUser);
-      if (typeof authService.updateProfile === 'function') authService.updateProfile({ equippedBadge: badgeText });
+      if (typeof authService.updateProfile === 'function') authService.updateProfile({ equippedBadge: badgeText, badge: badgeText });
     }
   }
 
@@ -3718,7 +3732,11 @@ window.showCustomAlert = function (message, type) {
 };
 
 function logoutOtherDevices() {
-  showCustomAlert('🔒 Đã đăng xuất thành công khỏi <b>2 thiết bị khác</b>!', 'success');
+  if (typeof showCustomAlert === 'function') {
+    showCustomAlert('🔒 Tài khoản của bạn hiện chỉ có 1 phiên đăng nhập duy nhất trên thiết bị này!', 'info');
+  } else if (window.GamificationCore && typeof window.GamificationCore.showGamificationToast === 'function') {
+    window.GamificationCore.showGamificationToast('🔒 Tài khoản hiện chỉ đang đăng nhập trên thiết bị này!', 'info');
+  }
 }
 
 // ─── PLAYLISTS TAB RENDERER (EXACT MATCH TO USER SCREENSHOT 1) ───
@@ -4007,8 +4025,8 @@ function renderAchievements(u) {
       favCount = JSON.parse(localStorage.getItem('cinestream_favorites') || '[]').length;
     } catch (e) { }
     badges = [
-      { id: 'ach_profile', code: 'ACH-01', title: 'Tân Thủ Nhập Môn', desc: 'Đã hoàn tất thông tin cá nhân', xp: 30, xu: 10, unlocked: true, icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a5 5 0 0 1 10 0v2"/></svg>` },
-      { id: 'ach_watch_5', code: 'ACH-02', title: 'Người Xem Phim', desc: `Đã xem ${Math.min(histCount, 5)}/5 phim`, xp: 50, xu: 20, unlocked: histCount >= 5, progress: { current: Math.min(histCount, 5), max: 5 }, icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/></svg>` }
+      { id: 'ach_profile', code: 'ACH-01', title: 'Tân Thủ Nhập Môn', desc: 'Đã hoàn tất thông tin cá nhân', xp: 30, xu: 5, unlocked: true, icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a5 5 0 0 1 10 0v2"/></svg>` },
+      { id: 'ach_watch_5', code: 'ACH-02', title: 'Người Xem Phim', desc: `Đã xem ${Math.min(histCount, 5)}/5 phim`, xp: 50, xu: 10, unlocked: histCount >= 5, progress: { current: Math.min(histCount, 5), max: 5 }, icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/></svg>` }
     ];
   }
 
@@ -4039,7 +4057,7 @@ function renderAchievements(u) {
   const navSwitchHtml = `
           <div class="lb-nav-switcher">
             <button onclick="setAchieveSubView('badges')" class="lb-switch-btn ${subView === 'badges' ? 'active-badges' : 'inactive'}">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="8.5" r="5.5"/>
                 <path d="M12 5.8l.8 1.6 1.8.3-1.3 1.3.3 1.8-1.6-.8-1.6.8.3-1.8-1.3-1.3 1.8-.3.8-1.6z" fill="currentColor"/>
                 <path d="M8.2 13.8L7 21.5l5-2.5 5 2.5-1.2-7.7"/>
@@ -4047,9 +4065,9 @@ function renderAchievements(u) {
               <span style="white-space:nowrap;">12 Danh Hiệu Thành Tựu</span>
             </button>
             <button onclick="setAchieveSubView('leaderboard')" class="lb-switch-btn ${subView === 'leaderboard' ? 'active-lb' : 'inactive'}">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2 20h20M5 20v-7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v7M10 20V8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12M15 20v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5"/>
-                <path d="M12 2.5l.9 1.7 1.9.3-1.4 1.3.3 1.9-1.7-.9-1.7.9.3-1.9-1.4-1.3 1.9-.3.9-1.7z" fill="currentColor"/>
+                <polygon points="12 2 13.5 5 17 5.5 14.5 8 15 11.5 12 10 9 11.5 9.5 8 7 5.5 10.5 5 12 2" fill="currentColor"/>
               </svg>
               <span style="white-space:nowrap;">Bảng Xếp Hạng Cao Thủ</span>
             </button>
@@ -4075,11 +4093,28 @@ function renderAchievements(u) {
               
               <!-- Header Sub-Header -->
               <div class="lb-sub-header">
-                <div class="achievements-sub-header-left">
-                  <h3 class="lb-sub-title">Bảng Vinh Danh APhim</h3>
-                  <span class="lb-sub-badge">Cập nhật thời gian thực</span>
+                <div class="achievements-sub-header-left" style="display:flex; align-items:center; gap:8px;">
+                  <h3 class="lb-sub-title" style="margin:0; font-size:16px; font-weight:900; letter-spacing:-0.3px; display:flex; align-items:center; gap:6px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <defs>
+                        <linearGradient id="lbTrophyIconGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fff176"/>
+                          <stop offset="50%" stop-color="#f59e0b"/>
+                          <stop offset="100%" stop-color="#d97706"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M6 9V4h12v5c0 3.3-2.7 6-6 6s-6-2.7-6-6z" fill="url(#lbTrophyIconGrad3)"/>
+                      <path d="M6 5H3.5C2.7 5 2 5.7 2 6.5V7c0 2.2 1.8 4 4 4h.5M18 5h2.5c.8 0 1.5.7 1.5 1.5V7c0 2.2-1.8 4-4 4h-.5" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>
+                      <path d="M12 15v4m-4 3h8" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Bảng Vinh Danh APhim</span>
+                  </h3>
+                  <div style="display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:8px;">
+                    <span class="lb-live-dot"></span>
+                    <span style="font-size:10.5px; font-weight:800; color:#10b981;">Thời gian thực</span>
+                  </div>
                 </div>
-                <button onclick="openGamificationModal()" class="achieve-bonus-btn">
+                <button onclick="openGamificationModal()" class="achieve-bonus-btn" style="padding:6px 12px; border-radius:10px; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:6px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.35); color:#818cf8; cursor:pointer; transition:all 0.2s;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
                   <span>Điểm Danh & Nhiệm Vụ</span>
                 </button>
@@ -4087,34 +4122,34 @@ function renderAchievements(u) {
 
               ${navSwitchHtml}
 
-              <!-- Timeframe Filters -->
+              <!-- Timeframe Filters & Top 1 Reward -->
               <div class="lb-filter-bar">
                 <div class="lb-tf-group">
                   <button onclick="setLeaderboardTf('weekly')" class="lb-tf-btn ${lbTf === 'weekly' ? 'active' : ''}">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <defs>
-                        <linearGradient id="lbTfFireGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <linearGradient id="lbTfFireGrad3" x1="0%" y1="100%" x2="100%" y2="0%">
                           <stop offset="0%" stop-color="#ef4444"/>
                           <stop offset="55%" stop-color="#f97316"/>
                           <stop offset="100%" stop-color="#fde047"/>
                         </linearGradient>
                       </defs>
-                      <path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z" fill="url(#lbTfFireGrad)"/>
-                      <path d="M12 11c-.5 1-1.5 2-2 3-.5 1-.5 2 0 3a2.5 2.5 0 004 0c.5-1 .5-2 0-3-.5-1-1.5-2-2-3z" fill="#ffffff" opacity="0.85"/>
+                      <path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z" fill="url(#lbTfFireGrad3)"/>
+                      <path d="M12 11c-.5 1-1.5 2-2 3-.5 1-.5 2 0 3a2.5 2.5 0 004 0c.5-1 .5-2 0-3-.5-1-1.5-2-2-3z" fill="#ffffff" opacity="0.9"/>
                     </svg>
                     <span>Tuần Này</span>
                   </button>
                   <button onclick="setLeaderboardTf('monthly')" class="lb-tf-btn ${lbTf === 'monthly' ? 'active' : ''}">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <defs>
-                        <linearGradient id="lbTfCalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="lbTfCalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#38bdf8"/>
                           <stop offset="100%" stop-color="#818cf8"/>
                         </linearGradient>
                       </defs>
-                      <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="url(#lbTfCalGrad)" stroke-width="2" fill="rgba(56,189,248,0.15)"/>
-                      <path d="M3 9.5h18" stroke="url(#lbTfCalGrad)" stroke-width="1.8"/>
-                      <path d="M8 2.2v3.6M16 2.2v3.6" stroke="url(#lbTfCalGrad)" stroke-width="2" stroke-linecap="round"/>
+                      <rect x="3" y="4" width="18" height="17" rx="3.5" stroke="url(#lbTfCalGrad3)" stroke-width="2" fill="rgba(56,189,248,0.15)"/>
+                      <path d="M3 9.5h18" stroke="url(#lbTfCalGrad3)" stroke-width="1.8"/>
+                      <path d="M8 2.2v3.6M16 2.2v3.6" stroke="url(#lbTfCalGrad3)" stroke-width="2" stroke-linecap="round"/>
                       <circle cx="8" cy="13.5" r="1.3" fill="#38bdf8"/>
                       <circle cx="12" cy="13.5" r="1.3" fill="#38bdf8"/>
                       <circle cx="16" cy="13.5" r="1.3" fill="#38bdf8"/>
@@ -4124,184 +4159,240 @@ function renderAchievements(u) {
                     <span>Tháng Này</span>
                   </button>
                   <button onclick="setLeaderboardTf('all')" class="lb-tf-btn ${lbTf === 'all' ? 'active' : ''}">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <defs>
-                        <linearGradient id="lbTfStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="lbTfStarGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#fffbeb"/>
                           <stop offset="40%" stop-color="#facc15"/>
                           <stop offset="100%" stop-color="#d97706"/>
                         </linearGradient>
                       </defs>
-                      <path d="M12 2l2.6 6.8 6.9 1.5-5.2 4.6 1.6 7-5.9-3.5-5.9 3.5 1.6-7-5.2-4.6 6.9-1.5L12 2z" fill="url(#lbTfStarGrad)" stroke="#b45309" stroke-width="0.8"/>
-                      <circle cx="12" cy="12" r="2.2" fill="#ffffff" opacity="0.8"/>
+                      <path d="M12 2l2.6 6.8 6.9 1.5-5.2 4.6 1.6 7-5.9-3.5-5.9 3.5 1.6-7-5.2-4.6 6.9-1.5L12 2z" fill="url(#lbTfStarGrad3)" stroke="#b45309" stroke-width="0.8"/>
+                      <circle cx="12" cy="12" r="2.2" fill="#ffffff" opacity="0.9"/>
                     </svg>
                     <span>Mọi Thời Đại</span>
                   </button>
                 </div>
                 <div class="lb-reward-tag">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
-                    <defs>
-                      <linearGradient id="lbTrophyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#fef08a"/>
-                        <stop offset="45%" stop-color="#f59e0b"/>
-                        <stop offset="100%" stop-color="#b45309"/>
-                      </linearGradient>
-                    </defs>
-                    <path d="M6 9V4h12v5c0 3.3-2.7 6-6 6s-6-2.7-6-6z" fill="url(#lbTrophyGrad)" stroke="#d97706" stroke-width="1.2"/>
-                    <path d="M6 5H3.5C2.7 5 2 5.7 2 6.5V7c0 2.2 1.8 4 4 4h.5M18 5h2.5c.8 0 1.5.7 1.5 1.5V7c0 2.2-1.8 4-4 4h-.5" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M12 15v4m-4 3h8" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                  <span style="font-weight:700;">Thưởng Top 1:</span>
+                  <span style="font-weight:800; font-size:11.5px; color:#fcd576; display:flex; align-items:center; gap:4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 9V4h12v5c0 3.3-2.7 6-6 6s-6-2.7-6-6z" fill="#f59e0b"/>
+                      <path d="M6 5H3.5C2.7 5 2 5.7 2 6.5V7c0 2.2 1.8 4 4 4h.5M18 5h2.5c.8 0 1.5.7 1.5 1.5V7c0 2.2-1.8 4-4 4h-.5" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>
+                      <path d="M12 15v4m-4 3h8" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                    Thưởng Quán Quân:
+                  </span>
                   <span class="lb-reward-chip">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
-                      <circle cx="12" cy="12" r="9" fill="url(#lbTrophyGrad)" stroke="#b45309" stroke-width="1"/>
-                      <text x="12" y="16" font-size="11" font-weight="900" text-anchor="middle" fill="#78350f">C</text>
-                    </svg>
-                    <span>+300 Xu</span>
-                    <span style="opacity:0.35;">•</span>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#a855f7" style="flex-shrink:0;">
-                      <path d="M3 18h18v2.5H3zM4 16l2.5-9 4.5 4.5 2-6 2 6 4.5-4.5 2.5 9H4z"/>
-                    </svg>
-                    <span>VIP 3 Ngày</span>
+                    ${lbTf === 'weekly' ? `
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+                        <circle cx="12" cy="12" r="10" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                        <text x="12" y="16" font-size="11" font-weight="900" text-anchor="middle" fill="#78350f">C</text>
+                      </svg>
+                      <span>+100 Xu</span>
+                      <span style="opacity:0.35;">•</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="#a855f7" style="flex-shrink:0;">
+                        <path d="M3 18h18v2.5H3zM4 16l2.5-9 4.5 4.5 2-6 2 6 4.5-4.5 2.5 9H4z"/>
+                      </svg>
+                      <span>VIP 3 Ngày</span>
+                    ` : (lbTf === 'monthly' ? `
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+                        <circle cx="12" cy="12" r="10" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                        <text x="12" y="16" font-size="11" font-weight="900" text-anchor="middle" fill="#78350f">C</text>
+                      </svg>
+                      <span>+300 Xu</span>
+                      <span style="opacity:0.35;">•</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="#a855f7" style="flex-shrink:0;">
+                        <path d="M3 18h18v2.5H3zM4 16l2.5-9 4.5 4.5 2-6 2 6 4.5-4.5 2.5 9H4z"/>
+                      </svg>
+                      <span>VIP 7 Ngày</span>
+                    ` : `
+                      <span>Vinh Danh Hoàng Gia</span>
+                    `)}
                   </span>
                 </div>
               </div>
 
-              <!-- 🏆 TOP 3 PODIUM BLOCK -->
+              <!-- 🏆 THE GRAND 3D PODIUM BLOCK -->
               <div class="lb-podium-grid">
                 
-                <!-- TOP 2 (SILVER) -->
+                <!-- TOP 2 (SILVER MASTER - Á QUÂN) -->
                 <div class="lb-card-top2">
-                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-14px; width:26px; height:26px; filter:drop-shadow(0 2px 8px rgba(148,163,184,0.6));">
-                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-16px; width:30px; height:30px; filter:drop-shadow(0 3px 10px rgba(148,163,184,0.7));">
+                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
                       <defs>
-                        <linearGradient id="silverMedalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="silverMedalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#ffffff"/>
-                          <stop offset="45%" stop-color="#cbd5e1"/>
-                          <stop offset="100%" stop-color="#64748b"/>
+                          <stop offset="35%" stop-color="#e2e8f0"/>
+                          <stop offset="70%" stop-color="#94a3b8"/>
+                          <stop offset="100%" stop-color="#475569"/>
                         </linearGradient>
                       </defs>
-                      <circle cx="14" cy="14" r="12" fill="url(#silverMedalGrad)" stroke="#475569" stroke-width="1.2"/>
-                      <circle cx="14" cy="14" r="9.5" fill="none" stroke="#94a3b8" stroke-dasharray="2 1.5"/>
-                      <text x="14" y="18" font-size="12" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#1e293b">2</text>
+                      <circle cx="16" cy="16" r="14" fill="url(#silverMedalGrad3)" stroke="#334155" stroke-width="1.5"/>
+                      <circle cx="16" cy="16" r="11" fill="none" stroke="#cbd5e1" stroke-dasharray="2.5 1.5"/>
+                      <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#0f172a">2</text>
                     </svg>
                   </div>
-                  <div style="width:48px; height:48px; border-radius:50%; border:2px solid #cbd5e1; padding:2px; margin:6px 0 6px; box-shadow:0 0 12px rgba(203,213,225,0.4); flex-shrink:0;">
-                    <img src="${top2.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top2'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                  <!-- Khung Á Quân -->
+                  <div style="position:relative; width:76px; height:76px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
+                      <img src="${top2.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top2'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                    </div>
+                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539068/aphim-frames/a_a44e9335ea869639fdf812f3642a56a6.png" alt="Khung Á Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(203,213,225,0.5));">
                   </div>
-                  <div class="lb-player-name">${top2.name || 'Người dùng'}</div>
-                  <div style="font-size:10px; color:#cbd5e1; background:rgba(203,213,225,0.15); border:1px solid rgba(203,213,225,0.3); padding:1px 5px; border-radius:6px; margin:3px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">${top2.rank || 'Hạng 2'}</div>
+                  <div class="lb-player-name">${top2.name || 'Thành viên'}</div>
+                  <div style="font-size:10.5px; font-weight:700; color:#cbd5e1; background:rgba(203,213,225,0.15); border:1px solid rgba(203,213,225,0.35); padding:2px 8px; border-radius:6px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
+                    <span>🥈 Á Quân</span>
+                  </div>
                   <div class="lb-xp-txt">${(top2.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta">${top2.hours || 0}h xem phim</div>
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <span>⏱️ ${top2.hours || 0}h xem</span>
+                    <span>•</span>
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316;">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                      ${top2.streak || 1}d
+                    </span>
+                  </div>
+                  <div class="lb-pedestal-base top2-pedestal">#2 Á QUÂN</div>
                 </div>
 
-                <!-- TOP 1 (GOLD / CHAMPION) -->
+                <!-- TOP 1 (GOLD CHAMPION - QUÁN QUÂN) -->
                 <div class="lb-card-top1">
-                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-16px; width:34px; height:26px; filter:drop-shadow(0 3px 10px rgba(245,158,11,0.85));">
-                    <svg width="34" height="26" viewBox="0 0 36 28" fill="none">
+                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-18px; width:38px; height:30px; filter:drop-shadow(0 4px 14px rgba(245,158,11,0.9));">
+                    <svg width="38" height="30" viewBox="0 0 38 30" fill="none">
                       <defs>
-                        <linearGradient id="goldCrownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#fff176"/>
-                          <stop offset="40%" stop-color="#f59e0b"/>
-                          <stop offset="100%" stop-color="#d97706"/>
+                        <linearGradient id="goldCrownGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fff59d"/>
+                          <stop offset="35%" stop-color="#fbc02d"/>
+                          <stop offset="70%" stop-color="#f57f17"/>
+                          <stop offset="100%" stop-color="#b45309"/>
                         </linearGradient>
                       </defs>
-                      <path d="M3 23h30v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3z" fill="url(#goldCrownGrad)"/>
-                      <path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z" fill="url(#goldCrownGrad)" stroke="#b45309" stroke-width="1.2" stroke-linejoin="round"/>
-                      <circle cx="18" cy="4" r="2.5" fill="#ef4444" stroke="#fff" stroke-width="1"/>
-                      <circle cx="7.5" cy="9" r="2" fill="#3b82f6" stroke="#fff" stroke-width="0.8"/>
-                      <circle cx="28.5" cy="9" r="2" fill="#3b82f6" stroke="#fff" stroke-width="0.8"/>
-                      <rect x="15.5" y="24" width="5" height="2" rx="1" fill="#fff" opacity="0.8"/>
+                      <path d="M3 24h32v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z" fill="url(#goldCrownGrad3)"/>
+                      <path d="M4 24l3.5-15 7 8L19 4l4.5 13 7-8L34 24H4z" fill="url(#goldCrownGrad3)" stroke="#78350f" stroke-width="1.2" stroke-linejoin="round"/>
+                      <circle cx="19" cy="4" r="3" fill="#ef4444" stroke="#fff" stroke-width="1.2"/>
+                      <circle cx="7.5" cy="9" r="2.2" fill="#3b82f6" stroke="#fff" stroke-width="0.9"/>
+                      <circle cx="30.5" cy="9" r="2.2" fill="#3b82f6" stroke="#fff" stroke-width="0.9"/>
+                      <circle cx="19" cy="20" r="1.5" fill="#fff" opacity="0.9"/>
                     </svg>
                   </div>
-                  <div style="width:58px; height:58px; border-radius:50%; border:2.5px solid #fcd576; padding:2px; margin:4px 0 6px; box-shadow:0 0 18px rgba(245,158,11,0.6); flex-shrink:0;">
-                    <img src="${top1.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top1'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                  <!-- Khung Quán Quân -->
+                  <div style="position:relative; width:88px; height:88px; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; box-shadow:0 0 20px rgba(245,158,11,0.6); z-index:1;">
+                      <img src="${top1.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top1'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                    </div>
+                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539061/aphim-frames/a_386445551be850bb16b73a225d0d0602.png" alt="Khung Quán Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 14px rgba(245,158,11,0.6));">
                   </div>
                   <div class="lb-player-name top1-name">${top1.name || 'Quán Quân'}</div>
-                  <div style="font-size:10.5px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.4); padding:2px 7px; border-radius:6px; margin:3px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
-                    <svg width="12" height="10" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
+                  <div style="font-size:11px; font-weight:800; color:#fcd576; background:linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.2) 100%); border:1px solid rgba(245,158,11,0.55); padding:2px 10px; border-radius:8px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(245,158,11,0.2);">
+                    <svg width="12" height="11" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
                     <span>Quán Quân</span>
                   </div>
                   <div class="lb-xp-txt top1-xp">${(top1.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:3px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
-                    <span>${top1.streak || 1} ngày streak</span>
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700;">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                      ${top1.streak || 1} ngày streak
+                    </span>
+                    <span>•</span>
+                    <span>⏱️ ${top1.hours || 0}h xem</span>
                   </div>
+                  <div class="lb-pedestal-base top1-pedestal">#1 QUÁN QUÂN</div>
                 </div>
 
-                <!-- TOP 3 (BRONZE) -->
+                <!-- TOP 3 (BRONZE MASTER - QUÝ QUÂN) -->
                 <div class="lb-card-top3">
-                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-14px; width:26px; height:26px; filter:drop-shadow(0 2px 8px rgba(217,119,6,0.5));">
-                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-16px; width:30px; height:30px; filter:drop-shadow(0 3px 10px rgba(217,119,6,0.6));">
+                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
                       <defs>
-                        <linearGradient id="bronzeMedalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#fed7aa"/>
-                          <stop offset="45%" stop-color="#f97316"/>
-                          <stop offset="100%" stop-color="#9a3412"/>
+                        <linearGradient id="bronzeMedalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#ffedd5"/>
+                          <stop offset="35%" stop-color="#fb923c"/>
+                          <stop offset="70%" stop-color="#c2410c"/>
+                          <stop offset="100%" stop-color="#7c2d12"/>
                         </linearGradient>
                       </defs>
-                      <circle cx="14" cy="14" r="12" fill="url(#bronzeMedalGrad)" stroke="#7c2d12" stroke-width="1.2"/>
-                      <circle cx="14" cy="14" r="9.5" fill="none" stroke="#fdba74" stroke-dasharray="2 1.5"/>
-                      <text x="14" y="18" font-size="12" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#431407">3</text>
+                      <circle cx="16" cy="16" r="14" fill="url(#bronzeMedalGrad3)" stroke="#431407" stroke-width="1.5"/>
+                      <circle cx="16" cy="16" r="11" fill="none" stroke="#fed7aa" stroke-dasharray="2.5 1.5"/>
+                      <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#290b02">3</text>
                     </svg>
                   </div>
-                  <div style="width:48px; height:48px; border-radius:50%; border:2px solid #cd7f32; padding:2px; margin:6px 0 6px; box-shadow:0 0 12px rgba(205,127,50,0.4); flex-shrink:0;">
-                    <img src="${top3.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top3'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                  <!-- Khung Quý Quân -->
+                  <div style="position:relative; width:76px; height:76px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
+                      <img src="${top3.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top3'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
+                    </div>
+                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789538978/aphim-frames/a_45f7f9975255971b197d34d77fb50ede.png" alt="Khung Quý Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(205,127,50,0.5));">
                   </div>
-                  <div class="lb-player-name">${top3.name || 'Người dùng'}</div>
-                  <div style="font-size:10px; color:#cd7f32; background:rgba(205,127,50,0.15); border:1px solid rgba(205,127,50,0.3); padding:1px 5px; border-radius:6px; margin:3px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">${top3.rank || 'Hạng 3'}</div>
-                  <div class="lb-xp-txt">${(top3.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta">${top3.hours || 0}h xem phim</div>
+                  <div class="lb-player-name">${top3.name || 'Thành viên'}</div>
+                  <div style="font-size:10.5px; font-weight:700; color:#fed7aa; background:rgba(205,127,50,0.18); border:1px solid rgba(205,127,50,0.35); padding:2px 8px; border-radius:6px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
+                    <span>🥉 Quý Quân</span>
+                  </div>
+                  <div class="lb-xp-txt" style="color:#fb923c;">${(top3.xp || 0).toLocaleString()} XP</div>
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <span>⏱️ ${top3.hours || 0}h xem</span>
+                    <span>•</span>
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316;">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                      ${top3.streak || 1}d
+                    </span>
+                  </div>
+                  <div class="lb-pedestal-base top3-pedestal">#3 QUÝ QUÂN</div>
                 </div>
 
               </div>
 
-              <!-- 📋 TOP 4 - 10 LEADERBOARD ROWS -->
-              <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+              <!-- 📋 CONTENDERS ROWS (#4 - #10) -->
+              <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:22px;">
                 ${lbData.rest.map(item => `
                   <div class="lb-row-item ${item.isMe ? 'is-me' : ''}">
-                    <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                    <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
                       <div class="lb-row-pos ${item.position <= 5 ? 'top5' : ''}">
                         #${item.position}
                       </div>
-                      <img src="${item.avatar}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
+                      <div style="position:relative; width:38px; height:38px; flex-shrink:0;">
+                        <img src="${item.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,0.18); display:block;">
+                      </div>
                       <div style="min-width:0; flex:1;">
                         <div class="lb-row-name ${item.isMe ? 'is-me' : ''}">
                           <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</span>
-                          ${item.isMe ? '<span style="font-size:9.5px; background:#f59e0b; color:#111827; padding:1px 5px; border-radius:4px; font-weight:900; flex-shrink:0;">BẠN</span>' : ''}
+                          ${item.isMe ? '<span style="font-size:9.5px; background:linear-gradient(135deg,#fcd576,#f59e0b); color:#111827; padding:1px 6px; border-radius:5px; font-weight:900; letter-spacing:0.3px; flex-shrink:0;">BẠN</span>' : ''}
                         </div>
-                        <div style="font-size:11px; color:#94a3b8; display:flex; align-items:center; gap:5px; margin-top:2px;">
-                          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.rank}</span>
-                          <span>•</span>
-                          <span style="flex-shrink:0; display:inline-flex; align-items:center; gap:2px;">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                        <div style="font-size:11.5px; color:#94a3b8; display:flex; align-items:center; gap:6px; margin-top:3px;">
+                          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#cbd5e1;">${item.rank}</span>
+                          <span style="opacity:0.4;">•</span>
+                          <span style="flex-shrink:0; display:inline-flex; align-items:center; gap:3px; color:#f97316; font-weight:700;">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                             ${item.streak || 1}d
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div style="text-align:right; flex-shrink:0; margin-left:8px;">
-                      <div class="lb-xp-txt">${(item.xp || 0).toLocaleString()} XP</div>
-                      <div class="lb-sub-meta">${item.hours || 0} giờ xem</div>
+                    <div style="text-align:right; flex-shrink:0; margin-left:12px;">
+                      <div class="lb-xp-txt" style="display:flex; align-items:center; justify-content:flex-end; gap:4px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>${(item.xp || 0).toLocaleString()} XP</span>
+                      </div>
+                      <div class="lb-sub-meta" style="margin-top:3px;">⏱️ ${item.hours || 0} giờ xem</div>
                     </div>
                   </div>
                 `).join('')}
               </div>
 
-              <!-- 🎯 STICKY USER POSITION BANNER -->
+              <!-- 🎯 STICKY USER POSITION HUD BAR -->
               <div class="lb-my-rank-bar">
-                <div style="display:flex; align-items:center; gap:10px;">
-                  <div style="width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg,#fcd576,#f59e0b); display:flex; align-items:center; justify-content:center; color:#111827; font-size:14px; font-weight:900; box-shadow:0 4px 12px rgba(245,158,11,0.4); flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div style="width:42px; height:42px; border-radius:14px; background:linear-gradient(135deg,#fcd576 0%,#f59e0b 100%); display:flex; align-items:center; justify-content:center; color:#111827; font-size:15px; font-weight:900; box-shadow:0 4px 16px rgba(245,158,11,0.45); flex-shrink:0; border:1px solid rgba(255,255,255,0.4);">
                     #${lbData.myRank}
                   </div>
                   <div>
                     <div class="lb-my-rank-title">Vị trí của bạn: <strong>Hạng #${lbData.myRank}</strong></div>
-                    <div class="lb-my-rank-sub">Đang có <strong>${totalXP.toLocaleString()} XP</strong> · Cày thêm để bứt phá Top 3!</div>
+                    <div class="lb-my-rank-sub">Đang có <strong>${totalXP.toLocaleString()} XP</strong> · Cày thêm phim để bứt phá Top 3!</div>
                   </div>
                 </div>
-                <button onclick="openGamificationModal('missions')" style="padding:8px 14px; border-radius:10px; background:linear-gradient(135deg,#fcd576,#f59e0b); color:#111827; border:none; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 4px 12px rgba(245,158,11,0.35); flex-shrink:0;">
+                <button onclick="openGamificationModal('missions')" style="padding:9px 18px; border-radius:12px; background:linear-gradient(135deg,#fcd576 0%,#f59e0b 100%); color:#111827; border:none; font-size:12.5px; font-weight:900; letter-spacing:-0.2px; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 16px rgba(245,158,11,0.4); flex-shrink:0; transition:transform 0.2s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                   <span>Kiếm Thêm XP</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
               </div>
 
@@ -5217,6 +5308,38 @@ function useTestLogoAvatar() {
   openPresetAvatarModal();
 }
 
+function isReservedAdminName(name) {
+  if (!name || typeof name !== 'string') return false;
+  const normalized = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const reservedTerms = [
+    'admin', 'administrator', 'superadmin', 'super admin', 'quan tri',
+    'quan tri vien', 'ban quan tri', 'bqt', 'moderator', 'mod aphim',
+    'aphim mod', 'he thong', 'system', 'support aphim', 'aphim support',
+    'aphim official', 'developer', 'dev aphim'
+  ];
+
+  for (const term of reservedTerms) {
+    const regex = new RegExp(`(^|\\s)${term.replace(/\\s+/g, '\\s+')}(\\s|$)`, 'i');
+    if (regex.test(normalized) || regex.test(name.toLowerCase())) {
+      return true;
+    }
+    if (['admin', 'administrator', 'superadmin', 'quan tri vien', 'ban quan tri'].includes(term)) {
+      if (normalized.includes(term.replace(/\s+/g, ' '))) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function saveAccount() {
   const nameInput = document.getElementById('accDisplayName');
   const bioInput = document.getElementById('accBio');
@@ -5225,6 +5348,21 @@ function saveAccount() {
   const newName = (nameInput ? nameInput.value.trim() : '') || 'Người dùng';
 
   if (!currentUser) currentUser = getUser() || {};
+
+  // Chặn người dùng thường đặt tên có chứa danh xưng đặc quyền của Admin/BQT
+  const isAdmin = currentUser.role === 'admin' || currentUser.email === 'admin@aphim.io.vn';
+  if (!isAdmin && isReservedAdminName(newName)) {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ Tên hiển thị chứa danh xưng đặc quyền của Admin (Admin, Quản trị viên, BQT...). Vui lòng chọn tên khác!', 'error');
+    } else {
+      alert('Tên hiển thị chứa danh xưng đặc quyền của Admin (Admin, Quản trị viên, BQT...). Vui lòng chọn tên khác!');
+    }
+    if (nameInput) {
+      nameInput.value = currentUser.displayName || currentUser.name || '';
+      nameInput.focus();
+    }
+    return;
+  }
 
   currentUser.displayName = newName;
   currentUser.name = newName;

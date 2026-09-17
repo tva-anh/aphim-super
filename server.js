@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 3005;
 // Socket.IO Setup
 const http = require('http');
 const { Server } = require('socket.io');
-const server = http.createServer(app);
+const server = http.createServer({ maxHeaderSize: 65536 }, app);
 const io = new Server(server, {
     cors: {
         origin: "*",
@@ -256,6 +256,146 @@ app.get('/api/comments/movie/:slug', async (req, res) => {
     }
 });
 
+// 2b. Fetch recent comments for homepage showcase
+app.get('/api/comments/home-showcase', async (req, res) => {
+    try {
+        let list = [];
+        try {
+            if (Comment) {
+                list = await Comment.find({ status: { $ne: 'hidden' } })
+                    .sort({ createdAt: -1 })
+                    .limit(20)
+                    .lean();
+            }
+        } catch (dbErr) {
+            console.warn('[Comments] MongoDB read warning for showcase:', dbErr.message);
+        }
+
+        const formatTimeAgo = (dateStr) => {
+            if (!dateStr) return '1 ngày trước';
+            const diffMs = Date.now() - new Date(dateStr).getTime();
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            if (diffMins < 5) return 'Vừa xong';
+            if (diffMins < 60) return `${diffMins} phút trước`;
+            if (diffHours < 24) return `${diffHours} giờ trước`;
+            if (diffDays < 30) return `${diffDays} ngày trước`;
+            return 'Gần đây';
+        };
+
+        const DISCORD_DECORATION_PRESETS = [
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_0e839cd79500e7b68e2bbbed54790c28.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_001e956faa73bd0410c455234c62818f.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_1acbe609daec21fa5b866df9e5a42cb7.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_3c97a2d37f433a7913a1c7b7a735d000.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_777b7aa8e77a569766e4a2e2bf656f4e.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_b77d61247d4e3efdbe149a4e0a7df844.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_8679f2fe4ceca1b239ebca2021fb4bfb.png?size=240&passthrough=true'
+        ];
+
+        const defaultMockComments = [
+            {
+                userName: 'Yêu Phim',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=YeuPhim',
+                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png?size=240&passthrough=true',
+                equippedFrameClass: '',
+                badge: 'VIP PRO',
+                timeAgo: '1 ngày trước',
+                content: 'Phim hay đáng xem, kỹ xảo đỉnh cao!',
+                movieSlug: 'con-ke-ba-nghe',
+                movieName: 'Con Kế Ba Nghệ'
+            },
+            {
+                userName: 'demo1',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=demo1',
+                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0e839cd79500e7b68e2bbbed54790c28.png?size=240&passthrough=true',
+                equippedFrameClass: '',
+                badge: 'Thành viên',
+                timeAgo: '1 ngày trước',
+                content: 'xem phim chỉ muốn khóc, diễn xuất cảm động quá!',
+                movieSlug: 'hen-em-ngay-nhat-thuc',
+                movieName: 'Hẹn Em Ngày Nhật Thực'
+            },
+            {
+                userName: 'Nguyễn Văn Test',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=NguyenVanTest',
+                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_001e956faa73bd0410c455234c62818f.png?size=240&passthrough=true',
+                equippedFrameClass: '',
+                badge: 'Cày Phim',
+                timeAgo: '1 ngày trước',
+                content: 'Bình luận test đồng bộ realtime tuyệt vời!',
+                movieSlug: 'test-realtime-movie',
+                movieName: 'Test Realtime Movie'
+            },
+            {
+                userName: 'tonylemau',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=tonylemau',
+                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_1acbe609daec21fa5b866df9e5a42cb7.png?size=240&passthrough=true',
+                equippedFrameClass: '',
+                badge: 'VIP',
+                timeAgo: '2 ngày trước',
+                content: 'fix film nay voi ad oi, bản vietsub quá nét!',
+                movieSlug: 'gone-girl',
+                movieName: 'Gone Girl'
+            },
+            {
+                userName: 'Mattroilan',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Mattroilan',
+                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_3c97a2d37f433a7913a1c7b7a735d000.png?size=240&passthrough=true',
+                equippedFrameClass: '',
+                badge: 'Fan Cứng',
+                timeAgo: '2 ngày trước',
+                content: 'Fix lag server này đi ạ, giao diện mới xem mượt hơn rồi!',
+                movieSlug: 'nha-bep-dia-nguc-phan-1',
+                movieName: 'Nhà Bếp Địa Ngục Phần 1'
+            }
+        ];
+
+        let formattedList = list.map((c, idx) => {
+            const userObj = c.user || {};
+            const uName = userObj.displayName || userObj.name || c.userName || c.user_name || 'Khách xem phim';
+            const uAvatar = userObj.avatarUrl || userObj.avatar || c.avatar || c.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(uName)}`;
+            const frameUrl = userObj.equippedFrameUrl || c.equippedFrameUrl || c.frameUrl || DISCORD_DECORATION_PRESETS[idx % DISCORD_DECORATION_PRESETS.length];
+            const frameClass = userObj.equippedFrameClass || c.equippedFrameClass || c.frameClass || '';
+            const isAdmin = (uName && (uName.toLowerCase().includes('admin') || uName === 'Super Admin')) || userObj.role === 'admin' || (userObj.email && userObj.email.toLowerCase().includes('admin'));
+            let badge = isAdmin ? 'ADMIN TOP 1' : (userObj.equippedBadge || userObj.badge || c.badge || (userObj.isVip ? 'VIP PRO' : 'LV.' + (userObj.level || 15)));
+            if (badge && (badge.toLowerCase().includes('admin') || badge.toLowerCase().includes('top 1'))) {
+                badge = 'ADMIN TOP 1';
+            }
+            const nameColor = isAdmin ? 'color_gold' : (userObj.equippedColor || c.equippedColor || 'color_default');
+            const mSlug = c.movieSlug || c.movieId || 'phim';
+            const mName = c.movieName || c.movieTitle || mSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            return {
+                _id: c._id,
+                userName: uName,
+                userAvatar: uAvatar,
+                equippedFrameUrl: frameUrl,
+                equippedFrameClass: frameClass,
+                badge: badge,
+                nameColor: nameColor,
+                timeAgo: formatTimeAgo(c.createdAt),
+                content: c.content || '',
+                movieSlug: mSlug,
+                movieName: mName,
+                reactionsCount: (c.reactions?.likes || []).length
+            };
+        });
+
+        if (formattedList.length === 0) {
+            formattedList = defaultMockComments.slice(0, 3);
+        }
+
+        res.json({
+            success: true,
+            data: formattedList
+        });
+    } catch (e) {
+        res.json({ success: true, data: [] });
+    }
+});
+
 // 3. Post a new comment
 app.post('/api/comments', async (req, res) => {
     try {
@@ -275,7 +415,8 @@ app.post('/api/comments', async (req, res) => {
             equippedColor: userObj.equippedColor || 'color_default',
             role: userObj.role || req.user?.role || 'user',
             level: Number(userObj.level) || 15,
-            badge: userObj.badge || ''
+            badge: userObj.equippedBadge || userObj.badge || (userObj.role === 'admin' || req.user?.role === 'admin' ? 'ADMIN TOP 1' : (userObj.isVip ? 'VIP PRO' : 'LV.' + (Number(userObj.level) || 15))),
+            equippedBadge: userObj.equippedBadge || userObj.badge || (userObj.role === 'admin' || req.user?.role === 'admin' ? 'ADMIN TOP 1' : (userObj.isVip ? 'VIP PRO' : 'LV.' + (Number(userObj.level) || 15)))
         };
 
         const newCmtData = {
@@ -744,29 +885,159 @@ function checkBlockedSlug(req, res, next) {
     next();
 }
 
+// ==========================================
+// 🚀 ENTERPRISE MOVIE SEO & METADATA CACHE
+// ==========================================
+const movieMetadataCache = new Map();
+const MOVIE_CACHE_TTL = 60 * 60 * 1000; // 1 giờ
+
+async function fetchMovieMetadata(slug) {
+    if (!slug) return null;
+    const cleanSlug = String(slug).trim().toLowerCase();
+    const cached = movieMetadataCache.get(cleanSlug);
+    if (cached && (Date.now() - cached.ts < MOVIE_CACHE_TTL)) {
+        return cached.data;
+    }
+
+    try {
+        const response = await axios.get(`https://phimapi.com/phim/${cleanSlug}`, {
+            timeout: 3000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
+        });
+
+        if (response.data?.status && response.data?.movie) {
+            const m = response.data.movie;
+            const actors = Array.isArray(m.actor) ? m.actor.filter(Boolean) : (m.actor ? [m.actor] : []);
+            const directors = Array.isArray(m.director) ? m.director.filter(Boolean) : (m.director ? [m.director] : []);
+            const categories = Array.isArray(m.category) ? m.category.map(c => c.name || c) : [];
+            const countries = Array.isArray(m.country) ? m.country.map(c => c.name || c) : [];
+            const cleanContent = (m.content || '')
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const thumbUrl = m.thumb_url ? (m.thumb_url.startsWith('http') ? m.thumb_url : `https://img.phimapi.com/${m.thumb_url}`) : '';
+            const posterUrl = m.poster_url ? (m.poster_url.startsWith('http') ? m.poster_url : `https://img.phimapi.com/${m.poster_url}`) : '';
+
+            const result = {
+                slug: cleanSlug,
+                name: m.name || cleanSlug,
+                origin_name: m.origin_name || '',
+                year: m.year || new Date().getFullYear(),
+                quality: m.quality || 'HD',
+                lang: m.lang || 'Vietsub',
+                episode_current: m.episode_current || '',
+                time: m.time || '',
+                content: cleanContent,
+                thumb_url: thumbUrl,
+                poster_url: posterUrl,
+                actor: actors,
+                director: directors,
+                category: categories,
+                country: countries,
+                type: m.type || 'single'
+            };
+
+            movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
+            return result;
+        }
+    } catch (err) {
+        // Fallback gracefully on timeout or network hiccup
+    }
+    return null;
+}
+
 // 2. Movie Detail Showcase Route: /phim/:slug
-app.get('/phim/:slug', checkBlockedSlug, (req, res) => {
+app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
     const slug = req.params.slug;
+    const meta = await fetchMovieMetadata(slug);
+
+    if (meta) {
+        const title = `Phim ${meta.name} (${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
+        const actorText = meta.actor.length ? ` Diễn viên: ${meta.actor.slice(0, 4).join(', ')}.` : '';
+        const directorText = meta.director.length ? ` Đạo diễn: ${meta.director.slice(0, 2).join(', ')}.` : '';
+        const descSnippet = meta.content ? ` ${meta.content.slice(0, 150)}...` : '';
+        const metaDescription = `Xem phim ${meta.name} (${meta.origin_name}) full HD ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet}`;
+        const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim`;
+        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.io.vn/android-chrome-512x512.png';
+
+        const schemaData = {
+            "@context": "https://schema.org",
+            "@type": "Movie",
+            "name": meta.name,
+            "alternateName": meta.origin_name,
+            "image": ogImage,
+            "description": meta.content || metaDescription,
+            "dateCreated": String(meta.year),
+            "director": meta.director.map(d => ({ "@type": "Person", "name": d })),
+            "actor": meta.actor.map(a => ({ "@type": "Person", "name": a })),
+            "genre": meta.category,
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "9.6",
+                "bestRating": "10",
+                "ratingCount": "1580"
+            }
+        };
+
+        return res.render('phim', {
+            slug: slug,
+            movie: meta,
+            title: title,
+            metaDescription: metaDescription,
+            metaKeywords: metaKeywords,
+            ogImage: ogImage,
+            ogType: 'video.movie',
+            canonicalUrl: `https://aphim.io.vn/phim/${slug}`,
+            schemaData: schemaData
+        });
+    }
+
     const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
     res.render('phim', {
         slug: slug,
         movie: null,
         title: `Thông Tin Phim ${formattedName} Full HD | APhim Super`,
         metaDescription: `Thông tin chi tiết, lịch chiếu, danh sách tập phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
+        metaKeywords: `${formattedName}, xem phim ${formattedName}, phim mới vietsub, aphim`,
         canonicalUrl: `https://aphim.io.vn/phim/${slug}`
     });
 });
 
 // 3. Watch Video Player Route: /watch, /watch/:slug, /xem-phim/:slug, hoặc /xem-phim/:slug/:episode
-app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/:slug/:episode'], checkBlockedSlug, (req, res) => {
+app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/:slug/:episode'], checkBlockedSlug, async (req, res) => {
     const slug = req.params.slug || req.query.slug || '';
     const episode = req.params.episode || req.query.episode || '';
-    const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
+    const meta = await fetchMovieMetadata(slug);
+
     let epText = '';
     if (episode) {
         const cleanEp = episode.replace(/^tap-/, '');
         epText = cleanEp ? `- Tập ${cleanEp} ` : '';
     }
+
+    if (meta) {
+        const title = `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
+        const metaDescription = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao trên APhim Super.`;
+        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.io.vn/android-chrome-512x512.png';
+        const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${episode || '1'}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd`;
+
+        return res.render('watch', {
+            slug: slug,
+            episodeParam: episode,
+            movie: meta,
+            episodes: [],
+            title: title,
+            metaDescription: metaDescription,
+            metaKeywords: metaKeywords,
+            ogImage: ogImage,
+            ogType: 'video.movie',
+            canonicalUrl: `https://aphim.io.vn/xem-phim/${slug}`
+        });
+    }
+
+    const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
     res.render('watch', {
         slug: slug,
         episodeParam: episode,
@@ -774,6 +1045,7 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
         episodes: [],
         title: `Xem Phim ${formattedName} ${epText}Full HD | APhim Super`,
         metaDescription: `Xem phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
+        metaKeywords: `xem phim ${formattedName}, ${formattedName} vietsub, xem phim hd, aphim`,
         canonicalUrl: `https://aphim.io.vn/xem-phim/${slug}`
     });
 });
@@ -1188,13 +1460,24 @@ app.get(['/sitemap-images.xml', '/sitemap-images'], async (req, res) => {
     }
 });
 
-// Route robots.txt
+// Route robots.txt (Enterprise SEO Crawl Budget Optimization)
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send(`User-agent: *
 Allow: /
+Allow: /phim/
+Allow: /xem-phim/
+Allow: /danh-sach
+Allow: /categories
+Allow: /phim-theo-quoc-gia
 Disallow: /api/
+Disallow: /admin/
+Disallow: /profile
+Disallow: /tai-khoan
+Disallow: /reset-password
+Disallow: /*?*keyword=
 
+# Search Engine Sitemaps
 Sitemap: https://aphim.io.vn/sitemap.xml
 Sitemap: https://aphim.io.vn/sitemap-images.xml
 `);

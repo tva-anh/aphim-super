@@ -1,4 +1,4 @@
-﻿/**
+/**
  * A Phim - Admin Comments Management (MongoDB Backend)
  */
 
@@ -137,6 +137,15 @@ function updateStats(stats) {
     document.getElementById('spamComments').textContent = stats.hidden || 0;
 }
 
+function formatAdminComment(rawText) {
+    if (!rawText) return '';
+    let formatted = String(rawText);
+    formatted = formatted.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
+        return `<div style="margin-top: 6px; max-width: 180px; max-height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25);"><img src="${url}" loading="lazy" style="max-width: 100%; max-height: 120px; object-fit: cover; display: block; cursor: pointer; border-radius: 7px;" alt="GIF" onclick="window.open('${url}', '_blank')"></div>`;
+    });
+    return formatted;
+}
+
 function renderComments(comments) {
     const tbody = document.getElementById('commentsBody');
     if (!comments || !comments.length) {
@@ -162,9 +171,9 @@ function renderComments(comments) {
             <td><input type="checkbox" class="cmt-check" data-id="${c._id}" onchange="toggleSelect('${c._id}')" style="accent-color: var(--primary);"></td>
             <td>
                 <div style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">${userName}</div>
-                <div style="font-size: 11.5px; color: var(--text-muted);">${userEmail}</div>
+                ${userEmail ? `<div style="font-size: 11.5px; color: var(--text-muted);">${userEmail}</div>` : ''}
             </td>
-            <td><div class="comment-content">${c.content}</div></td>
+            <td><div class="comment-content">${formatAdminComment(c.content)}</div></td>
             <td><a href="../watch.html?slug=${c.movieSlug}" target="_blank" class="movie-ref">${movieTitle}</a></td>
             <td><span style="font-size: 12px; color: var(--text-muted);">${timeStr}</span></td>
             <td>${statusHtml}</td>

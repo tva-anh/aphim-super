@@ -1202,23 +1202,23 @@
     const totalXuEl = document.getElementById('kpiTotalXu');
     const newUsersEl = document.getElementById('kpiNewUsers');
     const vipActiveEl = document.getElementById('kpiVipActive');
-    const viewsEl = document.getElementById('kpiViews');
-    const totalMoviesEl = document.getElementById('kpiTotalMovies');
+    const commentsEl = document.getElementById('kpiComments');
+    const feedbacksEl = document.getElementById('kpiFeedbacks');
 
     if (revenueEl) revenueEl.textContent = new Intl.NumberFormat('vi-VN').format(kpi.total_revenue || 0) + 'đ';
     if (usersEl) usersEl.innerHTML = `${new Intl.NumberFormat('vi-VN').format(kpi.total_users || 0)} <span class="kpi-subval">/ ${new Intl.NumberFormat('vi-VN').format(kpi.vip_active || 0)} VIP</span>`;
-    if (viewsEl) viewsEl.textContent = new Intl.NumberFormat('vi-VN').format(kpi.total_views || 128450);
-    if (totalMoviesEl) totalMoviesEl.textContent = new Intl.NumberFormat('vi-VN').format(kpi.total_movies || 30045);
+    if (commentsEl) commentsEl.textContent = `${new Intl.NumberFormat('vi-VN').format(kpi.total_comments || 0)} (${kpi.approved_comments || 0} duyệt)`;
+    if (feedbacksEl) feedbacksEl.textContent = `${new Intl.NumberFormat('vi-VN').format(kpi.total_feedbacks || 0)} báo cáo`;
 
     const miniXu = document.getElementById('miniTotalXu');
     const miniPending = document.getElementById('miniPendingTx');
     const miniNewUsers = document.getElementById('miniNewUsersToday');
-    const miniComments = document.getElementById('miniTotalComments');
+    const miniPendingComments = document.getElementById('miniPendingComments');
 
     if (miniXu) miniXu.textContent = new Intl.NumberFormat('vi-VN').format(kpi.total_xu || 0) + ' Xu';
     if (miniPending) miniPending.textContent = kpi.pending_tx || 0;
     if (miniNewUsers) miniNewUsers.textContent = '+' + (kpi.new_users_today || 0);
-    if (miniComments) miniComments.textContent = new Intl.NumberFormat('vi-VN').format(kpi.total_comments || 0);
+    if (miniPendingComments) miniPendingComments.textContent = kpi.pending_comments || 0;
 
     if (data.system_metrics) {
       const sm = data.system_metrics;
@@ -1293,7 +1293,7 @@
         }
       }
     } catch (e) {
-      console.warn('Real KPI fetch fallback to visual demo:', e);
+      console.warn('Real KPI fetch error:', e);
     }
   }
 
@@ -1305,7 +1305,7 @@
 
     const labels = chartData?.labels || ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Hôm nay'];
     const revenueData = chartData?.revenue || [0, 0, 0, 0, 0, 0, 0];
-    const viewsData = chartData?.views || [1200, 1450, 1680, 1920, 2150, 2480, 2800];
+    const commentsData = chartData?.comments || [0, 0, 0, 0, 0, 0, 0];
 
     if (dashboardChartInstance) {
       dashboardChartInstance.destroy();
@@ -1317,8 +1317,8 @@
         labels: labels,
         datasets: [
           {
-            label: 'Lượt Stream CDN (lượt xem)',
-            data: viewsData,
+            label: 'Bình Luận Mới Thực Tế (lượt)',
+            data: commentsData,
             borderColor: '#4f46e5',
             backgroundColor: 'rgba(79, 70, 229, 0.08)',
             borderWidth: 2.5,
@@ -1983,6 +1983,32 @@
     }
   }
 
+  function formatAdminComment(rawText) {
+    if (!rawText) return '';
+    let sanitized = sanitize(rawText);
+
+    // 1. Nhận diện GIF [gif:https://...]
+    sanitized = sanitized.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
+      return `
+        <div class="admin-comment-gif-preview" style="margin-top: 6px; display: block; max-width: 180px; max-height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+          <img src="${url}" loading="lazy" style="max-width: 100%; max-height: 120px; object-fit: cover; display: block; cursor: pointer; border-radius: 7px;" alt="GIF" onclick="window.open('${url}', '_blank')" title="Nhấp để xem GIF kích thước gốc">
+        </div>
+      `;
+    });
+
+    // 2. Nhận diện Hình ảnh [img:https://...]
+    sanitized = sanitized.replace(/\[img:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
+      return `
+        <div class="admin-comment-img-preview" style="margin-top: 6px; display: block; max-width: 180px; max-height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+          <img src="${url}" loading="lazy" style="max-width: 100%; max-height: 120px; object-fit: cover; display: block; cursor: pointer; border-radius: 7px;" alt="Ảnh" onclick="window.open('${url}', '_blank')" title="Nhấp để xem ảnh">
+        </div>
+      `;
+    });
+
+    sanitized = sanitized.replace(/\n/g, '<br>');
+    return sanitized;
+  }
+
   function renderAdminComments(comments) {
     const tbody = document.getElementById('commentsTableBody');
     if (!tbody) return;
@@ -2041,7 +2067,7 @@
           <td>
             <div class="comment-content-text" style="max-width:380px; word-break:break-word;">
               ${c.isSpoiler ? '<span class="badge badge-rose" style="margin-right:6px;"><i data-lucide="alert-triangle"></i> Spoiler</span>' : ''}
-              ${sanitize(c.content || '')}
+              ${formatAdminComment(c.content || '')}
             </div>
           </td>
           <td>${statusBadge}</td>

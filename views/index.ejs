@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
     <%- include('partials/head') %>
+    <link rel="stylesheet" href="/css/avatar-frames.css">
     <style>
         /* Ensure body padding-top clears the fixed navbar with comfortable space */
         body {
@@ -315,6 +316,535 @@
             border: 1px solid rgba(236, 72, 153, 0.35) !important;
         }
 
+        /* ─── HOMEPAGE DECORATIVE COMMENTS SHOWCASE (SEAMLESS LUXURY DESIGN) ─── */
+        /* ─── HOMEPAGE DECORATIVE COMMENTS SHOWCASE (SEAMLESS LUXURY DESIGN) ─── */
+        .home-comments-section {
+            margin-top: 18px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        .home-comments-box {
+            background: linear-gradient(135deg, rgba(25, 27, 40, 0.5) 0%, rgba(18, 20, 30, 0.38) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 24px;
+            padding: 14px 20px 0 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Light Mode: Hòa trộn mượt mà vào màu nền trang, viền thanh thoát không thô */
+        html.light-mode .home-comments-box {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(248, 243, 233, 0.3) 100%) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(215, 202, 183, 0.55) !important;
+            box-shadow: 0 6px 24px rgba(78, 64, 45, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+            color: #1c1917 !important;
+        }
+
+        /* ── Main Flex Layout: Mascot on far-left, Content (Header + Cards) on right ── */
+        .home-comments-layout {
+            display: flex;
+            align-items: flex-end;
+            gap: 22px;
+            position: relative;
+        }
+
+        .home-comment-mascot-col {
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            width: 180px;
+            align-self: flex-end;
+            margin-bottom: 0;
+            line-height: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @media (max-width: 640px) {
+            .home-comment-mascot-col {
+                display: none;
+            }
+        }
+        .home-comment-mascot-img {
+            height: 220px;
+            width: auto;
+            max-width: 180px;
+            object-fit: contain;
+            object-position: bottom center;
+            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.38));
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: block;
+            vertical-align: bottom;
+            margin-bottom: 0;
+            user-select: none;
+            pointer-events: none;
+        }
+        .home-comments-box:hover .home-comment-mascot-img {
+            transform: translateY(-4px) scale(1.03);
+        }
+
+        /* Khi BẬT "Mở Bình Luận": Mascot tự động mở rộng chiều cao theo khung 2 hàng */
+        .home-comments-box.expanded .home-comment-mascot-col {
+            width: 215px;
+        }
+        .home-comments-box.expanded .home-comment-mascot-img {
+            height: 350px;
+            max-width: 215px;
+        }
+
+        .home-comments-main-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 14px;
+            transition: all 0.35s ease;
+        }
+
+        .home-comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2px;
+        }
+        .home-comments-tabs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.22);
+            padding: 3px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        html.light-mode .home-comments-tabs {
+            background: rgba(228, 218, 202, 0.5);
+            border: 1px solid rgba(212, 198, 178, 0.65);
+        }
+
+        .home-comment-tab-btn {
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #94a3b8;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 5px 15px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .home-comment-tab-btn:hover {
+            color: #ffffff;
+        }
+        .home-comment-tab-btn.active {
+            color: #ffffff;
+            background: #4f46e5;
+            box-shadow: 0 2px 10px rgba(79, 70, 229, 0.4);
+        }
+        html.light-mode .home-comment-tab-btn {
+            color: #78716c;
+        }
+        html.light-mode .home-comment-tab-btn:hover {
+            color: #1c1917;
+        }
+        html.light-mode .home-comment-tab-btn.active {
+            color: #ffffff;
+            background: #d97706;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+        }
+
+        .home-comment-toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #94a3b8;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .home-comment-toggle-wrap:hover {
+            color: #f1f5f9;
+        }
+        html.light-mode .home-comment-toggle-wrap {
+            color: #78716c;
+        }
+        html.light-mode .home-comment-toggle-wrap:hover {
+            color: #1c1917;
+        }
+        .comment-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: #475569;
+            border-radius: 9999px;
+            transition: background 0.3s;
+        }
+        .comment-switch.active {
+            background: #6366f1;
+        }
+        html.light-mode .comment-switch.active {
+            background: #d97706;
+        }
+        .comment-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border-radius: 50%;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .comment-switch.active::after {
+            transform: translateX(16px);
+        }
+
+        .home-comments-slider-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .home-comments-track {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 4px 2px 6px 2px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: all 0.35s ease;
+        }
+        .home-comments-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Khi BẬT "Mở Bình Luận": Hiển thị thêm 1 hàng bên dưới (2 Rows Layout) */
+        .home-comments-box.expanded .home-comments-track {
+            display: grid;
+            grid-template-rows: repeat(2, auto);
+            grid-auto-flow: column;
+            grid-auto-columns: 255px;
+            row-gap: 16px;
+            column-gap: 14px;
+            padding-bottom: 10px;
+        }
+
+        /* Individual Comment Card */
+        .home-comment-card {
+            flex: 0 0 255px;
+            width: 255px;
+            min-height: 155px;
+            background: rgba(30, 33, 48, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 13px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+        }
+        .home-comment-card:hover {
+            transform: translateY(-3px);
+            background: rgba(38, 42, 60, 0.85);
+            border-color: rgba(252, 213, 118, 0.35);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        html.light-mode .home-comment-card {
+            background: rgba(255, 255, 255, 0.65) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(224, 214, 198, 0.75) !important;
+            box-shadow: 0 4px 14px rgba(78, 64, 45, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+        }
+        html.light-mode .home-comment-card:hover {
+            background: #ffffff !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 8px 22px rgba(217, 119, 6, 0.12) !important;
+        }
+
+        .home-card-user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* AVATAR + FRAME CONTAINER */
+        .home-card-avatar-wrap {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .home-card-avatar-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #2a2d3d;
+            border: 1.5px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        html.light-mode .home-card-avatar-circle {
+            background: #efe7d9;
+            border-color: rgba(200, 185, 160, 0.5);
+        }
+        .home-card-avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .home-card-frame-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 49px;
+            height: 49px;
+            max-width: none;
+            max-height: none;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 3;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+        }
+
+        .home-card-user-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+        .home-card-username {
+            font-size: 13px;
+            font-weight: 800;
+            color: #fcd576;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+        }
+        html.light-mode .home-card-username:not(.has-custom-name-color) {
+            color: #92400e;
+        }
+        .home-card-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+        .home-card-time {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        html.light-mode .home-card-time {
+            color: #a8a29e;
+        }
+
+        .home-card-content {
+            font-size: 12.5px;
+            color: #cbd5e1;
+            line-height: 1.45;
+            margin: 8px 0;
+            word-break: break-word;
+        }
+        .home-card-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .home-card-gif-preview {
+            margin-top: 6px;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 56px;
+            max-width: 100px;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: #000;
+        }
+        .home-card-gif-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        html.light-mode .home-card-content {
+            color: #332f2b;
+        }
+        html.light-mode .home-card-gif-preview {
+            border-color: rgba(0,0,0,0.12);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Modern Movie Link (No box/pill, standout colors) */
+        .home-card-movie-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #38bdf8 !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            transition: all 0.2s ease;
+            margin-top: auto;
+        }
+        .home-card-movie-link:hover {
+            color: #7dd3fc !important;
+            text-decoration: none;
+            transform: translateX(2px);
+        }
+        html.light-mode .home-card-movie-link {
+            color: #c2410c !important;
+        }
+        html.light-mode .home-card-movie-link:hover {
+            color: #ea580c !important;
+        }
+
+        .home-card-movie-icon {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            filter: drop-shadow(0 1px 3px rgba(56, 189, 248, 0.35));
+            transition: transform 0.2s ease;
+        }
+        .home-card-movie-link:hover .home-card-movie-icon {
+            transform: scale(1.15) rotate(-5deg);
+        }
+        html.light-mode .home-card-movie-icon {
+            color: #ea580c;
+            filter: drop-shadow(0 1px 3px rgba(234, 88, 12, 0.3));
+        }
+
+        .home-comments-scroll-btn {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(30, 33, 48, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .home-comments-scroll-btn:hover {
+            background: #f59e0b;
+            color: #1a1000;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
+        html.light-mode .home-comments-scroll-btn {
+            background: #ffffff;
+            border: 1px solid #d6cebf;
+            color: #44403c;
+            box-shadow: 0 4px 12px rgba(78, 64, 45, 0.12);
+        }
+        html.light-mode .home-comments-scroll-btn:hover {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        @media (max-width: 640px) {
+            .home-comments-box {
+                padding: 12px 10px 10px 10px !important;
+                border-radius: 18px !important;
+            }
+            .home-comments-layout {
+                gap: 0 !important;
+            }
+            .home-comments-main-col {
+                padding-bottom: 2px !important;
+            }
+            .home-comments-header {
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 6px;
+            }
+            .home-comment-tab-btn {
+                padding: 4px 10px !important;
+                font-size: 11.5px !important;
+            }
+            .home-comment-toggle-wrap {
+                font-size: 11.5px !important;
+                gap: 5px !important;
+            }
+            .home-comments-track {
+                gap: 10px !important;
+                padding: 4px 2px 8px 2px !important;
+            }
+            .home-comments-box.expanded .home-comments-track {
+                grid-auto-columns: 235px !important;
+                row-gap: 16px !important;
+                column-gap: 10px !important;
+                padding-bottom: 10px !important;
+            }
+            .home-comment-card {
+                flex: 0 0 235px !important;
+                width: 235px !important;
+                min-height: 145px !important;
+                padding: 12px 12px !important;
+            }
+            .home-comments-scroll-btn {
+                right: -2px !important;
+                width: 28px !important;
+                height: 28px !important;
+                opacity: 0.85;
+            }
+        }
+
+
     </style>
 </head>
 <body class="bg-[#1f2331] text-white antialiased">
@@ -344,6 +874,59 @@
             <!-- Horizontal Scroll Slider (Vertical 2:3 Cards) -->
             <div id="slider-de-cu" class="de-cu-slider">
                 <!-- Loaded via JS -->
+            </div>
+        </section>
+
+        <!-- ==============================================
+             SECTION 0.5: COMMUNITY COMMENTS SHOWCASE (MATCHING PHOTO EXACTLY)
+             ============================================== -->
+        <section class="home-comments-section" id="homeCommentsSection">
+            <div class="home-comments-box" id="homeCommentsBox">
+                <div class="home-comments-layout">
+                    <!-- Left Mascot Illustration (Stands tall from bottom) -->
+                    <div class="home-comment-mascot-col">
+                        <img 
+                            src="/images/comment-mascot.webp" 
+                            alt="Cặp Đôi Bình Luận Phim" 
+                            class="home-comment-mascot-img"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='https://res.cloudinary.com/ththhwm2/image/upload/f_webp,q_auto/v1789573118/comment-mascot.webp';"
+                        >
+                    </div>
+
+                    <!-- Right Main Column: Header (aligned with cards) + Slider Track -->
+                    <div class="home-comments-main-col">
+                        <!-- Header: Tabs on Left, Switch on Right -->
+                        <div class="home-comments-header">
+                            <div class="home-comments-tabs">
+                                <button type="button" class="home-comment-tab-btn active" id="homeCommentTabLatest" onclick="switchHomeCommentTab('latest')">
+                                    Bình Luận Mới
+                                </button>
+                                <button type="button" class="home-comment-tab-btn" id="homeCommentTabFeatured" onclick="switchHomeCommentTab('featured')">
+                                    Nổi Bật
+                                </button>
+                            </div>
+                            <div class="home-comment-toggle-wrap" onclick="toggleHomeComments()">
+                                <span>Mở Bình Luận</span>
+                                <div class="comment-switch" id="homeCommentSwitch"></div>
+                            </div>
+                        </div>
+
+                        <!-- Cards Slider Track -->
+                        <div class="home-comments-slider-wrap" id="homeCommentsBody">
+                            <div class="home-comments-track" id="homeCommentsTrack">
+                                <div class="py-8 flex items-center justify-center text-gray-400 w-full text-xs">
+                                    <span class="animate-spin mr-2">⏳</span> Đang nạp bình luận mới nhất...
+                                </div>
+                            </div>
+
+                            <!-- Right Arrow Button -->
+                            <button type="button" class="home-comments-scroll-btn" onclick="scrollHomeComments(260)" title="Xem thêm bình luận">
+                                <span class="material-icons-round text-sm">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -822,6 +1405,157 @@
             }
         }
 
+        // ==========================================
+        // 💬 HOMEPAGE COMMUNITY COMMENTS SHOWCASE
+        // ==========================================
+        let allHomeComments = [];
+        let currentCommentTab = 'latest';
+
+        window.scrollHomeComments = function(delta) {
+            const track = document.getElementById('homeCommentsTrack');
+            if (track) {
+                track.scrollBy({ left: delta, behavior: 'smooth' });
+            }
+        };
+
+        window.toggleHomeComments = function() {
+            const switchEl = document.getElementById('homeCommentSwitch');
+            const boxEl = document.getElementById('homeCommentsBox');
+            if (!switchEl || !boxEl) return;
+
+            const isCurrentlyActive = switchEl.classList.contains('active');
+            if (isCurrentlyActive) {
+                switchEl.classList.remove('active');
+                boxEl.classList.remove('expanded');
+            } else {
+                switchEl.classList.add('active');
+                boxEl.classList.add('expanded');
+            }
+        };
+
+        window.switchHomeCommentTab = function(tab) {
+            currentCommentTab = tab;
+            const tabLatest = document.getElementById('homeCommentTabLatest');
+            const tabFeatured = document.getElementById('homeCommentTabFeatured');
+
+            if (tab === 'latest') {
+                tabLatest?.classList.add('active');
+                tabFeatured?.classList.remove('active');
+            } else {
+                tabFeatured?.classList.add('active');
+                tabLatest?.classList.remove('active');
+            }
+            renderHomeComments();
+        };
+
+        const HOME_FALLBACK_FRAMES = [
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_0e839cd79500e7b68e2bbbed54790c28.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_001e956faa73bd0410c455234c62818f.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_1acbe609daec21fa5b866df9e5a42cb7.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_3c97a2d37f433a7913a1c7b7a735d000.png?size=240&passthrough=true',
+            'https://cdn.discordapp.com/avatar-decoration-presets/a_777b7aa8e77a569766e4a2e2bf656f4e.png?size=240&passthrough=true'
+        ];
+
+        function formatHomeCardContent(raw) {
+            if (!raw) return { text: '', gifUrl: null };
+            let text = raw;
+            let gifUrl = null;
+            const gifMatch = raw.match(/\[gif:(https?:\/\/[^\]\s]+)\]/i);
+            if (gifMatch) {
+                gifUrl = gifMatch[1];
+                text = raw.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, '').trim();
+            }
+            return { text, gifUrl };
+        }
+
+        function renderHomeComments() {
+            const track = document.getElementById('homeCommentsTrack');
+            if (!track) return;
+
+            let items = [...allHomeComments];
+            if (currentCommentTab === 'featured') {
+                items.sort((a, b) => (b.reactionsCount || 0) - (a.reactionsCount || 0));
+            }
+
+            if (!items.length) {
+                track.innerHTML = `
+                    <div class="py-6 text-center text-gray-400 text-xs w-full">
+                        Chưa có bình luận nào gần đây. Hãy là người đầu tiên bình luận phim!
+                    </div>
+                `;
+                return;
+            }
+
+            track.innerHTML = items.map((c, idx) => {
+                const frameUrl = (c.equippedFrameUrl && c.equippedFrameUrl.startsWith('http')) 
+                    ? c.equippedFrameUrl 
+                    : (c.frameUrl && c.frameUrl.startsWith('http')) 
+                        ? c.frameUrl 
+                        : HOME_FALLBACK_FRAMES[idx % HOME_FALLBACK_FRAMES.length];
+
+                const badgeHtml = c.badge ? (typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(c.badge) : `<span class="home-card-badge">${c.badge}</span>`) : '';
+                const { text: cleanText, gifUrl } = formatHomeCardContent(c.content);
+                const gifHtml = gifUrl 
+                    ? `<div class="home-card-gif-preview"><img src="${gifUrl}" loading="lazy" alt="GIF"></div>` 
+                    : '';
+                const textHtml = cleanText ? `<div class="home-card-text">${cleanText}</div>` : '';
+                const titleTooltip = cleanText || (gifUrl ? 'Đã gửi một GIF' : '');
+
+                const nameColorCls = c.nameColor && c.nameColor !== 'color_default' ? `ap-nc-${c.nameColor} has-custom-name-color` : '';
+
+                return `
+                    <div class="home-comment-card">
+                        <div>
+                            <!-- User Row With Avatar Frame -->
+                            <div class="home-card-user-row">
+                                <div class="home-card-avatar-wrap">
+                                    <div class="home-card-avatar-circle">
+                                        <img src="${c.userAvatar}" alt="${c.userName}" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(c.userName)}';">
+                                    </div>
+                                    ${frameUrl ? `<img src="${frameUrl}" class="home-card-frame-img" alt="Khung Avatar" loading="lazy">` : ''}
+                                </div>
+                                <div class="home-card-user-info">
+                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.2;">
+                                        <span class="home-card-username ${nameColorCls}" title="${c.userName}">${c.userName}</span>
+                                        ${badgeHtml}
+                                    </div>
+                                    <span class="home-card-time">- ${c.timeAgo}</span>
+                                </div>
+                            </div>
+
+                            <!-- Content Snippet -->
+                            <div class="home-card-content" title="${titleTooltip}">
+                                ${textHtml}
+                                ${gifHtml}
+                            </div>
+                        </div>
+
+                        <!-- Modern Movie Link (No Box Pill, Clean Modern SVG & Standout Text) -->
+                        <a href="/phim/${c.movieSlug}" class="home-card-movie-link" title="Xem phim ${c.movieName}">
+                            <svg class="home-card-movie-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zm2 14H4V8h16v10z"/>
+                            </svg>
+                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.movieName}</span>
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadHomeCommentsShowcase() {
+            try {
+                const res = await fetch('/api/comments/home-showcase');
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data)) {
+                    allHomeComments = data.data;
+                    renderHomeComments();
+                }
+            } catch (err) {
+                console.warn('Lỗi tải bình luận trang chủ:', err);
+            }
+        }
+
         function loadWhenNearViewport(containerId, loadSection) {
             const container = document.getElementById(containerId);
             if (!container || !('IntersectionObserver' in window)) {
@@ -841,6 +1575,7 @@
         // Load the first row immediately; defer lower rows until the user is approaching them.
         document.addEventListener('DOMContentLoaded', function() {
             loadDeCuSlider();
+            loadHomeCommentsShowcase();
             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
             loadWhenNearViewport('grid-bang-xep-hang', loadRankingSection);
             loadWhenNearViewport('grid-chieu-rap', () => loadUnifiedSection('list', 'phim-chieu-rap', 'grid-chieu-rap', 12));

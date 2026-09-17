@@ -59,7 +59,69 @@
     }
 
     .footer-col-left { 
-        display: block; 
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        width: 100%;
+    }
+
+    .footer-logo-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 1.25rem;
+        width: 100%;
+    }
+
+    @media (max-width: 640px) {
+        .footer-logo-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    .footer-logo-link {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-decoration: none !important;
+    }
+
+    .footer-logo-link img {
+        display: block;
+        margin: 0 !important;
+        object-fit: contain;
+        object-position: left center;
+    }
+
+    .footer-desc-text a,
+    footer.aphim-footer p a,
+    html.light-mode footer.aphim-footer p a,
+    html.light-mode footer.aphim-footer .footer-desc-text a {
+        color: inherit !important;
+        text-decoration: underline !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: inline !important;
+    }
+
+    html.light-mode .footer-divider {
+        background: #d6cebf !important;
+    }
+
+    html.light-mode .footer-desc-text {
+        color: #57534e !important;
     }
 
     .footer-col-right {
@@ -174,21 +236,21 @@
             <!-- CỘT TRÁI (Canh lề trái phẳng tuyệt đối) -->
             <div class="footer-col-left">
                 <!-- Top row: Logo & Social -->
-                <div class="flex flex-col md:flex-row items-center md:items-center justify-start gap-5 md:gap-8 border-b border-white/5 pb-6">
+                <div class="footer-logo-row">
                     <!-- Logo (Clean header logo image /logo-aphim1.png) -->
-                    <a href="/" class="flex flex-col items-start group" style="text-decoration: none !important;">
+                    <a href="/" class="footer-logo-link group">
                         <picture>
                             <source srcset="/logo-aphim1.webp" type="image/webp" />
-                            <img src="/logo-aphim1.png" alt="APhim Logo" class="h-11 md:h-14 w-auto object-contain group-hover:scale-105 transition-transform" width="240" height="100" loading="lazy" decoding="async" />
+                            <img src="/logo-aphim1.png" alt="APhim Logo" class="h-11 md:h-14 w-auto object-contain object-left group-hover:scale-105 transition-transform" width="240" height="100" loading="lazy" decoding="async" />
                         </picture>
                         <span class="text-gray-400 text-xs md:text-sm mt-1 font-medium">Xem Phim Mới Nhất</span>
                     </a>
 
                     <!-- Divider -->
-                    <div class="hidden md:block w-px h-8 bg-white/10 footer-divider"></div>
+                    <div class="hidden sm:block w-px h-8 bg-white/10 footer-divider"></div>
                     
                     <!-- Social Icons (8 Icons) -->
-                    <div class="flex flex-wrap gap-2.5 items-center justify-center md:justify-start footer-social-icons">
+                    <div class="flex flex-wrap gap-2.5 items-center justify-start footer-social-icons">
                         <a href="https://t.me/dautayonly" target="_blank" aria-label="Telegram">
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.18 3.44-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.73-.24-1.31-.36-1.26-.77.03-.21.32-.42.87-.64 3.41-1.48 5.68-2.46 6.83-2.94 3.25-1.36 3.93-1.59 4.37-1.59.1 0 .31.02.43.09.1.06.18.14.2.25.01.12.01.19.01.37z" />
@@ -281,8 +343,8 @@
                     </div>
 
                     <!-- Text block (Tăng vừa đủ 13.5px dễ nhìn) -->
-                    <p class="text-sm text-gray-300 leading-relaxed max-w-4xl mb-4 text-left font-normal" style="font-size:13.5px; line-height:1.65; color:#a1a1aa;">
-                        <a href="/" style="color:inherit;text-decoration:underline">A Phim</a> x APhim - Trang <a href="/" style="color:inherit;text-decoration:underline">xem phim online</a> chất lượng cao miễn phí Vietsub, thuyết minh, lồng tiếng full HD. <a href="/danh-sach?list=phim-moi" style="color:inherit;text-decoration:underline">Phim hay mới cập nhật</a> liên tục, phim chiếu rạp, phim bộ, phim lẻ từ nhiều quốc gia như Việt Nam, Hàn Quốc, Trung Quốc, Thái Lan, Nhật Bản, Âu Mỹ... đa dạng thể loại. Khám phá <a href="/" style="color:inherit;text-decoration:underline">kho phim trực tuyến</a> hay nhất chất lượng 4K!
+                    <p class="text-sm text-gray-300 leading-relaxed max-w-4xl mb-4 text-left font-normal footer-desc-text" style="font-size:13.5px; line-height:1.65; color:#a1a1aa;">
+                        <a href="/" style="color:inherit !important; text-decoration:underline !important; background:transparent !important; border:none !important;">A Phim</a> x APhim - Trang <a href="/" style="color:inherit !important; text-decoration:underline !important; background:transparent !important; border:none !important;">xem phim online</a> chất lượng cao miễn phí Vietsub, thuyết minh, lồng tiếng full HD. <a href="/danh-sach?list=phim-moi" style="color:inherit !important; text-decoration:underline !important; background:transparent !important; border:none !important; padding:0 !important; border-radius:0 !important;">Phim hay mới cập nhật</a> liên tục, phim chiếu rạp, phim bộ, phim lẻ từ nhiều quốc gia như Việt Nam, Hàn Quốc, Trung Quốc, Thái Lan, Nhật Bản, Âu Mỹ... đa dạng thể loại. Khám phá <a href="/" style="color:inherit !important; text-decoration:underline !important; background:transparent !important; border:none !important;">kho phim trực tuyến</a> hay nhất chất lượng 4K!
                     </p>
 
                     <!-- Copyright -->
@@ -347,79 +409,39 @@
     }
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') aphimCloseGuide(); });
 </script>
-<!-- Floating Side Dock & Theme Switcher Widget (Exact match to User Screenshots 1, 2, 3) -->
-<link rel="stylesheet" href="/css/floating-dock.css?v=209">
 
-<!-- Standalone Floating Action Button for Theme Switcher (Bottom-Right Corner) -->
-<button type="button" id="themeToggleFab" class="theme-toggle-fab" title="Chuyển Chế Độ Sáng / Tối" aria-label="Chuyển Chế Độ Sáng / Tối">
-    <!-- Sun Icon (Shown in Dark Mode to switch to Light) -->
-    <svg class="theme-icon-sun" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="4.5" fill="currentColor" fill-opacity="0.25"></circle>
-        <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"></path>
-    </svg>
-    <!-- Moon Icon (Shown in Light Mode to switch to Dark) -->
-    <svg class="theme-icon-moon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" fill-opacity="0.25"></path>
-        <path d="M18 3.5l.4 1.2 1.2.4-1.2.4-.4 1.2-.4-1.2-1.2-.4 1.2-.4z" fill="currentColor" stroke="none"></path>
-        <path d="M12 1.5l.3.8.8.3-.8.3-.3.8-.3-.8-.8-.3.8-.3z" fill="currentColor" stroke="none"></path>
-    </svg>
-</button>
+<!-- Floating Side Dock & Theme Switcher Widget -->
+<link rel="stylesheet" href="/css/floating-dock.css?v=210">
 
-<div class="floating-dock-container">
+<div class="floating-dock-container" id="floatingDockContainer">
     <!-- Back to Top Button (Appears when scrolling down) -->
-    <button type="button" id="fdBtnTop" class="fd-btn-top" title="Cuộn lên đầu trang">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <button type="button" id="fdBtnTop" class="fd-btn-top" title="Cuộn lên đầu trang" aria-label="Cuộn lên đầu trang">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="18 15 12 9 6 15"></polyline>
         </svg>
     </button>
 
-    <!-- The Dock -->
-    <div id="fdDockGroup" class="fd-dock">
-        <!-- Collapsed Handle -->
-        <div id="fdHandle" class="fd-handle" title="Tiện ích & Giao diện">
-            <div class="fd-indicator"></div>
-            <svg class="fd-handle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="currentColor" fill-opacity="0.2"></path>
-                <circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"></circle>
-                <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"></circle>
-                <circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"></circle>
-            </svg>
-        </div>
-
-        <!-- Expanded Stack -->
-        <div class="fd-menu">
-            <!-- 1. Chat / Support -->
-            <button type="button" id="fdBtnTheme" class="fd-btn fd-btn-chat" title="Chuyển Chế Độ Sáng / Tối" aria-label="Chuyển Chế Độ Sáng / Tối">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="4.5" fill="currentColor" fill-opacity="0.2"></circle>
-                    <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"></path>
-                </svg>
-            </button>
-
-            <!-- 2. Telegram -->
-            <a href="https://t.me/dautayonly" target="_blank" class="fd-btn fd-btn-telegram" title="Kênh Telegram Hỗ Trợ">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.18 3.44-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.73-.24-1.31-.36-1.26-.77.03-.21.32-.42.87-.64 3.41-1.48 5.68-2.46 6.83-2.94 3.25-1.36 3.93-1.59 4.37-1.59.1 0 .31.02.43.09.1.06.18.14.2.25.01.12.01.19.01.37z" />
-                </svg>
-            </a>
-
-            <!-- 3. Close -->
-            <button type="button" id="fdBtnClose" class="fd-btn fd-btn-close" title="Đóng Tiện Ích">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="9.5" fill="currentColor" fill-opacity="0.12" stroke="none"></circle>
-                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                    <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-            </button>
-        </div>
-    </div>
+    <!-- Standalone Floating Action Button for Theme Switcher -->
+    <button type="button" id="themeToggleFab" class="theme-toggle-fab" title="Chuyển Chế Độ Sáng / Tối" aria-label="Chuyển Chế Độ Sáng / Tối">
+        <!-- Sun Icon (Shown in Dark Mode to switch to Light) -->
+        <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.5" fill="currentColor" fill-opacity="0.25"></circle>
+            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"></path>
+        </svg>
+        <!-- Moon Icon (Shown in Light Mode to switch to Dark) -->
+        <svg class="theme-icon-moon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" fill-opacity="0.25"></path>
+            <path d="M18 3.5l.4 1.2 1.2.4-1.2.4-.4 1.2-.4-1.2-1.2-.4 1.2-.4z" fill="currentColor" stroke="none"></path>
+            <path d="M12 1.5l.3.8.8.3-.8.3-.3.8-.3-.8-.8-.3.8-.3z" fill="currentColor" stroke="none"></path>
+        </svg>
+    </button>
 </div>
 
 <script src="/js/floating-dock.js?v=204"></script>
 <script src="/js/section-swipe.js?v=20001"></script>
 <script src="/js/bottom-nav.js?v=205"></script>
-<script src="/js/auth.js?v=218"></script>
+<script src="/js/auth.js?v=219"></script>
 <script src="/js/auth-modal.js?v=218"></script>
 <script src="/js/user-ui.js?v=210"></script>
 <script src="/js/profile-banner-aura.js?v=4"></script>
-<script src="/js/gamification-core.js?v=1"></script>
+<script src="/js/gamification-core.js?v=105"></script>

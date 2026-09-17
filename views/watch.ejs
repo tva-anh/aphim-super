@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="dark" lang="vi">
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=205" />
 </head>
 
 <body class="bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
@@ -460,6 +460,12 @@
                                         style="position: absolute; top: 14px; right: 16px; font-size: 11px; color: #64748b; font-weight: 500; user-select: none;">0
                                         / 1000</span>
 
+                                    <!-- Attached GIF Live Preview -->
+                                    <div class="ap-attached-gif-wrap" id="ap-gif-preview-main" style="display: none;">
+                                        <img id="ap-gif-preview-img-main" src="" style="width: 100%; max-height: 150px; display: block; object-fit: cover; border-radius: 10px;" alt="GIF đã chọn">
+                                        <button type="button" class="ap-gif-remove-btn" onclick="window.removeAttachedGif('main', event)" title="Gỡ GIF">✕</button>
+                                    </div>
+
                                     <div
                                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
                                         <div style="display: flex; align-items: center; gap: 16px;">
@@ -478,15 +484,16 @@
                                                 <span class="ap-spoiler-label"
                                                     style="font-size: 13px; color: #94a3b8;">Tiết lộ?</span>
                                             </label>
-
-                                            <div class="ap-ava-select" id="ap-ava-select-main">
-                                                <button type="button" class="ap-btn-ava"
-                                                    style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px; background: transparent; border: none; color: #fcd576; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: opacity 0.2s;"
-                                                    onclick="document.getElementById('ap-ava-drop-main')?.classList.toggle('show')">
-                                                    <span style="font-size: 18px; line-height: 1;">👤</span>
-                                                    <span style="color: #fcd576;">Popo</span>
+                                            
+                                            <!-- Modern Emoji & Reaction Picker (Exact match to User Reference) -->
+                                            <div class="ap-emoji-select" id="ap-emoji-select-main" style="position: relative; display: inline-flex; align-items: center;">
+                                                <button type="button" class="ap-btn-emoji-trigger"
+                                                    style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; color: #fcd576; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
+                                                    onclick="window.toggleEmojiPopover && window.toggleEmojiPopover('main', event)">
+                                                    <span style="font-size: 17px; line-height: 1;">😊</span>
+                                                    <span style="color: #fcd576;">Biểu cảm</span>
                                                 </button>
-                                                <div class="ap-ava-dropdown" id="ap-ava-drop-main"></div>
+                                                <div class="ap-emoji-popover" id="ap-emoji-drop-main"></div>
                                             </div>
                                         </div>
 
@@ -674,28 +681,29 @@
             <script src="/js/playlist-modal.js?v=210" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=100" defer></script>
             <script src="/js/watch.js?v=10008" defer></script>
-            <script src="/js/firebase-comments.js?v=20020" defer></script>
-            <script src="/js/watch-ui-init.js?v=1" defer></script>
-    <div id="reportMovieModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
-        <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300" id="reportMovieModalCard">
-            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <script src="/js/firebase-comments.js?v=20025" defer></script>
+            <script src="/js/watch-ui-init.js?v=205" defer></script>
+    <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
+    <div id="reportMovieModal" style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;" class="opacity-0 transition-opacity duration-300" onclick="if(event.target===this)closeReportModal()">
+        <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300" id="reportMovieModalCard" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3" id="reportModalHeader">
                 <div class="flex items-center gap-2 text-[#fcd576] font-bold text-base">
-                    <span class="material-icons-round text-xl">report_problem</span>
-                    <span>Báo Lỗi Phim Cho Admin</span>
+                    <span class="material-icons-round text-xl text-[#f59e0b]">report_problem</span>
+                    <span id="reportModalTitle">Báo Lỗi Phim Cho Admin</span>
                 </div>
-                <button type="button" onclick="closeReportModal()" class="text-gray-400 hover:text-white p-1 transition-colors">
+                <button type="button" onclick="closeReportModal()" class="text-gray-400 hover:text-white p-1 transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center" aria-label="Đóng">
                     <span class="material-icons-round text-lg">close</span>
                 </button>
             </div>
 
             <form id="reportMovieForm" onsubmit="submitMovieReport(event)" class="space-y-3.5 text-left">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Tên phim & Tập</label>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Tên phim & Tập</label>
                     <input type="text" id="reportMovieTitleDisplay" readonly class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-medium text-[#fcd576] outline-none cursor-not-allowed">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Vấn đề gặp phải <span class="text-red-400">*</span></label>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Vấn đề gặp phải <span class="text-red-400">*</span></label>
                     <select id="reportIssueType" required class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#fcd576]">
                         <option value="Server không phát / Video bị lỗi đen màn hình">🔴 Server không phát / Video bị lỗi đen màn hình</option>
                         <option value="Sai tập phim / Bị đảo thứ tự / Thiếu tập">⚠️ Sai tập phim / Bị đảo thứ tự / Thiếu tập</option>
@@ -707,12 +715,12 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Mô tả thêm (nếu có)</label>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Mô tả thêm (nếu có)</label>
                     <textarea id="reportIssueDesc" rows="2.5" placeholder="Chi tiết thời điểm bị lỗi hoặc mô tả chi tiết..." class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#fcd576] resize-none"></textarea>
                 </div>
 
                 <div class="pt-2 flex items-center justify-end gap-2">
-                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold rounded-lg transition-colors">Hủy</button>
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold rounded-lg transition-colors report-btn-cancel">Hủy</button>
                     <button type="submit" id="btnSubmitReport" class="px-5 py-2 bg-[#ff9900] hover:bg-[#ffaa22] text-black text-xs font-extrabold rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
                         <span class="material-icons-round text-base">send</span>
                         <span>Gửi Báo Lỗi</span>
@@ -724,9 +732,9 @@
                 <div class="w-12 h-12 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center text-emerald-400 mx-auto">
                     <span class="material-icons-round text-2xl">check</span>
                 </div>
-                <h4 class="text-white font-bold text-sm">Gửi Báo Lỗi Thành Công!</h4>
-                <p class="text-gray-300 text-xs">Cảm ơn bạn. Đội ngũ Kỹ thuật A Phim Super sẽ kiểm tra và khắc phục sự cố ngay.</p>
-                <button type="button" onclick="closeReportModal()" class="mt-3 px-4 py-1.5 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold rounded-lg">Đóng</button>
+                <h4 class="text-white font-bold text-sm" id="reportSuccessTitle">Gửi Báo Lỗi Thành Công!</h4>
+                <p class="text-gray-300 text-xs" id="reportSuccessDesc">Cảm ơn bạn. Đội ngũ Kỹ thuật A Phim Super sẽ kiểm tra và khắc phục sự cố ngay.</p>
+                <button type="button" onclick="closeReportModal()" class="mt-3 px-4 py-1.5 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold rounded-lg report-btn-close">Đóng</button>
             </div>
         </div>
     </div>

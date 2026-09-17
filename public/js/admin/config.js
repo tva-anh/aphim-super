@@ -69,7 +69,7 @@ function initializeAdminData() {
             siteName: 'APhim',
             siteDescription: 'Xem phim online Full HD miễn phí',
             logo: '',
-            contactEmail: 'support@aphim.io.vn',
+            contactEmail: 'aphim8386@gmail.com',
             contactPhone: '1900-xxxx',
             seoTitle: 'APhim - Xem phìm online chất lượng cao',
             seoDescription: 'APhim - Nền tảng xem phìm trực tuyến tốc độ cao, chất lượng Full HD Vietsub hoàn toàn miễn phí.',

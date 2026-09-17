@@ -179,43 +179,55 @@
             const movieName = (window.currentMovie && (window.currentMovie.name || window.currentMovie.title)) || document.getElementById('playerMovieTitle')?.textContent || 'Phim';
             const epName = window.currentEpisodeName || document.getElementById('watchBreadcrumbEpName')?.textContent || '';
             if (titleInput) {
-                titleInput.value = `${movieName} ${epName ? ' ' + epName : ''}`;
+                titleInput.value = `${movieName} ${epName ? ' ' + epName : ''}`.trim();
             }
 
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            if (card) card.classList.remove('scale-95');
+            modal.style.display = 'flex';
+            void modal.offsetWidth; // force reflow for smooth fade
+            modal.classList.remove('opacity-0');
+            if (card) {
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }
+            document.body.style.overflow = 'hidden';
         };
 
         window.closeReportModal = function() {
             const modal = document.getElementById('reportMovieModal');
             const card = document.getElementById('reportMovieModalCard');
             if (!modal) return;
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            if (card) card.classList.add('scale-95');
+            modal.classList.add('opacity-0');
+            if (card) {
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
+            }
+            setTimeout(function() {
+                if (modal.classList.contains('opacity-0')) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }, 300);
         };
 
         window.submitMovieReport = async function(e) {
             if (e) e.preventDefault();
             const btn = document.getElementById('btnSubmitReport');
+            const form = document.getElementById('reportMovieForm');
+            const successState = document.getElementById('reportSuccessState');
             const issueType = document.getElementById('reportIssueType')?.value || 'Báo lỗi chung';
             const description = document.getElementById('reportIssueDesc')?.value || '';
-            const movieName = (window.currentMovie && (window.currentMovie.name || window.currentMovie.title)) || 'Phim';
-            const episode = window.currentEpisodeName || '';
+            const movieName = (window.currentMovie && (window.currentMovie.name || window.currentMovie.title)) || document.getElementById('playerMovieTitle')?.textContent || 'Phim';
+            const episode = window.currentEpisodeName || document.getElementById('watchBreadcrumbEpName')?.textContent || '';
             const server = window.currentServerName || '';
 
-            let userName = 'Khch vng lai';
+            let userName = 'Khách vãng lai';
             let userEmail = '';
             if (window.authService && window.authService.getCurrentUser) {
                 const user = window.authService.getCurrentUser();
                 if (user) {
-                    userName = user.name || user.displayName || 'Thnh vin';
+                    userName = user.name || user.displayName || 'Thành viên';
                     userEmail = user.email || '';
                 }
-            }
-
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="material-icons-round text-base animate-spin">refresh</span><span>Đang gửi...</span>';
             }
 
             const payload = {
@@ -231,30 +243,27 @@
                 currentUrl: window.location.href
             };
 
+            // ⚡ Phản hồi NGAY LẬP TỨC (Optimistic UI) - Không để người dùng chờ đợi dù chỉ 1ms
+            if (form) form.classList.add('hidden');
+            if (successState) successState.classList.remove('hidden');
+
+            if (window.GamificationCore && typeof window.GamificationCore.showGamificationToast === 'function') {
+                window.GamificationCore.showGamificationToast('✅ Đã gửi báo lỗi thành công tới Quản trị viên!', 'success');
+            }
+
+            // Gửi dữ liệu ngầm lên server
             try {
-                const res = await fetch('/api/feedback', {
+                fetch('/api/feedback', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
+                }).then(res => res.json()).then(data => {
+                    console.log('⚡ [Feedback] Báo lỗi đã gửi thành công:', data);
+                }).catch(err => {
+                    console.warn('⚡ [Feedback] Ghi nhận nền:', err);
                 });
-                const data = await res.json();
-                console.log('? Báo lỗi thnh cng:', data);
-
-                document.getElementById('reportMovieForm')?.classList.add('hidden');
-                document.getElementById('reportSuccessState')?.classList.remove('hidden');
-
-                if (window.GamificationCore && typeof window.GamificationCore.showGamificationToast === 'function') {
-                    window.GamificationCore.showGamificationToast('✅ Đã gửi báo lỗi thành công tới Quản trị viên!', 'success');
-                }
             } catch (err) {
                 console.error('Lỗi khi gửi báo lỗi:', err);
-                alert('Đã gửi báo lỗi thành công!');
-                closeReportModal();
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span class="material-icons-round text-base">send</span><span>Gửi Bo L?i</span>';
-                }
             }
         };
 

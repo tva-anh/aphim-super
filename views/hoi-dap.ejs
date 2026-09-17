@@ -8,38 +8,25 @@
 
     <main class="flex-grow">
         <!-- Hero Section -->
-        <section class="relative py-12 md:py-16 bg-gradient-to-b from-[#1c1e2b] via-[#181921] to-[#181921] border-b border-white/5 overflow-hidden">
+        <section class="relative py-12 md:py-16 bg-gradient-to-b from-[#1c1e2b] via-[#181921] to-[#181921] border-b border-white/5 overflow-hidden static-hero-section">
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent opacity-60 pointer-events-none"></div>
             <div class="app-container relative z-10 text-center">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#ff9900]/15 text-[#ff9900] border border-[#ff9900]/30 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#ff9900]/15 text-[#ff9900] border border-[#ff9900]/30 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm static-pill-badge">
                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
                     Trung Tâm Hỗ Trợ
                 </div>
-                <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+                <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight static-page-title">
                     HỎI - ĐÁP & HƯỚNG DẪN XEM PHIM
                 </h1>
-                <p class="text-gray-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed font-medium">
+                <p class="text-gray-300 text-sm md:text-base max-w-3xl mx-auto leading-relaxed font-medium static-page-desc">
                     Giải đáp tất cả các thắc mắc thường gặp giúp bạn có trải nghiệm xem phim Vietsub, Thuyết minh mượt mà nhất tại A Phim Super.
                 </p>
 
                 <!-- Search Box -->
                 <div class="mt-8 max-w-2xl mx-auto relative">
-                    <style>
-                        #faqSearchInput, #faqSearchInput:focus, #faqSearchInput:active {
-                            background-color: #20222d !important;
-                            color: #ffffff !important;
-                        }
-                        #faqSearchInput:-webkit-autofill,
-                        #faqSearchInput:-webkit-autofill:hover,
-                        #faqSearchInput:-webkit-autofill:focus {
-                            -webkit-text-fill-color: #ffffff !important;
-                            -webkit-box-shadow: 0 0 0px 1000px #20222d inset !important;
-                            transition: background-color 5000s ease-in-out 0s;
-                        }
-                    </style>
                     <input type="text" id="faqSearchInput" onkeyup="filterFaqItems()" placeholder="Nhập từ khóa tìm kiếm (vd: tua phim, chất lượng 4K, Smart TV...)..." 
-                           style="padding-left: 48px !important; padding-right: 20px !important; background-color: #20222d !important; color: #ffffff !important;"
-                           class="w-full text-white border border-white/15 rounded-xl py-3.5 text-sm focus:outline-none focus:border-[#ff9900] transition-all shadow-xl placeholder-gray-400">
+                           style="padding-left: 48px !important; padding-right: 20px !important;"
+                           class="w-full text-white bg-[#20222d] border border-white/15 rounded-xl py-3.5 text-sm focus:outline-none focus:border-[#ff9900] transition-all shadow-xl placeholder-gray-400">
                     <svg class="w-5 h-5 fill-current text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24">
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                     </svg>
@@ -53,10 +40,10 @@
                 <%- include('partials/faq') %>
 
                 <!-- Still Have Questions Banner -->
-                <div class="mt-14 p-8 rounded-2xl bg-gradient-to-r from-[#20222d] to-[#1c1e29] border border-white/10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+                <div class="mt-14 p-8 rounded-2xl bg-gradient-to-r from-[#20222d] to-[#1c1e29] border border-white/10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl static-banner-box">
                     <div class="space-y-1">
-                        <h3 class="text-xl font-bold text-white">Vẫn chưa tìm thấy câu trả lời bạn cần?</h3>
-                        <p class="text-gray-300 text-sm">Đội ngũ hỗ trợ A Phim Super luôn sẵn sàng giải đáp và xử lý các sự cố xem phim 24/7.</p>
+                        <h3 class="text-xl font-bold text-white static-card-title">Vẫn chưa tìm thấy câu trả lời bạn cần?</h3>
+                        <p class="text-gray-300 text-sm static-item-sub">Đội ngũ hỗ trợ A Phim Super luôn sẵn sàng giải đáp và xử lý các sự cố xem phim 24/7.</p>
                     </div>
                     <a href="/lien-he" class="px-6 py-3 bg-[#ff9900] text-black font-bold text-sm rounded-xl hover:bg-amber-400 transition-all flex-shrink-0 shadow-lg shadow-amber-500/10 flex items-center gap-2">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>

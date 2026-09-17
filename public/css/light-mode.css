@@ -702,15 +702,14 @@ html.light-mode h1.text-\[\#fcd576\] {
     font-weight: 900 !important;
 }
 
-/* "Xem tất cả >" Pill Buttons & Section Links (Excluding Header Links) */
+/* "Xem tất cả >" Pill Buttons & Section Links (Excluding Header Links & Footer) */
 html.light-mode .section-header-link,
 html.light-mode .see-all-btn,
 html.light-mode .view-all-btn,
 html.light-mode .btn-see-all,
 html.light-mode .motchill-see-all,
 html.light-mode .danh-sach-btn,
-html.light-mode main a[href*="/danh-sach"],
-html.light-mode .app-container a[href*="/danh-sach"] {
+html.light-mode main .section-header a[href*="/danh-sach"] {
     background: #e8e0d0 !important;
     color: #1c1917 !important;
     border: 1px solid #d6cebf !important;
@@ -719,8 +718,9 @@ html.light-mode .section-header-link:hover,
 html.light-mode .see-all-btn:hover,
 html.light-mode .view-all-btn:hover,
 html.light-mode .btn-see-all:hover,
-html.light-mode main a[href*="/danh-sach"]:hover,
-html.light-mode .app-container a[href*="/danh-sach"]:hover {
+html.light-mode .motchill-see-all:hover,
+html.light-mode .danh-sach-btn:hover,
+html.light-mode main .section-header a[href*="/danh-sach"]:hover {
     background: #d9d0bc !important;
     color: #000000 !important;
     border-color: #b8ad99 !important;
@@ -5969,3 +5969,246 @@ html.light-mode .playlist-grid-card span,
 body.light-mode .playlist-grid-card span {
     color: #475569 !important;
 }
+
+/* ==========================================================================
+   STATIC INFORMATION & POLICY PAGES IN LIGHT MODE (Cream Theme Adaptation)
+   (/hoi-dap, /chinh-sach-bao-mat, /dieu-khoan-su-dung, /gioi-thieu, /lien-he)
+   ========================================================================== */
+
+/* Hero Headers */
+html.light-mode main section.static-hero-section,
+html.light-mode main section[class*="from-[#1c1e2b]"] {
+    background-image: none !important;
+    background: linear-gradient(180deg, #ede6d8 0%, #f5f0e6 100%) !important;
+    border-bottom: 1px solid #e0d7c5 !important;
+}
+
+html.light-mode main h1,
+html.light-mode main .static-page-title {
+    color: #1c1917 !important;
+}
+
+html.light-mode main .static-page-desc,
+html.light-mode main .static-hero-section p {
+    color: #57534e !important;
+}
+
+html.light-mode main .static-pill-badge,
+html.light-mode main div[class*="rounded-full"][class*="uppercase"] {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+    border: 1px solid #fcd34d !important;
+}
+
+/* Static Cards (Privacy, Terms, About, Contact, FAQ) */
+html.light-mode main .static-card,
+html.light-mode main .bg-\[\#1f212d\],
+html.light-mode main .bg-\[\#20222d\] {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e7e0d3 !important;
+    box-shadow: 0 4px 16px rgba(78, 64, 45, 0.05) !important;
+}
+
+html.light-mode main .static-card:hover,
+html.light-mode main .bg-\[\#1f212d\]:hover,
+html.light-mode main .bg-\[\#20222d\]:hover {
+    border-color: #d97706 !important;
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.1) !important;
+}
+
+/* Headings & Text Inside Cards */
+html.light-mode main .static-card-title,
+html.light-mode main .static-item-title,
+html.light-mode main h2,
+html.light-mode main h3 {
+    color: #1c1917 !important;
+}
+
+html.light-mode main p,
+html.light-mode main li,
+html.light-mode main .text-gray-300 {
+    color: #44403c !important;
+}
+
+html.light-mode main .text-gray-400,
+html.light-mode main .static-item-sub {
+    color: #78716c !important;
+}
+
+html.light-mode main strong.text-white {
+    color: #1c1917 !important;
+}
+
+html.light-mode main strong.text-\[\#fcd576\],
+html.light-mode main .text-\[\#fcd576\] {
+    color: #b45309 !important;
+}
+
+/* Sub-boxes (e.g. DMCA info, Cookie note, expanded accordion body) */
+html.light-mode main .static-sub-box,
+html.light-mode main .bg-\[\#181921\],
+html.light-mode main .about-expand-body {
+    background: #faf7f2 !important;
+    background-color: #faf7f2 !important;
+    border: 1px solid #e7e0d3 !important;
+    color: #44403c !important;
+}
+
+/* Section Dividers on About / Static Pages */
+html.light-mode main .border-white\/10,
+html.light-mode main .border-white\/5 {
+    border-color: #e7e0d3 !important;
+}
+
+/* Number Badges & Buttons in About Page */
+html.light-mode main div[class*="rounded-lg"][class*="bg-[#fcd576]/10"] {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+}
+
+html.light-mode main button[class*="bg-white/5"] {
+    background: #f5efe6 !important;
+    color: #b45309 !important;
+    border: 1px solid #e7e0d3 !important;
+}
+html.light-mode main button[class*="bg-white/5"]:hover {
+    background: #fde68a !important;
+    color: #92400e !important;
+}
+
+/* Contact Form Elements */
+html.light-mode #contactForm input,
+html.light-mode #contactForm select,
+html.light-mode #contactForm textarea {
+    background: #faf7f2 !important;
+    background-color: #faf7f2 !important;
+    border: 1px solid #d6cebf !important;
+    color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
+}
+
+html.light-mode #contactForm input:focus,
+html.light-mode #contactForm select:focus,
+html.light-mode #contactForm textarea:focus {
+    background: #ffffff !important;
+    border-color: #d97706 !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15) !important;
+}
+
+html.light-mode #contactForm label {
+    color: #57534e !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode #contactSuccessMsg {
+    background: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #065f46 !important;
+}
+
+/* FAQ Search & Banner */
+html.light-mode #faqSearchInput {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #d6cebf !important;
+    color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
+}
+html.light-mode #faqSearchInput:focus {
+    border-color: #d97706 !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15) !important;
+}
+
+html.light-mode .static-banner-box {
+    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%) !important;
+    border: 1px solid #fcd34d !important;
+    box-shadow: 0 8px 30px rgba(217, 119, 6, 0.08) !important;
+}
+
+/* Footer Description Links in Light Mode */
+html.light-mode footer.aphim-footer p a,
+html.light-mode footer.aphim-footer .footer-desc-text a {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: inherit !important;
+    text-decoration: underline !important;
+    display: inline !important;
+}
+
+/* Report Movie Modal in Light Mode */
+html.light-mode #reportMovieModal {
+    background: rgba(0, 0, 0, 0.65) !important;
+}
+
+html.light-mode #reportMovieModalCard {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e7e0d3 !important;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25) !important;
+    color: #1c1917 !important;
+}
+
+html.light-mode #reportModalHeader {
+    border-bottom: 1px solid #e7e0d3 !important;
+}
+
+html.light-mode #reportModalTitle {
+    color: #1c1917 !important;
+}
+
+html.light-mode .report-modal-label {
+    color: #57534e !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode #reportMovieTitleDisplay {
+    background: #faf7f2 !important;
+    border: 1px solid #d6cebf !important;
+    color: #b45309 !important;
+}
+
+html.light-mode #reportIssueType,
+html.light-mode #reportIssueDesc {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #d6cebf !important;
+    color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
+}
+
+html.light-mode #reportIssueType:focus,
+html.light-mode #reportIssueDesc:focus {
+    border-color: #d97706 !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15) !important;
+}
+
+html.light-mode .report-btn-cancel {
+    background: #f5efe6 !important;
+    color: #57534e !important;
+    border: 1px solid #d6cebf !important;
+}
+html.light-mode .report-btn-cancel:hover {
+    background: #e8e0d0 !important;
+    color: #1c1917 !important;
+}
+
+html.light-mode #reportSuccessTitle {
+    color: #1c1917 !important;
+}
+
+html.light-mode #reportSuccessDesc {
+    color: #57534e !important;
+}
+
+html.light-mode .report-btn-close {
+    background: #f5efe6 !important;
+    color: #1c1917 !important;
+    border: 1px solid #d6cebf !important;
+}
+
+

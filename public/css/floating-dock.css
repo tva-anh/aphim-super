@@ -3,56 +3,74 @@
    ========================================================================== */
 
 .floating-dock-container {
-    position: fixed;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 9998;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 16px;
-    pointer-events: none;
-}
-
-/* Theme switching now lives in the side dock. */
-.theme-toggle-fab {
-    display: none !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 10px !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* ── Scroll To Top Button ── */
 .fd-btn-top {
-    width: 36px;
-    height: 44px;
-    border-radius: 22px 0 0 22px;
-    background: #111;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-right: none;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: -4px 4px 16px rgba(0, 0, 0, 0.4);
-    margin-right: 0;
-    padding-right: 2px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
+    position: relative !important;
+    right: 0 !important;
+    width: 30px !important;
+    height: 36px !important;
+    border-radius: 18px 0 0 18px !important;
+    background: linear-gradient(135deg, #1e2330 0%, #0f1422 100%) !important;
+    border: 1.5px solid rgba(252, 213, 118, 0.4) !important;
+    border-right: none !important;
+    color: #fcd576 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: -3px 4px 14px rgba(0, 0, 0, 0.45) !important;
+    margin: 0 !important;
+    padding: 0 0 0 2px !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateX(110%) !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    pointer-events: none !important;
+    outline: none !important;
 }
 .fd-btn-top.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(0) !important;
+    pointer-events: auto !important;
 }
 .fd-btn-top:hover {
-    background: #2a2a36;
+    background: linear-gradient(135deg, #2a3144 0%, #171f33 100%) !important;
+    border-color: #fcd576 !important;
+    box-shadow: -5px 6px 18px rgba(252, 213, 118, 0.4) !important;
+    transform: translateX(-4px) !important;
+    width: 34px !important;
+}
+.fd-btn-top:active {
+    transform: translateX(-1px) !important;
+}
+.fd-btn-top svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: #fcd576 !important;
+    stroke: #fcd576 !important;
+    transition: transform 0.25s ease !important;
+}
+.fd-btn-top:hover svg {
+    transform: translateY(-2px) !important;
 }
 
 /* ── The Dock ── */
 .fd-dock {
-    position: relative;
     pointer-events: auto;
 }
 
@@ -304,84 +322,90 @@ html.light-mode .fd-handle .fd-handle-icon {
     stroke: #d97706 !important;
 }
 
-/* ── Standalone Floating Action Button (FAB) at Bottom-Right Corner ── */
+/* ── Standalone Floating Action Button (FAB) inside Right Dock Container ── */
 .theme-toggle-fab {
-    position: fixed !important;
-    bottom: 24px !important;
+    position: relative !important;
     right: 0 !important;
-    top: auto !important;
-    left: auto !important;
-    transform: none !important;
-    width: 38px !important;
-    height: 44px !important;
-    border-radius: 22px 0 0 22px !important;
+    width: 30px !important;
+    height: 40px !important;
+    border-radius: 20px 0 0 20px !important;
+    border: 1.5px solid rgba(252, 213, 118, 0.45) !important;
     border-right: none !important;
     background: linear-gradient(135deg, #1e2330 0%, #0f1422 100%) !important;
-    border: 1px solid rgba(252, 213, 118, 0.3) !important;
-    border-right: none !important;
     color: #fcd576 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    box-shadow: -6px 8px 24px rgba(0, 0, 0, 0.45), 0 0 15px rgba(252, 213, 118, 0.15) !important;
+    box-shadow: -3px 4px 14px rgba(0, 0, 0, 0.45), 0 0 8px rgba(252, 213, 118, 0.15) !important;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    z-index: 99999 !important;
     outline: none !important;
     pointer-events: auto !important;
-    padding-left: 2px !important;
+    padding: 0 0 0 2px !important;
+    margin: 0 !important;
 }
 
 .theme-toggle-fab:hover {
     transform: translateX(-4px) !important;
-    box-shadow: -8px 12px 30px rgba(252, 213, 118, 0.4), -2px 4px 12px rgba(0, 0, 0, 0.3) !important;
+    width: 34px !important;
+    box-shadow: -5px 6px 20px rgba(252, 213, 118, 0.45) !important;
     border-color: #fcd576 !important;
 }
 
 .theme-toggle-fab:active {
-    transform: translateX(0) !important;
+    transform: translateX(-1px) !important;
 }
 
 .theme-toggle-fab svg {
-    width: 20px !important;
-    height: 20px !important;
-    transition: transform 0.4s ease, color 0.3s ease !important;
+    width: 18px !important;
+    height: 18px !important;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease !important;
     color: #fcd576 !important;
     stroke: #fcd576 !important;
 }
 
 .theme-toggle-fab:hover svg {
-    transform: rotate(25deg) !important;
+    transform: rotate(20deg) scale(1.1) !important;
 }
 
 @media (max-width: 768px) {
+    .floating-dock-container {
+        top: 60% !important;
+        gap: 6px !important;
+    }
     .theme-toggle-fab {
-        bottom: 76px !important;
-        right: 0 !important;
-        width: 36px !important;
-        height: 40px !important;
-        border-radius: 20px 0 0 20px !important;
+        width: 26px !important;
+        height: 36px !important;
+        border-radius: 18px 0 0 18px !important;
     }
     .theme-toggle-fab svg {
-        width: 18px !important;
-        height: 18px !important;
+        width: 15px !important;
+        height: 15px !important;
+    }
+    .fd-btn-top {
+        width: 26px !important;
+        height: 32px !important;
+        border-radius: 16px 0 0 16px !important;
+    }
+    .fd-btn-top svg {
+        width: 14px !important;
+        height: 14px !important;
     }
 }
 
 /* Light Mode Styling for Floating Theme Switcher FAB */
 html.light-mode .theme-toggle-fab {
-    background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%) !important;
-    background-color: #ffffff !important;
-    border: 1.5px solid #f3e8d7 !important;
+    background: #ffffff !important;
+    border: 1.5px solid #d97706 !important;
     border-right: none !important;
     color: #d97706 !important;
-    box-shadow: -6px 8px 25px rgba(217, 119, 6, 0.22), -2px 4px 10px rgba(78, 64, 45, 0.08) !important;
+    box-shadow: -3px 4px 14px rgba(217, 119, 6, 0.22), -1px 1px 6px rgba(78, 64, 45, 0.08) !important;
 }
 
 html.light-mode .theme-toggle-fab:hover {
     background: #ffffff !important;
-    border-color: #d97706 !important;
-    box-shadow: -8px 10px 30px rgba(217, 119, 6, 0.35) !important;
+    border-color: #ea580c !important;
+    box-shadow: -5px 6px 20px rgba(217, 119, 6, 0.35) !important;
 }
 
 html.light-mode .theme-toggle-fab svg {

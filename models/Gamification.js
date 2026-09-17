@@ -21,9 +21,9 @@ const GamificationSchema = new mongoose.Schema({
     user_id: { type: String, required: true, unique: true, index: true },
 
     // Xu & XP
-    xu:               { type: Number, default: 150, min: 0 },
-    xu_lifetime:      { type: Number, default: 150 },  // tổng xu kiếm được
-    xp:               { type: Number, default: 0, min: 0 },
+    xu:               { type: Number, default: 20, min: 0 },
+    xu_lifetime:      { type: Number, default: 20 },  // tổng xu kiếm được
+    xp:               { type: Number, default: 100, min: 0 },
     level:            { type: Number, default: 1, min: 1 },
     rank:             { type: String, default: 'Tân Thủ APhim' },
 

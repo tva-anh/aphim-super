@@ -10,21 +10,21 @@ const Gamification = require('../models/Gamification');
 
 // Config chuẩn
 const STREAK_REWARDS = [
-    { day: 1, xp: 20, xu: 10 },
-    { day: 2, xp: 25, xu: 15 },
-    { day: 3, xp: 30, xu: 20 },
-    { day: 4, xp: 35, xu: 25 },
-    { day: 5, xp: 40, xu: 30 },
-    { day: 6, xp: 45, xu: 35 },
-    { day: 7, xp: 100, xu: 60, luckyTicket: 1 }
+    { day: 1, xp: 20, xu: 2 },
+    { day: 2, xp: 25, xu: 3 },
+    { day: 3, xp: 30, xu: 4 },
+    { day: 4, xp: 35, xu: 5 },
+    { day: 5, xp: 40, xu: 6 },
+    { day: 6, xp: 45, xu: 7 },
+    { day: 7, xp: 100, xu: 15, luckyTicket: 1 }
 ];
 
 const MISSIONS_DEF = [
-    { id: 'watch15', title: 'Khởi Động Phim', xp: 30, xu: 5, target: 15, unit: 'phút' },
-    { id: 'watch45', title: 'Cày Phim Chăm Chỉ', xp: 50, xu: 10, target: 45, unit: 'phút' },
-    { id: 'comment', title: 'Bình Luận Đóng Góp', xp: 20, xu: 5, target: 2, unit: 'lần' },
-    { id: 'favorite', title: 'Yêu Thích Phim', xp: 10, xu: 2, target: 1, unit: 'lần' },
-    { id: 'share', title: 'Lan Tỏa Phim', xp: 20, xu: 3, target: 1, unit: 'lần' }
+    { id: 'watch15', title: 'Khởi Động Phim', xp: 30, xu: 2, target: 15, unit: 'phút' },
+    { id: 'watch45', title: 'Cày Phim Chăm Chỉ', xp: 50, xu: 3, target: 45, unit: 'phút' },
+    { id: 'comment', title: 'Bình Luận Đóng Góp', xp: 20, xu: 2, target: 2, unit: 'lần' },
+    { id: 'favorite', title: 'Yêu Thích Phim', xp: 10, xu: 1, target: 1, unit: 'lần' },
+    { id: 'share', title: 'Lan Tỏa Phim', xp: 20, xu: 1, target: 1, unit: 'lần' }
 ];
 
 const RANKS_DEF = [

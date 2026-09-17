@@ -636,3 +636,240 @@
                 }
             }
 
+            /* 🐞 Modal Báo Lỗi Phim - Dark Theme (Mặc Định) & Light Theme Siêu Chuẩn */
+            #reportMovieModal {
+                font-family: inherit;
+            }
+
+            #reportMovieModalCard {
+                background: #141722 !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                color: #f1f5f9 !important;
+                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8) !important;
+            }
+
+            #reportModalHeader {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+
+            .report-modal-label {
+                color: #cbd5e1 !important;
+                font-size: 12.5px !important;
+                font-weight: 600 !important;
+                margin-bottom: 6px !important;
+                display: block !important;
+            }
+
+            #reportMovieTitleDisplay {
+                background: #1a1e2d !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                color: #fcd576 !important;
+                font-weight: 700 !important;
+                font-size: 13px !important;
+                padding: 10px 12px !important;
+                border-radius: 8px !important;
+            }
+
+            #reportIssueType {
+                background-color: #1e2230 !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+                background-position: right 12px center !important;
+                background-repeat: no-repeat !important;
+                background-size: 16px 16px !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                color: #ffffff !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                padding: 10px 36px 10px 12px !important;
+                border-radius: 8px !important;
+                outline: none !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                cursor: pointer;
+            }
+
+            #reportIssueType option {
+                background-color: #161822 !important;
+                color: #ffffff !important;
+                padding: 10px !important;
+            }
+
+            #reportIssueType:focus {
+                border-color: #f59e0b !important;
+                box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25) !important;
+            }
+
+            #reportIssueDesc {
+                background-color: #1e2230 !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                color: #ffffff !important;
+                font-size: 13px !important;
+                padding: 10px 12px !important;
+                border-radius: 8px !important;
+                outline: none !important;
+                min-height: 80px !important;
+            }
+
+            #reportIssueDesc::placeholder {
+                color: #64748b !important;
+            }
+
+            #reportIssueDesc:focus {
+                border-color: #f59e0b !important;
+                box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25) !important;
+            }
+
+            #btnSubmitReport {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+                color: #000000 !important;
+                font-weight: 800 !important;
+                font-size: 13px !important;
+                border: none !important;
+                border-radius: 8px !important;
+                padding: 9px 20px !important;
+                box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+                cursor: pointer !important;
+                transition: all 0.2s ease !important;
+            }
+
+            #btnSubmitReport:hover {
+                transform: translateY(-1px) !important;
+                box-shadow: 0 6px 18px rgba(245, 158, 11, 0.5) !important;
+            }
+
+            .report-btn-cancel {
+                background: rgba(255, 255, 255, 0.08) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                color: #e2e8f0 !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                padding: 9px 16px !important;
+                cursor: pointer !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .report-btn-cancel:hover {
+                background: rgba(255, 255, 255, 0.15) !important;
+                color: #ffffff !important;
+            }
+
+            #reportSuccessTitle {
+                color: #ffffff !important;
+                font-size: 16px !important;
+                font-weight: 700 !important;
+            }
+
+            #reportSuccessDesc {
+                color: #94a3b8 !important;
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+
+            .report-btn-close {
+                background: rgba(255, 255, 255, 0.1) !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                color: #ffffff !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                padding: 8px 24px !important;
+                cursor: pointer !important;
+            }
+
+            .report-btn-close:hover {
+                background: rgba(255, 255, 255, 0.2) !important;
+            }
+
+            /* --- LIGHT MODE SPECIFIC STYLING --- */
+            html.light-mode #reportMovieModalCard {
+                background: #fdfbf7 !important;
+                border: 1px solid #e2d9cc !important;
+                color: #1e293b !important;
+                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2) !important;
+            }
+
+            html.light-mode #reportModalHeader {
+                border-bottom: 1px solid #ede4d8 !important;
+            }
+
+            html.light-mode .report-modal-label {
+                color: #475569 !important;
+                font-weight: 700 !important;
+            }
+
+            html.light-mode #reportMovieTitleDisplay {
+                background: #f4ede4 !important;
+                border: 1px solid #e2d9cc !important;
+                color: #b45309 !important;
+                font-weight: 700 !important;
+            }
+
+            html.light-mode #reportIssueType {
+                background-color: #ffffff !important;
+                border: 1.5px solid #dcd3c6 !important;
+                color: #1e293b !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+            }
+
+            html.light-mode #reportIssueType option {
+                background-color: #ffffff !important;
+                color: #1e293b !important;
+            }
+
+            html.light-mode #reportIssueType:focus {
+                border-color: #d97706 !important;
+                box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2) !important;
+            }
+
+            html.light-mode #reportIssueDesc {
+                background-color: #ffffff !important;
+                border: 1.5px solid #dcd3c6 !important;
+                color: #1e293b !important;
+            }
+
+            html.light-mode #reportIssueDesc::placeholder {
+                color: #94a3b8 !important;
+            }
+
+            html.light-mode #reportIssueDesc:focus {
+                border-color: #d97706 !important;
+                box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2) !important;
+            }
+
+            html.light-mode #btnSubmitReport {
+                background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+                color: #ffffff !important;
+                box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35) !important;
+            }
+
+            html.light-mode .report-btn-cancel {
+                background: #ede4d8 !important;
+                border: 1px solid #dcd3c6 !important;
+                color: #475569 !important;
+            }
+
+            html.light-mode .report-btn-cancel:hover {
+                background: #e2d7c7 !important;
+                color: #1e293b !important;
+            }
+
+            html.light-mode #reportSuccessTitle {
+                color: #1e293b !important;
+            }
+
+            html.light-mode #reportSuccessDesc {
+                color: #64748b !important;
+            }
+
+            html.light-mode .report-btn-close {
+                background: #ede4d8 !important;
+                border: 1px solid #dcd3c6 !important;
+                color: #1e293b !important;
+            }
+
+            html.light-mode .report-btn-close:hover {
+                background: #dfd3c1 !important;
+            }
+
+

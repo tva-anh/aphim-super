@@ -16,14 +16,51 @@
 
 <title><%= typeof title !== 'undefined' ? title : 'APhim Super | Xem Phim Lẻ Mới 2026 | Phim Online Net Full HD Vietsub' %></title>
 <meta name="description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'APhim Super - Website xem phim online net mượt không giật lag. Tổng hợp kho phim lẻ mới, phim vietsub mới nhất 2026, phim bộ hay nhất cập nhật liên tục Full HD miễn phí.' %>" />
-<meta name="keywords" content="phim le moi, phim online net, phim vietsub, phim moi hay nhat, xem phim full hd, aphim, phim chieu rap, xem phim online" />
+<meta name="keywords" content="<%= typeof metaKeywords !== 'undefined' ? metaKeywords : 'phim le moi, phim online net, phim vietsub, phim moi hay nhat, xem phim full hd, aphim, phim chieu rap, xem phim online' %>" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="author" content="APhim Super" />
 
-<!-- Canonical & Open Graph -->
+<!-- Canonical & Open Graph (Facebook, Zalo, Telegram, Discord) -->
 <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.io.vn/' %>" />
-<meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'APhim Super' %>" />
-<meta property="og:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Website xem phim online net mượt không giật lag.' %>" />
-<meta property="og:image" content="/android-chrome-512x512.png" />
-<meta property="og:type" content="website" />
+<meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'APhim Super - Xem Phim Online Full HD' %>" />
+<meta property="og:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Website xem phim online net mượt không giật lag. Kho phim mới cập nhật liên tục.' %>" />
+<meta property="og:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://aphim.io.vn/android-chrome-512x512.png' %>" />
+<meta property="og:image:alt" content="<%= typeof title !== 'undefined' ? title : 'APhim Super' %>" />
+<meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.io.vn/' %>" />
+<meta property="og:type" content="<%= typeof ogType !== 'undefined' ? ogType : 'website' %>" />
+<meta property="og:site_name" content="APhim Super" />
+<meta property="og:locale" content="vi_VN" />
+
+<!-- Twitter Card Tags (X / Twitter) -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title : 'APhim Super - Xem Phim Online Full HD' %>" />
+<meta name="twitter:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Website xem phim online net mượt không giật lag.' %>" />
+<meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://aphim.io.vn/android-chrome-512x512.png' %>" />
+
+<!-- Schema.org JSON-LD: WebSite with SearchAction -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "APhim Super",
+  "url": "https://aphim.io.vn/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://aphim.io.vn/search?keyword={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<% if (typeof schemaData !== 'undefined' && schemaData) { %>
+<!-- Schema.org JSON-LD: Dynamic Movie / TVShow / Breadcrumbs Structured Data -->
+<script type="application/ld+json">
+<%- JSON.stringify(schemaData) %>
+</script>
+<% } %>
 
 <!-- Favicon & PWA Manifest -->
 <link rel="manifest" href="/manifest.json">
@@ -192,10 +229,11 @@
     .badge-dark { background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255,255,255,0.2); }
 </style>
 <link rel="stylesheet" href="/css/movie-cards-v2.css?v=10003">
-<link rel="stylesheet" href="/css/light-mode.css?v=2128">
+<link rel="stylesheet" href="/css/light-mode.css?v=2129">
 <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4">
 <link rel="stylesheet" href="/css/playlist-modal.css?v=2">
 <script src="/js/config.js?v=100"></script>
 <script src="/js/toast-system.js?v=100"></script>
 <script src="/js/aphim-core-api.js?v=10001"></script>
 <script src="/js/nav-instant-suggest.js?v=10001"></script>
+<script src="/js/user-ui.js?v=2000"></script>

@@ -79,8 +79,24 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
         }
 
         const Comment = require('../models/Comment');
+        const fs = require('fs');
+        const path = require('path');
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+
+        // Đọc dữ liệu phản hồi & báo lỗi thực tế từ file lưu trữ
+        const feedbackFile = path.join(__dirname, '..', 'data', 'feedbacks.json');
+        let totalFeedbacks = 0;
+        try {
+            if (fs.existsSync(feedbackFile)) {
+                const fList = JSON.parse(fs.readFileSync(feedbackFile, 'utf8'));
+                totalFeedbacks = Array.isArray(fList) ? fList.length : 0;
+            }
+        } catch (e) {}
 
         // Chạy song song toàn bộ truy vấn cơ sở dữ liệu Supabase & MongoDB
         const [
@@ -96,7 +112,8 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             totalCommentsRes,
             approvedCommentsRes,
             pendingCommentsRes,
-            recentCommentsRes
+            recentCommentsRes,
+            recent7DaysComments
         ] = await Promise.all([
             supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
             supabaseAdmin.from('vip_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active').gt('expires_at', new Date().toISOString()),
@@ -104,13 +121,14 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             supabaseAdmin.from('profiles').select('xu'),
             supabaseAdmin.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
             supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString()),
-            supabaseAdmin.from('transactions').select('*, profiles(name, email, avatar_url)').order('created_at', { ascending: false }).limit(10),
+            supabaseAdmin.from('transactions').select('*').order('created_at', { ascending: false }).limit(10),
             supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, xu, created_at').order('created_at', { ascending: false }).limit(8),
             AdminLog.find().sort({ created_at: -1 }).limit(10),
             Comment.countDocuments(),
             Comment.countDocuments({ status: 'approved' }),
             Comment.countDocuments({ status: 'pending' }),
-            Comment.find().sort({ createdAt: -1 }).limit(8).lean()
+            Comment.find().sort({ createdAt: -1 }).limit(8).lean(),
+            Comment.find({ createdAt: { $gte: sevenDaysAgo } }).select('createdAt').lean()
         ]);
 
         const totalUsers = totalUsersRes.count || 0;
@@ -128,13 +146,11 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
         const pendingComments = pendingCommentsRes || 0;
         const recentComments = recentCommentsRes || [];
 
-        // Thống kê doanh thu và lượt stream thực tế 7 ngày gần nhất cho biểu đồ
+        // Thống kê Doanh thu và Hoạt động Bình luận thực tế 7 ngày gần nhất
         const dayNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
         const chartDays = [];
         const revenueSeries = [];
-        const viewsSeries = [];
-
-        const baseViewsPerUser = (totalUsers || 1) * 35 + (totalComments || 0) * 12 + 1500;
+        const commentsSeries = [];
 
         for (let i = 6; i >= 0; i--) {
             const d = new Date();
@@ -149,14 +165,16 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             });
             const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
 
+            const dayCmts = (recent7DaysComments || []).filter(c => {
+                const t = new Date(c.createdAt);
+                return t >= d && t <= endD;
+            }).length;
+
             const isToday = i === 0;
             const labelStr = isToday ? 'Hôm nay' : `${dayNames[d.getDay()]} (${d.getDate()}/${d.getMonth() + 1})`;
             chartDays.push(labelStr);
             revenueSeries.push(dayRev);
-
-            const dayFactor = 0.85 + ((d.getDay() === 0 || d.getDay() === 6) ? 0.4 : 0.15) + (i * 0.04);
-            const estDailyViews = Math.round(baseViewsPerUser * dayFactor);
-            viewsSeries.push(estDailyViews);
+            commentsSeries.push(dayCmts);
         }
 
         // Thông số tài nguyên máy chủ Node.js thời gian thực
@@ -169,7 +187,7 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             node_version: process.version,
             supabase_status: 'Connected',
             mongodb_status: 'Connected',
-            api_status: 'Active (Fast HLS)'
+            api_status: 'Hoạt động ổn định'
         };
 
         const resultData = {
@@ -183,13 +201,12 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
                 total_comments:    totalComments,
                 approved_comments: approvedComments,
                 pending_comments:  pendingComments,
-                total_movies:      30045,
-                total_views:       viewsSeries.reduce((a, b) => a + b, 0)
+                total_feedbacks:   totalFeedbacks
             },
             chart_data: {
                 labels: chartDays,
                 revenue: revenueSeries,
-                views: viewsSeries
+                comments: commentsSeries
             },
             system_metrics:      systemMetrics,
             recent_transactions: recentTx,
@@ -273,18 +290,31 @@ router.get('/transactions', requireAdmin, async (req, res) => {
 
         let query = supabaseAdmin
             .from('transactions')
-            .select('*, profiles(id, name, email, avatar_url)', { count: 'exact' })
+            .select('*', { count: 'exact' })
             .order('created_at', { ascending: false })
             .range(offset, offset + parseInt(limit) - 1);
 
         if (status) query = query.eq('status', status);
 
-        const { data: txs, count, error } = await query;
+        const { data: rawTxs, count, error } = await query;
         if (error) throw error;
+
+        // Tự động map thông tin profile người dùng nếu có user_id
+        const userIds = [...new Set((rawTxs || []).map(t => t.user_id).filter(Boolean))];
+        let userMap = {};
+        if (userIds.length > 0) {
+            const { data: profs } = await supabaseAdmin.from('profiles').select('id, name, email, avatar_url').in('id', userIds);
+            (profs || []).forEach(p => { userMap[p.id] = p; });
+        }
+
+        const enriched = (rawTxs || []).map(t => ({
+            ...t,
+            profiles: userMap[t.user_id] || { name: 'Thành viên', email: '' }
+        }));
 
         return res.json({
             success: true,
-            data: txs || [],
+            data: enriched,
             pagination: { total: count || 0, page: parseInt(page), limit: parseInt(limit) }
         });
 

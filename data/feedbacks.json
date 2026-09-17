@@ -27,5 +27,40 @@
     "description": "hợp tác nhe",
     "currentUrl": "http://localhost:3005/lien-he",
     "createdAt": "2026-09-15T13:44:14.306Z"
+  },
+  {
+    "type": "report_movie",
+    "movieName": "Phim",
+    "movieSlug": "",
+    "episode": "",
+    "server": "",
+    "issueType": "Server không phát / Video bị lỗi đen màn hình",
+    "description": "sửa nha ad ơi ",
+    "userName": "demo1",
+    "userEmail": "demo1@gmail.com",
+    "currentUrl": "http://localhost:3005/xem-phim/chuyen-tinh-dao-thien-duong",
+    "createdAt": "2026-09-17T03:04:31.748Z"
+  },
+  {
+    "type": "report_movie",
+    "movieName": "Phim",
+    "movieSlug": "",
+    "episode": " - Tập 01",
+    "server": "",
+    "issueType": "Lỗi phụ đề Vietsub / Phụ đề không khớp",
+    "description": "",
+    "userName": "demo1",
+    "userEmail": "demo1@gmail.com",
+    "currentUrl": "http://localhost:3005/xem-phim/chuyen-tinh-dao-thien-duong",
+    "createdAt": "2026-09-17T03:11:01.471Z"
+  },
+  {
+    "type": "contact",
+    "userName": "demo1",
+    "userEmail": "demo1@gmail.com",
+    "issueType": "Hợp tác quảng cáo & Bản quyền",
+    "description": "demo1",
+    "currentUrl": "http://localhost:3005/lien-he",
+    "createdAt": "2026-09-17T03:11:47.954Z"
   }
 ]

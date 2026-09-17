@@ -9,21 +9,21 @@
 
   // ─── 1. CẤU HÌNH BẢN QUY HOẠCH KINH TẾ ĐÃ DUYỆT ───
   const STREAK_REWARDS = [
-    { day: 1, xp: 20, xu: 10, label: 'Ngày 1' },
-    { day: 2, xp: 25, xu: 15, label: 'Ngày 2' },
-    { day: 3, xp: 30, xu: 20, label: 'Ngày 3' },
-    { day: 4, xp: 35, xu: 25, label: 'Ngày 4' },
-    { day: 5, xp: 40, xu: 30, label: 'Ngày 5' },
-    { day: 6, xp: 45, xu: 35, label: 'Ngày 6' },
-    { day: 7, xp: 100, xu: 60, luckyTicket: 1, label: 'Ngày 7 (Trọn Tuần)' }
+    { day: 1, xp: 20, xu: 2, label: 'Ngày 1' },
+    { day: 2, xp: 25, xu: 3, label: 'Ngày 2' },
+    { day: 3, xp: 30, xu: 4, label: 'Ngày 3' },
+    { day: 4, xp: 35, xu: 5, label: 'Ngày 4' },
+    { day: 5, xp: 40, xu: 6, label: 'Ngày 5' },
+    { day: 6, xp: 45, xu: 7, label: 'Ngày 6' },
+    { day: 7, xp: 100, xu: 15, luckyTicket: 1, label: 'Ngày 7 (Trọn Tuần)' }
   ];
 
   const DAILY_MISSIONS_DEF = [
-    { id: 'watch15', title: 'Khởi Động Phim', desc: 'Xem phim tối thiểu 15 phút', xp: 30, xu: 5, target: 15, unit: 'phút' },
-    { id: 'watch45', title: 'Cày Phim Chăm Chỉ', desc: 'Xem phim tối thiểu 45 phút', xp: 50, xu: 10, target: 45, unit: 'phút' },
-    { id: 'comment', title: 'Bình Luận Đóng Góp', desc: 'Đăng bình luận phim (>= 15 ký tự)', xp: 20, xu: 5, target: 2, unit: 'lần' },
-    { id: 'favorite', title: 'Yêu Thích Phim', desc: 'Thêm 1 phim vào danh sách Yêu thích', xp: 10, xu: 2, target: 1, unit: 'lần' },
-    { id: 'share', title: 'Lan Tỏa Phim', desc: 'Chia sẻ link phim lên mạng xã hội', xp: 20, xu: 3, target: 1, unit: 'lần' }
+    { id: 'watch15', title: 'Khởi Động Phim', desc: 'Xem phim tối thiểu 15 phút', xp: 30, xu: 2, target: 15, unit: 'phút' },
+    { id: 'watch45', title: 'Cày Phim Chăm Chỉ', desc: 'Xem phim tối thiểu 45 phút', xp: 50, xu: 3, target: 45, unit: 'phút' },
+    { id: 'comment', title: 'Bình Luận Đóng Góp', desc: 'Đăng bình luận phim (>= 15 ký tự)', xp: 20, xu: 2, target: 2, unit: 'lần' },
+    { id: 'favorite', title: 'Yêu Thích Phim', desc: 'Thêm 1 phim vào danh sách Yêu thích', xp: 10, xu: 1, target: 1, unit: 'lần' },
+    { id: 'share', title: 'Lan Tỏa Phim', desc: 'Chia sẻ link phim lên mạng xã hội', xp: 20, xu: 1, target: 1, unit: 'lần' }
   ];
 
   const RANKS_DEF = [
@@ -59,7 +59,7 @@
     if (rawLocal !== null && rawLocal !== '' && !isNaN(Number(rawLocal))) {
       return Number(rawLocal);
     }
-    return 150;
+    return 20;
   }
 
   function setXu(newXu) {
@@ -160,136 +160,6 @@
         el.textContent = `${streakData.streak} Ngày`;
       }
     });
-  }
-
-  function addReward(xpReward = 0, xuReward = 0, sourceTitle = '') {
-    let newXp = getXP();
-    let newXu = getXu();
-
-    if (xpReward > 0) newXp = setXP(newXp + xpReward);
-    if (xuReward > 0) newXu = setXu(newXu + xuReward);
-
-    showRewardToast(xpReward, xuReward, sourceTitle);
-    return { xp: newXp, xu: newXu };
-  }
-
-  function showRewardToast(xp, xu, title) {
-    let container = document.getElementById('gamifRewardContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'gamifRewardContainer';
-      container.style.cssText = `
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 99999;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        pointer-events: none;
-      `;
-      document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = 'gamif-toast-item';
-    toast.style.cssText = `
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      border-radius: 12px;
-      padding: 12px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.2);
-      backdrop-filter: blur(8px);
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: auto;
-    `;
-
-    let rewardHtml = '';
-    if (xu > 0) rewardHtml += `<span style="color:#f59e0b;font-weight:800;">+${xu} Xu</span> `;
-    if (xp > 0) rewardHtml += `<span style="color:#38bdf8;font-weight:800;">+${xp} XP</span>`;
-
-    toast.innerHTML = `
-      <div style="font-size:24px;line-height:1;">🎁</div>
-      <div>
-        <div style="font-size:12px;color:#94a3b8;margin-bottom:2px;">${title || 'Nhận thưởng'}</div>
-        <div style="font-size:14px;">${rewardHtml}</div>
-      </div>
-    `;
-
-    container.appendChild(toast);
-    requestAnimationFrame(() => {
-      toast.style.transform = 'translateY(0)';
-      toast.style.opacity = '1';
-    });
-
-    setTimeout(() => {
-      toast.style.transform = 'translateY(20px)';
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
-  }
-
-  function showGamificationToast(message, type = 'info') {
-    let container = document.getElementById('gamifRewardContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'gamifRewardContainer';
-      container.style.cssText = `
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 99999;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        pointer-events: none;
-      `;
-      document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = 'gamif-toast-item';
-    toast.style.cssText = `
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid ${type === 'levelup' ? 'rgba(236, 72, 153, 0.6)' : 'rgba(56, 189, 248, 0.4)'};
-      border-radius: 12px;
-      padding: 12px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(8px);
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: auto;
-      color: #fff;
-      font-size: 13px;
-    `;
-
-    let icon = type === 'levelup' ? '🎉' : type === 'reward' ? '🎁' : 'ℹ️';
-
-    toast.innerHTML = `
-      <div style="font-size:24px;line-height:1;">${icon}</div>
-      <div>${message}</div>
-    `;
-
-    container.appendChild(toast);
-    requestAnimationFrame(() => {
-      toast.style.transform = 'translateY(0)';
-      toast.style.opacity = '1';
-    });
-
-    setTimeout(() => {
-      toast.style.transform = 'translateY(20px)';
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
   }
 
   function calculateLevel(xp) {
@@ -411,7 +281,7 @@
     // Thưởng điểm danh 30 ngày nếu đạt mốc
     let extraReason = `Điểm danh Ngày ${newStreak}/7 chuỗi`;
     if (updatedData.streak % 30 === 0) {
-      addReward(200, 300, '🎁 Thưởng mốc 30 Ngày Điểm Danh Liên Tục!');
+      addReward(150, 50, '🎁 Thưởng mốc 30 Ngày Điểm Danh Liên Tục!');
     }
 
     addReward(reward.xp, reward.xu, extraReason);
@@ -506,7 +376,7 @@
     if (allClaimed && !saved.allChestClaimed) {
       saved.allChestClaimed = true;
       localStorage.setItem('ap_daily_missions_v2', JSON.stringify(saved));
-      addReward(80, 15, '🏆 Rương Hoàn Hảo Ngày (Hoàn thành đủ 5 nhiệm vụ)!');
+      addReward(80, 5, '🏆 Rương Hoàn Hảo Ngày (Hoàn thành đủ 5 nhiệm vụ)!');
     }
 
     window.dispatchEvent(new CustomEvent('missionsUpdated'));
@@ -535,7 +405,7 @@
         title: 'Tân Thủ Nhập Môn',
         desc: 'Đã hoàn tất thông tin cá nhân',
         xp: 30,
-        xu: 10,
+        xu: 5,
         badgeName: 'Tân Thủ',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a5 5 0 0 1 10 0v2"/></svg>`,
         unlocked: true,
@@ -547,7 +417,7 @@
         title: 'Người Xem Phim',
         desc: `Đã xem ${Math.min(histCount, 5)}/5 phim bất kỳ`,
         xp: 50,
-        xu: 20,
+        xu: 10,
         badgeName: 'Mọt Phim Tập Sự',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>`,
         unlocked: histCount >= 5,
@@ -559,7 +429,7 @@
         title: 'Tín Đồ Điện Ảnh',
         desc: `Đã xem ${Math.min(histCount, 30)}/30 phim`,
         xp: 150,
-        xu: 50,
+        xu: 25,
         badgeName: 'Tín Đồ Điện Ảnh',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
         unlocked: histCount >= 30,
@@ -571,7 +441,7 @@
         title: 'Đại Thần Cày Phim',
         desc: `Đã xem ${Math.min(histCount, 100)}/100 phim`,
         xp: 500,
-        xu: 150,
+        xu: 80,
         badgeName: 'Đại Bậc Thầy',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
         unlocked: histCount >= 100,
@@ -583,7 +453,7 @@
         title: 'Nhà Sưu Tầm',
         desc: `Đã lưu ${Math.min(favCount, 10)}/10 phim yêu thích`,
         xp: 40,
-        xu: 15,
+        xu: 10,
         badgeName: 'Người Sưu Tầm',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
         unlocked: favCount >= 10,
@@ -595,7 +465,7 @@
         title: 'Thợ Săn Kho Tàng',
         desc: `Đã lưu ${Math.min(favCount, 50)}/50 phim yêu thích`,
         xp: 150,
-        xu: 50,
+        xu: 30,
         badgeName: 'Thủ Lĩnh Kho Phim',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M4.93 19.07l4.24-4.24"/></svg>`,
         unlocked: favCount >= 50,
@@ -607,7 +477,7 @@
         title: 'Nhà Phê Bình',
         desc: `Đã đăng ${Math.min(commentsCount, 10)}/10 bình luận đánh giá`,
         xp: 100,
-        xu: 30,
+        xu: 15,
         badgeName: 'Nhà Phê Bình',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
         unlocked: commentsCount >= 10,
@@ -619,7 +489,7 @@
         title: 'Cú Đêm Điện Ảnh',
         desc: nightOwlWatch ? 'Đã xem phim trong khung 00:00 - 04:00' : 'Xem 1 phim lúc 00:00 - 04:00',
         xp: 50,
-        xu: 20,
+        xu: 10,
         badgeName: 'Cú Đêm',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
         unlocked: nightOwlWatch,
@@ -631,7 +501,7 @@
         title: 'Marathon Master',
         desc: `Xem liên tiếp ${Math.min(marathonCount, 4)}/4 tập trong ngày`,
         xp: 80,
-        xu: 25,
+        xu: 15,
         badgeName: 'Siêu Marathon',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
         unlocked: marathonCount >= 4,
@@ -643,7 +513,7 @@
         title: 'Bậc Thầy Phong Cách',
         desc: `Sở hữu ${Math.min(shopCount, 5)}/5 vật phẩm Shop`,
         xp: 200,
-        xu: 60,
+        xu: 35,
         badgeName: 'Fashionista',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`,
         unlocked: shopCount >= 5,
@@ -655,7 +525,7 @@
         title: 'Hoàng Gia VIP',
         desc: (u && u.isVip) ? 'Đã kích hoạt đặc quyền VIP' : 'Kích hoạt gói VIP bất kỳ',
         xp: 300,
-        xu: 100,
+        xu: 50,
         badgeName: 'VIP Hoàng Gia',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
         unlocked: Boolean(u && u.isVip),
@@ -667,7 +537,7 @@
         title: 'Triệu Phú Xu',
         desc: `Tích lũy đạt ${Math.min(curXu, 5000).toLocaleString()}/5,000 Xu`,
         xp: 500,
-        xu: 200,
+        xu: 150,
         badgeName: 'Triệu Phú Ánh Kim',
         icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 6v12"/></svg>`,
         unlocked: curXu >= 5000,
@@ -693,7 +563,7 @@
       if (localStorage.getItem('ap_night_owl_watch') !== 'true') {
         localStorage.setItem('ap_night_owl_watch', 'true');
         setTimeout(() => {
-          addReward(50, 20, '🦉 Mở khóa Thành Tựu: Tín Đồ Đêm Khuya (Xem phim 00:00 - 04:00)!');
+          addReward(50, 10, '🦉 Mở khóa Thành Tựu: Tín Đồ Đêm Khuya (Xem phim 00:00 - 04:00)!');
         }, 3000);
       }
     }
@@ -729,12 +599,12 @@
         progressDailyMission('watch45', 45);
       }
 
-      // Mỗi 15 phút xem liên tục (900s): Thưởng +25 XP & +5 Xu (Tối đa 3 lần = 15 Xu/ngày)
-      if (dailyWatchSeconds % 900 === 0 && dailyWatchSeconds > 0) {
+      // Mỗi 30 phút xem liên tục (1800s): Thưởng +30 XP & +2 Xu (Tối đa 2 lần = 4 Xu/ngày)
+      if (dailyWatchSeconds % 1800 === 0 && dailyWatchSeconds > 0) {
         const earnedToday = Number(localStorage.getItem(`ap_watch_xu_${today}`) || 0);
-        if (earnedToday < 15) {
-          localStorage.setItem(`ap_watch_xu_${today}`, earnedToday + 5);
-          addReward(25, 5, `⏳ Thưởng cày phim ${totalMins} phút hôm nay!`);
+        if (earnedToday < 4) {
+          localStorage.setItem(`ap_watch_xu_${today}`, earnedToday + 2);
+          addReward(30, 2, `⏳ Thưởng cày phim ${totalMins} phút hôm nay!`);
         }
       }
     }, 10000);
@@ -746,9 +616,9 @@
     localStorage.setItem('ap_marathon_day_count', marathon);
 
     const completedToday = Number(localStorage.getItem(`ap_completed_ep_${today}`) || 0);
-    if (completedToday < 3) {
+    if (completedToday < 2) {
       localStorage.setItem(`ap_completed_ep_${today}`, completedToday + 1);
-      addReward(20, 5, '🎬 Thưởng xem xong trọn vẹn 1 tập phim!');
+      addReward(20, 2, '🎬 Thưởng xem xong trọn vẹn 1 tập phim (tối đa 2 tập/ngày)!');
     }
   }
 

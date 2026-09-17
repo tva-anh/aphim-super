@@ -28,16 +28,14 @@
         </div>
       </div>
 
-      <!-- CDN Live Latency Ticker Bar -->
+      <!-- System Status Bar -->
       <div class="cdn-latency-ticker">
-        <div class="ticker-title"><i data-lucide="activity" class="text-cyan"></i> CDN EDGE STREAMING:</div>
+        <div class="ticker-title"><i data-lucide="activity" class="text-emerald"></i> TRẠNG THÁI HỆ THỐNG:</div>
         <div class="ticker-nodes">
-          <span class="ticker-pill"><span class="ping-dot green"></span> VN-FPT (Hà Nội): <strong>7ms</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> VN-VNPT (TP.HCM): <strong>9ms</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> VN-Viettel (Đà Nẵng): <strong>8ms</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> SG-Edge (Singapore): <strong>18ms</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> Supabase DB: <strong id="kpiDbStatus">Active</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> Mongo Cluster: <strong>Ready</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> Node.js Server: <strong>Đang chạy</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> MongoDB Atlas: <strong>Đã kết nối</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> Supabase Cloud: <strong id="kpiDbStatus">Đã kết nối</strong></span>
+          <span class="ticker-pill"><span class="ping-dot green"></span> Google Sheet Sync: <strong>Sẵn sàng</strong></span>
         </div>
       </div>
 
@@ -61,15 +59,15 @@
           </div>
         </div>
 
-        <!-- KPI 2: Lượt xem Streaming -->
+        <!-- KPI 2: Bình luận & Tương tác -->
         <div class="kpi-card" style="--kpi-accent: var(--cyan);">
           <div class="kpi-top">
-            <span class="kpi-label">LƯỢT XEM STREAMING 7 NGÀY</span>
-            <div class="kpi-icon"><i data-lucide="play-circle"></i></div>
+            <span class="kpi-label">BÌNH LUẬN & KIỂM DUYỆT</span>
+            <div class="kpi-icon"><i data-lucide="message-square"></i></div>
           </div>
-          <div class="kpi-value" id="kpiViews">...</div>
+          <div class="kpi-value" id="kpiComments">...</div>
           <div class="kpi-trend positive">
-            <i data-lucide="activity"></i> CDN HLS Fast Stream
+            <i data-lucide="database"></i> Dữ liệu thực tế MongoDB
           </div>
           <div class="kpi-sparkline">
             <svg viewBox="0 0 100 25" preserveAspectRatio="none">
@@ -79,15 +77,15 @@
           </div>
         </div>
 
-        <!-- KPI 3: Tổng Phim API -->
+        <!-- KPI 3: Báo lỗi & Phản hồi -->
         <div class="kpi-card" style="--kpi-accent: var(--primary);">
           <div class="kpi-top">
-            <span class="kpi-label">KHO PHIM (OPHIM / KKPHIM)</span>
-            <div class="kpi-icon"><i data-lucide="film"></i></div>
+            <span class="kpi-label">BÁO LỖI & PHẢN HỒI</span>
+            <div class="kpi-icon"><i data-lucide="shield-alert"></i></div>
           </div>
-          <div class="kpi-value" id="kpiTotalMovies">30.045</div>
+          <div class="kpi-value" id="kpiFeedbacks">...</div>
           <div class="kpi-trend positive">
-            <i data-lucide="check-circle"></i> 100% Đồng bộ Realtime API
+            <i data-lucide="check-circle"></i> Báo cáo người dùng gửi về
           </div>
           <div class="kpi-sparkline">
             <svg viewBox="0 0 100 25" preserveAspectRatio="none">
@@ -140,10 +138,10 @@
           </div>
         </div>
         <div class="kpi-mini-card">
-          <div class="mini-icon text-pink" style="background: rgba(219, 39, 119, 0.08);"><i data-lucide="messages-square"></i></div>
+          <div class="mini-icon text-pink" style="background: rgba(219, 39, 119, 0.08);"><i data-lucide="message-circle"></i></div>
           <div>
-            <div class="mini-label">BÌNH LUẬN & ĐÁNH GIÁ</div>
-            <div class="mini-value text-pink" id="miniTotalComments">...</div>
+            <div class="mini-label">BÌNH LUẬN CHỜ DUYỆT</div>
+            <div class="mini-value text-pink" id="miniPendingComments">0</div>
           </div>
         </div>
       </div>
@@ -154,8 +152,8 @@
         <div class="glass-card chart-container-card">
           <div class="card-header">
             <div class="card-title-wrap">
-              <h3 class="card-title"><i data-lucide="bar-chart-3" class="text-primary"></i> Biểu Đồ Lượt Stream & Doanh Thu 7 Ngày</h3>
-              <p class="card-desc">Thống kê dữ liệu thực tế từ giao dịch Supabase & lưu lượng CDN thời gian thực</p>
+              <h3 class="card-title"><i data-lucide="bar-chart-3" class="text-primary"></i> Biểu Đồ Doanh Thu & Lượng Bình Luận 7 Ngày</h3>
+              <p class="card-desc">Thống kê dữ liệu thực tế từ giao dịch Supabase & bình luận MongoDB theo thời gian thực</p>
             </div>
             <div class="card-action-group">
               <span class="badge badge-emerald"><i data-lucide="check-circle"></i> Live Data Feed</span>

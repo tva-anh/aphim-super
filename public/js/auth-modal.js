@@ -837,6 +837,16 @@
                     resetBtn(btn, originalText);
                     return;
                 }
+
+                // Check từ khóa đặc quyền Admin/BQT
+                const normName = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd');
+                const reservedRegex = /\b(admin|administrator|superadmin|super\s*admin|bqt|quan\s*tri|quan\s*tri\s*vien|ban\s*quan\s*tri|moderator|mod\s*aphim|he\s*thong|system)\b/i;
+                if (reservedRegex.test(normName) || normName.includes('admin') || normName.includes('bqt') || normName.includes('quan tri vien')) {
+                    showMsg(msgEl, 'Tên chứa từ khóa đặc quyền (Admin, Quản trị viên, BQT...). Vui lòng chọn tên khác!', 'error');
+                    resetBtn(btn, originalText);
+                    return;
+                }
+
                 if (password !== confirm) {
                     showMsg(msgEl, 'Mật khẩu xác nhận không khớp', 'error');
                     resetBtn(btn, originalText);
