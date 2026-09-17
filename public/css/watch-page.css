@@ -660,6 +660,22 @@
                 display: block !important;
             }
 
+            #reportMovieModalCard {
+                width: 100% !important;
+                max-width: 440px !important;
+                box-sizing: border-box !important;
+            }
+
+            @media (max-width: 480px) {
+                #reportMovieModal {
+                    padding: 12px !important;
+                }
+                #reportMovieModalCard {
+                    padding: 16px 14px !important;
+                    border-radius: 14px !important;
+                }
+            }
+
             #reportMovieTitleDisplay {
                 background: #1a1e2d !important;
                 border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -668,6 +684,8 @@
                 font-size: 13px !important;
                 padding: 10px 12px !important;
                 border-radius: 8px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
 
             #reportIssueType {
@@ -686,12 +704,18 @@
                 appearance: none !important;
                 -webkit-appearance: none !important;
                 cursor: pointer;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                text-overflow: ellipsis;
             }
 
             #reportIssueType option {
                 background-color: #161822 !important;
                 color: #ffffff !important;
                 padding: 10px !important;
+                font-size: 13px !important;
+                max-width: 100% !important;
             }
 
             #reportIssueType:focus {

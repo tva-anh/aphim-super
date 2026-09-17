@@ -3,10 +3,17 @@
 <script>
     (function() {
         try {
-            var savedTheme = localStorage.getItem('aphim_theme');
+            var savedTheme = localStorage.getItem('aphim_theme') || localStorage.getItem('cinestream_theme');
+            if (!savedTheme) {
+                var u = JSON.parse(localStorage.getItem('cinestream_user') || 'null');
+                if (u && u.theme) savedTheme = u.theme;
+            }
             // Mặc định cho người dùng mới lần đầu vào: Nền Kem Sáng (light-mode)
-            // Chỉ khi người dùng chủ động bấm chuyển sang 'dark' thì mới là Dark Mode
-            if (savedTheme !== 'dark') {
+            // Nếu người dùng đã từng chuyển sang 'dark': Giữ nguyên Dark Mode
+            // Nếu người dùng chọn 'light': Giữ nguyên Light Mode
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.remove('light-mode');
+            } else {
                 document.documentElement.classList.add('light-mode');
             }
         } catch(e) {}

@@ -66,13 +66,22 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false,
 }));
 
+// Serve static assets from public folder FIRST so they don't count towards rate limit
+app.use(express.static(path.join(__dirname, 'public')));
+
 // 2. Cấu hình Rate Limiter (Chống Spam / DDoS)
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút
-    max: 1000, // Giới hạn 1000 requests / 15 phút cho mỗi IP
+    max: 5000, // Giới hạn 5000 requests / 15 phút
     message: { status: false, message: 'Quá nhiều yêu cầu từ IP của bạn, vui lòng thử lại sau 15 phút.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        // Tự động bỏ qua rate limit trên localhost / môi trường test nội bộ
+        const host = req.hostname || '';
+        const ip = req.ip || req.connection?.remoteAddress || '';
+        return host === 'localhost' || host === '127.0.0.1' || ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+    }
 });
 app.use(globalLimiter);
 
@@ -81,9 +90,6 @@ app.use(globalLimiter);
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Serve static assets from public folder
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Set View Engine to EJS
 app.set('view engine', 'ejs');
@@ -297,37 +303,36 @@ app.get('/api/comments/home-showcase', async (req, res) => {
 
         const defaultMockComments = [
             {
-                userName: 'Yêu Phim',
-                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=YeuPhim',
+                userName: 'Admin APhim',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=AdminAPhim',
                 equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png?size=240&passthrough=true',
-                equippedFrameClass: '',
-                badge: 'VIP PRO',
-                timeAgo: '1 ngày trước',
-                content: 'Phim hay đáng xem, kỹ xảo đỉnh cao!',
-                movieSlug: 'con-ke-ba-nghe',
-                movieName: 'Con Kế Ba Nghệ'
-            },
-            {
-                userName: 'demo1',
-                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=demo1',
-                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0e839cd79500e7b68e2bbbed54790c28.png?size=240&passthrough=true',
-                equippedFrameClass: '',
-                badge: 'Thành viên',
-                timeAgo: '1 ngày trước',
-                content: 'xem phim chỉ muốn khóc, diễn xuất cảm động quá!',
+                equippedFrameClass: 'frame_gold_crown',
+                badge: 'ADMIN TOP 1',
+                nameColor: 'color_gold',
+                isAdmin: true,
+                isVip: true,
+                level: 99,
+                reactionsCount: 12,
+                timeAgo: '1 giờ trước',
+                content: 'Chào mừng các bạn đến với APhim Super! Chúc mọi người xem phim vui vẻ ❤️',
                 movieSlug: 'hen-em-ngay-nhat-thuc',
                 movieName: 'Hẹn Em Ngày Nhật Thực'
             },
             {
-                userName: 'Nguyễn Văn Test',
-                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=NguyenVanTest',
-                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_001e956faa73bd0410c455234c62818f.png?size=240&passthrough=true',
+                userName: 'Yêu Phim',
+                userAvatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=YeuPhim',
+                equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_0e839cd79500e7b68e2bbbed54790c28.png?size=240&passthrough=true',
                 equippedFrameClass: '',
-                badge: 'Cày Phim',
-                timeAgo: '1 ngày trước',
-                content: 'Bình luận test đồng bộ realtime tuyệt vời!',
-                movieSlug: 'test-realtime-movie',
-                movieName: 'Test Realtime Movie'
+                badge: 'VIP PRO',
+                nameColor: 'color_gold',
+                isAdmin: false,
+                isVip: true,
+                level: 35,
+                reactionsCount: 8,
+                timeAgo: '2 giờ trước',
+                content: 'Phim hay đáng xem, chất lượng Full HD vietsub cực nét!',
+                movieSlug: 'con-ke-ba-nghe',
+                movieName: 'Con Kế Ba Nghệ'
             },
             {
                 userName: 'tonylemau',
@@ -335,10 +340,15 @@ app.get('/api/comments/home-showcase', async (req, res) => {
                 equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_1acbe609daec21fa5b866df9e5a42cb7.png?size=240&passthrough=true',
                 equippedFrameClass: '',
                 badge: 'VIP',
-                timeAgo: '2 ngày trước',
-                content: 'fix film nay voi ad oi, bản vietsub quá nét!',
-                movieSlug: 'gone-girl',
-                movieName: 'Gone Girl'
+                nameColor: 'color_blue',
+                isAdmin: false,
+                isVip: true,
+                level: 28,
+                reactionsCount: 5,
+                timeAgo: '5 giờ trước',
+                content: 'Tập mới ra nhanh quá, web load mượt không bị quảng cáo làm phiền.',
+                movieSlug: 'mui-pho',
+                movieName: 'Mùi Phở'
             },
             {
                 userName: 'Mattroilan',
@@ -346,10 +356,15 @@ app.get('/api/comments/home-showcase', async (req, res) => {
                 equippedFrameUrl: 'https://cdn.discordapp.com/avatar-decoration-presets/a_3c97a2d37f433a7913a1c7b7a735d000.png?size=240&passthrough=true',
                 equippedFrameClass: '',
                 badge: 'Fan Cứng',
-                timeAgo: '2 ngày trước',
-                content: 'Fix lag server này đi ạ, giao diện mới xem mượt hơn rồi!',
-                movieSlug: 'nha-bep-dia-nguc-phan-1',
-                movieName: 'Nhà Bếp Địa Ngục Phần 1'
+                nameColor: 'color_default',
+                isAdmin: false,
+                isVip: false,
+                level: 18,
+                reactionsCount: 3,
+                timeAgo: '1 ngày trước',
+                content: 'Diễn xuất diễn viên chính quá đỉnh, mong chờ phần tiếp theo!',
+                movieSlug: 'te-cong-hang-long-tru-yeu',
+                movieName: 'Tế Công: Hàng Long Trừ Yêu'
             }
         ];
 
@@ -364,7 +379,8 @@ app.get('/api/comments/home-showcase', async (req, res) => {
             if (badge && (badge.toLowerCase().includes('admin') || badge.toLowerCase().includes('top 1'))) {
                 badge = 'ADMIN TOP 1';
             }
-            const nameColor = isAdmin ? 'color_gold' : (userObj.equippedColor || c.equippedColor || 'color_default');
+            const isVip = !!(userObj.isVip || userObj.is_vip || (badge && badge.toLowerCase().includes('vip')));
+            const nameColor = isAdmin ? 'color_gold' : (userObj.equippedColor || c.equippedColor || (isVip ? 'color_gold' : 'color_default'));
             const mSlug = c.movieSlug || c.movieId || 'phim';
             const mName = c.movieName || c.movieTitle || mSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             return {
@@ -375,6 +391,9 @@ app.get('/api/comments/home-showcase', async (req, res) => {
                 equippedFrameClass: frameClass,
                 badge: badge,
                 nameColor: nameColor,
+                isAdmin: !!isAdmin,
+                isVip: isVip,
+                level: Number(userObj.level || (isAdmin ? 99 : (isVip ? 30 : 10))),
                 timeAgo: formatTimeAgo(c.createdAt),
                 content: c.content || '',
                 movieSlug: mSlug,
@@ -384,7 +403,7 @@ app.get('/api/comments/home-showcase', async (req, res) => {
         });
 
         if (formattedList.length === 0) {
-            formattedList = defaultMockComments.slice(0, 3);
+            formattedList = defaultMockComments;
         }
 
         res.json({

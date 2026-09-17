@@ -86,12 +86,148 @@
           </div>
         </div>
       </div>
+
+      <!-- ==============================================
+           SHOWCASE 3D MOBILE TRANG CHỦ CONFIGURATION
+           ============================================== -->
+      <div class="glass-card" style="margin-top: 32px; padding: 24px; border: 1.5px solid rgba(56, 189, 248, 0.35); background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(2, 6, 23, 0.95) 100%); border-radius: 18px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 18px; margin-bottom: 20px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge badge-cyan" style="font-size: 11px; padding: 4px 10px;"><i data-lucide="smartphone"></i> MOBILE EXCLUSIVE</span>
+              <h2 style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0;">Showcase Phim 3D Coverflow Mobile (Trang Chủ)</h2>
+            </div>
+            <p style="color: #94a3b8; font-size: 12.5px; margin: 4px 0 0 0;">Cấu hình danh sách phim hiển thị ở khối 3D trên giao diện điện thoại (nằm trên mục Phim Mới Đề Cử). Kéo thả hoặc bấm nút mũi tên để đổi thứ tự.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn btn-outline" id="btnOpenAddShowcase3D" onclick="if(window.MobileShowcaseAdmin){MobileShowcaseAdmin.openAddModal();}else{alert('Đang tải công cụ, vui lòng thử lại sau 1 giây!');}" style="border-color: #38bdf8; color: #38bdf8; cursor: pointer;">
+              <i data-lucide="plus-circle"></i> Thêm Phim Vào 3D Showcase
+            </button>
+            <button class="btn btn-primary" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.saveConfig()" id="btnSave3DShowcase" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); cursor: pointer;">
+              <i data-lucide="save"></i> Lưu Cấu Hình 3D Mobile
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D Showcase Movie Cards List -->
+        <div id="mobileShowcaseList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px;">
+          <div style="color: #64748b; font-size: 13px; text-align: center; grid-column: 1 / -1; padding: 30px;">
+            Đang tải danh sách phim 3D Mobile...
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 </div>
 
-<!-- Partials -->
+<!-- ==============================================
+     MODAL: THÊM / SỬA PHIM 3D SHOWCASE MOBILE
+     ============================================== -->
+<div id="modalAddShowcase3D" class="admin-modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:999999;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div class="glass-card" style="width:100%;max-width:560px;background:#0f172a;border:1.5px solid rgba(56,189,248,0.3);border-radius:18px;padding:22px;box-shadow:0 25px 50px rgba(0,0,0,0.85);max-height:92vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px;margin-bottom:16px;">
+      <h3 id="modalShowcase3DTitle" style="font-size:16px;font-weight:800;color:#ffffff;margin:0;display:flex;align-items:center;gap:8px;">
+        ✨ Thêm Phim Mới Vào 3D Showcase Mobile
+      </h3>
+      <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.closeModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:20px;padding:4px 8px;">✕</button>
+    </div>
+
+    <!-- Tìm kiếm tự động từ API Phim -->
+    <div style="margin-bottom: 16px; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <label style="font-size:12px;font-weight:700;color:#38bdf8;margin:0;">🔍 Tìm kiếm phim từ kho dữ liệu (Tự động điền đầy đủ):</label>
+        <span id="searchLoadingIndicator" style="display:none;font-size:11px;color:#38bdf8;font-weight:600;">⏳ Đang tìm...</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="inputSearchMovieAPI" class="form-control" placeholder="Gõ tên phim (VD: Conan, Doraemon, Lật Mặt, Mai...)" style="font-size:13px;background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" oninput="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.handleSearchInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.searchMovieFromAPI();}">
+        <button type="button" class="btn btn-primary" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.searchMovieFromAPI()" style="background:#0284c7;white-space:nowrap;font-size:12.5px;padding:0 14px;cursor:pointer;">Tìm Kiếm</button>
+      </div>
+
+      <!-- Gợi ý từ khóa Hot nhanh (1 Click tìm ngay) -->
+      <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Gợi ý hot:</span>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Doraemon')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Doraemon</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Conan')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Conan</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Lật Mặt 7')" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Lật Mặt 7</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Deadpool')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Deadpool</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Quật Mộ Trùng Ma')" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Quật Mộ</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Mai')" style="background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:#f43f5e;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Mai</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Đố Anh Còng Được Tôi')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Đố Anh Còng</button>
+        <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('One Piece')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">One Piece</button>
+      </div>
+
+      <div id="apiSearchResults" style="max-height:210px;overflow-y:auto;margin-top:10px;display:none;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <form id="formShowcase3D" onsubmit="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.submitForm(event)">
+      <input type="hidden" id="scEditIndex" value="-1">
+      
+      <!-- Poster Preview Banner -->
+      <div id="scPosterPreviewWrap" style="display:none;align-items:center;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);padding:10px;border-radius:12px;margin-bottom:14px;">
+        <img id="scPosterPreviewImg" src="" alt="Poster" style="width:50px;height:72px;border-radius:8px;object-fit:cover;background:#000;border:1px solid rgba(255,255,255,0.2);">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:#38bdf8;font-weight:700;">✨ XEM TRƯỚC POSTER ĐÃ CHỌN</div>
+          <div id="scPosterPreviewTitle" style="font-size:13px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;"></div>
+          <div id="scPosterPreviewMeta" style="font-size:11.5px;color:#94a3b8;margin-top:2px;"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tên phim (Tiếng Việt) <span style="color:#f43f5e">*</span></label>
+          <input type="text" id="scName" required class="form-control" placeholder="Nhập tên phim" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tên gốc / Tiếng Anh</label>
+          <input type="text" id="scOriginName" class="form-control" placeholder="Origin Name" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Slug phim <span style="color:#f43f5e">*</span></label>
+          <input type="text" id="scSlug" required class="form-control" placeholder="slug-phim" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Link Poster Ảnh (URL) <span style="color:#f43f5e">*</span></label>
+          <input type="url" id="scPoster" required class="form-control" placeholder="https://phimimg.com/upload/..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Chất lượng</label>
+          <input type="text" id="scQuality" class="form-control" placeholder="FHD, 4K..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="FHD">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Năm phát hành</label>
+          <input type="text" id="scYear" class="form-control" placeholder="2024, 2026..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="2026">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Nhãn Ngôn Ngữ</label>
+          <input type="text" id="scLang" class="form-control" placeholder="vd: Vietsub + Lồng Tiếng" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="Vietsub Full">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tóm tắt ngắn (Synopsis)</label>
+          <textarea id="scContent" rows="3" class="form-control" placeholder="Nội dung ngắn của phim..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;resize:none;"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;">
+        <button type="button" class="btn btn-outline" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.closeModal()">Đóng</button>
+        <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); cursor:pointer;">
+          <i data-lucide="check"></i> Lưu Vào 3D Showcase
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Partials & Scripts -->
 <%- include('partials/drawer') %>
 <%- include('partials/cmd_palette') %>
 <%- include('partials/lock_modal') %>
+<script src="/js/admin/mobile-3d-showcase-admin.js?v=8"></script>
 <%- include('partials/scripts') %>
+

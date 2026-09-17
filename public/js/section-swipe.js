@@ -1,12 +1,13 @@
 /**
  * Master Sitewide Drag-To-Scroll Engine (APhim Super)
- * Enables click-and-drag horizontal scrolling for mouse users
- * and touch swipe protection for mobile users across the entire website.
+ * Enables click-and-drag horizontal scrolling for desktop mouse users
+ * and ultra-smooth, native touch swipe for mobile / tablet users across the website.
  */
 (function () {
     'use strict';
 
-    const DRAG_THRESHOLD = 6; // px threshold for drag/swipe movement
+    const DRAG_THRESHOLD = 8; // px threshold for drag movement
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
     // Helper: Find closest scrollable horizontal container from an element
     function findScrollableContainer(target) {
@@ -16,7 +17,7 @@
                 '.overflow-x-auto, .overflow-x-scroll, [class*="overflow-x-"], ' +
                 '.de-cu-slider, .scrollbar-hide, #heroThumbnails, #movie-gallery-scroll, ' +
                 '#actor-list, #episode-list, .interests-wrapper, .az-container, ' +
-                '.horizontal-scroll-container, [data-drag-scroll="true"]'
+                '.horizontal-scroll-container, .ranking-grid-container, [data-drag-scroll="true"]'
             )) {
                 if (el.scrollWidth > el.clientWidth || window.getComputedStyle(el).overflowX !== 'visible') {
                     return el;
@@ -45,10 +46,13 @@
     let velocity = 0;
     let momentumRaf = null;
     let dragPreventClickTimer = null;
+    let isTouchActive = false;
 
-    // --- DESKTOP MOUSE DRAG-TO-SCROLL ---
+    // --- DESKTOP MOUSE DRAG-TO-SCROLL (Ignored during touch) ---
     document.addEventListener('mousedown', function (e) {
+        if (isTouchActive) return;
         if (e.button !== 0) return; // Only left click
+        if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return; // Ignore simulated mouse events
 
         const container = findScrollableContainer(e.target);
         if (!container) return;
@@ -67,10 +71,10 @@
         lastX = e.clientX;
         lastTime = performance.now();
         velocity = 0;
-    }, { capture: true, passive: false });
+    }, { capture: true, passive: true });
 
     document.addEventListener('mousemove', function (e) {
-        if (!isMouseDown || !activeContainer) return;
+        if (isTouchActive || !isMouseDown || !activeContainer) return;
 
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
@@ -78,8 +82,8 @@
         const absDy = Math.abs(dy);
 
         if (!isDragging) {
-            // Cancel horizontal drag if vertical page scrolling is dominant
-            if (absDy > absDx && absDy > 8) {
+            // Cancel horizontal drag if vertical mouse movement is dominant
+            if (absDy > absDx && absDy > 10) {
                 isMouseDown = false;
                 activeContainer = null;
                 return;
@@ -124,7 +128,7 @@
                 container.setAttribute('data-was-dragged', 'true');
             }
 
-            // Momentum Inertia Effect
+            // Momentum Inertia Effect for mouse drag
             if (container && Math.abs(velocity) > 0.15) {
                 let v = velocity * 14;
                 const step = function () {
@@ -155,13 +159,14 @@
     document.addEventListener('mouseup', handleMouseUp, { capture: true });
     window.addEventListener('blur', handleMouseUp);
 
-    // --- MOBILE TOUCH SWIPE GUARD ---
+    // --- NATIVE MOBILE TOUCH HANDLING ---
     let touchStartX = 0;
     let touchStartY = 0;
     let touchContainer = null;
     let touchSwiped = false;
 
     document.addEventListener('touchstart', function (e) {
+        isTouchActive = true;
         if (!e.touches || e.touches.length === 0) return;
         const container = findScrollableContainer(e.target);
         if (!container) return;
@@ -177,13 +182,14 @@
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
 
-        if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
+        if (dx > DRAG_THRESHOLD && dx > dy) {
             touchSwiped = true;
             touchContainer.setAttribute('data-was-dragged', 'true');
         }
     }, { capture: true, passive: true });
 
     document.addEventListener('touchend', function () {
+        setTimeout(() => { isTouchActive = false; }, 300);
         if (touchSwiped && touchContainer) {
             const container = touchContainer;
             clearTimeout(dragPreventClickTimer);
@@ -198,7 +204,13 @@
         }
     }, { capture: true, passive: true });
 
-    // --- CLICK GUARD FOR DRAG / SWIPE ---
+    document.addEventListener('touchcancel', function () {
+        isTouchActive = false;
+        touchSwiped = false;
+        touchContainer = null;
+    }, { capture: true, passive: true });
+
+    // --- CLICK GUARD FOR DRAG / SWIPE (Prevent accidental link clicks when dragging) ---
     document.addEventListener('click', function (e) {
         if (isDragging || touchSwiped || (e.target && e.target.closest && e.target.closest('[data-was-dragged="true"]'))) {
             e.preventDefault();
@@ -208,24 +220,33 @@
         }
     }, true);
 
-    // Prevent image drag ghost image in browser
+    // Prevent ghost image drag in desktop browser
     document.addEventListener('dragstart', function (e) {
         if (findScrollableContainer(e.target)) {
             e.preventDefault();
         }
     }, true);
 
-    // Dynamic Grab CSS Styles
+    // Inject Fluid Mobile Touch & Desktop Grab Styles
     const styleEl = document.createElement('style');
     styleEl.textContent = `
         .overflow-x-auto, .overflow-x-scroll, [class*="overflow-x-"],
         .de-cu-slider, .scrollbar-hide, #heroThumbnails, #movie-gallery-scroll,
         #actor-list, #episode-list, .interests-wrapper, .az-container,
-        .horizontal-scroll-container, [data-drag-scroll="true"] {
-            cursor: grab;
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: pan-y;
+        .horizontal-scroll-container, .ranking-grid-container, [data-drag-scroll="true"] {
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-x pan-y !important;
+            overscroll-behavior-x: contain !important;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .overflow-x-auto, .overflow-x-scroll, [class*="overflow-x-"],
+            .de-cu-slider, .scrollbar-hide, #heroThumbnails, #movie-gallery-scroll,
+            #actor-list, #episode-list, .interests-wrapper, .az-container,
+            .horizontal-scroll-container, .ranking-grid-container, [data-drag-scroll="true"] {
+                cursor: grab;
+                -webkit-user-select: none;
+                user-select: none;
+            }
         }
         .is-dragging-scroll, .is-dragging-scroll * {
             cursor: grabbing !important;
@@ -239,5 +260,5 @@
     `;
     document.head.appendChild(styleEl);
 
-    console.log('[APhim Engine] Sitewide Mouse Drag-to-Scroll initialized successfully.');
+    console.log('[APhim Engine] Sitewide Horizontal Touch & Mouse Drag Engine initialized.');
 })();

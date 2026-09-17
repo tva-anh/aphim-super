@@ -66,6 +66,119 @@ router.get('/payment-public', async (req, res) => {
     }
 });
 
+// ── GET /api/settings/mobile-3d-showcase — Public, phục vụ Mobile 3D Coverflow ────────
+router.get('/mobile-3d-showcase', async (req, res) => {
+    try {
+        const { data: row } = await supabaseAdmin
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'mobile_3d_showcase')
+            .maybeSingle();
+
+        if (row && Array.isArray(row.value) && row.value.length > 0) {
+            return res.json({ success: true, data: row.value });
+        }
+
+        // Fallback default list nếu Admin chưa cấu hình tùy chỉnh - Phim thật 100%
+        const defaultShowcase = [
+            {
+                slug: 'doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi',
+                name: 'Doraemon: Nobita và Lâu Đài Dưới Đáy Biển (Phiên Bản Mới)',
+                origin_name: 'Doraemon the Movie: New Nobita and the Castle of the Undersea Devil',
+                poster_url: 'https://phimimg.com/uploads/movies/20260829/doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi-poster.webp',
+                thumb_url: 'https://phimimg.com/uploads/movies/20260829/doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi-thumb.webp',
+                quality: 'FHD',
+                year: '2026',
+                lang: 'Vietsub + Lồng Tiếng',
+                content: '"Doraemon: Nobita và Lâu đài dưới đáy biển" là một trong những tác phẩm kinh điển thuộc loạt truyện dài Doraemon. Chuyến thám hiểm đáy đại dương kỳ vĩ và hấp dẫn của nhóm bạn Nobita.'
+            },
+            {
+                slug: 'quat-mo-trung-ma',
+                name: 'Quật Mộ Trùng Ma',
+                origin_name: 'Exhuma',
+                poster_url: 'https://phimimg.com/upload/vod/20250530-1/759df554cc21bf9d6805966dc3fe2b67.jpg',
+                thumb_url: 'https://phimimg.com/upload/vod/20250530-1/fdf11774cff47f0ffc9c2dbe2e02d0ca.jpg',
+                quality: 'FHD',
+                year: '2024',
+                lang: 'Vietsub Full',
+                content: 'Hai pháp sư, một thầy phong thuỷ và một chuyên gia khâm liệm cùng hợp lực khai quật ngôi mộ bí ẩn của một gia tộc giàu có, mở ra chuỗi sự kiện kinh dị tâm linh rùng rợn.'
+            },
+            {
+                slug: 'tham-tu-lung-danh-conan-ngoi-sao-5-canh-1-trieu-do',
+                name: 'Thám Tử Lừng Danh Conan: Ngôi Sao 5 Cánh 1 Triệu Đô',
+                origin_name: 'Detective Conan Movie 27: The Million Dollar Pentagram',
+                poster_url: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+                thumb_url: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
+                quality: 'FHD',
+                year: '2024',
+                lang: 'Vietsub + Lồng Tiếng',
+                content: 'Cuộc đối đầu kịch tính giữa Siêu trộm Kaito Kid, Thám tử miền Tây Hattori Heiji và Conan tại Hakodate xoay quanh thanh kiếm Nhật cổ chứa đựng bí mật lịch sử chấn động.'
+            },
+            {
+                slug: 'deadpool-va-wolverine',
+                name: 'Deadpool Và Wolverine',
+                origin_name: 'Deadpool & Wolverine',
+                poster_url: 'https://phimimg.com/upload/vod/20250821-1/45b6b9aad03ae0aa2aceb5d73419831a.jpg',
+                thumb_url: 'https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg',
+                quality: 'FHD',
+                year: '2024',
+                lang: 'Vietsub + Thuyết Minh',
+                content: 'Bom tấn siêu anh hùng Marvel với màn hợp tác đầy bùng nổ, hài hước và mãn nhãn giữa hai nhân vật bất trị Deadpool và Wolverine để giải cứu đa vũ trụ.'
+            },
+            {
+                slug: 'do-anh-cong-duoc-toi',
+                name: 'Đố Anh Còng Được Tôi',
+                origin_name: 'I, The Executioner',
+                poster_url: 'https://phimimg.com/upload/vod/20241118-1/9f929fc12384573847849f8786f16ae2.jpg',
+                thumb_url: 'https://phimimg.com/upload/vod/20241118-1/3b9d2f3c9a5cf65d15a23db8d0c870ac.jpg',
+                quality: 'FHD',
+                year: '2024',
+                lang: 'Vietsub Full',
+                content: 'Thám tử lão làng Seo Do-cheol cùng tân binh trẻ tài năng đối đầu với tên sát nhân hàng loạt nguy hiểm trong một cuộc rượt đuổi nghẹt thở đầy gay cấn.'
+            }
+        ];
+
+        return res.json({ success: true, data: defaultShowcase });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Lỗi server.' });
+    }
+});
+
+// ── PUT /api/settings/mobile-3d-showcase — Admin cập nhật danh sách Showcase 3D ──
+router.put('/mobile-3d-showcase', requireAdmin, async (req, res) => {
+    try {
+        const { items } = req.body;
+        if (!Array.isArray(items)) {
+            return res.status(400).json({ success: false, message: 'Dữ liệu items phải là mảng danh sách phim.' });
+        }
+
+        await supabaseAdmin.from('system_settings').upsert({
+            key: 'mobile_3d_showcase',
+            value: items,
+            category: 'content',
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+
+        try {
+            if (AdminLog && req.admin) {
+                AdminLog.create({
+                    admin_id: req.admin.id,
+                    admin_name: req.admin.profile?.name || req.admin.email || 'Admin',
+                    action: 'update_mobile_3d_showcase',
+                    target_type: 'showcase',
+                    after: items,
+                    ip: req.ip
+                }).catch(e => console.warn('[AdminLog warning]', e.message));
+            }
+        } catch(logErr) {}
+
+        return res.json({ success: true, message: 'Đã lưu cấu hình Showcase 3D Mobile thành công!', data: items });
+    } catch (err) {
+        console.error('[Mobile 3D Showcase Save Error]', err);
+        return res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
+    }
+});
+
 // ── GET /api/settings — Admin, toàn bộ settings ──────────────────────────────
 router.get('/', requireAdmin, async (req, res) => {
     try {

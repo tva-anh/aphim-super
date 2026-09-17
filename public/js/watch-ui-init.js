@@ -192,9 +192,65 @@
             document.body.style.overflow = 'hidden';
         };
 
+        window.toggleReportIssueDropdown = function(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const menu = document.getElementById('reportIssueDropdownMenu');
+            const arrow = document.getElementById('reportIssueArrow');
+            if (!menu) return;
+            const isHidden = menu.classList.contains('hidden');
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('hidden');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        };
+
+        window.selectReportIssue = function(el) {
+            if (!el) return;
+            const val = el.getAttribute('data-value');
+            const label = el.querySelector('.truncate')?.textContent || el.textContent;
+            const icon = el.querySelector('span:first-child')?.textContent || '';
+
+            const hiddenInput = document.getElementById('reportIssueType');
+            const displayLabel = document.getElementById('reportIssueSelectedLabel');
+            if (hiddenInput) hiddenInput.value = val;
+            if (displayLabel) displayLabel.innerHTML = `${icon} <span class="truncate">${label}</span>`.trim();
+
+            document.querySelectorAll('.report-issue-option').forEach(opt => {
+                opt.classList.remove('active-issue-option', 'text-[#fcd576]', 'bg-[#fcd576]/15');
+            });
+            el.classList.add('active-issue-option', 'text-[#fcd576]', 'bg-[#fcd576]/15');
+
+            const menu = document.getElementById('reportIssueDropdownMenu');
+            const arrow = document.getElementById('reportIssueArrow');
+            if (menu) menu.classList.add('hidden');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('reportIssueDropdownWrapper');
+            const menu = document.getElementById('reportIssueDropdownMenu');
+            const arrow = document.getElementById('reportIssueArrow');
+            if (wrapper && !wrapper.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
         window.closeReportModal = function() {
             const modal = document.getElementById('reportMovieModal');
             const card = document.getElementById('reportMovieModalCard');
+            const menu = document.getElementById('reportIssueDropdownMenu');
+            const arrow = document.getElementById('reportIssueArrow');
+            if (menu) menu.classList.add('hidden');
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+
             if (!modal) return;
             modal.classList.add('opacity-0');
             if (card) {

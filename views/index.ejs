@@ -3,6 +3,7 @@
 <head>
     <%- include('partials/head') %>
     <link rel="stylesheet" href="/css/avatar-frames.css">
+    <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=15">
     <style>
         /* Ensure body padding-top clears the fixed navbar with comfortable space */
         body {
@@ -24,6 +25,9 @@
             padding-bottom: 5px !important;
             scrollbar-width: none !important; /* Firefox */
             -ms-overflow-style: none !important; /* IE/Edge */
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-x pan-y !important;
+            overscroll-behavior-x: contain !important;
         }
         .de-cu-slider::-webkit-scrollbar {
             display: none !important; /* Chrome, Safari, Opera */
@@ -40,6 +44,9 @@
             padding-bottom: 8px !important;
             scrollbar-width: none !important;
             -ms-overflow-style: none !important;
+            -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-x pan-y !important;
+            overscroll-behavior-x: contain !important;
         }
         .ranking-grid-container::-webkit-scrollbar {
             display: none !important;
@@ -854,6 +861,53 @@
     <main class="app-container py-3">
 
         <!-- ==============================================
+             SECTION -0.5: MOBILE 3D COVERFLOW SHOWCASE (MOBILE ONLY)
+             ============================================== -->
+        <section id="mobile3DShowcaseSection">
+            <!-- Topbar Category Pill (Đề xuất) -->
+            <div class="showcase-3d-topbar">
+                <span class="showcase-top-pill">Đề xuất</span>
+            </div>
+
+            <div class="showcase-3d-stage" id="showcase3DStage">
+                <div class="showcase-3d-ambient-light" id="showcase3DAmbientLight"></div>
+                <div class="showcase-3d-card-track" id="showcase3DTrack">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Dynamic Movie Info Box below 3D cards -->
+            <div class="showcase-3d-info-box" id="showcase3DInfoBox">
+                <div class="showcase-3d-title-wrap">
+                    <h3 class="showcase-3d-title" id="showcase3DTitle">Đang tải phim...</h3>
+                    <div class="showcase-3d-origin-title" id="showcase3DOrigin"></div>
+                </div>
+                
+                <div class="showcase-3d-actions">
+                    <a href="#" id="showcase3DBtnWatch" class="btn-3d-watch">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        <span>Xem phim</span>
+                    </a>
+                    <a href="#" id="showcase3DBtnInfo" class="btn-3d-info">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <span>Thông tin</span>
+                    </a>
+                </div>
+
+                <div class="showcase-3d-badges" id="showcase3DBadges">
+                    <span class="showcase-badge-pill showcase-badge-quality" id="showcase3DQuality">FHD</span>
+                    <span class="showcase-badge-pill" id="showcase3DYear">2026</span>
+                    <span class="showcase-badge-pill" id="showcase3DLang">Lồng Tiếng Full, Vietsub Full</span>
+                </div>
+
+                <p class="showcase-3d-desc" id="showcase3DDesc"></p>
+
+                <!-- Pagination Dots -->
+                <div class="showcase-3d-pagination" id="showcase3DPagination"></div>
+            </div>
+        </section>
+
+        <!-- ==============================================
              SECTION 0: PHIM MỚI ĐỀ CỬ (HORIZONTAL SLIDER WITH VERTICAL 2:3 CARDS)
              ============================================== -->
         <section style="margin-top: 10px;">
@@ -1475,7 +1529,42 @@
 
             let items = [...allHomeComments];
             if (currentCommentTab === 'featured') {
-                items.sort((a, b) => (b.reactionsCount || 0) - (a.reactionsCount || 0));
+                // Tab "Nổi Bật": Ưu tiên hiển thị các bình luận từ Admin, VIP, VIP PRO, danh hiệu cấp cao hoặc nhiều tương tác
+                const isInfluential = (c) => {
+                    const badge = (c.badge || '').toLowerCase();
+                    const name = (c.userName || '').toLowerCase();
+                    return c.isAdmin || 
+                           c.isVip || 
+                           name.includes('admin') || 
+                           badge.includes('admin') || 
+                           badge.includes('vip') || 
+                           badge.includes('fan cứng') || 
+                           badge.includes('cày phim') || 
+                           badge.includes('top') ||
+                           (c.reactionsCount && c.reactionsCount > 0) ||
+                           (c.level && c.level >= 10);
+                };
+
+                const influentialOnly = items.filter(isInfluential);
+                if (influentialOnly.length > 0) {
+                    items = influentialOnly;
+                }
+
+                // Sắp xếp ưu tiên: Admin đứng đầu (100k điểm) -> VIP PRO / VIP (50k điểm) -> Level cao -> Lượt thích (thả tim)
+                items.sort((a, b) => {
+                    const getScore = (item) => {
+                        const bName = (item.badge || '').toLowerCase();
+                        const uName = (item.userName || '').toLowerCase();
+                        let score = 0;
+                        if (item.isAdmin || uName.includes('admin') || bName.includes('admin')) score += 100000;
+                        if (item.isVip || bName.includes('vip')) score += 50000;
+                        if (bName.includes('fan cứng') || bName.includes('cày phim') || bName.includes('top')) score += 10000;
+                        score += (item.level || 0) * 100;
+                        score += (item.reactionsCount || 0) * 50;
+                        return score;
+                    };
+                    return getScore(b) - getScore(a);
+                });
             }
 
             if (!items.length) {
@@ -1572,8 +1661,267 @@
             observer.observe(container);
         }
 
+        // ==========================================
+        // 3D MOBILE COVERFLOW SHOWCASE CONTROLLER
+        // ==========================================
+        let showcase3DItems = [];
+        let showcase3DIndex = 0;
+        let showcase3DAutoTimer = null;
+
+        async function loadMobile3DShowcase() {
+            const section = document.getElementById('mobile3DShowcaseSection');
+            if (!section) return;
+
+            try {
+                const res = await fetch('/api/settings/mobile-3d-showcase');
+                const data = await res.json();
+                if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                    showcase3DItems = data.data;
+                    initMobile3DShowcase();
+                }
+            } catch (err) {
+                console.warn('Lỗi tải Mobile 3D Showcase:', err);
+            }
+        }
+
+        function initMobile3DShowcase() {
+            const track = document.getElementById('showcase3DTrack');
+            const pagination = document.getElementById('showcase3DPagination');
+            if (!track || !showcase3DItems.length) return;
+
+            // Render 3D Cards
+            track.innerHTML = showcase3DItems.map((item, idx) => `
+                <div class="showcase-3d-card" data-index="${idx}" onclick="goTo3DShowcaseSlide(${idx})">
+                    <img src="${item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'}" alt="${item.name || 'Phim'}" loading="${idx < 3 ? 'eager' : 'lazy'}" onerror="this.src='/images/comment-mascot.webp'">
+                </div>
+            `).join('');
+
+            // Render Pagination Dots
+            if (pagination) {
+                pagination.innerHTML = showcase3DItems.map((_, idx) => `
+                    <div class="showcase-dot ${idx === 0 ? 'active' : ''}" onclick="goTo3DShowcaseSlide(${idx})"></div>
+                `).join('');
+            }
+
+            update3DShowcasePositions();
+            start3DAutoPlay();
+
+            // Touch Gestures for 3D Viewport
+            const stage = document.getElementById('showcase3DStage');
+            if (stage) {
+                let startX = 0;
+                let startY = 0;
+                let isSwiping = false;
+
+                stage.addEventListener('touchstart', (e) => {
+                    if (!e.touches.length) return;
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                    isSwiping = false;
+                    stop3DAutoPlay();
+                }, { passive: true });
+
+                stage.addEventListener('touchmove', (e) => {
+                    if (!e.touches.length) return;
+                    const dx = e.touches[0].clientX - startX;
+                    const dy = e.touches[0].clientY - startY;
+                    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+                        isSwiping = true;
+                    }
+                }, { passive: true });
+
+                stage.addEventListener('touchend', (e) => {
+                    if (isSwiping && e.changedTouches.length) {
+                        const dx = e.changedTouches[0].clientX - startX;
+                        if (dx < -30) {
+                            next3DShowcaseSlide();
+                        } else if (dx > 30) {
+                            prev3DShowcaseSlide();
+                        }
+                    }
+                    start3DAutoPlay();
+                }, { passive: true });
+            }
+        }
+
+        function extractPosterColor(imgEl, item) {
+            if (item && item.glow_color) return item.glow_color;
+            if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    canvas.width = 16;
+                    canvas.height = 16;
+                    ctx.drawImage(imgEl, 0, 0, 16, 16);
+                    const data = ctx.getImageData(0, 0, 16, 16).data;
+                    let r = 0, g = 0, b = 0, total = 0;
+                    for (let i = 0; i < data.length; i += 4) {
+                        const red = data[i], grn = data[i+1], blu = data[i+2];
+                        const brightness = 0.299 * red + 0.587 * grn + 0.114 * blu;
+                        if (brightness > 35 && brightness < 235) {
+                            const max = Math.max(red, grn, blu), min = Math.min(red, grn, blu);
+                            const sat = max === 0 ? 0 : (max - min) / max;
+                            const weight = 1 + sat * 3;
+                            r += red * weight;
+                            g += grn * weight;
+                            b += blu * weight;
+                            total += weight;
+                        }
+                    }
+                    if (total > 0) {
+                        return {
+                            r: Math.round(r / total),
+                            g: Math.round(g / total),
+                            b: Math.round(b / total)
+                        };
+                    }
+                } catch (e) {}
+            }
+
+            // High-precision signature movie colors
+            const key = ((item?.name || '') + ' ' + (item?.slug || '')).toLowerCase();
+            if (key.includes('doraemon')) return { r: 14, g: 165, b: 233 }; // Ocean Cyan/Blue
+            if (key.includes('deadpool') || key.includes('wolverine')) return { r: 239, g: 68, b: 68 }; // Ruby Crimson
+            if (key.includes('quat-mo') || key.includes('exhuma')) return { r: 13, g: 148, b: 136 }; // Emerald/Teal Mystery
+            if (key.includes('conan')) return { r: 37, g: 99, b: 235 }; // Sapphire Blue
+            if (key.includes('lat-mat')) return { r: 245, g: 158, b: 11 }; // Amber Gold
+            if (key.includes('cong') || key.includes('executioner')) return { r: 6, g: 182, b: 212 }; // Electric Teal
+            if (key.includes('mai')) return { r: 244, g: 63, b: 94 }; // Rose Pink
+            if (key.includes('nhat-thuc') || key.includes('eclipse')) return { r: 168, g: 85, b: 247 }; // Purple Twilight
+
+            // Deterministic signature hue fallback
+            let hash = 0;
+            const str = item?.slug || item?.name || 'aphim';
+            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            const palettes = [
+                { r: 14, g: 165, b: 233 },
+                { r: 245, g: 158, b: 11 },
+                { r: 239, g: 68, b: 68 },
+                { r: 16, g: 185, b: 129 },
+                { r: 168, g: 85, b: 247 },
+                { r: 6, g: 182, b: 212 },
+                { r: 249, g: 115, b: 22 }
+            ];
+            return palettes[Math.abs(hash) % palettes.length];
+        }
+
+        function updateShowcaseAmbientGlow(current, activeImg) {
+            const section = document.getElementById('mobile3DShowcaseSection');
+            if (!section) return;
+
+            const rgb = extractPosterColor(activeImg, current);
+            const glowRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
+            const ambientRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.32)`;
+            const ambientSub = `rgba(${Math.round(rgb.r * 0.8)}, ${Math.round(rgb.g * 0.8)}, ${Math.round(rgb.b * 0.8)}, 0.12)`;
+            const glowSolid = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+            section.style.setProperty('--showcase-glow-color', glowRgba);
+            section.style.setProperty('--showcase-ambient-color', ambientRgba);
+            section.style.setProperty('--showcase-ambient-sub', ambientSub);
+            section.style.setProperty('--showcase-glow-solid', glowSolid);
+
+            const ambientLight = document.getElementById('showcase3DAmbientLight');
+            if (ambientLight) {
+                ambientLight.style.background = `radial-gradient(circle, ${ambientRgba} 0%, ${ambientSub} 45%, transparent 70%)`;
+            }
+        }
+
+        function update3DShowcasePositions() {
+            const cards = document.querySelectorAll('.showcase-3d-card');
+            const dots = document.querySelectorAll('.showcase-dot');
+            const total = showcase3DItems.length;
+            if (!total) return;
+
+            const current = showcase3DItems[showcase3DIndex];
+            if (!current) return;
+
+            // Update Info Section
+            const elTitle = document.getElementById('showcase3DTitle');
+            const elOrigin = document.getElementById('showcase3DOrigin');
+            const elBtnWatch = document.getElementById('showcase3DBtnWatch');
+            const elBtnInfo = document.getElementById('showcase3DBtnInfo');
+            const elQuality = document.getElementById('showcase3DQuality');
+            const elYear = document.getElementById('showcase3DYear');
+            const elLang = document.getElementById('showcase3DLang');
+            const elDesc = document.getElementById('showcase3DDesc');
+
+            if (elTitle) elTitle.textContent = current.name || '';
+            if (elOrigin) elOrigin.textContent = current.origin_name || '';
+            if (elBtnWatch) elBtnWatch.href = `/xem-phim/${current.slug}/tap-1`;
+            if (elBtnInfo) elBtnInfo.href = `/phim/${current.slug}`;
+            if (elQuality) elQuality.textContent = current.quality || 'FHD';
+            if (elYear) elYear.textContent = current.year || '2026';
+            if (elLang) elLang.textContent = current.lang || 'Lồng Tiếng Full, Vietsub Full';
+            if (elDesc) elDesc.textContent = current.content ? current.content.replace(/<[^>]*>/g, '').trim() : '';
+
+            // Update Pagination Dots
+            dots.forEach((dot, idx) => {
+                if (idx === showcase3DIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            // Update 3D Positions & Ambient Glow
+            let activeCardImg = null;
+            cards.forEach((card, idx) => {
+                card.className = 'showcase-3d-card';
+                let diff = (idx - showcase3DIndex + total) % total;
+                if (diff > total / 2) diff -= total;
+
+                if (diff === 0) {
+                    card.classList.add('is-center');
+                    activeCardImg = card.querySelector('img');
+                } else if (diff === -1 || (showcase3DIndex === 0 && idx === total - 1)) {
+                    card.classList.add('is-left');
+                } else if (diff === 1 || (showcase3DIndex === total - 1 && idx === 0)) {
+                    card.classList.add('is-right');
+                } else if (diff === -2) {
+                    card.classList.add('is-far-left');
+                } else if (diff === 2) {
+                    card.classList.add('is-far-right');
+                } else {
+                    card.classList.add('is-hidden');
+                }
+            });
+
+            // Trigger Dynamic Poster Ambient Glow Effect
+            updateShowcaseAmbientGlow(current, activeCardImg);
+        }
+
+        window.goTo3DShowcaseSlide = function(idx) {
+            showcase3DIndex = (idx + showcase3DItems.length) % showcase3DItems.length;
+            update3DShowcasePositions();
+            stop3DAutoPlay();
+            start3DAutoPlay();
+        };
+
+        window.next3DShowcaseSlide = function() {
+            showcase3DIndex = (showcase3DIndex + 1) % showcase3DItems.length;
+            update3DShowcasePositions();
+        };
+
+        window.prev3DShowcaseSlide = function() {
+            showcase3DIndex = (showcase3DIndex - 1 + showcase3DItems.length) % showcase3DItems.length;
+            update3DShowcasePositions();
+        };
+
+        function start3DAutoPlay() {
+            stop3DAutoPlay();
+            showcase3DAutoTimer = setInterval(next3DShowcaseSlide, 5000);
+        }
+
+        function stop3DAutoPlay() {
+            if (showcase3DAutoTimer) {
+                clearInterval(showcase3DAutoTimer);
+                showcase3DAutoTimer = null;
+            }
+        }
+
         // Load the first row immediately; defer lower rows until the user is approaching them.
         document.addEventListener('DOMContentLoaded', function() {
+            loadMobile3DShowcase();
             loadDeCuSlider();
             loadHomeCommentsShowcase();
             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));

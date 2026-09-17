@@ -639,6 +639,13 @@ class AuthService {
             'ap_profile_cover',
             'user_avatar',
             'ap_user_items',
+            'ap_equipped_frame',
+            'ap_equipped_frame_url',
+            'ap_equipped_banner',
+            'ap_equipped_color',
+            'ap_equipped_badge',
+            'ap_equipped_title',
+            'ap_name_color',
             'cinestream_xu',
             'cinestream_watch_history',
             'cinestream_watch_progress',
@@ -654,7 +661,7 @@ class AuthService {
         try {
             const allKeys = Object.keys(localStorage);
             allKeys.forEach(k => {
-                if (k.startsWith('ap_notifs_') || k.startsWith('avatar_') || k.startsWith('ep_') || k.startsWith('cinestream_last_tab_')) {
+                if (k.startsWith('ap_notifs_') || k.startsWith('avatar_') || k.startsWith('ep_') || k.startsWith('cinestream_last_tab_') || k.startsWith('ap_equipped_')) {
                     localStorage.removeItem(k);
                 }
             });
@@ -669,6 +676,11 @@ class AuthService {
         this.eraseCookie('user');
 
         this.currentUser = null;
+
+        // Reset profile banner aura
+        if (typeof window.applyProfileBannerAura === 'function') {
+            try { window.applyProfileBannerAura('banner_default'); } catch (e) { }
+        }
 
         // 3. Thông báo cho các module khác (premium-ad-blocker, mobile-menu, realtime-sync, etc.)
         try {
@@ -725,6 +737,13 @@ class AuthService {
             'ap_profile_cover',
             'user_avatar',
             'ap_user_items',
+            'ap_equipped_frame',
+            'ap_equipped_frame_url',
+            'ap_equipped_banner',
+            'ap_equipped_color',
+            'ap_equipped_badge',
+            'ap_equipped_title',
+            'ap_name_color',
             'cinestream_xu',
             'cinestream_watch_history',
             'cinestream_watch_progress',
@@ -739,7 +758,7 @@ class AuthService {
         try {
             const allKeys = Object.keys(localStorage);
             allKeys.forEach(k => {
-                if (k.startsWith('ap_notifs_') || k.startsWith('avatar_') || k.startsWith('ep_') || k.startsWith('cinestream_last_tab_')) {
+                if (k.startsWith('ap_notifs_') || k.startsWith('avatar_') || k.startsWith('ep_') || k.startsWith('cinestream_last_tab_') || k.startsWith('ap_equipped_')) {
                     localStorage.removeItem(k);
                 }
             });
@@ -753,6 +772,11 @@ class AuthService {
         this.eraseCookie('user');
 
         this.currentUser = null;
+
+        // Reset profile banner aura
+        if (typeof window.applyProfileBannerAura === 'function') {
+            try { window.applyProfileBannerAura('banner_default'); } catch (e) { }
+        }
 
         try {
             window.dispatchEvent(new CustomEvent('auth:logout'));

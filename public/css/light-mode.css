@@ -6172,7 +6172,36 @@ html.light-mode #reportMovieTitleDisplay {
     color: #b45309 !important;
 }
 
-html.light-mode #reportIssueType,
+html.light-mode #reportIssueDropdownBtn {
+    background-color: #ffffff !important;
+    border: 1.5px solid #d6cebf !important;
+    color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
+}
+
+html.light-mode #reportIssueDropdownBtn:focus {
+    border-color: #d97706 !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15) !important;
+}
+
+html.light-mode #reportIssueDropdownMenu {
+    background-color: #ffffff !important;
+    border: 1.5px solid #d6cebf !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-mode .report-issue-option {
+    color: #292524 !important;
+    -webkit-text-fill-color: #292524 !important;
+}
+
+html.light-mode .report-issue-option:hover,
+html.light-mode .report-issue-option.active-issue-option {
+    background-color: #fef3c7 !important;
+    color: #b45309 !important;
+    -webkit-text-fill-color: #b45309 !important;
+}
+
 html.light-mode #reportIssueDesc {
     background: #ffffff !important;
     background-color: #ffffff !important;
@@ -6181,7 +6210,6 @@ html.light-mode #reportIssueDesc {
     -webkit-text-fill-color: #1c1917 !important;
 }
 
-html.light-mode #reportIssueType:focus,
 html.light-mode #reportIssueDesc:focus {
     border-color: #d97706 !important;
     box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15) !important;

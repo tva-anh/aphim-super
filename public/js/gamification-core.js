@@ -48,7 +48,23 @@
     }
   }
 
+  function isUserLoggedIn() {
+    try {
+      if (typeof authService !== 'undefined' && typeof authService.isLoggedIn === 'function') {
+        return Boolean(authService.isLoggedIn());
+      }
+      const u = getUser();
+      const token = localStorage.getItem('cinestream_token');
+      return Boolean(u && (u._id || u.id || u.email || u.username) && token);
+    } catch (e) {
+      return false;
+    }
+  }
+
   function getXu() {
+    if (!isUserLoggedIn()) {
+      return 0;
+    }
     const u = getUser();
     if (u && (u.xu != null || u.coins != null)) {
       const val = Number(u.xu != null ? u.xu : u.coins);
@@ -59,10 +75,13 @@
     if (rawLocal !== null && rawLocal !== '' && !isNaN(Number(rawLocal))) {
       return Number(rawLocal);
     }
-    return 20;
+    return 0;
   }
 
   function setXu(newXu) {
+    if (!isUserLoggedIn()) {
+      return 0;
+    }
     const val = Math.max(0, Math.round(newXu));
     localStorage.setItem('cinestream_xu', val);
     const u = getUser();
@@ -91,6 +110,9 @@
   }
 
   function getXP() {
+    if (!isUserLoggedIn()) {
+      return 0;
+    }
     const u = getUser();
     let localXP = Number(localStorage.getItem('cinestream_xp') || 0);
     if (u && u.xp != null) {
@@ -100,6 +122,9 @@
   }
 
   function setXP(newXP) {
+    if (!isUserLoggedIn()) {
+      return 0;
+    }
     const val = Math.max(0, Math.round(newXP));
     localStorage.setItem('cinestream_xp', val);
     const u = getUser();
@@ -191,6 +216,9 @@
   }
 
   function addReward(xpAmount, xuAmount, reason) {
+    if (!isUserLoggedIn()) {
+      return null;
+    }
     const curXP = getXP();
     const curXu = getXu();
     const oldLevel = calculateLevel(curXP).level;
@@ -260,6 +288,15 @@
   }
 
   function claimDailyCheckin() {
+    if (!isUserLoggedIn()) {
+      if (window.showAuthModal) {
+        window.showAuthModal('login');
+      } else {
+        window.location.href = '/profile';
+      }
+      showGamificationToast('Vui lòng đăng nhập để điểm danh nhận quà!', 'error');
+      return false;
+    }
     const data = getDailyStreakData();
     if (data.isClaimedToday) {
       showGamificationToast('⚠️ Bạn đã điểm danh hôm nay rồi! Hãy quay lại vào ngày mai nhé.', 'info');
@@ -315,6 +352,7 @@
   }
 
   function progressDailyMission(missionId, amount = 1) {
+    if (!isUserLoggedIn()) return;
     const today = getTodayString();
     let saved = { date: today, data: {} };
     try {
@@ -343,6 +381,15 @@
   }
 
   function claimDailyMission(missionId) {
+    if (!isUserLoggedIn()) {
+      if (window.showAuthModal) {
+        window.showAuthModal('login');
+      } else {
+        window.location.href = '/profile';
+      }
+      showGamificationToast('Vui lòng đăng nhập để nhận thưởng nhiệm vụ!', 'error');
+      return false;
+    }
     const today = getTodayString();
     let saved = { date: today, data: {} };
     try {
@@ -551,27 +598,30 @@
   // ─── 7. WATCH-TO-EARN TRACKING (THEO DÕI XEM PHIM THỰC TẾ) ───
   let watchInterval = null;
 
-  function initWatchToEarn() {
-    if (watchInterval) return;
+  function updatePillUI() {
+    const pill = document.getElementById('watchToEarnText');
+    const pillContainer = document.getElementById('watchToEarnPill');
+    const pillDot = pillContainer ? pillContainer.querySelector('.watch-to-earn-dot') : null;
+    if (!pillContainer) return;
 
-    const today = getTodayString();
-    let dailyWatchSeconds = Number(localStorage.getItem(`ap_daily_watch_sec_${today}`) || 0);
-
-    // Kiểm tra giờ cú đêm 00:00 - 04:00 (Thành tựu Tín Đồ Đêm Khuya)
-    const currentHour = new Date().getHours();
-    if (currentHour >= 0 && currentHour < 4) {
-      if (localStorage.getItem('ap_night_owl_watch') !== 'true') {
-        localStorage.setItem('ap_night_owl_watch', 'true');
-        setTimeout(() => {
-          addReward(50, 10, '🦉 Mở khóa Thành Tựu: Tín Đồ Đêm Khuya (Xem phim 00:00 - 04:00)!');
-        }, 3000);
-      }
+    if (!isUserLoggedIn()) {
+      pillContainer.style.display = 'none';
+      return;
     }
 
-    function updatePillUI() {
-      const pill = document.getElementById('watchToEarnText');
-      if (!pill) return;
-      const totalMins = Math.floor(dailyWatchSeconds / 60);
+    pillContainer.style.display = 'inline-flex';
+    const today = getTodayString();
+    let dailyWatchSeconds = Number(localStorage.getItem(`ap_daily_watch_sec_${today}`) || 0);
+    const totalMins = Math.floor(dailyWatchSeconds / 60);
+
+    pillContainer.title = 'Xem phim tích luỹ Xu & XP mỗi ngày';
+    if (pillDot) {
+      pillDot.style.background = '#f59e0b';
+      pillDot.style.boxShadow = '0 0 8px #f59e0b';
+      pillDot.style.animation = 'pulse 2s infinite';
+    }
+
+    if (pill) {
       if (totalMins < 15) {
         pill.textContent = `💎 Cày Xu: ${totalMins}/15p`;
       } else if (totalMins < 45) {
@@ -580,12 +630,39 @@
         pill.textContent = `🏆 Đạt tối đa cày phim (${totalMins}p)`;
       }
     }
+  }
 
+  function handlePillClick(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!isUserLoggedIn()) return;
+    showGamificationToast('🎁 Bạn đang xem phim: Hệ thống tự động đếm thời gian xem thực tế để tăng Xu & XP khi đạt các mốc 15 phút & 45 phút!');
+  }
+
+  function initWatchToEarn() {
     updatePillUI();
+    if (watchInterval) return;
 
     watchInterval = setInterval(() => {
-      // Chỉ tính khi tab đang active và người dùng đang mở trang
+      // Chỉ tính khi tab đang active và người dùng ĐÃ ĐĂNG NHẬP
       if (document.hidden) return;
+      if (!isUserLoggedIn()) {
+        updatePillUI();
+        return;
+      }
+
+      const today = getTodayString();
+      let dailyWatchSeconds = Number(localStorage.getItem(`ap_daily_watch_sec_${today}`) || 0);
+
+      // Kiểm tra giờ cú đêm 00:00 - 04:00 (Thành tựu Tín Đồ Đêm Khuya)
+      const currentHour = new Date().getHours();
+      if (currentHour >= 0 && currentHour < 4) {
+        if (localStorage.getItem('ap_night_owl_watch') !== 'true') {
+          localStorage.setItem('ap_night_owl_watch', 'true');
+          setTimeout(() => {
+            addReward(50, 10, '🦉 Mở khóa Thành Tựu: Tín Đồ Đêm Khuya (Xem phim 00:00 - 04:00)!');
+          }, 3000);
+        }
+      }
 
       dailyWatchSeconds += 10;
       localStorage.setItem(`ap_daily_watch_sec_${today}`, dailyWatchSeconds);
@@ -611,6 +688,7 @@
   }
 
   function recordEpisodeCompleted() {
+    if (!isUserLoggedIn()) return;
     const today = getTodayString();
     let marathon = Number(localStorage.getItem('ap_marathon_day_count') || 0) + 1;
     localStorage.setItem('ap_marathon_day_count', marathon);
@@ -808,6 +886,7 @@
     setXu,
     getXP,
     setXP,
+    isUserLoggedIn,
     calculateLevel,
     addReward,
     getDailyStreakData,
@@ -819,6 +898,8 @@
     getLeaderboardData,
     fetchLeaderboard,
     initWatchToEarn,
+    updatePillUI,
+    handlePillClick,
     recordEpisodeCompleted,
     redeemVipDays,
     showGamificationToast,
@@ -828,14 +909,19 @@
   // Tự động lắng nghe và nạp trước dữ liệu thực tế khi trang load
   document.addEventListener('DOMContentLoaded', () => {
     updateHeaderChips();
+    updatePillUI();
     fetchLeaderboard('weekly');
   });
 
-  window.addEventListener('ap:user-updated', updateHeaderChips);
-  window.addEventListener('auth:profileSynced', updateHeaderChips);
+  window.addEventListener('ap:user-updated', () => { updateHeaderChips(); updatePillUI(); });
+  window.addEventListener('auth:profileSynced', () => { updateHeaderChips(); updatePillUI(); });
+  window.addEventListener('auth:login', () => { updateHeaderChips(); updatePillUI(); });
+  window.addEventListener('auth:logout', () => { updateHeaderChips(); updatePillUI(); });
+  window.addEventListener('auth:userUpdated', () => { updateHeaderChips(); updatePillUI(); });
   window.addEventListener('storage', (e) => {
-    if (e.key === 'cinestream_user' || e.key === 'cinestream_xu') {
+    if (e.key === 'cinestream_user' || e.key === 'cinestream_xu' || e.key === 'cinestream_token') {
       updateHeaderChips();
+      updatePillUI();
     }
   });
 

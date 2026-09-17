@@ -7,7 +7,11 @@ const { supabaseAdmin } = require('../lib/supabase');
 async function requireAdmin(req, res, next) {
     try {
         const authHeader = req.headers.authorization || '';
-        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        let token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+        if (!token && req.cookies) {
+            token = req.cookies.adminToken || req.cookies.cinestream_admin_token || req.cookies.aphim_admin_token || req.cookies['sb-access-token'] || req.cookies.token;
+        }
 
         if (!token) {
             return res.status(401).json({ success: false, message: 'Truy cập bị từ chối — thiếu admin token.' });
