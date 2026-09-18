@@ -6,16 +6,14 @@ const ADMIN_STORAGE_KEYS = {
 // ============================================================
 // API Configuration — APhim Super (Supabase + MongoDB Backend)
 // ============================================================
+const currentOrigin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : '';
+
 const BACKEND_OPTIONS = {
-    // Server Express local (chạy cùng domain) — KHÔNG dùng Railway cũ nữa
-    LOCAL: window.location.origin,
-    // Production domain
-    PRODUCTION: 'https://aphim.io.vn'
+    LOCAL: currentOrigin,
+    PRODUCTION: currentOrigin
 };
 
-// Tự động detect môi trường
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-let chosenBackend = isLocal ? BACKEND_OPTIONS.LOCAL : BACKEND_OPTIONS.PRODUCTION;
+let chosenBackend = currentOrigin;
 
 // Xóa cache backend cũ (Railway)
 try {
