@@ -24,6 +24,7 @@ const paymentRoutes      = require('./routes/payment.routes');
 const settingsRoutes     = require('./routes/settings.routes');
 const adminRoutes        = require('./routes/admin.routes');
 const feedbackRoutes     = require('./routes/feedback.routes');
+const seoRoutes          = require('./routes/seo.routes');
 const { requireAdmin }  = require('./middleware/adminAuth.middleware');
 
 const app = express();
@@ -108,6 +109,7 @@ app.use('/api/transactions',  paymentRoutes); // alias
 app.use('/api/settings',     settingsRoutes);
 app.use('/api/admin',        adminRoutes);
 app.use('/api/feedback',     feedbackRoutes);
+app.use('/',                 seoRoutes); // Sitemap đa tầng, robots.txt, dynamic seo cache
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -885,7 +887,7 @@ app.get('/', (req, res) => {
     res.render('index', {
         title: 'APhim Super | Xem Phim Lẻ Mới 2026 | Phim Online Net Full HD Vietsub',
         metaDescription: 'APhim Super - Website xem phim online net mượt không giật lag. Tổng hợp kho phim lẻ mới, phim vietsub mới nhất 2026, phim bộ hay nhất cập nhật liên tục Full HD miễn phí.',
-        canonicalUrl: 'https://aphim.io.vn/'
+        canonicalUrl: 'https://aphim.store/'
     });
 });
 
@@ -973,31 +975,93 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
     const meta = await fetchMovieMetadata(slug);
 
     if (meta) {
+        const isSeries = meta.type === 'series';
         const title = `Phim ${meta.name} (${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
-        const actorText = meta.actor.length ? ` Diễn viên: ${meta.actor.slice(0, 4).join(', ')}.` : '';
+        const actorList = meta.actor.length ? meta.actor.slice(0, 4).join(', ') : '';
+        const actorText = actorList ? ` Diễn viên: ${actorList}.` : '';
         const directorText = meta.director.length ? ` Đạo diễn: ${meta.director.slice(0, 2).join(', ')}.` : '';
-        const descSnippet = meta.content ? ` ${meta.content.slice(0, 150)}...` : '';
-        const metaDescription = `Xem phim ${meta.name} (${meta.origin_name}) full HD ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet}`;
-        const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim, aphim store`;
+        const descSnippet = meta.content ? ` ${meta.content.slice(0, 160)}...` : '';
+        const metaDescription = `Xem phim ${meta.name} (${meta.origin_name}) ${meta.year} chất lượng ${meta.quality} ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet} Xem online tốc độ cao tại APhim Super.`;
+        const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.name} vietsub, ${meta.name} thuyet minh, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim, aphim store`;
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
+        const canonicalUrl = `https://aphim.store/phim/${slug}`;
+        const mainCategory = meta.category[0] || 'Phim mới';
 
         const schemaData = {
             "@context": "https://schema.org",
-            "@type": "Movie",
-            "name": meta.name,
-            "alternateName": meta.origin_name,
-            "image": ogImage,
-            "description": meta.content || metaDescription,
-            "dateCreated": String(meta.year),
-            "director": meta.director.map(d => ({ "@type": "Person", "name": d })),
-            "actor": meta.actor.map(a => ({ "@type": "Person", "name": a })),
-            "genre": meta.category,
-            "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "9.6",
-                "bestRating": "10",
-                "ratingCount": "1580"
-            }
+            "@graph": [
+                {
+                    "@type": isSeries ? "TVSeries" : "Movie",
+                    "name": meta.name,
+                    "alternateName": meta.origin_name || "",
+                    "url": canonicalUrl,
+                    "image": ogImage,
+                    "description": meta.content || metaDescription,
+                    "dateCreated": String(meta.year),
+                    "director": meta.director.map(d => ({ "@type": "Person", "name": d })),
+                    "actor": meta.actor.map(a => ({ "@type": "Person", "name": a })),
+                    "genre": meta.category,
+                    "countryOfOrigin": meta.country.map(c => ({ "@type": "Country", "name": c })),
+                    "aggregateRating": {
+                        "@type": "AggregateRating",
+                        "ratingValue": "9.6",
+                        "bestRating": "10",
+                        "ratingCount": "2480"
+                    }
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "Trang Chủ",
+                            "item": "https://aphim.store/"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": mainCategory,
+                            "item": "https://aphim.store/categories"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": meta.name,
+                            "item": canonicalUrl
+                        }
+                    ]
+                },
+                {
+                    "@type": "FAQPage",
+                    "mainEntity": [
+                        {
+                            "@type": "Question",
+                            "name": `Xem phim ${meta.name} Full HD Vietsub ở đâu miễn phí?`,
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": `Bạn có thể xem trọn bộ phim ${meta.name} (${meta.origin_name}) chất lượng cao Full HD Vietsub Thuyết minh hoàn toàn miễn phí, tốc độ cao không giật lag tại website APhim Super.`
+                            }
+                        },
+                        {
+                            "@type": "Question",
+                            "name": `Phim ${meta.name} có dàn diễn viên nào tham gia?`,
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": `Phim ${meta.name} có sự góp mặt của các diễn viên tài năng: ${actorList || 'Đang cập nhật'}.`
+                            }
+                        },
+                        {
+                            "@type": "Question",
+                            "name": `Phim ${meta.name} thuộc thể loại gì và sản xuất năm nào?`,
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": `Phim ${meta.name} phát hành năm ${meta.year}, thuộc thể loại ${meta.category.join(', ')} do quốc gia ${meta.country.join(', ')} sản xuất.`
+                            }
+                        }
+                    ]
+                }
+            ]
         };
 
         return res.render('phim', {
@@ -1008,7 +1072,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
             metaKeywords: metaKeywords,
             ogImage: ogImage,
             ogType: 'video.movie',
-            canonicalUrl: `https://aphim.store/phim/${slug}`,
+            canonicalUrl: canonicalUrl,
             schemaData: schemaData
         });
     }
@@ -1017,8 +1081,8 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
     res.render('phim', {
         slug: slug,
         movie: null,
-        title: `Thông Tin Phim ${formattedName} Full HD | APhim Super`,
-        metaDescription: `Thông tin chi tiết, lịch chiếu, danh sách tập phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
+        title: `Phim ${formattedName} Full HD Vietsub | APhim Super`,
+        metaDescription: `Xem thông tin, lịch chiếu, danh sách tập phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
         metaKeywords: `${formattedName}, xem phim ${formattedName}, phim mới vietsub, aphim, aphim store`,
         canonicalUrl: `https://aphim.store/phim/${slug}`
     });
@@ -1031,16 +1095,69 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
     const meta = await fetchMovieMetadata(slug);
 
     let epText = '';
+    let epNumber = '1';
     if (episode) {
         const cleanEp = episode.replace(/^tap-/, '');
         epText = cleanEp ? `- Tập ${cleanEp} ` : '';
+        epNumber = cleanEp || '1';
     }
 
     if (meta) {
         const title = `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
-        const metaDescription = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao trên APhim Super.`;
+        const metaDescription = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
-        const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${episode || '1'}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, aphim, aphim store`;
+        const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${epNumber}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, xem phim khong quang cao, aphim, aphim store`;
+        const canonicalUrl = `https://aphim.store/xem-phim/${slug}`;
+        const mainCategory = meta.category[0] || 'Phim mới';
+
+        const schemaData = {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "VideoObject",
+                    "name": `Xem Phim ${meta.name} ${epText}Full HD Vietsub Thuyết Minh`,
+                    "description": metaDescription,
+                    "thumbnailUrl": [ogImage],
+                    "uploadDate": meta.year ? `${meta.year}-01-01T00:00:00Z` : new Date().toISOString(),
+                    "contentUrl": canonicalUrl,
+                    "embedUrl": canonicalUrl,
+                    "potentialAction": {
+                        "@type": "SeekToAction",
+                        "target": `${canonicalUrl}?t={seek_to_second_number}`,
+                        "startOffset-input": "required name=seek_to_second_number"
+                    }
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "Trang Chủ",
+                            "item": "https://aphim.store/"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": mainCategory,
+                            "item": "https://aphim.store/categories"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": meta.name,
+                            "item": `https://aphim.store/phim/${slug}`
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 4,
+                            "name": `Xem Phim ${epText}`,
+                            "item": canonicalUrl
+                        }
+                    ]
+                }
+            ]
+        };
 
         return res.render('watch', {
             slug: slug,
@@ -1052,7 +1169,8 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
             metaKeywords: metaKeywords,
             ogImage: ogImage,
             ogType: 'video.movie',
-            canonicalUrl: `https://aphim.store/xem-phim/${slug}`
+            canonicalUrl: canonicalUrl,
+            schemaData: schemaData
         });
     }
 
@@ -1069,11 +1187,33 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
     });
 });
 
+// Map tên tiếng Việt cho Thể loại & Quốc gia chuẩn SEO
+const CATEGORY_NAMES_MAP = {
+    'hanh-dong': 'Hành Động', 'tinh-cam': 'Tình Cảm', 'hai-huoc': 'Hài Hước', 'kinh-di': 'Kinh Dị',
+    'hoat-hinh': 'Hoạt Hình', 'vien-tuong': 'Viễn Tưởng', 'vo-thuat': 'Võ Thuật', 'chinh-kich': 'Chính Kịch',
+    'tam-ly': 'Tâm Lý', 'bi-an': 'Bí Ẩn', 'co-trang': 'Cổ Trang', 'chien-tranh': 'Chiến Tranh',
+    'tv-shows': 'TV Shows', 'short-drama': 'Phim Ngắn', 'hoc-duong': 'Học Đường', 'than-thoai': 'Thần Thoại',
+    'tai-lieu': 'Tài Liệu', 'the-thao': 'Thể Thao', 'am-nhac': 'Âm Nhạc', 'phieu-luu': 'Phiêu Lưu'
+};
+
+const COUNTRY_NAMES_MAP = {
+    'viet-nam': 'Việt Nam', 'trung-quoc': 'Trung Quốc', 'han-quoc': 'Hàn Quốc', 'nhat-ban': 'Nhật Bản',
+    'thai-lan': 'Thái Lan', 'au-my': 'Âu Mỹ', 'dai-loan': 'Đài Loan', 'hong-kong': 'Hồng Kông',
+    'an-do': 'Ấn Độ', 'anh': 'Anh', 'phap': 'Pháp', 'canada': 'Canada'
+};
+
 // 3. Category / List Clean Route: /danh-sach & /tat-ca
 app.get(['/danh-sach', '/tat-ca'], (req, res) => {
+    const listType = req.query.list || req.query.type || '';
+    let listTitle = 'Tất Cả Phim Mới Cập Nhật';
+    if (listType === 'phim-bo') listTitle = 'Phim Bộ Mới Nhất 2026';
+    else if (listType === 'phim-le') listTitle = 'Phim Lẻ Chiếu Rạp Mới Nhất 2026';
+    else if (listType === 'hoat-hinh') listTitle = 'Phim Hoạt Hình Anime Mới Nhất';
+
     res.render('danh-sach', {
-        title: 'Tất Cả Phim Mới Cập Nhật - APhim Super',
-        metaDescription: 'Danh sách phim bộ, phim lẻ, phim chiếu rạp mới cập nhật vietsub thuyết minh chất lượng cao tại APhim Super.'
+        title: `${listTitle} Full HD Vietsub - APhim Super`,
+        metaDescription: `Danh sách ${listTitle.toLowerCase()} vietsub thuyết minh chất lượng cao, cập nhật liên tục 24/7 xem nhanh không giật lag tại APhim Super.`,
+        canonicalUrl: `https://aphim.store/danh-sach${listType ? '?list=' + listType : ''}`
     });
 });
 
@@ -1091,27 +1231,39 @@ app.get(['/profile', '/profile.html', '/tai-khoan', '/tai-khoan/:tab'], (req, re
 
 // 4. Search Clean Route: /search
 app.get('/search', (req, res) => {
-    const keyword = req.query.keyword || '';
+    const keyword = (req.query.keyword || req.query.q || '').trim();
+    const titleText = keyword ? `Tìm Kiếm Phim: ${keyword} Full HD Vietsub` : 'Tìm Kiếm Phim Online';
     res.render('search', {
         keyword: keyword,
-        title: `Tìm kiếm phim: ${keyword} - APhim Super`,
-        metaDescription: `Kết quả tìm kiếm phim ${keyword} tại APhim Super.`
+        title: `${titleText} - APhim Super`,
+        metaDescription: `Kết quả tìm kiếm phim ${keyword || 'mới'} vietsub thuyết minh chất lượng full HD, xem trực tuyến mượt mà tại APhim Super.`,
+        canonicalUrl: `https://aphim.store/search${keyword ? '?keyword=' + encodeURIComponent(keyword) : ''}`
     });
 });
 
 // 5. Category filter Clean Route: /categories
 app.get('/categories', (req, res) => {
+    const catSlug = req.query.category || '';
+    const catName = CATEGORY_NAMES_MAP[catSlug] || (catSlug ? catSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '');
+    const titleText = catName ? `Phim ${catName} Hay Nhất 2026 Full HD Vietsub` : 'Khám Phá Thể Loại Phim Hay';
+
     res.render('categories', {
-        title: 'Thể Loại Phim - APhim Super',
-        metaDescription: 'Khám phá tất cả các thể loại phim hành động, tình cảm, hài hước, kinh dị, hoạt hình tại APhim Super.'
+        title: `${titleText} - APhim Super`,
+        metaDescription: `Tổng hợp kho phim ${catName || 'các thể loại'} hay mới nhất 2026 vietsub thuyết minh độ phân giải Full HD cực mượt tại APhim Super.`,
+        canonicalUrl: `https://aphim.store/categories${catSlug ? '?category=' + catSlug : ''}`
     });
 });
 
 // 6. Country Clean Route: /phim-theo-quoc-gia
 app.get('/phim-theo-quoc-gia', (req, res) => {
+    const countrySlug = req.query.country || '';
+    const countryName = COUNTRY_NAMES_MAP[countrySlug] || (countrySlug ? countrySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '');
+    const titleText = countryName ? `Phim ${countryName} Mới Nhất 2026 Full HD Vietsub` : 'Phim Theo Quốc Gia';
+
     res.render('phim-theo-quoc-gia', {
-        title: 'Phim Theo Quốc Gia - APhim Super',
-        metaDescription: 'Kho phim Hàn Quốc, Trung Quốc, Âu Mỹ, Nhật Bản, Việt Nam vietsub chất lượng cao.'
+        title: `${titleText} - APhim Super`,
+        metaDescription: `Kho phim ${countryName || 'Châu Á, Âu Mỹ'} mới nhất 2026 vietsub thuyết minh mượt mà không quảng cáo trên APhim Super.`,
+        canonicalUrl: `https://aphim.store/phim-theo-quoc-gia${countrySlug ? '?country=' + countrySlug : ''}`
     });
 });
 
@@ -1283,222 +1435,8 @@ app.post('/api/admin/set-google-sheet-url', (req, res) => {
 
 
 // ==========================================
-// DYNAMIC SEO SITEMAP & ROBOTS GENERATOR
-// Tự động cào kho phim mới nhất & cập nhật sitemap cho Google Index
+// 🚀 Dynamic SEO Sitemaps & Robots.txt đã được chuyển sang routes/seo.routes.js
 // ==========================================
-let sitemapCache = {
-    xml: null,
-    imagesXml: null,
-    lastFetched: 0
-};
-const SITEMAP_CACHE_TTL = 30 * 60 * 1000; // 30 phút cache
-
-async function buildSitemapData() {
-    if (sitemapCache.xml && sitemapCache.imagesXml && (Date.now() - sitemapCache.lastFetched < SITEMAP_CACHE_TTL)) {
-        return sitemapCache;
-    }
-
-    console.log('[SITEMAP] Đang khởi tạo và cào dữ liệu phim mới nhất cho Sitemap Google...');
-
-    const todayStr = new Date().toISOString().split('T')[0];
-    const baseUrl = 'https://aphim.store';
-
-    const staticUrls = [
-        { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'daily' },
-        { loc: `${baseUrl}/danh-sach`, priority: '0.9', changefreq: 'daily' },
-        { loc: `${baseUrl}/categories`, priority: '0.9', changefreq: 'daily' },
-        { loc: `${baseUrl}/phim-theo-quoc-gia`, priority: '0.9', changefreq: 'daily' },
-        { loc: `${baseUrl}/search`, priority: '0.7', changefreq: 'daily' },
-        { loc: `${baseUrl}/hoi-dap`, priority: '0.5', changefreq: 'weekly' },
-        { loc: `${baseUrl}/chinh-sach-bao-mat`, priority: '0.3', changefreq: 'monthly' },
-        { loc: `${baseUrl}/dieu-khoan-su-dung`, priority: '0.3', changefreq: 'monthly' },
-        { loc: `${baseUrl}/gioi-thieu`, priority: '0.4', changefreq: 'monthly' },
-        { loc: `${baseUrl}/lien-he`, priority: '0.4', changefreq: 'monthly' }
-    ];
-
-    const categories = [
-        'am-nhac', 'bi-an', 'chien-tranh', 'chinh-kich', 'tv-shows', 'co-trang',
-        'gay-can', 'gia-dinh', 'gia-tuong', 'hai-huoc', 'hanh-dong', 'hinh-su',
-        'hoat-hinh', 'hoc-duong', 'khoa-hoc', 'vien-tuong', 'kinh-di', 'kinh-dien',
-        'lang-man', 'lich-su', 'mien-tay', 'phieu-luu', 'phim-hai', 'phim-ngan',
-        'phim-nhac', 'short-drama', 'tai-lieu', 'tam-ly', 'than-thoai', 'the-thao',
-        'tinh-cam', 'tre-em', 'vo-thuat'
-    ];
-
-    const countries = [
-        'viet-nam', 'trung-quoc', 'han-quoc', 'nhat-ban', 'thai-lan',
-        'au-my', 'dai-loan', 'hong-kong', 'an-do', 'anh', 'phap', 'canada'
-    ];
-
-    const catUrls = categories.map(c => ({
-        loc: `${baseUrl}/categories?category=${c}`,
-        priority: '0.8',
-        changefreq: 'daily'
-    }));
-
-    const countryUrls = countries.map(c => ({
-        loc: `${baseUrl}/phim-theo-quoc-gia?country=${c}`,
-        priority: '0.8',
-        changefreq: 'daily'
-    }));
-
-    // Cào 40 trang phim mới nhất (~1,000 phim mới nhất x 2 link detail/watch = 2,000+ URLs)
-    const movies = [];
-    const movieSlugsSeen = new Set();
-    const fetchPages = Array.from({ length: 40 }, (_, i) => i + 1);
-
-    await Promise.allSettled(
-        fetchPages.map(async page => {
-            try {
-                const res = await axios.get(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, {
-                    timeout: 8000,
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhimSEO/2.0' }
-                });
-                const items = res.data?.items || [];
-                items.forEach(m => {
-                    if (m && m.slug && !movieSlugsSeen.has(m.slug) && !BLOCKED_SLUGS.includes(m.slug.toLowerCase())) {
-                        movieSlugsSeen.add(m.slug);
-                        movies.push({
-                            slug: m.slug,
-                            name: m.name || m.origin_name || m.slug,
-                            thumb_url: m.thumb_url ? (m.thumb_url.startsWith('http') ? m.thumb_url : `https://img.phimapi.com/${m.thumb_url}`) : '',
-                            poster_url: m.poster_url ? (m.poster_url.startsWith('http') ? m.poster_url : `https://img.phimapi.com/${m.poster_url}`) : '',
-                            modified: m.modified?.time ? new Date(m.modified.time).toISOString().split('T')[0] : todayStr
-                        });
-                    }
-                });
-            } catch (err) { }
-        })
-    );
-
-    // Escape ký tự XML an toàn
-    const escapeXml = (str) => (str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;');
-
-    // 1. Tạo sitemap.xml chính
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
-
-    staticUrls.concat(catUrls).concat(countryUrls).forEach(item => {
-        xml += `  <url>\n`;
-        xml += `    <loc>${item.loc}</loc>\n`;
-        xml += `    <lastmod>${todayStr}</lastmod>\n`;
-        xml += `    <changefreq>${item.changefreq}</changefreq>\n`;
-        xml += `    <priority>${item.priority}</priority>\n`;
-        xml += `  </url>\n`;
-    });
-
-    movies.forEach(m => {
-        // Đường dẫn chi tiết phim
-        xml += `  <url>\n`;
-        xml += `    <loc>${baseUrl}/phim/${m.slug}</loc>\n`;
-        xml += `    <lastmod>${m.modified}</lastmod>\n`;
-        xml += `    <changefreq>daily</changefreq>\n`;
-        xml += `    <priority>0.8</priority>\n`;
-        if (m.poster_url || m.thumb_url) {
-            const imgLoc = m.poster_url || m.thumb_url;
-            xml += `    <image:image>\n`;
-            xml += `      <image:loc>${escapeXml(imgLoc)}</image:loc>\n`;
-            xml += `      <image:title>${escapeXml(m.name)} Full HD Vietsub - APhim Super</image:title>\n`;
-            xml += `    </image:image>\n`;
-        }
-        xml += `  </url>\n`;
-
-        // Đường dẫn xem phim
-        xml += `  <url>\n`;
-        xml += `    <loc>${baseUrl}/xem-phim/${m.slug}</loc>\n`;
-        xml += `    <lastmod>${m.modified}</lastmod>\n`;
-        xml += `    <changefreq>daily</changefreq>\n`;
-        xml += `    <priority>0.8</priority>\n`;
-        xml += `  </url>\n`;
-    });
-
-    xml += `</urlset>`;
-
-    // 2. Tạo sitemap-images.xml cho Google Images Search
-    let imgXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    imgXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
-
-    movies.forEach(m => {
-        const imgLoc = m.poster_url || m.thumb_url;
-        if (imgLoc) {
-            imgXml += `  <url>\n`;
-            imgXml += `    <loc>${baseUrl}/phim/${m.slug}</loc>\n`;
-            imgXml += `    <image:image>\n`;
-            imgXml += `      <image:loc>${escapeXml(imgLoc)}</image:loc>\n`;
-            imgXml += `      <image:title>${escapeXml(m.name)} Poster HD - APhim Super</image:title>\n`;
-            imgXml += `    </image:image>\n`;
-            if (m.thumb_url && m.thumb_url !== m.poster_url) {
-                imgXml += `    <image:image>\n`;
-                imgXml += `      <image:loc>${escapeXml(m.thumb_url)}</image:loc>\n`;
-                imgXml += `      <image:title>${escapeXml(m.name)} Thumbnail HD - APhim Super</image:title>\n`;
-                imgXml += `    </image:image>\n`;
-            }
-            imgXml += `  </url>\n`;
-        }
-    });
-
-    imgXml += `</urlset>`;
-
-    sitemapCache = {
-        xml,
-        imagesXml: imgXml,
-        lastFetched: Date.now()
-    };
-
-    console.log(`[SITEMAP SUCCESS] Đã cào và tạo Sitemap thành công! Tổng cộng ${movies.length} phim mới nhất.`);
-    return sitemapCache;
-}
-
-// Route sitemap.xml & sitemap-images.xml
-app.get(['/sitemap.xml', '/sitemap'], async (req, res) => {
-    try {
-        const data = await buildSitemapData();
-        res.header('Content-Type', 'application/xml; charset=utf-8');
-        res.send(data.xml);
-    } catch (err) {
-        console.error('[SITEMAP ERROR]', err);
-        res.status(500).send('Error generating sitemap XML');
-    }
-});
-
-app.get(['/sitemap-images.xml', '/sitemap-images'], async (req, res) => {
-    try {
-        const data = await buildSitemapData();
-        res.header('Content-Type', 'application/xml; charset=utf-8');
-        res.send(data.imagesXml);
-    } catch (err) {
-        console.error('[SITEMAP IMAGES ERROR]', err);
-        res.status(500).send('Error generating images sitemap XML');
-    }
-});
-
-// Route robots.txt (Enterprise SEO Crawl Budget Optimization)
-app.get('/robots.txt', (req, res) => {
-    res.type('text/plain');
-    res.send(`User-agent: *
-Allow: /
-Allow: /phim/
-Allow: /xem-phim/
-Allow: /danh-sach
-Allow: /categories
-Allow: /phim-theo-quoc-gia
-Disallow: /api/
-Disallow: /admin/
-Disallow: /profile
-Disallow: /tai-khoan
-Disallow: /reset-password
-Disallow: /*?*keyword=
-
-# Search Engine Sitemaps
-Sitemap: https://aphim.store/sitemap.xml
-Sitemap: https://aphim.store/sitemap-images.xml
-`);
-});
 
 // ==========================================
 // 🛡️ APHIM SUPER ENTERPRISE ADMIN SUITE ROUTES

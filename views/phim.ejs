@@ -659,9 +659,77 @@
                     </div>
 
                     <!-- Bình luận (Mở rộng 100% chiều rộng toàn bộ Cột phải) -->
-                    <div id="comments-section" class="w-full mt-6 mb-16">
+                    <div id="comments-section" class="w-full mt-6 mb-10">
                         <div style="text-align:center;color:#6b7280;padding:20px;width:100%;">⏳ Đang tải bình luận...</div>
                     </div>
+
+                    <!-- 🚀 GOOGLE TOP 1 SEO KEYWORD CLOUD & FAQ SEMANTIC MODULE -->
+                    <% if (typeof movie !== 'undefined' && movie) { %>
+                    <section class="w-full mt-8 pt-6 border-t border-white/10 space-y-6 text-left" aria-label="Từ khóa tìm kiếm và thông tin phim">
+                        <!-- 1. SEO Tag Cloud (Long-tail Search Queries) -->
+                        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-5 sm:p-6 backdrop-blur-md">
+                            <h3 class="text-sm sm:text-base font-bold text-white/90 mb-3.5 flex items-center gap-2">
+                                <span class="material-icons-round text-[#fcd576] text-lg">local_offer</span>
+                                <span>Từ Khóa Tìm Kiếm Phổ Biến Cho Phim <%= movie.name %></span>
+                            </h3>
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <a href="/search?keyword=<%= encodeURIComponent(movie.name) %>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium">xem phim <%= movie.name %></a>
+                                <a href="/search?keyword=<%= encodeURIComponent(movie.name + ' vietsub') %>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium"><%= movie.name %> vietsub</a>
+                                <a href="/search?keyword=<%= encodeURIComponent(movie.name + ' thuyet minh') %>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium"><%= movie.name %> thuyết minh</a>
+                                <a href="/search?keyword=<%= encodeURIComponent(movie.name + ' full hd') %>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium"><%= movie.name %> full HD</a>
+                                <a href="/search?keyword=<%= encodeURIComponent(movie.name + ' tron bo') %>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium"><%= movie.name %> trọn bộ</a>
+                                <% if (movie.origin_name) { %>
+                                <a href="/search?keyword=<%= encodeURIComponent(movie.origin_name) %>" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium"><%= movie.origin_name %></a>
+                                <% } %>
+                                <% if (Array.isArray(movie.category)) { %>
+                                    <% movie.category.slice(0, 3).forEach(function(c) { %>
+                                    <a href="/categories" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium">phim <%= typeof c === 'object' ? c.name : c %> mới</a>
+                                    <% }); %>
+                                <% } %>
+                                <a href="/danh-sach" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#fcd576]/20 text-gray-300 hover:text-[#fcd576] border border-white/10 hover:border-[#fcd576]/40 transition-all font-medium">phim chiếu rạp 2026</a>
+                            </div>
+                        </div>
+
+                        <!-- 2. Semantic FAQ Accordion for Google Rich Snippets -->
+                        <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-5 sm:p-6 backdrop-blur-md space-y-4">
+                            <h3 class="text-sm sm:text-base font-bold text-white/90 flex items-center gap-2">
+                                <span class="material-icons-round text-[#fcd576] text-lg">help_outline</span>
+                                <span>Câu Hỏi Thường Gặp Về Phim <%= movie.name %></span>
+                            </h3>
+                            <div class="space-y-3 text-xs sm:text-sm text-gray-300">
+                                <details class="group bg-white/5 rounded-xl p-3.5 border border-white/5 open:bg-white/[0.08] transition-all cursor-pointer">
+                                    <summary class="font-semibold text-white/90 list-none flex items-center justify-between">
+                                        <span>Xem phim <%= movie.name %> Full HD Vietsub ở đâu mượt và miễn phí?</span>
+                                        <span class="material-icons-round text-sm transition-transform group-open:rotate-180 text-gray-400">expand_more</span>
+                                    </summary>
+                                    <p class="mt-2.5 text-gray-300 text-xs sm:text-sm leading-relaxed border-t border-white/5 pt-2">
+                                        Bạn có thể xem trọn bộ phim <strong><%= movie.name %></strong> (<%= movie.origin_name %>) bản chuẩn Full HD Vietsub Thuyết minh hoàn toàn miễn phí tại APhim Super với đường truyền tốc độ cao, không giật lag.
+                                    </p>
+                                </details>
+
+                                <details class="group bg-white/5 rounded-xl p-3.5 border border-white/5 open:bg-white/[0.08] transition-all cursor-pointer">
+                                    <summary class="font-semibold text-white/90 list-none flex items-center justify-between">
+                                        <span>Dàn diễn viên và đạo diễn của <%= movie.name %> là ai?</span>
+                                        <span class="material-icons-round text-sm transition-transform group-open:rotate-180 text-gray-400">expand_more</span>
+                                    </summary>
+                                    <p class="mt-2.5 text-gray-300 text-xs sm:text-sm leading-relaxed border-t border-white/5 pt-2">
+                                        Phim có sự tham gia của dàn diễn viên tài năng: <%= Array.isArray(movie.actor) && movie.actor.length ? movie.actor.slice(0, 6).join(', ') : 'Đang cập nhật' %>.
+                                    </p>
+                                </details>
+
+                                <details class="group bg-white/5 rounded-xl p-3.5 border border-white/5 open:bg-white/[0.08] transition-all cursor-pointer">
+                                    <summary class="font-semibold text-white/90 list-none flex items-center justify-between">
+                                        <span>Chất lượng hình ảnh và âm thanh của <%= movie.name %> tại APhim Super ra sao?</span>
+                                        <span class="material-icons-round text-sm transition-transform group-open:rotate-180 text-gray-400">expand_more</span>
+                                    </summary>
+                                    <p class="mt-2.5 text-gray-300 text-xs sm:text-sm leading-relaxed border-t border-white/5 pt-2">
+                                        Phim được phát ở độ phân giải cao nhất <%= movie.quality || 'Full HD' %> cùng âm thanh sống động, hỗ trợ phụ đề Vietsub và lồng tiếng chuẩn xác.
+                                    </p>
+                                </details>
+                            </div>
+                        </div>
+                    </section>
+                    <% } %>
                 </div>
             </div>
 
