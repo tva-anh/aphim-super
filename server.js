@@ -978,8 +978,8 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         const directorText = meta.director.length ? ` Đạo diễn: ${meta.director.slice(0, 2).join(', ')}.` : '';
         const descSnippet = meta.content ? ` ${meta.content.slice(0, 150)}...` : '';
         const metaDescription = `Xem phim ${meta.name} (${meta.origin_name}) full HD ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet}`;
-        const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim`;
-        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.io.vn/android-chrome-512x512.png';
+        const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim, aphim store`;
+        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
 
         const schemaData = {
             "@context": "https://schema.org",
@@ -1008,7 +1008,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
             metaKeywords: metaKeywords,
             ogImage: ogImage,
             ogType: 'video.movie',
-            canonicalUrl: `https://aphim.io.vn/phim/${slug}`,
+            canonicalUrl: `https://aphim.store/phim/${slug}`,
             schemaData: schemaData
         });
     }
@@ -1019,8 +1019,8 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         movie: null,
         title: `Thông Tin Phim ${formattedName} Full HD | APhim Super`,
         metaDescription: `Thông tin chi tiết, lịch chiếu, danh sách tập phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
-        metaKeywords: `${formattedName}, xem phim ${formattedName}, phim mới vietsub, aphim`,
-        canonicalUrl: `https://aphim.io.vn/phim/${slug}`
+        metaKeywords: `${formattedName}, xem phim ${formattedName}, phim mới vietsub, aphim, aphim store`,
+        canonicalUrl: `https://aphim.store/phim/${slug}`
     });
 });
 
@@ -1039,8 +1039,8 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
     if (meta) {
         const title = `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
         const metaDescription = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao trên APhim Super.`;
-        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.io.vn/android-chrome-512x512.png';
-        const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${episode || '1'}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd`;
+        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
+        const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${episode || '1'}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, aphim, aphim store`;
 
         return res.render('watch', {
             slug: slug,
@@ -1052,7 +1052,7 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
             metaKeywords: metaKeywords,
             ogImage: ogImage,
             ogType: 'video.movie',
-            canonicalUrl: `https://aphim.io.vn/xem-phim/${slug}`
+            canonicalUrl: `https://aphim.store/xem-phim/${slug}`
         });
     }
 
@@ -1064,8 +1064,8 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
         episodes: [],
         title: `Xem Phim ${formattedName} ${epText}Full HD | APhim Super`,
         metaDescription: `Xem phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
-        metaKeywords: `xem phim ${formattedName}, ${formattedName} vietsub, xem phim hd, aphim`,
-        canonicalUrl: `https://aphim.io.vn/xem-phim/${slug}`
+        metaKeywords: `xem phim ${formattedName}, ${formattedName} vietsub, xem phim hd, aphim, aphim store`,
+        canonicalUrl: `https://aphim.store/xem-phim/${slug}`
     });
 });
 
