@@ -21,14 +21,18 @@
 </script>
 <script src="/js/anti-devtools.js?v=99"></script>
 
-<!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) - Dual Analytics Tracking -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-91XGR323SV"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
+  // Nhánh 1: Đo lường chuyên biệt cho aphim.store
   gtag('config', 'G-91XGR323SV');
+
+  // Nhánh 2: Đo lường cộng dồn tài khoản chính (70K Users)
+  gtag('config', 'G-QYK5R13WK2');
 </script>
 
 <title><%= typeof title !== 'undefined' ? title : 'APhim Super | Xem Phim Lẻ Mới 2026 | Phim Online Net Full HD Vietsub' %></title>
