@@ -622,13 +622,15 @@
         const isRegister = currentAuthMode === 'register';
         const isForgot   = currentAuthMode === 'forgot';
 
+        const dynamicPosterURL = window.AUTH_MODAL_POSTER || '/images/comment-mascot.webp';
+
         backdrop = document.createElement('div');
         backdrop.id = 'ap-auth-backdrop';
 
         backdrop.innerHTML = `
         <div id="ap-auth-modal">
             <!-- Left Poster Column (Desktop) -->
-            <div class="ap-auth-left" style="background: linear-gradient(to bottom, rgba(15, 18, 30, 0.05) 0%, rgba(15, 18, 30, 0.25) 45%, rgba(15, 18, 30, 0.72) 100%), url('${dynamicPosterURL}') center / cover no-repeat;">
+            <div class="ap-auth-left" style="background: linear-gradient(to bottom, rgba(15, 18, 30, 0.1) 0%, rgba(15, 18, 30, 0.4) 45%, rgba(15, 18, 30, 0.85) 100%), url('${dynamicPosterURL}') center / cover no-repeat;">
                 <div class="ap-auth-brand-logo">
                     <picture>
                         <source srcset="/logo-aphim1.webp" type="image/webp" />
