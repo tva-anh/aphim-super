@@ -517,22 +517,6 @@
                         </div>
                     </div>
 
-                    <!-- SEO Quick Keywords Cloud -->
-                    <% if (typeof movie !== 'undefined' && movie) { %>
-                    <div class="w-full bg-[#151722]/80 border border-white/10 rounded-2xl p-4 sm:p-5 text-left">
-                        <h4 class="text-xs sm:text-sm font-bold text-gray-300 mb-2.5 flex items-center gap-2">
-                            <span class="material-icons-round text-[#fcd576] text-base">tag</span>
-                            <span>Từ khóa liên quan: <%= movie.name %></span>
-                        </h4>
-                        <div class="flex flex-wrap gap-1.5 text-xs">
-                            <a href="/search?keyword=<%= encodeURIComponent('xem phim ' + movie.name) %>" class="px-2.5 py-1 rounded bg-white/5 hover:bg-[#fcd576]/20 text-gray-400 hover:text-[#fcd576] transition-colors">xem phim <%= movie.name %></a>
-                            <a href="/search?keyword=<%= encodeURIComponent(movie.name + ' full hd') %>" class="px-2.5 py-1 rounded bg-white/5 hover:bg-[#fcd576]/20 text-gray-400 hover:text-[#fcd576] transition-colors"><%= movie.name %> full HD</a>
-                            <a href="/search?keyword=<%= encodeURIComponent(movie.name + ' vietsub') %>" class="px-2.5 py-1 rounded bg-white/5 hover:bg-[#fcd576]/20 text-gray-400 hover:text-[#fcd576] transition-colors"><%= movie.name %> vietsub</a>
-                            <a href="/phim/<%= slug %>" class="px-2.5 py-1 rounded bg-[#fcd576]/10 text-[#fcd576] hover:bg-[#fcd576]/20 transition-colors font-semibold">Thông tin phim <%= movie.name %></a>
-                        </div>
-                    </div>
-                    <% } %>
-
                 </div>
 
                 <!-- ================================================================= -->

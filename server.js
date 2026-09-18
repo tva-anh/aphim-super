@@ -882,11 +882,19 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
 // CLEAN PRETTY ROUTES (NO .html EXTENSIONS)
 // ==========================================
 
+// Helper chuẩn hóa độ dài Meta Description theo chuẩn Google & Bing (giữa 25 và 160 ký tự)
+function formatMetaDescription(text, maxLen = 155) {
+    if (!text) return '';
+    const clean = String(text).replace(/\s+/g, ' ').trim();
+    if (clean.length <= maxLen) return clean;
+    return clean.slice(0, maxLen - 3).trim() + '...';
+}
+
 // 1. Homepage Route
 app.get('/', (req, res) => {
     res.render('index', {
         title: 'APhim Super | Xem Phim Lẻ Mới 2026 | Phim Online Net Full HD Vietsub',
-        metaDescription: 'APhim Super - Website xem phim online net mượt không giật lag. Tổng hợp kho phim lẻ mới, phim vietsub mới nhất 2026, phim bộ hay nhất cập nhật liên tục Full HD miễn phí.',
+        metaDescription: 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.',
         canonicalUrl: 'https://aphim.store/'
     });
 });
@@ -980,8 +988,8 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         const actorList = meta.actor.length ? meta.actor.slice(0, 4).join(', ') : '';
         const actorText = actorList ? ` Diễn viên: ${actorList}.` : '';
         const directorText = meta.director.length ? ` Đạo diễn: ${meta.director.slice(0, 2).join(', ')}.` : '';
-        const descSnippet = meta.content ? ` ${meta.content.slice(0, 160)}...` : '';
-        const metaDescription = `Xem phim ${meta.name} (${meta.origin_name}) ${meta.year} chất lượng ${meta.quality} ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet} Xem online tốc độ cao tại APhim Super.`;
+        const rawDesc = `Xem phim ${meta.name} (${meta.origin_name}) ${meta.year} chất lượng ${meta.quality} ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet} Xem online tốc độ cao tại APhim Super.`;
+        const metaDescription = formatMetaDescription(rawDesc, 155);
         const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.name} vietsub, ${meta.name} thuyet minh, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim, aphim store`;
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
         const canonicalUrl = `https://aphim.store/phim/${slug}`;
@@ -1103,8 +1111,8 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
     }
 
     if (meta) {
-        const title = `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
-        const metaDescription = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
+        const rawWatchDesc = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
+        const metaDescription = formatMetaDescription(rawWatchDesc, 155);
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
         const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${epNumber}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, xem phim khong quang cao, aphim, aphim store`;
         const canonicalUrl = `https://aphim.store/xem-phim/${slug}`;

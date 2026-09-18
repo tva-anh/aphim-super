@@ -1,36 +1,56 @@
 /**
- * A PHIM SUPER - Master Desktop & Mobile Horizontal Scroll Engine v4.0 (Ultra Smooth Edition)
- * Inspired by Netflix, Apple TV+ & Disney+ Desktop UI/UX
+ * A PHIM SUPER - Instant Zero-Latency Horizontal Slider & Drag Engine v8.0
+ * Tiêu chuẩn trải nghiệm phản hồi tức thì (0ms Delay, Zero-Wait) của các web phim hàng đầu
  *
- * Key Technical Solutions:
- * 1. Disables all hover triggers & reflows during drag via `pointer-events: none` on child items.
- * 2. High-precision EMA (Exponential Moving Average) velocity tracking.
- * 3. Time-delta independent friction glide `Math.pow(0.955, dt / 16.67)` for consistent 60Hz/120Hz/144Hz/240Hz smoothness.
- * 4. Silky smooth mouse wheel-to-horizontal spring interpolation.
- * 5. 100% Native untouched mobile touch swipe.
+ * ĐẶC ĐIỂM CỐT LÕI:
+ * 1. NHẬN DIỆN LƯỚT ĐI THEO LIỀN TỨC THÌ (Zero Delay - Đi theo chuột 0ms):
+ *    - Di chuyển chuột là thanh trượt đi theo ngay lập tức từ pixel đầu tiên (0px dead-zone).
+ *    - Triệt tiêu hoàn toàn độ trễ trôi chậm do CSS `scroll-behavior: smooth`.
+ *
+ * 2. KHÔNG BAO GIỜ BỊ TUỘT HOẶC MẤT TRACKING:
+ *    - Kết hợp Pointer Capture & Window Tracking: Chuột lướt nhanh cỡ nào, bay ra ngoài
+ *      màn hình hay bay qua ảnh/link vẫn bám sát 100%.
+ *    - Tắt hoàn toàn kéo bóng ma ảnh (`draggable="false"`, `-webkit-user-drag: none`).
+ *
+ * 3. QUÁN TÍNH THẢ TAY MƯỢT NHƯ LỤA (Physics Glide):
+ *    - Khi thả tay sau cú lướt nhanh: trượt tiếp êm ái với gia tốc giảm dần (60fps/120fps/144Hz).
+ *    - Chạm chuột lại là bắt dính lập tức.
+ *
+ * 4. CON XOAY CHUỘT PHẢN HỒI NGAY (Instant Wheel Response):
+ *    - Lăn chuột là thanh trượt lướt ngang tức thì, không bị trễ.
+ *    - Chạm mép thì tự động nhường quyền cuộn dọc trang êm ái.
+ *
+ * 5. BẢO VỆ TUYỆT ĐỐI CLICK MỞ PHIM:
+ *    - Click tại chỗ (< 5px) -> Xem phim bình thường.
+ *    - Kéo lướt (> 5px) -> Tự động chặn click nhầm vào phim.
  */
 (function () {
     'use strict';
 
-    const DRAG_THRESHOLD = 6; // px threshold before initiating drag
-    const isDesktopPointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const SLIDER_SELECTORS = [
+        '#slider-de-cu',
+        '.de-cu-slider',
+        '#homeCommentsTrack',
+        '.home-comments-track',
+        '#heroThumbnails',
+        '.interests-wrapper',
+        '.ranking-grid-container',
+        '.country-scroll-container',
+        '.cs-scroll-container',
+        '#movie-gallery-scroll',
+        '#actor-list',
+        '#episode-list',
+        '.scrollbar-hide'
+    ].join(', ');
 
-    // Helper: Find closest scrollable horizontal container
-    function findScrollableContainer(target) {
+    // Tìm container cuộn ngang gần nhất
+    function getScrollContainer(target) {
         let el = target;
         while (el && el !== document.body && el !== document.documentElement) {
-            if (el.matches && el.matches(
-                '.overflow-x-auto, .overflow-x-scroll, [class*="overflow-x-"], ' +
-                '.de-cu-slider, .scrollbar-hide, #heroThumbnails, #movie-gallery-scroll, ' +
-                '#actor-list, #episode-list, .interests-wrapper, .az-container, ' +
-                '.horizontal-scroll-container, .ranking-grid-container, [data-drag-scroll="true"], .snap-x, .home-comments-track, .country-scroll-container, .cs-scroll-container'
-            )) {
-                if (el.scrollWidth > el.clientWidth + 4 || window.getComputedStyle(el).overflowX !== 'visible') {
-                    return el;
-                }
+            if (el.matches && el.matches(SLIDER_SELECTORS)) {
+                if (el.scrollWidth > el.clientWidth + 2) return el;
             }
-            
-            if (el.scrollWidth > el.clientWidth + 5) {
+            if (el.scrollWidth > el.clientWidth + 2) {
                 const style = window.getComputedStyle(el);
                 if (style.overflowX === 'auto' || style.overflowX === 'scroll') {
                     return el;
@@ -41,329 +61,238 @@
         return null;
     }
 
-    let activeContainer = null;
-    let isMouseDown = false;
-    let isDragging = false;
+    // Biến trạng thái toàn cục
+    let currentContainer = null;
+    let isDown = false;
     let startX = 0;
-    let startY = 0;
-    let scrollLeftStart = 0;
-    let floatScrollPos = 0;
-    let lastX = 0;
-    let lastTime = 0;
-    let velocity = 0;
+    let scrollStart = 0;
+    let hasMoved = false;
+    let lastClientX = 0;
+    let lastTimestamp = 0;
+    let releaseVelocity = 0;
     let momentumRaf = null;
-    let dragPreventClickTimer = null;
-    let isTouchActive = false;
 
-    // ─── 1. DESKTOP MOUSE DRAG-TO-SCROLL WITH TIME-DELTA KINETIC GLIDE ───
-    document.addEventListener('mousedown', function (e) {
-        if (isTouchActive || !isDesktopPointer()) return;
-        if (e.button !== 0) return; // Only standard left click
-        if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return; // Ignore simulated touch
-
-        const container = findScrollableContainer(e.target);
-        if (!container) return;
-
-        // Cancel running momentum / wheel animation on user grab
+    function cancelMomentum() {
         if (momentumRaf) {
             cancelAnimationFrame(momentumRaf);
             momentumRaf = null;
         }
-        if (container._wheelRaf) {
-            cancelAnimationFrame(container._wheelRaf);
-            container._wheelRaf = null;
+    }
+
+    // ─── 1. NHẤN CHUỘT (POINTER / MOUSE DOWN) - PHẢN HỒI TỨC THÌ 0ms ───
+    function onPointerDown(e) {
+        // Chỉ nhận chuột hoặc bút trên desktop, nhường touch tự nhiên cho điện thoại
+        if (e.pointerType === 'touch') return;
+        if (e.button !== 0) return; // Chỉ chuột trái
+
+        // Bỏ qua các nút bấm hoặc ô nhập
+        if (e.target.closest('button, input, textarea, select, .home-comments-scroll-btn, .section-header-nav')) {
+            return;
         }
 
-        activeContainer = container;
-        isMouseDown = true;
-        isDragging = false;
+        const container = getScrollContainer(e.target);
+        if (!container) return;
+
+        // Dừng quán tính cũ ngay lập tức (bắt dính)
+        cancelMomentum();
+
+        currentContainer = container;
+        isDown = true;
+        hasMoved = false;
         startX = e.clientX;
-        startY = e.clientY;
-        scrollLeftStart = container.scrollLeft;
-        floatScrollPos = container.scrollLeft;
-        lastX = e.clientX;
-        lastTime = performance.now();
-        velocity = 0;
-    }, { capture: true, passive: true });
+        lastClientX = e.clientX;
+        scrollStart = container.scrollLeft;
+        lastTimestamp = performance.now();
+        releaseVelocity = 0;
 
-    document.addEventListener('mousemove', function (e) {
-        if (isTouchActive || !isMouseDown || !activeContainer) return;
+        // Tắt ngay scroll-behavior smooth để đi theo chuột tức thì không độ trễ
+        container.style.scrollBehavior = 'auto';
+        container.style.scrollSnapType = 'none';
 
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-
-        if (!isDragging) {
-            // Cancel horizontal drag if vertical mouse gesture is dominant
-            if (absDy > absDx && absDy > 8) {
-                isMouseDown = false;
-                activeContainer = null;
-                return;
-            }
-            if (absDx >= DRAG_THRESHOLD) {
-                isDragging = true;
-                activeContainer.classList.add('is-dragging-scroll');
-                document.body.classList.add('select-none-global');
-            } else {
-                return;
-            }
-        }
-
-        e.preventDefault();
-
-        // 1:1 Direct Pixel Tracking
-        floatScrollPos = scrollLeftStart - dx;
-        activeContainer.scrollLeft = Math.round(floatScrollPos);
-
-        // Exponential Moving Average (EMA) Velocity Estimation
-        const now = performance.now();
-        const dt = now - lastTime;
-        if (dt > 0 && dt < 100) {
-            const instantaneousV = (e.clientX - lastX) / dt;
-            velocity = velocity * 0.3 + instantaneousV * 0.7;
-            lastX = e.clientX;
-            lastTime = now;
-        }
-    }, { capture: true, passive: false });
-
-    function handleMouseUp() {
-        if (!isMouseDown) return;
-
-        const container = activeContainer;
-        isMouseDown = false;
-
-        if (container) {
-            container.classList.remove('is-dragging-scroll');
-        }
-        document.body.classList.remove('select-none-global');
-
-        if (isDragging && container) {
-            container.setAttribute('data-was-dragged', 'true');
-
-            // High-precision Time-Delta Independent Inertia Glide
-            if (Math.abs(velocity) > 0.06) {
-                let v = Math.sign(velocity) * Math.min(Math.abs(velocity) * 8.0, 26);
-                let currentFloat = container.scrollLeft;
-                let lastFrameTime = performance.now();
-                const baseFriction = 0.955;
-                const minV = 0.1;
-
-                const inertiaGlide = function (nowTime) {
-                    if (isMouseDown || Math.abs(v) < minV) {
-                        momentumRaf = null;
-                        return;
-                    }
-
-                    const dt = Math.min(nowTime - lastFrameTime, 32);
-                    lastFrameTime = nowTime;
-
-                    const frameRatio = dt / 16.667;
-                    currentFloat -= v * frameRatio;
-                    v *= Math.pow(baseFriction, frameRatio);
-
-                    const maxScroll = container.scrollWidth - container.clientWidth;
-
-                    // Boundary Cushion Dampening
-                    if (currentFloat <= 0) {
-                        currentFloat = 0;
-                        container.scrollLeft = 0;
-                        momentumRaf = null;
-                        return;
-                    } else if (currentFloat >= maxScroll) {
-                        currentFloat = maxScroll;
-                        container.scrollLeft = maxScroll;
-                        momentumRaf = null;
-                        return;
-                    }
-
-                    container.scrollLeft = Math.round(currentFloat);
-                    momentumRaf = requestAnimationFrame(inertiaGlide);
-                };
-                momentumRaf = requestAnimationFrame(inertiaGlide);
-            }
-
-            clearTimeout(dragPreventClickTimer);
-            dragPreventClickTimer = setTimeout(function () {
-                isDragging = false;
-                if (container) {
-                    container.removeAttribute('data-was-dragged');
-                }
-                activeContainer = null;
-            }, 100);
-        } else {
-            activeContainer = null;
+        // Khóa con trỏ chuột
+        if (e.pointerId !== undefined && container.setPointerCapture) {
+            try {
+                container.setPointerCapture(e.pointerId);
+            } catch (err) {}
         }
     }
 
-    document.addEventListener('mouseup', handleMouseUp, { capture: true });
-    window.addEventListener('blur', handleMouseUp);
+    // ─── 2. RÊ CHUỘT (POINTER / MOUSE MOVE) - ĐI THEO LIỀN 1:1 TỨC THÌ ───
+    function onPointerMove(e) {
+        if (!isDown || !currentContainer) return;
 
-    // ─── 2. DESKTOP MOUSE WHEEL-TO-HORIZONTAL SMOOTH SPRING INTERPOLATION ───
-    document.addEventListener('wheel', function (e) {
-        if (!isDesktopPointer() || e.ctrlKey || e.altKey || isTouchActive) return;
+        const currentX = e.clientX;
+        const deltaX = currentX - startX;
 
-        const container = findScrollableContainer(e.target);
-        if (!container) return;
-
-        const maxScroll = container.scrollWidth - container.clientWidth;
-        if (maxScroll <= 5) return; // Not scrollable horizontally
-
-        const deltaY = e.deltaY;
-        const deltaX = e.deltaX;
-
-        // If user is scrolling vertical wheel over a horizontal slider
-        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 2) {
-            const isAtStart = container.scrollLeft <= 2 && deltaY < 0;
-            const isAtEnd = container.scrollLeft >= maxScroll - 2 && deltaY > 0;
-
-            // If at the boundary, allow normal vertical page scroll seamlessly
-            if (isAtStart || isAtEnd) return;
-
-            e.preventDefault();
-
-            if (!container._wheelTarget) {
-                container._wheelTarget = container.scrollLeft;
-            }
-
-            // Smooth target accumulation
-            const stepDelta = Math.sign(deltaY) * Math.min(Math.abs(deltaY) * 0.95, 160);
-            container._wheelTarget = Math.max(0, Math.min(maxScroll, container._wheelTarget + stepDelta));
-
-            if (!container._wheelRaf) {
-                let lastWheelTime = performance.now();
-                const smoothWheelScroll = function (now) {
-                    const dt = Math.min(now - lastWheelTime, 32);
-                    lastWheelTime = now;
-                    const frameRatio = dt / 16.667;
-
-                    const current = container.scrollLeft;
-                    const diff = container._wheelTarget - current;
-
-                    if (Math.abs(diff) < 0.6) {
-                        container.scrollLeft = Math.round(container._wheelTarget);
-                        container._wheelRaf = null;
-                        container._wheelTarget = null;
-                        return;
-                    }
-
-                    // Lerp easing (16% per frame)
-                    const step = diff * (1 - Math.pow(1 - 0.16, frameRatio));
-                    container.scrollLeft = Math.round(current + step);
-                    container._wheelRaf = requestAnimationFrame(smoothWheelScroll);
-                };
-                container._wheelRaf = requestAnimationFrame(smoothWheelScroll);
+        // Bắt đầu nhận diện kéo ngay khi dịch chuyển
+        if (!hasMoved) {
+            if (Math.abs(deltaX) > 3) {
+                hasMoved = true;
+                currentContainer.classList.add('is-instant-dragging');
+                document.body.classList.add('aphim-drag-active');
             }
         }
+
+        // 🌟 ĐI THEO LIỀN TỨC THÌ - ZERO LATENCY:
+        // Không đợi bất kỳ frame nào, gán vị trí trực tiếp theo con chuột!
+        currentContainer.scrollLeft = scrollStart - deltaX;
+
+        // Tính vận tốc nhả tay chính xác
+        const now = performance.now();
+        const dt = now - lastTimestamp;
+        if (dt > 8) {
+            releaseVelocity = (currentX - lastClientX) / dt;
+            lastClientX = currentX;
+            lastTimestamp = now;
+        }
+
+        e.preventDefault();
+    }
+
+    // ─── 3. THẢ TAY (POINTER / MOUSE UP) - QUÁN TÍNH VẬT LÝ MƯỢT NHƯ LỤA ───
+    function onPointerUp(e) {
+        if (!isDown) return;
+
+        const container = currentContainer;
+        const didMove = hasMoved;
+        const v = releaseVelocity;
+
+        isDown = false;
+        currentContainer = null;
+
+        if (container) {
+            container.classList.remove('is-instant-dragging');
+            if (e && e.pointerId !== undefined && container.releasePointerCapture) {
+                try {
+                    container.releasePointerCapture(e.pointerId);
+                } catch (err) {}
+            }
+        }
+        document.body.classList.remove('aphim-drag-active');
+
+        // Quán tính lướt tiếp sau khi thả tay
+        if (didMove && container && Math.abs(v) > 0.12) {
+            let currentV = v * 16.5; // Quy đổi ra px / frame (tương đương 60Hz)
+            const friction = 0.94; // Gia tốc ma sát êm ái
+            let lastTime = performance.now();
+
+            function glideStep(nowTime) {
+                const dt = Math.min(nowTime - lastTime, 32);
+                lastTime = nowTime;
+
+                const step = currentV * (dt / 16.67);
+                container.scrollLeft -= step;
+                currentV *= Math.pow(friction, dt / 16.67);
+
+                const max = container.scrollWidth - container.clientWidth;
+                if (container.scrollLeft <= 0 || container.scrollLeft >= max || Math.abs(currentV) < 0.35) {
+                    momentumRaf = null;
+                    container.style.scrollBehavior = '';
+                    container.style.scrollSnapType = '';
+                    return;
+                }
+
+                momentumRaf = requestAnimationFrame(glideStep);
+            }
+
+            momentumRaf = requestAnimationFrame(glideStep);
+        } else if (container) {
+            container.style.scrollBehavior = '';
+            container.style.scrollSnapType = '';
+        }
+
+        // Chặn click nhầm vào phim khi vừa thực hiện thao tác lướt
+        if (didMove) {
+            const blockClick = function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+                window.removeEventListener('click', blockClick, true);
+            };
+            window.addEventListener('click', blockClick, true);
+            setTimeout(() => {
+                window.removeEventListener('click', blockClick, true);
+            }, 120);
+        }
+    }
+
+    // Gắn sự kiện toàn cục với capture để luôn bắt được mọi chuyển động
+    document.addEventListener('pointerdown', onPointerDown, { capture: true, passive: false });
+    window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
+    window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
+    window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: false });
+
+    // ─── 4. CON XOAY CHUỘT PHẢN HỒI TỨC THÌ (ZERO-LATENCY WHEEL) ───
+    document.addEventListener('wheel', function (e) {
+        // Bỏ qua trackpad 2 ngón
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 2) return;
+
+        const container = getScrollContainer(e.target);
+        if (!container) return;
+
+        const max = container.scrollWidth - container.clientWidth;
+        if (max <= 5) return;
+
+        let delta = e.deltaY;
+        if (e.deltaMode === 1) delta *= 30;
+        else if (e.deltaMode === 2) delta *= 500;
+
+        const cur = container.scrollLeft;
+        const canRight = delta > 0 && cur < max - 2;
+        const canLeft = delta < 0 && cur > 2;
+
+        if (canRight || canLeft) {
+            e.preventDefault();
+            cancelMomentum();
+            // Cuộn tức thì theo từng nấc lăn chuột không có độ trễ!
+            container.style.scrollBehavior = 'auto';
+            container.scrollLeft += delta * 1.25;
+        }
+        // Khi chạm mép: Tự động nhường quyền cho trình duyệt cuộn dọc trang êm ái!
     }, { passive: false });
 
-    // ─── 3. NATIVE MOBILE TOUCH HANDLING (100% UNTOUCHED) ───
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchContainer = null;
-    let touchSwiped = false;
-
-    document.addEventListener('touchstart', function (e) {
-        isTouchActive = true;
-        if (!e.touches || e.touches.length === 0) return;
-        const container = findScrollableContainer(e.target);
-        if (!container) return;
-
-        touchContainer = container;
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        touchSwiped = false;
-    }, { capture: true, passive: true });
-
-    document.addEventListener('touchmove', function (e) {
-        if (!touchContainer || !e.touches || e.touches.length === 0) return;
-        const dx = Math.abs(e.touches[0].clientX - touchStartX);
-        const dy = Math.abs(e.touches[0].clientY - touchStartY);
-
-        if (dx > DRAG_THRESHOLD && dx > dy) {
-            touchSwiped = true;
-            touchContainer.setAttribute('data-was-dragged', 'true');
-        }
-    }, { capture: true, passive: true });
-
-    document.addEventListener('touchend', function () {
-        setTimeout(() => { isTouchActive = false; }, 300);
-        if (touchSwiped && touchContainer) {
-            const container = touchContainer;
-            clearTimeout(dragPreventClickTimer);
-            dragPreventClickTimer = setTimeout(function () {
-                touchSwiped = false;
-                if (container) container.removeAttribute('data-was-dragged');
-                touchContainer = null;
-            }, 120);
-        } else {
-            touchSwiped = false;
-            touchContainer = null;
-        }
-    }, { capture: true, passive: true });
-
-    document.addEventListener('touchcancel', function () {
-        isTouchActive = false;
-        touchSwiped = false;
-        touchContainer = null;
-    }, { capture: true, passive: true });
-
-    // ─── 4. CLICK GUARD (Prevents accidental navigation on drag/swipe) ───
-    document.addEventListener('click', function (e) {
-        if (isDragging || touchSwiped || (e.target && e.target.closest && e.target.closest('[data-was-dragged="true"]'))) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            return false;
-        }
-    }, true);
-
-    // Prevent default browser ghost image dragging
+    // Chặn kéo bóng ma hình ảnh mặc định của trình duyệt
     document.addEventListener('dragstart', function (e) {
-        if (findScrollableContainer(e.target)) {
+        if (getScrollContainer(e.target)) {
             e.preventDefault();
         }
     }, true);
 
-    // ─── 5. FLUID DESKTOP GRAB & MOBILE TOUCH STYLES ───
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `
-        .overflow-x-auto, .overflow-x-scroll, [class*="overflow-x-"],
-        .de-cu-slider, .scrollbar-hide, #heroThumbnails, #movie-gallery-scroll,
-        #actor-list, #episode-list, .interests-wrapper, .az-container,
-        .horizontal-scroll-container, .ranking-grid-container, [data-drag-scroll="true"], .snap-x, .home-comments-track, .country-scroll-container, .cs-scroll-container {
-            -webkit-overflow-scrolling: touch !important;
-            touch-action: pan-x pan-y !important;
-            overscroll-behavior-x: contain !important;
+    // ─── 5. CSS TỐI ƯU PHẢN HỒI TỨC THÌ & CHỐNG GIẬT ───
+    const style = document.createElement('style');
+    style.textContent = `
+        #slider-de-cu, .de-cu-slider, .home-comments-track, #heroThumbnails, .interests-wrapper, .ranking-grid-container {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            will-change: scroll-position;
+            transform: translateZ(0);
+            cursor: grab;
         }
-        @media (hover: hover) and (pointer: fine) {
-            .overflow-x-auto, .overflow-x-scroll, [class*="overflow-x-"],
-            .de-cu-slider, .scrollbar-hide, #heroThumbnails, #movie-gallery-scroll,
-            #actor-list, #episode-list, .interests-wrapper, .az-container,
-            .horizontal-scroll-container, .ranking-grid-container, [data-drag-scroll="true"], .snap-x, .home-comments-track, .country-scroll-container, .cs-scroll-container {
-                cursor: grab;
-                -webkit-user-select: none;
-                user-select: none;
-                scroll-behavior: auto !important;
-            }
+        #slider-de-cu:active, .de-cu-slider:active, .home-comments-track:active, #heroThumbnails:active {
+            cursor: grabbing;
         }
-        .is-dragging-scroll {
+        .is-instant-dragging {
             cursor: grabbing !important;
             scroll-behavior: auto !important;
+            scroll-snap-type: none !important;
         }
-        /* CRITICAL: Neutralize card hover triggers & reflow thrashing during drag */
-        .is-dragging-scroll * {
-            cursor: grabbing !important;
-            -webkit-user-select: none !important;
+        .aphim-drag-active * {
+            pointer-events: none !important;
             user-select: none !important;
+            -webkit-user-select: none !important;
+        }
+        /* Vô hiệu hóa kéo ảnh bóng ma của trình duyệt */
+        .de-cu-slider img, #slider-de-cu img, .home-comments-track img, #heroThumbnails img {
+            -webkit-user-drag: none !important;
+            user-drag: none !important;
             pointer-events: none !important;
         }
-        .select-none-global {
-            -webkit-user-select: none !important;
-            user-select: none !important;
+        .de-cu-slider a, #slider-de-cu a {
+            -webkit-user-drag: none !important;
+            user-drag: none !important;
         }
     `;
-    document.head.appendChild(styleEl);
+    document.head.appendChild(style);
 
-    console.log('[APhim Engine] Sitewide Netflix-Grade Desktop Kinetic Scroll Engine v4.0 initialized.');
+    console.log('⚡ [APhim Engine] Instant Zero-Latency Drag & Wheel Engine v8.0 Active.');
 })();

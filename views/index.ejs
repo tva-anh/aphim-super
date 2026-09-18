@@ -860,6 +860,9 @@
     <!-- 1. Global Container Specification (1420px Max-Width & 24px Padding) -->
     <main class="app-container py-3">
 
+        <!-- 🚀 Core H1 Heading for Bing & Google Search Engine Indexing (Under 150 chars) -->
+        <h1 class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">APhim Super - Website Xem Phim Online Miễn Phí Full HD Vietsub Mới Nhất 2026</h1>
+
         <!-- ==============================================
              SECTION -0.5: MOBILE 3D COVERFLOW SHOWCASE (MOBILE ONLY)
              ============================================== -->
@@ -1141,7 +1144,10 @@
         window.scrollSlider = function(amount) {
             const slider = document.getElementById('slider-de-cu');
             if (slider) {
-                slider.scrollBy({ left: amount, behavior: 'smooth' });
+                const cardWidth = 190;
+                const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
+                const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
+                slider.scrollBy({ left: step || amount, behavior: 'smooth' });
             }
         };
 
