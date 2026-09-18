@@ -1301,7 +1301,7 @@ async function buildSitemapData() {
     console.log('[SITEMAP] Đang khởi tạo và cào dữ liệu phim mới nhất cho Sitemap Google...');
 
     const todayStr = new Date().toISOString().split('T')[0];
-    const baseUrl = 'https://aphim.io.vn';
+    const baseUrl = 'https://aphim.store';
 
     const staticUrls = [
         { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'daily' },
@@ -1342,17 +1342,17 @@ async function buildSitemapData() {
         changefreq: 'daily'
     }));
 
-    // Cào 20 trang phim mới nhất từ KKPhim API (~480 phim mới x 2 đường dẫn detail/watch = 960+ URLs)
+    // Cào 40 trang phim mới nhất (~1,000 phim mới nhất x 2 link detail/watch = 2,000+ URLs)
     const movies = [];
     const movieSlugsSeen = new Set();
-    const fetchPages = Array.from({ length: 20 }, (_, i) => i + 1);
+    const fetchPages = Array.from({ length: 40 }, (_, i) => i + 1);
 
     await Promise.allSettled(
         fetchPages.map(async page => {
             try {
                 const res = await axios.get(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, {
-                    timeout: 7000,
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhimSEO/1.0' }
+                    timeout: 8000,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhimSEO/2.0' }
                 });
                 const items = res.data?.items || [];
                 items.forEach(m => {
@@ -1367,9 +1367,7 @@ async function buildSitemapData() {
                         });
                     }
                 });
-            } catch (err) {
-                // Tắt lỗi nếu timeout trang lẻ
-            }
+            } catch (err) { }
         })
     );
 
@@ -1497,8 +1495,8 @@ Disallow: /reset-password
 Disallow: /*?*keyword=
 
 # Search Engine Sitemaps
-Sitemap: https://aphim.io.vn/sitemap.xml
-Sitemap: https://aphim.io.vn/sitemap-images.xml
+Sitemap: https://aphim.store/sitemap.xml
+Sitemap: https://aphim.store/sitemap-images.xml
 `);
 });
 
