@@ -67,20 +67,22 @@
         transform: scale(0.95);
     }
 
-    /* 3D Viewport Stage (Perfect Center Balance) */
+    /* 3D Viewport Stage (Perfect Center Balance & Cinematic Proportions) */
     .showcase-3d-stage {
         position: relative;
         width: 100%;
-        height: clamp(285px, 78vw, 320px);
-        perspective: 1000px;
-        -webkit-perspective: 1000px;
+        height: clamp(320px, 86vw, 368px);
+        perspective: 800px;
+        -webkit-perspective: 800px;
+        perspective-origin: 50% 50%;
+        -webkit-perspective-origin: 50% 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         touch-action: pan-y pinch-zoom;
         z-index: 2;
         overflow: visible;
-        margin: 0 auto 14px auto;
+        margin: 0 auto 16px auto;
     }
 
     /* Ambient Spotlight Background BÊN TRONG STAGE (Chỉ phủ quanh poster phim bên trên) */
@@ -89,11 +91,11 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 320px;
-        height: 320px;
-        max-height: 320px;
+        width: 340px;
+        height: 340px;
+        max-height: 340px;
         background: radial-gradient(circle, var(--showcase-ambient-color, rgba(245, 158, 11, 0.45)) 0%, var(--showcase-ambient-sub, rgba(217, 119, 6, 0.15)) 45%, transparent 72%);
-        filter: blur(45px);
+        filter: blur(48px);
         pointer-events: none;
         z-index: 0;
         transition: background 0.75s cubic-bezier(0.4, 0, 0.2, 1);
@@ -113,16 +115,16 @@
         z-index: 2;
     }
 
-    /* Individual 3D Poster Card (Viền mỏng trắng tinh tế + 100% Bleed in all 4 rounded corners) */
+    /* Individual 3D Poster Card (Hình to rõ, viền mỏng trắng tinh tế + 100% Bleed in all 4 rounded corners) */
     .showcase-3d-card {
         position: absolute;
         top: 50%;
         left: 50%;
         transform-origin: center center;
         -webkit-transform-origin: center center;
-        width: clamp(168px, 45vw, 192px);
-        height: clamp(265px, 71vw, 305px);
-        border-radius: 20px;
+        width: clamp(190px, 51vw, 218px);
+        height: clamp(298px, 80vw, 340px);
+        border-radius: 22px;
         overflow: hidden;
         -webkit-mask-image: -webkit-radial-gradient(white, black);
         mask-image: -webkit-radial-gradient(white, black);
@@ -138,7 +140,7 @@
         will-change: transform, opacity, box-shadow;
         background: #0d0f18;
         box-sizing: border-box;
-        border: 1.8px solid rgba(255, 255, 255, 0.6);
+        border: 1.8px solid rgba(255, 255, 255, 0.65);
         isolation: isolate;
     }
 
@@ -156,32 +158,32 @@
         pointer-events: none;
     }
 
-    /* State 0: Active / Center Card (Bọc viền mỏng trắng sắc nét + Ánh xạ hào quang rực rỡ theo màu phim) */
+    /* State 0: Active / Center Card (Hình lớn nổi bật + Bọc viền mỏng trắng sắc nét + Ánh xạ hào quang) */
     .showcase-3d-card.is-center {
-        transform: translate3d(-50%, -50%, 70px) scale(1.03);
+        transform: translate3d(-50%, -50%, 75px) scale(1.04);
         opacity: 1;
         z-index: 30;
         border: 2px solid #ffffff !important;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 
-                    0 0 32px var(--showcase-glow-color, rgba(245, 158, 11, 0.65)),
-                    0 0 65px var(--showcase-ambient-color, rgba(245, 158, 11, 0.35));
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55), 
+                    0 0 35px var(--showcase-glow-color, rgba(245, 158, 11, 0.65)),
+                    0 0 70px var(--showcase-ambient-color, rgba(245, 158, 11, 0.35));
     }
 
-    /* State -1: Left Card (Symmetrical Balanced Offset Canh Đều Mép Trái + Viền mỏng trắng) */
+    /* State -1: Left Card (Cân đều mép lề trái đối xứng hoàn hảo + Viền mỏng trắng) */
     .showcase-3d-card.is-left {
-        transform: translate3d(calc(-50% - clamp(112px, 30vw, 134px)), -50%, -40px) scale(0.82) rotateY(16deg);
-        opacity: 0.82;
+        transform: translate3d(calc(-50% - clamp(96px, 26vw, 108px)), -50%, -42px) scale(0.85) rotateY(18deg);
+        opacity: 0.85;
         z-index: 20;
-        border: 1.8px solid rgba(255, 255, 255, 0.65) !important;
+        border: 1.8px solid rgba(255, 255, 255, 0.7) !important;
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
     }
 
-    /* State +1: Right Card (Symmetrical Balanced Offset Canh Đều Mép Phải + Viền mỏng trắng) */
+    /* State +1: Right Card (Cân đều mép lề phải đối xứng hoàn hảo + Viền mỏng trắng) */
     .showcase-3d-card.is-right {
-        transform: translate3d(calc(-50% + clamp(112px, 30vw, 134px)), -50%, -40px) scale(0.82) rotateY(-16deg);
-        opacity: 0.82;
+        transform: translate3d(calc(-50% + clamp(96px, 26vw, 108px)), -50%, -42px) scale(0.85) rotateY(-18deg);
+        opacity: 0.85;
         z-index: 20;
-        border: 1.8px solid rgba(255, 255, 255, 0.65) !important;
+        border: 1.8px solid rgba(255, 255, 255, 0.7) !important;
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
     }
 
@@ -203,46 +205,55 @@
 
     /* Responsive fine-tuning for standard mobile (390px - 430px: iPhone 13/14/15/16 Pro Max, Plus, Standard) */
     @media (max-width: 430px) {
+        .showcase-3d-stage {
+            height: 326px;
+        }
         .showcase-3d-card {
-            width: 172px;
-            height: 272px;
-            border-radius: 19px;
+            width: 196px;
+            height: 304px;
+            border-radius: 21px;
         }
         .showcase-3d-card.is-left {
-            transform: translate3d(calc(-50% - 116px), -50%, -38px) scale(0.82) rotateY(15deg);
+            transform: translate3d(calc(-50% - 100px), -50%, -40px) scale(0.85) rotateY(18deg);
         }
         .showcase-3d-card.is-right {
-            transform: translate3d(calc(-50% + 116px), -50%, -38px) scale(0.82) rotateY(-15deg);
+            transform: translate3d(calc(-50% + 100px), -50%, -40px) scale(0.85) rotateY(-18deg);
         }
     }
 
     /* Responsive fine-tuning for compact mobile (<= 380px: iPhone SE / 12 Mini / Galaxy A) */
     @media (max-width: 380px) {
+        .showcase-3d-stage {
+            height: 305px;
+        }
         .showcase-3d-card {
-            width: 160px;
-            height: 254px;
-            border-radius: 18px;
+            width: 182px;
+            height: 284px;
+            border-radius: 19px;
         }
         .showcase-3d-card.is-left {
-            transform: translate3d(calc(-50% - 105px), -50%, -35px) scale(0.81) rotateY(14deg);
+            transform: translate3d(calc(-50% - 92px), -50%, -38px) scale(0.84) rotateY(16deg);
         }
         .showcase-3d-card.is-right {
-            transform: translate3d(calc(-50% + 105px), -50%, -35px) scale(0.81) rotateY(-14deg);
+            transform: translate3d(calc(-50% + 92px), -50%, -38px) scale(0.84) rotateY(-16deg);
         }
     }
 
     /* Responsive fine-tuning for ultra-compact mobile (<= 340px) */
     @media (max-width: 340px) {
+        .showcase-3d-stage {
+            height: 280px;
+        }
         .showcase-3d-card {
-            width: 148px;
-            height: 236px;
-            border-radius: 16px;
+            width: 165px;
+            height: 260px;
+            border-radius: 17px;
         }
         .showcase-3d-card.is-left {
-            transform: translate3d(calc(-50% - 95px), -50%, -32px) scale(0.80) rotateY(12deg);
+            transform: translate3d(calc(-50% - 82px), -50%, -34px) scale(0.82) rotateY(14deg);
         }
         .showcase-3d-card.is-right {
-            transform: translate3d(calc(-50% + 95px), -50%, -32px) scale(0.80) rotateY(-12deg);
+            transform: translate3d(calc(-50% + 82px), -50%, -34px) scale(0.82) rotateY(-14deg);
         }
     }
 
