@@ -3,7 +3,7 @@
 <head>
     <%- include('partials/head') %>
     <link rel="stylesheet" href="/css/avatar-frames.css">
-    <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=15">
+    <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=20">
     <style>
         /* Ensure body padding-top clears the fixed navbar with comfortable space */
         body {
@@ -1745,23 +1745,30 @@
         }
 
         function extractPosterColor(imgEl, item) {
-            if (item && item.glow_color) return item.glow_color;
+            if (item && item.glow_color) {
+                if (typeof item.glow_color === 'string' && item.glow_color.startsWith('#')) {
+                    const c = parseInt(item.glow_color.replace('#', ''), 16);
+                    return { r: (c >> 16) & 255, g: (c >> 8) & 255, b: c & 255 };
+                }
+                return item.glow_color;
+            }
+
             if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
                 try {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    canvas.width = 16;
-                    canvas.height = 16;
-                    ctx.drawImage(imgEl, 0, 0, 16, 16);
-                    const data = ctx.getImageData(0, 0, 16, 16).data;
+                    canvas.width = 24;
+                    canvas.height = 24;
+                    ctx.drawImage(imgEl, 0, 0, 24, 24);
+                    const data = ctx.getImageData(0, 0, 24, 24).data;
                     let r = 0, g = 0, b = 0, total = 0;
                     for (let i = 0; i < data.length; i += 4) {
                         const red = data[i], grn = data[i+1], blu = data[i+2];
                         const brightness = 0.299 * red + 0.587 * grn + 0.114 * blu;
-                        if (brightness > 35 && brightness < 235) {
+                        if (brightness > 30 && brightness < 240) {
                             const max = Math.max(red, grn, blu), min = Math.min(red, grn, blu);
                             const sat = max === 0 ? 0 : (max - min) / max;
-                            const weight = 1 + sat * 3;
+                            const weight = 1 + sat * 4;
                             r += red * weight;
                             g += grn * weight;
                             b += blu * weight;
@@ -1778,20 +1785,24 @@
                 } catch (e) {}
             }
 
-            // High-precision signature movie colors
-            const key = ((item?.name || '') + ' ' + (item?.slug || '')).toLowerCase();
-            if (key.includes('doraemon')) return { r: 14, g: 165, b: 233 }; // Ocean Cyan/Blue
+            // High-precision signature movie colors matching poster tones
+            const key = ((item?.name || '') + ' ' + (item?.slug || '') + ' ' + (item?.origin_name || '')).toLowerCase();
+            if (key.includes('doraemon')) return { r: 14, g: 165, b: 233 }; // Ocean Cyan
             if (key.includes('deadpool') || key.includes('wolverine')) return { r: 239, g: 68, b: 68 }; // Ruby Crimson
-            if (key.includes('quat-mo') || key.includes('exhuma')) return { r: 13, g: 148, b: 136 }; // Emerald/Teal Mystery
-            if (key.includes('conan')) return { r: 37, g: 99, b: 235 }; // Sapphire Blue
+            if (key.includes('quat-mo') || key.includes('exhuma')) return { r: 13, g: 148, b: 136 }; // Teal Emerald
+            if (key.includes('conan')) return { r: 37, g: 99, b: 235 }; // Cobalt Blue
             if (key.includes('lat-mat')) return { r: 245, g: 158, b: 11 }; // Amber Gold
-            if (key.includes('cong') || key.includes('executioner')) return { r: 6, g: 182, b: 212 }; // Electric Teal
-            if (key.includes('mai')) return { r: 244, g: 63, b: 94 }; // Rose Pink
-            if (key.includes('nhat-thuc') || key.includes('eclipse')) return { r: 168, g: 85, b: 247 }; // Purple Twilight
+            if (key.includes('cong') || key.includes('executioner') || key.includes('thuc-thi')) return { r: 6, g: 182, b: 212 }; // Electric Cyan
+            if (key.includes('mai')) return { r: 244, g: 63, b: 94 }; // Rose Coral
+            if (key.includes('nhat-thuc') || key.includes('eclipse')) return { r: 168, g: 85, b: 247 }; // Purple Glow
+            if (key.includes('spider') || key.includes('nhan')) return { r: 225, g: 29, b: 72 }; // Crimson Red
+            if (key.includes('batman') || key.includes('hac-am')) return { r: 100, g: 116, b: 139 }; // Slate Frost
+            if (key.includes('one-piece') || key.includes('luffy')) return { r: 249, g: 115, b: 22 }; // Vivid Orange
+            if (key.includes('jujutsu') || key.includes('naruto')) return { r: 139, g: 92, b: 246 }; // Neon Violet
 
             // Deterministic signature hue fallback
             let hash = 0;
-            const str = item?.slug || item?.name || 'aphim';
+            const str = item?.slug || item?.name || 'aphim-super';
             for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
             const palettes = [
                 { r: 14, g: 165, b: 233 },
@@ -1800,7 +1811,8 @@
                 { r: 16, g: 185, b: 129 },
                 { r: 168, g: 85, b: 247 },
                 { r: 6, g: 182, b: 212 },
-                { r: 249, g: 115, b: 22 }
+                { r: 249, g: 115, b: 22 },
+                { r: 236, g: 72, b: 153 }
             ];
             return palettes[Math.abs(hash) % palettes.length];
         }
@@ -1810,9 +1822,9 @@
             if (!section) return;
 
             const rgb = extractPosterColor(activeImg, current);
-            const glowRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
-            const ambientRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.32)`;
-            const ambientSub = `rgba(${Math.round(rgb.r * 0.8)}, ${Math.round(rgb.g * 0.8)}, ${Math.round(rgb.b * 0.8)}, 0.12)`;
+            const glowRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.65)`;
+            const ambientRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.45)`;
+            const ambientSub = `rgba(${Math.round(rgb.r * 0.8)}, ${Math.round(rgb.g * 0.8)}, ${Math.round(rgb.b * 0.8)}, 0.15)`;
             const glowSolid = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
             section.style.setProperty('--showcase-glow-color', glowRgba);
@@ -1822,7 +1834,7 @@
 
             const ambientLight = document.getElementById('showcase3DAmbientLight');
             if (ambientLight) {
-                ambientLight.style.background = `radial-gradient(circle, ${ambientRgba} 0%, ${ambientSub} 45%, transparent 70%)`;
+                ambientLight.style.background = `radial-gradient(circle, ${ambientRgba} 0%, ${ambientSub} 45%, transparent 72%)`;
             }
         }
 
