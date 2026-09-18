@@ -400,7 +400,7 @@ function renderMovieDetail(movie) {
     if (titleElement) {
         titleElement.className = 'text-center lg:text-left w-full mb-2 lg:mb-4';
         titleElement.innerHTML = `
-            <span class="block text-2xl sm:text-4xl lg:text-5xl cinematic-gold-title mb-1" style="font-family: 'Space Grotesk', 'Be Vietnam Pro', system-ui, sans-serif; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">${movie.name}</span>
+            <span class="block text-2xl sm:text-4xl lg:text-5xl cinematic-gold-title mb-1">${movie.name}</span>
             ${movie.origin_name ? `<span class="block text-sm sm:text-xl lg:text-2xl cinematic-sub-title">${movie.origin_name}</span>` : ''}
         `;
     }
@@ -632,8 +632,8 @@ function renderVersions(movie) {
 
     const versionsHTML = `
         <div class="w-full mt-0 mb-4 pl-0 ml-0">
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 pl-0 ml-0">
-                <svg class="w-5 h-5 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l7 4.5-7 4.5z"/></svg>
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 pl-0 ml-0 movie-section-heading">
+                <svg class="w-5 h-5 fill-current text-white flex-shrink-0" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l7 4.5-7 4.5z"/></svg>
                 Các bản chiếu
             </h3>
             <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;" class="w-full pl-0 ml-0">

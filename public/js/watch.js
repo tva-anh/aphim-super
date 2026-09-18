@@ -1405,34 +1405,41 @@ function renderServerList(episodes) {
             let isFirstInGroup = items[0].index === index;
             let groupSubIndex = items.findIndex(item => item.index === index);
             let displayTitle = isFirstInGroup ? category : `${category} #${groupSubIndex}`;
+            let catSlug = category === 'Vietsub' ? 'vietsub' : category === 'Thuyết Minh' ? 'thuyet-minh' : 'long-tieng';
 
             if (isActive) {
-                // Active Pill
+                // Active Pill (Dark Mode Base Colors)
+                let activeBg = category === 'Vietsub' ? '#9bb0ff' : category === 'Thuyết Minh' ? '#d8b4fe' : '#86efac';
+                let activeText = category === 'Vietsub' ? '#0a0c10' : category === 'Thuyết Minh' ? '#2e1065' : '#052e16';
+                let dotColor = category === 'Vietsub' ? '#2563eb' : category === 'Thuyết Minh' ? '#9333ea' : '#16a34a';
+
                 return `
                     <button onclick="changeServer(${index})"
-                        style="background: #9bb0ff; border: none; color: #0a0c10; font-weight: 800; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(155, 176, 255, 0.4); transform: scale(1.02); transition: all 0.2s;"
-                        class="select-none server-tab-btn active">
-                        <span class="server-tab-title" style="font-weight: 800; font-size: 13px;">${displayTitle}</span>
+                        data-category="${category}"
+                        style="background: ${activeBg}; border: none; color: ${activeText}; font-weight: 800; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transform: scale(1.02); transition: all 0.2s;"
+                        class="select-none server-tab-btn active server-cat-${catSlug}">
+                        <span class="server-tab-title" style="font-weight: 800; font-size: 13px; color: ${activeText};">${displayTitle}</span>
                         <span class="server-tab-badge" style="background: rgba(0, 0, 0, 0.15); font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px;">
-                            <span class="server-tab-dot" style="width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                            <span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block; flex-shrink: 0; border: none;"></span>
                             <span class="server-tab-count">${epText}</span>
                         </span>
                     </button>
                 `;
             } else {
-                // Inactive Pill
-                let inactiveBg = category === 'Vietsub' ? '#212c29' : category === 'Thuyết Minh' ? '#2c2236' : '#1d2c26';
-                let inactiveText = category === 'Vietsub' ? '#4ade80' : category === 'Thuyết Minh' ? '#e9d5ff' : '#6ee7b7';
-                let badgeBg = category === 'Vietsub' ? '#153e35' : category === 'Thuyết Minh' ? '#3d2552' : '#133e31';
-                let dotColor = category === 'Vietsub' ? '#10b981' : category === 'Thuyết Minh' ? '#c084fc' : '#34d399';
+                // Inactive Pill (Dark Mode Base Colors)
+                let inactiveBg = category === 'Vietsub' ? '#1e293b' : category === 'Thuyết Minh' ? '#2c2236' : '#143126';
+                let inactiveText = category === 'Vietsub' ? '#94a3b8' : category === 'Thuyết Minh' ? '#e9d5ff' : '#6ee7b7';
+                let badgeBg = category === 'Vietsub' ? '#0f172a' : category === 'Thuyết Minh' ? '#3d2552' : '#0d231b';
+                let dotColor = category === 'Vietsub' ? '#64748b' : category === 'Thuyết Minh' ? '#c084fc' : '#34d399';
 
                 return `
                     <button onclick="changeServer(${index})"
+                        data-category="${category}"
                         style="background: ${inactiveBg}; border: none; color: ${inactiveText}; font-weight: 700; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
-                        class="hover:brightness-125 select-none server-tab-btn">
+                        class="hover:brightness-125 select-none server-tab-btn server-cat-${catSlug}">
                         <span class="server-tab-title" style="color: ${inactiveText}; font-weight: 700; font-size: 13px;">${displayTitle}</span>
                         <span class="server-tab-badge" style="background: ${badgeBg}; color: ${inactiveText}; font-weight: 700; font-size: 11px; padding: 1px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px;">
-                            <span class="server-tab-dot" style="width: 6px; height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block;"></span>
+                            <span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block; flex-shrink: 0; border: none;"></span>
                             <span class="server-tab-count">${epText}</span>
                         </span>
                     </button>
