@@ -21,6 +21,16 @@
 </script>
 <script src="/js/anti-devtools.js?v=99"></script>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-91XGR323SV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-91XGR323SV');
+</script>
+
 <title><%= typeof title !== 'undefined' ? title : 'APhim Super | Xem Phim Lẻ Mới 2026 | Phim Online Net Full HD Vietsub' %></title>
 <meta name="description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'APhim Super - Website xem phim online net mượt không giật lag. Tổng hợp kho phim lẻ mới, phim vietsub mới nhất 2026, phim bộ hay nhất cập nhật liên tục Full HD miễn phí.' %>" />
 <meta name="keywords" content="<%= typeof metaKeywords !== 'undefined' ? metaKeywords : 'phim le moi, phim online net, phim vietsub, phim moi hay nhat, xem phim full hd, aphim, phim chieu rap, xem phim online' %>" />
@@ -28,12 +38,12 @@
 <meta name="author" content="APhim Super" />
 
 <!-- Canonical & Open Graph (Facebook, Zalo, Telegram, Discord) -->
-<link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.io.vn/' %>" />
+<link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.store/' %>" />
 <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'APhim Super - Xem Phim Online Full HD' %>" />
 <meta property="og:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Website xem phim online net mượt không giật lag. Kho phim mới cập nhật liên tục.' %>" />
-<meta property="og:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://aphim.io.vn/android-chrome-512x512.png' %>" />
+<meta property="og:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://aphim.store/android-chrome-512x512.png' %>" />
 <meta property="og:image:alt" content="<%= typeof title !== 'undefined' ? title : 'APhim Super' %>" />
-<meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.io.vn/' %>" />
+<meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : 'https://aphim.store/' %>" />
 <meta property="og:type" content="<%= typeof ogType !== 'undefined' ? ogType : 'website' %>" />
 <meta property="og:site_name" content="APhim Super" />
 <meta property="og:locale" content="vi_VN" />
@@ -42,7 +52,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title : 'APhim Super - Xem Phim Online Full HD' %>" />
 <meta name="twitter:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Website xem phim online net mượt không giật lag.' %>" />
-<meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://aphim.io.vn/android-chrome-512x512.png' %>" />
+<meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : 'https://aphim.store/android-chrome-512x512.png' %>" />
 
 <!-- Schema.org JSON-LD: WebSite with SearchAction -->
 <script type="application/ld+json">
@@ -50,12 +60,12 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "APhim Super",
-  "url": "https://aphim.io.vn/",
+  "url": "https://aphim.store/",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://aphim.io.vn/search?keyword={search_term_string}"
+      "urlTemplate": "https://aphim.store/tim-kiem?keyword={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }
