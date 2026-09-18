@@ -11,80 +11,128 @@
 
     <!-- Page Body -->
     <main class="admin-content">
-      <!-- Section Header -->
-      <div class="page-title-row">
-        <div>
-          <h1 class="page-main-title">Kiểm Duyệt Bình Luận & Phòng Chat Trực Tiếp</h1>
-          <p class="page-sub-title">Dữ liệu bình luận thực tế từ khán giả theo thời gian thực (Realtime MongoDB)</p>
+      <!-- Executive Page Header Ribbon -->
+      <div class="dashboard-hero" style="margin-bottom: 24px;">
+        <div class="hero-left">
+          <div class="hero-tag">
+            <span class="pulse-beacon"></span>
+            <span>REALTIME COMMUNITY MODERATION</span>
+          </div>
+          <h1 class="hero-title">Kiểm Duyệt Bình Luận & <span class="gradient-text">Cộng Đồng Khán Giả</span></h1>
+          <p class="hero-desc">Theo dõi, kiểm duyệt và quản lý toàn bộ tương tác, bình luận và phản hồi từ người xem theo thời gian thực trên hệ thống <strong>MongoDB Cluster</strong>.</p>
         </div>
-        <div class="page-action-buttons">
-          <button class="btn btn-outline" onclick="AdminCore.loadAdminComments()">
-            <i data-lucide="refresh-cw"></i> Làm Mới
+        <div class="hero-actions">
+          <button type="button" class="btn btn-hero-secondary" onclick="AdminCore.loadAdminComments()">
+            <i data-lucide="refresh-cw"></i>
+            <span>Làm Mới</span>
           </button>
-          <button class="btn btn-primary" onclick="AdminCore.approveAllPendingComments()">
-            <i data-lucide="check-check"></i> Duyệt Hàng Loạt
+          <button type="button" class="btn btn-hero-primary" onclick="AdminCore.approveAllPendingComments()">
+            <i data-lucide="check-check"></i>
+            <span>Duyệt Hàng Loạt</span>
           </button>
         </div>
       </div>
 
-      <!-- Quick KPI Cards for Comments -->
-      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
-        <div class="glass-card kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Tổng Bình Luận</span>
-            <div class="kpi-icon-wrap icon-cyan"><i data-lucide="message-square"></i></div>
+      <!-- 4 Core Executive KPI Cards for Comments -->
+      <div class="kpi-grid">
+        <!-- KPI 1: Tổng bình luận -->
+        <div class="kpi-card kpi-card-cyan">
+          <div class="kpi-top">
+            <div class="kpi-meta">
+              <span class="kpi-label">TỔNG BÌNH LUẬN</span>
+              <span class="kpi-badge badge-cyan">MongoDB Cluster</span>
+            </div>
+            <div class="kpi-icon icon-cyan"><i data-lucide="message-square"></i></div>
           </div>
-          <div class="kpi-value" id="cmtTotalCount">--</div>
+          <div class="kpi-value" id="cmtTotalCount">0</div>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="database"></i> Kho dữ liệu bình luận</span>
+            <span class="kpi-subtext">Đồng bộ 24/7</span>
+          </div>
         </div>
 
-        <div class="glass-card kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Đã Phê Duyệt</span>
-            <div class="kpi-icon-wrap icon-emerald"><i data-lucide="check-circle-2"></i></div>
+        <!-- KPI 2: Đã phê duyệt -->
+        <div class="kpi-card kpi-card-emerald">
+          <div class="kpi-top">
+            <div class="kpi-meta">
+              <span class="kpi-label">ĐÃ PHÊ DUYỆT</span>
+              <span class="kpi-badge badge-emerald">Hiển thị công khai</span>
+            </div>
+            <div class="kpi-icon icon-emerald"><i data-lucide="check-circle-2"></i></div>
           </div>
-          <div class="kpi-value text-emerald" id="cmtApprovedCount">--</div>
+          <div class="kpi-value text-emerald" id="cmtApprovedCount">0</div>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="check"></i> Đạt chuẩn cộng đồng</span>
+            <span class="kpi-subtext">Đã kiểm duyệt</span>
+          </div>
         </div>
 
-        <div class="glass-card kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Chờ Duyệt</span>
-            <div class="kpi-icon-wrap icon-amber"><i data-lucide="clock"></i></div>
+        <!-- KPI 3: Chờ kiểm duyệt -->
+        <div class="kpi-card kpi-card-gold">
+          <div class="kpi-top">
+            <div class="kpi-meta">
+              <span class="kpi-label">CHỜ DUYỆT</span>
+              <span class="kpi-badge badge-gold">Hàng đợi xem xét</span>
+            </div>
+            <div class="kpi-icon icon-gold"><i data-lucide="clock"></i></div>
           </div>
-          <div class="kpi-value text-amber" id="cmtPendingCount">--</div>
+          <div class="kpi-value text-gold" id="cmtPendingCount">0</div>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="alert-circle"></i> Cần xử lý ngay</span>
+            <span class="kpi-subtext">Ưu tiên duyệt</span>
+          </div>
         </div>
 
-        <div class="glass-card kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Đã Ẩn / Vi Phạm</span>
-            <div class="kpi-icon-wrap icon-rose"><i data-lucide="shield-alert"></i></div>
+        <!-- KPI 4: Đã ẩn / Vi phạm -->
+        <div class="kpi-card kpi-card-purple">
+          <div class="kpi-top">
+            <div class="kpi-meta">
+              <span class="kpi-label">ĐÃ ẨN / VI PHẠM</span>
+              <span class="kpi-badge badge-purple">Spam / Vi phạm</span>
+            </div>
+            <div class="kpi-icon icon-purple"><i data-lucide="shield-alert"></i></div>
           </div>
-          <div class="kpi-value text-rose" id="cmtHiddenCount">--</div>
+          <div class="kpi-value text-purple" id="cmtHiddenCount">0</div>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="shield"></i> Đã ngăn chặn</span>
+            <span class="kpi-subtext">Bảo vệ cộng đồng</span>
+          </div>
         </div>
       </div>
 
       <!-- Moderation Filter Ribbon -->
-      <div class="glass-card filter-ribbon-card">
+      <div class="glass-card filter-ribbon-card" style="margin-bottom: 20px;">
         <div class="filter-row">
           <div class="search-input-wrap">
             <i data-lucide="search" class="search-icon"></i>
-            <input type="text" id="commentSearchInput" class="form-control filter-input" placeholder="Tìm theo nội dung, người gửi, email hoặc phim...">
+            <input type="text" id="commentSearchInput" class="form-control filter-input" placeholder="Tìm theo nội dung, người gửi, email hoặc tên phim...">
           </div>
 
           <select id="commentStatusFilter" class="form-control filter-select">
-            <option value="">Tất cả trạng thái</option>
+            <option value="">Tất cả trạng thái kiểm duyệt</option>
             <option value="approved">Đã Phê Duyệt</option>
             <option value="pending">Chờ Phê Duyệt</option>
             <option value="hidden">Đã Ẩn / Bị Chặn</option>
           </select>
 
-          <button class="btn btn-secondary" onclick="AdminCore.resetCommentFilters()">
+          <button type="button" class="btn btn-secondary" onclick="AdminCore.resetCommentFilters()">
             <i data-lucide="rotate-ccw"></i> Đặt Lại
           </button>
         </div>
       </div>
 
-      <!-- Comments Table -->
+      <!-- Comments Table Card -->
       <div class="glass-card table-wrapper-card">
+        <div class="card-header" style="padding: 18px 24px; margin-bottom: 0;">
+          <div class="card-title-wrap">
+            <h3 class="card-title"><i data-lucide="message-square" class="text-primary"></i> Danh Sách Bình Luận Khán Giả</h3>
+            <p class="card-desc">Kiểm tra nội dung, hình ảnh/GIF đính kèm, cảnh báo spoiler và thao tác kiểm duyệt trực tiếp</p>
+          </div>
+          <div class="card-action-group">
+            <span class="badge badge-emerald"><i data-lucide="check-circle"></i> Live Sync</span>
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="data-table">
             <thead>
@@ -94,14 +142,14 @@
                 <th>Nội Dung Bình Luận</th>
                 <th>Trạng Thái</th>
                 <th>Thời Gian</th>
-                <th style="text-align: right;">Hành Động</th>
+                <th style="text-align: right;">Thao Tác</th>
               </tr>
             </thead>
             <tbody id="commentsTableBody">
               <tr>
                 <td colspan="6" class="text-center" style="padding: 40px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim);">
-                    <i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Đang tải danh sách bình luận thật...
+                    <i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Đang tải danh sách bình luận thực tế...
                   </div>
                 </td>
               </tr>
@@ -110,7 +158,7 @@
         </div>
 
         <!-- Pagination -->
-        <div id="commentsPagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-subtle);">
+        <div id="commentsPagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border-subtle); background: var(--bg-secondary);">
         </div>
       </div>
     </main>

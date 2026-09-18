@@ -988,6 +988,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         const actorList = meta.actor.length ? meta.actor.slice(0, 4).join(', ') : '';
         const actorText = actorList ? ` Diễn viên: ${actorList}.` : '';
         const directorText = meta.director.length ? ` Đạo diễn: ${meta.director.slice(0, 2).join(', ')}.` : '';
+        const descSnippet = meta.content ? ` ${meta.content.slice(0, 80)}...` : '';
         const rawDesc = `Xem phim ${meta.name} (${meta.origin_name}) ${meta.year} chất lượng ${meta.quality} ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet} Xem online tốc độ cao tại APhim Super.`;
         const metaDescription = formatMetaDescription(rawDesc, 155);
         const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.name} vietsub, ${meta.name} thuyet minh, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim, aphim store`;

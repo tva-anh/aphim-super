@@ -56,6 +56,13 @@ router.post('/login', async (req, res) => {
             return res.status(403).json({ success: false, message: 'Tài khoản Admin đã bị khóa.' });
         }
 
+        res.cookie('aphim_admin_token', data.session.access_token, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/'
+        });
+
         return res.json({
             success: true,
             token: data.session.access_token,
@@ -70,7 +77,8 @@ router.post('/login', async (req, res) => {
 // ── GET /api/admin/dashboard — KPI thật (Ultra Fast Caching & Parallel Queries) ─
 router.get('/dashboard', requireAdmin, async (req, res) => {
     try {
-        const cacheKey = 'admin_dashboard_summary';
+        const timeRange = (req.query.timeRange || req.query.range || '7d').toLowerCase();
+        const cacheKey = `admin_dashboard_summary_${timeRange}`;
         if (!req.query.force) {
             const cached = getAdminCache(cacheKey, 20000);
             if (cached) {
@@ -84,9 +92,19 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        sevenDaysAgo.setHours(0, 0, 0, 0);
+        // Tính mốc thời gian bắt đầu dựa trên timeRange (7d, 30d, month, year)
+        let startDate = new Date();
+        if (timeRange === '30d') {
+            startDate.setDate(startDate.getDate() - 30);
+        } else if (timeRange === 'month') {
+            startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 11, 1);
+        } else if (timeRange === 'year') {
+            startDate = new Date(startDate.getFullYear() - 3, 0, 1);
+        } else {
+            // Mặc định: 7 ngày
+            startDate.setDate(startDate.getDate() - 7);
+        }
+        startDate.setHours(0, 0, 0, 0);
 
         // Đọc dữ liệu phản hồi & báo lỗi thực tế từ file lưu trữ
         const feedbackFile = path.join(__dirname, '..', 'data', 'feedbacks.json');
@@ -113,7 +131,8 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             approvedCommentsRes,
             pendingCommentsRes,
             recentCommentsRes,
-            recent7DaysComments
+            rangeCommentsRes,
+            rangeUsersRes
         ] = await Promise.all([
             supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
             supabaseAdmin.from('vip_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active').gt('expires_at', new Date().toISOString()),
@@ -128,7 +147,8 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             Comment.countDocuments({ status: 'approved' }),
             Comment.countDocuments({ status: 'pending' }),
             Comment.find().sort({ createdAt: -1 }).limit(8).lean(),
-            Comment.find({ createdAt: { $gte: sevenDaysAgo } }).select('createdAt').lean()
+            Comment.find({ createdAt: { $gte: startDate } }).select('createdAt').lean(),
+            supabaseAdmin.from('profiles').select('created_at').gte('created_at', startDate.toISOString())
         ]);
 
         const totalUsers = totalUsersRes.count || 0;
@@ -145,36 +165,138 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
         const approvedComments = approvedCommentsRes || 0;
         const pendingComments = pendingCommentsRes || 0;
         const recentComments = recentCommentsRes || [];
+        const rangeUsers = rangeUsersRes?.data || [];
+        const rangeComments = rangeCommentsRes || [];
 
-        // Thống kê Doanh thu và Hoạt động Bình luận thực tế 7 ngày gần nhất
+        // Thống kê Doanh thu, Bình luận & Người Dùng Mới thực tế theo mốc thời gian đã chọn
         const dayNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
         const chartDays = [];
         const revenueSeries = [];
         const commentsSeries = [];
+        const usersSeries = [];
 
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            d.setHours(0, 0, 0, 0);
-            const endD = new Date(d);
-            endD.setHours(23, 59, 59, 999);
+        if (timeRange === 'year') {
+            // Báo cáo theo Năm (4 năm gần nhất)
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 3; y <= currentYear; y++) {
+                const d = new Date(y, 0, 1, 0, 0, 0, 0);
+                const endD = new Date(y, 11, 31, 23, 59, 59, 999);
 
-            const dayTx = revenue.filter(tx => {
-                const t = new Date(tx.created_at);
-                return t >= d && t <= endD;
-            });
-            const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+                const yTx = revenue.filter(tx => {
+                    const t = new Date(tx.created_at);
+                    return t >= d && t <= endD;
+                });
+                const yRev = yTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
 
-            const dayCmts = (recent7DaysComments || []).filter(c => {
-                const t = new Date(c.createdAt);
-                return t >= d && t <= endD;
-            }).length;
+                const yCmts = rangeComments.filter(c => {
+                    const t = new Date(c.createdAt);
+                    return t >= d && t <= endD;
+                }).length;
 
-            const isToday = i === 0;
-            const labelStr = isToday ? 'Hôm nay' : `${dayNames[d.getDay()]} (${d.getDate()}/${d.getMonth() + 1})`;
-            chartDays.push(labelStr);
-            revenueSeries.push(dayRev);
-            commentsSeries.push(dayCmts);
+                const yUsers = rangeUsers.filter(u => {
+                    const t = new Date(u.created_at);
+                    return t >= d && t <= endD;
+                }).length;
+
+                chartDays.push(`Năm ${y}`);
+                revenueSeries.push(yRev);
+                commentsSeries.push(yCmts);
+                usersSeries.push(yUsers);
+            }
+        } else if (timeRange === 'month') {
+            // Báo cáo theo 12 Tháng gần nhất
+            const now = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1, 0, 0, 0, 0);
+                const endD = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+
+                const mTx = revenue.filter(tx => {
+                    const t = new Date(tx.created_at);
+                    return t >= d && t <= endD;
+                });
+                const mRev = mTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+
+                const mCmts = rangeComments.filter(c => {
+                    const t = new Date(c.createdAt);
+                    return t >= d && t <= endD;
+                }).length;
+
+                const mUsers = rangeUsers.filter(u => {
+                    const t = new Date(u.created_at);
+                    return t >= d && t <= endD;
+                }).length;
+
+                const isThisMonth = i === 0;
+                const labelStr = isThisMonth ? 'Tháng này' : `T${d.getMonth() + 1}/${d.getFullYear().toString().slice(2)}`;
+                chartDays.push(labelStr);
+                revenueSeries.push(mRev);
+                commentsSeries.push(mCmts);
+                usersSeries.push(mUsers);
+            }
+        } else if (timeRange === '30d') {
+            // Báo cáo 30 Ngày qua
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                d.setHours(0, 0, 0, 0);
+                const endD = new Date(d);
+                endD.setHours(23, 59, 59, 999);
+
+                const dayTx = revenue.filter(tx => {
+                    const t = new Date(tx.created_at);
+                    return t >= d && t <= endD;
+                });
+                const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+
+                const dayCmts = rangeComments.filter(c => {
+                    const t = new Date(c.createdAt);
+                    return t >= d && t <= endD;
+                }).length;
+
+                const dayUsers = rangeUsers.filter(u => {
+                    const t = new Date(u.created_at);
+                    return t >= d && t <= endD;
+                }).length;
+
+                const isToday = i === 0;
+                const labelStr = isToday ? 'Hôm nay' : `${d.getDate()}/${d.getMonth() + 1}`;
+                chartDays.push(labelStr);
+                revenueSeries.push(dayRev);
+                commentsSeries.push(dayCmts);
+                usersSeries.push(dayUsers);
+            }
+        } else {
+            // Mặc định: 7 Ngày gần nhất
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                d.setHours(0, 0, 0, 0);
+                const endD = new Date(d);
+                endD.setHours(23, 59, 59, 999);
+
+                const dayTx = revenue.filter(tx => {
+                    const t = new Date(tx.created_at);
+                    return t >= d && t <= endD;
+                });
+                const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+
+                const dayCmts = rangeComments.filter(c => {
+                    const t = new Date(c.createdAt);
+                    return t >= d && t <= endD;
+                }).length;
+
+                const dayUsers = rangeUsers.filter(u => {
+                    const t = new Date(u.created_at);
+                    return t >= d && t <= endD;
+                }).length;
+
+                const isToday = i === 0;
+                const labelStr = isToday ? 'Hôm nay' : `${dayNames[d.getDay()]} (${d.getDate()}/${d.getMonth() + 1})`;
+                chartDays.push(labelStr);
+                revenueSeries.push(dayRev);
+                commentsSeries.push(dayCmts);
+                usersSeries.push(dayUsers);
+            }
         }
 
         // Thông số tài nguyên máy chủ Node.js thời gian thực
@@ -206,7 +328,8 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
             chart_data: {
                 labels: chartDays,
                 revenue: revenueSeries,
-                comments: commentsSeries
+                comments: commentsSeries,
+                users: usersSeries
             },
             system_metrics:      systemMetrics,
             recent_transactions: recentTx,
@@ -794,6 +917,81 @@ router.post('/comments/approve-all', requireAdmin, async (req, res) => {
     } catch (err) {
         console.error('[Admin] Approve All Comments Error:', err);
         return res.status(500).json({ success: false, message: 'Lỗi server.' });
+    }
+});
+
+// ── GET /api/admin/notifications — Tổng hợp thông báo thời gian thực ──────────
+router.get('/notifications', requireAdmin, async (req, res) => {
+    try {
+        const Comment = require('../models/Comment');
+        const [recentUsersRes, recentTxRes, recentCommentsRes] = await Promise.all([
+            supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, created_at').order('created_at', { ascending: false }).limit(10),
+            supabaseAdmin.from('transactions').select('id, user_id, amount_vnd, type, status, created_at, profiles(name, email)').order('created_at', { ascending: false }).limit(10),
+            Comment ? Comment.find().sort({ createdAt: -1 }).limit(10).lean() : []
+        ]);
+
+        const items = [];
+
+        // 1. Thành viên mới đăng ký
+        (recentUsersRes.data || []).forEach(u => {
+            const displayName = u.name || (u.email ? u.email.split('@')[0] : 'Thành viên mới');
+            items.push({
+                id: `user_${u.id}`,
+                category: 'users',
+                title: 'Thành viên mới đăng ký',
+                desc: `${displayName} vừa đăng ký tài khoản thành công.`,
+                avatar: u.avatar_url || null,
+                icon: 'user-plus',
+                badgeColor: 'purple',
+                time: u.created_at,
+                link: '/admin/users'
+            });
+        });
+
+        // 2. Giao dịch nạp tiền / nâng cấp VIP
+        (recentTxRes.data || []).forEach(tx => {
+            const userName = tx.profiles?.name || tx.profiles?.email || 'Khách hàng';
+            const amount = new Intl.NumberFormat('vi-VN').format(tx.amount_vnd || 0);
+            const isConfirmed = tx.status === 'confirmed';
+            items.push({
+                id: `tx_${tx.id}`,
+                category: 'orders',
+                title: isConfirmed ? 'Giao dịch thành công' : 'Giao dịch chờ duyệt',
+                desc: `${userName} nạp ${amount}đ (${tx.type === 'vip' ? 'Gói VIP' : 'Nạp Xu'}).`,
+                icon: isConfirmed ? 'coins' : 'clock',
+                badgeColor: isConfirmed ? 'emerald' : 'gold',
+                time: tx.created_at,
+                link: '/admin/subscriptions'
+            });
+        });
+
+        // 3. Bình luận mới
+        (recentCommentsRes || []).forEach(c => {
+            const author = c.userName || (c.user?.name) || 'Người xem';
+            const snippet = (c.content || '').slice(0, 45) + ((c.content || '').length > 45 ? '...' : '');
+            items.push({
+                id: `cmt_${c._id}`,
+                category: 'comments',
+                title: c.status === 'pending' ? 'Bình luận chờ kiểm duyệt' : 'Bình luận mới',
+                desc: `${author}: "${snippet}"`,
+                avatar: c.userAvatar || null,
+                icon: 'message-square',
+                badgeColor: 'blue',
+                time: c.createdAt,
+                link: '/admin/comments'
+            });
+        });
+
+        // Sắp xếp theo thời gian mới nhất lên đầu
+        items.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        return res.json({
+            success: true,
+            data: items.slice(0, 20)
+        });
+    } catch (err) {
+        console.error('[Admin] Get Notifications Error:', err);
+        return res.status(500).json({ success: false, message: 'Lỗi tải thông báo.' });
     }
 });
 

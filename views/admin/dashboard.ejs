@@ -11,154 +11,206 @@
 
     <!-- Page Body -->
     <main class="admin-content">
-      <!-- Welcome Hero Ribbon -->
+      <!-- Enterprise Executive Hero Ribbon -->
       <div class="dashboard-hero">
         <div class="hero-left">
-          <div class="hero-tag"><i data-lucide="sparkles"></i> REALTIME ENTERPRISE MONITOR</div>
-          <h1 class="hero-title">Bảng Điều Khiển & <span class="gradient-text">Chỉ Số Vận Hành</span> 👋</h1>
-          <p class="hero-desc">Dữ liệu thời gian thực đồng bộ trực tiếp từ <strong>Supabase DB</strong>, <strong>MongoDB Cluster</strong> và <strong>CDN Edge Streaming</strong>.</p>
+          <div class="hero-tag">
+            <span class="pulse-beacon"></span>
+            <span>REALTIME ENTERPRISE TELEMETRY</span>
+          </div>
+          <h1 class="hero-title">Bảng Điều Khiển & <span class="gradient-text">Hệ Thống Vận Hành</span></h1>
+          <p class="hero-desc">Dữ liệu thời gian thực được đồng bộ trực tiếp từ <span class="highlight-chip">Supabase DB</span>, <span class="highlight-chip">MongoDB Cluster</span> và <span class="highlight-chip">CDN Edge Streaming</span>.</p>
         </div>
         <div class="hero-actions">
-          <button class="btn btn-outline" onclick="AdminCore.syncMoviesNow()">
-            <i data-lucide="refresh-cw"></i> Đồng Bộ API Ngay
+          <button type="button" class="btn btn-hero-secondary" onclick="AdminCore.syncMoviesNow()">
+            <i data-lucide="refresh-cw"></i>
+            <span>Đồng Bộ API Ngay</span>
           </button>
-          <a href="/admin/subscriptions" class="btn btn-primary">
-            <i data-lucide="wallet"></i> Báo Cáo Doanh Thu
+          <a href="/admin/subscriptions" class="btn btn-hero-primary">
+            <i data-lucide="wallet"></i>
+            <span>Báo Cáo Doanh Thu</span>
           </a>
         </div>
       </div>
 
-      <!-- System Status Bar -->
+      <!-- Sleek System Infrastructure Telemetry Bar -->
       <div class="cdn-latency-ticker">
-        <div class="ticker-title"><i data-lucide="activity" class="text-emerald"></i> TRẠNG THÁI HỆ THỐNG:</div>
+        <div class="ticker-lead">
+          <i data-lucide="activity" class="ticker-icon"></i>
+          <span>HẠ TẦNG VẬN HÀNH</span>
+        </div>
         <div class="ticker-nodes">
-          <span class="ticker-pill"><span class="ping-dot green"></span> Node.js Server: <strong>Đang chạy</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> MongoDB Atlas: <strong>Đã kết nối</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> Supabase Cloud: <strong id="kpiDbStatus">Đã kết nối</strong></span>
-          <span class="ticker-pill"><span class="ping-dot green"></span> Google Sheet Sync: <strong>Sẵn sàng</strong></span>
+          <div class="ticker-pill">
+            <span class="ping-dot green"></span>
+            <span class="pill-title">Node.js Server:</span>
+            <strong class="pill-status">Đang chạy (v20)</strong>
+          </div>
+          <div class="ticker-pill">
+            <span class="ping-dot green"></span>
+            <span class="pill-title">MongoDB Atlas:</span>
+            <strong class="pill-status">Cluster-0 Đã kết nối</strong>
+          </div>
+          <div class="ticker-pill">
+            <span class="ping-dot green"></span>
+            <span class="pill-title">Supabase Cloud:</span>
+            <strong class="pill-status" id="kpiDbStatus">Đã kết nối</strong>
+          </div>
+          <div class="ticker-pill">
+            <span class="ping-dot green"></span>
+            <span class="pill-title">Google Sheet Sync:</span>
+            <strong class="pill-status">Sẵn sàng</strong>
+          </div>
         </div>
       </div>
 
-      <!-- 4 Core Executive KPI Cards -->
+      <!-- 4 Core Executive KPI Cards (Modern Enterprise SaaS Standard) -->
       <div class="kpi-grid">
         <!-- KPI 1: Doanh thu -->
-        <div class="kpi-card" style="--kpi-accent: var(--emerald);">
+        <div class="kpi-card kpi-card-emerald">
           <div class="kpi-top">
-            <span class="kpi-label">DOANH THU THỰC TẾ (VIP & XU)</span>
-            <div class="kpi-icon"><i data-lucide="dollar-sign"></i></div>
+            <div class="kpi-meta">
+              <span class="kpi-label">DOANH THU (VIP & XU)</span>
+              <span class="kpi-badge badge-emerald">Supabase Verified</span>
+            </div>
+            <div class="kpi-icon icon-emerald"><i data-lucide="dollar-sign"></i></div>
           </div>
           <div class="kpi-value" id="kpiRevenue">...đ</div>
-          <div class="kpi-trend positive">
-            <i data-lucide="trending-up"></i> Giao dịch xác thực Supabase
-          </div>
-          <div class="kpi-sparkline">
-            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
-              <path d="M0,20 Q20,10 40,16 T80,8 T100,2 L100,25 L0,25 Z" fill="rgba(5, 150, 105, 0.12)"></path>
-              <path d="M0,20 Q20,10 40,16 T80,8 T100,2" fill="none" stroke="#059669" stroke-width="2"></path>
-            </svg>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="trending-up"></i> Giao dịch trực tiếp</span>
+            <span class="kpi-subtext">Cập nhật tự động</span>
           </div>
         </div>
 
         <!-- KPI 2: Bình luận & Tương tác -->
-        <div class="kpi-card" style="--kpi-accent: var(--cyan);">
+        <div class="kpi-card kpi-card-cyan">
           <div class="kpi-top">
-            <span class="kpi-label">BÌNH LUẬN & KIỂM DUYỆT</span>
-            <div class="kpi-icon"><i data-lucide="message-square"></i></div>
+            <div class="kpi-meta">
+              <span class="kpi-label">BÌNH LUẬN & ĐÁNH GIÁ</span>
+              <span class="kpi-badge badge-cyan">MongoDB Cluster</span>
+            </div>
+            <div class="kpi-icon icon-cyan"><i data-lucide="message-square"></i></div>
           </div>
           <div class="kpi-value" id="kpiComments">...</div>
-          <div class="kpi-trend positive">
-            <i data-lucide="database"></i> Dữ liệu thực tế MongoDB
-          </div>
-          <div class="kpi-sparkline">
-            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
-              <path d="M0,18 Q25,22 50,10 T80,6 T100,1 L100,25 L0,25 Z" fill="rgba(2, 132, 199, 0.12)"></path>
-              <path d="M0,18 Q25,22 50,10 T80,6 T100,1" fill="none" stroke="#0284c7" stroke-width="2"></path>
-            </svg>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="database"></i> Tương tác người dùng</span>
+            <span class="kpi-subtext">Đã qua lọc bot</span>
           </div>
         </div>
 
         <!-- KPI 3: Báo lỗi & Phản hồi -->
-        <div class="kpi-card" style="--kpi-accent: var(--primary);">
+        <div class="kpi-card kpi-card-purple">
           <div class="kpi-top">
-            <span class="kpi-label">BÁO LỖI & PHẢN HỒI</span>
-            <div class="kpi-icon"><i data-lucide="shield-alert"></i></div>
+            <div class="kpi-meta">
+              <span class="kpi-label">BÁO LỖI & PHẢN HỒI</span>
+              <span class="kpi-badge badge-purple">Ticket Center</span>
+            </div>
+            <div class="kpi-icon icon-purple"><i data-lucide="shield-alert"></i></div>
           </div>
           <div class="kpi-value" id="kpiFeedbacks">...</div>
-          <div class="kpi-trend positive">
-            <i data-lucide="check-circle"></i> Báo cáo người dùng gửi về
-          </div>
-          <div class="kpi-sparkline">
-            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
-              <path d="M0,15 Q30,12 60,8 T100,4 L100,25 L0,25 Z" fill="rgba(79, 70, 229, 0.12)"></path>
-              <path d="M0,15 Q30,12 60,8 T100,4" fill="none" stroke="#4f46e5" stroke-width="2"></path>
-            </svg>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="check-circle"></i> Báo cáo người dùng</span>
+            <span class="kpi-subtext">Cần xử lý: 0</span>
           </div>
         </div>
 
         <!-- KPI 4: Người dùng & VIP -->
-        <div class="kpi-card" style="--kpi-accent: var(--gold);">
+        <div class="kpi-card kpi-card-gold">
           <div class="kpi-top">
-            <span class="kpi-label">THÀNH VIÊN / VIP ACTIVE</span>
-            <div class="kpi-icon"><i data-lucide="crown"></i></div>
+            <div class="kpi-meta">
+              <span class="kpi-label">THÀNH VIÊN / VIP ACTIVE</span>
+              <span class="kpi-badge badge-gold">Supabase Auth</span>
+            </div>
+            <div class="kpi-icon icon-gold"><i data-lucide="crown"></i></div>
           </div>
           <div class="kpi-value" id="kpiUsers">... <span class="kpi-subval">/ ... VIP</span></div>
-          <div class="kpi-trend positive">
-            <i data-lucide="user-check"></i> Hồ sơ người dùng Supabase
-          </div>
-          <div class="kpi-sparkline">
-            <svg viewBox="0 0 100 25" preserveAspectRatio="none">
-              <path d="M0,22 Q20,18 45,14 T80,7 T100,2 L100,25 L0,25 Z" fill="rgba(217, 119, 6, 0.12)"></path>
-              <path d="M0,22 Q20,18 45,14 T80,7 T100,2" fill="none" stroke="#d97706" stroke-width="2"></path>
-            </svg>
+          <div class="kpi-footer">
+            <span class="kpi-trend positive"><i data-lucide="user-check"></i> Hồ sơ tài khoản</span>
+            <span class="kpi-subtext">Hoạt động 24/7</span>
           </div>
         </div>
       </div>
 
-      <!-- Mini KPI Metrics Strip -->
+      <!-- Secondary Metric Strip -->
       <div class="kpi-mini-grid">
         <div class="kpi-mini-card">
-          <div class="mini-icon text-gold" style="background: rgba(217, 119, 6, 0.08);"><i data-lucide="coins"></i></div>
-          <div>
+          <div class="mini-icon icon-gold"><i data-lucide="coins"></i></div>
+          <div class="mini-content">
             <div class="mini-label">XU ĐANG LƯU HÀNH</div>
-            <div class="mini-value text-gold" id="miniTotalXu">... Xu</div>
+            <div class="mini-val-row">
+              <span class="mini-value text-gold" id="miniTotalXu">... Xu</span>
+              <span class="mini-trend-chip"><i data-lucide="activity"></i> Lưu thông</span>
+            </div>
           </div>
         </div>
         <div class="kpi-mini-card">
-          <div class="mini-icon text-purple" style="background: rgba(124, 58, 237, 0.08);"><i data-lucide="clock"></i></div>
-          <div>
+          <div class="mini-icon icon-purple"><i data-lucide="clock"></i></div>
+          <div class="mini-content">
             <div class="mini-label">GIAO DỊCH CHỜ DUYỆT</div>
-            <div class="mini-value text-purple" id="miniPendingTx">0</div>
+            <div class="mini-val-row">
+              <span class="mini-value text-purple" id="miniPendingTx">0</span>
+              <span class="mini-trend-chip"><i data-lucide="check"></i> Thời gian thực</span>
+            </div>
           </div>
         </div>
         <div class="kpi-mini-card">
-          <div class="mini-icon text-cyan" style="background: rgba(2, 132, 199, 0.08);"><i data-lucide="user-plus"></i></div>
-          <div>
+          <div class="mini-icon icon-cyan"><i data-lucide="user-plus"></i></div>
+          <div class="mini-content">
             <div class="mini-label">ĐĂNG KÝ MỚI HÔM NAY</div>
-            <div class="mini-value text-cyan" id="miniNewUsersToday">0</div>
+            <div class="mini-val-row">
+              <span class="mini-value text-cyan" id="miniNewUsersToday">0</span>
+              <span class="mini-trend-chip"><i data-lucide="trending-up"></i> Hôm nay</span>
+            </div>
           </div>
         </div>
         <div class="kpi-mini-card">
-          <div class="mini-icon text-pink" style="background: rgba(219, 39, 119, 0.08);"><i data-lucide="message-circle"></i></div>
-          <div>
+          <div class="mini-icon icon-pink"><i data-lucide="message-circle"></i></div>
+          <div class="mini-content">
             <div class="mini-label">BÌNH LUẬN CHỜ DUYỆT</div>
-            <div class="mini-value text-pink" id="miniPendingComments">0</div>
+            <div class="mini-val-row">
+              <span class="mini-value text-pink" id="miniPendingComments">0</span>
+              <span class="mini-trend-chip"><i data-lucide="shield"></i> Hàng đợi</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Charts & Visual Analytics Section -->
       <div class="analytics-grid">
-        <!-- Main Chart: Traffic & Revenue -->
+        <!-- Main Chart: Multi-Metric Traffic, Users & Revenue -->
         <div class="glass-card chart-container-card">
           <div class="card-header">
             <div class="card-title-wrap">
-              <h3 class="card-title"><i data-lucide="bar-chart-3" class="text-primary"></i> Biểu Đồ Doanh Thu & Lượng Bình Luận 7 Ngày</h3>
-              <p class="card-desc">Thống kê dữ liệu thực tế từ giao dịch Supabase & bình luận MongoDB theo thời gian thực</p>
+              <h3 class="card-title" id="chartMainTitle"><i data-lucide="bar-chart-3" class="text-primary"></i> Biểu Đồ Tăng Trưởng (7 Ngày)</h3>
+              <p class="card-desc" id="chartMainDesc">Thành viên mới, doanh thu & bình luận thời gian thực</p>
             </div>
             <div class="card-action-group">
-              <span class="badge badge-emerald"><i data-lucide="check-circle"></i> Live Data Feed</span>
+              <!-- Enterprise Time Range Selector (Ngày, Tháng, Năm) -->
+              <div class="time-range-segmented" id="chartTimeRangeSegment">
+                <button type="button" class="time-btn active" data-range="7d" onclick="AdminCore.changeChartTimeRange('7d', this)">7 Ngày</button>
+                <button type="button" class="time-btn" data-range="30d" onclick="AdminCore.changeChartTimeRange('30d', this)">30 Ngày</button>
+                <button type="button" class="time-btn" data-range="month" onclick="AdminCore.changeChartTimeRange('month', this)">12 Tháng</button>
+                <button type="button" class="time-btn" data-range="year" onclick="AdminCore.changeChartTimeRange('year', this)">Theo Năm</button>
+              </div>
+              <span class="badge badge-emerald"><i data-lucide="check-circle"></i> Live Feed</span>
             </div>
           </div>
+          
+          <!-- Interactive Metric Filter Pills (Enterprise Dashboard Standard) -->
+          <div class="chart-filter-tabs">
+            <button type="button" class="chart-tab active" data-metric="all" onclick="AdminCore.filterChartMetric('all', this)">
+              Tất Cả Chỉ Số
+            </button>
+            <button type="button" class="chart-tab" data-metric="users" onclick="AdminCore.filterChartMetric('users', this)">
+              Thành Viên Mới
+            </button>
+            <button type="button" class="chart-tab" data-metric="comments" onclick="AdminCore.filterChartMetric('comments', this)">
+              Bình Luận Mới
+            </button>
+            <button type="button" class="chart-tab" data-metric="revenue" onclick="AdminCore.filterChartMetric('revenue', this)">
+              Doanh Thu (VNĐ)
+            </button>
+          </div>
+
           <div class="chart-wrapper">
             <canvas id="trafficAnalyticsChart" height="280"></canvas>
           </div>

@@ -7,6 +7,8 @@
 (function () {
   'use strict';
 
+  window.AdminCore = window.AdminCore || {};
+
   const CONFIG = {
     API_BASE: '/api',
     OPHIM_BASE: 'https://phimapi.com',
@@ -248,6 +250,16 @@
     const modal = document.getElementById('lockScreenModal');
     if (modal) {
       modal.classList.add('open');
+      try {
+        const adminUser = JSON.parse(localStorage.getItem('aphim_admin_user') || '{}');
+        const nameEl = modal.querySelector('.lock-admin-name');
+        const emailEl = modal.querySelector('.lock-admin-email');
+        const avatarEl = modal.querySelector('.lock-avatar');
+        if (nameEl && (adminUser.name || adminUser.displayName)) nameEl.textContent = adminUser.name || adminUser.displayName;
+        if (emailEl && adminUser.email) emailEl.textContent = adminUser.email;
+        if (avatarEl && adminUser.avatar_url) avatarEl.src = adminUser.avatar_url;
+      } catch (e) {}
+
       const input = document.getElementById('unlockPassword');
       if (input) {
         input.value = '';
@@ -302,8 +314,7 @@
   };
 
   // ─── 4. DATA MASKING TOGGLE ───
-  function toggleDataMasking() {
-    state.isMasked = !state.isMasked;
+  function applyDataMaskingState() {
     const elements = document.querySelectorAll('.masked-data');
     elements.forEach(el => {
       const full = el.getAttribute('data-full');
@@ -320,13 +331,32 @@
       }
     });
 
+    const btn = document.getElementById('btnToggleMasking');
     const icon = document.getElementById('maskingIcon');
+    if (btn) btn.classList.toggle('active', !!state.isMasked);
     if (icon) {
-      icon.setAttribute('data-lucide', state.isMasked ? 'eye-off' : 'eye');
+      icon.setAttribute('data-lucide', state.isMasked ? 'eye' : 'eye-off');
       if (window.lucide) lucide.createIcons();
     }
+  }
 
+  function toggleDataMasking() {
+    state.isMasked = !state.isMasked;
+    try {
+      localStorage.setItem('aphim_admin_masking', state.isMasked ? 'true' : 'false');
+    } catch (e) {}
+    applyDataMaskingState();
     showToast(state.isMasked ? 'Đã bật chế độ che thông tin bảo mật' : 'Đã hiển thị thông tin đầy đủ', 'info');
+  }
+
+  function initDataMasking() {
+    try {
+      const saved = localStorage.getItem('aphim_admin_masking');
+      if (saved === 'true') {
+        state.isMasked = true;
+        applyDataMaskingState();
+      }
+    } catch (e) {}
   }
 
   // ─── 5. COMMAND PALETTE (CTRL+K) ───
@@ -392,6 +422,201 @@
         item.style.display = 'none';
       }
     });
+  }
+
+  // ─── 5b. NOTIFICATION SYSTEM ───
+  let notificationItems = [];
+  let currentNotifFilter = 'all';
+
+  function getReadNotificationIds() {
+    try {
+      return JSON.parse(localStorage.getItem('aphim_admin_read_notifs') || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveReadNotificationIds(ids) {
+    try {
+      localStorage.setItem('aphim_admin_read_notifs', JSON.stringify(ids));
+    } catch (e) {}
+  }
+
+  async function fetchNotifications(showLoading = false) {
+    const listEl = document.getElementById('notificationList');
+    if (showLoading && listEl) {
+      listEl.innerHTML = `
+        <div class="notification-loading">
+          <div class="spinner-sm"></div>
+          <span>Đang tải thông báo mới...</span>
+        </div>
+      `;
+    }
+
+    const token = localStorage.getItem('aphim_admin_token');
+    try {
+      const res = await fetch('/api/admin/notifications', {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          notificationItems = json.data;
+          renderNotificationUI();
+        }
+      }
+    } catch (err) {
+      console.warn('Lỗi tải thông báo:', err);
+    }
+  }
+
+  function renderNotificationUI() {
+    const badgeEl = document.getElementById('notificationCount');
+    const unreadCountEl = document.getElementById('notificationUnreadCount');
+    const listEl = document.getElementById('notificationList');
+    if (!listEl) return;
+
+    const readIds = getReadNotificationIds();
+    const unreadItems = notificationItems.filter(item => !readIds.includes(item.id));
+    const unreadCount = unreadItems.length;
+
+    // Cập nhật Badge trên Header
+    if (badgeEl) {
+      if (unreadCount > 0) {
+        badgeEl.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badgeEl.style.display = 'flex';
+      } else {
+        badgeEl.textContent = '0';
+        badgeEl.style.display = 'none';
+      }
+    }
+
+    if (unreadCountEl) {
+      unreadCountEl.textContent = `${unreadCount} chưa đọc`;
+    }
+
+    // Lọc theo Tab đang chọn
+    let displayItems = notificationItems;
+    if (currentNotifFilter === 'unread') {
+      displayItems = notificationItems.filter(item => !readIds.includes(item.id));
+    } else if (currentNotifFilter !== 'all') {
+      displayItems = notificationItems.filter(item => item.category === currentNotifFilter);
+    }
+
+    // Hiển thị danh sách thông báo
+    if (displayItems.length === 0) {
+      listEl.innerHTML = `
+        <div class="notification-empty">
+          <i data-lucide="bell-off" style="width: 32px; height: 32px; color: #cbd5e1;"></i>
+          <span>Không có thông báo nào trong mục này</span>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+
+    listEl.innerHTML = displayItems.map(item => {
+      const isRead = readIds.includes(item.id);
+      const timeStr = formatTimeAgo(item.time);
+      const iconMarkup = item.avatar 
+        ? `<img src="${sanitize(item.avatar)}" alt="" class="notif-avatar" onerror="this.onerror=null; this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}';">`
+        : `<div class="notif-icon-bubble ${item.badgeColor || 'blue'}"><i data-lucide="${item.icon || 'bell'}"></i></div>`;
+
+      return `
+        <div class="notif-item ${isRead ? 'read' : 'unread'}" data-id="${item.id}" onclick="AdminCore.handleNotificationClick('${item.id}', '${item.link || ''}')">
+          ${iconMarkup}
+          <div class="notif-content">
+            <div class="notif-title-row">
+              <span class="notif-title-text">${sanitize(item.title)}</span>
+              <span class="notif-time">${timeStr}</span>
+            </div>
+            <p class="notif-desc">${sanitize(item.desc)}</p>
+          </div>
+          ${!isRead ? '<span class="notif-unread-dot"></span>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  window.AdminCore.handleNotificationClick = function(id, link) {
+    const readIds = getReadNotificationIds();
+    if (!readIds.includes(id)) {
+      readIds.push(id);
+      saveReadNotificationIds(readIds);
+    }
+    renderNotificationUI();
+
+    const dropdown = document.getElementById('notificationDropdown');
+    const btn = document.getElementById('btnNotification');
+    if (dropdown) dropdown.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+
+    if (link && link !== window.location.pathname) {
+      window.location.href = link;
+    }
+  };
+
+  window.AdminCore.markAllNotificationsRead = function() {
+    const allIds = notificationItems.map(item => item.id);
+    const readIds = Array.from(new Set([...getReadNotificationIds(), ...allIds]));
+    saveReadNotificationIds(readIds);
+    renderNotificationUI();
+    showToast('Đã đánh dấu tất cả thông báo là đã đọc!', 'success');
+  };
+
+  window.AdminCore.clearAllNotifications = function() {
+    const allIds = notificationItems.map(item => item.id);
+    saveReadNotificationIds(allIds);
+    notificationItems = [];
+    renderNotificationUI();
+    showToast('Đã dọn dẹp sạch danh sách thông báo!', 'info');
+  };
+
+  window.AdminCore.filterNotifications = function(tab, btn) {
+    currentNotifFilter = tab;
+    const tabs = document.querySelectorAll('.notif-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderNotificationUI();
+  };
+
+  function initNotificationDropdown() {
+    const btn = document.getElementById('btnNotification');
+    const dropdown = document.getElementById('notificationDropdown');
+    if (!btn || !dropdown) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.toggle('open');
+      btn.classList.toggle('active', isOpen);
+      if (isOpen) {
+        fetchNotifications(notificationItems.length === 0);
+      }
+    });
+
+    // Bấm ra ngoài để đóng
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+        dropdown.classList.remove('open');
+        btn.classList.remove('active');
+      }
+    });
+
+    // Phím ESC để đóng
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+        dropdown.classList.remove('open');
+        btn.classList.remove('active');
+      }
+    });
+
+    // Tải số lượng badge ngầm khi khởi động trang
+    fetchNotifications(false);
+
+    // Tự động làm mới thông báo mỗi 40 giây
+    setInterval(() => fetchNotifications(false), 40000);
   }
 
   // ─── 6. SLIDE-OVER DRAWER INSPECTOR ───
@@ -683,10 +908,16 @@
           <button type="button" class="btn btn-danger" onclick="AdminCore.revokeVip('${userId}')" style="grid-column: span 2;">Hủy Quyền VIP</button>
         </div>
 
-        <label class="form-label" style="font-size: 11px;">Khóa / Mở Khóa Tài Khoản:</label>
-        <button type="button" class="btn ${user.is_blocked ? 'btn-emerald' : 'btn-danger'} btn-block" onclick="AdminCore.toggleBanUser('${userId}')">
-          <i data-lucide="${user.is_blocked ? 'unlock' : 'user-x'}"></i> ${user.is_blocked ? 'Mở Khóa Tài Khoản Này' : 'Khóa Tài Khoản Này'}
-        </button>
+        <label class="form-label" style="font-size: 11px; margin-bottom: 6px; display: block;">Khóa / Mở Khóa Tài Khoản:</label>
+        ${user.is_blocked ? `
+          <button type="button" class="btn btn-account-blocked btn-block" onclick="AdminCore.toggleBanUser('${userId}', true)">
+            <i data-lucide="lock"></i> TÀI KHOẢN ĐANG BỊ KHÓA (Bấm Để Mở Khóa)
+          </button>
+        ` : `
+          <button type="button" class="btn btn-account-active btn-block" onclick="AdminCore.toggleBanUser('${userId}', false)">
+            <i data-lucide="shield-check"></i> ĐANG HOẠT ĐỘNG BÌNH THƯỜNG (Bấm Để Khóa)
+          </button>
+        `}
       </div>
     `;
 
@@ -826,15 +1057,18 @@
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Lưu token và thông tin admin vào localStorage
+        // Lưu token và thông tin admin vào localStorage và cookie
         localStorage.setItem('aphim_admin_token', data.token);
         localStorage.setItem('aphim_admin_user', JSON.stringify(data.admin));
+        document.cookie = 'aphim_admin_token=' + data.token + '; path=/; max-age=604800; SameSite=Lax';
 
         showToast('Đăng nhập thành công! Đang vào hệ thống...', 'success');
         playUiSound('success');
         setTimeout(() => {
-          window.location.href = '/admin';
-        }, 700);
+          const params = new URLSearchParams(window.location.search);
+          const redirect = params.get('redirect') || '/admin';
+          window.location.href = redirect;
+        }, 500);
       } else {
         showToast(data.message || 'Email hoặc mật khẩu không chính xác!', 'error');
         playUiSound('error');
@@ -857,7 +1091,7 @@
   }
 
   // ─── 11. EXPORT TO GLOBAL OBJECT ───
-  window.AdminCore = {
+  Object.assign(window.AdminCore, {
     sanitize,
     showToast,
     openDrawer,
@@ -936,23 +1170,41 @@
         showToast('Lỗi kết nối', 'error');
       }
     },
-    toggleBanUser: async (id) => {
-      if (!confirm('Xác nhận khóa/mở khóa tài khoản này?')) return;
+    toggleBanUser: async (id, isCurrentlyBlocked) => {
+      const willBlock = !isCurrentlyBlocked;
+      const actionText = willBlock ? 'KHÓA' : 'MỞ KHÓA';
+      const confirmMsg = willBlock 
+        ? '⚠️ Bạn có chắc chắn muốn KHÓA tài khoản này? Người dùng sẽ không thể đăng nhập hoặc xem phim.'
+        : '✅ Bạn có chắc chắn muốn MỞ KHÓA tài khoản này để người dùng hoạt động bình thường?';
+      if (!confirm(confirmMsg)) return;
       try {
-        const token = localStorage.getItem('cinestream_admin_token') || localStorage.getItem('aphim_admin_token') || localStorage.getItem('adminToken');
+        const token = localStorage.getItem('aphim_admin_token') || localStorage.getItem('cinestream_admin_token') || localStorage.getItem('adminToken');
         const res = await fetch(`/api/admin/users/${id}/block`, {
           method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
-          body: JSON.stringify({ blocked: true })
+          body: JSON.stringify({ blocked: willBlock })
         });
         const data = await res.json();
-        showToast(data.message || `Đã cập nhật trạng thái khóa tài khoản ${id}!`, 'warning');
-        closeDrawer();
+        if (data.success) {
+          showToast(data.message || `Đã ${actionText.toLowerCase()} tài khoản thành công!`, willBlock ? 'warning' : 'success');
+          closeDrawer();
+          // Cập nhật lại danh sách và bộ nhớ đệm
+          if (window._loadedUsersMap && window._loadedUsersMap[id]) {
+            window._loadedUsersMap[id].is_blocked = willBlock;
+          }
+          if (typeof loadUsers === 'function') {
+            loadUsers();
+          } else if (typeof AdminCore.loadUsers === 'function') {
+            AdminCore.loadUsers();
+          }
+        } else {
+          showToast(data.message || 'Thao tác thất bại!', 'error');
+        }
       } catch (e) {
-        showToast('Lỗi kết nối', 'error');
+        showToast('Lỗi kết nối máy chủ', 'error');
       }
     },
     editVipPack: (id, name, price, days) => {
@@ -1155,7 +1407,7 @@
       }
       if (window.lucide) lucide.createIcons();
     }
-  };
+  });
 
   // ─── 12. SYNTHESIZED WEB AUDIO UI SOUNDS ───
   function playUiSound(type = 'click') {
@@ -1297,15 +1549,20 @@
     }
   }
 
-  // ─── DASHBOARD REALTIME CHART RENDERING ───
+  // ─── DASHBOARD REALTIME MULTI-METRIC CHART (ENTERPRISE STANDARD) ───
   let dashboardChartInstance = null;
+  let rawDashboardChartData = null;
+
   function renderDashboardChart(chartData) {
     const ctx = document.getElementById('trafficAnalyticsChart');
     if (!ctx || typeof Chart === 'undefined') return;
 
+    rawDashboardChartData = chartData;
+
     const labels = chartData?.labels || ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Hôm nay'];
-    const revenueData = chartData?.revenue || [0, 0, 0, 0, 0, 0, 0];
+    const usersData = chartData?.users || [0, 0, 0, 0, 0, 0, 0];
     const commentsData = chartData?.comments || [0, 0, 0, 0, 0, 0, 0];
+    const revenueData = chartData?.revenue || [0, 0, 0, 0, 0, 0, 0];
 
     if (dashboardChartInstance) {
       dashboardChartInstance.destroy();
@@ -1317,32 +1574,47 @@
         labels: labels,
         datasets: [
           {
-            label: 'Bình Luận Mới Thực Tế (lượt)',
+            label: 'Thành Viên Mới',
+            data: usersData,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.12)',
+            borderWidth: 2.8,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#8b5cf6',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Bình Luận Mới',
             data: commentsData,
-            borderColor: '#4f46e5',
-            backgroundColor: 'rgba(79, 70, 229, 0.08)',
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.08)',
             borderWidth: 2.5,
             fill: true,
             tension: 0.35,
-            pointBackgroundColor: '#4f46e5',
+            pointBackgroundColor: '#3b82f6',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4,
+            pointRadius: 0,
             pointHoverRadius: 6,
             yAxisID: 'y'
           },
           {
             label: 'Doanh Thu Thực Tế (VNĐ)',
             data: revenueData,
-            borderColor: '#059669',
-            backgroundColor: 'rgba(5, 150, 105, 0.06)',
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.06)',
             borderWidth: 2.5,
             fill: true,
             tension: 0.35,
-            pointBackgroundColor: '#059669',
+            pointBackgroundColor: '#10b981',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4,
+            pointRadius: 0,
             pointHoverRadius: 6,
             yAxisID: 'y1'
           }
@@ -1358,9 +1630,10 @@
             labels: {
               color: '#44403c',
               font: { family: 'Inter', size: 12, weight: '600' },
-              boxWidth: 12,
-              usePointStyle: true,
-              pointStyle: 'circle',
+              boxWidth: 22,
+              boxHeight: 4,
+              borderRadius: 2,
+              usePointStyle: false,
               padding: 16
             }
           },
@@ -1372,16 +1645,16 @@
             borderWidth: 1,
             padding: 12,
             boxPadding: 6,
-            usePointStyle: true,
+            usePointStyle: false,
             callbacks: {
               label: function(context) {
                 let label = context.dataset.label || '';
-                if (label) {
-                  label += ': ';
-                }
+                if (label) label += ': ';
                 if (context.parsed.y !== null) {
-                  if (context.datasetIndex === 1) {
+                  if (context.datasetIndex === 2) {
                     label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + 'đ';
+                  } else if (context.datasetIndex === 0) {
+                    label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' người';
                   } else {
                     label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' lượt';
                   }
@@ -1400,12 +1673,17 @@
             type: 'linear',
             display: true,
             position: 'left',
+            beginAtZero: true,
+            min: 0,
+            suggestedMax: 3,
             grid: { color: '#f0eae0' },
             ticks: { 
-              color: '#4f46e5', 
+              color: '#6b21a8', 
               font: { family: 'Inter', size: 11 },
+              stepSize: 1,
               callback: function(value) {
-                return new Intl.NumberFormat('vi-VN').format(value);
+                if (Math.floor(value) === value) return value;
+                return '';
               }
             }
           },
@@ -1413,11 +1691,15 @@
             type: 'linear',
             display: true,
             position: 'right',
+            beginAtZero: true,
+            min: 0,
+            suggestedMax: 50000,
             grid: { drawOnChartArea: false },
             ticks: { 
-              color: '#059669', 
+              color: '#047857', 
               font: { family: 'Inter', size: 11 },
               callback: function(value) {
+                if (value <= 0) return '0đ';
                 return new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(value) + 'đ';
               }
             }
@@ -1427,11 +1709,190 @@
     });
   }
 
-  // ─── DASHBOARD LIVE WIDGETS (REAL DATA) ───
+  let currentChartTimeRange = '7d';
+  let currentActiveMetric = 'all';
+
+  // Hàm chuyển đổi bộ lọc chỉ số biểu đồ tương tác
+  window.AdminCore.filterChartMetric = function(metric, btn) {
+    if (!dashboardChartInstance) return;
+    currentActiveMetric = metric;
+
+    // Cập nhật active tab
+    const tabs = document.querySelectorAll('.chart-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    // Toggle datasets tương ứng
+    // 0: Users, 1: Comments, 2: Revenue
+    if (metric === 'all') {
+      dashboardChartInstance.data.datasets.forEach(ds => ds.hidden = false);
+      dashboardChartInstance.options.scales.y.display = true;
+      dashboardChartInstance.options.scales.y1.display = true;
+    } else if (metric === 'users') {
+      dashboardChartInstance.data.datasets[0].hidden = false;
+      dashboardChartInstance.data.datasets[1].hidden = true;
+      dashboardChartInstance.data.datasets[2].hidden = true;
+      dashboardChartInstance.options.scales.y.display = true;
+      dashboardChartInstance.options.scales.y1.display = false;
+    } else if (metric === 'comments') {
+      dashboardChartInstance.data.datasets[0].hidden = true;
+      dashboardChartInstance.data.datasets[1].hidden = false;
+      dashboardChartInstance.data.datasets[2].hidden = true;
+      dashboardChartInstance.options.scales.y.display = true;
+      dashboardChartInstance.options.scales.y1.display = false;
+    } else if (metric === 'revenue') {
+      dashboardChartInstance.data.datasets[0].hidden = true;
+      dashboardChartInstance.data.datasets[1].hidden = true;
+      dashboardChartInstance.data.datasets[2].hidden = false;
+      dashboardChartInstance.options.scales.y.display = false;
+      dashboardChartInstance.options.scales.y1.display = true;
+    }
+
+    dashboardChartInstance.update();
+  };
+
+  // Hàm chuyển đổi mốc thời gian báo cáo (7 Ngày, 30 Ngày, 12 Tháng, Theo Năm)
+  window.AdminCore.changeChartTimeRange = async function(range, btn) {
+    const validRanges = ['7d', '30d', 'month', 'year'];
+    if (!validRanges.includes(range)) range = '7d';
+    currentChartTimeRange = range;
+
+    // Active state segmented buttons
+    const btns = document.querySelectorAll('.time-range-segmented .time-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    // Cập nhật tiêu đề và mô tả biểu đồ theo chuẩn Enterprise (Single Line)
+    const titleMap = {
+      '7d': 'Biểu Đồ Tăng Trưởng (7 Ngày)',
+      '30d': 'Biểu Đồ Tăng Trưởng (30 Ngày)',
+      'month': 'Báo Cáo Tăng Trưởng (12 Tháng)',
+      'year': 'Báo Cáo Tăng Trưởng (Theo Năm)'
+    };
+    const descMap = {
+      '7d': 'Thành viên mới, doanh thu & bình luận thời gian thực',
+      '30d': 'Thành viên mới, doanh thu & bình luận 30 ngày qua',
+      'month': 'Tổng hợp số liệu kinh doanh & tương tác từng tháng',
+      'year': 'Toàn cảnh tăng trưởng dài hạn theo từng năm'
+    };
+
+    const titleEl = document.getElementById('chartMainTitle');
+    const descEl = document.getElementById('chartMainDesc');
+    if (titleEl && titleMap[range]) {
+      titleEl.innerHTML = `<i data-lucide="bar-chart-3" class="text-primary"></i> ${titleMap[range]}`;
+      if (window.lucide) lucide.createIcons();
+    }
+    if (descEl && descMap[range]) descEl.textContent = descMap[range];
+
+    // Lấy dữ liệu biểu đồ từ server cho timeRange này
+    const token = localStorage.getItem('aphim_admin_token');
+    try {
+      if (btn) btn.style.opacity = '0.6';
+      const res = await fetch(`/api/admin/dashboard?timeRange=${range}`, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data?.chart_data) {
+          renderDashboardChart(json.data.chart_data);
+          // Giữ nguyên bộ lọc chỉ số đang chọn
+          if (currentActiveMetric !== 'all') {
+            const activeTab = document.querySelector(`.chart-tab[data-metric="${currentActiveMetric}"]`);
+            AdminCore.filterChartMetric(currentActiveMetric, activeTab);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Lỗi tải báo cáo mốc thời gian:', err);
+    } finally {
+      if (btn) btn.style.opacity = '1';
+    }
+  };
+
+  // ─── DASHBOARD LIVE WIDGETS (ENTERPRISE TIMELINE & REAL DATA) ───
+  function humanizeAdminAction(l) {
+    const action = String(l.action || '').toLowerCase().trim();
+    const note = String(l.note || '').trim();
+    const adminName = l.admin_name || 'Admin';
+
+    if (action.includes('block_user')) {
+      return {
+        title: 'Khóa tài khoản thành viên',
+        desc: (note && note !== 'block_user.') ? note : `Quản trị viên <strong>${sanitize(adminName)}</strong> đã áp dụng lệnh khóa truy cập`,
+        icon: 'lock',
+        badge: 'Bảo Mật',
+        badgeClass: 'badge-rose',
+        nodeClass: 'node-rose'
+      };
+    }
+    if (action.includes('unblock_user')) {
+      return {
+        title: 'Mở khóa tài khoản thành viên',
+        desc: (note && note !== 'unblock_user.') ? note : `Quản trị viên <strong>${sanitize(adminName)}</strong> đã khôi phục quyền tài khoản`,
+        icon: 'unlock',
+        badge: 'Bảo Mật',
+        badgeClass: 'badge-emerald',
+        nodeClass: 'node-emerald'
+      };
+    }
+    if (action.includes('update_mobile_3d') || action.includes('showcase')) {
+      return {
+        title: 'Cập nhật Showcase Phim 3D',
+        desc: `Quản trị viên <strong>${sanitize(adminName)}</strong> vừa tối ưu giao diện Showcase 3D Mobile`,
+        icon: 'smartphone',
+        badge: 'Giao Diện',
+        badgeClass: 'badge-purple',
+        nodeClass: 'node-purple'
+      };
+    }
+    if (action.includes('sync_movies') || action.includes('sync')) {
+      return {
+        title: 'Đồng bộ kho phim đối tác API',
+        desc: note || `Đồng bộ dữ liệu thời gian thực từ đối tác CDN/PhimAPI`,
+        icon: 'refresh-cw',
+        badge: 'Nội Dung',
+        badgeClass: 'badge-cyan',
+        nodeClass: 'node-cyan'
+      };
+    }
+    if (action.includes('delete_comment') || action.includes('comment')) {
+      return {
+        title: 'Kiểm duyệt & Xử lý bình luận',
+        desc: note || `Quản trị viên <strong>${sanitize(adminName)}</strong> vừa kiểm duyệt nội dung cộng đồng`,
+        icon: 'message-square',
+        badge: 'Kiểm Duyệt',
+        badgeClass: 'badge-amber',
+        nodeClass: 'node-amber'
+      };
+    }
+    if (action.includes('grant_vip') || action.includes('vip')) {
+      return {
+        title: 'Kích hoạt gói đặc quyền VIP',
+        desc: note || `Cấp quyền hội viên VIP thành công`,
+        icon: 'crown',
+        badge: 'Đặc Quyền',
+        badgeClass: 'badge-gold',
+        nodeClass: 'node-gold'
+      };
+    }
+
+    // Fallback for general admin activity
+    let cleanAction = (note && !note.endsWith('.')) ? note : (action ? action.replace(/_/g, ' ') : 'Nhật ký hệ thống');
+    cleanAction = cleanAction.charAt(0).toUpperCase() + cleanAction.slice(1);
+    return {
+      title: cleanAction,
+      desc: `Thao tác thực hiện bởi <strong>${sanitize(adminName)}</strong>`,
+      icon: 'shield-check',
+      badge: 'Quản Trị',
+      badgeClass: 'badge-indigo',
+      nodeClass: 'node-indigo'
+    };
+  }
+
   function renderDashboardLiveWidgets(data) {
     if (!data) return;
 
-    // 1. Live Activity Feed
+    // 1. Live Activity Feed (Enterprise Timeline)
     const feedEl = document.getElementById('liveActivityFeed');
     if (feedEl) {
       const activities = [];
@@ -1445,11 +1906,23 @@
         activities.push({
           time: new Date(tx.created_at).getTime(),
           html: `
-            <div class="activity-item">
-              <div class="activity-icon bg-gold-glow text-gold"><i data-lucide="crown"></i></div>
-              <div class="activity-details">
-                <div class="activity-text"><strong>${sanitize(userName)}</strong> vừa thực hiện giao dịch <strong>${amount}đ</strong> (${sanitize(tx.plan || 'Nạp Xu')}).</div>
-                <div class="activity-meta">${timeStr} • Giao dịch #${sanitize(tx.id ? String(tx.id).substring(0, 8) : 'TX')}</div>
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <div class="timeline-icon node-emerald"><i data-lucide="wallet"></i></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="timeline-title">Giao dịch ${amount}đ thành công</span>
+                  <span class="timeline-badge badge-emerald">Doanh Thu</span>
+                </div>
+                <div class="timeline-desc">Thành viên <strong>${sanitize(userName)}</strong> (${sanitize(tx.plan || 'Nạp Xu')}) vừa thanh toán.</div>
+                <div class="timeline-meta">
+                  <i data-lucide="clock"></i>
+                  <span>${timeStr}</span>
+                  <span class="timeline-dot-sep">•</span>
+                  <span>Mã GD #${sanitize(tx.id ? String(tx.id).substring(0, 8) : 'TX')}</span>
+                </div>
               </div>
             </div>
           `
@@ -1462,11 +1935,23 @@
         activities.push({
           time: new Date(u.created_at).getTime(),
           html: `
-            <div class="activity-item">
-              <div class="activity-icon bg-cyan-glow text-cyan"><i data-lucide="user-plus"></i></div>
-              <div class="activity-details">
-                <div class="activity-text">Thành viên mới <strong>${sanitize(u.name || 'Người dùng')}</strong> (${sanitize(u.email || '')}) vừa đăng ký tài khoản.</div>
-                <div class="activity-meta">${timeStr} • Đăng ký tài khoản</div>
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <div class="timeline-icon node-cyan"><i data-lucide="user-plus"></i></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="timeline-title">Đăng ký thành viên mới</span>
+                  <span class="timeline-badge badge-cyan">Thành Viên</span>
+                </div>
+                <div class="timeline-desc"><strong>${sanitize(u.name || 'Người dùng')}</strong> (${sanitize(u.email || '')}) vừa tạo tài khoản.</div>
+                <div class="timeline-meta">
+                  <i data-lucide="clock"></i>
+                  <span>${timeStr}</span>
+                  <span class="timeline-dot-sep">•</span>
+                  <span>Supabase Auth</span>
+                </div>
               </div>
             </div>
           `
@@ -1479,14 +1964,27 @@
         const userName = u.name || u.displayName || 'Thành viên';
         const timeStr = formatTimeAgo(c.createdAt);
         const movieTitle = (c.movieSlug || '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const snippet = c.content ? (c.content.length > 55 ? c.content.substring(0, 55) + '...' : c.content) : '';
         activities.push({
           time: new Date(c.createdAt).getTime(),
           html: `
-            <div class="activity-item">
-              <div class="activity-icon bg-purple-glow text-purple"><i data-lucide="message-square"></i></div>
-              <div class="activity-details">
-                <div class="activity-text"><strong>${sanitize(userName)}</strong> bình luận trên phim <strong>${sanitize(movieTitle)}</strong>: "${sanitize(c.content ? c.content.substring(0, 50) + (c.content.length > 50 ? '...' : '') : '')}".</div>
-                <div class="activity-meta">${timeStr} • Bình luận mới</div>
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <div class="timeline-icon node-purple"><i data-lucide="message-square"></i></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="timeline-title">Bình luận: ${sanitize(movieTitle || 'Phim')}</span>
+                  <span class="timeline-badge badge-purple">Bình Luận</span>
+                </div>
+                <div class="timeline-desc">"${sanitize(snippet)}" — bởi <strong>${sanitize(userName)}</strong></div>
+                <div class="timeline-meta">
+                  <i data-lucide="clock"></i>
+                  <span>${timeStr}</span>
+                  <span class="timeline-dot-sep">•</span>
+                  <span>Cộng đồng MongoDB</span>
+                </div>
               </div>
             </div>
           `
@@ -1496,14 +1994,27 @@
       // Recent Admin Logs
       (data.recent_logs || []).forEach(l => {
         const timeStr = formatTimeAgo(l.created_at);
+        const info = humanizeAdminAction(l);
         activities.push({
           time: new Date(l.created_at).getTime(),
           html: `
-            <div class="activity-item">
-              <div class="activity-icon bg-emerald-glow text-emerald"><i data-lucide="shield-check"></i></div>
-              <div class="activity-details">
-                <div class="activity-text">Admin <strong>${sanitize(l.admin_name || 'Admin')}</strong>: ${sanitize(l.note || l.action || 'Thao tác hệ thống')}.</div>
-                <div class="activity-meta">${timeStr} • Nhật ký quản trị</div>
+            <div class="timeline-item">
+              <div class="timeline-node">
+                <div class="timeline-icon ${info.nodeClass}"><i data-lucide="${info.icon}"></i></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="timeline-title">${info.title}</span>
+                  <span class="timeline-badge ${info.badgeClass}">${info.badge}</span>
+                </div>
+                <div class="timeline-desc">${info.desc}</div>
+                <div class="timeline-meta">
+                  <i data-lucide="clock"></i>
+                  <span>${timeStr}</span>
+                  <span class="timeline-dot-sep">•</span>
+                  <span>Nhật ký quản trị</span>
+                </div>
               </div>
             </div>
           `
@@ -1514,7 +2025,12 @@
       activities.sort((a, b) => b.time - a.time);
 
       if (activities.length === 0) {
-        feedEl.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-dim);">Chưa có hoạt động mới nào.</div>';
+        feedEl.innerHTML = `
+          <div class="timeline-empty">
+            <i data-lucide="inbox"></i>
+            <div>Chưa có hoạt động mới nào được ghi nhận.</div>
+          </div>
+        `;
       } else {
         feedEl.innerHTML = activities.slice(0, 6).map(a => a.html).join('');
       }
@@ -1990,8 +2506,8 @@
     // 1. Nhận diện GIF [gif:https://...]
     sanitized = sanitized.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
       return `
-        <div class="admin-comment-gif-preview" style="margin-top: 6px; display: block; max-width: 180px; max-height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
-          <img src="${url}" loading="lazy" style="max-width: 100%; max-height: 120px; object-fit: cover; display: block; cursor: pointer; border-radius: 7px;" alt="GIF" onclick="window.open('${url}', '_blank')" title="Nhấp để xem GIF kích thước gốc">
+        <div class="admin-comment-gif-preview" style="margin-top: 8px; display: inline-block; max-width: 220px; max-height: 130px; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #000;">
+          <img src="${url}" loading="lazy" style="max-width: 100%; max-height: 130px; object-fit: cover; display: block; cursor: pointer; border-radius: 9px;" alt="GIF" onclick="window.open('${url}', '_blank')" title="Nhấp để xem ảnh động gốc">
         </div>
       `;
     });
@@ -1999,8 +2515,8 @@
     // 2. Nhận diện Hình ảnh [img:https://...]
     sanitized = sanitized.replace(/\[img:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
       return `
-        <div class="admin-comment-img-preview" style="margin-top: 6px; display: block; max-width: 180px; max-height: 120px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
-          <img src="${url}" loading="lazy" style="max-width: 100%; max-height: 120px; object-fit: cover; display: block; cursor: pointer; border-radius: 7px;" alt="Ảnh" onclick="window.open('${url}', '_blank')" title="Nhấp để xem ảnh">
+        <div class="admin-comment-img-preview" style="margin-top: 8px; display: inline-block; max-width: 220px; max-height: 130px; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #000;">
+          <img src="${url}" loading="lazy" style="max-width: 100%; max-height: 130px; object-fit: cover; display: block; cursor: pointer; border-radius: 9px;" alt="Ảnh" onclick="window.open('${url}', '_blank')" title="Nhấp để xem ảnh gốc">
         </div>
       `;
     });
@@ -2018,7 +2534,7 @@
         <tr>
           <td colspan="6" class="text-center" style="padding:40px; color:var(--text-dim);">
             <i data-lucide="message-square-off" style="width:32px; height:32px; margin-bottom:8px; opacity:0.5;"></i>
-            <div>Không tìm thấy bình luận nào.</div>
+            <div>Không tìm thấy bình luận nào phù hợp với bộ lọc.</div>
           </td>
         </tr>
       `;
@@ -2060,8 +2576,9 @@
             </div>
           </td>
           <td>
-            <a href="${movieLink}" target="_blank" class="font-medium text-cyan" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-              ${sanitize(movieTitle)} <i data-lucide="external-link" style="width:12px; height:12px;"></i>
+            <a href="${movieLink}" target="_blank" class="table-movie-link">
+              <span>${sanitize(movieTitle || 'Xem phim')}</span>
+              <i data-lucide="external-link"></i>
             </a>
           </td>
           <td>
@@ -2075,15 +2592,15 @@
           <td style="text-align: right;">
             <div class="table-actions-cell">
               ${c.status !== 'approved' ? `
-                <button class="btn btn-xs btn-outline text-emerald" onclick="AdminCore.approveComment('${c._id}')" title="Phê duyệt">
-                  <i data-lucide="check"></i> Duyệt
+                <button type="button" class="btn-action-approve" onclick="AdminCore.approveComment('${c._id}')" title="Phê duyệt bình luận">
+                  <i data-lucide="check"></i> <span>Duyệt</span>
                 </button>
               ` : `
-                <button class="btn btn-xs btn-outline text-amber" onclick="AdminCore.hideComment('${c._id}')" title="Ẩn bình luận">
-                  <i data-lucide="eye-off"></i> Ẩn
+                <button type="button" class="btn-action-hide" onclick="AdminCore.hideComment('${c._id}')" title="Ẩn bình luận">
+                  <i data-lucide="eye-off"></i> <span>Ẩn</span>
                 </button>
               `}
-              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteComment('${c._id}')" title="Xóa bình luận">
+              <button type="button" class="btn-action-delete" onclick="AdminCore.deleteComment('${c._id}')" title="Xóa vĩnh viễn">
                 <i data-lucide="trash-2"></i>
               </button>
             </div>
@@ -2415,9 +2932,12 @@
     // 6. Header Actions & Logout
     const btnToggleMasking = document.getElementById('btnToggleMasking');
     if (btnToggleMasking) btnToggleMasking.onclick = toggleDataMasking;
+    initDataMasking();
 
     const btnQuickLock = document.getElementById('btnQuickLock');
     if (btnQuickLock) btnQuickLock.onclick = lockAdminScreen;
+
+    initNotificationDropdown();
 
     const btnAdminLogout = document.getElementById('btnAdminLogout');
     if (btnAdminLogout) {
@@ -2425,6 +2945,7 @@
         if (confirm('Bạn có chắc muốn đăng xuất khỏi hệ thống Admin?')) {
           localStorage.removeItem('aphim_admin_token');
           localStorage.removeItem('aphim_admin_user');
+          document.cookie = 'aphim_admin_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
           AdminCache.clear();
           window.location.href = '/admin/login';
         }

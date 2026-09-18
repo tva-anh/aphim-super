@@ -37,12 +37,50 @@
       <i data-lucide="lock"></i>
     </button>
 
-    <!-- Notification Dropdown Toggle -->
-    <div class="notification-wrap">
-      <button class="header-action-btn notification-btn" id="btnNotification">
+    <!-- Notification Dropdown Toggle & Popover -->
+    <div class="notification-wrap" id="notificationWrap">
+      <button class="header-action-btn notification-btn" id="btnNotification" title="Thông báo hệ thống">
         <i data-lucide="bell"></i>
-        <span class="notification-badge" id="notificationCount">3</span>
+        <span class="notification-badge" id="notificationCount" style="display:none;">0</span>
       </button>
+
+      <!-- Enterprise Quick Notification Popover -->
+      <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">
+          <div class="notification-title-wrap">
+            <h4 class="notification-title"><i data-lucide="bell" class="text-primary"></i> Thông Báo Hệ Thống</h4>
+            <span class="notification-unread-count" id="notificationUnreadCount">0 mới</span>
+          </div>
+          <div class="notification-header-actions">
+            <button type="button" class="notif-action-text-btn" id="btnMarkAllRead" onclick="AdminCore.markAllNotificationsRead()" title="Đánh dấu tất cả đã đọc">
+              <i data-lucide="check-check"></i> Đã đọc tất cả
+            </button>
+          </div>
+        </div>
+
+        <!-- Notification Filter Tabs -->
+        <div class="notification-tabs">
+          <button type="button" class="notif-tab active" data-tab="all" onclick="AdminCore.filterNotifications('all', this)">Tất cả</button>
+          <button type="button" class="notif-tab" data-tab="unread" onclick="AdminCore.filterNotifications('unread', this)">Chưa đọc</button>
+          <button type="button" class="notif-tab" data-tab="users" onclick="AdminCore.filterNotifications('users', this)">Đăng ký</button>
+          <button type="button" class="notif-tab" data-tab="comments" onclick="AdminCore.filterNotifications('comments', this)">Bình luận</button>
+          <button type="button" class="notif-tab" data-tab="orders" onclick="AdminCore.filterNotifications('orders', this)">Giao dịch</button>
+        </div>
+
+        <!-- Notification Scrollable List -->
+        <div class="notification-body" id="notificationList">
+          <div class="notification-loading">
+            <div class="spinner-sm"></div>
+            <span>Đang nạp thông báo mới...</span>
+          </div>
+        </div>
+
+        <!-- Notification Footer -->
+        <div class="notification-footer">
+          <span class="notification-live-status"><span class="ping-dot green"></span> Đồng bộ thời gian thực</span>
+          <button type="button" class="notif-clear-btn" onclick="AdminCore.clearAllNotifications()">Dọn dẹp</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>

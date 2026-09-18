@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 
+    <!-- Immediate Authentication Guard (Synchronously runs before DOM paints to prevent unauthorized view) -->
+    <% if (typeof activePage === 'undefined' || activePage !== 'login') { %>
+    <script>
+      (function() {
+        var token = localStorage.getItem('aphim_admin_token');
+        var cookieToken = (document.cookie.match(/(?:^|;\s*)aphim_admin_token=([^;]+)/) || [])[1];
+        if (!token && !cookieToken) {
+          window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+        }
+      })();
+    </script>
+    <% } else { %>
+    <script>
+      (function() {
+        var token = localStorage.getItem('aphim_admin_token');
+        var cookieToken = (document.cookie.match(/(?:^|;\s*)aphim_admin_token=([^;]+)/) || [])[1];
+        if (token || cookieToken) {
+          var params = new URLSearchParams(window.location.search);
+          var dest = params.get('redirect') || '/admin';
+          window.location.replace(dest);
+        }
+      })();
+    </script>
+    <% } %>
+
     <title><%= typeof title !== 'undefined' ? title : 'Admin Suite' %> | APhim Super Enterprise</title>
 
     <!-- Google Fonts -->
@@ -19,7 +44,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Enterprise Master Admin Stylesheet -->
-    <link rel="stylesheet" href="/css/admin-enterprise.css?v=105">
+    <link rel="stylesheet" href="/css/admin-enterprise.css?v=114">
     
     <style>
       /* Smooth transitions and warm cream custom scrollbar */

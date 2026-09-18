@@ -109,12 +109,7 @@
         container.style.scrollBehavior = 'auto';
         container.style.scrollSnapType = 'none';
 
-        // Khóa con trỏ chuột
-        if (e.pointerId !== undefined && container.setPointerCapture) {
-            try {
-                container.setPointerCapture(e.pointerId);
-            } catch (err) {}
-        }
+        // LƯU Ý: Tuyệt đối KHÔNG gọi setPointerCapture ở đây vì sẽ bắt toàn bộ event click của thẻ <a> con
     }
 
     // ─── 2. RÊ CHUỘT (POINTER / MOUSE MOVE) - ĐI THEO LIỀN 1:1 TỨC THÌ ───
@@ -124,29 +119,37 @@
         const currentX = e.clientX;
         const deltaX = currentX - startX;
 
-        // Bắt đầu nhận diện kéo ngay khi dịch chuyển
+        // Bắt đầu nhận diện kéo khi dịch chuyển thực tế > 6px (tránh rung tay khi bấm click)
         if (!hasMoved) {
-            if (Math.abs(deltaX) > 3) {
+            if (Math.abs(deltaX) > 6) {
                 hasMoved = true;
                 currentContainer.classList.add('is-instant-dragging');
                 document.body.classList.add('aphim-drag-active');
+
+                // Khi thực sự đang kéo lướt, mới bắt pointer capture để theo dõi mượt ra ngoài mép
+                if (e.pointerId !== undefined && currentContainer.setPointerCapture) {
+                    try {
+                        currentContainer.setPointerCapture(e.pointerId);
+                    } catch (err) {}
+                }
             }
         }
 
-        // 🌟 ĐI THEO LIỀN TỨC THÌ - ZERO LATENCY:
-        // Không đợi bất kỳ frame nào, gán vị trí trực tiếp theo con chuột!
-        currentContainer.scrollLeft = scrollStart - deltaX;
+        if (hasMoved) {
+            // 🌟 ĐI THEO LIỀN TỨC THÌ - ZERO LATENCY:
+            currentContainer.scrollLeft = scrollStart - deltaX;
 
-        // Tính vận tốc nhả tay chính xác
-        const now = performance.now();
-        const dt = now - lastTimestamp;
-        if (dt > 8) {
-            releaseVelocity = (currentX - lastClientX) / dt;
-            lastClientX = currentX;
-            lastTimestamp = now;
+            // Tính vận tốc nhả tay chính xác
+            const now = performance.now();
+            const dt = now - lastTimestamp;
+            if (dt > 8) {
+                releaseVelocity = (currentX - lastClientX) / dt;
+                lastClientX = currentX;
+                lastTimestamp = now;
+            }
+
+            e.preventDefault();
         }
-
-        e.preventDefault();
     }
 
     // ─── 3. THẢ TAY (POINTER / MOUSE UP) - QUÁN TÍNH VẬT LÝ MƯỢT NHƯ LỤA ───
@@ -164,7 +167,9 @@
             container.classList.remove('is-instant-dragging');
             if (e && e.pointerId !== undefined && container.releasePointerCapture) {
                 try {
-                    container.releasePointerCapture(e.pointerId);
+                    if (container.hasPointerCapture && container.hasPointerCapture(e.pointerId)) {
+                        container.releasePointerCapture(e.pointerId);
+                    }
                 } catch (err) {}
             }
         }
@@ -201,7 +206,7 @@
             container.style.scrollSnapType = '';
         }
 
-        // Chặn click nhầm vào phim khi vừa thực hiện thao tác lướt
+        // Chặn click nhầm vào phim CHỈ KHI vừa thực hiện thao tác kéo lướt
         if (didMove) {
             const blockClick = function (ev) {
                 ev.preventDefault();
@@ -222,34 +227,8 @@
     window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
     window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: false });
 
-    // ─── 4. CON XOAY CHUỘT PHẢN HỒI TỨC THÌ (ZERO-LATENCY WHEEL) ───
-    document.addEventListener('wheel', function (e) {
-        // Bỏ qua trackpad 2 ngón
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 2) return;
-
-        const container = getScrollContainer(e.target);
-        if (!container) return;
-
-        const max = container.scrollWidth - container.clientWidth;
-        if (max <= 5) return;
-
-        let delta = e.deltaY;
-        if (e.deltaMode === 1) delta *= 30;
-        else if (e.deltaMode === 2) delta *= 500;
-
-        const cur = container.scrollLeft;
-        const canRight = delta > 0 && cur < max - 2;
-        const canLeft = delta < 0 && cur > 2;
-
-        if (canRight || canLeft) {
-            e.preventDefault();
-            cancelMomentum();
-            // Cuộn tức thì theo từng nấc lăn chuột không có độ trễ!
-            container.style.scrollBehavior = 'auto';
-            container.scrollLeft += delta * 1.25;
-        }
-        // Khi chạm mép: Tự động nhường quyền cho trình duyệt cuộn dọc trang êm ái!
-    }, { passive: false });
+    // ─── 4. GIỮ NGUYÊN CUỘN DỌC TRANG KHI LĂN CON TRỎ CHUỘT (KHÔNG BỊ CUỘN NGANG) ───
+    // Đã tắt hoàn toàn việc can thiệp sự kiện wheel để khi lăn chuột lên/xuống, toàn bộ trang web cuộn dọc tự nhiên êm ái.
 
     // Chặn kéo bóng ma hình ảnh mặc định của trình duyệt
     document.addEventListener('dragstart', function (e) {

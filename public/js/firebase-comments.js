@@ -890,6 +890,31 @@
         html.light-mode .ap-cmt-textarea::placeholder, body.light-mode .ap-cmt-textarea::placeholder {
             color: #64748b !important;
         }
+        /* ── LIGHT MODE: Ẩn viền hộp bình luận trên nền kem ── */
+        html.light-mode .ap-cmt-form-logged, body.light-mode .ap-cmt-form-logged {
+            background: rgba(255, 252, 245, 0.7) !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        html.light-mode .ap-cmt-form-logged:focus-within, body.light-mode .ap-cmt-form-logged:focus-within {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        html.light-mode .ap-form-footer-wrap, body.light-mode .ap-form-footer-wrap {
+            background: rgba(0,0,0,0.04) !important;
+            border-top: 1px solid rgba(0,0,0,0.05) !important;
+        }
+        html.light-mode .ap-form-user-name, body.light-mode .ap-form-user-name {
+            color: #1c1917 !important;
+        }
+        html.light-mode .ap-form-logout-btn, body.light-mode .ap-form-logout-btn {
+            color: #78716c !important;
+        }
+        html.light-mode .ap-char-count, body.light-mode .ap-char-count {
+            color: #78716c !important;
+        }
         
         .ap-cmt-right-actions { display: none !important; }
 
