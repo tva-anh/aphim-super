@@ -1112,6 +1112,7 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
     }
 
     if (meta) {
+        const title = `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
         const rawWatchDesc = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
         const metaDescription = formatMetaDescription(rawWatchDesc, 155);
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';

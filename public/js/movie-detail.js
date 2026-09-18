@@ -1174,7 +1174,7 @@ function renderEpisodes(episodes) {
 
         const labelHTML = `
             <div class="flex items-center mr-2 flex-shrink-0 pl-0 ml-0">
-                <span class="text-white font-bold uppercase text-[12px] tracking-wider" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">MÁY CHỦ :</span>
+                <span class="server-label-title text-white font-bold uppercase text-[12px] tracking-wider" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">MÁY CHỦ :</span>
             </div>
         `;
 

@@ -2093,7 +2093,7 @@ html.light-mode .text-slate-500 {
    6. MOVIE DETAIL TABS, SERVER LABEL & COMMENTS/RATING SECTION
    ========================================================================== */
 
-/* Movie Detail Main Navigation Tabs (Tập phim, Gallery, OST, Diễn viên, Đề xuất) - 100% Crisp White over Hero Backdrop */
+/* Movie Detail Main Navigation Tabs (Tập phim, Gallery, OST, Diễn viên, Đề xuất) in Light Mode */
 html.light-mode .ap-movie-tab-system .ap-tab-btn,
 html.light-mode #tab-btn-episodes,
 html.light-mode #tab-btn-gallery,
@@ -2103,13 +2103,14 @@ html.light-mode #tab-btn-recommend {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
-    border-bottom: 3px solid transparent !important;
+    border-bottom: 2.5px solid transparent !important;
     border-radius: 0 !important;
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+    color: #1c1917 !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
     padding: 8px 4px !important;
     box-shadow: none !important;
+    opacity: 0.8 !important;
 }
 
 html.light-mode .ap-movie-tab-system .ap-tab-btn:hover,
@@ -2118,7 +2119,8 @@ html.light-mode #tab-btn-gallery:hover,
 html.light-mode #tab-btn-ost:hover,
 html.light-mode #tab-btn-cast:hover,
 html.light-mode #tab-btn-recommend:hover {
-    color: #fcd576 !important;
+    color: #b45309 !important;
+    opacity: 1 !important;
 }
 
 html.light-mode .ap-movie-tab-system .ap-tab-btn.active,
@@ -2129,21 +2131,42 @@ html.light-mode #tab-btn-cast.active,
 html.light-mode #tab-btn-recommend.active {
     background: transparent !important;
     background-color: transparent !important;
-    color: #fcd576 !important;
+    color: #b45309 !important;
     border: none !important;
-    border-bottom: 3px solid #fcd576 !important;
+    border-bottom: 2.5px solid #d97706 !important;
     border-radius: 0 !important;
-    font-weight: 900 !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(252, 213, 118, 0.4) !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
     box-shadow: none !important;
+    opacity: 1 !important;
 }
 
-/* Server Label ("MÁY CHỦ :") - Crisp White over Hero Backdrop */
+/* Server Label ("MÁY CHỦ :") - Clean Dark text in Light Mode */
+html.light-mode .server-label-title,
 html.light-mode span[style*="MÁY CHỦ"],
+html.light-mode #desktop-server-wrapper span:not([class*="badge"]),
+html.light-mode #server-list-mobile span:not([class*="badge"]),
 html.light-mode div.flex.items-center.mr-2 span {
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
-    color: #ffffff !important;
+    text-shadow: none !important;
+    color: #1c1917 !important;
     font-weight: 800 !important;
+}
+
+/* "Danh sách tập phim" heading & icon in Light Mode */
+html.light-mode .movie-section-heading,
+html.light-mode #tab-panel-episodes h2,
+html.light-mode .ap-tab-panel h2,
+html.light-mode .ap-tab-panel h3 {
+    color: #1c1917 !important;
+    text-shadow: none !important;
+}
+
+html.light-mode .movie-section-heading svg,
+html.light-mode #tab-panel-episodes h2 svg,
+html.light-mode .ap-tab-panel h2 svg,
+html.light-mode .ap-tab-panel h3 svg {
+    fill: #1c1917 !important;
+    color: #1c1917 !important;
 }
 
 /* Server Selection Section (DANH SÁCH TẬP) in Light Mode */
@@ -5612,20 +5635,23 @@ html.light-mode .movie-actions-container button:not(.cinematic-gold-btn):not(#he
 
 /* Tab Navigation */
 html.light-mode .ap-tab-btn {
-    color: #78716c !important;
+    color: #1c1917 !important;
     text-shadow: none !important;
     font-weight: 700 !important;
+    opacity: 0.8 !important;
 }
 
 html.light-mode .ap-tab-btn:hover {
-    color: #1c1917 !important;
+    color: #b45309 !important;
+    opacity: 1 !important;
 }
 
 html.light-mode .ap-tab-btn.active {
-    color: #d97706 !important;
+    color: #b45309 !important;
     border-color: #d97706 !important;
     text-shadow: none !important;
     font-weight: 800 !important;
+    opacity: 1 !important;
 }
 
 html.light-mode .ap-movie-tab-system div[class*="border-b"] {
