@@ -85,7 +85,7 @@
         .ap-auth-left {
             width: 380px; flex-shrink: 0;
             background: linear-gradient(to bottom, rgba(15, 18, 30, 0.05) 0%, rgba(15, 18, 30, 0.25) 45%, rgba(15, 18, 30, 0.72) 100%),
-                        url('https://phim.nguonc.com/public/images/Film/pxd9rc03EMMln3tVFdfd427Fpsi.jpg') center / cover no-repeat;
+                        url('https://vsmov.com/storage/images/pxd9rc03EMMln3tVFdfd427Fpsi.jpg') center / cover no-repeat;
             display: flex; flex-direction: column;
             justify-content: flex-end; align-items: center;
             padding: 36px 28px 48px 28px;
@@ -467,12 +467,12 @@
     }
 
     // Dynamic Poster Image preloader (Defaults to Doraemon Nobita movie poster)
-    let dynamicPosterURL = 'https://phim.nguonc.com/public/images/Film/pxd9rc03EMMln3tVFdfd427Fpsi.jpg';
+    let dynamicPosterURL = 'https://vsmov.com/storage/images/pxd9rc03EMMln3tVFdfd427Fpsi.jpg';
     if (typeof window !== 'undefined') {
         setTimeout(async () => {
             try {
                 const metaImg = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-                if (metaImg && metaImg.startsWith('http') && !metaImg.includes('logo')) {
+                if (metaImg && metaImg.startsWith('http') && !metaImg.includes('logo') && !metaImg.includes('mascot')) {
                     dynamicPosterURL = metaImg;
                     const leftPanels = document.querySelectorAll('.ap-auth-left');
                     leftPanels.forEach(p => {
@@ -622,7 +622,7 @@
         const isRegister = currentAuthMode === 'register';
         const isForgot   = currentAuthMode === 'forgot';
 
-        const dynamicPosterURL = window.AUTH_MODAL_POSTER || '/images/comment-mascot.webp';
+        const dynamicPosterURL = window.AUTH_MODAL_POSTER || 'https://vsmov.com/storage/images/pxd9rc03EMMln3tVFdfd427Fpsi.jpg';
 
         backdrop = document.createElement('div');
         backdrop.id = 'ap-auth-backdrop';
