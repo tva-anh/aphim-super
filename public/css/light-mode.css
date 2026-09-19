@@ -34,25 +34,27 @@ html.light-mode .profile-page-bg {
 }
 
 html.light-mode main.movie-content-zone {
-    margin-top: -64px !important;
+    margin-top: 0 !important;
+    padding-top: 84px !important;
     background-color: transparent !important;
     background: transparent !important;
     color: #1c1917 !important;
 }
 @media (max-width: 1280px) {
     html.light-mode main.movie-content-zone {
-        margin-top: -60px !important;
+        margin-top: 0 !important;
+        padding-top: 84px !important;
     }
 }
 
 html.light-mode .movie-content-zone .app-container {
-    padding-top: 88px !important;
+    padding-top: 0 !important;
     background-color: transparent !important;
     background: transparent !important;
 }
 @media (max-width: 1280px) {
     html.light-mode .movie-content-zone .app-container {
-        padding-top: 80px !important;
+        padding-top: 0 !important;
     }
 }
 
@@ -1276,26 +1278,50 @@ html.light-mode #server-list button:hover {
    ========================================================================== */
 
 /* Breadcrumb Links Fix for Light Mode */
+html.light-mode .movie-content-zone .movie-breadcrumb-bar,
+html.light-mode .movie-content-zone .movie-breadcrumb-bar a,
+html.light-mode .movie-content-zone .movie-breadcrumb-bar a[href="/"],
+html.light-mode .movie-content-zone .movie-breadcrumb-bar span,
+html.light-mode .movie-content-zone #breadcrumb-category,
+html.light-mode .movie-content-zone #breadcrumb-movie-name,
 html.light-mode .movie-content-zone div[class*="whitespace-nowrap"] a,
 html.light-mode .movie-content-zone div[class*="whitespace-nowrap"] span,
-html.light-mode .movie-content-zone #breadcrumb-category,
-html.light-mode .movie-content-zone #breadcrumb-movie-name {
+html.light-mode .movie-breadcrumb-bar,
+html.light-mode .movie-breadcrumb-bar a,
+html.light-mode .movie-breadcrumb-bar a[href="/"],
+html.light-mode .movie-breadcrumb-bar span,
+html.light-mode #breadcrumb-category,
+html.light-mode #breadcrumb-movie-name {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
     fill: #1c1917 !important;
     stroke: #1c1917 !important;
     text-shadow: none !important;
+    opacity: 1 !important;
+    font-weight: 700 !important;
 }
 
-html.light-mode .movie-content-zone div[class*="whitespace-nowrap"] a {
-    color: #78716c !important;
+html.light-mode .movie-content-zone .movie-breadcrumb-bar .material-icons-round,
+html.light-mode .movie-content-zone div[class*="whitespace-nowrap"] span.material-icons-round,
+html.light-mode .movie-breadcrumb-bar .material-icons-round {
+    color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+    font-weight: 700 !important;
 }
 
-html.light-mode .movie-content-zone div[class*="whitespace-nowrap"] a:hover {
+html.light-mode .movie-content-zone .movie-breadcrumb-bar a:hover,
+html.light-mode .movie-content-zone #breadcrumb-category:hover,
+html.light-mode .movie-content-zone div[class*="whitespace-nowrap"] a:hover,
+html.light-mode .movie-breadcrumb-bar a:hover,
+html.light-mode #breadcrumb-category:hover {
     color: #d97706 !important;
+    -webkit-text-fill-color: #d97706 !important;
 }
 
 /* Watch Page Breadcrumb Fix - Dark Black Text on Cream Background (Match Image 1) */
