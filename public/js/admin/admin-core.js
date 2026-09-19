@@ -1054,7 +1054,20 @@
         body: JSON.stringify({ email, password: pwd })
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        if (res.status === 502) {
+          throw new Error('Lỗi 502 Bad Gateway: Máy chủ Node.js chưa được bật hoặc đã bị crash trên VPS/Server. Hãy kiểm tra `pm2 status`.');
+        } else if (res.status === 504) {
+          throw new Error('Lỗi 504 Gateway Timeout: Máy chủ phản hồi quá lâu.');
+        } else {
+          throw new Error(`Máy chủ phản hồi mã lỗi HTTP ${res.status}.`);
+        }
+      }
 
       if (res.ok && data.success) {
         // Lưu token và thông tin admin vào localStorage và cookie
@@ -1080,7 +1093,7 @@
       }
     } catch (err) {
       console.error('Login error:', err);
-      showToast('Không thể kết nối đến máy chủ API.', 'error');
+      showToast(err.message || 'Không thể kết nối đến máy chủ API.', 'error');
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHtml;
