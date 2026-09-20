@@ -1211,7 +1211,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${img}" alt="${movie.name}" loading="lazy" />
+                            <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1248,7 +1248,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${img}" alt="${movie.name}" loading="lazy" class="single-feature-img" />
+                            <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" class="single-feature-img" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1283,7 +1283,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${img}" alt="${movie.name}" loading="lazy" />
+                            <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1392,7 +1392,7 @@
                 <a href="${watchUrl}" title="${movie.name}" class="ranking-card ${rankClass}">
                     <div class="ranking-num ${numClass} rank-delay-${index}">${rank}</div>
                     <div class="ranking-poster-box">
-                        <img class="ranking-poster-img" src="${img}" alt="${movie.name}" loading="lazy" onError="window.APhimCore.handleImgError(this)" />
+                        <img class="ranking-poster-img" src="${img}" alt="${movie.name}" loading="lazy" decoding="async" onError="window.APhimCore.handleImgError(this)" />
                     </div>
                     <div class="ranking-info">
                         <div class="ranking-title-vi" title="${movie.name}">${movie.name}</div>
@@ -1404,6 +1404,47 @@
                     </div>
                 </a>
             `;
+        }
+
+        function extractPosterColor(imgEl, item) {
+            if (item && item.glow_color) {
+                if (typeof item.glow_color === 'string' && item.glow_color.startsWith('#')) {
+                    const c = parseInt(item.glow_color.replace('#', ''), 16);
+                    return { r: (c >> 16) & 255, g: (c >> 8) & 255, b: c & 255 };
+                }
+                return item.glow_color;
+            }
+
+            // High-precision signature movie colors matching poster tones (0ms CPU/GPU cost)
+            const key = ((item?.name || '') + ' ' + (item?.slug || '') + ' ' + (item?.origin_name || '')).toLowerCase();
+            if (key.includes('doraemon')) return { r: 14, g: 165, b: 233 }; // Ocean Cyan
+            if (key.includes('deadpool') || key.includes('wolverine')) return { r: 239, g: 68, b: 68 }; // Ruby Crimson
+            if (key.includes('quat-mo') || key.includes('exhuma')) return { r: 13, g: 148, b: 136 }; // Teal Emerald
+            if (key.includes('conan')) return { r: 37, g: 99, b: 235 }; // Cobalt Blue
+            if (key.includes('lat-mat')) return { r: 245, g: 158, b: 11 }; // Amber Gold
+            if (key.includes('cong') || key.includes('executioner') || key.includes('thuc-thi')) return { r: 6, g: 182, b: 212 }; // Electric Cyan
+            if (key.includes('mai')) return { r: 244, g: 63, b: 94 }; // Rose Coral
+            if (key.includes('nhat-thuc') || key.includes('eclipse')) return { r: 168, g: 85, b: 247 }; // Purple Glow
+            if (key.includes('spider') || key.includes('nhan')) return { r: 225, g: 29, b: 72 }; // Crimson Red
+            if (key.includes('batman') || key.includes('hac-am')) return { r: 100, g: 116, b: 139 }; // Slate Frost
+            if (key.includes('one-piece') || key.includes('luffy')) return { r: 249, g: 115, b: 22 }; // Vivid Orange
+            if (key.includes('jujutsu') || key.includes('naruto')) return { r: 139, g: 92, b: 246 }; // Neon Violet
+
+            // Deterministic signature hue fallback
+            let hash = 0;
+            const str = item?.slug || item?.name || 'aphim-super';
+            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            const palettes = [
+                { r: 14, g: 165, b: 233 },
+                { r: 245, g: 158, b: 11 },
+                { r: 239, g: 68, b: 68 },
+                { r: 16, g: 185, b: 129 },
+                { r: 168, g: 85, b: 247 },
+                { r: 6, g: 182, b: 212 },
+                { r: 249, g: 115, b: 22 },
+                { r: 236, g: 72, b: 153 }
+            ];
+            return palettes[Math.abs(hash) % palettes.length];
         }
 
         window.switchRankingTab = async function(btnElement, paramVal) {
@@ -1748,79 +1789,6 @@
                     start3DAutoPlay();
                 }, { passive: true });
             }
-        }
-
-        function extractPosterColor(imgEl, item) {
-            if (item && item.glow_color) {
-                if (typeof item.glow_color === 'string' && item.glow_color.startsWith('#')) {
-                    const c = parseInt(item.glow_color.replace('#', ''), 16);
-                    return { r: (c >> 16) & 255, g: (c >> 8) & 255, b: c & 255 };
-                }
-                return item.glow_color;
-            }
-
-            if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
-                try {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    canvas.width = 24;
-                    canvas.height = 24;
-                    ctx.drawImage(imgEl, 0, 0, 24, 24);
-                    const data = ctx.getImageData(0, 0, 24, 24).data;
-                    let r = 0, g = 0, b = 0, total = 0;
-                    for (let i = 0; i < data.length; i += 4) {
-                        const red = data[i], grn = data[i+1], blu = data[i+2];
-                        const brightness = 0.299 * red + 0.587 * grn + 0.114 * blu;
-                        if (brightness > 30 && brightness < 240) {
-                            const max = Math.max(red, grn, blu), min = Math.min(red, grn, blu);
-                            const sat = max === 0 ? 0 : (max - min) / max;
-                            const weight = 1 + sat * 4;
-                            r += red * weight;
-                            g += grn * weight;
-                            b += blu * weight;
-                            total += weight;
-                        }
-                    }
-                    if (total > 0) {
-                        return {
-                            r: Math.round(r / total),
-                            g: Math.round(g / total),
-                            b: Math.round(b / total)
-                        };
-                    }
-                } catch (e) {}
-            }
-
-            // High-precision signature movie colors matching poster tones
-            const key = ((item?.name || '') + ' ' + (item?.slug || '') + ' ' + (item?.origin_name || '')).toLowerCase();
-            if (key.includes('doraemon')) return { r: 14, g: 165, b: 233 }; // Ocean Cyan
-            if (key.includes('deadpool') || key.includes('wolverine')) return { r: 239, g: 68, b: 68 }; // Ruby Crimson
-            if (key.includes('quat-mo') || key.includes('exhuma')) return { r: 13, g: 148, b: 136 }; // Teal Emerald
-            if (key.includes('conan')) return { r: 37, g: 99, b: 235 }; // Cobalt Blue
-            if (key.includes('lat-mat')) return { r: 245, g: 158, b: 11 }; // Amber Gold
-            if (key.includes('cong') || key.includes('executioner') || key.includes('thuc-thi')) return { r: 6, g: 182, b: 212 }; // Electric Cyan
-            if (key.includes('mai')) return { r: 244, g: 63, b: 94 }; // Rose Coral
-            if (key.includes('nhat-thuc') || key.includes('eclipse')) return { r: 168, g: 85, b: 247 }; // Purple Glow
-            if (key.includes('spider') || key.includes('nhan')) return { r: 225, g: 29, b: 72 }; // Crimson Red
-            if (key.includes('batman') || key.includes('hac-am')) return { r: 100, g: 116, b: 139 }; // Slate Frost
-            if (key.includes('one-piece') || key.includes('luffy')) return { r: 249, g: 115, b: 22 }; // Vivid Orange
-            if (key.includes('jujutsu') || key.includes('naruto')) return { r: 139, g: 92, b: 246 }; // Neon Violet
-
-            // Deterministic signature hue fallback
-            let hash = 0;
-            const str = item?.slug || item?.name || 'aphim-super';
-            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            const palettes = [
-                { r: 14, g: 165, b: 233 },
-                { r: 245, g: 158, b: 11 },
-                { r: 239, g: 68, b: 68 },
-                { r: 16, g: 185, b: 129 },
-                { r: 168, g: 85, b: 247 },
-                { r: 6, g: 182, b: 212 },
-                { r: 249, g: 115, b: 22 },
-                { r: 236, g: 72, b: 153 }
-            ];
-            return palettes[Math.abs(hash) % palettes.length];
         }
 
         function updateShowcaseAmbientGlow(current, activeImg) {

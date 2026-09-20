@@ -66,6 +66,6 @@
         }
     };
     
-    // Khởi chạy bẫy mỗi 100ms
-    setInterval(debuggerTrap, 100);
+    // Khởi chạy bẫy mỗi 2000ms để không chiếm dụng CPU/GC khi người dùng vừa vào trang
+    setInterval(debuggerTrap, 2000);
 })();

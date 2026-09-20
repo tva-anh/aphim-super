@@ -1,28 +1,22 @@
 /**
- * A PHIM SUPER - Instant Zero-Latency Horizontal Slider & Drag Engine v8.0
- * Tiêu chuẩn trải nghiệm phản hồi tức thì (0ms Delay, Zero-Wait) của các web phim hàng đầu
+ * A PHIM SUPER - Instant Real-Time Tactile Drag & Glide Engine v10.0
+ * Trải nghiệm phản hồi tức thì 100% Real-time (Zero Latency, 0ms Delay) chuẩn các nền tảng streaming top 1
  *
- * ĐẶC ĐIỂM CỐT LÕI:
- * 1. NHẬN DIỆN LƯỚT ĐI THEO LIỀN TỨC THÌ (Zero Delay - Đi theo chuột 0ms):
- *    - Di chuyển chuột là thanh trượt đi theo ngay lập tức từ pixel đầu tiên (0px dead-zone).
- *    - Triệt tiêu hoàn toàn độ trễ trôi chậm do CSS `scroll-behavior: smooth`.
+ * ĐẶC TÍNH KỸ THUẬT:
+ * 1. 100% REAL-TIME ĐI THEO CON TRỎ CHUỘT:
+ *    - Chuột nhích 1px là thanh trượt di chuyển 1px ngay lập tức trong cùng 1 frame (0px dead-zone).
+ *    - Phản hồi trực tiếp theo từng cử chỉ chuột của người dùng theo thời gian thực (Real-time tracking).
  *
- * 2. KHÔNG BAO GIỜ BỊ TUỘT HOẶC MẤT TRACKING:
- *    - Kết hợp Pointer Capture & Window Tracking: Chuột lướt nhanh cỡ nào, bay ra ngoài
- *      màn hình hay bay qua ảnh/link vẫn bám sát 100%.
- *    - Tắt hoàn toàn kéo bóng ma ảnh (`draggable="false"`, `-webkit-user-drag: none`).
+ * 2. CUỘN DỌC TRANG NATIVE TỨC THÌ (Zero Delay):
+ *    - Không can thiệp hay làm trễ con lăn chuột dọc, giữ tốc độ phản hồi 0ms GPU phần cứng tức thì.
  *
- * 3. QUÁN TÍNH THẢ TAY MƯỢT NHƯ LỤA (Physics Glide):
- *    - Khi thả tay sau cú lướt nhanh: trượt tiếp êm ái với gia tốc giảm dần (60fps/120fps/144Hz).
- *    - Chạm chuột lại là bắt dính lập tức.
+ * 3. QUÁN TÍNH THẢ TAY ÊM ÁI (Natural Momentum Glide):
+ *    - Khi thả tay sau cú vuốt nhanh: trượt tiếp mềm mại theo gia tốc thực tế của cú lướt.
+ *    - Bấm chuột lại là bắt dính tức thì.
  *
- * 4. CON XOAY CHUỘT PHẢN HỒI NGAY (Instant Wheel Response):
- *    - Lăn chuột là thanh trượt lướt ngang tức thì, không bị trễ.
- *    - Chạm mép thì tự động nhường quyền cuộn dọc trang êm ái.
- *
- * 5. BẢO VỆ TUYỆT ĐỐI CLICK MỞ PHIM:
- *    - Click tại chỗ (< 5px) -> Xem phim bình thường.
- *    - Kéo lướt (> 5px) -> Tự động chặn click nhầm vào phim.
+ * 4. BẢO VỆ TUYỆT ĐỐI CLICK MỞ PHIM:
+ *    - Nhấp chuột (< 4px) -> Mở xem phim tức thì.
+ *    - Kéo lướt (> 4px) -> Tự động chặn click nhầm.
  */
 (function () {
     'use strict';
@@ -43,7 +37,6 @@
         '.scrollbar-hide'
     ].join(', ');
 
-    // Tìm container cuộn ngang gần nhất
     function getScrollContainer(target) {
         let el = target;
         while (el && el !== document.body && el !== document.documentElement) {
@@ -61,7 +54,6 @@
         return null;
     }
 
-    // Biến trạng thái toàn cục
     let currentContainer = null;
     let isDown = false;
     let startX = 0;
@@ -79,13 +71,11 @@
         }
     }
 
-    // ─── 1. NHẤN CHUỘT (POINTER / MOUSE DOWN) - PHẢN HỒI TỨC THÌ 0ms ───
+    // ─── 1. NHẤN CHUỘT (POINTER DOWN) - BẮT DÍNH TỨC THÌ 0ms ───
     function onPointerDown(e) {
-        // Chỉ nhận chuột hoặc bút trên desktop, nhường touch tự nhiên cho điện thoại
         if (e.pointerType === 'touch') return;
         if (e.button !== 0) return; // Chỉ chuột trái
 
-        // Bỏ qua các nút bấm hoặc ô nhập
         if (e.target.closest('button, input, textarea, select, .home-comments-scroll-btn, .section-header-nav')) {
             return;
         }
@@ -93,7 +83,6 @@
         const container = getScrollContainer(e.target);
         if (!container) return;
 
-        // Dừng quán tính cũ ngay lập tức (bắt dính)
         cancelMomentum();
 
         currentContainer = container;
@@ -105,28 +94,23 @@
         lastTimestamp = performance.now();
         releaseVelocity = 0;
 
-        // Tắt ngay scroll-behavior smooth để đi theo chuột tức thì không độ trễ
         container.style.scrollBehavior = 'auto';
         container.style.scrollSnapType = 'none';
-
-        // LƯU Ý: Tuyệt đối KHÔNG gọi setPointerCapture ở đây vì sẽ bắt toàn bộ event click của thẻ <a> con
     }
 
-    // ─── 2. RÊ CHUỘT (POINTER / MOUSE MOVE) - ĐI THEO LIỀN 1:1 TỨC THÌ ───
+    // ─── 2. RÊ CHUỘT (POINTER MOVE) - 100% REAL-TIME 1:1 TRACKING ───
     function onPointerMove(e) {
         if (!isDown || !currentContainer) return;
 
         const currentX = e.clientX;
         const deltaX = currentX - startX;
 
-        // Bắt đầu nhận diện kéo khi dịch chuyển thực tế > 6px (tránh rung tay khi bấm click)
         if (!hasMoved) {
-            if (Math.abs(deltaX) > 6) {
+            if (Math.abs(deltaX) > 2) {
                 hasMoved = true;
                 currentContainer.classList.add('is-instant-dragging');
                 document.body.classList.add('aphim-drag-active');
 
-                // Khi thực sự đang kéo lướt, mới bắt pointer capture để theo dõi mượt ra ngoài mép
                 if (e.pointerId !== undefined && currentContainer.setPointerCapture) {
                     try {
                         currentContainer.setPointerCapture(e.pointerId);
@@ -136,14 +120,14 @@
         }
 
         if (hasMoved) {
-            // 🌟 ĐI THEO LIỀN TỨC THÌ - ZERO LATENCY:
+            // 🔥 REAL-TIME TỨC THÌ: Bám theo vị trí con trỏ chuột 1:1 không độ trễ
             currentContainer.scrollLeft = scrollStart - deltaX;
 
-            // Tính vận tốc nhả tay chính xác
             const now = performance.now();
             const dt = now - lastTimestamp;
             if (dt > 8) {
-                releaseVelocity = (currentX - lastClientX) / dt;
+                const instantV = (currentX - lastClientX) / dt;
+                releaseVelocity = releaseVelocity * 0.3 + instantV * 0.7;
                 lastClientX = currentX;
                 lastTimestamp = now;
             }
@@ -152,7 +136,7 @@
         }
     }
 
-    // ─── 3. THẢ TAY (POINTER / MOUSE UP) - QUÁN TÍNH VẬT LÝ MƯỢT NHƯ LỤA ───
+    // ─── 3. THẢ TAY (POINTER UP) - QUÁN TÍNH THỰC TẾ ───
     function onPointerUp(e) {
         if (!isDown) return;
 
@@ -175,10 +159,10 @@
         }
         document.body.classList.remove('aphim-drag-active');
 
-        // Quán tính lướt tiếp sau khi thả tay
-        if (didMove && container && Math.abs(v) > 0.12) {
-            let currentV = v * 16.5; // Quy đổi ra px / frame (tương đương 60Hz)
-            const friction = 0.94; // Gia tốc ma sát êm ái
+        // Quán tính lướt tiếp tự nhiên sau khi thả tay
+        if (didMove && container && Math.abs(v) > 0.08) {
+            let currentV = Math.max(Math.min(v * 9.0, 32), -32);
+            const friction = 0.90;
             let lastTime = performance.now();
 
             function glideStep(nowTime) {
@@ -190,7 +174,7 @@
                 currentV *= Math.pow(friction, dt / 16.67);
 
                 const max = container.scrollWidth - container.clientWidth;
-                if (container.scrollLeft <= 0 || container.scrollLeft >= max || Math.abs(currentV) < 0.35) {
+                if (container.scrollLeft <= 0 || container.scrollLeft >= max || Math.abs(currentV) < 0.2) {
                     momentumRaf = null;
                     container.style.scrollBehavior = '';
                     container.style.scrollSnapType = '';
@@ -206,7 +190,7 @@
             container.style.scrollSnapType = '';
         }
 
-        // Chặn click nhầm vào phim CHỈ KHI vừa thực hiện thao tác kéo lướt
+        // Chặn click nhầm chỉ khi đã thực sự kéo lướt
         if (didMove) {
             const blockClick = function (ev) {
                 ev.preventDefault();
@@ -217,27 +201,22 @@
             window.addEventListener('click', blockClick, true);
             setTimeout(() => {
                 window.removeEventListener('click', blockClick, true);
-            }, 120);
+            }, 100);
         }
     }
 
-    // Gắn sự kiện toàn cục với capture để luôn bắt được mọi chuyển động
     document.addEventListener('pointerdown', onPointerDown, { capture: true, passive: false });
     window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
     window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
     window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: false });
 
-    // ─── 4. GIỮ NGUYÊN CUỘN DỌC TRANG KHI LĂN CON TRỎ CHUỘT (KHÔNG BỊ CUỘN NGANG) ───
-    // Đã tắt hoàn toàn việc can thiệp sự kiện wheel để khi lăn chuột lên/xuống, toàn bộ trang web cuộn dọc tự nhiên êm ái.
-
-    // Chặn kéo bóng ma hình ảnh mặc định của trình duyệt
     document.addEventListener('dragstart', function (e) {
         if (getScrollContainer(e.target)) {
             e.preventDefault();
         }
     }, true);
 
-    // ─── 5. CSS TỐI ƯU PHẢN HỒI TỨC THÌ & CHỐNG GIẬT ───
+    // ─── 4. CSS TỐI ƯU GIAO DIỆN & TƯƠNG TÁC ───
     const style = document.createElement('style');
     style.textContent = `
         #slider-de-cu, .de-cu-slider, .home-comments-track, #heroThumbnails, .interests-wrapper, .ranking-grid-container {
@@ -260,7 +239,6 @@
             user-select: none !important;
             -webkit-user-select: none !important;
         }
-        /* Vô hiệu hóa kéo ảnh bóng ma của trình duyệt */
         .de-cu-slider img, #slider-de-cu img, .home-comments-track img, #heroThumbnails img {
             -webkit-user-drag: none !important;
             user-drag: none !important;
@@ -273,5 +251,5 @@
     `;
     document.head.appendChild(style);
 
-    console.log('⚡ [APhim Engine] Instant Zero-Latency Drag & Wheel Engine v8.0 Active.');
+    console.log('⚡ [APhim Engine] 100% Real-Time Instant Tactile Drag Engine v10.0 Active.');
 })();

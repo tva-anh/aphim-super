@@ -136,15 +136,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Scroll to Top Logic
     if (btnTop) {
+        let scrollTicking = false;
         const updateScrollTopVisibility = () => {
-            if (window.scrollY > 200) {
+            const isScrolled = window.scrollY > 200;
+            if (isScrolled) {
                 btnTop.classList.add('show');
             } else {
                 btnTop.classList.remove('show');
             }
+            scrollTicking = false;
         };
 
-        window.addEventListener('scroll', updateScrollTopVisibility, { passive: true });
+        window.addEventListener('scroll', () => {
+            if (!scrollTicking) {
+                requestAnimationFrame(updateScrollTopVisibility);
+                scrollTicking = true;
+            }
+        }, { passive: true });
         updateScrollTopVisibility();
 
         btnTop.addEventListener('click', (e) => {

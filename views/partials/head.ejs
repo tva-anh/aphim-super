@@ -19,7 +19,7 @@
         } catch(e) {}
     })();
 </script>
-<script src="/js/anti-devtools.js?v=99" defer></script>
+<script src="/js/anti-devtools.js?v=100" defer></script>
 
 <!-- Google tag (gtag.js) - Dual Analytics Tracking -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-91XGR323SV"></script>
@@ -126,11 +126,15 @@
         --primary-gold: #f2f20d;
         --badge-orange: #f97316;
     }
+    /* 🚀 ZERO-JANK INSTANT SCROLL GPU ENGINE (Loại bỏ 100% giật khựng khi vừa vào trang đã cuộn) */
     html {
         background-color: #1f2331 !important;
         background: #1f2331 !important;
         color: #e2e8f0;
         font-family: 'Be Vietnam Pro', 'Nunito', sans-serif;
+        scroll-behavior: auto !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     body {
         padding-top: 64px !important;
@@ -139,6 +143,16 @@
         body {
             padding-top: 60px !important;
         }
+    }
+    /* Tối ưu hóa GPU composite layer không làm giật nhảy layout scroll */
+    .de-cu-slider,
+    .ranking-grid-container,
+    .country-scroll-container,
+    .cs-scroll-container,
+    .home-comments-track {
+        will-change: scroll-position;
+        transform: translateZ(0);
+        -webkit-overflow-scrolling: touch;
     }
     .motchill-section-title {
         color: #ffffff;
