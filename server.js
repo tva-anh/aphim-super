@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const compression = require('compression');
 const path = require('path');
 const cors = require('cors');
 const axios = require('axios');
@@ -61,14 +62,33 @@ app.use((req, res, next) => {
     next();
 });
 
+// ⚡ Compression Middleware (Gzip & Deflate: giảm 75% kích thước CSS/JS/HTML/JSON)
+app.use(compression({
+    level: 6,
+    threshold: 1024,
+    filter: (req, res) => {
+        if (req.headers['x-no-compression']) return false;
+        return compression.filter(req, res);
+    }
+}));
+
 // 1. Cấu hình Helmet (Bảo mật HTTP Headers)
 app.use(helmet({
     contentSecurityPolicy: false, // Tắt CSP tạm thời để không block ảnh/phim từ CDN
     crossOriginEmbedderPolicy: false,
 }));
 
-// Serve static assets from public folder FIRST so they don't count towards rate limit
-app.use(express.static(path.join(__dirname, 'public')));
+// 🚀 Serve static assets with Smart HTTP Caching (Cache-Control & ETag)
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '7d',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+        if (/\.(css|js|woff2|woff|ttf|png|jpg|jpeg|webp|svg|ico)$/i.test(filePath)) {
+            res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+        }
+    }
+}));
 
 // 2. Cấu hình Rate Limiter (Chống Spam / DDoS)
 const globalLimiter = rateLimit({

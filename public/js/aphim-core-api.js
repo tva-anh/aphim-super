@@ -191,7 +191,10 @@
         `;
     };
 
-    // 🎯 7. MULTI-SOURCE FAST API FETCH WITH AUTOMATIC FALLBACK & PARALLEL IMAGE PRELOAD
+    // 🎯 7. MULTI-SOURCE FAST API FETCH WITH IN-MEMORY & SESSION CACHING (0ms INSTANT RENDER)
+    const _apiMemoryCache = new Map();
+    const API_CACHE_TTL = 8 * 60 * 1000; // 8 phút cache tại trình duyệt
+
     window.APhimCore.fetchMovieGridData = async function(type, paramValue, page = 1) {
         let endpointPath = '';
 
@@ -224,6 +227,29 @@
         if (!endpointPath) {
             endpointPath = '/v1/api/danh-sach/phim-moi-cap-nhat?page=' + page;
         }
+
+        // 🚀 1. Check In-Memory Cache first (0ms)
+        const cacheKey = 'aphim_api_cache_' + endpointPath;
+        const memoryCached = _apiMemoryCache.get(cacheKey);
+        if (memoryCached && (Date.now() - memoryCached.timestamp < API_CACHE_TTL)) {
+            window.APhimCore.preloadImages(memoryCached.data.items, 16);
+            setTimeout(() => window.APhimCore.initLazyObserver(), 30);
+            return memoryCached.data;
+        }
+
+        // 🚀 2. Check Session Storage Cache next
+        try {
+            const sessionRaw = sessionStorage.getItem(cacheKey);
+            if (sessionRaw) {
+                const parsed = JSON.parse(sessionRaw);
+                if (parsed && (Date.now() - parsed.timestamp < API_CACHE_TTL)) {
+                    _apiMemoryCache.set(cacheKey, parsed);
+                    window.APhimCore.preloadImages(parsed.data.items, 16);
+                    setTimeout(() => window.APhimCore.initLazyObserver(), 30);
+                    return parsed.data;
+                }
+            }
+        } catch (e) {}
 
         const urlsToTry = [
             'https://phimapi.com' + endpointPath
@@ -260,10 +286,18 @@
                     }
 
                     if (items && items.length > 0) {
+                        const result = { items, totalPages, titlePage };
+                        // Save to In-Memory & Session Storage Cache
+                        const cacheObj = { data: result, timestamp: Date.now() };
+                        _apiMemoryCache.set(cacheKey, cacheObj);
+                        try {
+                            sessionStorage.setItem(cacheKey, JSON.stringify(cacheObj));
+                        } catch (e) {}
+
                         // 🚀 PRELOAD POSTER IMAGES & INITIALIZE LAZY OBSERVER IMMEDIATELY
                         window.APhimCore.preloadImages(items, 16);
                         setTimeout(() => window.APhimCore.initLazyObserver(), 50);
-                        return { items, totalPages, titlePage };
+                        return result;
                     }
                 }
             } catch (err) {
