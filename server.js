@@ -182,10 +182,12 @@ app.use('/api/tmdb', async (req, res) => {
             timestamp: Date.now()
         });
 
+        res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=3600');
         res.json(response.data);
     } catch (err) {
         // Return 200 with empty fields on 404 so client doesn't log red errors in console
         const emptyResult = { results: [], cast: [], crew: [], backdrops: [], posters: [], id: 0 };
+        res.setHeader('Cache-Control', 'public, max-age=600');
         res.json(emptyResult);
     }
 });
@@ -572,6 +574,11 @@ app.get('/api/actor-avatar', async (req, res) => {
         const cacheKey = name.toLowerCase();
         if (actorAvatarCache.has(cacheKey)) {
             const cachedUrl = actorAvatarCache.get(cacheKey);
+            if (cachedUrl) {
+                res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+            } else {
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+            }
             return res.json({ success: !!cachedUrl, url: cachedUrl });
         }
 
@@ -590,6 +597,7 @@ app.get('/api/actor-avatar', async (req, res) => {
                 if (match && match.profile_path) {
                     const imgUrl = `https://image.tmdb.org/t/p/w300${match.profile_path}`;
                     actorAvatarCache.set(cacheKey, imgUrl);
+                    res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                     return res.json({ success: true, url: imgUrl });
                 }
             }
@@ -604,6 +612,7 @@ app.get('/api/actor-avatar', async (req, res) => {
             if (wikiRes.data?.thumbnail?.source) {
                 const imgUrl = wikiRes.data.thumbnail.source;
                 actorAvatarCache.set(cacheKey, imgUrl);
+                res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                 return res.json({ success: true, url: imgUrl });
             }
         } catch (e) {}
@@ -630,6 +639,7 @@ app.get('/api/actor-avatar', async (req, res) => {
                     if (sumRes.data?.thumbnail?.source) {
                         const imgUrl = sumRes.data.thumbnail.source;
                         actorAvatarCache.set(cacheKey, imgUrl);
+                        res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                         return res.json({ success: true, url: imgUrl });
                     }
                 } catch (e) {}
@@ -645,15 +655,18 @@ app.get('/api/actor-avatar', async (req, res) => {
             if (wikiEnRes.data?.thumbnail?.source) {
                 const imgUrl = wikiEnRes.data.thumbnail.source;
                 actorAvatarCache.set(cacheKey, imgUrl);
+                res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                 return res.json({ success: true, url: imgUrl });
             }
         } catch (e) {}
 
         // Negative cache
         actorAvatarCache.set(cacheKey, null);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
         return res.json({ success: false, url: null });
 
     } catch (err) {
+        res.setHeader('Cache-Control', 'public, max-age=3600');
         return res.json({ success: false, url: null });
     }
 });

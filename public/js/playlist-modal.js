@@ -593,6 +593,18 @@
 
     // ── Public API ────────────────────────────────────────
     window.openPlaylistModal = function (movie) {
+        const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+        if (!isUserLoggedIn) {
+            if (typeof window.showAuthModal === 'function') {
+                window.showAuthModal('login');
+            } else if (typeof showAuthModal === 'function') {
+                showAuthModal('login');
+            } else {
+                alert('Vui lòng đăng nhập để thêm phim vào danh sách phát!');
+            }
+            return;
+        }
+
         injectModals();
         window._apCurrentMovie = movie;
 
@@ -630,6 +642,17 @@
     };
 
     window.openCreatePlaylistModalStandalone = function () {
+        const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+        if (!isUserLoggedIn) {
+            if (typeof window.showAuthModal === 'function') {
+                window.showAuthModal('login');
+            } else if (typeof showAuthModal === 'function') {
+                showAuthModal('login');
+            } else {
+                alert('Vui lòng đăng nhập để tạo danh sách phát!');
+            }
+            return;
+        }
         injectModals();
         window._apCurrentMovie = null;
         openCreateModal();

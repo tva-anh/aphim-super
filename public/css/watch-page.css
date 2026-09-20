@@ -497,59 +497,87 @@
 
             /* Desktop Controls Restored & Refined (>= 640px) */
             @media (min-width: 640px) {
+                .player-ctrl-bar {
+                    padding: 8px 16px !important;
+                }
+
                 .player-ctrl-bar-container {
                     display: flex !important;
                     flex-direction: row !important;
                     align-items: center !important;
-                    justify-content: flex-start !important;
-                    gap: 10px !important;
                     width: 100% !important;
+                    gap: 8px !important;
                 }
 
+                .player-ctrl-bar-actions-row,
                 .player-ctrl-bar-toggles-row {
-                    display: flex !important;
-                    flex-direction: row !important;
-                    align-items: center !important;
-                    flex-wrap: nowrap !important;
-                    gap: 8px !important;
-                    width: auto !important;
-                    flex-shrink: 0 !important;
+                    display: contents !important;
                 }
 
-                .player-ctrl-bar-actions-row {
-                    display: flex !important;
-                    flex-direction: row !important;
+                .player-ctrl-bar .player-ctrl-item,
+                .player-ctrl-bar-actions-row .player-ctrl-item,
+                .player-ctrl-bar-toggles-row .player-ctrl-item {
+                    display: inline-flex !important;
                     align-items: center !important;
-                    flex-wrap: nowrap !important;
-                    gap: 8px !important;
-                    flex: 1 !important;
-                    width: auto !important;
-                }
-
-                .player-ctrl-bar .player-ctrl-item {
-                    width: auto !important;
-                    height: auto !important;
-                    padding: 4px 8px !important;
+                    justify-content: center !important;
+                    height: 32px !important;
+                    padding: 0 10px !important;
                     font-size: 13px !important;
                     font-weight: 600 !important;
+                    color: #cbd5e1 !important;
+                    line-height: 1 !important;
                     background: transparent !important;
                     border: none !important;
                     border-radius: 8px !important;
+                    box-sizing: border-box !important;
+                    margin: 0 !important;
+                    gap: 6px !important;
+                    vertical-align: middle !important;
+                    order: 1 !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item span,
+                .player-ctrl-bar-actions-row .player-ctrl-item span,
+                .player-ctrl-bar-toggles-row .player-ctrl-item span {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    font-size: 13px !important;
+                    line-height: 1 !important;
+                    vertical-align: middle !important;
                 }
 
                 .player-ctrl-bar .player-ctrl-item svg {
                     width: 15px !important;
                     height: 15px !important;
+                    flex-shrink: 0 !important;
+                    display: block !important;
+                    margin: 0 !important;
                 }
 
                 .badge-status-on,
                 .badge-status-off {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    height: 18px !important;
                     font-size: 10px !important;
-                    padding: 1.5px 6px !important;
+                    font-weight: 800 !important;
+                    padding: 0 6px !important;
+                    margin: 0 0 0 4px !important;
+                    border-radius: 9999px !important;
+                    line-height: 1 !important;
+                    vertical-align: middle !important;
+                    box-sizing: border-box !important;
                 }
 
+                /* Nút Báo lỗi đứng 1 mình bên góc phải trên Desktop */
+                .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn,
+                .player-ctrl-bar-actions-row .player-ctrl-item.player-ctrl-report-btn,
+                .player-ctrl-bar-actions-row button.player-ctrl-report-btn,
                 .player-ctrl-report-btn {
                     margin-left: auto !important;
+                    margin-right: 0 !important;
+                    order: 99 !important;
                 }
             }
 

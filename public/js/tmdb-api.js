@@ -169,9 +169,48 @@ function updateActorAvatars(localActors, tmdbCast) {
         return;
     }
 
-    const actorElements = document.querySelectorAll('[data-actor-name]');
+// Global Client-Side Actor Avatar Cache
+window.__actorAvatarClientCache = window.__actorAvatarClientCache || new Map();
 
-    actorElements.forEach((element, index) => {
+async function getActorAvatarClient(actorName) {
+    if (!actorName || actorName === 'Đang cập nhật') return null;
+    const key = actorName.trim().toLowerCase();
+    
+    // 1. Check in-memory map
+    if (window.__actorAvatarClientCache.has(key)) {
+        return window.__actorAvatarClientCache.get(key);
+    }
+    
+    // 2. Check sessionStorage
+    try {
+        const stored = sessionStorage.getItem(`actor_avatar_${key}`);
+        if (stored !== null) {
+            window.__actorAvatarClientCache.set(key, stored || null);
+            return stored || null;
+        }
+    } catch (e) {}
+
+    // 3. Fetch from API
+    try {
+        const res = await fetch(`/api/actor-avatar?name=${encodeURIComponent(actorName)}`);
+        if (res.ok) {
+            const data = await res.json();
+            const url = (data && data.success && data.url) ? data.url : '';
+            window.__actorAvatarClientCache.set(key, url || null);
+            try {
+                sessionStorage.setItem(`actor_avatar_${key}`, url);
+            } catch (e) {}
+            return url || null;
+        }
+    } catch (e) {}
+    
+    return null;
+}
+
+// Attach to window so movie-detail.js can also access
+window.getActorAvatarClient = getActorAvatarClient;
+
+    actorElements.forEach(async (element) => {
         const actorName = element.getAttribute('data-actor-name');
         const avatarContainer = element.querySelector('.actor-avatar-container');
 
@@ -222,30 +261,26 @@ function updateActorAvatars(localActors, tmdbCast) {
 
             img.onerror = () => {};
         } else {
-            // Multi-source fallback via /api/actor-avatar (TMDB Person + Wikipedia)
-            fetch(`/api/actor-avatar?name=${encodeURIComponent(actorName)}`)
-                .then(r => r.json())
-                .then(res => {
-                    if (res && res.success && res.url) {
-                        const img = document.createElement('img');
-                        img.src = res.url;
-                        img.alt = actorName;
-                        img.className = 'w-full h-full object-cover';
-                        img.onload = () => {
-                            avatarContainer.innerHTML = '';
-                            avatarContainer.appendChild(img);
-                            const gradientClasses = [
-                                'bg-gradient-to-br', 'from-red-500', 'to-red-700',
-                                'from-blue-500', 'to-blue-700', 'from-green-500', 'to-green-700',
-                                'from-yellow-500', 'to-yellow-700', 'from-purple-500', 'to-purple-700',
-                                'from-pink-500', 'to-pink-700', 'from-indigo-500', 'to-indigo-700',
-                                'from-teal-500', 'to-teal-700'
-                            ];
-                            avatarContainer.classList.remove(...gradientClasses);
-                        };
-                    }
-                })
-                .catch(() => {});
+            // Multi-source fallback via cached client avatar resolver
+            const avatarUrl = await getActorAvatarClient(actorName);
+            if (avatarUrl) {
+                const img = document.createElement('img');
+                img.src = avatarUrl;
+                img.alt = actorName;
+                img.className = 'w-full h-full object-cover';
+                img.onload = () => {
+                    avatarContainer.innerHTML = '';
+                    avatarContainer.appendChild(img);
+                    const gradientClasses = [
+                        'bg-gradient-to-br', 'from-red-500', 'to-red-700',
+                        'from-blue-500', 'to-blue-700', 'from-green-500', 'to-green-700',
+                        'from-yellow-500', 'to-yellow-700', 'from-purple-500', 'to-purple-700',
+                        'from-pink-500', 'to-pink-700', 'from-indigo-500', 'to-indigo-700',
+                        'from-teal-500', 'to-teal-700'
+                    ];
+                    avatarContainer.classList.remove(...gradientClasses);
+                };
+            }
         }
     });
 }

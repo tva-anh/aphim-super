@@ -1345,7 +1345,8 @@ function setupFavoriteButton() {
     if (!buttonsContainer || !currentMovie) return;
 
     const movieSlug = currentMovie.slug || currentMovie.id;
-    const isFav = userService.isFavorite(movieSlug);
+    const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+    const isFav = isUserLoggedIn ? userService.isFavorite(movieSlug) : false;
 
     const existingFavBtn = document.getElementById('favoriteMovieBtn');
     const existingPlBtn = document.getElementById('saveMovieBtn');
@@ -1376,6 +1377,18 @@ function setupFavoriteButton() {
         // Single click binding to prevent duplicate listeners
         existingFavBtn.onclick = (e) => {
             e.preventDefault();
+            const loggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+            if (!loggedIn) {
+                if (typeof window.showAuthModal === 'function') {
+                    window.showAuthModal('login');
+                } else if (typeof showAuthModal === 'function') {
+                    showAuthModal('login');
+                } else {
+                    alert('Vui lòng đăng nhập để lưu phim vào danh sách yêu thích!');
+                }
+                return;
+            }
+
             const targetSlug = currentMovie.slug || currentMovie.id;
             if (userService.isFavorite(targetSlug)) {
                 userService.removeFromFavorites(targetSlug);
@@ -1391,6 +1404,17 @@ function setupFavoriteButton() {
 
         existingPlBtn.onclick = (e) => {
             e.preventDefault();
+            const loggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+            if (!loggedIn) {
+                if (typeof window.showAuthModal === 'function') {
+                    window.showAuthModal('login');
+                } else if (typeof showAuthModal === 'function') {
+                    showAuthModal('login');
+                } else {
+                    alert('Vui lòng đăng nhập để thêm vào danh sách phát!');
+                }
+                return;
+            }
             if (typeof openPlaylistModal === 'function') {
                 openPlaylistModal({
                     slug: currentMovie.slug || currentMovie.id,
@@ -1412,6 +1436,18 @@ function setupFavoriteButton() {
 
     favBtn.onclick = (e) => {
         e.preventDefault();
+        const loggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+        if (!loggedIn) {
+            if (typeof window.showAuthModal === 'function') {
+                window.showAuthModal('login');
+            } else if (typeof showAuthModal === 'function') {
+                showAuthModal('login');
+            } else {
+                alert('Vui lòng đăng nhập để lưu phim vào danh sách yêu thích!');
+            }
+            return;
+        }
+
         const targetSlug = currentMovie.slug || currentMovie.id;
         if (userService.isFavorite(targetSlug)) {
             userService.removeFromFavorites(targetSlug);
@@ -1436,8 +1472,10 @@ function setupFavoriteButton() {
     `;
     plBtn.addEventListener('click', () => {
         // ✅ Auth gate: hiện modal nếu chưa đăng nhập
-        if (!authService.isLoggedIn()) {
+        const loggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+        if (!loggedIn) {
             if (typeof window.showAuthModal === 'function') window.showAuthModal('login');
+            else if (typeof showAuthModal === 'function') showAuthModal('login');
             return;
         }
         if (typeof openPlaylistModal === 'function') {
@@ -1775,14 +1813,19 @@ async function fetchCastDataForMovie(movie) {
         const charName = matched && matched.character ? matched.character : 'Diễn viên';
         const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(actorName)}&background=1e2130&color=fcd576&size=200&bold=true`;
 
-        // If no TMDB movie cast photo, fetch from actor avatar resolver (TMDB Person + Wikipedia)
+        // If no TMDB movie cast photo, fetch from cached actor avatar resolver
         if (!profileUrl) {
             try {
-                const avatarRes = await fetch(`/api/actor-avatar?name=${encodeURIComponent(actorName)}`);
-                if (avatarRes.ok) {
-                    const aData = await avatarRes.json();
-                    if (aData && aData.success && aData.url) {
-                        profileUrl = aData.url;
+                if (typeof window.getActorAvatarClient === 'function') {
+                    const cachedAvatar = await window.getActorAvatarClient(actorName);
+                    if (cachedAvatar) profileUrl = cachedAvatar;
+                } else {
+                    const avatarRes = await fetch(`/api/actor-avatar?name=${encodeURIComponent(actorName)}`);
+                    if (avatarRes.ok) {
+                        const aData = await avatarRes.json();
+                        if (aData && aData.success && aData.url) {
+                            profileUrl = aData.url;
+                        }
                     }
                 }
             } catch (e) {}

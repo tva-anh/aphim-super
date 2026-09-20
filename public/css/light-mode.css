@@ -1898,28 +1898,36 @@ html.light-mode .player-ctrl-bar,
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
-        justify-content: space-between !important;
+        width: 100% !important;
+        gap: 8px !important;
     }
 
     html.light-mode .player-ctrl-bar-toggles-row,
     .player-ctrl-bar-toggles-row,
     html.light-mode .player-ctrl-bar-actions-row,
     .player-ctrl-bar-actions-row {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        flex-wrap: nowrap !important;
+        display: contents !important;
+    }
+
+    html.light-mode .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn,
+    html.light-mode .player-ctrl-bar-actions-row button.player-ctrl-report-btn,
+    .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn,
+    .player-ctrl-bar-actions-row button.player-ctrl-report-btn,
+    .player-ctrl-report-btn {
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        order: 99 !important;
     }
 }
 
+html.light-mode .player-ctrl-bar .player-ctrl-item,
 html.light-mode .player-ctrl-bar-actions-row button,
 html.light-mode .player-ctrl-bar-actions-row a,
-html.light-mode .player-ctrl-bar-actions-row #favoriteMovieBtn,
-html.light-mode .player-ctrl-bar-actions-row #saveMovieBtn,
+html.light-mode .player-ctrl-bar-toggles-row button,
+.player-ctrl-bar .player-ctrl-item,
 .player-ctrl-bar-actions-row button,
 .player-ctrl-bar-actions-row a,
-.player-ctrl-bar-actions-row #favoriteMovieBtn,
-.player-ctrl-bar-actions-row #saveMovieBtn {
+.player-ctrl-bar-toggles-row button {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -1927,38 +1935,46 @@ html.light-mode .player-ctrl-bar-actions-row #saveMovieBtn,
     -webkit-backdrop-filter: none !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    padding: 6px 10px !important;
+    padding: 0 10px !important;
+    height: 32px !important;
     margin: 0 !important;
     border-radius: 8px !important;
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     gap: 6px !important;
     line-height: 1 !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
 }
 
+html.light-mode .player-ctrl-bar .player-ctrl-item:hover,
 html.light-mode .player-ctrl-bar-actions-row button:hover,
-html.light-mode .player-ctrl-bar-actions-row a:hover,
-.player-ctrl-bar-actions-row button:hover {
+html.light-mode .player-ctrl-bar-toggles-row button:hover,
+.player-ctrl-bar .player-ctrl-item:hover {
     background: rgba(255, 255, 255, 0.1) !important;
     border: none !important;
     box-shadow: none !important;
 }
 
+html.light-mode .player-ctrl-bar .player-ctrl-item span,
 html.light-mode .player-ctrl-bar-actions-row button span,
-html.light-mode .player-ctrl-bar-actions-row a span,
-.player-ctrl-bar-actions-row button span,
-.player-ctrl-bar-actions-row a span {
+html.light-mode .player-ctrl-bar-toggles-row button span,
+.player-ctrl-bar .player-ctrl-item span {
     color: #ffffff !important;
     font-weight: 700 !important;
     text-shadow: none !important;
     line-height: 1 !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    vertical-align: middle !important;
 }
 
 html.light-mode .player-ctrl-bar-actions-row button svg,
 html.light-mode .player-ctrl-bar-actions-row a svg,
 .player-ctrl-bar-actions-row button svg,
-.player-ctrl-bar-actions-row a svg {
+.player-ctrl-bar-actions-row a svg,
+.player-ctrl-bar .player-ctrl-item svg {
     fill: #ffffff !important;
     color: #ffffff !important;
     display: block !important;

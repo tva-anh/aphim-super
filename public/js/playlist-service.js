@@ -43,13 +43,27 @@ class PlaylistService {
     // ── Public API ────────────────────────────────────────
 
     /** Get all playlists */
-    getAll() { return this._load(); }
+    getAll() {
+        if (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function' && !authService.isLoggedIn()) {
+            return [];
+        }
+        return this._load();
+    }
 
     /** Get one playlist by id */
-    getById(id) { return this._load().find(p => p.id === id) || null; }
+    getById(id) {
+        if (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function' && !authService.isLoggedIn()) {
+            return null;
+        }
+        return this._load().find(p => p.id === id) || null;
+    }
 
     /** Create new playlist, returns the new playlist object */
     create(name, description = '') {
+        if (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function' && !authService.isLoggedIn()) {
+            if (typeof window.showAuthModal === 'function') window.showAuthModal('login');
+            return null;
+        }
         if (!name || !name.trim()) return null;
         const playlists = this._load();
         const pl = {

@@ -12,13 +12,16 @@ class UserService {
         return this.authService;
     }
 
-    // Get user favorites
+    // Get user favorites (Chỉ dành cho tài khoản đã đăng nhập)
     getFavorites() {
+        const auth = this.getAuth();
+        if (!auth || typeof auth.isLoggedIn !== 'function' || !auth.isLoggedIn()) {
+            return [];
+        }
         try {
             const favStr = localStorage.getItem(STORAGE_KEYS.FAVORITES);
             let favorites = favStr ? JSON.parse(favStr) : [];
-            const auth = this.getAuth();
-            if ((!favorites || favorites.length === 0) && auth && auth.currentUser && Array.isArray(auth.currentUser.favorites)) {
+            if ((!favorites || favorites.length === 0) && auth.currentUser && Array.isArray(auth.currentUser.favorites)) {
                 favorites = auth.currentUser.favorites;
                 localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
             }
@@ -28,9 +31,15 @@ class UserService {
         }
     }
 
-    // Add to favorites (Hỗ trợ cả Khách & Thành viên đăng nhập)
+    // Add to favorites (Yêu cầu đăng nhập tài khoản)
     addToFavorites(movie) {
         if (!movie || (!movie.slug && !movie.id)) return false;
+
+        const auth = this.getAuth();
+        if (!auth || typeof auth.isLoggedIn !== 'function' || !auth.isLoggedIn()) {
+            if (typeof window.showAuthModal === 'function') window.showAuthModal('login');
+            return false;
+        }
 
         const targetSlug = movie.slug || movie.id;
         const favorites = this.getFavorites();
@@ -54,11 +63,8 @@ class UserService {
 
         localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
 
-        // Nếu đã đăng nhập, tự động đồng bộ lên tài khoản cá nhân
-        const auth = this.getAuth();
-        if (auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn()) {
-            auth.updateProfile({ favorites }).catch(() => {});
-        }
+        // Tự động đồng bộ lên cloud tài khoản cá nhân
+        auth.updateProfile({ favorites }).catch(() => {});
 
         try {
             window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: favorites }));
@@ -70,14 +76,16 @@ class UserService {
     // Remove from favorites
     removeFromFavorites(slug) {
         if (!slug) return false;
+        const auth = this.getAuth();
+        if (!auth || typeof auth.isLoggedIn !== 'function' || !auth.isLoggedIn()) {
+            return false;
+        }
+
         const favorites = this.getFavorites();
         const filtered = favorites.filter(m => (m.slug || m.id) !== slug);
         localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(filtered));
 
-        const auth = this.getAuth();
-        if (auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn()) {
-            auth.updateProfile({ favorites: filtered }).catch(() => {});
-        }
+        auth.updateProfile({ favorites: filtered }).catch(() => {});
 
         try {
             window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: filtered }));
@@ -89,6 +97,10 @@ class UserService {
     // Check if movie is in favorites
     isFavorite(slug) {
         if (!slug) return false;
+        const auth = this.getAuth();
+        if (!auth || typeof auth.isLoggedIn !== 'function' || !auth.isLoggedIn()) {
+            return false;
+        }
         const favorites = this.getFavorites();
         return favorites.some(m => (m.slug || m.id) === slug);
     }
