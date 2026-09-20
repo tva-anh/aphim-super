@@ -2435,15 +2435,7 @@ function setupActionButtons() {
         nextBtn.addEventListener('touchend', handleNext, { passive: false });
     }
 
-    if (cinemaBtn && !cinemaBtn.hasAttribute('data-safari-bound')) {
-        cinemaBtn.setAttribute('data-safari-bound', 'true');
-        const handleCinema = (e) => {
-            e.preventDefault();
-            if (typeof toggleCinemaMode === 'function') toggleCinemaMode();
-        };
-        cinemaBtn.addEventListener('click', handleCinema);
-        cinemaBtn.addEventListener('touchend', handleCinema, { passive: false });
-    }
+    // Note: cinemaModeBtn is handled directly via onclick/toggleCinemaMode to avoid double-firing
 
     if (fsBtn && !fsBtn.hasAttribute('data-safari-bound')) {
         fsBtn.setAttribute('data-safari-bound', 'true');
@@ -2918,89 +2910,73 @@ function autoPlayNext() {
     };
 }
 
-// Cinema mode (Tắt đèn): Dim all surrounding elements for a true movie theater experience
-let isCinemaModeActive = false;
-let bodyClickCancelHandler = null;
+// =========================================================================
+// 🎬 CINEMA / THEATER MODE (Rạp phim / Tắt đèn) - World-Class Standard
+// =========================================================================
+window.isCinemaModeActive = false;
 
-window.toggleCinemaMode = function () {
-    const targetElement = document.getElementById('player-and-controls');
+window.toggleCinemaMode = function (forcedState) {
+    const body = document.body;
+    const mainPlayerBox = document.getElementById('main-player-box') || document.getElementById('player-and-controls');
+    const badgeCinema = document.getElementById('badgeCinema');
     const cinemaBtn = document.getElementById('cinemaModeBtn');
-    if (!targetElement) return;
 
-    const elementsToDim = [
-        document.querySelector('nav'),
-        document.getElementById('sidebar-col'),
-        document.getElementById('comments-section'),
-        document.querySelector('footer'),
-        document.getElementById('episode-list')?.parentElement
-    ].filter(Boolean);
-
-    isCinemaModeActive = !isCinemaModeActive;
-
-    if (isCinemaModeActive) {
-        // 1. Dim all surrounding elements with an elite blur and brightness reduction
-        elementsToDim.forEach(el => {
-            el.style.transition = 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-            el.style.opacity = '0.08';
-            el.style.filter = 'brightness(0.15) blur(1.5px)';
-            el.style.pointerEvents = 'none';
-        });
-
-        // 2. Enhance active player wrapper with shadow and prominence
-        targetElement.style.transition = 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
-        targetElement.style.boxShadow = '0 30px 90px rgba(0, 0, 0, 0.95), 0 0 40px rgba(252, 211, 77, 0.05)';
-        targetElement.style.transform = 'scale(1.01)';
-
-        // 3. Update Cinema Button state
-        if (cinemaBtn) {
-            cinemaBtn.innerHTML = `
-                <span class="material-icons-round text-sm sm:text-base text-[#fcd576]">lightbulb</span>
-                <span class="text-[#fcd576]">Bật đèn</span>
-            `;
-        }
-
-        // 4. Click backdrop (any dimmed area) to turn light back on
-        bodyClickCancelHandler = function (e) {
-            if (!targetElement.contains(e.target) && e.target !== cinemaBtn && !cinemaBtn.contains(e.target)) {
-                window.toggleCinemaMode();
-            }
-        };
-        // Use setTimeout to avoid immediate event execution in the same click loop
-        setTimeout(() => {
-            document.addEventListener('click', bodyClickCancelHandler);
-        }, 50);
-
+    if (typeof forcedState === 'boolean') {
+        window.isCinemaModeActive = forcedState;
     } else {
-        // 1. Restore all surrounding elements cleanly
-        elementsToDim.forEach(el => {
-            el.style.opacity = '';
-            el.style.filter = '';
-            el.style.pointerEvents = '';
-        });
-
-        // 2. Restore player styles
-        targetElement.style.boxShadow = '';
-        targetElement.style.transform = '';
-
-        // 3. Update Cinema Button state
-        if (cinemaBtn) {
-            cinemaBtn.innerHTML = `
-                <span class="material-icons-round text-sm sm:text-base">lightbulb</span>
-                <span>Tắt đèn</span>
-            `;
-        }
-
-        // 4. Clean up backdrop listener
-        if (bodyClickCancelHandler) {
-            document.removeEventListener('click', bodyClickCancelHandler);
-            bodyClickCancelHandler = null;
-        }
+        window.isCinemaModeActive = !window.isCinemaModeActive;
     }
 
-    // Clean up old cinema-overlay if it exists from previous attempts
-    const oldOverlay = document.getElementById('cinema-overlay');
-    if (oldOverlay) oldOverlay.remove();
+    if (window.isCinemaModeActive) {
+        body.classList.add('cinema-active');
+
+        // Update badge to ON (Green active badge)
+        if (badgeCinema) {
+            badgeCinema.className = 'badge-status-on';
+            badgeCinema.textContent = 'ON';
+        }
+        if (cinemaBtn) {
+            cinemaBtn.classList.add('text-amber-400');
+        }
+
+        // On Desktop, smooth scroll to top where player is centered in Cinema Mode. On Mobile, stay in place.
+        try {
+            if (window.innerWidth >= 1024) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        } catch (e) {}
+    } else {
+        body.classList.remove('cinema-active');
+
+        // Update badge to OFF
+        if (badgeCinema) {
+            badgeCinema.className = 'badge-status-off';
+            badgeCinema.textContent = 'OFF';
+        }
+        if (cinemaBtn) {
+            cinemaBtn.classList.remove('text-amber-400');
+        }
+    }
 };
+
+window.toggleBadgeCinemaMode = function () {
+    window.toggleCinemaMode();
+};
+
+// Keyboard Shortcuts: 'T' (Theater/Cinema mode) and 'Escape' (Exit Cinema Mode)
+document.addEventListener('keydown', (e) => {
+    const activeEl = document.activeElement;
+    const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+    if (isInput) return;
+
+    if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        window.toggleCinemaMode();
+    } else if (e.key === 'Escape' && window.isCinemaModeActive) {
+        e.preventDefault();
+        window.toggleCinemaMode(false);
+    }
+});
 
 // Toggle browser Fullscreen API on player container
 function toggleFullscreen() {

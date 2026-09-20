@@ -3,12 +3,16 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css?v=210" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=275" />
 </head>
 
 <body class="bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
-    <!-- Cinema Dimmer Overlay -->
+    <!-- Cinema Dimmer Overlay & Exit Indicator -->
     <div id="cinemaOverlay" onclick="toggleCinemaMode()" title="Nhấn vào đây để bật lại đèn"></div>
+    <div id="cinemaExitHint" onclick="toggleCinemaMode()" style="visibility: hidden; opacity: 0; cursor: pointer;" title="Bấm để bật lại đèn">
+        <span class="material-icons-round text-sm text-amber-400">theater_comedy</span>
+        <span>Chế độ Rạp phim • Chạm bất kỳ đâu hoặc bấm phím <b>ESC / T</b> để bật đèn</span>
+    </div>
 
     <!-- Navigation Header -->
     <%- include('partials/header') %>
@@ -346,7 +350,7 @@
                                         <span id="badgeAutoSkip" class="badge-status-off">OFF</span>
                                         <input type="checkbox" id="toggleAutoSkip" class="hidden">
                                     </button>
-                                    <button type="button" id="cinemaModeBtn" onclick="toggleBadgeCinemaMode()"
+                                    <button type="button" id="cinemaModeBtn" onclick="toggleCinemaMode()"
                                         class="player-ctrl-item">
                                         <span>Rạp phim</span>
                                         <span id="badgeCinema" class="badge-status-off">OFF</span>
@@ -677,9 +681,9 @@
             <script src="/js/playlist-service.js?v=100" defer></script>
             <script src="/js/playlist-modal.js?v=210" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=100" defer></script>
-            <script src="/js/watch.js?v=10008" defer></script>
+            <script src="/js/watch.js?v=10035" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
-            <script src="/js/watch-ui-init.js?v=206" defer></script>
+            <script src="/js/watch-ui-init.js?v=210" defer></script>
     <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
     <div id="reportMovieModal" style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;" class="opacity-0 transition-opacity duration-300" onclick="if(event.target===this)closeReportModal()">
         <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300" id="reportMovieModalCard" onclick="event.stopPropagation()">

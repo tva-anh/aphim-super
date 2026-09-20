@@ -284,18 +284,182 @@
                 font-weight: 900;
             }
 
-            /* Cinema Mode Overlay */
+            /* Cinema Mode Overlay & Ambient Theater Spotlight */
             #cinemaOverlay {
                 position: fixed;
                 inset: 0;
-                background: rgba(0, 0, 0, 0.93);
+                background: rgba(0, 0, 0, 0.94);
                 z-index: 9980;
-                display: none;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.45s ease;
                 cursor: pointer;
+                backdrop-filter: blur(0px);
+                -webkit-backdrop-filter: blur(0px);
             }
 
             body.cinema-active #cinemaOverlay {
-                display: block;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                display: block !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+            }
+
+            /* 🖥️ DESKTOP CINEMA MODE (>= 1024px): Sân khấu trung tâm 100vh 50/50 đối xứng */
+            @media (min-width: 1024px) {
+                body.cinema-active {
+                    overflow: hidden !important;
+                }
+
+                body.cinema-active main,
+                body.cinema-active .watch-main-container {
+                    position: static !important;
+                }
+
+                header,
+                nav {
+                    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease !important;
+                }
+
+                body.cinema-active header,
+                body.cinema-active nav {
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    transform: translateY(-100%) !important;
+                }
+
+                .watch-top-bar {
+                    transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.4s ease !important;
+                }
+
+                body.cinema-active .watch-top-bar {
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    max-height: 0 !important;
+                    overflow: hidden !important;
+                    margin: 0 !important;
+                    transform: translateY(-15px) !important;
+                }
+
+                #player-and-controls {
+                    transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                }
+
+                body.cinema-active #player-and-controls {
+                    position: fixed !important;
+                    inset: 0 !important;
+                    z-index: 9992 !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    margin: 0 !important;
+                    padding: 16px 24px !important;
+                    box-sizing: border-box !important;
+                    pointer-events: none !important;
+                }
+
+                body.cinema-active #main-player-box {
+                    width: 100% !important;
+                    max-width: min(1540px, calc((100vh - 110px) * 16 / 9)) !important;
+                    margin: 0 auto !important;
+                }
+
+                body.cinema-active #player-and-controls > div:not(#main-player-box) {
+                    display: none !important;
+                }
+
+                body.cinema-active #sidebar-col,
+                body.cinema-active #comments-section,
+                body.cinema-active #movie-gallery-container,
+                body.cinema-active footer {
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+
+                /* Floating Cinema Mode Exit Hint */
+                #cinemaExitHint {
+                    position: fixed;
+                    top: 10px;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-35px) scale(0.92);
+                    background: rgba(15, 23, 42, 0.95);
+                    border: 1px solid rgba(245, 158, 11, 0.5);
+                    color: #fcd576;
+                    padding: 6px 18px;
+                    border-radius: 9999px;
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    z-index: 99999;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(245, 158, 11, 0.25);
+                    pointer-events: none;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    cursor: pointer;
+                    user-select: none;
+                }
+
+                body.cinema-active #cinemaExitHint {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    transform: translateX(-50%) translateY(0) scale(1) !important;
+                    pointer-events: auto !important;
+                }
+            }
+
+            /* 📱 MOBILE CINEMA MODE (< 1024px): Giữ nguyên đúng vị trí tự nhiên, không nhảy ra giữa, ẩn hoàn toàn thông báo */
+            @media (max-width: 1023px) {
+                #cinemaExitHint {
+                    display: none !important;
+                }
+
+                body.cinema-active main,
+                body.cinema-active .watch-main-container {
+                    position: relative !important;
+                    z-index: 9990 !important;
+                    pointer-events: none !important;
+                }
+
+                body.cinema-active #player-and-controls {
+                    position: relative !important;
+                    z-index: 9992 !important;
+                    display: block !important;
+                    width: 100% !important;
+                    height: auto !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+
+                body.cinema-active #main-player-box {
+                    position: relative !important;
+                    z-index: 9996 !important;
+                    pointer-events: auto !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    margin: 0 !important;
+                }
+
+                body.cinema-active header,
+                body.cinema-active nav,
+                body.cinema-active .watch-top-bar,
+                body.cinema-active #player-and-controls > div:not(#main-player-box),
+                body.cinema-active #sidebar-col,
+                body.cinema-active #comments-section,
+                body.cinema-active #movie-gallery-container,
+                body.cinema-active footer {
+                    opacity: 0.05 !important;
+                    pointer-events: none !important;
+                    transition: opacity 0.35s ease !important;
+                }
             }
 
             /* Mobile Layout Alignment Enhancements (< 640px) - Ultra Sleek & Aesthetic */
