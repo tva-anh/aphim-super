@@ -92,53 +92,133 @@
                 background: transparent !important;
                 border: none !important;
                 border-radius: 8px;
-                padding: 6px 10px;
             }
 
-            .player-ctrl-item svg {
-                width: 18px !important;
-                height: 18px !important;
+            /* ─── MODERN MOVIE ACTIONS BAR (IMAGE 1 SPEC) ─── */
+            .player-ctrl-bar {
+                width: 100% !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                margin-top: 10px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .player-ctrl-bar-container {
+                background: transparent !important;
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                padding: 6px 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                flex-wrap: wrap !important;
+                gap: 8px 16px !important;
+            }
+
+            .player-ctrl-item {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                background: transparent !important;
+                border: none !important;
+                color: #cbd5e1 !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                cursor: pointer !important;
+                padding: 4px 6px !important;
+                border-radius: 8px !important;
+                transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease !important;
+                flex-shrink: 0 !important;
             }
 
             .player-ctrl-item:hover {
-                color: #ffffff;
-                background: rgba(255, 255, 255, 0.08) !important;
-                border-color: transparent !important;
-                transform: translateY(-1px);
+                color: #fcd576 !important;
+                background: rgba(255, 255, 255, 0.06) !important;
             }
 
-            .player-ctrl-item .material-icons-round {
-                color: #ffffff !important;
-                font-size: 19px;
-                display: inline-block;
-                vertical-align: middle;
+            .player-ctrl-item.is-active,
+            .player-ctrl-item.active {
+                color: #fcd576 !important;
+            }
+
+            .player-ctrl-item .player-item-svg {
+                width: 16px !important;
+                height: 16px !important;
+                stroke-width: 2.1 !important;
+                flex-shrink: 0 !important;
+                display: inline-block !important;
+                fill: none !important;
+                transition: color 0.15s ease, stroke 0.15s ease, fill 0.15s ease !important;
+            }
+
+            .player-ctrl-item .player-item-svg path,
+            .player-ctrl-item .player-item-svg rect,
+            .player-ctrl-item .player-item-svg polygon,
+            .player-ctrl-item .player-item-svg circle,
+            .player-ctrl-item .player-item-svg line {
+                fill: none !important;
+            }
+
+            .player-ctrl-item.is-active .player-item-svg {
+                stroke: #fcd576 !important;
+            }
+
+            .player-ctrl-item.is-favorite-active {
+                color: #ef4444 !important;
+            }
+
+            .player-ctrl-item.is-favorite-active .player-item-svg {
+                stroke: #ef4444 !important;
+                fill: #ef4444 !important;
             }
 
             .badge-status-on {
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.4);
-                background-color: rgba(16, 185, 129, 0.18);
-                padding: 2px 8px;
-                font-size: 11px;
-                font-weight: 800;
-                border-radius: 6px;
-                margin-left: 4px;
-                display: inline-block;
-                line-height: 1.2;
-                box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: rgba(252, 213, 118, 0.15) !important;
+                color: #fcd576 !important;
+                border: 1px solid rgba(252, 213, 118, 0.45) !important;
+                font-size: 10px !important;
+                font-weight: 800 !important;
+                padding: 1px 5px !important;
+                border-radius: 3px !important;
+                margin-left: 4px !important;
+                line-height: 1.2 !important;
+                box-shadow: 0 0 6px rgba(252, 213, 118, 0.2) !important;
             }
 
             .badge-status-off {
-                color: #94a3b8;
-                border: none !important;
-                background-color: rgba(255, 255, 255, 0.08);
-                padding: 2px 8px;
-                font-size: 11px;
-                font-weight: 800;
-                border-radius: 6px;
-                margin-left: 4px;
-                display: inline-block;
-                line-height: 1.2;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: rgba(255, 255, 255, 0.08) !important;
+                color: #94a3b8 !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                font-size: 10px !important;
+                font-weight: 700 !important;
+                padding: 1px 5px !important;
+                border-radius: 3px !important;
+                margin-left: 4px !important;
+                line-height: 1.2 !important;
+            }
+
+            .player-ctrl-help-btn {
+                padding: 4px !important;
+                border-radius: 50% !important;
+                color: #94a3b8 !important;
+            }
+
+            .player-ctrl-help-btn:hover {
+                color: #fcd576 !important;
+                background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .player-ctrl-help-btn .player-item-svg {
+                width: 17px !important;
+                height: 17px !important;
             }
 
             /* Episode Grid & Server Tabs */
@@ -471,118 +551,121 @@
                     background: #090a10 !important;
                 }
 
+                .player-ctrl-bar {
+                    margin-top: 6px !important;
+                    margin-bottom: 6px !important;
+                    width: 100% !important;
+                }
+
                 .player-ctrl-bar-container {
                     display: flex !important;
-                    flex-direction: column !important;
-                    gap: 2px !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    flex-wrap: nowrap !important;
                     width: 100% !important;
+                    padding: 4px 4px !important;
+                    gap: 0 !important;
+                    border: none !important;
+                    background: transparent !important;
+                    box-shadow: none !important;
                 }
 
                 .player-ctrl-bar-actions-row {
-                    display: grid !important;
-                    grid-template-columns: repeat(4, 1fr) !important;
-                    gap: 4px !important;
-                    width: 100% !important;
-                    padding-bottom: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 6px !important;
+                    flex-shrink: 0 !important;
+                    width: auto !important;
                 }
 
                 .player-ctrl-bar-toggles-row {
-                    display: grid !important;
-                    grid-template-columns: repeat(3, 1fr) !important;
-                    gap: 4px !important;
-                    width: 100% !important;
-                    padding-top: 0 !important;
-                    border-top: none !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 6px !important;
+                    flex-shrink: 0 !important;
+                    width: auto !important;
                 }
 
-                /* Both Row 1 and Row 2 buttons have identical font-size, weight and sleek dimensions */
+                /* Mobile Icon-Only Buttons (Image 2 Spec) */
                 .player-ctrl-bar .player-ctrl-item,
                 .player-ctrl-bar-actions-row .player-ctrl-item,
                 .player-ctrl-bar-toggles-row .player-ctrl-item {
-                    font-size: 10.5px !important;
-                    font-weight: 500 !important;
-                    color: #cbd5e1 !important;
-                    height: 24px !important;
-                    padding: 2px 2px !important;
-                    box-sizing: border-box !important;
                     display: inline-flex !important;
                     align-items: center !important;
                     justify-content: center !important;
-                    gap: 3px !important;
+                    width: 34px !important;
+                    height: 34px !important;
+                    min-width: 34px !important;
+                    padding: 0 !important;
                     margin: 0 !important;
-                    line-height: 1 !important;
-                    text-align: center !important;
+                    background: transparent !important;
+                    border: none !important;
+                    border-radius: 8px !important;
+                    color: #cbd5e1 !important;
+                    cursor: pointer !important;
+                    transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease !important;
                 }
 
+                .player-ctrl-bar .player-ctrl-item:active {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    transform: scale(0.92) !important;
+                }
+
+                /* Hide text labels and ON/OFF badges on mobile for sleek space-saving single row */
                 .player-ctrl-bar .player-ctrl-item span,
                 .player-ctrl-bar-actions-row .player-ctrl-item span,
-                .player-ctrl-bar-toggles-row .player-ctrl-item span {
-                    font-size: 10.5px !important;
-                    font-weight: 500 !important;
-                    white-space: nowrap !important;
+                .player-ctrl-bar-toggles-row .player-ctrl-item span,
+                .player-ctrl-bar .badge-status-on,
+                .player-ctrl-bar .badge-status-off {
+                    display: none !important;
                 }
 
-                /* Row 1 Action Buttons: Minimalist borderless */
-                .player-ctrl-bar-actions-row .player-ctrl-item {
+                /* Mobile Icon Dimensions */
+                .player-ctrl-bar .player-ctrl-item svg,
+                .player-ctrl-bar .player-ctrl-item .player-item-svg {
+                    width: 19px !important;
+                    height: 19px !important;
+                    stroke-width: 2 !important;
+                    opacity: 1 !important;
+                    display: block !important;
+                    margin: 0 auto !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item.is-active svg,
+                .player-ctrl-bar .player-ctrl-item.is-active .player-item-svg {
+                    stroke: #fcd576 !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item.is-favorite-active svg,
+                .player-ctrl-bar .player-ctrl-item.is-favorite-active .player-item-svg {
+                    stroke: #ef4444 !important;
+                    fill: #ef4444 !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-help-btn {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    color: #fcd576 !important;
                     background: transparent !important;
-                    border-radius: 6px !important;
                     border: none !important;
-                    color: #94a3b8 !important;
+                    padding: 4px !important;
+                    cursor: pointer !important;
+                    transition: transform 0.15s ease, opacity 0.15s ease !important;
                 }
 
-                .player-ctrl-bar-actions-row .player-ctrl-item:active {
-                    color: #ffffff !important;
-                    background: rgba(255, 255, 255, 0.06) !important;
+                .player-ctrl-bar .player-ctrl-help-btn:active {
+                    transform: scale(0.92) !important;
                 }
 
-                /* Row 2 Toggle Buttons: Minimalist borderless without enclosing border */
-                .player-ctrl-bar-toggles-row .player-ctrl-item {
-                    background: transparent !important;
-                    border-radius: 6px !important;
-                    border: none !important;
-                    box-shadow: none !important;
-                    color: #cbd5e1 !important;
-                }
-
-                .player-ctrl-bar-toggles-row .player-ctrl-item:active {
-                    background: rgba(255, 255, 255, 0.06) !important;
-                    transform: scale(0.98);
-                }
-
-                .player-ctrl-report-btn {
-                    margin-left: 0 !important;
-                }
-
-                .player-ctrl-bar .player-ctrl-item svg {
-                    width: 12px !important;
-                    height: 12px !important;
-                    flex-shrink: 0 !important;
-                    opacity: 0.85;
-                }
-
-                .badge-status-on {
-                    color: #10b981 !important;
-                    background: rgba(16, 185, 129, 0.18) !important;
-                    border: 1px solid rgba(16, 185, 129, 0.4) !important;
-                    padding: 0.5px 4px !important;
-                    font-size: 8px !important;
-                    font-weight: 800 !important;
-                    margin-left: 2px !important;
-                    border-radius: 9999px !important;
-                    line-height: 1.2 !important;
-                    box-shadow: 0 0 6px rgba(16, 185, 129, 0.25) !important;
-                }
-
-                .badge-status-off {
-                    color: #64748b !important;
-                    background: rgba(255, 255, 255, 0.06) !important;
-                    border: none !important;
-                    padding: 0.5px 4px !important;
-                    font-size: 8px !important;
-                    font-weight: 700 !important;
-                    margin-left: 2px !important;
-                    border-radius: 9999px !important;
-                    line-height: 1.2 !important;
+                .player-ctrl-bar .player-ctrl-help-btn svg,
+                .player-ctrl-bar .player-ctrl-help-btn .player-item-svg {
+                    width: 22px !important;
+                    height: 22px !important;
+                    stroke: #fcd576 !important;
+                    stroke-width: 2.2 !important;
+                    fill: none !important;
                 }
 
                 /* Episode Search & Sort Bar Mobile Grid */
@@ -723,12 +806,12 @@
                     display: inline-flex !important;
                     align-items: center !important;
                     justify-content: center !important;
-                    height: 18px !important;
+                    height: 17px !important;
                     font-size: 10px !important;
                     font-weight: 800 !important;
-                    padding: 0 6px !important;
+                    padding: 0 5px !important;
                     margin: 0 0 0 4px !important;
-                    border-radius: 9999px !important;
+                    border-radius: 3px !important;
                     line-height: 1 !important;
                     vertical-align: middle !important;
                     box-sizing: border-box !important;
@@ -742,6 +825,12 @@
                     margin-left: auto !important;
                     margin-right: 0 !important;
                     order: 99 !important;
+                }
+
+                /* Nút Trợ giúp ẩn trên Desktop để giữ nguyên bố cục */
+                .player-ctrl-bar .player-ctrl-help-btn,
+                .player-ctrl-help-btn {
+                    display: none !important;
                 }
             }
 
@@ -1087,5 +1176,1194 @@
             html.light-mode .report-btn-close:hover {
                 background: #dfd3c1 !important;
             }
+
+            /* ==========================================================================
+               🎬 NATIVE VIDEO PLAYER STYLING (100% Original Brightness & Full HD)
+               ========================================================================== */
+            #videoPlayer {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+                background-color: #000000 !important;
+                outline: none !important;
+            }
+
+            #aphim-player-wrapper {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+                overflow: hidden;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
+            #aphim-player-wrapper:fullscreen,
+            #aphim-player-wrapper:-webkit-full-screen,
+            #aphim-player-wrapper.aphim-web-fullscreen {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: 100vw !important;
+                max-height: 100vh !important;
+                border-radius: 0 !important;
+                z-index: 99999999 !important;
+                background: #000000 !important;
+            }
+
+            body.aphim-body-fullscreen {
+                overflow: hidden !important;
+            }
+
+            /* ─── CENTER ANIMATED PLAY / PAUSE INDICATOR (BRILLIANT BRIGHT) ─── */
+            #aphim-center-indicator {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) scale(0.6) !important;
+                width: 76px !important;
+                height: 76px !important;
+                border-radius: 50% !important;
+                background: rgba(15, 18, 26, 0.75) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border: 2px solid rgba(255, 255, 255, 0.5) !important;
+                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(255, 255, 255, 0.3) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                pointer-events: none !important;
+                z-index: 20 !important;
+                opacity: 0;
+                transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            }
+
+            #aphim-center-indicator.active {
+                opacity: 1 !important;
+                transform: translate(-50%, -50%) scale(1.15) !important;
+            }
+
+            #aphim-center-icon {
+                color: #ffffff !important;
+                font-size: 46px !important;
+                width: 46px !important;
+                height: 46px !important;
+                line-height: 46px !important;
+                text-align: center !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) !important;
+            }
+
+            /* ─── SEEK OVERLAY FEEDBACK (-10s / +10s NATURAL & SOFT) ─── */
+            #aphim-seek-overlay {
+                pointer-events: none !important;
+                position: absolute !important;
+                z-index: 30 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                transition: opacity 0.25s ease !important;
+            }
+
+            .aphim-seek-badge {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 2px !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            .aphim-seek-icon {
+                color: #ffffff !important;
+                font-size: 32px !important;
+                width: 32px !important;
+                height: 32px !important;
+                line-height: 32px !important;
+                text-align: center !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) !important;
+            }
+
+            .aphim-seek-text {
+                color: #ffffff !important;
+                font-size: 15px !important;
+                font-weight: 700 !important;
+                letter-spacing: 0.5px !important;
+                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+            }
+
+            #aphim-player-wrapper {
+                transition: cursor 0.2s ease !important;
+            }
+
+            #aphim-player-wrapper.aphim-hide-cursor,
+            #aphim-player-wrapper.aphim-hide-cursor *,
+            :fullscreen.aphim-hide-cursor,
+            :fullscreen.aphim-hide-cursor *,
+            :-webkit-full-screen.aphim-hide-cursor,
+            :-webkit-full-screen.aphim-hide-cursor * {
+                cursor: none !important;
+            }
+
+            #aphim-controls {
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                z-index: 25 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-end !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+                padding-bottom: 24px !important;
+                padding-top: 60px !important;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.65) 45%, rgba(0, 0, 0, 0.2) 80%, transparent 100%) !important;
+                transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                pointer-events: auto;
+                will-change: opacity;
+            }
+
+            :fullscreen #aphim-controls,
+            :-webkit-full-screen #aphim-controls,
+            .aphim-web-fullscreen #aphim-controls {
+                padding-left: 36px !important;
+                padding-right: 36px !important;
+                padding-bottom: 30px !important;
+                padding-top: 80px !important;
+            }
+
+            #aphim-controls.aphim-controls-hidden {
+                opacity: 0 !important;
+                pointer-events: none !important;
+                visibility: hidden !important;
+            }
+
+            @media (max-width: 640px) {
+                #aphim-controls {
+                    padding-left: 8px !important;
+                    padding-right: 8px !important;
+                    padding-bottom: 6px !important;
+                    padding-top: 30px !important;
+                }
+            }
+
+            /* ─── TIMELINE SCRUBBER BAR (VIBRANT SITE GOLD #fcd576) ─── */
+            #aphim-timeline-container {
+                position: relative !important;
+                width: 100% !important;
+                height: 22px !important;
+                display: flex !important;
+                align-items: center !important;
+                cursor: pointer !important;
+                margin-bottom: 10px !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                touch-action: none !important;
+            }
+
+            #aphim-timeline-rail {
+                position: relative !important;
+                width: 100% !important;
+                height: 4px !important;
+                background: rgba(255, 255, 255, 0.28) !important;
+                border-radius: 9999px !important;
+                overflow: hidden !important;
+                transition: height 0.15s ease !important;
+            }
+
+            #aphim-timeline-container:hover #aphim-timeline-rail,
+            #aphim-timeline-container.is-scrubbing #aphim-timeline-rail {
+                height: 6px !important;
+            }
+
+            #aphim-buffer-bar {
+                position: absolute !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                background: rgba(255, 255, 255, 0.45) !important;
+                border-radius: 9999px !important;
+                width: 0%;
+                pointer-events: none !important;
+            }
+
+            #aphim-progress-bar {
+                position: absolute !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                background: #fcd576 !important;
+                background: linear-gradient(90deg, #f59e0b 0%, #fcd576 100%) !important;
+                border-radius: 9999px !important;
+                width: 0%;
+                box-shadow: 0 0 10px rgba(252, 213, 118, 0.85) !important;
+                pointer-events: none !important;
+            }
+
+            #aphim-scrubber-dot {
+                position: absolute !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) scale(0.9) !important;
+                width: 15px !important;
+                height: 15px !important;
+                background: #ffffff !important;
+                border-radius: 9999px !important;
+                box-shadow: 0 0 8px rgba(0, 0, 0, 0.9), 0 0 6px rgba(252, 213, 118, 0.85) !important;
+                pointer-events: none !important;
+                transition: transform 0.1s ease !important;
+                z-index: 5 !important;
+            }
+
+            #aphim-timeline-container:hover #aphim-scrubber-dot,
+            #aphim-timeline-container.is-scrubbing #aphim-scrubber-dot {
+                transform: translate(-50%, -50%) scale(1.25) !important;
+            }
+
+            #aphim-hover-time {
+                position: absolute !important;
+                bottom: 24px !important;
+                transform: translateX(-50%) !important;
+                padding: 2px 8px !important;
+                border-radius: 6px !important;
+                background: rgba(10, 12, 18, 0.95) !important;
+                color: #ffffff !important;
+                font-size: 11px !important;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+                font-weight: 700 !important;
+                pointer-events: none !important;
+                border: 1px solid rgba(255, 255, 255, 0.25) !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9) !important;
+                z-index: 10 !important;
+                opacity: 0;
+                transition: opacity 0.15s ease !important;
+            }
+
+            /* ─── BUTTONS & UNIFORM SIZING (COMFORTABLE & CLEAR) ─── */
+            #aphim-controls button,
+            .aphim-ctrl-btn {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 44px !important;
+                height: 44px !important;
+                min-width: 44px !important;
+                min-height: 44px !important;
+                max-width: 44px !important;
+                max-height: 44px !important;
+                border-radius: 9999px !important;
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                cursor: pointer !important;
+                color: #ffffff !important;
+                transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+                flex-shrink: 0 !important;
+            }
+
+            @media (max-width: 640px) {
+                #aphim-controls button,
+                .aphim-ctrl-btn {
+                    width: 32px !important;
+                    height: 32px !important;
+                    min-width: 32px !important;
+                    min-height: 32px !important;
+                    max-width: 32px !important;
+                    max-height: 32px !important;
+                }
+            }
+
+            #aphim-controls button:hover,
+            .aphim-ctrl-btn:hover {
+                background-color: rgba(255, 255, 255, 0.2) !important;
+                color: #fcd576 !important;
+                transform: scale(1.08) !important;
+            }
+
+            #aphim-controls .aphim-btn-icon,
+            #aphim-btn-settings svg,
+            #aphim-btn-pip svg {
+                width: 25px !important;
+                height: 25px !important;
+                min-width: 25px !important;
+                min-height: 25px !important;
+                max-width: 25px !important;
+                max-height: 25px !important;
+                display: inline-block !important;
+                filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.95)) !important;
+                transition: color 0.15s ease, transform 0.2s ease !important;
+                pointer-events: none !important;
+            }
+
+            #aphim-controls .material-icons-round {
+                color: #ffffff !important;
+                font-size: 26px !important;
+                width: 26px !important;
+                height: 26px !important;
+                line-height: 26px !important;
+                text-align: center !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.95)) !important;
+                transition: color 0.15s ease !important;
+                pointer-events: none !important;
+            }
+
+            @media (max-width: 640px) {
+                #aphim-controls .aphim-btn-icon,
+                #aphim-btn-settings svg,
+                #aphim-btn-pip svg {
+                    width: 19px !important;
+                    height: 19px !important;
+                    min-width: 19px !important;
+                    min-height: 19px !important;
+                    max-width: 19px !important;
+                    max-height: 19px !important;
+                }
+                #aphim-controls .material-icons-round {
+                    font-size: 20px !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    line-height: 20px !important;
+                }
+            }
+
+            #aphim-controls button:hover .material-icons-round,
+            #aphim-controls button:hover .aphim-btn-icon,
+            #aphim-controls button:hover svg {
+                color: #fcd576 !important;
+            }
+
+            /* ─── SETTINGS HEXAGON BUTTON & MULTI-LEVEL FLYOUT MENU (IMAGE 2 DEEP DARK TEAL GLASSMORPHISM) ─── */
+            #aphim-settings-wrapper {
+                position: relative !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+
+            #aphim-btn-settings {
+                transition: transform 0.25s ease, color 0.2s ease !important;
+            }
+
+            #aphim-btn-settings:hover {
+                color: #fcd576 !important;
+                transform: rotate(30deg) scale(1.08) !important;
+            }
+
+            #aphim-settings-menu {
+                position: absolute !important;
+                bottom: calc(100% + 14px) !important;
+                right: 0 !important;
+                width: 275px !important;
+                max-width: 92vw !important;
+                background: rgba(14, 28, 34, 0.94) !important;
+                backdrop-filter: blur(24px) !important;
+                -webkit-backdrop-filter: blur(24px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                border-radius: 16px !important;
+                box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15) !important;
+                padding: 0 !important;
+                z-index: 99999 !important;
+                overflow: hidden !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                animation: aphimMenuFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+            }
+
+            @keyframes aphimMenuFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(8px) scale(0.97);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            #aphim-settings-menu.hidden {
+                display: none !important;
+            }
+
+            .aphim-settings-panel {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+
+            .aphim-settings-panel.hidden {
+                display: none !important;
+            }
+
+            .aphim-settings-header {
+                padding: 14px 18px 12px 18px !important;
+                font-size: 13.5px !important;
+                font-weight: 700 !important;
+                color: #ffffff !important;
+                letter-spacing: 0.6px !important;
+                text-transform: uppercase !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            .aphim-settings-header.aphim-sub-header {
+                cursor: pointer !important;
+                color: #ffffff !important;
+                font-size: 13.5px !important;
+                text-transform: none !important;
+                letter-spacing: normal !important;
+                font-weight: 600 !important;
+                transition: background 0.15s ease, color 0.15s ease !important;
+            }
+
+            .aphim-settings-header.aphim-sub-header:hover {
+                background: rgba(255, 255, 255, 0.06) !important;
+                color: #ffffff !important;
+            }
+
+            .aphim-settings-header.aphim-sub-header svg {
+                width: 16px !important;
+                height: 16px !important;
+                margin-left: -2px !important;
+                color: rgba(255, 255, 255, 0.85) !important;
+            }
+
+            .aphim-settings-list {
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 6px 0 !important;
+                max-height: 280px !important;
+                overflow-y: auto !important;
+                scrollbar-width: thin !important;
+                scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
+            }
+
+            .aphim-settings-list::-webkit-scrollbar {
+                width: 3px !important;
+            }
+            .aphim-settings-list::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.22) !important;
+                border-radius: 9999px !important;
+            }
+
+            .aphim-settings-item {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding: 12px 18px !important;
+                cursor: pointer !important;
+                transition: background 0.15s ease !important;
+                font-size: 13.5px !important;
+                font-weight: 500 !important;
+                color: #ffffff !important;
+                white-space: nowrap !important;
+            }
+
+            .aphim-settings-item:hover {
+                background: rgba(255, 255, 255, 0.06) !important;
+            }
+
+            .aphim-item-left {
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+            }
+
+            .aphim-item-icon {
+                width: 20px !important;
+                height: 20px !important;
+                min-width: 20px !important;
+                min-height: 20px !important;
+                color: #ffffff !important;
+                opacity: 0.95 !important;
+                flex-shrink: 0 !important;
+            }
+
+            .aphim-item-label {
+                font-size: 13.5px !important;
+                font-weight: 500 !important;
+                color: #ffffff !important;
+                white-space: nowrap !important;
+            }
+
+            .aphim-item-right {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            .aphim-item-value {
+                font-size: 12.5px !important;
+                font-weight: 400 !important;
+                color: rgba(255, 255, 255, 0.65) !important;
+                max-width: 100px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                text-align: right !important;
+            }
+
+            .aphim-item-chevron {
+                width: 14px !important;
+                height: 14px !important;
+                min-width: 14px !important;
+                min-height: 14px !important;
+                color: rgba(255, 255, 255, 0.45) !important;
+                flex-shrink: 0 !important;
+            }
+
+            .aphim-sub-opt {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                margin: 2px 8px !important;
+                padding: 10px 14px !important;
+                border-radius: 9px !important;
+                cursor: pointer !important;
+                transition: background 0.15s ease, color 0.15s ease !important;
+                font-size: 13.5px !important;
+                font-weight: 500 !important;
+                color: rgba(255, 255, 255, 0.85) !important;
+                white-space: nowrap !important;
+            }
+
+            .aphim-sub-opt:hover {
+                background: rgba(255, 255, 255, 0.07) !important;
+                color: #ffffff !important;
+            }
+
+            .aphim-sub-opt.active {
+                color: #ffffff !important;
+                font-weight: 600 !important;
+                background: rgba(255, 255, 255, 0.11) !important;
+            }
+
+            .aphim-sub-opt .opt-check {
+                width: 17px !important;
+                height: 17px !important;
+                min-width: 17px !important;
+                min-height: 17px !important;
+                color: #ffffff !important;
+                opacity: 0 !important;
+                flex-shrink: 0 !important;
+                transition: opacity 0.15s ease !important;
+            }
+
+            .aphim-sub-opt.active .opt-check {
+                opacity: 1 !important;
+            }
+
+            /* ─── TIME DISPLAY (ELEGANT MODERN PROPORTIONAL SANS-SERIF) ─── */
+            #aphim-time-wrapper {
+                display: inline-flex !important;
+                align-items: center !important;
+                margin-left: 10px !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                white-space: nowrap !important;
+            }
+
+            #aphim-time-current,
+            #aphim-time-duration {
+                color: #ffffff !important;
+                font-weight: 500 !important;
+                font-size: 14px !important;
+                letter-spacing: 0.3px !important;
+                font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
+                font-variant-numeric: tabular-nums !important;
+                line-height: 1 !important;
+            }
+
+            .aphim-time-divider {
+                color: rgba(255, 255, 255, 0.7) !important;
+                font-weight: 400 !important;
+                font-size: 14px !important;
+                margin: 0 6px !important;
+                font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
+                line-height: 1 !important;
+            }
+
+            @media (max-width: 640px) {
+                #aphim-time-current,
+                #aphim-time-duration,
+                .aphim-time-divider {
+                    font-size: 11px !important;
+                }
+                .aphim-time-divider {
+                    margin: 0 2px !important;
+                }
+            }
+
+            #aphim-volume-slider {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 95px !important;
+                height: 4px !important;
+                border-radius: 9999px !important;
+                background: linear-gradient(to right, #ffffff 0%, #ffffff var(--vol-pct, 90%), rgba(255, 255, 255, 0.28) var(--vol-pct, 90%), rgba(255, 255, 255, 0.28) 100%) !important;
+                outline: none !important;
+                cursor: pointer !important;
+                margin: 0 !important;
+                transition: height 0.15s ease;
+            }
+
+            #aphim-volume-slider:hover {
+                height: 6px !important;
+            }
+
+            @media (max-width: 640px) {
+                #aphim-volume-slider {
+                    width: 40px !important;
+                }
+            }
+
+            #aphim-volume-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 14px !important;
+                height: 14px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                border: none !important;
+                cursor: pointer !important;
+                box-shadow: 0 0 6px rgba(0, 0, 0, 0.9) !important;
+                transition: transform 0.1s ease !important;
+            }
+
+            #aphim-volume-slider:hover::-webkit-slider-thumb {
+                transform: scale(1.15) !important;
+            }
+
+            #aphim-volume-slider::-moz-range-thumb {
+                width: 14px !important;
+                height: 14px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                border: none !important;
+                cursor: pointer !important;
+                box-shadow: 0 0 6px rgba(0, 0, 0, 0.9) !important;
+            }
+
+            #aphim-volume-slider::-moz-range-progress {
+                background-color: #ffffff !important;
+                height: 4px !important;
+                border-radius: 9999px !important;
+            }
+
+            /* ==========================================================================
+               MOBILE VIDEO PLAYER CONTROLS BALANCING & CRISP VISIBILITY (MASTER RULES)
+               ========================================================================== */
+            @media (max-width: 640px) {
+                /* Center Play indicator scaled proportionally */
+                #aphim-center-indicator {
+                    width: 48px !important;
+                    height: 48px !important;
+                    border-width: 1.5px !important;
+                    background: rgba(15, 18, 26, 0.82) !important;
+                }
+                #aphim-center-icon {
+                    font-size: 26px !important;
+                    width: 26px !important;
+                    height: 26px !important;
+                    line-height: 26px !important;
+                }
+
+                /* High contrast dark gradient behind controls */
+                #aphim-controls {
+                    background: linear-gradient(to top, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.72) 48%, rgba(0, 0, 0, 0.25) 85%, transparent 100%) !important;
+                }
+
+                /* Scrubber rail and thumb */
+                #aphim-timeline-container {
+                    height: 16px !important;
+                    margin-bottom: 4px !important;
+                    padding: 4px 0 !important;
+                }
+                #aphim-timeline-rail {
+                    height: 3.5px !important;
+                    background: rgba(255, 255, 255, 0.35) !important;
+                }
+                #aphim-progress-bar {
+                    background: linear-gradient(90deg, #f59e0b 0%, #fcd576 100%) !important;
+                    box-shadow: 0 0 8px rgba(252, 213, 118, 0.95), 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+                }
+                #aphim-scrubber-dot {
+                    width: 12px !important;
+                    height: 12px !important;
+                    background: #ffffff !important;
+                    box-shadow: 0 0 6px rgba(0, 0, 0, 0.9), 0 0 8px rgba(252, 213, 118, 0.95) !important;
+                }
+                #aphim-hover-time {
+                    bottom: 18px !important;
+                    font-size: 10px !important;
+                    padding: 2px 6px !important;
+                }
+
+                /* Bottom row flex distribution */
+                #aphim-row-bottom {
+                    gap: 3px !important;
+                    width: 100% !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                }
+                #aphim-left-group {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 1.5px !important;
+                    min-width: 0 !important;
+                    flex-shrink: 1 !important;
+                }
+                #aphim-right-group {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 1.5px !important;
+                    flex-shrink: 0 !important;
+                }
+
+                /* Volume container */
+                #aphim-volume-wrapper {
+                    margin-left: 0 !important;
+                }
+                #aphim-volume-slider-box {
+                    width: 44px !important;
+                    padding-left: 2px !important;
+                    overflow: hidden !important;
+                    display: flex !important;
+                    align-items: center !important;
+                }
+                #aphim-volume-slider {
+                    width: 40px !important;
+                    height: 3px !important;
+                }
+                #aphim-volume-slider::-webkit-slider-thumb {
+                    width: 10px !important;
+                    height: 10px !important;
+                }
+                #aphim-volume-slider::-moz-range-thumb {
+                    width: 10px !important;
+                    height: 10px !important;
+                }
+
+                /* Time wrapper */
+                #aphim-time-wrapper {
+                    margin-left: 3px !important;
+                    font-size: 11px !important;
+                    font-weight: 600 !important;
+                    letter-spacing: 0 !important;
+                    white-space: nowrap !important;
+                    flex-shrink: 0 !important;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95) !important;
+                }
+
+                /* Hide PiP on mobile to guarantee core buttons fit */
+                #aphim-btn-pip {
+                    display: none !important;
+                }
+
+                /* Compact Settings dropdown on mobile */
+                #aphim-settings-menu {
+                    bottom: calc(100% + 8px) !important;
+                    right: 0 !important;
+                    width: 230px !important;
+                    max-height: 200px !important;
+                    font-size: 12px !important;
+                }
+                .aphim-settings-header {
+                    padding: 10px 14px 8px 14px !important;
+                    font-size: 12px !important;
+                }
+                .aphim-settings-item {
+                    padding: 9px 14px !important;
+                    font-size: 12px !important;
+                }
+                .aphim-item-label {
+                    font-size: 12px !important;
+                }
+                .aphim-item-value {
+                    font-size: 11px !important;
+                }
+                .aphim-sub-opt {
+                    padding: 8px 12px !important;
+                    font-size: 12px !important;
+                }
+
+                /* Subtitles adjustment so cues never collide with bottom controls */
+                video::cue {
+                    font-family: 'Inter', system-ui, sans-serif !important;
+                    font-size: 12.5px !important;
+                    line-height: 1.3 !important;
+                    background-color: rgba(0, 0, 0, 0.75) !important;
+                    color: #ffffff !important;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 1) !important;
+                    line: -3 !important;
+                }
+            }
+
+            /* Extra small mobile (< 440px) */
+            @media (max-width: 440px) {
+                #aphim-controls {
+                    padding-left: 6px !important;
+                    padding-right: 6px !important;
+                    padding-bottom: 5px !important;
+                }
+                #aphim-controls button,
+                .aphim-ctrl-btn {
+                    width: 30px !important;
+                    height: 30px !important;
+                    min-width: 30px !important;
+                    min-height: 30px !important;
+                    max-width: 30px !important;
+                    max-height: 30px !important;
+                }
+                #aphim-controls .material-icons-round {
+                    font-size: 19px !important;
+                    width: 19px !important;
+                    height: 19px !important;
+                }
+                #aphim-controls .aphim-btn-icon,
+                #aphim-btn-settings svg {
+                    width: 18px !important;
+                    height: 18px !important;
+                }
+                #aphim-volume-slider-box {
+                    width: 34px !important;
+                }
+                #aphim-volume-slider {
+                    width: 30px !important;
+                }
+                #aphim-time-wrapper {
+                    margin-left: 2px !important;
+                }
+                #aphim-time-current,
+                #aphim-time-duration,
+                .aphim-time-divider {
+                    font-size: 10px !important;
+                }
+                #aphim-btn-next {
+                    display: none !important;
+                }
+            }
+
+            /* Re-enable full layout in fullscreen on mobile devices */
+            :fullscreen #aphim-btn-next,
+            :-webkit-full-screen #aphim-btn-next,
+            .aphim-web-fullscreen #aphim-btn-next {
+                display: inline-flex !important;
+            }
+            :fullscreen #aphim-btn-pip,
+            :-webkit-full-screen #aphim-btn-pip,
+            .aphim-web-fullscreen #aphim-btn-pip {
+                display: inline-flex !important;
+            }
+            :fullscreen #aphim-volume-slider-box,
+            :-webkit-full-screen #aphim-volume-slider-box,
+            .aphim-web-fullscreen #aphim-volume-slider-box {
+                width: 65px !important;
+            }
+            :fullscreen #aphim-volume-slider,
+            :-webkit-full-screen #aphim-volume-slider,
+            .aphim-web-fullscreen #aphim-volume-slider {
+                width: 60px !important;
+            }
+/* Guide Modal Styling - Transparent Rows, High-Contrast White Text, Balanced Spacing & Indentation */
+.guide-modal-card {
+    background: #0d1017 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95) !important;
+    color: #ffffff !important;
+}
+
+.guide-modal-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 16px 20px 14px 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.guide-modal-title {
+    color: #ffffff !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+}
+
+.guide-modal-close {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    color: #cbd5e1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+
+.guide-modal-close:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+
+.guide-modal-body {
+    padding: 16px 20px 20px 20px !important;
+}
+
+.guide-section-box {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 20px !important;
+}
+
+.guide-section-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    color: #ffffff !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    margin-bottom: 8px !important;
+    padding-left: 2px !important;
+    letter-spacing: 0.3px !important;
+}
+
+.guide-section-title svg {
+    color: #fcd576 !important;
+    stroke: #fcd576 !important;
+    width: 19px !important;
+    height: 19px !important;
+}
+
+/* CÁC MỤC CON ĐƯỢC THỤT LỀ CÁCH VÀO 18PX RÕ RÀNG VÀ CÂN BẰNG */
+.guide-items-list {
+    padding-left: 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.guide-item-row {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 10px 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.guide-item-row:last-child {
+    border-bottom: none !important;
+}
+
+.guide-item-row svg {
+    flex-shrink: 0 !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.guide-item-row .gesture-icon {
+    color: #94a3b8 !important;
+    stroke: #94a3b8 !important;
+}
+
+.guide-item-row .btn-icon {
+    color: #fcd576 !important;
+    stroke: #fcd576 !important;
+}
+
+.guide-item-text {
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+}
+
+.guide-status-note {
+    color: #fcd576 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding-top: 10px !important;
+    padding-bottom: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+}
+
+.guide-pc-box {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 0 !important;
+    padding: 16px 2px 4px 2px !important;
+    margin-top: 6px !important;
+}
+
+.guide-pc-toggle {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+
+.guide-pc-toggle:hover {
+    color: #fcd576 !important;
+}
+
+#pcShortcutsList {
+    display: none !important;
+    margin-top: 10px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    padding: 4px 10px 4px 12px !important;
+    max-height: 180px !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(252, 213, 118, 0.4) rgba(255, 255, 255, 0.02) !important;
+}
+
+#pcShortcutsList.open {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+}
+
+#pcShortcutsList::-webkit-scrollbar {
+    width: 4px !important;
+}
+
+#pcShortcutsList::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-radius: 9999px !important;
+}
+
+#pcShortcutsList::-webkit-scrollbar-thumb {
+    background: rgba(252, 213, 118, 0.4) !important;
+    border-radius: 9999px !important;
+}
+
+#pcShortcutsList::-webkit-scrollbar-thumb:hover {
+    background: rgba(252, 213, 118, 0.7) !important;
+}
+
+.pc-shortcut-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 8px 2px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.pc-shortcut-row:last-child {
+    border-bottom: none !important;
+}
+
+.pc-shortcut-name {
+    color: #f1f5f9 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.pc-shortcut-key {
+    padding: 2.5px 8px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 6px !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-weight: 700 !important;
+    color: #fcd576 !important;
+    font-size: 11.5px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Server Selection Row Layout & Button Sizing (Perfect Sync Dark & Light) */
+.server-group-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 8px !important;
+}
+
+.server-group-label {
+    min-width: 76px !important;
+    font-size: 13px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+    color: #e2e8f0 !important;
+    font-weight: 700 !important;
+}
+
+.server-buttons-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+}
+
+.server-tab-btn {
+    border-radius: 6px !important;
+    padding: 3.5px 8.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    font-size: 12.5px !important;
+    transform: none !important;
+}
+
+.server-tab-badge {
+    border-radius: 9999px !important;
+    padding: 1px 6.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3.5px !important;
+    font-size: 11px !important;
+}
+
+.server-tab-title {
+    font-size: 12.5px !important;
+}
+
+
 
 

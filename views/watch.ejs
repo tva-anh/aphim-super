@@ -3,7 +3,7 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css?v=275" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=339" />
 </head>
 
 <body class="bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
@@ -303,57 +303,89 @@
                             </div>
                         </div>
 
-                        <!-- 3. Thanh điều khiển DÍNH LIỀN ngay dưới ô chiếu phim (Bố cục 2 hàng trên Mobile & 1 hàng trên Desktop) -->
-                        <div
-                            class="player-ctrl-bar w-full text-xs md:text-[13px] font-medium text-gray-200 select-none">
-                            <div
-                                class="player-ctrl-bar-container w-full space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-                                <!-- Hàng 1: Các nút hành động (Yêu thích, Thêm vào, Chia sẻ, Báo lỗi) -->
-                                <div class="player-ctrl-bar-actions-row flex flex-wrap items-center gap-1.5 sm:gap-2">
-                                    <button type="button" id="favoriteMovieBtn" class="player-ctrl-item">
-                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                            <path
-                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        <!-- 3. Thanh điều khiển DÍNH LIỀN ngay dưới ô chiếu phim (Thiết kế hiện đại chuẩn Image 1) -->
+                        <div class="player-ctrl-bar w-full select-none" style="margin-top: 10px; margin-bottom: 8px;">
+                            <div class="player-ctrl-bar-container w-full flex items-center justify-between flex-wrap gap-2 sm:gap-3 py-1.5 px-0">
+                                
+                                <!-- Nhóm bên trái: Yêu thích, Thêm vào -->
+                                <div class="player-ctrl-bar-actions-row flex items-center gap-2 sm:gap-3">
+                                    <!-- Yêu thích -->
+                                    <button type="button" id="favoriteMovieBtn" class="player-ctrl-item" title="Yêu thích phim này">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                         </svg>
-                                        <span class="whitespace-nowrap">Yêu thích</span>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Yêu thích</span>
                                     </button>
-                                    <button type="button" id="saveMovieBtn" class="player-ctrl-item">
-                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+
+                                    <!-- Thêm vào (Playlist) -->
+                                    <button type="button" id="saveMovieBtn" class="player-ctrl-item" title="Thêm vào danh sách phát">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
                                         </svg>
-                                        <span>Thêm vào</span>
-                                    </button>
-                                    <button type="button" onclick="shareMovie()" class="player-ctrl-item">
-                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                                        </svg>
-                                        <span>Chia sẻ</span>
-                                    </button>
-                                    <button type="button" onclick="reportError()"
-                                        class="player-ctrl-item player-ctrl-report-btn hover:text-red-400">
-                                        <svg class="w-4 h-4 text-white fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
-                                        </svg>
-                                        <span>Báo lỗi</span>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Thêm vào</span>
                                     </button>
                                 </div>
 
-                                <!-- Hàng 2: Các nút công tắc cài đặt (Chuyển tập, Bỏ qua GT, Rạp phim) -->
-                                <div class="player-ctrl-bar-toggles-row flex flex-wrap items-center gap-1.5 sm:gap-2">
-                                    <button type="button" onclick="toggleAutoNextBadge()" class="player-ctrl-item">
-                                        <span>Chuyển tập</span>
-                                        <span id="badgeAutoNext" class="badge-status-on">ON</span>
+                                <!-- Nhóm bên phải: Tự động chuyển tập, Auto skip intro, Rạp phim, Báo lỗi -->
+                                <div class="player-ctrl-bar-toggles-row flex items-center gap-2 sm:gap-3.5 flex-wrap">
+                                    <!-- Tự động chuyển tập -->
+                                    <button type="button" id="btnAutoNext" onclick="toggleAutoNextBadge()" class="player-ctrl-item is-active" title="Tự động phát tập tiếp theo khi hết phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                                            <line x1="19" y1="5" x2="19" y2="19"></line>
+                                        </svg>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Tự động chuyển tập</span>
+                                        <span id="badgeAutoNext" class="badge-status-on hidden sm:inline-flex">ON</span>
                                         <input type="checkbox" id="toggleAutoNext" class="hidden" checked>
                                     </button>
-                                    <button type="button" onclick="toggleAutoSkipBadge()" class="player-ctrl-item">
-                                        <span>Bỏ qua giới thiệu</span>
-                                        <span id="badgeAutoSkip" class="badge-status-off">OFF</span>
+
+                                    <!-- Auto skip intro -->
+                                    <button type="button" id="btnAutoSkip" onclick="toggleAutoSkipBadge()" class="player-ctrl-item" title="Tự động bỏ qua đoạn giới thiệu đầu phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important;">
+                                            <polyline points="9 6 15 12 9 18" fill="none" style="fill: none !important;"></polyline>
+                                            <line x1="19" y1="6" x2="19" y2="18" fill="none" style="fill: none !important;"></line>
+                                        </svg>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Auto skip intro</span>
+                                        <span id="badgeAutoSkip" class="badge-status-off hidden sm:inline-flex">OFF</span>
                                         <input type="checkbox" id="toggleAutoSkip" class="hidden">
                                     </button>
-                                    <button type="button" id="cinemaModeBtn" onclick="toggleCinemaMode()"
-                                        class="player-ctrl-item">
-                                        <span>Rạp phim</span>
-                                        <span id="badgeCinema" class="badge-status-off">OFF</span>
+
+                                    <!-- Rạp phim -->
+                                    <button type="button" id="cinemaModeBtn" onclick="toggleBadgeCinemaMode()" class="player-ctrl-item" title="Chế độ tắt đèn rạp phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important;">
+                                            <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z" fill="none" style="fill: none !important;"></path>
+                                            <path d="m6.2 5.3 3.1 3.9" fill="none" style="fill: none !important; stroke: currentColor !important;"></path>
+                                            <path d="m12.4 3.4 3.1 4" fill="none" style="fill: none !important; stroke: currentColor !important;"></path>
+                                            <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" fill="none" style="fill: none !important;"></path>
+                                        </svg>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Rạp phim</span>
+                                        <span id="badgeCinema" class="badge-status-off hidden sm:inline-flex">OFF</span>
+                                    </button>
+
+                                    <!-- Báo lỗi -->
+                                    <button type="button" onclick="reportError()" class="player-ctrl-item player-ctrl-report-btn hover:text-red-400" title="Báo cáo sự cố hoặc lỗi phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect width="8" height="14" x="8" y="6" rx="4"></rect>
+                                            <path d="m19 7-3 2"></path>
+                                            <path d="m5 7 3 2"></path>
+                                            <path d="m19 19-3-2"></path>
+                                            <path d="m5 19 3-2"></path>
+                                            <path d="M20 13h-4"></path>
+                                            <path d="M4 13h4"></path>
+                                            <path d="m10 4 1 2"></path>
+                                            <path d="m14 4-1 2"></path>
+                                        </svg>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Báo lỗi</span>
+                                    </button>
+
+                                    <!-- Trợ giúp / Phím tắt (?) (hiện trên Mobile theo Ảnh 2, ẩn Desktop) -->
+                                    <button type="button" onclick="openShortcutsGuideModal()" class="player-ctrl-item player-ctrl-help-btn" title="Phím tắt & Hướng dẫn xem phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important;">
+                                            <circle cx="12" cy="12" r="10" fill="none" style="fill: none !important;"></circle>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" style="fill: none !important; stroke: currentColor !important;"></path>
+                                            <line x1="12" y1="17" x2="12.01" y2="17" fill="none" style="fill: none !important; stroke: currentColor !important;"></line>
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
@@ -671,8 +703,8 @@
         <%- include('partials/footer') %>
 
             <!-- Page Scripts & Setup -->
-            <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" defer></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
             <script src="/js/api.js?v=100" defer></script>
             <script src="/js/user.js?v=100" defer></script>
             <script src="/js/gamification-core.js?v=107" defer></script>
@@ -681,9 +713,9 @@
             <script src="/js/playlist-service.js?v=100" defer></script>
             <script src="/js/playlist-modal.js?v=210" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=100" defer></script>
-            <script src="/js/watch.js?v=10035" defer></script>
+            <script src="/js/watch.js?v=10090" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
-            <script src="/js/watch-ui-init.js?v=210" defer></script>
+            <script src="/js/watch-ui-init.js?v=218" defer></script>
     <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
     <div id="reportMovieModal" style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;" class="opacity-0 transition-opacity duration-300" onclick="if(event.target===this)closeReportModal()">
         <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300" id="reportMovieModalCard" onclick="event.stopPropagation()">

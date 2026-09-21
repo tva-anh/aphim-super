@@ -17,16 +17,16 @@ connectMongoDB(); // Kết nối MongoDB Atlas ngay khi server khởi động
 // ==========================================
 // API ROUTES (thực tế — Supabase + MongoDB)
 // ==========================================
-const authRoutes         = require('./routes/auth.routes');
+const authRoutes = require('./routes/auth.routes');
 const gamificationRoutes = require('./routes/gamification.routes');
-const historyRoutes      = require('./routes/history.routes');
-const movieRoutes        = require('./routes/movie.routes');
-const paymentRoutes      = require('./routes/payment.routes');
-const settingsRoutes     = require('./routes/settings.routes');
-const adminRoutes        = require('./routes/admin.routes');
-const feedbackRoutes     = require('./routes/feedback.routes');
-const seoRoutes          = require('./routes/seo.routes');
-const { requireAdmin }  = require('./middleware/adminAuth.middleware');
+const historyRoutes = require('./routes/history.routes');
+const movieRoutes = require('./routes/movie.routes');
+const paymentRoutes = require('./routes/payment.routes');
+const settingsRoutes = require('./routes/settings.routes');
+const adminRoutes = require('./routes/admin.routes');
+const feedbackRoutes = require('./routes/feedback.routes');
+const seoRoutes = require('./routes/seo.routes');
+const { requireAdmin } = require('./middleware/adminAuth.middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -119,17 +119,17 @@ app.set('views', path.join(__dirname, 'views'));
 // ==========================================
 // MOUNT API ROUTES — Supabase + MongoDB
 // ==========================================
-app.use('/api/auth',         authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/gamification', gamificationRoutes);
-app.use('/api/history',      historyRoutes);
-app.use('/api/movies',       movieRoutes);
-app.use('/api/payments',     paymentRoutes);
-app.use('/api/subscriptions',paymentRoutes); // alias
-app.use('/api/transactions',  paymentRoutes); // alias
-app.use('/api/settings',     settingsRoutes);
-app.use('/api/admin',        adminRoutes);
-app.use('/api/feedback',     feedbackRoutes);
-app.use('/',                 seoRoutes); // Sitemap đa tầng, robots.txt, dynamic seo cache
+app.use('/api/history', historyRoutes);
+app.use('/api/movies', movieRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/subscriptions', paymentRoutes); // alias
+app.use('/api/transactions', paymentRoutes); // alias
+app.use('/api/settings', settingsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/', seoRoutes); // Sitemap đa tầng, robots.txt, dynamic seo cache
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -167,7 +167,7 @@ app.use('/api/tmdb', async (req, res) => {
         if (!queryParams.has('language')) {
             queryParams.set('language', 'vi-VN');
         }
-        
+
         const cacheKey = `${pathAfterTmdb}?${queryParams.toString()}`;
         const cached = tmdbCache.get(cacheKey);
         if (cached && Date.now() - cached.timestamp < 15 * 60 * 1000) {
@@ -176,7 +176,7 @@ app.use('/api/tmdb', async (req, res) => {
 
         const targetUrl = `${TMDB_BASE_URL}/${pathAfterTmdb}?${queryParams.toString()}`;
         const response = await axios.get(targetUrl, { timeout: 8000 });
-        
+
         tmdbCache.set(cacheKey, {
             data: response.data,
             timestamp: Date.now()
@@ -204,7 +204,7 @@ function broadcastCommentSSE(slug, eventType, data) {
         const clients = commentSSEClients.get(slug);
         const payload = `event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`;
         clients.forEach(clientRes => {
-            try { clientRes.write(payload); } catch(e) {}
+            try { clientRes.write(payload); } catch (e) { }
         });
     }
 }
@@ -231,7 +231,7 @@ app.get('/api/comments/stream/:slug', (req, res) => {
     const heartbeat = setInterval(() => {
         try {
             res.write(': ping\n\n');
-        } catch(e) {
+        } catch (e) {
             clearInterval(heartbeat);
         }
     }, 20000);
@@ -261,7 +261,7 @@ app.get('/api/comments/movie/:slug', async (req, res) => {
         }
 
         const fallbackList = localCommentsStore.get(slug) || [];
-        
+
         // Merge & deduplicate by ID
         const mapById = new Map();
         dbList.forEach(c => mapById.set(String(c._id), {
@@ -445,7 +445,7 @@ app.post('/api/comments', async (req, res) => {
         const { movieSlug, movieId, content, avatar, avatarUrl, parentId, isSpoiler, episodeInfo } = req.body;
         const slug = movieSlug || movieId || 'general';
         const userObj = req.body.user || req.user || {};
-        
+
         const finalUser = {
             id: userObj.id || userObj._id || '',
             displayName: userObj.displayName || userObj.name || req.user?.displayName || req.user?.name || 'Thành viên',
@@ -546,7 +546,7 @@ app.post('/api/comments/:id/react', async (req, res) => {
                     await cmt.save();
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // Broadcast reaction to realtime listeners
         if (slug) {
@@ -601,7 +601,7 @@ app.get('/api/actor-avatar', async (req, res) => {
                     return res.json({ success: true, url: imgUrl });
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // 2. Try Wikipedia VI Direct Summary
         try {
@@ -615,7 +615,7 @@ app.get('/api/actor-avatar', async (req, res) => {
                 res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                 return res.json({ success: true, url: imgUrl });
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // 3. Try Wikipedia VI OpenSearch
         try {
@@ -642,9 +642,9 @@ app.get('/api/actor-avatar', async (req, res) => {
                         res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                         return res.json({ success: true, url: imgUrl });
                     }
-                } catch (e) {}
+                } catch (e) { }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // 4. Try Wikipedia EN Direct Summary
         try {
@@ -658,7 +658,7 @@ app.get('/api/actor-avatar', async (req, res) => {
                 res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                 return res.json({ success: true, url: imgUrl });
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // Negative cache
         actorAvatarCache.set(cacheKey, null);
@@ -824,7 +824,7 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
 
         // 1. Lấy Base Data từ PhimAPI (Ưu tiên 1)
         if (phimApiRes.status === 'fulfilled' && phimApiRes.value.data && phimApiRes.value.data.status) {
-            finalData = phimApiRes.value.data; 
+            finalData = phimApiRes.value.data;
             if (finalData.movie) {
                 baseItem = finalData.movie;
                 if (!finalData.episodes) finalData.episodes = [];
@@ -835,19 +835,19 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
 
         // 2. Fallback Base Data từ NguonC (Nếu PhimAPI lỗi/không có)
         if (!baseItem && nguonCRes.status === 'fulfilled' && nguonCRes.value.data && nguonCRes.value.data.status === 'success' && nguonCRes.value.data.movie) {
-             const m = nguonCRes.value.data.movie;
-             baseItem = {
-                 name: m.name,
-                 origin_name: m.original_name,
-                 thumb_url: m.thumb_url,
-                 poster_url: m.poster_url,
-                 content: m.description,
-                 quality: m.quality,
-                 lang: m.language,
-                 year: m.created ? new Date(m.created).getFullYear() : '',
-                 slug: m.slug || slug
-             };
-             finalData = { status: true, movie: baseItem, episodes: [], source: 'nguonc' };
+            const m = nguonCRes.value.data.movie;
+            baseItem = {
+                name: m.name,
+                origin_name: m.original_name,
+                thumb_url: m.thumb_url,
+                poster_url: m.poster_url,
+                content: m.description,
+                quality: m.quality,
+                lang: m.language,
+                year: m.created ? new Date(m.created).getFullYear() : '',
+                slug: m.slug || slug
+            };
+            finalData = { status: true, movie: baseItem, episodes: [], source: 'nguonc' };
         }
 
         // 3. Xử lý Episodes từ NguonC
@@ -861,11 +861,11 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
                     link_m3u8: it.m3u8 || ''
                 }))
             }));
-            
+
             // Đổi tên server tránh trùng lặp
             mappedEps.forEach((epGroup, i) => {
                 epGroup.original_server_name = epGroup.server_name;
-                epGroup.server_name = `NguonC ${i+1}`;
+                epGroup.server_name = `NguonC ${i + 1}`;
                 mergedEpisodes.push(epGroup);
             });
         }
@@ -878,18 +878,18 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
                     if (epGroup.server_name) {
                         epGroup.original_server_name = epGroup.server_name.replace(/ #\d+/g, '').trim();
                     }
-                    epGroup.server_name = `VSMov ${i+1}`;
+                    epGroup.server_name = `VSMov ${i + 1}`;
                     mergedEpisodes.push(epGroup);
                 });
-                
+
                 // Nếu chưa có thông tin phim, lấy từ VSMov
                 if (!baseItem && vsmovRes.value.data.movie) {
-                     baseItem = vsmovRes.value.data.movie;
-                     finalData = { status: true, movie: baseItem, episodes: [], source: 'vsmov' };
+                    baseItem = vsmovRes.value.data.movie;
+                    finalData = { status: true, movie: baseItem, episodes: [], source: 'vsmov' };
                 }
             }
         }
-        
+
         // Cập nhật lại episodes
         if (baseItem) {
             // Chuẩn hóa tên server
@@ -990,6 +990,8 @@ async function fetchMovieMetadata(slug) {
                 quality: m.quality || 'HD',
                 lang: m.lang || 'Vietsub',
                 episode_current: m.episode_current || '',
+                episode_total: m.episode_total || '',
+                status: m.status || '',
                 time: m.time || '',
                 content: cleanContent,
                 thumb_url: thumbUrl,
@@ -998,7 +1000,10 @@ async function fetchMovieMetadata(slug) {
                 director: directors,
                 category: categories,
                 country: countries,
-                type: m.type || 'single'
+                type: m.type || 'single',
+                trailer_url: m.trailer_url || '',
+                tmdb: m.tmdb || null,
+                episodes: response.data?.episodes || []
             };
 
             movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
@@ -1408,7 +1413,7 @@ app.post('/api/feedback', async (req, res) => {
                         const r = await fetch(getUrl, { method: 'GET', redirect: 'follow' });
                         const text = await r.text();
                         console.log('📤 [Feedback] Google Apps Script GET fallback response:', text.slice(0, 100));
-                    } catch(e) {}
+                    } catch (e) { }
                 });
             } catch (err) {
                 console.warn('[Feedback] Error sending to Google Sheet:', err.message);
@@ -1426,7 +1431,7 @@ app.post('/api/feedback', async (req, res) => {
             const filePath = path.join(dataDir, 'feedbacks.json');
             let list = [];
             if (fs.existsSync(filePath)) {
-                try { list = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { list = []; }
+                try { list = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch (e) { list = []; }
             }
             list.unshift({
                 ...payload,
@@ -1459,7 +1464,7 @@ app.get('/api/feedbacks', (req, res) => {
             return res.json({ success: true, count: data.length, data });
         }
         return res.json({ success: true, count: 0, data: [] });
-    } catch(e) {
+    } catch (e) {
         return res.json({ success: false, data: [] });
     }
 });

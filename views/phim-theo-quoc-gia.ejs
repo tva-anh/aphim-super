@@ -216,7 +216,11 @@
         };
 
         // Initialize Load
-        loadMovies(currentPage);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => loadMovies(currentPage));
+        } else {
+            loadMovies(currentPage);
+        }
     })();
     </script>
 </body>

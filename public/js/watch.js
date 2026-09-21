@@ -1416,10 +1416,10 @@ function renderServerList(episodes) {
                 return `
                     <button onclick="changeServer(${index})"
                         data-category="${category}"
-                        style="background: ${activeBg}; border: none; color: ${activeText}; font-weight: 800; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transform: scale(1.02); transition: all 0.2s;"
+                        style="background: ${activeBg}; border: none; color: ${activeText}; font-weight: 800; border-radius: 6px; padding: 3.5px 8.5px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;"
                         class="select-none server-tab-btn active server-cat-${catSlug}">
-                        <span class="server-tab-title" style="font-weight: 800; font-size: 13px; color: ${activeText};">${displayTitle}</span>
-                        <span class="server-tab-badge" style="background: rgba(0, 0, 0, 0.15); font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="server-tab-title" style="font-weight: 800; font-size: 12.5px; color: ${activeText};">${displayTitle}</span>
+                        <span class="server-tab-badge" style="background: rgba(0, 0, 0, 0.15); font-weight: 800; font-size: 11px; padding: 1px 6.5px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3.5px;">
                             <span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block; flex-shrink: 0; border: none;"></span>
                             <span class="server-tab-count">${epText}</span>
                         </span>
@@ -1435,10 +1435,10 @@ function renderServerList(episodes) {
                 return `
                     <button onclick="changeServer(${index})"
                         data-category="${category}"
-                        style="background: ${inactiveBg}; border: none; color: ${inactiveText}; font-weight: 700; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                        style="background: ${inactiveBg}; border: none; color: ${inactiveText}; font-weight: 700; border-radius: 6px; padding: 3.5px 8.5px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;"
                         class="hover:brightness-125 select-none server-tab-btn server-cat-${catSlug}">
-                        <span class="server-tab-title" style="color: ${inactiveText}; font-weight: 700; font-size: 13px;">${displayTitle}</span>
-                        <span class="server-tab-badge" style="background: ${badgeBg}; color: ${inactiveText}; font-weight: 700; font-size: 11px; padding: 1px 7px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="server-tab-title" style="color: ${inactiveText}; font-weight: 700; font-size: 12.5px;">${displayTitle}</span>
+                        <span class="server-tab-badge" style="background: ${badgeBg}; color: ${inactiveText}; font-weight: 700; font-size: 11px; padding: 1px 6.5px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3.5px;">
                             <span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block; flex-shrink: 0; border: none;"></span>
                             <span class="server-tab-count">${epText}</span>
                         </span>
@@ -1448,12 +1448,12 @@ function renderServerList(episodes) {
         }).join('');
 
         html += `
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;" class="server-group-row">
-                <div style="display: flex; align-items: center; gap: 6px; color: #e2e8f0; font-weight: 700; font-size: 13px; min-width: 90px; user-select: none;" class="server-group-label">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;" class="server-group-row">
+                <div style="display: flex; align-items: center; gap: 5px; color: #e2e8f0; font-weight: 700; font-size: 13px; min-width: 76px; user-select: none;" class="server-group-label">
                     ${categoryIcon}
                     <span>${category}</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div class="server-buttons-wrap" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     ${buttonsInGroup}
                 </div>
             </div>
@@ -1638,7 +1638,7 @@ function initializePlayer(episode) {
     _isInitializingPlayer = true;
     setTimeout(() => { _isInitializingPlayer = false; }, 5000);
 
-    console.log('🎥 Initializing player with episode:', episode);
+    console.log('🎥 Initializing ArtPlayer with episode:', episode);
 
     if (!episode) {
         console.error('❌ No episode provided');
@@ -1680,7 +1680,13 @@ function initializePlayer(episode) {
 
     const isEmbed = !episode.link_m3u8 && episode.link_embed;
 
+    // ── CASE 1: Nguồn phát Iframe (Embed) ──────────────────────────────────
     if (isEmbed) {
+        if (window.artInstance) {
+            try { window.artInstance.destroy(true); } catch (e) { }
+            window.artInstance = null;
+        }
+
         playerContainer.innerHTML = `
             <iframe id="videoIframe" 
                 src="${videoUrl}" 
@@ -1702,214 +1708,1097 @@ function initializePlayer(episode) {
             canPlayType: () => false,
             requestFullscreen: async () => {
                 const iframe = document.getElementById('videoIframe');
-                if (iframe.requestFullscreen) iframe.requestFullscreen();
+                if (iframe && iframe.requestFullscreen) iframe.requestFullscreen();
             }
         };
 
-        // Hide mobile overlay controls since iframe has its own
         const mobCtrl = document.getElementById('mob-player-ctrl');
         if (mobCtrl) mobCtrl.style.display = 'none';
-        _isInitializingPlayer = false; // Reset guard
-        return; // Skip HLS setup
-    }
-
-    playerContainer.innerHTML = `
-        <video id="videoPlayer" 
-            class="w-full h-full bg-black" 
-            controls 
-            preload="auto"
-            controlsList="nodownload"
-            poster="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221200%22 height=%22675%22%3E%3Crect fill=%22%23111%22 width=%221200%22 height=%22675%22/%3E%3Ctext fill=%22%23555%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 alignment-baseline=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22%3ENo Image%3C/text%3E%3C/svg%3E">
-            Trình duyệt của bạn không hỗ trợ video.
-        </video>
-    `;
-
-    player = document.getElementById('videoPlayer');
-
-    if (currentMovie && player) {
-        const bgUrl = (typeof movieAPI !== 'undefined' && movieAPI.getImageURL)
-            ? movieAPI.getImageURL(currentMovie.thumb_url || currentMovie.poster_url, 1200, 90, true)
-            : (currentMovie.thumb_url || currentMovie.poster_url);
-        if (bgUrl) {
-            player.poster = bgUrl;
-        }
-    }
-
-    // Register mobile touch double-tap handler directly on the video element
-    let lastTap = 0;
-    player.addEventListener('touchend', (e) => {
-        const now = Date.now();
-        const DOUBLE_TAP_DELAY = 300;
-
-        if (now - lastTap < DOUBLE_TAP_DELAY) {
-            e.preventDefault(); // Stop native double-tap-to-zoom
-
-            // Calculate relative touch coordinate to find which side was tapped
-            const rect = player.getBoundingClientRect();
-            const touch = e.changedTouches[0] || e.touches[0];
-            if (touch) {
-                const tapX = touch.clientX - rect.left;
-                const isRightSide = tapX > (rect.width / 2);
-
-                if (isRightSide) {
-                    player.currentTime = Math.min(player.duration, player.currentTime + 10);
-                    showSeekOverlay('+10s', true);
-                } else {
-                    player.currentTime = Math.max(0, player.currentTime - 10);
-                    showSeekOverlay('-10s', false);
-                }
-            }
-            lastTap = 0; // Reset tap tracking
-        } else {
-            lastTap = now;
-        }
-    });
-
-    // Register keyboard shortcuts (Space to toggle, ArrowRight/ArrowLeft to seek 10s)
-    if (window._watchKeydownHandler) {
-        document.removeEventListener('keydown', window._watchKeydownHandler, true);
-    }
-
-    window._watchKeydownHandler = function (e) {
-        if (e.isComposing) return;
-        const active = document.activeElement;
-        // Skip hotkeys if typing in inputs/textareas
-        if (active && (
-            active.tagName === 'INPUT' ||
-            active.tagName === 'TEXTAREA' ||
-            active.tagName === 'SELECT' ||
-            active.isContentEditable ||
-            active.closest('input, textarea, select, [contenteditable], .ap-auth-input, .ap-cmt-textarea')
-        )) {
-            return;
-        }
-
-        if (e.code === 'Space') {
-            e.preventDefault();
-            if (player.paused) {
-                player.play().catch(err => console.log(err));
-            } else {
-                player.pause();
-            }
-        } else if (e.code === 'ArrowRight') {
-            e.preventDefault();
-            player.currentTime = Math.min(player.duration, player.currentTime + 10);
-            showSeekOverlay('+10s', true);
-        } else if (e.code === 'ArrowLeft') {
-            e.preventDefault();
-            player.currentTime = Math.max(0, player.currentTime - 10);
-            showSeekOverlay('-10s', false);
-        }
-    };
-
-    document.addEventListener('keydown', window._watchKeydownHandler, true);
-
-    // Prefer native HLS on iOS and Safari for better stability and performance
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const preferNativeHLS = (isIOS || isSafari) && player.canPlayType('application/vnd.apple.mpegurl');
-
-    let isTimeRestored = false; // CỜ CHẶN: Chỉ cho phép khôi phục thời gian DUY NHẤT 1 LẦN, tránh bị kẹt tua phim
-
-    if (preferNativeHLS) {
-        // Native HLS support (Safari/iOS)
-        console.log('✅ Using native HLS support (Safari/iOS)');
-        player.src = videoUrl;
-
-        // FIX CỰC MẠNH CHO MOBILE: Chờ 'canplay' và thêm độ trễ nhỏ để trình duyệt ổn định thanh tua
-        player.addEventListener('canplay', () => {
-            if (!isTimeRestored && progress.currentTime > 0) {
-                isTimeRestored = true;
-                setTimeout(() => {
-                    console.log('⏪ [SafeRestore-Delay] Resumed on Mobile:', progress.currentTime);
-                    player.currentTime = progress.currentTime;
-                    // Force playback resume after mutating currentTime to prevent mobile freeze
-                    player.play().catch(e => console.log('iOS play after restore prevented:', e));
-                }, 200); // Độ trễ 200ms đảm bảo trình duyệt đã ổn định Buffer, không bị treo Touch
-            }
-        }, { once: true }); // Chỉ chạy 1 lần duy nhất
-
-        player.addEventListener('loadedmetadata', () => {
-            console.log('✅ Video metadata loaded');
-            player.play().catch(e => console.log('Auto-play prevented:', e));
-        });
-    } else if (Hls.isSupported()) {
-        console.log('✅ HLS.js is supported');
-        const hls = new Hls({
-            debug: false,
-            enableWorker: true,
-            lowLatencyMode: false, // Priority to aggressive buffer over ultra-low latency
-            maxBufferLength: 60, // Keep up to 60 seconds of video preloaded in buffer in advance
-            maxMaxBufferLength: 120, // Preload up to 120 seconds of stream segments
-            preload: true,
-            startLevel: -1,
-            capLevelToPlayerSize: true
-        });
-
-        console.log('📡 Loading source:', videoUrl);
-        hls.loadSource(videoUrl);
-        hls.attachMedia(player);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            console.log('✅ Video manifest parsed - ready to play');
-            // Bổ sung delay nhỏ cho HLS.js để ổn định thanh timeline trước khi tua
-            if (!isTimeRestored && progress.currentTime > 0) {
-                isTimeRestored = true;
-                setTimeout(() => {
-                    console.log('⏪ [SafeRestore-HLS] Resumed with Delay:', progress.currentTime);
-                    player.currentTime = progress.currentTime;
-                    // Force playback resume after mutating currentTime to prevent HLS.js freeze
-                    player.play().catch(e => console.log('HLS play after restore prevented:', e));
-                }, 150);
-            } else {
-                player.play().catch(e => console.log('Auto-play prevented:', e));
-            }
-        });
-
-        hls.on(Hls.Events.ERROR, function (event, data) {
-            console.error('❌ HLS Error:', data);
-            if (data.fatal) {
-                switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        console.log('🔄 Network error, trying to recover...');
-                        hls.startLoad();
-                        if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR ||
-                            data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
-                            hls.destroy();
-                            handleStreamError();
-                        }
-                        break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        console.log('🔄 Media error, trying to recover...');
-                        hls.recoverMediaError();
-                        break;
-                    default:
-                        console.error('💥 Fatal error, cannot recover');
-                        hls.destroy();
-                        handleStreamError();
-                        break;
-                }
-            }
-        });
-    } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-        // Fallback for other browsers that support native HLS
-        console.log('✅ Using native HLS support (Fallback)');
-        player.src = videoUrl;
-        player.addEventListener('canplay', () => {
-            if (!isTimeRestored && progress.currentTime > 0) {
-                isTimeRestored = true;
-                setTimeout(() => {
-                    player.currentTime = progress.currentTime;
-                }, 200);
-            }
-        }, { once: true });
-    } else {
-        console.error('❌ HLS not supported');
-        showError('Trình duyệt của bạn không hỗ trợ phát video HLS');
+        _isInitializingPlayer = false;
         return;
     }
 
-    // Hàm hỗ trợ lưu tiến độ tức thời
+    // ── CASE 2: Nguồn phát Video HLS m3u8 (Hybrid Native Core + High-End Custom Controls) ───────
+    if (window.artInstance) {
+        try { window.artInstance.destroy(true); } catch (e) { }
+        window.artInstance = null;
+    }
+
+    const bgUrl = (typeof movieAPI !== 'undefined' && movieAPI.getImageURL)
+        ? movieAPI.getImageURL(currentMovie.thumb_url || currentMovie.poster_url, 1200, 90, true)
+        : (currentMovie.thumb_url || currentMovie.poster_url || '');
+
+    // Format time helper (00:00 or 00:00:00)
+    function formatPlayerTime(seconds, forceHours) {
+        if (isNaN(seconds) || seconds < 0) return forceHours ? '00:00:00' : '00:00';
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        if (h > 0 || forceHours) {
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // Render 100% Hardware-Accelerated Native Video with Original High-Contrast Pure White Toolset
+    playerContainer.innerHTML = `
+        <div id="aphim-player-wrapper" class="relative w-full h-full group/player select-none overflow-hidden bg-black flex items-center justify-center">
+            <!-- 100% Direct GPU Hardware Decoded Native Video -->
+            <video id="videoPlayer" 
+                class="w-full h-full object-contain bg-black block" 
+                playsinline 
+                preload="auto"
+                poster="${bgUrl}">
+                Trình duyệt của bạn không hỗ trợ video.
+            </video>
+
+            <!-- Clickable Center Video Zone (Tap/Click to Play/Pause) -->
+            <div id="aphim-clickzone" class="absolute inset-0 z-10 cursor-pointer"></div>
+
+            <!-- Center Animated Play/Pause Indicator -->
+            <div id="aphim-center-indicator">
+                <span class="material-icons-round" id="aphim-center-icon">play_arrow</span>
+            </div>
+
+            <!-- Bottom Floating Control Bar (Original Layout, Pure White Visibility) -->
+            <div id="aphim-controls" class="absolute bottom-0 left-0 right-0 z-20 flex flex-col justify-end px-3.5 sm:px-6 pb-4 sm:pb-6 pt-16 bg-gradient-to-t from-black/95 via-black/60 to-transparent transition-opacity duration-300 opacity-100">
+                
+                <!-- Row 1: Full-Width Interactive Scrubbing Timeline -->
+                <div id="aphim-timeline-container" class="relative w-full h-5 flex items-center cursor-pointer group/timeline py-1 mb-2.5 sm:mb-3 select-none">
+                    <!-- Background Rail -->
+                    <div id="aphim-timeline-rail" class="relative w-full h-[4px] group-hover/timeline:h-[6px] bg-white/30 rounded-full overflow-hidden transition-all duration-150">
+                        <!-- Buffer Bar -->
+                        <div id="aphim-buffer-bar" class="absolute top-0 bottom-0 left-0 bg-white/45 rounded-full w-0 transition-all duration-150"></div>
+                        <!-- Played Progress Bar (Solid Gold Gradient) -->
+                        <div id="aphim-progress-bar" class="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#f59e0b] to-[#fcd576] rounded-full w-0 shadow-[0_0_10px_rgba(252,211,118,0.9)]"></div>
+                    </div>
+                    <!-- Thumb Scrubber Dot / Capsule (Bright White Pill) -->
+                    <div id="aphim-scrubber-dot" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-white rounded-full shadow-[0_0_8px_rgba(0,0,0,0.85)] pointer-events-none transition-transform duration-100 scale-90 group-hover/timeline:scale-125" style="left: 0%;"></div>
+                    <!-- Hover Time Tooltip -->
+                    <div id="aphim-hover-time" class="absolute bottom-6 -translate-x-1/2 px-2 py-0.5 rounded bg-black/95 text-white text-[11px] font-mono font-bold pointer-events-none opacity-0 transition-opacity duration-150 backdrop-blur-md border border-white/25 shadow-2xl">00:00</div>
+                </div>
+
+                <!-- Row 2: Bottom Control Buttons (Material Standard High-Contrast Layout) -->
+                <div id="aphim-row-bottom" class="flex items-center justify-between gap-1 sm:gap-2 w-full text-white">
+                    
+                    <!-- Left Group: Play/Pause, Rewind 10s (replay_10), Forward 10s (forward_10), Volume Speaker + Slider, Time (Current / Total) -->
+                    <div id="aphim-left-group" class="flex items-center gap-0.5 sm:gap-2 min-w-0">
+                        <!-- Play/Pause Button -->
+                        <button type="button" id="aphim-btn-play" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Phát / Tạm dừng (Space)">
+                            <span class="material-icons-round" id="aphim-icon-play">play_arrow</span>
+                        </button>
+
+                        <!-- Rewind 10s (replay_10) -->
+                        <button type="button" id="aphim-btn-rewind" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Lùi 10s (← / J)">
+                            <span class="material-icons-round">replay_10</span>
+                        </button>
+
+                        <!-- Forward 10s (forward_10) -->
+                        <button type="button" id="aphim-btn-forward" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Tới 10s (→ / L)">
+                            <span class="material-icons-round">forward_10</span>
+                        </button>
+
+                        <!-- Volume Button & Slider -->
+                        <div id="aphim-volume-wrapper" class="flex items-center group/vol relative ml-0.5 flex-shrink-0">
+                            <button type="button" id="aphim-btn-volume" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Âm lượng (M)">
+                                <span class="material-icons-round" id="aphim-icon-volume">volume_up</span>
+                            </button>
+                            <div id="aphim-volume-slider-box" class="w-12 sm:w-20 overflow-hidden transition-all duration-200 flex items-center pl-1">
+                                <input type="range" id="aphim-volume-slider" min="0" max="1" step="0.05" value="0.9" class="w-10 sm:w-18 h-1.5 bg-white/40 rounded-lg appearance-none cursor-pointer accent-[#fcd576]">
+                            </div>
+                        </div>
+
+                        <!-- Current Time / Duration (Clean Modern Sans-Serif) -->
+                        <div id="aphim-time-wrapper" class="flex-shrink-0">
+                            <span id="aphim-time-current">00:00</span>
+                            <span class="aphim-time-divider">/</span>
+                            <span id="aphim-time-duration">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Group: Next Episode, Speed Pill [1x], PiP, Theater Mode, Fullscreen -->
+                    <div id="aphim-right-group" class="flex items-center gap-1 sm:gap-2.5 flex-shrink-0">
+                        <!-- Next Episode Button -->
+                        <button type="button" id="aphim-btn-next" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Tập tiếp theo (N)">
+                            <span class="material-icons-round">skip_next</span>
+                        </button>
+
+                        <!-- Settings Button & Multi-Level Flyout Menu (Hexagon Settings) -->
+                        <div id="aphim-settings-wrapper" class="relative inline-flex items-center">
+                            <button type="button" id="aphim-btn-settings" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Cài đặt">
+                                <svg viewBox="0 0 24 24" class="aphim-btn-icon" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2.2L20.8 7.3V16.7L12 21.8L3.2 16.7V7.3L12 2.2Z" />
+                                    <circle cx="12" cy="12" r="3.5" />
+                                </svg>
+                            </button>
+
+                            <!-- Multi-level Settings Flyout Menu -->
+                            <div id="aphim-settings-menu" class="hidden">
+                                <!-- Main Panel -->
+                                <div id="aphim-settings-main-panel" class="aphim-settings-panel">
+                                    <div class="aphim-settings-header">
+                                        <span>CÀI ĐẶT</span>
+                                    </div>
+                                    <div class="aphim-settings-list">
+                                        <!-- Máy chủ -->
+                                        <div class="aphim-settings-item" data-target="aphim-panel-server">
+                                            <div class="aphim-item-left">
+                                                <svg class="aphim-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2.5" y="4.5" width="19" height="15" rx="3.5"></rect>
+                                                    <polygon points="10 8.5 16 12 10 15.5 10 8.5" fill="currentColor"></polygon>
+                                                </svg>
+                                                <span class="aphim-item-label">Máy chủ</span>
+                                            </div>
+                                            <div class="aphim-item-right">
+                                                <span class="aphim-item-value" id="aphim-val-server">Vietsub</span>
+                                                <svg class="aphim-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tốc độ phát -->
+                                        <div class="aphim-settings-item" data-target="aphim-panel-speed">
+                                            <div class="aphim-item-left">
+                                                <svg class="aphim-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 4a8 8 0 0 0-8 8c0 2.2.9 4.2 2.3 5.7M12 4a8 8 0 0 1 8 8c0 2.2-.9 4.2-2.3 5.7"></path>
+                                                    <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+                                                    <line x1="12" y1="12" x2="16" y2="9" stroke-width="2"></line>
+                                                </svg>
+                                                <span class="aphim-item-label">Tốc độ phát</span>
+                                            </div>
+                                            <div class="aphim-item-right">
+                                                <span class="aphim-item-value" id="aphim-val-speed">Bình thường</span>
+                                                <svg class="aphim-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <!-- Chất lượng -->
+                                        <div class="aphim-settings-item" data-target="aphim-panel-quality">
+                                            <div class="aphim-item-left">
+                                                <svg class="aphim-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2.5" y="4.5" width="19" height="15" rx="3.5"></rect>
+                                                    <polygon points="10 8.5 16 12 10 15.5 10 8.5" fill="currentColor"></polygon>
+                                                </svg>
+                                                <span class="aphim-item-label">Chất lượng</span>
+                                            </div>
+                                            <div class="aphim-item-right">
+                                                <span class="aphim-item-value" id="aphim-val-quality">Auto</span>
+                                                <svg class="aphim-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tỉ lệ khung hình -->
+                                        <div class="aphim-settings-item" data-target="aphim-panel-ratio">
+                                            <div class="aphim-item-left">
+                                                <svg class="aphim-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2.5" y="4.5" width="19" height="15" rx="3.5"></rect>
+                                                    <polygon points="10 8.5 16 12 10 15.5 10 8.5" fill="currentColor"></polygon>
+                                                </svg>
+                                                <span class="aphim-item-label">Tỉ lệ khung hình</span>
+                                            </div>
+                                            <div class="aphim-item-right">
+                                                <span class="aphim-item-value" id="aphim-val-ratio">Mặc định</span>
+                                                <svg class="aphim-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Máy chủ -->
+                                <div id="aphim-panel-server" class="aphim-settings-panel aphim-panel-sub hidden">
+                                    <div class="aphim-settings-header aphim-sub-header" data-back="main">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                        <span>Máy chủ</span>
+                                    </div>
+                                    <div class="aphim-settings-list" id="aphim-server-options-list">
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Tốc độ phát -->
+                                <div id="aphim-panel-speed" class="aphim-settings-panel aphim-panel-sub hidden">
+                                    <div class="aphim-settings-header aphim-sub-header" data-back="main">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                        <span>Tốc độ phát</span>
+                                    </div>
+                                    <div class="aphim-settings-list" id="aphim-speed-options-list">
+                                        <div class="aphim-sub-opt" data-speed="0.5"><span>0.5x</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-speed="0.75"><span>0.75x</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt active" data-speed="1.0"><span>1.0x (Bình thường)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-speed="1.25"><span>1.25x</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-speed="1.5"><span>1.5x</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-speed="2.0"><span>2.0x</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Chất lượng -->
+                                <div id="aphim-panel-quality" class="aphim-settings-panel aphim-panel-sub hidden">
+                                    <div class="aphim-settings-header aphim-sub-header" data-back="main">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                        <span>Chất lượng</span>
+                                    </div>
+                                    <div class="aphim-settings-list" id="aphim-quality-options-list">
+                                        <div class="aphim-sub-opt active" data-quality="-1"><span>Tự động (Auto)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-quality="1080"><span>1080p Full HD</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-quality="720"><span>720p HD</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-quality="480"><span>480p SD</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-quality="360"><span>360p</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                    </div>
+                                </div>
+
+                                <!-- Sub-panel: Tỉ lệ khung hình -->
+                                <div id="aphim-panel-ratio" class="aphim-settings-panel aphim-panel-sub hidden">
+                                    <div class="aphim-settings-header aphim-sub-header" data-back="main">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                        <span>Tỉ lệ khung hình</span>
+                                    </div>
+                                    <div class="aphim-settings-list" id="aphim-ratio-options-list">
+                                        <div class="aphim-sub-opt active" data-ratio="default"><span>Mặc định (Tự động)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-ratio="16/9"><span>16:9 (Chuẩn màn ảnh)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-ratio="4/3"><span>4:3 (Cổ điển)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-ratio="cover"><span>Tràn màn hình (Cắt viền)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <div class="aphim-sub-opt" data-ratio="stretch"><span>Kéo giãn (Stretch)</span><svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Picture-in-Picture Button -->
+                        <button type="button" id="aphim-btn-pip" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Hình trong hình (PiP)">
+                            <svg viewBox="0 0 24 24" class="aphim-btn-icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10V6.8C20 5.25 18.75 4 17.2 4H6.8C5.25 4 4 5.25 4 6.8V16.2C4 17.75 5.25 19 6.8 19H10.5" />
+                                <rect x="12.5" y="12.5" width="8" height="6.5" rx="1.6" fill="currentColor" stroke="none" />
+                            </svg>
+                        </button>
+
+                        <!-- Fullscreen Button -->
+                        <button type="button" id="aphim-btn-fs" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Toàn màn hình (F)">
+                            <span class="material-icons-round aphim-btn-icon" id="aphim-icon-fs">fullscreen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    player = document.getElementById('videoPlayer');
+    window.player = player;
+
+    const wrapper = document.getElementById('aphim-player-wrapper');
+    const controls = document.getElementById('aphim-controls');
+    const btnPlay = document.getElementById('aphim-btn-play');
+    const iconPlay = document.getElementById('aphim-icon-play');
+    const btnRewind = document.getElementById('aphim-btn-rewind');
+    const btnForward = document.getElementById('aphim-btn-forward');
+    const btnNext = document.getElementById('aphim-btn-next');
+    const btnVolume = document.getElementById('aphim-btn-volume');
+    const iconVolume = document.getElementById('aphim-icon-volume');
+    const volumeSlider = document.getElementById('aphim-volume-slider');
+    const timeCurrent = document.getElementById('aphim-time-current');
+    const timeDuration = document.getElementById('aphim-time-duration');
+    const timelineContainer = document.getElementById('aphim-timeline-container');
+    const bufferBar = document.getElementById('aphim-buffer-bar');
+    const progressBar = document.getElementById('aphim-progress-bar');
+    const scrubberDot = document.getElementById('aphim-scrubber-dot');
+    const hoverTime = document.getElementById('aphim-hover-time');
+    const btnSettings = document.getElementById('aphim-btn-settings');
+    const settingsMenu = document.getElementById('aphim-settings-menu');
+    const valServer = document.getElementById('aphim-val-server');
+    const valSpeed = document.getElementById('aphim-val-speed');
+    const valQuality = document.getElementById('aphim-val-quality');
+    const valRatio = document.getElementById('aphim-val-ratio');
+    const serverOptionsList = document.getElementById('aphim-server-options-list');
+    const qualityOptionsList = document.getElementById('aphim-quality-options-list');
+    const btnPip = document.getElementById('aphim-btn-pip');
+    const btnFs = document.getElementById('aphim-btn-fs');
+    const iconFs = document.getElementById('aphim-icon-fs');
+    const clickzone = document.getElementById('aphim-clickzone');
+    const centerIndicator = document.getElementById('aphim-center-indicator');
+    const centerIcon = document.getElementById('aphim-center-icon');
+
+    // UI helper: Ripple Seek Overlay Feedback
+    function showSeekOverlay(text, isForward) {
+        let overlay = document.getElementById('aphim-seek-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'aphim-seek-overlay';
+            overlay.className = 'pointer-events-none absolute z-30 flex items-center justify-center transition-all duration-300 opacity-0';
+            if (wrapper) wrapper.appendChild(overlay);
+        }
+        
+        if (isForward !== undefined) {
+            overlay.style.top = '0';
+            overlay.style.bottom = '0';
+            overlay.style.width = '35%';
+            overlay.style.borderRadius = '0';
+            if (isForward) {
+                overlay.style.right = '0';
+                overlay.style.left = 'auto';
+            } else {
+                overlay.style.left = '0';
+                overlay.style.right = 'auto';
+            }
+            overlay.style.background = 'radial-gradient(circle, rgba(0, 0, 0, 0.25) 0%, transparent 75%)';
+            overlay.innerHTML = `
+                <div class="aphim-seek-badge">
+                    <span class="material-icons-round aphim-seek-icon">${isForward ? 'fast_forward' : 'fast_rewind'}</span>
+                    <span class="aphim-seek-text">${text}</span>
+                </div>
+            `;
+        } else {
+            overlay.style.top = '50%';
+            overlay.style.left = '50%';
+            overlay.style.bottom = 'auto';
+            overlay.style.right = 'auto';
+            overlay.style.width = 'auto';
+            overlay.style.transform = 'translate(-50%, -50%)';
+            overlay.style.borderRadius = '0';
+            overlay.style.background = 'transparent';
+            overlay.innerHTML = `
+                <div class="aphim-seek-badge">
+                    <span class="aphim-seek-text">${text}</span>
+                </div>
+            `;
+        }
+
+        overlay.style.opacity = '1';
+        clearTimeout(overlay._timer);
+        overlay._timer = setTimeout(() => {
+            overlay.style.opacity = '0';
+        }, 550);
+    }
+
+    // UI helper: pulse center indicator
+    let centerIndicatorTimer = null;
+    function pulseCenterIndicator(isPlay) {
+        if (!centerIndicator || !centerIcon) return;
+        centerIcon.textContent = isPlay ? 'play_arrow' : 'pause';
+        if (centerIndicatorTimer) clearTimeout(centerIndicatorTimer);
+        centerIndicator.classList.add('active');
+        centerIndicatorTimer = setTimeout(() => {
+            centerIndicator.classList.remove('active');
+        }, 450);
+    }
+
+    // Toggle Play/Pause
+    function togglePlayPause() {
+        if (player.paused) {
+            player.play().catch(e => console.log('Play prevented:', e));
+        } else {
+            player.pause();
+        }
+    }
+
+    if (btnPlay) btnPlay.onclick = togglePlayPause;
+    if (clickzone) {
+        clickzone.onclick = (e) => {
+            if (window.innerWidth <= 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+                return;
+            }
+            togglePlayPause();
+        };
+    }
+
+    // Seek 10s
+    if (btnRewind) btnRewind.onclick = () => {
+        player.currentTime = Math.max(0, player.currentTime - 10);
+        showSeekOverlay('-10s', false);
+    };
+    if (btnForward) btnForward.onclick = () => {
+        player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+        showSeekOverlay('+10s', true);
+    };
+    if (btnNext) btnNext.onclick = () => {
+        if (typeof autoPlayNext === 'function') autoPlayNext();
+    };
+
+    // Volume Slider & Mute
+    let lastVolume = 0.9;
+    function updateVolumeSliderFill(vol) {
+        if (!volumeSlider) return;
+        const pct = Math.max(0, Math.min(100, (vol * 100))).toFixed(1);
+        volumeSlider.style.setProperty('--vol-pct', `${pct}%`);
+        volumeSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${pct}%, rgba(255, 255, 255, 0.28) ${pct}%, rgba(255, 255, 255, 0.28) 100%)`;
+    }
+
+    function updateVolumeIcon(vol, muted) {
+        if (!iconVolume) return;
+        if (muted || vol === 0) {
+            iconVolume.textContent = 'volume_off';
+        } else if (vol < 0.5) {
+            iconVolume.textContent = 'volume_down';
+        } else {
+            iconVolume.textContent = 'volume_up';
+        }
+        updateVolumeSliderFill(muted ? 0 : vol);
+    }
+
+    if (volumeSlider) {
+        volumeSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            player.volume = val;
+            player.muted = (val === 0);
+            updateVolumeIcon(val, player.muted);
+        };
+    }
+
+    if (btnVolume) {
+        btnVolume.onclick = () => {
+            if (player.muted || player.volume === 0) {
+                player.muted = false;
+                player.volume = lastVolume > 0 ? lastVolume : 0.9;
+                if (volumeSlider) volumeSlider.value = player.volume;
+            } else {
+                lastVolume = player.volume;
+                player.muted = true;
+                if (volumeSlider) volumeSlider.value = 0;
+            }
+            updateVolumeIcon(player.volume, player.muted);
+        };
+    }
+
+    // Initialize initial volume slider fill
+    updateVolumeSliderFill(player.muted ? 0 : (player.volume !== undefined ? player.volume : 0.9));
+
+    // Timeline Scrubbing & Hover Preview (Ultra-smooth 60/120fps hardware response)
+    let isDraggingTimeline = false;
+    let wasPlayingBeforeDrag = false;
+    let rafScrubId = null;
+    let throttledSeekTimer = null;
+    let lastDragPct = 0;
+
+    function getTimelinePercentage(e) {
+        if (!timelineContainer) return 0;
+        const rect = timelineContainer.getBoundingClientRect();
+        let clientX = 0;
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+        } else if (e.changedTouches && e.changedTouches.length > 0) {
+            clientX = e.changedTouches[0].clientX;
+        } else {
+            clientX = e.clientX;
+        }
+        const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        return pos;
+    }
+
+    function renderScrubUI(pct) {
+        if (!player || !player.duration) return;
+        lastDragPct = pct;
+        const targetTime = pct * player.duration;
+        const pctStr = `${(pct * 100).toFixed(2)}%`;
+        const hasHours = (player.duration >= 3600);
+        
+        if (progressBar) progressBar.style.width = pctStr;
+        if (scrubberDot) scrubberDot.style.left = pctStr;
+        if (hoverTime) {
+            hoverTime.style.left = pctStr;
+            hoverTime.textContent = formatPlayerTime(targetTime, hasHours);
+            hoverTime.style.opacity = '1';
+        }
+        if (timeCurrent) {
+            timeCurrent.textContent = formatPlayerTime(targetTime, hasHours);
+        }
+    }
+
+    function handleScrubStart(e) {
+        if (!player || !player.duration || !timelineContainer) return;
+        isDraggingTimeline = true;
+        wasPlayingBeforeDrag = !player.paused;
+        if (wasPlayingBeforeDrag) {
+            player.pause();
+        }
+        timelineContainer.classList.add('is-scrubbing');
+        const pct = getTimelinePercentage(e);
+        renderScrubUI(pct);
+        showControls();
+    }
+
+    function handleScrubMove(e) {
+        if (!isDraggingTimeline || !player || !player.duration) return;
+        if (e.cancelable) e.preventDefault();
+        const pct = getTimelinePercentage(e);
+        
+        if (rafScrubId) cancelAnimationFrame(rafScrubId);
+        rafScrubId = requestAnimationFrame(() => {
+            renderScrubUI(pct);
+        });
+
+        if (!throttledSeekTimer) {
+            throttledSeekTimer = setTimeout(() => {
+                throttledSeekTimer = null;
+                if (isDraggingTimeline && player && player.duration) {
+                    if (player.fastSeek) {
+                        player.fastSeek(pct * player.duration);
+                    } else {
+                        player.currentTime = pct * player.duration;
+                    }
+                }
+            }, 60);
+        }
+        showControls();
+    }
+
+    function handleScrubEnd(e) {
+        if (!isDraggingTimeline) return;
+        isDraggingTimeline = false;
+        if (timelineContainer) timelineContainer.classList.remove('is-scrubbing');
+        if (rafScrubId) cancelAnimationFrame(rafScrubId);
+        if (throttledSeekTimer) {
+            clearTimeout(throttledSeekTimer);
+            throttledSeekTimer = null;
+        }
+
+        const pct = getTimelinePercentage(e);
+        if (player && player.duration) {
+            player.currentTime = pct * player.duration;
+        }
+        if (hoverTime) {
+            hoverTime.style.opacity = '0';
+        }
+        if (wasPlayingBeforeDrag && player) {
+            player.play().catch(err => console.log('Resume playback error:', err));
+        }
+        doSaveProgress();
+    }
+
+    if (timelineContainer) {
+        timelineContainer.addEventListener('mousedown', handleScrubStart);
+        timelineContainer.addEventListener('touchstart', handleScrubStart, { passive: false });
+
+        timelineContainer.addEventListener('mousemove', (e) => {
+            if (isDraggingTimeline || !player || !player.duration) return;
+            const pct = getTimelinePercentage(e);
+            const targetTime = pct * player.duration;
+            const hasHours = (player.duration >= 3600);
+            if (hoverTime) {
+                hoverTime.style.left = `${(pct * 100).toFixed(2)}%`;
+                hoverTime.textContent = formatPlayerTime(targetTime, hasHours);
+                hoverTime.style.opacity = '1';
+            }
+        });
+
+        timelineContainer.addEventListener('mouseleave', () => {
+            if (hoverTime && !isDraggingTimeline) hoverTime.style.opacity = '0';
+        });
+
+        window.addEventListener('mousemove', handleScrubMove);
+        window.addEventListener('touchmove', handleScrubMove, { passive: false });
+        window.addEventListener('mouseup', handleScrubEnd);
+        window.addEventListener('touchend', handleScrubEnd);
+        window.addEventListener('touchcancel', handleScrubEnd);
+    }
+
+    // Playback Speed Menu
+    // ─── SETTINGS FLYOUT MENU CONTROLLER ───
+    function showSettingsPanel(panelId) {
+        if (!settingsMenu) return;
+        const allPanels = settingsMenu.querySelectorAll('.aphim-settings-panel');
+        allPanels.forEach(p => p.classList.add('hidden'));
+        const targetPanel = document.getElementById(panelId);
+        if (targetPanel) targetPanel.classList.remove('hidden');
+    }
+
+    function refreshSettingsServers() {
+        if (!serverOptionsList) return;
+        if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0) {
+            serverOptionsList.innerHTML = '<div class="px-4 py-2 text-xs text-white/50 text-center">Không có danh sách máy chủ</div>';
+            return;
+        }
+
+        const categoryCounts = {};
+        currentMovie.episodes.forEach(s => {
+            const lang = getLangTag(s, currentMovie);
+            categoryCounts[lang] = (categoryCounts[lang] || 0) + 1;
+        });
+
+        const categoryIndices = {};
+        let currentActiveName = 'Vietsub';
+
+        serverOptionsList.innerHTML = currentMovie.episodes.map((s, idx) => {
+            const isActive = (idx === currentServerIndex);
+            const lang = getLangTag(s, currentMovie);
+            categoryIndices[lang] = (categoryIndices[lang] || 0) + 1;
+            
+            let sName = lang;
+            if (categoryCounts[lang] > 1) {
+                sName = (categoryIndices[lang] === 1) ? `${lang} (Chính)` : `${lang} #${categoryIndices[lang]}`;
+            }
+            if (isActive) currentActiveName = sName;
+
+            return `
+                <div class="aphim-sub-opt ${isActive ? 'active' : ''}" data-server-idx="${idx}">
+                    <span class="truncate">${sName}</span>
+                    <svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+            `;
+        }).join('');
+
+        if (valServer) valServer.textContent = currentActiveName;
+
+        const sOpts = serverOptionsList.querySelectorAll('.aphim-sub-opt');
+        sOpts.forEach(opt => {
+            opt.onclick = (e) => {
+                e.stopPropagation();
+                const idx = parseInt(opt.dataset.serverIdx);
+                if (typeof window.changeServer === 'function') {
+                    window.changeServer(idx);
+                }
+                refreshSettingsServers();
+                showSettingsPanel('aphim-settings-main-panel');
+            };
+        });
+    }
+
+    function refreshSettingsQuality() {
+        if (!qualityOptionsList) return;
+        if (window.hls && window.hls.levels && window.hls.levels.length > 1) {
+            const curLvl = window.hls.currentLevel;
+            let currentQualityLabel = (curLvl === -1) ? 'Auto' : `${window.hls.levels[curLvl]?.height || 'HD'}p`;
+            if (valQuality) valQuality.textContent = currentQualityLabel;
+
+            let html = `
+                <div class="aphim-sub-opt ${curLvl === -1 ? 'active' : ''}" data-quality="-1">
+                    <span>Tự động (Auto)</span>
+                    <svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+            `;
+            window.hls.levels.forEach((lvl, idx) => {
+                const label = `${lvl.height}p ${lvl.height >= 1080 ? 'Full HD' : lvl.height >= 720 ? 'HD' : ''}`.trim();
+                html += `
+                    <div class="aphim-sub-opt ${curLvl === idx ? 'active' : ''}" data-quality="${idx}">
+                        <span>${label}</span>
+                        <svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                `;
+            });
+            qualityOptionsList.innerHTML = html;
+
+            const qOpts = qualityOptionsList.querySelectorAll('.aphim-sub-opt');
+            qOpts.forEach(opt => {
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    const qIdx = parseInt(opt.dataset.quality);
+                    if (window.hls) {
+                        window.hls.currentLevel = qIdx;
+                    }
+                    refreshSettingsQuality();
+                    showSettingsPanel('aphim-settings-main-panel');
+                };
+            });
+        } else {
+            if (valQuality) valQuality.textContent = 'Auto (FHD)';
+        }
+    }
+
+    if (btnSettings && settingsMenu) {
+        btnSettings.onclick = (e) => {
+            e.stopPropagation();
+            const isHidden = settingsMenu.classList.contains('hidden');
+            if (isHidden) {
+                showSettingsPanel('aphim-settings-main-panel');
+                refreshSettingsServers();
+                refreshSettingsQuality();
+                settingsMenu.classList.remove('hidden');
+            } else {
+                settingsMenu.classList.add('hidden');
+            }
+        };
+
+        const navItems = settingsMenu.querySelectorAll('.aphim-settings-item');
+        navItems.forEach(item => {
+            item.onclick = (e) => {
+                e.stopPropagation();
+                const target = item.dataset.target;
+                if (target === 'aphim-panel-server') {
+                    refreshSettingsServers();
+                    showSettingsPanel('aphim-panel-server');
+                } else if (target === 'aphim-panel-speed') {
+                    showSettingsPanel('aphim-panel-speed');
+                } else if (target === 'aphim-panel-quality') {
+                    refreshSettingsQuality();
+                    showSettingsPanel('aphim-panel-quality');
+                } else if (target === 'aphim-panel-ratio') {
+                    showSettingsPanel('aphim-panel-ratio');
+                }
+            };
+        });
+
+        const backHeaders = settingsMenu.querySelectorAll('.aphim-sub-header');
+        backHeaders.forEach(hdr => {
+            hdr.onclick = (e) => {
+                e.stopPropagation();
+                showSettingsPanel('aphim-settings-main-panel');
+            };
+        });
+
+        const speedPanel = document.getElementById('aphim-panel-speed');
+        if (speedPanel) {
+            const speedOpts = speedPanel.querySelectorAll('.aphim-sub-opt');
+            speedOpts.forEach(opt => {
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    const rate = parseFloat(opt.dataset.speed);
+                    player.playbackRate = rate;
+                    speedOpts.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    if (valSpeed) valSpeed.textContent = (rate === 1.0) ? 'Bình thường' : `${rate}x`;
+                    try { localStorage.setItem('aphim_playback_speed', rate); } catch (err) {}
+                    showSettingsPanel('aphim-settings-main-panel');
+                };
+            });
+        }
+
+        const ratioPanel = document.getElementById('aphim-panel-ratio');
+        if (ratioPanel) {
+            const ratioOpts = ratioPanel.querySelectorAll('.aphim-sub-opt');
+            ratioOpts.forEach(opt => {
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    const ratio = opt.dataset.ratio;
+                    ratioOpts.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+
+                    if (ratio === '16/9') {
+                        player.style.objectFit = 'contain';
+                        player.style.aspectRatio = '16 / 9';
+                        if (valRatio) valRatio.textContent = '16:9';
+                    } else if (ratio === '4/3') {
+                        player.style.objectFit = 'contain';
+                        player.style.aspectRatio = '4 / 3';
+                        if (valRatio) valRatio.textContent = '4:3';
+                    } else if (ratio === 'cover') {
+                        player.style.objectFit = 'cover';
+                        player.style.aspectRatio = '';
+                        if (valRatio) valRatio.textContent = 'Tràn viền';
+                    } else if (ratio === 'stretch') {
+                        player.style.objectFit = 'fill';
+                        player.style.aspectRatio = '';
+                        if (valRatio) valRatio.textContent = 'Kéo giãn';
+                    } else {
+                        player.style.objectFit = 'contain';
+                        player.style.aspectRatio = '';
+                        if (valRatio) valRatio.textContent = 'Mặc định';
+                    }
+                    try { localStorage.setItem('aphim_aspect_ratio', ratio); } catch (err) {}
+                    showSettingsPanel('aphim-settings-main-panel');
+                };
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!settingsMenu.contains(e.target) && e.target !== btnSettings && !btnSettings.contains(e.target)) {
+                settingsMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Picture-in-Picture
+    if (btnPip) {
+        if ('pictureInPictureEnabled' in document) {
+            btnPip.onclick = async () => {
+                try {
+                    if (document.pictureInPictureElement) {
+                        await document.exitPictureInPicture();
+                    } else {
+                        await player.requestPictureInPicture();
+                    }
+                } catch (e) {
+                    console.warn('PiP error:', e);
+                }
+            };
+        } else {
+            btnPip.style.display = 'none';
+        }
+    }
+
+    // Fullscreen Toggle Controller (Universal: Desktop Fullscreen + Mobile Auto-Landscape & Web Fullscreen)
+    function isCurrentlyFullscreen() {
+        return !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement ||
+            (wrapper && wrapper.classList.contains('aphim-web-fullscreen'))
+        );
+    }
+
+    function updateFullscreenIcons(isFs) {
+        if (!iconFs) return;
+        iconFs.textContent = isFs ? 'fullscreen_exit' : 'fullscreen';
+        if (btnFs) {
+            btnFs.title = isFs ? 'Thu nhỏ (F / Esc)' : 'Toàn màn hình (F)';
+        }
+    }
+
+    async function enterFullscreen() {
+        if (!wrapper) return;
+
+        let nativeSuccess = false;
+
+        // 1. Try Native Fullscreen API on wrapper
+        try {
+            if (wrapper.requestFullscreen) {
+                await wrapper.requestFullscreen();
+                nativeSuccess = true;
+            } else if (wrapper.webkitRequestFullscreen) {
+                await wrapper.webkitRequestFullscreen();
+                nativeSuccess = true;
+            } else if (wrapper.mozRequestFullScreen) {
+                await wrapper.mozRequestFullScreen();
+                nativeSuccess = true;
+            } else if (wrapper.msRequestFullscreen) {
+                await wrapper.msRequestFullscreen();
+                nativeSuccess = true;
+            }
+        } catch (e) {
+            console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
+        }
+
+        // 2. On iOS Safari: try native video fullscreen if wrapper API is unavailable
+        if (!nativeSuccess && player) {
+            if (player.webkitEnterFullscreen) {
+                try {
+                    player.webkitEnterFullscreen();
+                    nativeSuccess = true;
+                } catch (e) {
+                    console.warn('iOS webkitEnterFullscreen error:', e);
+                }
+            } else if (player.requestFullscreen) {
+                try {
+                    await player.requestFullscreen();
+                    nativeSuccess = true;
+                } catch (e) {}
+            } else if (player.webkitRequestFullscreen) {
+                try {
+                    await player.webkitRequestFullscreen();
+                    nativeSuccess = true;
+                } catch (e) {}
+            }
+        }
+
+        // 3. Auto lock screen orientation to landscape on mobile devices (standard cinema flow)
+        if (screen.orientation && screen.orientation.lock) {
+            try {
+                await screen.orientation.lock('landscape');
+            } catch (e) {
+                // Ignore orientation lock restrictions
+            }
+        }
+
+        // 4. Web Fullscreen (CSS Fullscreen) as universal fallback whenever native fullscreen is not active
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            wrapper.classList.add('aphim-web-fullscreen');
+            document.body.classList.add('aphim-body-fullscreen');
+        }
+
+        updateFullscreenIcons(true);
+        showControls();
+    }
+
+    async function exitFullscreen() {
+        // 1. Exit native browser fullscreen
+        try {
+            if (document.exitFullscreen) {
+                await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                await document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                await document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                await document.msExitFullscreen();
+            }
+        } catch (e) {
+            console.warn('Exit fullscreen error:', e);
+        }
+
+        // 2. Unlock screen orientation
+        if (screen.orientation && screen.orientation.unlock) {
+            try {
+                screen.orientation.unlock();
+            } catch (e) {}
+        }
+
+        // 3. Remove Web Fullscreen classes
+        if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
+        document.body.classList.remove('aphim-body-fullscreen');
+
+        updateFullscreenIcons(false);
+        showControls();
+    }
+
+    function toggleFullscreen() {
+        if (isCurrentlyFullscreen()) {
+            exitFullscreen();
+        } else {
+            enterFullscreen();
+        }
+    }
+    window.toggleFullscreen = toggleFullscreen;
+
+    if (btnFs) {
+        btnFs.onclick = (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        };
+    }
+
+    const handleFsChange = () => {
+        const isFs = isCurrentlyFullscreen();
+        updateFullscreenIcons(isFs);
+        if (!isFs) {
+            if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
+            document.body.classList.remove('aphim-body-fullscreen');
+            if (screen.orientation && screen.orientation.unlock) {
+                try { screen.orientation.unlock(); } catch (e) {}
+            }
+        }
+        showControls();
+        scheduleHideControls(2400);
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    document.addEventListener('mozfullscreenchange', handleFsChange);
+    document.addEventListener('MSFullscreenChange', handleFsChange);
+
+    // ESC key listener for Web Fullscreen
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && wrapper && wrapper.classList.contains('aphim-web-fullscreen')) {
+            exitFullscreen();
+        }
+    });
+
+    // iOS native video fullscreen change events
+    if (player) {
+        player.addEventListener('webkitbeginfullscreen', () => {
+            updateFullscreenIcons(true);
+        });
+        player.addEventListener('webkitendfullscreen', () => {
+            updateFullscreenIcons(false);
+        });
+    }
+
+    // Controls Auto-Hide & Mouse Hover Visibility Logic (Professional Cinema Standard)
+    let hideTimeout = null;
+    let isHoveringControls = false;
+
+    function showControls() {
+        if (!controls) return;
+        controls.classList.remove('aphim-controls-hidden');
+        controls.style.opacity = '1';
+        controls.style.pointerEvents = 'auto';
+        controls.style.visibility = 'visible';
+        if (wrapper) {
+            wrapper.classList.remove('aphim-hide-cursor');
+            wrapper.style.cursor = 'default';
+        }
+
+        scheduleHideControls(2500);
+    }
+
+    function hideControls() {
+        if (!controls) return;
+        if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
+        if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
+
+        controls.classList.add('aphim-controls-hidden');
+        controls.style.opacity = '0';
+        controls.style.pointerEvents = 'none';
+        controls.style.visibility = 'hidden';
+        if (wrapper) {
+            wrapper.classList.add('aphim-hide-cursor');
+            wrapper.style.cursor = 'none';
+        }
+        if (settingsMenu) settingsMenu.classList.add('hidden');
+    }
+
+    function scheduleHideControls(delay = 2500) {
+        if (hideTimeout) clearTimeout(hideTimeout);
+        if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
+        if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
+
+        hideTimeout = setTimeout(() => {
+            hideControls();
+        }, delay);
+    }
+
+    if (controls) {
+        controls.addEventListener('mouseenter', () => {
+            isHoveringControls = true;
+            if (hideTimeout) clearTimeout(hideTimeout);
+            showControls();
+        });
+        controls.addEventListener('mouseleave', () => {
+            isHoveringControls = false;
+            scheduleHideControls(1200);
+        });
+    }
+
+    if (settingsMenu) {
+        settingsMenu.addEventListener('mouseenter', () => {
+            isHoveringControls = true;
+            if (hideTimeout) clearTimeout(hideTimeout);
+        });
+        settingsMenu.addEventListener('mouseleave', () => {
+            isHoveringControls = false;
+            scheduleHideControls(1200);
+        });
+    }
+
+    if (wrapper) {
+        wrapper.addEventListener('mousemove', () => {
+            showControls();
+        });
+        wrapper.addEventListener('mouseenter', () => {
+            showControls();
+        });
+        wrapper.addEventListener('mouseleave', () => {
+            isHoveringControls = false;
+            if (hideTimeout) clearTimeout(hideTimeout);
+            if (wrapper) wrapper.style.cursor = 'default';
+            if (player && !player.paused && !isDraggingTimeline) {
+                // Di chuột ra khỏi player -> Lập tức ẩn thanh điều khiển sau 300ms mượt mà
+                hideTimeout = setTimeout(() => {
+                    hideControls();
+                }, 300);
+            }
+        });
+        wrapper.addEventListener('touchstart', () => {
+            showControls();
+        }, { passive: true });
+    }
+
+    // Global listener for Fullscreen mode
+    document.addEventListener('mousemove', () => {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            showControls();
+        }
+    });
+
+    let isTimeRestored = false;
+
+    // Helper lưu tiến độ xem
     function doSaveProgress() {
         if (player && player.currentTime > 0 && player.duration > 0 && currentMovie) {
             const epSlug = (currentEpisode && currentEpisode.slug) ? currentEpisode.slug : (episode ? episode.slug : null);
@@ -1934,54 +2823,276 @@ function initializePlayer(episode) {
         }
     }
 
-    // Save progress periodically
-    let progressInterval = null;
-    player.addEventListener('play', () => {
-        console.log('▶️ Video playing');
-        if (progressInterval) clearInterval(progressInterval); // Dọn dẹp interval cũ nếu có
-        progressInterval = setInterval(doSaveProgress, 3000); // Cập nhật mỗi 3 giây
-    });
-
-    let lastTimeUpdateSave = 0;
-    player.addEventListener('timeupdate', () => {
-        const now = Date.now();
-        if (now - lastTimeUpdateSave > 2000) { // Lưu mỗi 2 giây khi video phát
-            lastTimeUpdateSave = now;
-            doSaveProgress();
+    // Direct HLS connection
+    if (Hls.isSupported()) {
+        console.log('✅ [Hybrid Native Core] Khởi tạo HLS với 100% chất lượng GPU DirectComposition');
+        if (window.hlsInstance) {
+            try { window.hlsInstance.destroy(); } catch (e) { }
         }
+        const hls = new Hls({
+            debug: false,
+            enableWorker: true,
+            lowLatencyMode: false,
+            maxBufferLength: 60,
+            maxMaxBufferLength: 120,
+            preload: true
+        });
+        window.hlsInstance = hls;
+
+        hls.loadSource(videoUrl);
+        hls.attachMedia(player);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            console.log('🚀 Manifest parsed, ready to play');
+            if (!isTimeRestored && progress && progress.currentTime > 0) {
+                isTimeRestored = true;
+                setTimeout(() => {
+                    player.currentTime = progress.currentTime;
+                    player.play().catch(e => console.log('Auto-play prevented:', e));
+                }, 150);
+            } else {
+                player.play().catch(e => {
+                    console.log('⚠️ Autoplay prevented:', e);
+                });
+            }
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+                console.error('❌ HLS Fatal Error:', data.type, data.details);
+                switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        console.log('🔄 Trying to recover network error...');
+                        hls.startLoad();
+                        if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR || data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
+                            hls.destroy();
+                            handleStreamError();
+                        }
+                        break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        console.log('🔄 Trying to recover media error...');
+                        hls.recoverMediaError();
+                        break;
+                    default:
+                        _isInitializingPlayer = false;
+                        handleStreamError();
+                        break;
+                }
+            }
+        });
+    } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+        player.src = videoUrl;
+        player.addEventListener('canplay', () => {
+            if (!isTimeRestored && progress && progress.currentTime > 0) {
+                isTimeRestored = true;
+                setTimeout(() => {
+                    player.currentTime = progress.currentTime;
+                }, 200);
+            }
+        }, { once: true });
+    }
+
+    // Video State Synchronizations
+    player.addEventListener('play', () => {
+        if (iconPlay) iconPlay.textContent = 'pause';
+        pulseCenterIndicator(true);
+        showControls();
     });
 
     player.addEventListener('pause', () => {
-        console.log('⏸️ Video paused');
-        if (progressInterval) clearInterval(progressInterval);
-        doSaveProgress(); // Lưu luôn khi bấm tạm dừng
+        if (iconPlay) iconPlay.textContent = 'play_arrow';
+        pulseCenterIndicator(false);
+        showControls();
+        doSaveProgress();
     });
 
-    // Bổ sung: Lưu TỨC THỜI khi người dùng tua phim đến vị trí mới
+    player.addEventListener('loadedmetadata', () => {
+        if (player.duration) {
+            const hasHours = (player.duration >= 3600);
+            if (timeDuration) timeDuration.textContent = formatPlayerTime(player.duration, hasHours);
+            if (timeCurrent) timeCurrent.textContent = formatPlayerTime(player.currentTime || 0, hasHours);
+        }
+    });
+
+    player.addEventListener('durationchange', () => {
+        if (player.duration) {
+            const hasHours = (player.duration >= 3600);
+            if (timeDuration) timeDuration.textContent = formatPlayerTime(player.duration, hasHours);
+        }
+    });
+
+    player.addEventListener('timeupdate', () => {
+        if (!player.duration || isDraggingTimeline) return;
+        const cur = player.currentTime;
+        const dur = player.duration;
+        const pct = (cur / dur) * 100;
+        const hasHours = (dur >= 3600);
+
+        if (timeCurrent) timeCurrent.textContent = formatPlayerTime(cur, hasHours);
+        if (timeDuration) timeDuration.textContent = formatPlayerTime(dur, hasHours);
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (scrubberDot) scrubberDot.style.left = `${pct}%`;
+
+        // Update buffer progress
+        if (player.buffered && player.buffered.length > 0 && bufferBar) {
+            try {
+                const bufEnd = player.buffered.end(player.buffered.length - 1);
+                const bufPct = (bufEnd / dur) * 100;
+                bufferBar.style.width = `${bufPct}%`;
+            } catch (e) { }
+        }
+    });
+
     player.addEventListener('seeked', () => {
-        console.log('⏩ User seeked - Instant save');
         doSaveProgress();
     });
 
-    // Bổ sung: Lưu TỨC THỜI khi chuẩn bị tắt tab / tải lại trang
-    window.addEventListener('beforeunload', () => {
-        doSaveProgress();
-    });
-
-    // Auto play next episode
     player.addEventListener('ended', () => {
-        console.log('✅ Video ended');
-        clearInterval(progressInterval);
-        autoPlayNext();
+        doSaveProgress();
+        if (typeof autoPlayNext === 'function') autoPlayNext();
     });
+
+    // Mobile Gestures (Ảnh số 2):
+    // 1. Chạm một lần để hiện / ẩn thanh điều khiển
+    // 2. Chạm đúp bên trái / phải để tua 10 giây
+    // 3. Nhấn giữ trên video để tua nhanh 2x, thả tay để trở lại tốc độ cũ
+    let lastTap = 0;
+    let singleTapTimeout = null;
+    let longPressTimer = null;
+    let isLongPressActive = false;
+    let preSpeed = 1.0;
+
+    if (clickzone) {
+        clickzone.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            isLongPressActive = false;
+            longPressTimer = setTimeout(() => {
+                isLongPressActive = true;
+                preSpeed = player.playbackRate || 1.0;
+                player.playbackRate = 2.0;
+                showSeekOverlay('2x ▶▶', true);
+            }, 400);
+        }, { passive: true });
+
+        const cancelLongPress = (e) => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            if (isLongPressActive) {
+                isLongPressActive = false;
+                player.playbackRate = preSpeed || 1.0;
+                showSeekOverlay(`${player.playbackRate}x`, false);
+                if (e) {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } catch (err) {}
+                }
+                return true;
+            }
+            return false;
+        };
+
+        clickzone.addEventListener('touchend', (e) => {
+            if (cancelLongPress(e)) {
+                lastTap = 0;
+                return;
+            }
+
+            const now = Date.now();
+            const DOUBLE_TAP_DELAY = 280;
+            if (now - lastTap < DOUBLE_TAP_DELAY) {
+                if (singleTapTimeout) clearTimeout(singleTapTimeout);
+                e.preventDefault();
+                const rect = clickzone.getBoundingClientRect();
+                const touch = e.changedTouches[0] || e.touches[0];
+                if (touch) {
+                    const tapX = touch.clientX - rect.left;
+                    if (tapX > (rect.width / 2)) {
+                        player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+                        showSeekOverlay('+10s', true);
+                    } else {
+                        player.currentTime = Math.max(0, player.currentTime - 10);
+                        showSeekOverlay('-10s', false);
+                    }
+                }
+                lastTap = 0;
+            } else {
+                lastTap = now;
+                if (window.innerWidth <= 768) {
+                    singleTapTimeout = setTimeout(() => {
+                        if (controls) {
+                            if (controls.classList.contains('aphim-controls-hidden') || controls.style.opacity === '0') {
+                                showControls();
+                            } else {
+                                hideControls();
+                            }
+                        }
+                    }, DOUBLE_TAP_DELAY);
+                }
+            }
+        });
+
+        clickzone.addEventListener('touchcancel', () => {
+            cancelLongPress();
+        });
+    }
+
+    // Keyboard Shortcuts: Space (Play/Pause), ArrowRight/Left (10s), ArrowUp/Down (Vol), M (Mute), F (FS)
+    if (window._watchKeydownHandler) {
+        document.removeEventListener('keydown', window._watchKeydownHandler, true);
+    }
+    window._watchKeydownHandler = function (e) {
+        if (e.isComposing) return;
+        const active = document.activeElement;
+        if (active && (
+            active.tagName === 'INPUT' ||
+            active.tagName === 'TEXTAREA' ||
+            active.tagName === 'SELECT' ||
+            active.isContentEditable ||
+            active.closest('input, textarea, select, [contenteditable], .ap-auth-input, .ap-cmt-textarea')
+        )) {
+            return;
+        }
+
+        if (e.code === 'Space' || e.key === 'k' || e.key === 'K') {
+            e.preventDefault();
+            togglePlayPause();
+        } else if (e.code === 'ArrowRight' || e.key === 'l' || e.key === 'L') {
+            e.preventDefault();
+            player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+            showSeekOverlay('+10s', true);
+        } else if (e.code === 'ArrowLeft' || e.key === 'j' || e.key === 'J') {
+            e.preventDefault();
+            player.currentTime = Math.max(0, player.currentTime - 10);
+            showSeekOverlay('-10s', false);
+        } else if (e.code === 'ArrowUp') {
+            e.preventDefault();
+            player.volume = Math.min(1, player.volume + 0.1);
+            if (volumeSlider) volumeSlider.value = player.volume;
+            updateVolumeIcon(player.volume, player.muted);
+        } else if (e.code === 'ArrowDown') {
+            e.preventDefault();
+            player.volume = Math.max(0, player.volume - 0.1);
+            if (volumeSlider) volumeSlider.value = player.volume;
+            updateVolumeIcon(player.volume, player.muted);
+        } else if (e.key === 'm' || e.key === 'M') {
+            e.preventDefault();
+            if (btnVolume) btnVolume.click();
+        } else if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            if (btnFs) btnFs.click();
+        }
+    };
+    document.addEventListener('keydown', window._watchKeydownHandler, true);
 
     player.addEventListener('error', (e) => {
         console.error('❌ Video element error:', e);
-        _isInitializingPlayer = false; // Reset guard khi lỗi
+        _isInitializingPlayer = false;
         handleStreamError();
     });
 
-    // Reset guard sau khi player bắt đầu load thành công
     player.addEventListener('loadstart', () => {
         _isInitializingPlayer = false;
     }, { once: true });
@@ -2627,7 +3738,6 @@ function updateFavoriteButton(button) {
     const loggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
     const isFav = loggedIn ? userService.isFavorite(currentMovie.slug) : false;
     const icon = button.querySelector('.material-icons-round') || button.querySelector('.material-icons-outlined');
-    const svgPath = button.querySelector('svg path');
     const svg = button.querySelector('svg');
     const textSpan = button.querySelector('.whitespace-nowrap') || button.querySelector('span:not(.material-icons-round)');
 
@@ -2638,13 +3748,10 @@ function updateFavoriteButton(button) {
             icon.classList.add('text-red-500');
             icon.style.color = '#ef4444';
         }
-        if (svgPath) {
-            svgPath.setAttribute('d', 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
-        }
         if (svg) {
-            svg.classList.remove('text-white');
-            svg.classList.add('text-red-500');
             svg.style.color = '#ef4444';
+            svg.style.stroke = '#ef4444';
+            svg.style.fill = '#ef4444';
         }
         if (textSpan) {
             textSpan.textContent = 'Đã thích';
@@ -2659,13 +3766,10 @@ function updateFavoriteButton(button) {
             icon.classList.remove('text-red-500');
             icon.style.color = '';
         }
-        if (svgPath) {
-            svgPath.setAttribute('d', 'M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z');
-        }
         if (svg) {
-            svg.classList.add('text-white');
-            svg.classList.remove('text-red-500');
             svg.style.color = '';
+            svg.style.stroke = 'currentColor';
+            svg.style.fill = 'none';
         }
         if (textSpan) {
             textSpan.textContent = 'Yêu thích';

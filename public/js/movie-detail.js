@@ -20,50 +20,50 @@ if (!document.getElementById('anti-fouc-style')) {
 }
 
 if (typeof window.openLightbox === 'undefined') {
-    window.openLightbox = function(images, index) {
-      if (!images || images.length === 0) return;
-      let current = index || 0;
-      const isMobile = window.innerWidth <= 768;
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:99999;display:flex;align-items:center;justify-content:center';
-      
-      const img = document.createElement('img');
-      img.style.cssText = isMobile ? 'max-width:92vw;max-height:70vh;object-fit:contain;border-radius:8px' : 'max-width:70vw;max-height:75vh;object-fit:contain;border-radius:8px';
-      img.src = images[current];
-      
-      const counter = document.createElement('div');
-      counter.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:white;font-size:14px';
-      counter.textContent = (current+1)+' / '+images.length;
-      
-      const btnClose = document.createElement('button');
-      btnClose.innerHTML = '✕';
-      btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:1';
-      
-      const btnPrev = document.createElement('button');
-      btnPrev.innerHTML = '‹';
-      btnPrev.style.cssText = isMobile ? 'position:absolute;left:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;left:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
-      
-      const btnNext = document.createElement('button');
-      btnNext.innerHTML = '›';
-      btnNext.style.cssText = isMobile ? 'position:absolute;right:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;right:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
-      
-      function update() { img.src = images[current]; counter.textContent = (current+1)+' / '+images.length; }
-      btnPrev.onclick = () => { current = (current-1+images.length)%images.length; update(); };
-      btnNext.onclick = () => { current = (current+1)%images.length; update(); };
-      btnClose.onclick = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
-      overlay.onclick = (e) => { if(e.target===overlay) { if (document.body.contains(overlay)) document.body.removeChild(overlay); } };
-      document.addEventListener('keydown', function escHandler(e) {
-        if(e.key==='Escape') { if(document.body.contains(overlay)) { document.body.removeChild(overlay); document.removeEventListener('keydown', escHandler); } }
-        if(e.key==='ArrowLeft') { current=(current-1+images.length)%images.length; update(); }
-        if(e.key==='ArrowRight') { current=(current+1)%images.length; update(); }
-      });
-      
-      overlay.appendChild(img);
-      overlay.appendChild(counter);
-      overlay.appendChild(btnClose);
-      overlay.appendChild(btnPrev);
-      overlay.appendChild(btnNext);
-      document.body.appendChild(overlay);
+    window.openLightbox = function (images, index) {
+        if (!images || images.length === 0) return;
+        let current = index || 0;
+        const isMobile = window.innerWidth <= 768;
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:99999;display:flex;align-items:center;justify-content:center';
+
+        const img = document.createElement('img');
+        img.style.cssText = isMobile ? 'max-width:92vw;max-height:70vh;object-fit:contain;border-radius:8px' : 'max-width:70vw;max-height:75vh;object-fit:contain;border-radius:8px';
+        img.src = images[current];
+
+        const counter = document.createElement('div');
+        counter.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:white;font-size:14px';
+        counter.textContent = (current + 1) + ' / ' + images.length;
+
+        const btnClose = document.createElement('button');
+        btnClose.innerHTML = '✕';
+        btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:1';
+
+        const btnPrev = document.createElement('button');
+        btnPrev.innerHTML = '‹';
+        btnPrev.style.cssText = isMobile ? 'position:absolute;left:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;left:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
+
+        const btnNext = document.createElement('button');
+        btnNext.innerHTML = '›';
+        btnNext.style.cssText = isMobile ? 'position:absolute;right:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;right:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
+
+        function update() { img.src = images[current]; counter.textContent = (current + 1) + ' / ' + images.length; }
+        btnPrev.onclick = () => { current = (current - 1 + images.length) % images.length; update(); };
+        btnNext.onclick = () => { current = (current + 1) % images.length; update(); };
+        btnClose.onclick = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
+        overlay.onclick = (e) => { if (e.target === overlay) { if (document.body.contains(overlay)) document.body.removeChild(overlay); } };
+        document.addEventListener('keydown', function escHandler(e) {
+            if (e.key === 'Escape') { if (document.body.contains(overlay)) { document.body.removeChild(overlay); document.removeEventListener('keydown', escHandler); } }
+            if (e.key === 'ArrowLeft') { current = (current - 1 + images.length) % images.length; update(); }
+            if (e.key === 'ArrowRight') { current = (current + 1) % images.length; update(); }
+        });
+
+        overlay.appendChild(img);
+        overlay.appendChild(counter);
+        overlay.appendChild(btnClose);
+        overlay.appendChild(btnPrev);
+        overlay.appendChild(btnNext);
+        document.body.appendChild(overlay);
     }
 }
 
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     try {
         sessionStorage.setItem('aphim_last_viewed_slug', slug);
-    } catch(e) {}
+    } catch (e) { }
 
     await loadMovieDetail(slug);
 
@@ -220,7 +220,7 @@ async function getSecondaryEpisodes(slug) {
                 };
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 
     try {
         const nguonCUrl = `https://phim.nguonc.com/api/film/${encodeURIComponent(slug)}`;
@@ -275,26 +275,26 @@ async function fetchAndMergeSecondaryServersDetail(slug, isPrimary = false) {
         if (isPrimary) {
             const meta = data.movie || {};
             currentMovie = {
-                name:            meta.name            || slug,
-                origin_name:     meta.origin_name     || '',
-                year:            meta.year            || '',
-                thumb_url:       meta.thumb_url        || meta.poster_url || '',
-                poster_url:      meta.poster_url       || meta.thumb_url  || '',
-                content:         meta.content         || '',
-                type:            meta.type            || 'series',
-                status:          meta.status          || 'ongoing',
-                time:            meta.time            || '',
-                quality:         meta.quality         || 'HD',
-                lang:            meta.lang            || 'Vietsub',
+                name: meta.name || slug,
+                origin_name: meta.origin_name || '',
+                year: meta.year || '',
+                thumb_url: meta.thumb_url || meta.poster_url || '',
+                poster_url: meta.poster_url || meta.thumb_url || '',
+                content: meta.content || '',
+                type: meta.type || 'series',
+                status: meta.status || 'ongoing',
+                time: meta.time || '',
+                quality: meta.quality || 'HD',
+                lang: meta.lang || 'Vietsub',
                 episode_current: meta.episode_current || '',
-                episode_total:   meta.episode_total   || '',
-                category:        meta.category        || [],
-                country:         meta.country         || [],
-                director:        meta.director        || [],
-                actor:           meta.actor           || [],
-                slug:            meta.slug            || slug,
-                tmdb:            meta.tmdb            || {},
-                imdb:            meta.imdb            || {},
+                episode_total: meta.episode_total || '',
+                category: meta.category || [],
+                country: meta.country || [],
+                director: meta.director || [],
+                actor: meta.actor || [],
+                slug: meta.slug || slug,
+                tmdb: meta.tmdb || {},
+                imdb: meta.imdb || {},
                 episodes: data.episodes.map((s, idx) => ({
                     ...s,
                     original_server_name: s.original_server_name || s.server_name,
@@ -336,17 +336,51 @@ function renderMovieDetail(movie) {
     }
 
     // Update poster
-    const posterImg = document.querySelector('.aspect-\\[2\\/3\\] img');
+    const posterImg = document.getElementById('movieDetailPoster') || document.querySelector('.aspect-\\[2\\/3\\] img');
     if (posterImg) {
-        posterImg.style.opacity = '0';
-        posterImg.onload = () => {
-            posterImg.style.opacity = '';
-            posterImg.animate([
-                { opacity: 0, transform: 'scale(0.95)' },
-                { opacity: 1, transform: 'scale(1)' }
-            ], { duration: 600, easing: 'ease-out' });
+        const rawPosterUrl = movie.poster_url || movie.thumb_url;
+        const targetPosterUrl = movieAPI.getImageURL(rawPosterUrl, 600, 85, true);
+        const currentPosterSrc = posterImg.getAttribute('src') || '';
+        const isPosterValid = posterImg.complete && posterImg.naturalWidth > 0 && !currentPosterSrc.startsWith('data:image/gif');
+
+        // Bắt lỗi ảnh poster: chỉ khi ảnh 1 lỗi hoặc 404 mới fallback sang TMDB hoặc thumb_url
+        posterImg.onerror = () => {
+            console.warn('⚠️ [Detail] Poster gốc bị lỗi hoặc 404, kích hoạt fallback TMDB/nguồn phụ...');
+            posterImg.onerror = null;
+            if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
+                imageOptimizer.getTMDBImageUrl({
+                    dataset: {
+                        tmdbSlug: movie.slug,
+                        tmdbId: movie.tmdb.id,
+                        tmdbName: movie.name,
+                        tmdbYear: movie.year,
+                        tmdbType: 'poster',
+                        tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
+                    }
+                }).then(url => {
+                    if (url) {
+                        posterImg.src = url;
+                    } else if (movie.thumb_url) {
+                        posterImg.src = movieAPI.getImageURL(movie.thumb_url, 600, 85, true);
+                    }
+                }).catch(() => {});
+            } else if (movie.thumb_url) {
+                posterImg.src = movieAPI.getImageURL(movie.thumb_url, 600, 85, true);
+            }
         };
-        posterImg.src = movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 600, 85, true);
+
+        // Nếu ảnh chưa hiển thị hoặc là placeholder hoặc khác phim thì mới gán src và animate
+        if (!isPosterValid || (!currentPosterSrc.includes(movie.poster_url) && !currentPosterSrc.includes(movie.thumb_url))) {
+            posterImg.style.opacity = '0';
+            posterImg.onload = () => {
+                posterImg.style.opacity = '';
+                posterImg.animate([
+                    { opacity: 0, transform: 'scale(0.95)' },
+                    { opacity: 1, transform: 'scale(1)' }
+                ], { duration: 600, easing: 'ease-out' });
+            };
+            posterImg.src = targetPosterUrl;
+        }
         posterImg.alt = `Xem Phim ${movie.name} (${movie.year}) Full HD Vietsub tại APhim`;
     }
 
@@ -354,7 +388,6 @@ function renderMovieDetail(movie) {
     const bgImg = document.getElementById('movieHeroBackdrop') || document.querySelector('.absolute.top-0 img');
     if (bgImg) {
         bgImg.style.opacity = '1';
-        // Always prioritize the large horizontal backdrop image (thumb_url)
         const backdropUrl = movie.thumb_url || movie.poster_url;
         const defaultBgUrl = movieAPI.getImageURL(backdropUrl, 1200, 90, true);
         const handleBgAspectRatio = (imgElement) => {
@@ -372,12 +405,48 @@ function renderMovieDetail(movie) {
             }
         };
 
-        bgImg.onload = () => handleBgAspectRatio(bgImg);
-        bgImg.src = defaultBgUrl;
+        const currentBgSrc = bgImg.getAttribute('src') || '';
+        const isBgValid = bgImg.complete && bgImg.naturalWidth > 0 && !currentBgSrc.startsWith('data:image/gif');
 
-        // Always attempt TMDB backdrop fetch on desktop to enforce horizontal image, or if thumb_url is missing
-        const isDesktop = window.innerWidth >= 1024;
-        if ((isDesktop || !movie.thumb_url || movie.thumb_url.includes('placeholder')) && movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
+        if (isBgValid) {
+            handleBgAspectRatio(bgImg);
+        }
+
+        // Bắt lỗi ảnh nền: chỉ khi ảnh 1 lỗi hoặc 404 mới fallback sang TMDB hoặc poster_url
+        bgImg.onerror = () => {
+            console.warn('⚠️ [Detail] Ảnh nền gốc bị lỗi hoặc 404, kích hoạt fallback TMDB/poster...');
+            bgImg.onerror = null;
+            if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
+                imageOptimizer.getTMDBImageUrl({
+                    dataset: {
+                        tmdbSlug: movie.slug,
+                        tmdbId: movie.tmdb.id,
+                        tmdbName: movie.name,
+                        tmdbYear: movie.year,
+                        tmdbType: 'backdrop',
+                        tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
+                    }
+                }).then(url => {
+                    if (url) {
+                        bgImg.src = url;
+                    } else if (movie.poster_url) {
+                        bgImg.src = movieAPI.getImageURL(movie.poster_url, 1200, 90, true);
+                    }
+                }).catch(() => {});
+            } else if (movie.poster_url) {
+                bgImg.src = movieAPI.getImageURL(movie.poster_url, 1200, 90, true);
+            }
+        };
+
+        // Nếu ảnh nền chưa tải xong hoặc đang là placeholder thì mới gán defaultBgUrl
+        if (!isBgValid || (!currentBgSrc.includes(movie.thumb_url) && !currentBgSrc.includes(movie.poster_url))) {
+            bgImg.onload = () => handleBgAspectRatio(bgImg);
+            bgImg.src = defaultBgUrl;
+        }
+
+        // 🛡️ CHỈ tìm ảnh TMDB thay thế NẾU ảnh thumb_url hoàn toàn không có hoặc là placeholder
+        const isThumbMissing = !movie.thumb_url || movie.thumb_url.includes('placeholder') || currentBgSrc.startsWith('data:image/gif');
+        if (isThumbMissing && movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
             imageOptimizer.getTMDBImageUrl({
                 dataset: {
                     tmdbSlug: movie.slug,
@@ -409,19 +478,19 @@ function renderMovieDetail(movie) {
     const breadcrumb = document.getElementById('breadcrumb-movie-name');
     if (breadcrumb) {
         breadcrumb.textContent = movie.name;
-        
+
         if (!document.getElementById('breadcrumb-category')) {
             let categoryName = '';
             let categoryLink = '';
-            
+
             // Xử lý breadcrumb thông minh: nhớ trang trước đó (referrer)
             const referrer = document.referrer;
             let refMatched = false;
-            
+
             try {
                 if (referrer && referrer.includes(window.location.host)) {
                     const refUrl = new URL(referrer);
-                    
+
                     if (referrer.includes('phim-theo-quoc-gia.html')) {
                         categoryName = (movie.country && movie.country.length > 0) ? movie.country[0].name : 'Quốc Gia';
                         categoryLink = referrer;
@@ -456,10 +525,10 @@ function renderMovieDetail(movie) {
                         }
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 console.warn('Could not parse referrer URL for breadcrumb', e);
             }
-            
+
             // Fallback nếu không có referrer (vào thẳng link)
             if (!refMatched) {
                 if (movie.type === 'series') {
@@ -476,22 +545,22 @@ function renderMovieDetail(movie) {
                     categoryLink = '/danh-sach?list=tv-shows';
                 }
             }
-            
+
             if (categoryName) {
                 // Lưu lại state cho trang watch.html dùng
                 sessionStorage.setItem('breadcrumbName', categoryName);
                 sessionStorage.setItem('breadcrumbLink', categoryLink);
-                
+
                 const separator = document.createElement('span');
                 separator.className = 'material-icons-round text-base text-gray-300 flex-shrink-0';
                 separator.textContent = 'chevron_right';
-                
+
                 const categoryElement = document.createElement('a');
                 categoryElement.id = 'breadcrumb-category';
                 categoryElement.className = 'hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap';
                 categoryElement.href = categoryLink;
                 categoryElement.textContent = categoryName;
-                
+
                 breadcrumb.parentNode.insertBefore(categoryElement, breadcrumb);
                 breadcrumb.parentNode.insertBefore(separator, breadcrumb);
             }
@@ -510,8 +579,8 @@ function renderMovieDetail(movie) {
         infoContainer.innerHTML = `
             ${movie.tmdb && movie.tmdb.vote_average ? `<span style="background-color: #3f1e00; color: #f97316; border: 1px solid rgba(249, 115, 22, 0.3); box-shadow: 0 2px 8px rgba(63, 30, 0, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide flex items-center gap-1">IMDb ${movie.tmdb.vote_average}</span>` : ''}
 
-            ${movie.type === 'series' || movie.type === 'hoathinh' || movie.type === 'tvshows' ? 
-                `<span style="background-color: #1e3a5f; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); box-shadow: 0 2px 8px rgba(30, 58, 95, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.type === 'series' ? 'Series' : movie.type === 'hoathinh' ? 'Hoạt hình' : 'TV Shows'}</span>` 
+            ${movie.type === 'series' || movie.type === 'hoathinh' || movie.type === 'tvshows' ?
+                `<span style="background-color: #1e3a5f; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); box-shadow: 0 2px 8px rgba(30, 58, 95, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.type === 'series' ? 'Series' : movie.type === 'hoathinh' ? 'Hoạt hình' : 'TV Shows'}</span>`
                 : `<span style="background-color: #1e3a5f; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); box-shadow: 0 2px 8px rgba(30, 58, 95, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">Phim Lẻ</span>`}
             
             ${movie.year ? `<span style="background-color: #3b2854; color: #d8b4fe; border: 1px solid rgba(216, 180, 254, 0.2); box-shadow: 0 2px 8px rgba(59, 40, 84, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.year}</span>` : ''}
@@ -537,12 +606,12 @@ function renderMovieDetail(movie) {
 
     // Update categories and actors
     addMovieMetadata(movie);
-    
+
     // Populate tab system (Gallery, Cast, Recommendations, OST)
     if (typeof populateMovieTabContents === 'function') {
         populateMovieTabContents(movie);
     }
-    
+
     // Load movie gallery
     loadMovieGallery(movie);
 
@@ -614,7 +683,7 @@ function renderVersions(movie) {
         displayLang = movie.lang;
     }
 
-    const imgUrl = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 400, 80, true) : 'https://phimimg.com/' +  (movie.thumb_url || movie.poster_url);
+    const imgUrl = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 400, 80, true) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url);
 
     const currentDomain = window.location.hostname;
     const isSvap1 = currentDomain.includes('aphim.top') || currentDomain === 'localhost' || currentDomain === '127.0.0.1';
@@ -695,10 +764,10 @@ function renderVersions(movie) {
     wrapper.className = 'w-full block';
     wrapper.innerHTML = versionsHTML;
 
-    
+
     const mobileEpisodesWrapper = document.getElementById('episodes-mobile')?.closest('.block.lg\\:hidden') || document.getElementById('episodes-mobile')?.parentElement;
     const heroAd = document.getElementById('movie-detail-hero-ad');
-    
+
     if (window.innerWidth < 1024 && mobileEpisodesWrapper) {
         // Trên mobile, Các bản chiếu nằm dưới Máy Chủ
         const mobileServerWrapper = document.getElementById('server-list-mobile')?.parentElement;
@@ -712,7 +781,7 @@ function renderVersions(movie) {
         const desktopServerWrapper = document.getElementById('desktop-server-wrapper');
         const actionsContainer = document.querySelector('.movie-actions-container');
         const heroAd = document.getElementById('movie-detail-hero-ad');
-        
+
         if (desktopServerWrapper) {
             // Đảm bảo luôn nằm dưới danh sách Máy Chủ
             desktopServerWrapper.after(wrapper);
@@ -725,9 +794,9 @@ function renderVersions(movie) {
 }
 
 // Logic chuyển hướng linh hoạt giữa Node và HTML
-window.changeVersion = function(domain) {
+window.changeVersion = function (domain) {
     const currentDomain = window.location.hostname;
-    
+
     // Nếu domain mục tiêu trùng với domain hiện tại (hoặc đang test ở localhost mà chọn bản mặc định)
     if (currentDomain.includes(domain) || (domain === 'aphim.top' && (currentDomain === 'localhost' || currentDomain === '127.0.0.1'))) {
         if (typeof showToast === 'function') {
@@ -741,11 +810,11 @@ window.changeVersion = function(domain) {
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
     const params = new URLSearchParams(currentSearch);
-    
+
     let slug = '';
     let episode = '';
     let isWatchPage = false;
-    
+
     // Ưu tiên đọc từ biến toàn cục nếu đang ở trang xem phim (bảo đảm luôn lấy đúng tập hiện tại)
     if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.slug) {
         slug = currentMovie.slug;
@@ -756,7 +825,7 @@ window.changeVersion = function(domain) {
             isWatchPage = true;
         }
     }
-    
+
     // Fallback: Đọc từ URL nếu không có biến toàn cục
     if (!slug) {
         if (currentPath.includes('/phim/')) {
@@ -776,7 +845,7 @@ window.changeVersion = function(domain) {
             episode = params.get('episode');
         }
     }
-    
+
     // Chuẩn hóa biến tập phim (bỏ "tap-" đi để ghép lại cho chuẩn, tránh lỗi tap-tap-5)
     if (episode) {
         episode = episode.replace(/^tap-/, '');
@@ -786,20 +855,20 @@ window.changeVersion = function(domain) {
         window.location.href = "https://" + domain + currentPath + currentSearch;
         return;
     }
-    
+
     // Xây dựng URL đích
     const isNodeDomain = domain === 'aphim.top';
     let newUrl = 'https://' + domain;
-    
+
     if (isNodeDomain) {
         if (isWatchPage) {
             newUrl += '/xem-phim/' + slug;
             if (episode) {
-                 if (episode.toLowerCase() === 'full') {
-                     newUrl += '/full';
-                 } else {
-                     newUrl += '/tap-' + episode;
-                 }
+                if (episode.toLowerCase() === 'full') {
+                    newUrl += '/full';
+                } else {
+                    newUrl += '/tap-' + episode;
+                }
             }
         } else {
             newUrl += '/phim/' + slug;
@@ -808,17 +877,17 @@ window.changeVersion = function(domain) {
         if (isWatchPage) {
             newUrl += '/watch.html?slug=' + slug;
             if (episode) {
-                 if (episode.toLowerCase() === 'full') {
-                     newUrl += '&episode=full';
-                 } else {
-                     newUrl += '&episode=tap-' + episode;
-                 }
+                if (episode.toLowerCase() === 'full') {
+                    newUrl += '&episode=full';
+                } else {
+                    newUrl += '&episode=tap-' + episode;
+                }
             }
         } else {
             newUrl += '/movie-detail.html?slug=' + slug;
         }
     }
-    
+
     window.location.href = newUrl;
 };
 
@@ -832,27 +901,27 @@ async function loadMovieGallery(movie) {
     try {
         const json = await movieAPI.getMovieImages(movie.slug);
         if (!json) return;
-        
+
         if (json.success && json.data && json.data.images && json.data.images.length > 0) {
             const backdrops = json.data.images.filter(img => img.type === 'backdrop' || img.aspect_ratio > 1);
-            
+
             if (backdrops.length > 0) {
                 window.movieGalleryImageUrls = backdrops.map(img => `https://image.tmdb.org/t/p/w1280${img.file_path}`);
                 galleryContainer.classList.remove('hidden');
                 galleryCount.textContent = `(${backdrops.length} ảnh)`;
-                
+
                 scrollContainer.innerHTML = backdrops.map((img, index) => `
                     <div style="flex-shrink: 0; width: 280px; aspect-ratio: 16/9; max-width: 80vw;" class="rounded-xl overflow-hidden shadow-lg border border-white/10 group-hover:border-white/30 transition-colors relative cursor-pointer" onclick="openLightbox(window.movieGalleryImageUrls, ${index})">
                         <img src="https://image.tmdb.org/t/p/w780${img.file_path}" alt="Cảnh phim ${movie.name}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;" class="transform transition-transform duration-500 hover:scale-110">
                     </div>
                 `).join('');
-                
+
                 setupGalleryScroll();
-                
-                                // Di chuyển phần hình ảnh xuống bên dưới mục "Các bản chiếu" (nếu có), hoặc dưới danh sách tập
+
+                // Di chuyển phần hình ảnh xuống bên dưới mục "Các bản chiếu" (nếu có), hoặc dưới danh sách tập
                 const versionsContainer = document.getElementById('versions-container');
                 const mobileEpisodesWrapper = document.getElementById('episodes-mobile')?.parentElement;
-                
+
                 if (window.innerWidth < 1024) {
                     if (versionsContainer) {
                         versionsContainer.after(galleryContainer);
@@ -878,7 +947,7 @@ async function loadMovieGallery(movie) {
                     const img1 = backdrops[0]?.file_path;
                     const img2 = backdrops[1]?.file_path || img1;
                     const img3 = backdrops[2]?.file_path || img2;
-                    
+
                     if (img1) {
                         svapBg1.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img1}')`;
                         const topBgImg = document.querySelector('.absolute.top-0 img');
@@ -900,69 +969,69 @@ function setupGalleryScroll() {
     const scrollContainer = document.getElementById('movie-gallery-scroll');
     const btnLeft = document.getElementById('btn-scroll-left');
     const btnRight = document.getElementById('btn-scroll-right');
-    
+
     if (!scrollContainer || !btnLeft || !btnRight) return;
-    
+
     btnLeft.addEventListener('click', () => {
         scrollContainer.scrollBy({ left: -400, behavior: 'smooth' });
     });
-    
+
     btnRight.addEventListener('click', () => {
         scrollContainer.scrollBy({ left: 400, behavior: 'smooth' });
     });
-    
+
     const checkScroll = () => {
         btnLeft.style.opacity = scrollContainer.scrollLeft > 10 ? '1' : '0';
         btnRight.style.opacity = scrollContainer.scrollLeft < (scrollContainer.scrollWidth - scrollContainer.clientWidth - 10) ? '1' : '0';
     };
-    
+
     scrollContainer.addEventListener('scroll', checkScroll);
     setTimeout(checkScroll, 500);
 }
 
-window.openLightbox = function(images, index) {
-  let current = index;
-  const isMobile = window.innerWidth <= 768;
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:99999;display:flex;align-items:center;justify-content:center';
-  
-  const img = document.createElement('img');
-  img.style.cssText = isMobile ? 'max-width:92vw;max-height:70vh;object-fit:contain;border-radius:8px' : 'max-width:70vw;max-height:75vh;object-fit:contain;border-radius:8px';
-  img.src = images[current];
-  
-  const counter = document.createElement('div');
-  counter.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:white;font-size:14px';
-  counter.textContent = (current+1)+' / '+images.length;
-  
-  const btnClose = document.createElement('button');
-  btnClose.innerHTML = '✕';
-  btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:1';
-  
-  const btnPrev = document.createElement('button');
-  btnPrev.innerHTML = '‹';
-  btnPrev.style.cssText = isMobile ? 'position:absolute;left:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;left:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
-  
-  const btnNext = document.createElement('button');
-  btnNext.innerHTML = '›';
-  btnNext.style.cssText = isMobile ? 'position:absolute;right:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;right:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
-  
-  function update() { img.src = images[current]; counter.textContent = (current+1)+' / '+images.length; }
-  btnPrev.onclick = () => { current = (current-1+images.length)%images.length; update(); };
-  btnNext.onclick = () => { current = (current+1)%images.length; update(); };
-  btnClose.onclick = () => document.body.removeChild(overlay);
-  overlay.onclick = (e) => { if(e.target===overlay) document.body.removeChild(overlay); };
-  document.addEventListener('keydown', function escHandler(e) {
-    if(e.key==='Escape') { if(document.body.contains(overlay)) { document.body.removeChild(overlay); document.removeEventListener('keydown', escHandler); } }
-    if(e.key==='ArrowLeft') { current=(current-1+images.length)%images.length; update(); }
-    if(e.key==='ArrowRight') { current=(current+1)%images.length; update(); }
-  });
-  
-  overlay.appendChild(img);
-  overlay.appendChild(counter);
-  overlay.appendChild(btnClose);
-  overlay.appendChild(btnPrev);
-  overlay.appendChild(btnNext);
-  document.body.appendChild(overlay);
+window.openLightbox = function (images, index) {
+    let current = index;
+    const isMobile = window.innerWidth <= 768;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:99999;display:flex;align-items:center;justify-content:center';
+
+    const img = document.createElement('img');
+    img.style.cssText = isMobile ? 'max-width:92vw;max-height:70vh;object-fit:contain;border-radius:8px' : 'max-width:70vw;max-height:75vh;object-fit:contain;border-radius:8px';
+    img.src = images[current];
+
+    const counter = document.createElement('div');
+    counter.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:white;font-size:14px';
+    counter.textContent = (current + 1) + ' / ' + images.length;
+
+    const btnClose = document.createElement('button');
+    btnClose.innerHTML = '✕';
+    btnClose.style.cssText = 'position:absolute;top:16px;right:20px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:1';
+
+    const btnPrev = document.createElement('button');
+    btnPrev.innerHTML = '‹';
+    btnPrev.style.cssText = isMobile ? 'position:absolute;left:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;left:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
+
+    const btnNext = document.createElement('button');
+    btnNext.innerHTML = '›';
+    btnNext.style.cssText = isMobile ? 'position:absolute;right:10px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:28px;cursor:pointer;padding:6px 12px;border-radius:8px;z-index:1' : 'position:absolute;right:16px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:40px;cursor:pointer;padding:8px 16px;border-radius:8px;z-index:1';
+
+    function update() { img.src = images[current]; counter.textContent = (current + 1) + ' / ' + images.length; }
+    btnPrev.onclick = () => { current = (current - 1 + images.length) % images.length; update(); };
+    btnNext.onclick = () => { current = (current + 1) % images.length; update(); };
+    btnClose.onclick = () => document.body.removeChild(overlay);
+    overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); };
+    document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') { if (document.body.contains(overlay)) { document.body.removeChild(overlay); document.removeEventListener('keydown', escHandler); } }
+        if (e.key === 'ArrowLeft') { current = (current - 1 + images.length) % images.length; update(); }
+        if (e.key === 'ArrowRight') { current = (current + 1) % images.length; update(); }
+    });
+
+    overlay.appendChild(img);
+    overlay.appendChild(counter);
+    overlay.appendChild(btnClose);
+    overlay.appendChild(btnPrev);
+    overlay.appendChild(btnNext);
+    document.body.appendChild(overlay);
 }
 
 // Add movie metadata (categories, actors, etc.)
@@ -979,8 +1048,8 @@ function addMovieMetadata(movie) {
     const imdbId = (movie.imdb && movie.imdb.id) ? movie.imdb.id : 'tt28036189';
     const imdbVote = (movie.imdb && movie.imdb.vote_average) ? movie.imdb.vote_average : 'N/A';
 
-    const directors = (movie.director && Array.isArray(movie.director) && movie.director.length > 0 && movie.director[0] !== '') 
-        ? movie.director 
+    const directors = (movie.director && Array.isArray(movie.director) && movie.director.length > 0 && movie.director[0] !== '')
+        ? movie.director
         : ['Đang cập nhật'];
 
     const currentEp = movie.episode_current || 'FULL';
@@ -1161,12 +1230,12 @@ function renderEpisodes(episodes) {
 
     const desktopContainer = document.getElementById('episodes-desktop');
     const mobileContainer = document.getElementById('episodes-mobile');
-    
+
     // Render Server List
     if (episodes.length > 0) {
         const desktopServerContainer = document.getElementById('server-list-desktop');
         const mobileServerContainer = document.getElementById('server-list-mobile');
-        
+
         episodes.forEach((s, idx) => {
             if (!s.original_server_name) s.original_server_name = s.server_name;
             s.server_name = `Nguồn ${idx + 1}`;
@@ -1225,9 +1294,9 @@ function renderEpisodes(episodes) {
                 `;
             }
         }).join('');
-        
+
         const serverHtml = labelHTML + buttonsHTML;
-        
+
         if (desktopServerContainer) {
             desktopServerContainer.innerHTML = serverHtml;
             desktopServerContainer.className = "flex flex-wrap items-center gap-2 mb-4 w-full";
@@ -1270,7 +1339,7 @@ function renderEpisodes(episodes) {
         const _epNum = _epParam ? _epParam.replace(/^tap-/, '') : null;
         const cleanSlug = ep.slug.replace(/^tap-/, '');
         const isActive = _epNum ? (cleanSlug === _epNum) : false;
-        
+
         let epName = ep.name ? ep.name.trim() : '';
         if (/^\d+$/.test(epName)) {
             epName = `Tập ${parseInt(epName, 10)}`;
@@ -1279,7 +1348,7 @@ function renderEpisodes(episodes) {
         }
 
         const isHtmlEnv = window.location.pathname.includes('.html');
-        const watchHref = isHtmlEnv 
+        const watchHref = isHtmlEnv
             ? `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}&server=${currentServerIndexDetail}`
             : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}?server=${currentServerIndexDetail}`;
 
@@ -1298,10 +1367,10 @@ function renderEpisodes(episodes) {
     if (mobileContainer) mobileContainer.innerHTML = html;
 }
 
-window.changeServerDetail = function(index) {
+window.changeServerDetail = function (index) {
     if (!currentMovie || !currentMovie.episodes || index < 0 || index >= currentMovie.episodes.length) return;
     if (index === currentServerIndexDetail) return;
-    
+
     currentServerIndexDetail = index;
     renderEpisodes(currentMovie.episodes);
 
@@ -1356,11 +1425,11 @@ function setupFavoriteButton() {
         const favSvgPath = existingFavBtn.querySelector('svg path');
         const favIcon = existingFavBtn.querySelector('.material-icons-round');
         const favText = existingFavBtn.querySelector('span:not(.material-icons-round)');
-        
+
         const setFavState = (fav) => {
             if (favSvgPath) {
-                favSvgPath.setAttribute('d', fav 
-                    ? 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' 
+                favSvgPath.setAttribute('d', fav
+                    ? 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'
                     : 'M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z');
             }
             if (favIcon) favIcon.textContent = fav ? 'favorite' : 'favorite_border';
@@ -1494,12 +1563,12 @@ function setupFavoriteButton() {
 function setupRatingSystem() {
     // Comment section is now static in HTML
     const commentsSection = document.getElementById('comments-section') || document.querySelector('#comments-section');
-    
+
     if (!commentsSection) {
         console.error("DOM Element #comments-section not found!");
         return;
     }
-    
+
     if (!currentMovie) {
         console.warn("currentMovie is null, cannot setup rating.");
         return;
@@ -1731,7 +1800,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['desktop', 'mobile'].forEach(type => {
         const searchInput = document.getElementById(`search-episode-input-${type}`);
         const sortBtn = document.getElementById(`sort-episodes-btn-${type}`);
-        
+
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 window.episodeSearchTermDetail = e.target.value;
@@ -1747,7 +1816,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-        
+
         if (sortBtn) {
             sortBtn.addEventListener('click', () => {
                 window.episodeSortOrderDetail = window.episodeSortOrderDetail === 'asc' ? 'desc' : 'asc';
@@ -1774,7 +1843,7 @@ async function fetchCastDataForMovie(movie) {
                 tmdbCast = cData.cast || [];
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 
     // 2. Fallback TMDB multi search if tmdbCast is empty
     if (tmdbCast.length === 0 && (movie.origin_name || movie.name)) {
@@ -1793,7 +1862,7 @@ async function fetchCastDataForMovie(movie) {
                     }
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // 3. Populate actorList if empty
@@ -1828,7 +1897,7 @@ async function fetchCastDataForMovie(movie) {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         return {
@@ -1862,7 +1931,7 @@ async function populateMovieTabContents(movie) {
                     backdrops = imgData.backdrops || [];
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // Fallback TMDB multi-search for backdrops if tmdb.id was missing
         if (backdrops.length === 0 && (movie.origin_name || movie.name)) {
@@ -1881,7 +1950,7 @@ async function populateMovieTabContents(movie) {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         if (backdrops.length > 0) {
@@ -2012,7 +2081,7 @@ async function populateMovieTabContents(movie) {
 window.populateMovieTabContents = populateMovieTabContents;
 
 // 🎭 Interactive Emoji Reaction Voting (Match Hình 1)
-window.castReaction = function(reactionType) {
+window.castReaction = function (reactionType) {
     const reactionNames = {
         te: '😭 Bạn đã đánh giá Tệ',
         tam: '🙁 Bạn đã đánh giá Tạm',

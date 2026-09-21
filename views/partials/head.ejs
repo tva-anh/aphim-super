@@ -106,8 +106,16 @@
 
 <!-- TailwindCSS + Material Icons + Custom Styles -->
 <link rel="stylesheet" href="/css/tailwind.min.css?v=25">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap" media="print" onload="this.media='all'">
+<noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap">
+</noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons" media="print" onload="this.media='all'">
+<noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons">
+</noscript>
 
 <link rel="stylesheet" href="/css/navigation-modern.css?v=21">
 <link rel="stylesheet" href="/css/navigation-pill-v2.css?v=21">
@@ -264,11 +272,10 @@
     .badge-dark { background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255,255,255,0.2); }
 </style>
 <link rel="stylesheet" href="/css/movie-cards-v2.css?v=10003">
-<link rel="stylesheet" href="/css/light-mode.css?v=2129">
+<link rel="stylesheet" href="/css/light-mode.css?v=2132">
 <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4">
 <link rel="stylesheet" href="/css/playlist-modal.css?v=2">
-<script src="/js/config.js?v=100"></script>
+<script src="/js/config.js?v=100" defer></script>
 <script src="/js/toast-system.js?v=100" defer></script>
-<script src="/js/aphim-core-api.js?v=10002"></script>
+<script src="/js/aphim-core-api.js?v=10002" defer></script>
 <script src="/js/nav-instant-suggest.js?v=10001" defer></script>
-<script src="/js/user-ui.js?v=2000" defer></script>

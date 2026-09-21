@@ -1477,24 +1477,57 @@ html.light-mode .server-tab-badge .server-tab-dot {
 }
 
 /* Base Server Tab Button */
-html.light-mode .server-tab-btn,
-html.light-mode #server-list .server-tab-btn {
-    border-radius: 8px !important;
-    padding: 4px 10px !important;
-    display: inline-flex !important;
+html.light-mode .server-group-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 8px !important;
+}
+
+html.light-mode .server-group-label {
+    min-width: 76px !important;
+    font-size: 13px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+    color: #1c1917 !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode .server-buttons-wrap {
+    display: flex !important;
     align-items: center !important;
     gap: 6px !important;
+    flex-wrap: wrap !important;
+}
+
+html.light-mode .server-tab-btn,
+html.light-mode #server-list .server-tab-btn {
+    border-radius: 6px !important;
+    padding: 3.5px 8.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    font-size: 12.5px !important;
+    transform: none !important;
     transition: all 0.2s ease !important;
 }
 
 html.light-mode .server-tab-badge,
 html.light-mode #server-list .server-tab-badge {
     border-radius: 9999px !important;
-    padding: 2px 8px !important;
+    padding: 1px 6.5px !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 3.5px !important;
+    font-size: 11px !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light-mode .server-tab-title {
+    font-size: 12.5px !important;
 }
 
 /* --- 1. VIETSUB (Warm Amber / Gold Theme) --- */
@@ -1502,9 +1535,9 @@ html.light-mode .server-cat-vietsub.active,
 html.light-mode #server-list button.server-cat-vietsub.active {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
     background-color: #fde68a !important;
-    border: 1.5px solid #d97706 !important;
-    box-shadow: 0 2px 10px rgba(217, 119, 6, 0.2) !important;
-    transform: scale(1.02) !important;
+    border: 1px solid #d97706 !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.15) !important;
+    transform: none !important;
 }
 html.light-mode .server-cat-vietsub.active .server-tab-title {
     color: #78350f !important;
@@ -1554,9 +1587,9 @@ html.light-mode .server-cat-thuyet-minh.active,
 html.light-mode #server-list button.server-cat-thuyet-minh.active {
     background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
     background-color: #e9d5ff !important;
-    border: 1.5px solid #9333ea !important;
-    box-shadow: 0 2px 10px rgba(147, 51, 234, 0.2) !important;
-    transform: scale(1.02) !important;
+    border: 1px solid #9333ea !important;
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.15) !important;
+    transform: none !important;
 }
 html.light-mode .server-cat-thuyet-minh.active .server-tab-title {
     color: #581c87 !important;
@@ -1606,9 +1639,9 @@ html.light-mode .server-cat-long-tieng.active,
 html.light-mode #server-list button.server-cat-long-tieng.active {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
     background-color: #bbf7d0 !important;
-    border: 1.5px solid #16a34a !important;
-    box-shadow: 0 2px 10px rgba(22, 163, 74, 0.2) !important;
-    transform: scale(1.02) !important;
+    border: 1px solid #16a34a !important;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15) !important;
+    transform: none !important;
 }
 html.light-mode .server-cat-long-tieng.active .server-tab-title {
     color: #14532d !important;
@@ -1880,7 +1913,7 @@ html.light-mode .player-ctrl-item span,
 
 html.light-mode .player-ctrl-item svg,
 .player-ctrl-item svg {
-    fill: #ffffff !important;
+    fill: none !important;
     color: #ffffff !important;
 }
 
@@ -1918,56 +1951,109 @@ html.light-mode .player-ctrl-bar,
         margin-right: 0 !important;
         order: 99 !important;
     }
+
+    html.light-mode .player-ctrl-bar .player-ctrl-item,
+    html.light-mode .player-ctrl-bar-actions-row button,
+    html.light-mode .player-ctrl-bar-actions-row a,
+    html.light-mode .player-ctrl-bar-toggles-row button,
+    .player-ctrl-bar .player-ctrl-item,
+    .player-ctrl-bar-actions-row button,
+    .player-ctrl-bar-actions-row a,
+    .player-ctrl-bar-toggles-row button {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        padding: 0 10px !important;
+        height: 32px !important;
+        margin: 0 !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        line-height: 1 !important;
+        vertical-align: middle !important;
+        box-sizing: border-box !important;
+    }
+
+    html.light-mode .player-ctrl-bar .player-ctrl-item span,
+    html.light-mode .player-ctrl-bar-actions-row button span,
+    html.light-mode .player-ctrl-bar-toggles-row button span,
+    .player-ctrl-bar .player-ctrl-item span {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        text-shadow: none !important;
+        line-height: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        vertical-align: middle !important;
+    }
 }
 
-html.light-mode .player-ctrl-bar .player-ctrl-item,
-html.light-mode .player-ctrl-bar-actions-row button,
-html.light-mode .player-ctrl-bar-actions-row a,
-html.light-mode .player-ctrl-bar-toggles-row button,
-.player-ctrl-bar .player-ctrl-item,
-.player-ctrl-bar-actions-row button,
-.player-ctrl-bar-actions-row a,
-.player-ctrl-bar-toggles-row button {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    padding: 0 10px !important;
-    height: 32px !important;
-    margin: 0 !important;
-    border-radius: 8px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    line-height: 1 !important;
-    vertical-align: middle !important;
-    box-sizing: border-box !important;
-}
+@media (max-width: 639px) {
+    html.light-mode .player-ctrl-bar-container,
+    .player-ctrl-bar-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        padding: 4px 2px !important;
+        gap: 0 !important;
+    }
 
-html.light-mode .player-ctrl-bar .player-ctrl-item:hover,
-html.light-mode .player-ctrl-bar-actions-row button:hover,
-html.light-mode .player-ctrl-bar-toggles-row button:hover,
-.player-ctrl-bar .player-ctrl-item:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: none !important;
-    box-shadow: none !important;
-}
+    html.light-mode .player-ctrl-bar-actions-row,
+    .player-ctrl-bar-actions-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-shrink: 0 !important;
+        width: auto !important;
+    }
 
-html.light-mode .player-ctrl-bar .player-ctrl-item span,
-html.light-mode .player-ctrl-bar-actions-row button span,
-html.light-mode .player-ctrl-bar-toggles-row button span,
-.player-ctrl-bar .player-ctrl-item span {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    text-shadow: none !important;
-    line-height: 1 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    vertical-align: middle !important;
+    html.light-mode .player-ctrl-bar-toggles-row,
+    .player-ctrl-bar-toggles-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-shrink: 0 !important;
+        width: auto !important;
+    }
+
+    html.light-mode .player-ctrl-bar .player-ctrl-item,
+    html.light-mode .player-ctrl-bar-actions-row button,
+    html.light-mode .player-ctrl-bar-toggles-row button,
+    .player-ctrl-bar .player-ctrl-item {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+    }
+
+    /* TRIỆT ĐỂ ẨN TOÀN BỘ CHỮ VÀ HUY HIỆU TRÊN MOBILE */
+    html.light-mode .player-ctrl-bar .player-ctrl-item span,
+    html.light-mode .player-ctrl-bar-actions-row button span,
+    html.light-mode .player-ctrl-bar-toggles-row button span,
+    .player-ctrl-bar .player-ctrl-item span,
+    html.light-mode .badge-status-on,
+    html.light-mode .badge-status-off,
+    .badge-status-on,
+    .badge-status-off {
+        display: none !important;
+    }
 }
 
 html.light-mode .player-ctrl-bar-actions-row button svg,
@@ -1975,10 +2061,24 @@ html.light-mode .player-ctrl-bar-actions-row a svg,
 .player-ctrl-bar-actions-row button svg,
 .player-ctrl-bar-actions-row a svg,
 .player-ctrl-bar .player-ctrl-item svg {
-    fill: #ffffff !important;
+    fill: none !important;
     color: #ffffff !important;
     display: block !important;
     flex-shrink: 0 !important;
+}
+
+.player-ctrl-item svg path,
+.player-ctrl-item svg rect,
+.player-ctrl-item svg polygon,
+.player-ctrl-item svg circle,
+.player-ctrl-item svg line {
+    fill: none !important;
+}
+
+.player-ctrl-item.is-favorite-active svg,
+.player-ctrl-item.is-favorite-active svg path {
+    fill: #ef4444 !important;
+    stroke: #ef4444 !important;
 }
 
 /* Top Weekly Sidebar in Light Mode - Trophy Icon in Black */

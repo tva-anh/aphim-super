@@ -417,27 +417,37 @@
             this._lastCb = cb;
             this.fetchData(slug, cb);
             
-            // 1. Realtime Server-Sent Events (SSE) Stream
+            // 1. Realtime Server-Sent Events (SSE) Stream (Non-blocking init)
             if (typeof EventSource !== 'undefined') {
                 if (this.eventSource) {
                     try { this.eventSource.close(); } catch(e) {}
+                    this.eventSource = null;
                 }
-                try {
-                    this.eventSource = new EventSource(`/api/comments/stream/${encodeURIComponent(slug)}`);
-                    this.eventSource.addEventListener('new_comment', () => {
-                        this.fetchData(slug, cb);
-                    });
-                    this.eventSource.addEventListener('reaction_updated', () => {
-                        this.fetchData(slug, cb);
-                    });
-                    this.eventSource.addEventListener('comment_deleted', () => {
-                        this.fetchData(slug, cb);
-                    });
-                    this.eventSource.onerror = () => {
-                        // Will automatically reconnect or use fallback polling
-                    };
-                } catch(e) {
-                    console.warn('[CommentsSSE] Stream init warning:', e);
+                const connectSSE = () => {
+                    if (this.currentSlug !== slug) return;
+                    try {
+                        this.eventSource = new EventSource(`/api/comments/stream/${encodeURIComponent(slug)}`);
+                        this.eventSource.addEventListener('new_comment', () => {
+                            this.fetchData(slug, cb);
+                        });
+                        this.eventSource.addEventListener('reaction_updated', () => {
+                            this.fetchData(slug, cb);
+                        });
+                        this.eventSource.addEventListener('comment_deleted', () => {
+                            this.fetchData(slug, cb);
+                        });
+                        this.eventSource.onerror = () => {
+                            // Will automatically reconnect or use fallback polling
+                        };
+                    } catch(e) {
+                        console.warn('[CommentsSSE] Stream init warning:', e);
+                    }
+                };
+
+                if (document.readyState === 'complete') {
+                    setTimeout(connectSSE, 100);
+                } else {
+                    window.addEventListener('load', () => setTimeout(connectSSE, 100), { once: true });
                 }
             }
 

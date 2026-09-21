@@ -210,7 +210,11 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        loadMovies(currentPage);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => loadMovies(currentPage));
+        } else {
+            loadMovies(currentPage);
+        }
     })();
     </script>
 </body>

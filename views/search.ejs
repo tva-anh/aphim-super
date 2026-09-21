@@ -184,7 +184,11 @@
         };
 
         // Initialize Load
-        loadSearch(currentPage);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => loadSearch(currentPage));
+        } else {
+            loadSearch(currentPage);
+        }
     })();
     </script>
 </body>
