@@ -67,6 +67,42 @@ if (typeof window.openLightbox === 'undefined') {
     }
 }
 
+// ⚡ Cầu nối dữ liệu tức thì: Lưu trữ thông tin phim và tập phim vào sessionStorage để trang /xem-phim dùng ngay trong 0ms
+function savePreloadedMovieData(movie) {
+    if (!movie || !movie.slug) return;
+    try {
+        const payload = {
+            name: movie.name || '',
+            origin_name: movie.origin_name || '',
+            slug: movie.slug,
+            year: movie.year || '',
+            thumb_url: movie.thumb_url || movie.poster_url || '',
+            poster_url: movie.poster_url || movie.thumb_url || '',
+            content: movie.content || '',
+            type: movie.type || 'single',
+            status: movie.status || 'completed',
+            time: movie.time || '',
+            quality: movie.quality || 'HD',
+            lang: movie.lang || 'Vietsub',
+            episode_current: movie.episode_current || '',
+            episode_total: movie.episode_total || '',
+            category: movie.category || [],
+            country: movie.country || [],
+            actor: movie.actor || [],
+            director: movie.director || [],
+            episodes: movie.episodes || [],
+            tmdb: movie.tmdb || {},
+            imdb: movie.imdb || {},
+            saved_at: Date.now()
+        };
+        sessionStorage.setItem('aphim_preloaded_movie_' + movie.slug, JSON.stringify(payload));
+        sessionStorage.setItem('aphim_last_preloaded_slug', movie.slug);
+    } catch (e) {
+        console.warn('⚠️ [Preload] Không thể lưu sessionStorage:', e.message);
+    }
+}
+window.savePreloadedMovieData = savePreloadedMovieData;
+
 let currentMovie = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -126,6 +162,7 @@ async function loadMovieDetail(slug) {
         }
         renderMovieDetail(currentMovie);
         if (currentMovie.episodes) renderEpisodes(currentMovie.episodes);
+        savePreloadedMovieData(currentMovie);
         setupFavoriteButton();
         setupRatingSystem();
         loadRatingsAndComments(currentMovie.slug);
@@ -144,11 +181,13 @@ async function loadMovieDetail(slug) {
                 if (fullData.data.item.episodes.length > currentMovie.episodes.length) {
                     currentMovie.episodes = fullData.data.item.episodes;
                     renderEpisodes(currentMovie.episodes);
+                    savePreloadedMovieData(currentMovie);
                 }
             } else if (fullData && fullData.episodes) {
                 if (fullData.episodes.length > currentMovie.episodes.length) {
                     currentMovie.episodes = fullData.episodes;
                     renderEpisodes(currentMovie.episodes);
+                    savePreloadedMovieData(currentMovie);
                 }
             }
         }).catch(e => console.warn('Background secondary fetch failed:', e));
@@ -165,6 +204,7 @@ async function loadMovieDetail(slug) {
                 }
                 renderMovieDetail(currentMovie);
                 renderEpisodes(currentMovie.episodes || []);
+                savePreloadedMovieData(currentMovie);
                 setupFavoriteButton();
                 setupRatingSystem();
                 loadRatingsAndComments(slug);
@@ -305,6 +345,7 @@ async function fetchAndMergeSecondaryServersDetail(slug, isPrimary = false) {
             console.log('✅ [Detail] Dùng nguồn phụ làm nguồn chính:', currentMovie.name);
             renderMovieDetail(currentMovie);
             renderEpisodes(currentMovie.episodes);
+            savePreloadedMovieData(currentMovie);
             setupFavoriteButton();
             setupRatingSystem();
             loadRatingsAndComments(slug);
@@ -642,6 +683,12 @@ function renderMovieDetail(movie) {
             } else {
                 watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}?server=${serverIndex}`;
             }
+
+            // ⚡ Nạp dữ liệu vào sessionStorage ngay khi tương tác với nút Xem Ngay
+            const syncPreload = () => { if (typeof savePreloadedMovieData === 'function') savePreloadedMovieData(currentMovie || movie); };
+            watchBtn.addEventListener('click', syncPreload);
+            watchBtn.addEventListener('mouseenter', syncPreload, { passive: true });
+            watchBtn.addEventListener('touchstart', syncPreload, { passive: true });
         } else {
             // Không có link
             watchBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -1354,6 +1401,7 @@ function renderEpisodes(episodes) {
 
         return `
             <a href="${watchHref}"
+                onclick="if(typeof savePreloadedMovieData==='function'&&currentMovie)savePreloadedMovieData(currentMovie);"
                 class="group ${isActive ? 'bg-[#282c3f] border-[#fcd576] text-[#fcd576] font-bold shadow-[0_0_12px_rgba(252,213,118,0.25)]' : 'bg-[#212534] border-white/10 text-white hover:bg-[#2c3144] hover:border-white/20 font-medium'} border rounded-lg py-2.5 px-3 flex items-center justify-center gap-2 transition-all duration-200 w-full text-sm">
                 <svg style="width: 14px !important; height: 14px !important; min-width: 14px !important; flex-shrink: 0 !important; display: inline-block !important; fill: currentColor !important;" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>

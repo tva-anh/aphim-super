@@ -41,12 +41,68 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     await loadMovieAndPlay(slug, episodeSlug);
     setupVideoPlayer();
-    loadRecommendations();
+
+    // ⚡ Trì hoãn nạp phim đề xuất khi CPU rảnh (ưu tiên 100% tài nguyên mạng cho luồng video m3u8)
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => loadRecommendations(), { timeout: 3000 });
+    } else {
+        setTimeout(() => loadRecommendations(), 2000);
+    }
 });
 
 // Load movie and play
 async function loadMovieAndPlay(slug, episodeSlug) {
     let ophimOk = false;
+
+    // ⚡ 1. KIỂM TRA DỮ LIỆU TẢI TRƯỚC TỪ SESSIONSTORAGE (Chuyển từ /phim sang xem ngay trong 0ms)
+    let preloaded = null;
+    try {
+        const raw = sessionStorage.getItem('aphim_preloaded_movie_' + slug);
+        if (raw) preloaded = JSON.parse(raw);
+    } catch (e) { }
+
+    if (preloaded && preloaded.slug === slug && preloaded.episodes && preloaded.episodes.length > 0) {
+        console.log('⚡ [Watch] Khởi chạy tức thì từ Preloaded Data (0ms, 0 Network Request)!', preloaded.name);
+        currentMovie = preloaded;
+
+        // Chuẩn hóa tên Nguồn 1, Nguồn 2...
+        currentMovie.episodes.forEach((server, idx) => {
+            if (!server.original_server_name) server.original_server_name = server.server_name;
+            server.server_name = `Nguồn ${idx + 1}`;
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedServer = urlParams.get('server');
+        if (requestedServer !== null && !isNaN(requestedServer) && parseInt(requestedServer) < currentMovie.episodes.length) {
+            currentServerIndex = parseInt(requestedServer);
+        } else {
+            currentServerIndex = 0;
+        }
+
+        const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
+        currentEpisode = episodeSlug
+            ? serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, ''))
+            : serverData[0];
+
+        if (!currentEpisode) currentEpisode = serverData[0];
+
+        renderMovieInfo(currentMovie, currentEpisode);
+        renderEpisodeList(currentMovie.episodes);
+        renderPlayerPlaceholder(currentEpisode);
+        setupActionButtons();
+        injectVideoSchema(currentMovie, currentEpisode);
+
+        userService.addToHistory(currentMovie, currentEpisode?.name);
+        if (window._apInitComment) window._apInitComment();
+        ophimOk = true;
+
+        // ⚡ Nguồn phụ được fetch ngầm sau 1.2s, hoàn toàn KHÔNG chặn Player phát video!
+        setTimeout(() => {
+            fetchAndMergeSecondaryServers(slug, false, episodeSlug).catch(err => console.warn('Background secondary fetch:', err));
+        }, 1200);
+
+        return;
+    }
 
     // Check if initialMovie from SSR is available
     if (window.initialMovie && (window.initialMovie.slug === slug || !slug)) {
@@ -141,8 +197,16 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         }
     }
 
-    // Luôn luôn thử VSMOV
-    await fetchAndMergeSecondaryServers(slug, !ophimOk, episodeSlug);
+    // ⚡ Tối ưu luồng: Nếu nguồn chính (OPhim) đã OK, không await nguồn phụ làm chậm player!
+    // Chạy ngầm fetchAndMergeSecondaryServers ở chế độ non-blocking để player phát ngay lập tức
+    if (ophimOk) {
+        setTimeout(() => {
+            fetchAndMergeSecondaryServers(slug, false, episodeSlug).catch(err => console.warn('Background secondary fetch error:', err));
+        }, 1200);
+    } else {
+        // Chỉ bắt buộc await nếu nguồn chính lỗi hoàn toàn
+        await fetchAndMergeSecondaryServers(slug, true, episodeSlug);
+    }
 }
 
 // 🔄 Fetch VSMOV qua proxy server-side (tránh CORS)

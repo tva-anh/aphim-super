@@ -1057,6 +1057,58 @@
                 window.initialEpisodes = <%- JSON.stringify(typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : []) %>;
             </script>
             <script src="/js/movie-detail.js?v=202" defer></script>
+
+            <!-- ⚡ Speculative Asset Pre-warming for /xem-phim (Zero Server Overhead, Native Browser Cache Warming) -->
+            <script>
+                (function () {
+                    var _prewarmed = false;
+                    function prewarmWatchAssets() {
+                        if (_prewarmed) return;
+                        _prewarmed = true;
+                        var assets = [
+                            { href: '/css/watch-page.css?v=340', as: 'style' },
+                            { href: '/js/watch.js?v=10091', as: 'script' },
+                            { href: 'https://cdn.jsdelivr.net/npm/hls.js@latest', as: 'script' }
+                        ];
+                        assets.forEach(function (item) {
+                            try {
+                                var link = document.createElement('link');
+                                link.rel = 'prefetch';
+                                link.as = item.as;
+                                link.href = item.href;
+                                link.crossOrigin = 'anonymous';
+                                document.head.appendChild(link);
+                            } catch (e) { }
+                        });
+                    }
+
+                    // 1. Tải trước khi CPU/mạng rảnh rỗi (User đang đọc thông tin phim)
+                    if ('requestIdleCallback' in window) {
+                        requestIdleCallback(prewarmWatchAssets, { timeout: 2500 });
+                    } else {
+                        setTimeout(prewarmWatchAssets, 1800);
+                    }
+
+                    // 2. Kích hoạt tức thì khi user có ý định xem (Rê chuột hoặc chạm nhẹ vào nút Xem Ngay hoặc Danh sách tập)
+                    function attachIntentListeners() {
+                        var watchBtn = document.getElementById('watchNowBtn');
+                        if (watchBtn) {
+                            watchBtn.addEventListener('mouseenter', prewarmWatchAssets, { passive: true, once: true });
+                            watchBtn.addEventListener('touchstart', prewarmWatchAssets, { passive: true, once: true });
+                        }
+                        var epDesktop = document.getElementById('episodes-desktop');
+                        if (epDesktop) {
+                            epDesktop.addEventListener('mouseenter', prewarmWatchAssets, { passive: true, once: true });
+                            epDesktop.addEventListener('touchstart', prewarmWatchAssets, { passive: true, once: true });
+                        }
+                    }
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', attachIntentListeners);
+                    } else {
+                        attachIntentListeners();
+                    }
+                })();
+            </script>
             <script src="/js/movie-slider.js?v=99" defer></script>
             <script src="/js/categories-dropdown.js?v=99" defer></script>
             <script src="/js/countries-dropdown.js?v=99" defer></script>

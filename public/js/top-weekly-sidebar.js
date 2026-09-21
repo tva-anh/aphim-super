@@ -344,9 +344,22 @@
     window.alignTopWeeklyWithCast = alignTopWeeklyWithCast;
     window.addEventListener('resize', alignTopWeeklyWithCast);
 
+    function scheduleSidebarInit() {
+        const isWatchPage = window.location.pathname.includes('/xem-phim') || window.location.pathname.includes('/watch');
+        if (isWatchPage) {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(initTopWeeklySidebar, { timeout: 3500 });
+            } else {
+                setTimeout(initTopWeeklySidebar, 1800);
+            }
+        } else {
+            initTopWeeklySidebar();
+        }
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTopWeeklySidebar);
+        document.addEventListener('DOMContentLoaded', scheduleSidebarInit);
     } else {
-        initTopWeeklySidebar();
+        scheduleSidebarInit();
     }
 })();
