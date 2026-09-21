@@ -2364,6 +2364,18 @@
     font-size: 12.5px !important;
 }
 
+/* Mobile Fullscreen Guard: Prevent fake web fullscreen from trapping mobile page in portrait */
+@media (max-width: 768px) {
+    #aphim-player-wrapper.aphim-web-fullscreen {
+        position: relative !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        z-index: 1 !important;
+    }
+}
+
 
 
 

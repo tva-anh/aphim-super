@@ -2532,14 +2532,25 @@ function initializePlayer(episode) {
         }
     }
 
-    // Fullscreen Toggle Controller (Universal: Desktop Fullscreen + Mobile Auto-Landscape & Web Fullscreen)
+    // Device Helper: Accurately detect Mobile (iPhone, iPad, Android, touch devices)
+    function isMobileDevice() {
+        if (typeof window === 'undefined') return false;
+        const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        const isIPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+        const isSmallTouchScreen = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) && window.innerWidth <= 850;
+        return isMobileUA || isIPadOS || isSmallTouchScreen;
+    }
+
+    // Fullscreen Toggle Controller (Desktop Custom Fullscreen vs. Mobile Native Video Fullscreen)
     function isCurrentlyFullscreen() {
         return !!(
             document.fullscreenElement ||
             document.webkitFullscreenElement ||
             document.mozFullScreenElement ||
             document.msFullscreenElement ||
-            (wrapper && wrapper.classList.contains('aphim-web-fullscreen'))
+            (player && player.webkitDisplayingFullscreen) ||
+            (!isMobileDevice() && wrapper && wrapper.classList.contains('aphim-web-fullscreen'))
         );
     }
 
@@ -2552,8 +2563,41 @@ function initializePlayer(episode) {
     }
 
     async function enterFullscreen() {
-        if (!wrapper) return;
+        if (!player) return;
 
+        // ─── A. MOBILE FLOW (iOS & Android: Native OS Video Fullscreen - Exactly Image 3) ───
+        if (isMobileDevice()) {
+            // 1. iOS Safari (iPhone / iPad) -> Direct native webkitEnterFullscreen on video element
+            if (player.webkitEnterFullscreen) {
+                try {
+                    player.webkitEnterFullscreen();
+                    updateFullscreenIcons(true);
+                    return;
+                } catch (e) {
+                    console.warn('iOS webkitEnterFullscreen error:', e);
+                }
+            }
+
+            // 2. Android / Other Mobile -> Native Fullscreen on <video> with native media controls
+            if (player.requestFullscreen || player.webkitRequestFullscreen) {
+                try {
+                    player.controls = true; // Show native OS controls (Image 3)
+                    if (player.requestFullscreen) {
+                        await player.requestFullscreen();
+                    } else if (player.webkitRequestFullscreen) {
+                        await player.webkitRequestFullscreen();
+                    }
+                    updateFullscreenIcons(true);
+                    return;
+                } catch (e) {
+                    console.warn('Mobile native video requestFullscreen error:', e);
+                    player.controls = false;
+                }
+            }
+        }
+
+        // ─── B. DESKTOP FLOW (PC / Laptop: Custom Player Fullscreen) ───
+        if (!wrapper) return;
         let nativeSuccess = false;
 
         // 1. Try Native Fullscreen API on wrapper
@@ -2575,39 +2619,8 @@ function initializePlayer(episode) {
             console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
         }
 
-        // 2. On iOS Safari: try native video fullscreen if wrapper API is unavailable
-        if (!nativeSuccess && player) {
-            if (player.webkitEnterFullscreen) {
-                try {
-                    player.webkitEnterFullscreen();
-                    nativeSuccess = true;
-                } catch (e) {
-                    console.warn('iOS webkitEnterFullscreen error:', e);
-                }
-            } else if (player.requestFullscreen) {
-                try {
-                    await player.requestFullscreen();
-                    nativeSuccess = true;
-                } catch (e) {}
-            } else if (player.webkitRequestFullscreen) {
-                try {
-                    await player.webkitRequestFullscreen();
-                    nativeSuccess = true;
-                } catch (e) {}
-            }
-        }
-
-        // 3. Auto lock screen orientation to landscape on mobile devices (standard cinema flow)
-        if (screen.orientation && screen.orientation.lock) {
-            try {
-                await screen.orientation.lock('landscape');
-            } catch (e) {
-                // Ignore orientation lock restrictions
-            }
-        }
-
-        // 4. Web Fullscreen (CSS Fullscreen) as universal fallback whenever native fullscreen is not active
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        // 2. Web Fullscreen (CSS Fullscreen) ONLY as fallback on Desktop (Never on mobile)
+        if (!nativeSuccess && !isMobileDevice() && !document.fullscreenElement && !document.webkitFullscreenElement) {
             wrapper.classList.add('aphim-web-fullscreen');
             document.body.classList.add('aphim-body-fullscreen');
         }
@@ -2617,7 +2630,15 @@ function initializePlayer(episode) {
     }
 
     async function exitFullscreen() {
-        // 1. Exit native browser fullscreen
+        // 1. Reset mobile native player state
+        if (isMobileDevice() && player) {
+            player.controls = false; // Restore custom inline controls for outside viewing
+            if (player.webkitExitFullscreen) {
+                try { player.webkitExitFullscreen(); } catch (e) {}
+            }
+        }
+
+        // 2. Exit native browser fullscreen
         try {
             if (document.exitFullscreen) {
                 await document.exitFullscreen();
@@ -2632,14 +2653,14 @@ function initializePlayer(episode) {
             console.warn('Exit fullscreen error:', e);
         }
 
-        // 2. Unlock screen orientation
+        // 3. Unlock screen orientation
         if (screen.orientation && screen.orientation.unlock) {
             try {
                 screen.orientation.unlock();
             } catch (e) {}
         }
 
-        // 3. Remove Web Fullscreen classes
+        // 4. Remove Web Fullscreen classes
         if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
         document.body.classList.remove('aphim-body-fullscreen');
 
@@ -2667,6 +2688,9 @@ function initializePlayer(episode) {
         const isFs = isCurrentlyFullscreen();
         updateFullscreenIcons(isFs);
         if (!isFs) {
+            if (player && isMobileDevice()) {
+                player.controls = false; // Switch back to custom tools outside fullscreen
+            }
             if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
             document.body.classList.remove('aphim-body-fullscreen');
             if (screen.orientation && screen.orientation.unlock) {
@@ -2682,20 +2706,25 @@ function initializePlayer(episode) {
     document.addEventListener('mozfullscreenchange', handleFsChange);
     document.addEventListener('MSFullscreenChange', handleFsChange);
 
-    // ESC key listener for Web Fullscreen
+    // ESC key listener for Web Fullscreen on Desktop
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && wrapper && wrapper.classList.contains('aphim-web-fullscreen')) {
             exitFullscreen();
         }
     });
 
-    // iOS native video fullscreen change events
+    // iOS native video fullscreen change events (Direct Native Player - Image 3)
     if (player) {
         player.addEventListener('webkitbeginfullscreen', () => {
             updateFullscreenIcons(true);
         });
         player.addEventListener('webkitendfullscreen', () => {
+            if (player) player.controls = false;
+            if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
+            document.body.classList.remove('aphim-body-fullscreen');
             updateFullscreenIcons(false);
+            showControls();
+            scheduleHideControls(2500);
         });
     }
 
