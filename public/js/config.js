@@ -251,24 +251,15 @@ window.getHiddenMovieOverlay = function(slug) {
 };
 
 
-// 🚀 BACKEND HEALTH CHECK: Kiểm tra backend mới có sống không, log ra console
-(async function checkNewBackend() {
+// Backend health check (Local / Current Origin)
+(async function checkCurrentBackend() {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return;
-    
     try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-        const res = await fetch(`${BACKEND_OPTIONS.NEW}/api/settings/public`, { signal: controller.signal });
-        clearTimeout(timeout);
-        
-        if (res.ok) {
-            console.log('✅ [Backend] Railway e45a is online and healthy.');
-        } else {
-            console.warn('⚠️ [Backend] Railway e45a returned status:', res.status);
+        const res = await fetch('/api/health').catch(() => null);
+        if (res && res.ok) {
+            // Server healthy
         }
-    } catch (e) {
-        console.warn('⚠️ [Backend] Could not reach Railway e45a:', e.message);
-    }
+    } catch (e) { }
 })();
 
 // Initialize Global Lottie Icons (Replaces static icons with premium Lottie animations)
