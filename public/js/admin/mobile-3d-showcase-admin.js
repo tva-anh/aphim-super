@@ -49,38 +49,44 @@
 
     const MobileShowcaseAdmin = {
         async init() {
+            if (!document.getElementById('mobileShowcaseList')) return;
             await this.loadData();
             this.bindEvents();
-            this.preloadTrending();
+            if (!cachedTrendingList || cachedTrendingList.length === 0) {
+                this.preloadTrending();
+            }
         },
 
         bindEvents() {
             const openBtn = document.getElementById('btnOpenAddShowcase3D');
             if (openBtn) {
-                openBtn.addEventListener('click', (e) => {
+                openBtn.onclick = (e) => {
                     e.preventDefault();
                     this.openAddModal();
-                });
+                };
             }
 
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    const modal = document.getElementById('modalAddShowcase3D');
-                    if (modal && modal.style.display === 'flex') {
-                        this.closeModal();
+            if (!this._escapeBound) {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const modal = document.getElementById('modalAddShowcase3D');
+                        if (modal && modal.style.display === 'flex') {
+                            this.closeModal();
+                        }
                     }
-                }
-            });
+                });
+                this._escapeBound = true;
+            }
 
             // Live poster input change listener
             const posterInput = document.getElementById('scPoster');
             if (posterInput) {
-                posterInput.addEventListener('input', (e) => {
+                posterInput.oninput = (e) => {
                     const url = e.target.value.trim();
                     const name = document.getElementById('scName')?.value || 'Phim mới';
                     const year = document.getElementById('scYear')?.value || '';
                     this.updatePosterPreview(url, name, year);
-                });
+                };
             }
         },
 
@@ -98,18 +104,25 @@
             const container = document.getElementById('mobileShowcaseList');
             if (!container) return;
 
+            // Render existing cached items immediately if already in memory
+            if (showcaseItems && showcaseItems.length > 0) {
+                this.renderList();
+            }
+
             try {
                 const res = await fetch('/api/settings/mobile-3d-showcase?t=' + Date.now());
                 const data = await res.json();
                 if (data.success && Array.isArray(data.data)) {
                     showcaseItems = data.data;
                     this.renderList();
-                } else {
+                } else if (!showcaseItems.length) {
                     container.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;">Không thể tải dữ liệu 3D Showcase</div>';
                 }
             } catch (e) {
                 console.error('Lỗi load mobile showcase:', e);
-                container.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;">Lỗi kết nối máy chủ</div>';
+                if (!showcaseItems.length) {
+                    container.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;">Lỗi kết nối máy chủ</div>';
+                }
             }
         },
 
@@ -658,9 +671,13 @@
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            MobileShowcaseAdmin.init();
+            if (document.getElementById('mobileShowcaseList')) {
+                MobileShowcaseAdmin.init();
+            }
         });
     } else {
-        MobileShowcaseAdmin.init();
+        if (document.getElementById('mobileShowcaseList')) {
+            MobileShowcaseAdmin.init();
+        }
     }
 })();

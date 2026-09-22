@@ -13,6 +13,13 @@ async function requireAdmin(req, res, next) {
             token = req.cookies.adminToken || req.cookies.cinestream_admin_token || req.cookies.aphim_admin_token || req.cookies['sb-access-token'] || req.cookies.token;
         }
 
+        if (!token && req.headers.cookie) {
+            const match = req.headers.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|adminToken|cinestream_admin_token|sb-access-token|token)=([^;]+)/);
+            if (match) {
+                token = decodeURIComponent(match[1]);
+            }
+        }
+
         if (!token) {
             return res.status(401).json({ success: false, message: 'Truy cập bị từ chối — thiếu admin token.' });
         }

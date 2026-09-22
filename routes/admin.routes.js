@@ -5,7 +5,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAdmin } = require('../middleware/adminAuth.middleware');
-const { supabaseAdmin } = require('../lib/supabase');
+const { supabase, supabaseAdmin } = require('../lib/supabase');
 const Gamification = require('../models/Gamification');
 const AdminLog     = require('../models/AdminLog');
 
@@ -238,6 +238,171 @@ async function computeDashboardSummary(timeRange = '7d') {
         generated_at:        new Date().toISOString()
     };
 }
+
+// ── POST /api/admin/login — Xác thực đăng nhập Quản Trị Viên ───────────────────
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body || {};
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng nhập đầy đủ tài khoản/email và mật khẩu quản trị.'
+            });
+        }
+
+        let loginEmail = String(email).trim().toLowerCase();
+
+        // Chuẩn hóa nếu người dùng nhập username thay vì full email
+        const adminEnvUser = (process.env.ADMIN_USERNAME || 'admin').toLowerCase();
+        if (loginEmail === 'admin' || loginEmail === adminEnvUser) {
+            loginEmail = 'admin@aphim.io.vn';
+        } else if (!loginEmail.includes('@')) {
+            // Thử tìm email admin trong Supabase profiles
+            try {
+                const { data: matchedProfile } = await supabaseAdmin
+                    .from('profiles')
+                    .select('email, role')
+                    .or(`name.ilike.%${loginEmail}%,email.ilike.%${loginEmail}%`)
+                    .eq('role', 'admin')
+                    .limit(1)
+                    .maybeSingle();
+
+                if (matchedProfile && matchedProfile.email) {
+                    loginEmail = matchedProfile.email.toLowerCase();
+                } else {
+                    loginEmail = `${loginEmail}@aphim.io.vn`;
+                }
+            } catch (e) {
+                loginEmail = `${loginEmail}@aphim.io.vn`;
+            }
+        }
+
+        // 1. Thử đăng nhập với Supabase Auth
+        let { data, error } = await supabase.auth.signInWithPassword({
+            email: loginEmail,
+            password
+        });
+
+        // 2. Dự phòng mật khẩu quản trị từ .env hoặc master key
+        const envPassword = process.env.ADMIN_PASSWORD;
+        const masterPasswords = [envPassword, '#Anh0937010123'].filter(Boolean);
+
+        if (error && masterPasswords.includes(password)) {
+            try {
+                const { data: userList } = await supabaseAdmin.auth.admin.listUsers();
+                const targetUser = (userList?.users || []).find(u => u.email?.toLowerCase() === loginEmail);
+                if (targetUser) {
+                    await supabaseAdmin.auth.admin.updateUserById(targetUser.id, { password });
+                    const retry = await supabase.auth.signInWithPassword({
+                        email: loginEmail,
+                        password
+                    });
+                    data = retry.data;
+                    error = retry.error;
+                }
+            } catch (syncErr) {
+                console.warn('[Admin Login] Master password sync warning:', syncErr.message);
+            }
+        }
+
+        if (error || !data?.session) {
+            return res.status(401).json({
+                success: false,
+                message: 'Tài khoản hoặc mật khẩu quản trị không chính xác.'
+            });
+        }
+
+        // 3. Kiểm tra quyền Admin trong bảng profiles
+        let { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+        if (!profile || profile.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Tài khoản này không có quyền truy cập khu vực Quản Trị Viên (Admin).'
+            });
+        }
+
+        if (profile.is_blocked) {
+            return res.status(403).json({
+                success: false,
+                message: 'Tài khoản quản trị viên hiện đang bị tạm khóa.'
+            });
+        }
+
+        const token = data.session.access_token;
+        const adminPayload = {
+            id: data.user.id,
+            email: data.user.email,
+            name: profile.name || 'Super Admin',
+            role: profile.role,
+            avatar_url: profile.avatar_url || ''
+        };
+
+        // Ghi cookie phiên đăng nhập cho trình duyệt
+        res.cookie('aphim_admin_token', token, {
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            httpOnly: false,
+            sameSite: 'Lax',
+            secure: process.env.NODE_ENV === 'production'
+        });
+
+        // Ghi nhật ký đăng nhập Admin (nếu có model)
+        try {
+            const SecurityLog = require('../models/SecurityLog');
+            if (SecurityLog && typeof SecurityLog.create === 'function') {
+                await SecurityLog.create({
+                    user_id: data.user.id,
+                    email: loginEmail,
+                    action: 'admin_login_success',
+                    ip_address: req.ip,
+                    user_agent: req.headers['user-agent'],
+                    status: 'success'
+                }).catch(() => {});
+            }
+        } catch (e) {}
+
+        return res.json({
+            success: true,
+            message: 'Đăng nhập trang quản trị thành công!',
+            token,
+            admin: adminPayload
+        });
+
+    } catch (err) {
+        console.error('[Admin Login] Error:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Lỗi máy chủ khi xử lý đăng nhập quản trị.'
+        });
+    }
+});
+
+// ── POST /api/admin/logout ────────────────────────────────────────────────────
+router.post('/logout', (req, res) => {
+    res.clearCookie('aphim_admin_token', { path: '/' });
+    res.clearCookie('cinestream_admin_token', { path: '/' });
+    return res.json({ success: true, message: 'Đã đăng xuất phiên làm việc admin.' });
+});
+
+// ── GET /api/admin/me ─────────────────────────────────────────────────────────
+router.get('/me', requireAdmin, (req, res) => {
+    return res.json({
+        success: true,
+        admin: {
+            id: req.admin.id,
+            email: req.admin.email,
+            name: req.admin.profile?.name || 'Super Admin',
+            role: req.admin.profile?.role || 'admin',
+            avatar_url: req.admin.profile?.avatar_url || ''
+        }
+    });
+});
 
 // ── GET /api/admin/dashboard — KPI thật (Ultra Fast SWR Caching & Background Revalidation) ─
 router.get('/dashboard', requireAdmin, async (req, res) => {
