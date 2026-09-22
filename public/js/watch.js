@@ -3,6 +3,7 @@ let currentMovie = null;
 let currentEpisode = null;
 let player = null;
 let currentServerIndex = 0; // Track the current server index for failover
+let requestedVariant = null; // SEO variant: 'thuyet-minh', 'long-tieng', 'vietsub'
 let _isInitializingPlayer = false; // Guard: chỉ cho phép 1 lần initializePlayer chạy cùng lúc
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -10,15 +11,43 @@ document.addEventListener('DOMContentLoaded', async function () {
     let slug = urlParams.get('slug');
     let episodeSlug = urlParams.get('episode');
     let serverIndex = urlParams.get('server');
+    requestedVariant = urlParams.get('version') || urlParams.get('variant') || null;
 
     const pathname = window.location.pathname.toLowerCase();
     if (!slug && (pathname.startsWith('/xem-phim/') || pathname.startsWith('/watch/'))) {
-        const parts = window.location.pathname.split('/').filter(Boolean); // ["xem-phim"|"watch", "slug", "episode"]
+        const parts = window.location.pathname.split('/').filter(Boolean); // ["xem-phim"|"watch", "slug", "episode", "variant"]
         if (parts.length >= 2) {
             slug = parts[1];
-            episodeSlug = parts[2] || null;
+            let rawEp = parts[2] || null;
+            let rawVar = parts[3] || null;
 
-            // clean ep prefix if it is tap-1
+            if (rawVar) {
+                requestedVariant = rawVar.toLowerCase();
+            }
+
+            if (rawEp) {
+                const knownVariants = ['thuyet-minh', 'long-tieng', 'vietsub', 'ban-cam', 'raw'];
+                if (knownVariants.includes(rawEp.toLowerCase())) {
+                    requestedVariant = rawEp.toLowerCase();
+                    rawEp = null;
+                } else {
+                    const variantSuffixes = [
+                        { suffix: '-thuyet-minh', key: 'thuyet-minh' },
+                        { suffix: '-long-tieng', key: 'long-tieng' },
+                        { suffix: '-vietsub', key: 'vietsub' },
+                        { suffix: '-ban-cam', key: 'ban-cam' }
+                    ];
+                    for (const v of variantSuffixes) {
+                        if (rawEp.toLowerCase().endsWith(v.suffix)) {
+                            requestedVariant = v.key;
+                            rawEp = rawEp.slice(0, -v.suffix.length);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            episodeSlug = rawEp;
             if (episodeSlug && episodeSlug.startsWith('tap-')) {
                 episodeSlug = episodeSlug.replace('tap-', '');
             }
@@ -27,6 +56,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (!slug && window.initialMovie && window.initialMovie.slug) {
         slug = window.initialMovie.slug;
+    }
+    if (!requestedVariant && window.activeVariant) {
+        requestedVariant = window.activeVariant;
     }
 
     if (!slug) {
@@ -49,6 +81,62 @@ document.addEventListener('DOMContentLoaded', async function () {
         setTimeout(() => loadRecommendations(), 2000);
     }
 });
+
+// ─── SEO MULTI-VARIANT HELPERS (Vietsub, Thuyết Minh, Lồng Tiếng) ───
+function resolveServerIndex(episodes, requestedServer, reqVariant, movie) {
+    if (!episodes || episodes.length === 0) return 0;
+
+    // 1. Nếu có yêu cầu phiên bản rõ ràng (Thuyết Minh, Lồng Tiếng, Vietsub)
+    if (reqVariant && episodes.length > 1) {
+        const found = episodes.findIndex(s => {
+            const cat = getLangTag(s, movie).toLowerCase();
+            if (reqVariant === 'thuyet-minh') return cat.includes('thuyết minh') || cat.includes('thuyet minh');
+            if (reqVariant === 'long-tieng') return cat.includes('lồng tiếng') || cat.includes('long tieng');
+            if (reqVariant === 'vietsub') return cat.includes('vietsub');
+            return false;
+        });
+        if (found !== -1) return found;
+    }
+
+    // 2. Nếu có yêu cầu index máy chủ cụ thể qua query parameter (?server=X)
+    if (requestedServer !== null && !isNaN(requestedServer)) {
+        const idx = parseInt(requestedServer);
+        if (idx >= 0 && idx < episodes.length) return idx;
+    }
+
+    return 0;
+}
+
+function updateWatchUrlState(movie, episode, serverIndex) {
+    if (!movie || !movie.slug) return;
+    const episodes = movie.episodes || [];
+    const server = episodes[serverIndex];
+    let catSlug = '';
+    if (server) {
+        const cat = getLangTag(server, movie);
+        if (cat === 'Thuyết Minh') catSlug = '-thuyet-minh';
+        else if (cat === 'Lồng Tiếng') catSlug = '-long-tieng';
+    }
+
+    const cleanEp = (episode && episode.slug) ? episode.slug.replace(/^tap-/, '') : 'full';
+    const serverParam = (!catSlug && serverIndex > 0) ? `?server=${serverIndex}` : '';
+
+    if (window.location.pathname.startsWith('/xem-phim/')) {
+        const newUrl = `/xem-phim/${movie.slug}/tap-${cleanEp}${catSlug}${serverParam}`;
+        window.history.pushState({}, '', newUrl);
+    } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('episode', `tap-${cleanEp}${catSlug}`);
+        if (serverIndex > 0) urlParams.set('server', serverIndex);
+        else urlParams.delete('server');
+        window.history.pushState({}, '', 'watch.html?' + urlParams.toString());
+    }
+
+    // Cập nhật Title trang động theo đúng phiên bản đang xem
+    let epStr = episode?.name ? (episode.name.toLowerCase().includes('tập') ? episode.name : `Tập ${episode.name}`) : '';
+    let variantTag = catSlug === '-thuyet-minh' ? 'Thuyết Minh Tiếng Việt' : (catSlug === '-long-tieng' ? 'Lồng Tiếng Trọn Bộ' : 'Vietsub Full HD');
+    document.title = `Xem Phim ${movie.name} ${epStr ? epStr + ' ' : ''}[${variantTag}] - APhim Super`;
+}
 
 // Load movie and play
 async function loadMovieAndPlay(slug, episodeSlug) {
@@ -73,11 +161,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
         const urlParams = new URLSearchParams(window.location.search);
         const requestedServer = urlParams.get('server');
-        if (requestedServer !== null && !isNaN(requestedServer) && parseInt(requestedServer) < currentMovie.episodes.length) {
-            currentServerIndex = parseInt(requestedServer);
-        } else {
-            currentServerIndex = 0;
-        }
+        currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie);
 
         const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
         currentEpisode = episodeSlug
@@ -119,12 +203,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
             const urlParams = new URLSearchParams(window.location.search);
             const requestedServer = urlParams.get('server');
-            if (requestedServer !== null && !isNaN(requestedServer) && parseInt(requestedServer) < currentMovie.episodes.length) {
-                currentServerIndex = parseInt(requestedServer);
-            } else {
-                // Luôn ưu tiên Nguồn 1 (OPhim, index 0) - chỉ dùng nguồn khác khi người dùng tự chọn
-                currentServerIndex = 0;
-            }
+            currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie);
 
             const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
             currentEpisode = episodeSlug
@@ -164,12 +243,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
                 if (currentMovie.episodes && currentMovie.episodes.length > 0) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const requestedServer = urlParams.get('server');
-                    if (requestedServer !== null && !isNaN(requestedServer) && parseInt(requestedServer) < currentMovie.episodes.length) {
-                        currentServerIndex = parseInt(requestedServer);
-                    } else {
-                        // Luôn ưu tiên Nguồn 1 (OPhim, index 0) - chỉ dùng nguồn khác khi người dùng tự chọn
-                        currentServerIndex = 0;
-                    }
+                    currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie);
 
                     const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
 
@@ -1561,15 +1635,8 @@ window.changeServer = function (index) {
         currentEpisode = newServerData[0];
     }
 
-    // Cập nhật URL parameter
-    if (window.location.pathname.startsWith('/xem-phim/')) {
-        window.history.pushState({}, '', `/xem-phim/${currentMovie.slug}/tap-${currentEpisode.slug}?server=${currentServerIndex}`);
-    } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('episode', `tap-${currentEpisode.slug}`);
-        urlParams.set('server', currentServerIndex);
-        window.history.pushState({}, '', 'watch.html?' + urlParams.toString());
-    }
+    // Cập nhật URL chuẩn SEO với biến thể ngôn ngữ
+    updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);
 
     renderServerList(currentMovie.episodes);
     renderEpisodeList(currentMovie.episodes);
@@ -3932,18 +3999,7 @@ window.changeEpisode = function (episodeSlug) {
     currentEpisode = foundEp;
 
     // 2. Update URL query parameter cleanly without page reload
-    if (window.location.pathname.startsWith('/xem-phim/')) {
-        window.history.pushState({}, '', `/xem-phim/${currentMovie.slug}/tap-${episodeSlug}?server=${currentServerIndex}`);
-    } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('episode', episodeSlug);
-        urlParams.set('server', currentServerIndex);
-        window.history.pushState({}, '', 'watch.html?' + urlParams.toString());
-    }
-
-    // 3. Update document title
-    let epStr = currentEpisode?.name ? (currentEpisode.name.toLowerCase().includes('tập') ? currentEpisode.name : `Tập ${currentEpisode.name}`) : '';
-    document.title = `Xem Phim ${currentMovie.name} ${epStr ? '- ' + epStr : ''} Full HD | APhim Super`;
+    updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);
 
     // 4. Update play stream (Re-initialize player or switch stream)
     const videoPlayer = document.getElementById('videoPlayer');

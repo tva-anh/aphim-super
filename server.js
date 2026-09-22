@@ -1135,46 +1135,169 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
     });
 });
 
-// 3. Watch Video Player Route: /watch, /watch/:slug, /xem-phim/:slug, hoặc /xem-phim/:slug/:episode
-app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/:slug/:episode'], checkBlockedSlug, async (req, res) => {
+// Helper: Chuẩn hóa tham số tập & biến thể ngôn ngữ (Vietsub, Thuyết Minh, Lồng Tiếng)
+function parseWatchParams(rawEp = '', rawVariant = '', queryServer = '', queryVersion = '', movieEpisodes = []) {
+    let cleanEp = rawEp ? String(rawEp).trim() : '';
+    let variant = rawVariant ? String(rawVariant).toLowerCase().trim() : '';
+    let serverIndex = (queryServer !== '' && !isNaN(queryServer)) ? parseInt(queryServer) : null;
+
+    if (queryVersion) {
+        variant = String(queryVersion).toLowerCase().trim();
+    }
+
+    // 1. Nếu rawEp là biến thể ngôn ngữ (ví dụ /xem-phim/:slug/thuyet-minh hoặc /xem-phim/:slug/vietsub)
+    const knownVariants = ['thuyet-minh', 'long-tieng', 'vietsub', 'ban-cam', 'raw'];
+    if (knownVariants.includes(cleanEp.toLowerCase())) {
+        variant = cleanEp.toLowerCase();
+        cleanEp = '';
+    }
+
+    // 2. Nếu rawEp chứa đuôi biến thể (ví dụ: tap-1-thuyet-minh, tap-full-long-tieng, tap-01-vietsub)
+    const variantSuffixes = [
+        { suffix: '-thuyet-minh', key: 'thuyet-minh' },
+        { suffix: '-long-tieng', key: 'long-tieng' },
+        { suffix: '-vietsub', key: 'vietsub' },
+        { suffix: '-ban-cam', key: 'ban-cam' }
+    ];
+    for (const v of variantSuffixes) {
+        if (cleanEp.toLowerCase().endsWith(v.suffix)) {
+            variant = v.key;
+            cleanEp = cleanEp.slice(0, -v.suffix.length);
+            break;
+        }
+    }
+
+    // 3. Chuẩn hóa tên tập (bỏ prefix 'tap-')
+    cleanEp = cleanEp.replace(/^tap-/, '');
+
+    // 4. Nếu chưa có biến thể rõ ràng nhưng có query server=X, kiểm tra tên máy chủ tương ứng trong mảng episodes
+    if (!variant && serverIndex !== null && Array.isArray(movieEpisodes) && movieEpisodes[serverIndex]) {
+        const sName = (movieEpisodes[serverIndex].original_server_name || movieEpisodes[serverIndex].server_name || '').toLowerCase();
+        if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) variant = 'thuyet-minh';
+        else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) variant = 'long-tieng';
+        else if (sName.includes('vietsub')) variant = 'vietsub';
+    }
+
+    const isExplicitVariant = Boolean(variant && knownVariants.includes(variant));
+
+    return {
+        cleanEp,
+        variant: variant || 'vietsub',
+        isExplicitVariant,
+        serverIndex
+    };
+}
+
+// 3. Watch Video Player Route: Hỗ trợ đa tầng URL SEO cho từng Tập phim và từng Phiên bản (Vietsub / Thuyết minh / Lồng tiếng)
+app.get([
+    '/watch',
+    '/watch.html',
+    '/watch/:slug',
+    '/watch/:slug/:episode',
+    '/watch/:slug/:episode/:variant',
+    '/xem-phim/:slug',
+    '/xem-phim/:slug/:episode',
+    '/xem-phim/:slug/:episode/:variant'
+], checkBlockedSlug, async (req, res) => {
     const slug = req.params.slug || req.query.slug || '';
-    const episode = req.params.episode || req.query.episode || '';
+    const rawEpisode = req.params.episode || req.query.episode || '';
+    const rawVariant = req.params.variant || '';
+    const queryServer = req.query.server || '';
+    const queryVersion = req.query.version || '';
+
     const meta = await fetchMovieMetadata(slug);
+    const movieEpisodes = meta?.episodes || [];
+
+    const { cleanEp, variant, isExplicitVariant, serverIndex } = parseWatchParams(
+        rawEpisode,
+        rawVariant,
+        queryServer,
+        queryVersion,
+        movieEpisodes
+    );
 
     let epText = '';
-    let epNumber = '1';
-    if (episode) {
-        const cleanEp = episode.replace(/^tap-/, '');
-        epText = cleanEp ? `- Tập ${cleanEp} ` : '';
-        epNumber = cleanEp || '1';
+    let epNumber = cleanEp || '1';
+    if (cleanEp) {
+        epText = cleanEp.toLowerCase() === 'full' ? '- Bản Full ' : `- Tập ${cleanEp} `;
     }
 
     if (meta) {
-        const title = `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
-        const rawWatchDesc = `Xem phim ${meta.name} ${epText}Full HD Vietsub Thuyết minh mượt mà không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
+        // Dynamic SEO Branding theo từng biến thể ngôn ngữ
+        let variantTitleSuffix = '';
+        let variantDescText = '';
+        let variantKeyword = '';
+        let subtitleSchema = null;
+        let audioSchema = null;
+
+        if (variant === 'thuyet-minh') {
+            variantTitleSuffix = 'Thuyết Minh Tiếng Việt Giọng Chuẩn Full HD';
+            variantDescText = 'bản Thuyết Minh tiếng Việt giọng đọc hay mượt mà, âm thanh sống động';
+            variantKeyword = 'thuyet minh, long tieng giong chuan, thuyet minh tieng viet';
+            audioSchema = { "@type": "AudioObject", "name": "Thuyết Minh Tiếng Việt" };
+        } else if (variant === 'long-tieng') {
+            variantTitleSuffix = 'Lồng Tiếng Trọn Bộ Full HD';
+            variantDescText = 'bản Lồng Tiếng tiếng Việt hấp dẫn trọn bộ, chất lượng âm thanh nổi đỉnh cao';
+            variantKeyword = 'long tieng, tron bo long tieng, long tieng tieng viet';
+            audioSchema = { "@type": "AudioObject", "name": "Lồng Tiếng Tiếng Việt" };
+        } else if (variant === 'ban-cam') {
+            variantTitleSuffix = 'Bản Chiếu Rạp Mới Nhất';
+            variantDescText = 'bản quay rạp sớm nhất với phụ đề tiếng Việt';
+            variantKeyword = 'ban cam, ban quay rap, chieu rap';
+        } else if (isExplicitVariant || variant === 'vietsub') {
+            variantTitleSuffix = 'Vietsub Phụ Đề Chuẩn Full HD';
+            variantDescText = 'Full HD Vietsub phụ đề tiếng Việt chuẩn, dịch sát nghĩa';
+            variantKeyword = 'vietsub, phu de tieng viet, vietsub full hd';
+            subtitleSchema = { "@type": "Text", "name": "Phụ đề Tiếng Việt (Vietsub)" };
+        }
+
+        // Tạo Title tối ưu hóa Click-through-rate (CTR) trên Google
+        const title = variantTitleSuffix 
+            ? `Xem Phim ${meta.name} ${epText}${variantTitleSuffix} - APhim Super`
+            : `Xem Phim ${meta.name} ${epText}(${meta.origin_name || meta.year}) [${meta.quality} ${meta.lang}] - APhim Super`;
+
+        const rawWatchDesc = `Xem phim ${meta.name} ${epText}${variantDescText || 'Full HD Vietsub Thuyết minh'} không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
         const metaDescription = formatMetaDescription(rawWatchDesc, 155);
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
-        const metaKeywords = `xem phim ${meta.name}, ${meta.name} tap ${epNumber}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, xem phim khong quang cao, aphim, aphim store`;
-        const canonicalUrl = `https://aphim.store/xem-phim/${slug}`;
+        const metaKeywords = `xem phim ${meta.name}, ${meta.name} ${epNumber ? 'tap ' + epNumber : ''}, ${meta.name} ${variantKeyword}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, xem phim khong quang cao, aphim, aphim store`;
+
+        // Smart Canonical URL: Phân biệt rõ bản nội dung khác nhau vs server clone kỹ thuật
+        let canonicalUrl = `https://aphim.store/xem-phim/${slug}`;
+        if (cleanEp) {
+            if (isExplicitVariant && variant !== 'vietsub') {
+                canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${cleanEp}-${variant}`;
+            } else {
+                canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${cleanEp}`;
+            }
+        } else if (isExplicitVariant && variant !== 'vietsub') {
+            canonicalUrl = `https://aphim.store/xem-phim/${slug}/${variant}`;
+        }
+
         const mainCategory = meta.category[0] || 'Phim mới';
+
+        const videoObject = {
+            "@type": "VideoObject",
+            "name": title,
+            "description": metaDescription,
+            "thumbnailUrl": [ogImage],
+            "uploadDate": meta.year ? `${meta.year}-01-01T00:00:00Z` : new Date().toISOString(),
+            "contentUrl": canonicalUrl,
+            "embedUrl": canonicalUrl,
+            "inLanguage": "vi",
+            "potentialAction": {
+                "@type": "SeekToAction",
+                "target": `${canonicalUrl}?t={seek_to_second_number}`,
+                "startOffset-input": "required name=seek_to_second_number"
+            }
+        };
+
+        if (subtitleSchema) videoObject.subtitle = subtitleSchema;
+        if (audioSchema) videoObject.audio = audioSchema;
 
         const schemaData = {
             "@context": "https://schema.org",
             "@graph": [
-                {
-                    "@type": "VideoObject",
-                    "name": `Xem Phim ${meta.name} ${epText}Full HD Vietsub Thuyết Minh`,
-                    "description": metaDescription,
-                    "thumbnailUrl": [ogImage],
-                    "uploadDate": meta.year ? `${meta.year}-01-01T00:00:00Z` : new Date().toISOString(),
-                    "contentUrl": canonicalUrl,
-                    "embedUrl": canonicalUrl,
-                    "potentialAction": {
-                        "@type": "SeekToAction",
-                        "target": `${canonicalUrl}?t={seek_to_second_number}`,
-                        "startOffset-input": "required name=seek_to_second_number"
-                    }
-                },
+                videoObject,
                 {
                     "@type": "BreadcrumbList",
                     "itemListElement": [
@@ -1199,7 +1322,7 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
                         {
                             "@type": "ListItem",
                             "position": 4,
-                            "name": `Xem Phim ${epText}`,
+                            "name": `Xem Phim ${epText}${isExplicitVariant ? '(' + variant.toUpperCase() + ')' : ''}`,
                             "item": canonicalUrl
                         }
                     ]
@@ -1209,9 +1332,11 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
 
         return res.render('watch', {
             slug: slug,
-            episodeParam: episode,
+            episodeParam: rawEpisode,
+            activeVariant: variant,
+            requestedServerIndex: serverIndex,
             movie: meta,
-            episodes: [],
+            episodes: movieEpisodes,
             title: title,
             metaDescription: metaDescription,
             metaKeywords: metaKeywords,
@@ -1225,7 +1350,9 @@ app.get(['/watch', '/watch.html', '/watch/:slug', '/xem-phim/:slug', '/xem-phim/
     const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
     res.render('watch', {
         slug: slug,
-        episodeParam: episode,
+        episodeParam: rawEpisode,
+        activeVariant: variant,
+        requestedServerIndex: serverIndex,
         movie: null,
         episodes: [],
         title: `Xem Phim ${formattedName} ${epText}Full HD | APhim Super`,

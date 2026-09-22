@@ -675,13 +675,23 @@ function renderMovieDetail(movie) {
         } else if (movie.episodes && movie.episodes.length > 0) {
             // Có episodes từ API
             const serverIndex = typeof currentServerIndexDetail !== 'undefined' ? currentServerIndexDetail : 0;
-            const firstEpisode = movie.episodes[serverIndex]?.server_data[0] || movie.episodes[0].server_data[0];
+            const targetServer = movie.episodes[serverIndex] || movie.episodes[0];
+            const firstEpisode = targetServer?.server_data[0] || movie.episodes[0].server_data[0];
             const cleanSlug = firstEpisode.slug.replace(/^tap-/, '');
+
+            let catSlug = '';
+            if (targetServer) {
+                const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
+                if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+                else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
+            }
+            const sParam = (serverIndex > 0 && !catSlug) ? `?server=${serverIndex}` : '';
+
             const isHtmlEnv = window.location.pathname.includes('.html');
             if (isHtmlEnv) {
-                watchBtn.href = `/watch.html?slug=${movie.slug}&episode=tap-${cleanSlug}&server=${serverIndex}`;
+                watchBtn.href = `/watch.html?slug=${movie.slug}&episode=tap-${cleanSlug}${catSlug}&server=${serverIndex}`;
             } else {
-                watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}?server=${serverIndex}`;
+                watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
             }
 
             // ⚡ Nạp dữ liệu vào sessionStorage ngay khi tương tác với nút Xem Ngay
@@ -1394,10 +1404,19 @@ function renderEpisodes(episodes) {
             epName = epName.replace(/^tập\s*0*(\d+)/i, 'Tập $1');
         }
 
+        const currentServer = currentMovie.episodes[currentServerIndexDetail];
+        let catSlug = '';
+        if (currentServer) {
+            const sName = (currentServer.original_server_name || currentServer.server_name || '').toLowerCase();
+            if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+            else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
+        }
+        const sParam = (currentServerIndexDetail > 0 && !catSlug) ? `?server=${currentServerIndexDetail}` : '';
+
         const isHtmlEnv = window.location.pathname.includes('.html');
         const watchHref = isHtmlEnv
-            ? `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}&server=${currentServerIndexDetail}`
-            : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}?server=${currentServerIndexDetail}`;
+            ? `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}${catSlug}&server=${currentServerIndexDetail}`
+            : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
 
         return `
             <a href="${watchHref}"
@@ -1425,13 +1444,23 @@ window.changeServerDetail = function (index) {
     // Cập nhật lại nút Xem Ngay chính khi người dùng đổi máy chủ trên movie-detail
     const watchBtn = document.getElementById('watchNowBtn') || document.querySelector('a[href*="/watch"]') || document.querySelector('a[href*="/xem-phim"]');
     if (watchBtn && currentMovie.episodes[index]?.server_data && currentMovie.episodes[index].server_data.length > 0) {
-        const firstEp = currentMovie.episodes[index].server_data[0];
+        const targetServer = currentMovie.episodes[index];
+        const firstEp = targetServer.server_data[0];
         const cleanSlug = firstEp.slug.replace(/^tap-/, '');
+
+        let catSlug = '';
+        if (targetServer) {
+            const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
+            if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+            else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
+        }
+        const sParam = (index > 0 && !catSlug) ? `?server=${index}` : '';
+
         const isHtmlEnv = window.location.pathname.includes('.html');
         if (isHtmlEnv) {
-            watchBtn.href = `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}&server=${index}`;
+            watchBtn.href = `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}${catSlug}&server=${index}`;
         } else {
-            watchBtn.href = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}?server=${index}`;
+            watchBtn.href = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
         }
     }
 };

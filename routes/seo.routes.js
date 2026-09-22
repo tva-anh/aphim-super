@@ -206,6 +206,14 @@ async function generateAllSitemaps() {
         movieXml += `    <changefreq>daily</changefreq>\n`;
         movieXml += `    <priority>0.9</priority>\n`;
         movieXml += `  </url>\n`;
+
+        // Biến thể SEO Đa Tầng theo Search Intent: Thuyết Minh (Search intent lớn nhất tại VN)
+        movieXml += `  <url>\n`;
+        movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/thuyet-minh</loc>\n`;
+        movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+        movieXml += `    <changefreq>daily</changefreq>\n`;
+        movieXml += `    <priority>0.85</priority>\n`;
+        movieXml += `  </url>\n`;
     });
     movieXml += `</urlset>`;
 

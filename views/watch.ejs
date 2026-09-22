@@ -703,6 +703,12 @@
         <%- include('partials/footer') %>
 
             <!-- Page Scripts & Setup -->
+            <script>
+                window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
+                window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
+                window.activeVariant = <%- JSON.stringify(typeof activeVariant !== 'undefined' ? activeVariant : null) %>;
+                window.requestedServerIndex = <%- JSON.stringify(typeof requestedServerIndex !== 'undefined' ? requestedServerIndex : null) %>;
+            </script>
             <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" defer></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
             <script src="/js/api.js?v=100" defer></script>

@@ -14,15 +14,22 @@ jobs:
         run: |
           echo "🚀 Đang gửi thông báo Sitemap mới tới Google và Bing..."
           
-          # 1. Warm-up sitemap cache trên website
+          # 1. Warm-up sitemap cache trên website (Nạp sẵn 2.500+ URLs vào RAM cho Google Bot cào tức thì)
+          echo "⚡ Đang warm-up RAM cache sitemap..."
           curl -s -L "https://aphim.store/sitemap.xml" > /dev/null || true
+          curl -s -L "https://aphim.store/sitemap-movies.xml" > /dev/null || true
+          curl -s -L "https://aphim.store/sitemap-categories.xml" > /dev/null || true
           curl -s -L "https://aphim.store/sitemap-images.xml" > /dev/null || true
           
-          # 2. Ping Google Sitemaps
+          # 2. Ping Google Sitemaps (Báo Google Bot cập nhật các URL phim mới & các biến thể Thuyết Minh)
+          echo "📢 Ping Google Search Engines..."
           curl -s -L "https://www.google.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap.xml" || true
+          curl -s -L "https://www.google.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap-movies.xml" || true
           curl -s -L "https://www.google.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap-images.xml" || true
           
           # 3. Ping Bing / IndexNow
+          echo "📢 Ping Bing Search Engine..."
           curl -s -L "https://www.bing.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap.xml" || true
+          curl -s -L "https://www.bing.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap-movies.xml" || true
           
           echo "✅ Đã gửi tín hiệu thu thập dữ liệu Sitemap hàng ngày thành công cho https://aphim.store!"
