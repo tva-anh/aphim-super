@@ -26,30 +26,46 @@
   // ─── 1. ENTERPRISE SWR CACHE & INSTANT NAVIGATION ENGINE ───
   const memCache = new Map();
   const AdminCache = {
-    get(key) {
-      if (memCache.has(key)) return memCache.get(key);
+    get(key, maxAgeMs = 45000) {
+      const now = Date.now();
+      if (memCache.has(key)) {
+        const item = memCache.get(key);
+        if (item && item.time && (now - item.time < maxAgeMs)) {
+          return item.data;
+        }
+      }
       try {
         const raw = sessionStorage.getItem('aphim_swr_' + key);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
-        memCache.set(key, parsed);
-        return parsed;
+        if (parsed && parsed.time && (now - parsed.time < maxAgeMs)) {
+          memCache.set(key, parsed);
+          return parsed.data;
+        }
+        return null;
       } catch (e) {
         return null;
       }
     },
     set(key, data) {
-      memCache.set(key, data);
+      const item = { data, time: Date.now() };
+      memCache.set(key, item);
       try {
-        sessionStorage.setItem('aphim_swr_' + key, JSON.stringify(data));
+        sessionStorage.setItem('aphim_swr_' + key, JSON.stringify(item));
       } catch (e) {}
     },
     clear(prefix = '') {
-      memCache.clear();
+      if (!prefix) {
+        memCache.clear();
+      } else {
+        for (const k of memCache.keys()) {
+          if (k.includes(prefix)) memCache.delete(k);
+        }
+      }
       try {
         for (let i = sessionStorage.length - 1; i >= 0; i--) {
           const k = sessionStorage.key(i);
-          if (k && k.startsWith('aphim_swr_' + prefix)) {
+          if (k && k.startsWith('aphim_swr_') && (!prefix || k.includes(prefix))) {
             sessionStorage.removeItem(k);
           }
         }
@@ -1521,13 +1537,40 @@
     renderDashboardLiveWidgets(data);
   }
 
-  async function animateKpiNumbers() {
+  let currentDashboardRange = '7d';
+  let isKpiRefreshing = false;
+  let dashboardTelemetryTimer = null;
+
+  function startDashboardTelemetry() {
+    if (dashboardTelemetryTimer) clearInterval(dashboardTelemetryTimer);
+    dashboardTelemetryTimer = setInterval(() => {
+      const isDashboard = document.getElementById('trafficAnalyticsChart') || document.getElementById('kpiRevenue');
+      if (isDashboard && document.visibilityState === 'visible') {
+        animateKpiNumbers(false, true); // Silent auto-sync
+      }
+    }, 20000); // 20s
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      const isDashboard = document.getElementById('trafficAnalyticsChart') || document.getElementById('kpiRevenue');
+      if (isDashboard) {
+        animateKpiNumbers(false, true);
+      }
+    }
+  });
+
+  async function animateKpiNumbers(force = false, silent = false) {
     if (window.location.pathname.includes('/admin/login')) return;
 
-    // 1. Instant 0ms Render from SWR Cache
-    const cachedData = AdminCache.get('dashboard_summary');
-    if (cachedData) {
-      applyDashboardKpiData(cachedData);
+    const cacheKey = `dashboard_summary_${currentDashboardRange}`;
+
+    // 1. Instant 0ms Render from SWR Cache if fresh (< 45s)
+    if (!force) {
+      const cachedData = AdminCache.get(cacheKey, 45000);
+      if (cachedData) {
+        applyDashboardKpiData(cachedData);
+      }
     }
 
     const token = localStorage.getItem('aphim_admin_token');
@@ -1539,7 +1582,8 @@
     }
 
     try {
-      const res = await fetch('/api/admin/dashboard', {
+      const url = `/api/admin/dashboard?timeRange=${currentDashboardRange}${force ? '&force=true' : ''}`;
+      const res = await fetch(url, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
 
@@ -1553,14 +1597,44 @@
       if (res.ok) {
         const resData = await res.json();
         if (resData.success && resData.data) {
-          AdminCache.set('dashboard_summary', resData.data);
+          AdminCache.set(cacheKey, resData.data);
           applyDashboardKpiData(resData.data);
+
+          const dbStatusEl = document.getElementById('kpiDbStatus');
+          if (dbStatusEl) {
+            const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            dbStatusEl.textContent = `Đã đồng bộ (${timeStr})`;
+          }
         }
       }
     } catch (e) {
       console.warn('Real KPI fetch error:', e);
     }
   }
+
+  AdminCore.refreshDashboardKpi = async function (showToast = true) {
+    if (isKpiRefreshing) return;
+    isKpiRefreshing = true;
+
+    const btn = document.getElementById('btnRefreshKpi');
+    const icon = document.getElementById('iconRefreshKpi');
+    if (icon) icon.classList.add('spin');
+    if (btn) btn.disabled = true;
+
+    AdminCache.clear('dashboard');
+    try {
+      await animateKpiNumbers(true, false);
+      if (showToast && typeof showToastMessage === 'function') {
+        showToastMessage('success', 'Dữ liệu KPI đã được cập nhật mới nhất!');
+      }
+    } catch (e) {
+      console.error('Refresh KPI error:', e);
+    } finally {
+      if (icon) icon.classList.remove('spin');
+      if (btn) btn.disabled = false;
+      isKpiRefreshing = false;
+    }
+  };
 
   // ─── DASHBOARD REALTIME MULTI-METRIC CHART (ENTERPRISE STANDARD) ───
   let dashboardChartInstance = null;
@@ -1797,6 +1871,7 @@
     }
     if (descEl && descMap[range]) descEl.textContent = descMap[range];
 
+    currentDashboardRange = range;
     // Lấy dữ liệu biểu đồ từ server cho timeRange này
     const token = localStorage.getItem('aphim_admin_token');
     try {
@@ -2853,6 +2928,7 @@
     // 1. Dashboard Page
     if (document.getElementById('trafficAnalyticsChart') || document.getElementById('kpiRevenue')) {
       animateKpiNumbers();
+      startDashboardTelemetry();
     }
 
     // 2. Users Page

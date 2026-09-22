@@ -22,11 +22,15 @@
           <p class="hero-desc">Dữ liệu thời gian thực được đồng bộ trực tiếp từ <span class="highlight-chip">Supabase DB</span>, <span class="highlight-chip">MongoDB Cluster</span> và <span class="highlight-chip">CDN Edge Streaming</span>.</p>
         </div>
         <div class="hero-actions">
+          <button type="button" class="btn btn-hero-primary" id="btnRefreshKpi" onclick="AdminCore.refreshDashboardKpi(true)" title="Cập nhật toàn bộ chỉ số KPI từ cơ sở dữ liệu ngay lập tức">
+            <i data-lucide="rotate-cw" id="iconRefreshKpi"></i>
+            <span>Làm Mới KPI Ngay</span>
+          </button>
           <button type="button" class="btn btn-hero-secondary" onclick="AdminCore.syncMoviesNow()">
             <i data-lucide="refresh-cw"></i>
-            <span>Đồng Bộ API Ngay</span>
+            <span>Đồng Bộ Phim</span>
           </button>
-          <a href="/admin/subscriptions" class="btn btn-hero-primary">
+          <a href="/admin/subscriptions" class="btn btn-hero-secondary">
             <i data-lucide="wallet"></i>
             <span>Báo Cáo Doanh Thu</span>
           </a>

@@ -133,6 +133,14 @@ router.post('/register', registerLimiter, async (req, res) => {
             status: 'success'
         }).catch(err => console.error('[SecurityLog] Error:', err.message));
 
+        try {
+            const adminRoutes = require('./admin.routes');
+            if (adminRoutes.invalidateAdminCache) {
+                adminRoutes.invalidateAdminCache('dashboard');
+                adminRoutes.invalidateAdminCache('users');
+            }
+        } catch (e) {}
+
         return res.status(201).json({
             success: true,
             message: 'Đăng ký thành công!',

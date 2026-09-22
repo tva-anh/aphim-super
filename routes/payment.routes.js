@@ -183,6 +183,11 @@ router.put('/:id/confirm', requireAdmin, async (req, res) => {
             ip: req.ip
         });
 
+        try {
+            const adminRoutes = require('./admin.routes');
+            if (adminRoutes.invalidateAdminCache) adminRoutes.invalidateAdminCache('dashboard');
+        } catch (e) {}
+
         return res.json({ success: true, message: 'Đã xác nhận giao dịch thành công!' });
 
     } catch (err) {
@@ -202,6 +207,11 @@ router.put('/:id/reject', requireAdmin, async (req, res) => {
             confirmed_by: req.admin.id,
             confirmed_at: new Date().toISOString()
         }).eq('id', id);
+
+        try {
+            const adminRoutes = require('./admin.routes');
+            if (adminRoutes.invalidateAdminCache) adminRoutes.invalidateAdminCache('dashboard');
+        } catch (e) {}
 
         await AdminLog.create({
             admin_id: req.admin.id, admin_name: req.admin.profile?.name || 'Admin',

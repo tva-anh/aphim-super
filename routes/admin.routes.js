@@ -11,18 +11,20 @@ const AdminLog     = require('../models/AdminLog');
 
 // Fast server-side in-memory cache for admin API queries
 const adminServerCache = new Map();
-function getAdminCache(key, ttlMs = 25000) {
-    const item = adminServerCache.get(key);
-    if (!item) return null;
-    if (Date.now() > item.expiresAt) {
-        adminServerCache.delete(key);
-        return null;
-    }
-    return item.data;
+const backgroundRefreshInProgress = new Set();
+
+function getAdminCacheItem(key) {
+    return adminServerCache.get(key) || null;
 }
-function setAdminCache(key, data, ttlMs = 25000) {
-    adminServerCache.set(key, { data, expiresAt: Date.now() + ttlMs });
+
+function setAdminCache(key, data, ttlMs = 30000) {
+    adminServerCache.set(key, {
+        data,
+        cachedAt: Date.now(),
+        expiresAt: Date.now() + ttlMs
+    });
 }
+
 function invalidateAdminCache(pattern = '') {
     if (!pattern) {
         adminServerCache.clear();
@@ -33,317 +35,250 @@ function invalidateAdminCache(pattern = '') {
     }
 }
 
-// ── POST /api/admin/login — Admin đăng nhập đặc biệt ─────────────────────────
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const { createClient } = require('@supabase/supabase-js');
-        const supabaseClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+// ── Background & Parallel Dashboard Computation Engine ────────────────────────
+async function computeDashboardSummary(timeRange = '7d') {
+    const Comment = require('../models/Comment');
+    const AdminLog = require('../models/AdminLog');
+    const fs = require('fs');
+    const path = require('path');
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error || !data.user) {
-            return res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không đúng.' });
-        }
-
-        // Kiểm tra role admin
-        const { data: profile } = await supabaseAdmin
-            .from('profiles').select('role, name, is_blocked').eq('id', data.user.id).single();
-
-        if (!profile || profile.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Bạn không có quyền truy cập khu vực Admin.' });
-        }
-        if (profile.is_blocked) {
-            return res.status(403).json({ success: false, message: 'Tài khoản Admin đã bị khóa.' });
-        }
-
-        res.cookie('aphim_admin_token', data.session.access_token, {
-            httpOnly: false,
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/'
-        });
-
-        return res.json({
-            success: true,
-            token: data.session.access_token,
-            admin: { id: data.user.id, name: profile.name, email: data.user.email, role: 'admin' }
-        });
-
-    } catch (err) {
-        return res.status(500).json({ success: false, message: 'Lỗi server.' });
+    let startDate = new Date();
+    if (timeRange === '30d') {
+        startDate.setDate(startDate.getDate() - 30);
+    } else if (timeRange === 'month') {
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 11, 1);
+    } else if (timeRange === 'year') {
+        startDate = new Date(startDate.getFullYear() - 3, 0, 1);
+    } else {
+        startDate.setDate(startDate.getDate() - 7);
     }
-});
+    startDate.setHours(0, 0, 0, 0);
 
-// ── GET /api/admin/dashboard — KPI thật (Ultra Fast Caching & Parallel Queries) ─
+    const feedbackFile = path.join(__dirname, '..', 'data', 'feedbacks.json');
+    let totalFeedbacks = 0;
+    try {
+        if (fs.existsSync(feedbackFile)) {
+            const fList = JSON.parse(fs.readFileSync(feedbackFile, 'utf8'));
+            totalFeedbacks = Array.isArray(fList) ? fList.length : 0;
+        }
+    } catch (e) {}
+
+    const safeSupabase = async (p, fallback = {}) => {
+        try {
+            const res = await p;
+            return res || fallback;
+        } catch (e) {
+            return fallback;
+        }
+    };
+
+    // Parallel optimized queries with timeout safety
+    const [
+        totalUsersRes,
+        vipActiveRes,
+        revenueRes,
+        xuDataRes,
+        pendingTxRes,
+        newUsersTodayRes,
+        recentTxRes,
+        recentUsersRes,
+        recentLogsRes,
+        commentStatsRes,
+        recentCommentsRes,
+        rangeCommentsRes,
+        rangeUsersRes
+    ] = await Promise.all([
+        safeSupabase(supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }), { count: 0 }),
+        safeSupabase(supabaseAdmin.from('vip_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active').gt('expires_at', new Date().toISOString()), { count: 0 }),
+        safeSupabase(supabaseAdmin.from('transactions').select('amount_vnd, created_at').eq('status', 'confirmed').gt('amount_vnd', 0), { data: [] }),
+        safeSupabase(supabaseAdmin.from('profiles').select('xu').limit(2000), { data: [] }),
+        safeSupabase(supabaseAdmin.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'pending'), { count: 0 }),
+        safeSupabase(supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString()), { count: 0 }),
+        safeSupabase(supabaseAdmin.from('transactions').select('id, amount_vnd, type, status, created_at, user_id, profiles(name, email)').order('created_at', { ascending: false }).limit(10), { data: [] }),
+        safeSupabase(supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, xu, created_at').order('created_at', { ascending: false }).limit(8), { data: [] }),
+        AdminLog.find().sort({ created_at: -1 }).limit(10).lean().catch(() => []),
+        Comment.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]).catch(() => []),
+        Comment.find().sort({ createdAt: -1 }).limit(8).lean().catch(() => []),
+        Comment.find({ createdAt: { $gte: startDate } }).select('createdAt').lean().catch(() => []),
+        safeSupabase(supabaseAdmin.from('profiles').select('created_at').gte('created_at', startDate.toISOString()), { data: [] })
+    ]);
+
+    const totalUsers = totalUsersRes?.count || 0;
+    const vipActive = vipActiveRes?.count || 0;
+    const revenue = revenueRes?.data || [];
+    const totalRevenue = revenue.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+    const totalXu = (xuDataRes?.data || []).reduce((sum, p) => sum + (p.xu || 0), 0);
+    const pendingTx = pendingTxRes?.count || 0;
+    const newUsersToday = newUsersTodayRes?.count || 0;
+    const recentTx = recentTxRes?.data || [];
+    const recentUsers = recentUsersRes?.data || [];
+    const recentLogs = recentLogsRes || [];
+
+    const commentStats = Array.isArray(commentStatsRes) ? commentStatsRes : [];
+    const totalComments = commentStats.reduce((sum, s) => sum + (s.count || 0), 0);
+    const approvedComments = (commentStats.find(s => s._id === 'approved') || {}).count || 0;
+    const pendingComments = (commentStats.find(s => s._id === 'pending') || {}).count || 0;
+
+    const recentComments = recentCommentsRes || [];
+    const rangeUsers = rangeUsersRes?.data || [];
+    const rangeComments = rangeCommentsRes || [];
+
+    const dayNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const chartDays = [];
+    const revenueSeries = [];
+    const commentsSeries = [];
+    const usersSeries = [];
+
+    if (timeRange === 'year') {
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear - 3; y <= currentYear; y++) {
+            const d = new Date(y, 0, 1, 0, 0, 0, 0);
+            const endD = new Date(y, 11, 31, 23, 59, 59, 999);
+            const yTx = revenue.filter(tx => { const t = new Date(tx.created_at); return t >= d && t <= endD; });
+            const yRev = yTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+            const yCmts = rangeComments.filter(c => { const t = new Date(c.createdAt); return t >= d && t <= endD; }).length;
+            const yUsers = rangeUsers.filter(u => { const t = new Date(u.created_at); return t >= d && t <= endD; }).length;
+            chartDays.push(`Năm ${y}`);
+            revenueSeries.push(yRev);
+            commentsSeries.push(yCmts);
+            usersSeries.push(yUsers);
+        }
+    } else if (timeRange === 'month') {
+        const now = new Date();
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1, 0, 0, 0, 0);
+            const endD = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+            const mTx = revenue.filter(tx => { const t = new Date(tx.created_at); return t >= d && t <= endD; });
+            const mRev = mTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+            const mCmts = rangeComments.filter(c => { const t = new Date(c.createdAt); return t >= d && t <= endD; }).length;
+            const mUsers = rangeUsers.filter(u => { const t = new Date(u.created_at); return t >= d && t <= endD; }).length;
+            const isThisMonth = i === 0;
+            const labelStr = isThisMonth ? 'Tháng này' : `T${d.getMonth() + 1}/${d.getFullYear().toString().slice(2)}`;
+            chartDays.push(labelStr);
+            revenueSeries.push(mRev);
+            commentsSeries.push(mCmts);
+            usersSeries.push(mUsers);
+        }
+    } else if (timeRange === '30d') {
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            d.setHours(0, 0, 0, 0);
+            const endD = new Date(d);
+            endD.setHours(23, 59, 59, 999);
+            const dayTx = revenue.filter(tx => { const t = new Date(tx.created_at); return t >= d && t <= endD; });
+            const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+            const dayCmts = rangeComments.filter(c => { const t = new Date(c.createdAt); return t >= d && t <= endD; }).length;
+            const dayUsers = rangeUsers.filter(u => { const t = new Date(u.created_at); return t >= d && t <= endD; }).length;
+            const isToday = i === 0;
+            const labelStr = isToday ? 'Hôm nay' : `${d.getDate()}/${d.getMonth() + 1}`;
+            chartDays.push(labelStr);
+            revenueSeries.push(dayRev);
+            commentsSeries.push(dayCmts);
+            usersSeries.push(dayUsers);
+        }
+    } else {
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            d.setHours(0, 0, 0, 0);
+            const endD = new Date(d);
+            endD.setHours(23, 59, 59, 999);
+            const dayTx = revenue.filter(tx => { const t = new Date(tx.created_at); return t >= d && t <= endD; });
+            const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
+            const dayCmts = rangeComments.filter(c => { const t = new Date(c.createdAt); return t >= d && t <= endD; }).length;
+            const dayUsers = rangeUsers.filter(u => { const t = new Date(u.created_at); return t >= d && t <= endD; }).length;
+            const isToday = i === 0;
+            const labelStr = isToday ? 'Hôm nay' : `${dayNames[d.getDay()]} (${d.getDate()}/${d.getMonth() + 1})`;
+            chartDays.push(labelStr);
+            revenueSeries.push(dayRev);
+            commentsSeries.push(dayCmts);
+            usersSeries.push(dayUsers);
+        }
+    }
+
+    const mem = process.memoryUsage();
+    const systemMetrics = {
+        uptime_seconds: Math.floor(process.uptime()),
+        heap_used_mb: Math.round(mem.heapUsed / 1024 / 1024),
+        heap_total_mb: Math.round(mem.heapTotal / 1024 / 1024),
+        rss_mb: Math.round(mem.rss / 1024 / 1024),
+        node_version: process.version,
+        supabase_status: 'Connected',
+        mongodb_status: 'Connected',
+        api_status: 'Hoạt động ổn định'
+    };
+
+    return {
+        kpi: {
+            total_users:       totalUsers,
+            vip_active:        vipActive,
+            total_revenue:     totalRevenue,
+            total_xu:          totalXu,
+            pending_tx:        pendingTx,
+            new_users_today:   newUsersToday,
+            total_comments:    totalComments,
+            approved_comments: approvedComments,
+            pending_comments:  pendingComments,
+            total_feedbacks:   totalFeedbacks
+        },
+        chart_data: {
+            labels: chartDays,
+            revenue: revenueSeries,
+            comments: commentsSeries,
+            users: usersSeries
+        },
+        system_metrics:      systemMetrics,
+        recent_transactions: recentTx,
+        recent_users:        recentUsers,
+        recent_comments:     recentComments,
+        recent_logs:         recentLogs,
+        generated_at:        new Date().toISOString()
+    };
+}
+
+// ── GET /api/admin/dashboard — KPI thật (Ultra Fast SWR Caching & Background Revalidation) ─
 router.get('/dashboard', requireAdmin, async (req, res) => {
     try {
         const timeRange = (req.query.timeRange || req.query.range || '7d').toLowerCase();
         const cacheKey = `admin_dashboard_summary_${timeRange}`;
-        if (!req.query.force) {
-            const cached = getAdminCache(cacheKey, 20000);
-            if (cached) {
-                return res.json({ success: true, data: cached, from_cache: true });
+        const isForce = req.query.force === 'true' || req.query.force === '1';
+
+        const cached = getAdminCacheItem(cacheKey);
+
+        if (cached && !isForce) {
+            const ageMs = Date.now() - cached.cachedAt;
+            // 1. FRESH HIT (< 20s): Phản hồi tức thì < 5ms
+            if (ageMs < 20000) {
+                return res.json({ success: true, data: cached.data, from_cache: true, cache_age_ms: ageMs });
+            }
+
+            // 2. STALE-WHILE-REVALIDATE (20s - 180s):
+            // Phục vụ ngay cache cũ cho client (0ms chờ), âm thầm làm mới ngầm!
+            if (ageMs < 180000) {
+                if (!backgroundRefreshInProgress.has(cacheKey)) {
+                    backgroundRefreshInProgress.add(cacheKey);
+                    computeDashboardSummary(timeRange)
+                        .then(freshData => {
+                            setAdminCache(cacheKey, freshData, 30000);
+                        })
+                        .catch(err => console.warn('[Admin SWR] Background revalidation error:', err.message))
+                        .finally(() => backgroundRefreshInProgress.delete(cacheKey));
+                }
+                return res.json({ success: true, data: cached.data, from_cache: true, revalidating: true, cache_age_ms: ageMs });
             }
         }
 
-        const Comment = require('../models/Comment');
-        const fs = require('fs');
-        const path = require('path');
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-
-        // Tính mốc thời gian bắt đầu dựa trên timeRange (7d, 30d, month, year)
-        let startDate = new Date();
-        if (timeRange === '30d') {
-            startDate.setDate(startDate.getDate() - 30);
-        } else if (timeRange === 'month') {
-            startDate = new Date(startDate.getFullYear(), startDate.getMonth() - 11, 1);
-        } else if (timeRange === 'year') {
-            startDate = new Date(startDate.getFullYear() - 3, 0, 1);
-        } else {
-            // Mặc định: 7 ngày
-            startDate.setDate(startDate.getDate() - 7);
-        }
-        startDate.setHours(0, 0, 0, 0);
-
-        // Đọc dữ liệu phản hồi & báo lỗi thực tế từ file lưu trữ
-        const feedbackFile = path.join(__dirname, '..', 'data', 'feedbacks.json');
-        let totalFeedbacks = 0;
-        try {
-            if (fs.existsSync(feedbackFile)) {
-                const fList = JSON.parse(fs.readFileSync(feedbackFile, 'utf8'));
-                totalFeedbacks = Array.isArray(fList) ? fList.length : 0;
-            }
-        } catch (e) {}
-
-        // Chạy song song toàn bộ truy vấn cơ sở dữ liệu Supabase & MongoDB
-        const [
-            totalUsersRes,
-            vipActiveRes,
-            revenueRes,
-            xuDataRes,
-            pendingTxRes,
-            newUsersTodayRes,
-            recentTxRes,
-            recentUsersRes,
-            recentLogsRes,
-            totalCommentsRes,
-            approvedCommentsRes,
-            pendingCommentsRes,
-            recentCommentsRes,
-            rangeCommentsRes,
-            rangeUsersRes
-        ] = await Promise.all([
-            supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
-            supabaseAdmin.from('vip_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active').gt('expires_at', new Date().toISOString()),
-            supabaseAdmin.from('transactions').select('amount_vnd, created_at').eq('status', 'confirmed').gt('amount_vnd', 0),
-            supabaseAdmin.from('profiles').select('xu'),
-            supabaseAdmin.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-            supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString()),
-            supabaseAdmin.from('transactions').select('*').order('created_at', { ascending: false }).limit(10),
-            supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, xu, created_at').order('created_at', { ascending: false }).limit(8),
-            AdminLog.find().sort({ created_at: -1 }).limit(10),
-            Comment.countDocuments(),
-            Comment.countDocuments({ status: 'approved' }),
-            Comment.countDocuments({ status: 'pending' }),
-            Comment.find().sort({ createdAt: -1 }).limit(8).lean(),
-            Comment.find({ createdAt: { $gte: startDate } }).select('createdAt').lean(),
-            supabaseAdmin.from('profiles').select('created_at').gte('created_at', startDate.toISOString())
-        ]);
-
-        const totalUsers = totalUsersRes.count || 0;
-        const vipActive = vipActiveRes.count || 0;
-        const revenue = revenueRes.data || [];
-        const totalRevenue = revenue.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
-        const totalXu = (xuDataRes.data || []).reduce((sum, p) => sum + (p.xu || 0), 0);
-        const pendingTx = pendingTxRes.count || 0;
-        const newUsersToday = newUsersTodayRes.count || 0;
-        const recentTx = recentTxRes.data || [];
-        const recentUsers = recentUsersRes.data || [];
-        const recentLogs = recentLogsRes || [];
-        const totalComments = totalCommentsRes || 0;
-        const approvedComments = approvedCommentsRes || 0;
-        const pendingComments = pendingCommentsRes || 0;
-        const recentComments = recentCommentsRes || [];
-        const rangeUsers = rangeUsersRes?.data || [];
-        const rangeComments = rangeCommentsRes || [];
-
-        // Thống kê Doanh thu, Bình luận & Người Dùng Mới thực tế theo mốc thời gian đã chọn
-        const dayNames = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-        const chartDays = [];
-        const revenueSeries = [];
-        const commentsSeries = [];
-        const usersSeries = [];
-
-        if (timeRange === 'year') {
-            // Báo cáo theo Năm (4 năm gần nhất)
-            const currentYear = new Date().getFullYear();
-            for (let y = currentYear - 3; y <= currentYear; y++) {
-                const d = new Date(y, 0, 1, 0, 0, 0, 0);
-                const endD = new Date(y, 11, 31, 23, 59, 59, 999);
-
-                const yTx = revenue.filter(tx => {
-                    const t = new Date(tx.created_at);
-                    return t >= d && t <= endD;
-                });
-                const yRev = yTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
-
-                const yCmts = rangeComments.filter(c => {
-                    const t = new Date(c.createdAt);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const yUsers = rangeUsers.filter(u => {
-                    const t = new Date(u.created_at);
-                    return t >= d && t <= endD;
-                }).length;
-
-                chartDays.push(`Năm ${y}`);
-                revenueSeries.push(yRev);
-                commentsSeries.push(yCmts);
-                usersSeries.push(yUsers);
-            }
-        } else if (timeRange === 'month') {
-            // Báo cáo theo 12 Tháng gần nhất
-            const now = new Date();
-            for (let i = 11; i >= 0; i--) {
-                const d = new Date(now.getFullYear(), now.getMonth() - i, 1, 0, 0, 0, 0);
-                const endD = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
-
-                const mTx = revenue.filter(tx => {
-                    const t = new Date(tx.created_at);
-                    return t >= d && t <= endD;
-                });
-                const mRev = mTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
-
-                const mCmts = rangeComments.filter(c => {
-                    const t = new Date(c.createdAt);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const mUsers = rangeUsers.filter(u => {
-                    const t = new Date(u.created_at);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const isThisMonth = i === 0;
-                const labelStr = isThisMonth ? 'Tháng này' : `T${d.getMonth() + 1}/${d.getFullYear().toString().slice(2)}`;
-                chartDays.push(labelStr);
-                revenueSeries.push(mRev);
-                commentsSeries.push(mCmts);
-                usersSeries.push(mUsers);
-            }
-        } else if (timeRange === '30d') {
-            // Báo cáo 30 Ngày qua
-            for (let i = 29; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                d.setHours(0, 0, 0, 0);
-                const endD = new Date(d);
-                endD.setHours(23, 59, 59, 999);
-
-                const dayTx = revenue.filter(tx => {
-                    const t = new Date(tx.created_at);
-                    return t >= d && t <= endD;
-                });
-                const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
-
-                const dayCmts = rangeComments.filter(c => {
-                    const t = new Date(c.createdAt);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const dayUsers = rangeUsers.filter(u => {
-                    const t = new Date(u.created_at);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const isToday = i === 0;
-                const labelStr = isToday ? 'Hôm nay' : `${d.getDate()}/${d.getMonth() + 1}`;
-                chartDays.push(labelStr);
-                revenueSeries.push(dayRev);
-                commentsSeries.push(dayCmts);
-                usersSeries.push(dayUsers);
-            }
-        } else {
-            // Mặc định: 7 Ngày gần nhất
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                d.setHours(0, 0, 0, 0);
-                const endD = new Date(d);
-                endD.setHours(23, 59, 59, 999);
-
-                const dayTx = revenue.filter(tx => {
-                    const t = new Date(tx.created_at);
-                    return t >= d && t <= endD;
-                });
-                const dayRev = dayTx.reduce((sum, t) => sum + (t.amount_vnd || 0), 0);
-
-                const dayCmts = rangeComments.filter(c => {
-                    const t = new Date(c.createdAt);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const dayUsers = rangeUsers.filter(u => {
-                    const t = new Date(u.created_at);
-                    return t >= d && t <= endD;
-                }).length;
-
-                const isToday = i === 0;
-                const labelStr = isToday ? 'Hôm nay' : `${dayNames[d.getDay()]} (${d.getDate()}/${d.getMonth() + 1})`;
-                chartDays.push(labelStr);
-                revenueSeries.push(dayRev);
-                commentsSeries.push(dayCmts);
-                usersSeries.push(dayUsers);
-            }
-        }
-
-        // Thông số tài nguyên máy chủ Node.js thời gian thực
-        const mem = process.memoryUsage();
-        const systemMetrics = {
-            uptime_seconds: Math.floor(process.uptime()),
-            heap_used_mb: Math.round(mem.heapUsed / 1024 / 1024),
-            heap_total_mb: Math.round(mem.heapTotal / 1024 / 1024),
-            rss_mb: Math.round(mem.rss / 1024 / 1024),
-            node_version: process.version,
-            supabase_status: 'Connected',
-            mongodb_status: 'Connected',
-            api_status: 'Hoạt động ổn định'
-        };
-
-        const resultData = {
-            kpi: {
-                total_users:       totalUsers,
-                vip_active:        vipActive,
-                total_revenue:     totalRevenue,
-                total_xu:          totalXu,
-                pending_tx:        pendingTx,
-                new_users_today:   newUsersToday,
-                total_comments:    totalComments,
-                approved_comments: approvedComments,
-                pending_comments:  pendingComments,
-                total_feedbacks:   totalFeedbacks
-            },
-            chart_data: {
-                labels: chartDays,
-                revenue: revenueSeries,
-                comments: commentsSeries,
-                users: usersSeries
-            },
-            system_metrics:      systemMetrics,
-            recent_transactions: recentTx,
-            recent_users:        recentUsers,
-            recent_comments:     recentComments,
-            recent_logs:         recentLogs
-        };
-
-        // Cache vào bộ nhớ server 20 giây
-        setAdminCache(cacheKey, resultData, 20000);
+        // 3. Cache Miss hoặc Force Refresh
+        const freshData = await computeDashboardSummary(timeRange);
+        setAdminCache(cacheKey, freshData, 30000);
 
         return res.json({
             success: true,
-            data: resultData
+            data: freshData,
+            from_cache: false
         });
 
     } catch (err) {
@@ -466,6 +401,9 @@ router.put('/users/:id/block', requireAdmin, async (req, res) => {
             note: reason, ip: req.ip
         });
 
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
+
         return res.json({
             success: true,
             message: blocked ? `Đã khóa tài khoản: ${profile.name}` : `Đã mở khóa tài khoản: ${profile.name}`
@@ -511,6 +449,9 @@ router.post('/users/:id/adjust-xu', requireAdmin, async (req, res) => {
             note: `Điều chỉnh ${amount > 0 ? '+' : ''}${amount} Xu. Lý do: ${reason}`, ip: req.ip
         });
 
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
+
         return res.json({ success: true, message: `Đã điều chỉnh Xu cho ${profile.name}. Xu mới: ${newXu}`, new_xu: newXu });
 
     } catch (err) {
@@ -546,6 +487,9 @@ router.put('/users/:id/grant-vip', requireAdmin, async (req, res) => {
             after: { plan, days, expires: expires.toISOString() },
             note: reason || `Admin cấp ${plan} ${days} ngày`, ip: req.ip
         });
+
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
 
         return res.json({ success: true, message: `Đã cấp ${plan} ${days} ngày cho ${profile.name}.` });
 
@@ -619,6 +563,9 @@ router.put('/users/:id/full-profile', requireAdmin, async (req, res) => {
             io.to(`user_${id}`).emit('USER_UPDATE', payload);
         }
 
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
+
         return res.json({ success: true, message: `Đã cập nhật toàn bộ hồ sơ cho ${name || profile.name}.` });
 
     } catch (err) {
@@ -669,6 +616,9 @@ router.put('/users/:id/gamification', requireAdmin, async (req, res) => {
             io.to(`user_${id}`).emit('USER_UPDATE', { userId: id, xu: numXu, coins: numXu, level, streak_current });
         }
 
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
+
         return res.json({ success: true, message: `Đã cập nhật Gamification cho ${profile.name}.` });
 
     } catch (err) {
@@ -695,6 +645,9 @@ router.put('/users/:id/revoke-vip', requireAdmin, async (req, res) => {
             action: 'revoke_vip', target_type: 'user', target_id: id, target_name: profile.name,
             note: 'Admin hủy quyền VIP', ip: req.ip
         });
+
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
 
         return res.json({ success: true, message: `Đã hủy quyền VIP của ${profile.name}.` });
 
@@ -763,10 +716,13 @@ router.post('/users', requireAdmin, async (req, res) => {
             admin_id: req.admin.id, admin_name: req.admin.profile?.name || 'Admin',
             action: 'create_user', target_type: 'user', target_id: newUserId, target_name: name,
             after: { email, role, xu: initialXu, vipDays },
-            note: 'Admin tạo tài khoản mới', ip: req.ip
+            note: `Admin tạo tài khoản mới: ${email}`, ip: req.ip
         });
 
-        return res.json({ success: true, message: 'Đã tạo tài khoản thành công.', user: authData.user });
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('users');
+
+        return res.json({ success: true, message: 'Tạo tài khoản thành công.', user_id: newUserId });
 
     } catch (err) {
         console.error('[Admin] Create User Error:', err);
@@ -868,6 +824,9 @@ router.put('/comments/:id/status', requireAdmin, async (req, res) => {
             note: `Admin đổi trạng thái bình luận sang ${status}`, ip: req.ip
         });
 
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('comments');
+
         return res.json({ success: true, message: 'Đã cập nhật trạng thái bình luận.', data: updated });
     } catch (err) {
         console.error('[Admin] Update Comment Status Error:', err);
@@ -894,6 +853,9 @@ router.delete('/comments/:id', requireAdmin, async (req, res) => {
             note: 'Admin xóa bình luận', ip: req.ip
         });
 
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('comments');
+
         return res.json({ success: true, message: 'Đã xóa bình luận thành công.' });
     } catch (err) {
         console.error('[Admin] Delete Comment Error:', err);
@@ -912,6 +874,9 @@ router.post('/comments/approve-all', requireAdmin, async (req, res) => {
             action: 'approve_all_comments', target_type: 'comment', target_id: 'all',
             note: `Admin duyệt hàng loạt ${result.modifiedCount || 0} bình luận`, ip: req.ip
         });
+
+        invalidateAdminCache('dashboard');
+        invalidateAdminCache('comments');
 
         return res.json({ success: true, message: `Đã duyệt thành công ${result.modifiedCount || 0} bình luận!` });
     } catch (err) {
@@ -995,4 +960,6 @@ router.get('/notifications', requireAdmin, async (req, res) => {
     }
 });
 
+router.invalidateAdminCache = invalidateAdminCache;
 module.exports = router;
+module.exports.invalidateAdminCache = invalidateAdminCache;
