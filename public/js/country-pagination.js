@@ -85,7 +85,7 @@ function renderMovies(movies, countryName) {
 
     moviesList.innerHTML = movies.map(movie => {
         const hasCustomLink = !!movieLinks[movie.slug];
-        const linkUrl = hasCustomLink ? `watch-simple.html?slug=${movie.slug}` : `movie-detail.html?slug=${movie.slug}`;
+        const linkUrl = hasCustomLink ? `/xem-phim/${movie.slug}` : `/phim/${movie.slug}`;
         const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
         const rawImg = movie.poster_url || movie.thumb_url || '';
         const posterUrl = (typeof imageOptimizer !== 'undefined' && rawImg)

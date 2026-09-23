@@ -1188,13 +1188,85 @@ function parseWatchParams(rawEp = '', rawVariant = '', queryServer = '', queryVe
     };
 }
 
-// 3. Watch Video Player Route: Hỗ trợ đa tầng URL SEO cho từng Tập phim và từng Phiên bản (Vietsub / Thuyết minh / Lồng tiếng)
+// ==========================================
+// 🚀 301 PERMANENT REDIRECTS (LEGACY .HTML -> CLEAN SEO ROUTING)
+// ==========================================
+
+// 1. Chuyển hướng /movie-detail.html sang /phim/:slug
+app.get('/movie-detail.html', (req, res) => {
+    const slug = (req.query.slug || '').trim();
+    if (slug) {
+        return res.redirect(301, `/phim/${encodeURIComponent(slug)}`);
+    }
+    return res.redirect(301, '/');
+});
+
+// 2. Chuyển hướng /watch.html hoặc /watch sang /xem-phim/:slug/:episode
+app.get(['/watch.html', '/watch'], (req, res) => {
+    const slug = (req.query.slug || '').trim();
+    if (!slug) return res.redirect(301, '/');
+
+    let target = `/xem-phim/${encodeURIComponent(slug)}`;
+    if (req.query.episode) {
+        let ep = String(req.query.episode).trim();
+        if (!ep.startsWith('tap-') && ep.toLowerCase() !== 'full') {
+            ep = `tap-${ep}`;
+        }
+        target += `/${encodeURIComponent(ep)}`;
+    }
+    const server = req.query.server;
+    if (server && parseInt(server, 10) > 0) {
+        target += `?server=${parseInt(server, 10)}`;
+    }
+    return res.redirect(301, target);
+});
+
+// 3. Chuyển hướng legacy route /watch/:slug
 app.get([
-    '/watch',
-    '/watch.html',
     '/watch/:slug',
     '/watch/:slug/:episode',
-    '/watch/:slug/:episode/:variant',
+    '/watch/:slug/:episode/:variant'
+], (req, res) => {
+    const slug = req.params.slug;
+    let target = `/xem-phim/${encodeURIComponent(slug)}`;
+    if (req.params.episode) {
+        target += `/${encodeURIComponent(req.params.episode)}`;
+        if (req.params.variant) {
+            target += `/${encodeURIComponent(req.params.variant)}`;
+        }
+    }
+    const query = new URLSearchParams(req.query).toString();
+    if (query) {
+        target += `?${query}`;
+    }
+    return res.redirect(301, target);
+});
+
+// 4. Chuyển hướng các trang tĩnh .html khác sang clean routes
+app.get('/index.html', (req, res) => res.redirect(301, '/'));
+app.get('/danh-sach.html', (req, res) => {
+    const qs = new URLSearchParams(req.query).toString();
+    res.redirect(301, `/danh-sach${qs ? '?' + qs : ''}`);
+});
+app.get('/categories.html', (req, res) => {
+    const qs = new URLSearchParams(req.query).toString();
+    res.redirect(301, `/categories${qs ? '?' + qs : ''}`);
+});
+app.get('/phim-theo-quoc-gia.html', (req, res) => {
+    const qs = new URLSearchParams(req.query).toString();
+    res.redirect(301, `/phim-theo-quoc-gia${qs ? '?' + qs : ''}`);
+});
+app.get('/search.html', (req, res) => {
+    const qs = new URLSearchParams(req.query).toString();
+    res.redirect(301, `/search${qs ? '?' + qs : ''}`);
+});
+app.get('/profile.html', (req, res) => {
+    const qs = new URLSearchParams(req.query).toString();
+    res.redirect(301, `/profile${qs ? '?' + qs : ''}`);
+});
+
+// 3. Watch Video Player Route: Hỗ trợ đa tầng URL SEO cho từng Tập phim và từng Phiên bản (Vietsub / Thuyết minh / Lồng tiếng)
+app.get([
     '/xem-phim/:slug',
     '/xem-phim/:slug/:episode',
     '/xem-phim/:slug/:episode/:variant'
@@ -1393,7 +1465,7 @@ app.get(['/danh-sach', '/tat-ca'], (req, res) => {
 });
 
 // 3.5 Account & Profile Routes: /profile, /tai-khoan, /tai-khoan/:tab
-app.get(['/profile', '/profile.html', '/tai-khoan', '/tai-khoan/:tab'], (req, res) => {
+app.get(['/profile', '/tai-khoan', '/tai-khoan/:tab'], (req, res) => {
     let tab = req.params.tab || req.query.tab || 'account';
     if (tab === 'lich-su') tab = 'history';
     if (tab === 'yeu-thich') tab = 'favorites';

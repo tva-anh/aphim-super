@@ -179,7 +179,7 @@
             const enTitle = (movie.origin_name || '').replace(/</g, '&lt;');
 
             html += `
-                <a href="movie-detail.html?slug=${movie.slug}" class="mso-suggest-row">
+                <a href="/phim/${movie.slug}" class="mso-suggest-row">
                     <img data-src="${poster}" class="mso-suggest-thumb" alt="${title}" loading="lazy"
                          data-tmdb-slug="${movie.slug}"
                          data-tmdb-id="${movie.tmdb?.id || ''}"

@@ -1072,12 +1072,12 @@ class MovieAPI {
                 url.searchParams.delete('page');
             }
             
-            // SEO FIX: If on watch.html, point canonical back to movie-detail.html
-            if (url.pathname.includes('watch.html')) {
-                const slug = url.searchParams.get('slug');
+            // SEO FIX: If on watch page, point canonical back to /phim/:slug
+            if (url.pathname.includes('watch.html') || url.pathname.includes('/xem-phim/')) {
+                const slug = url.searchParams.get('slug') || (url.pathname.includes('/xem-phim/') ? url.pathname.split('/xem-phim/')[1]?.split('/')[0] : '');
                 if (slug) {
-                    url.pathname = url.pathname.replace('watch.html', 'movie-detail.html');
-                    url.search = `?slug=${slug}`; // Strip episode parameter to point to parent movie
+                    url.pathname = `/phim/${slug}`;
+                    url.search = '';
                 }
             }
             

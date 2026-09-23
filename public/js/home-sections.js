@@ -118,7 +118,7 @@ function renderLatestMoviesSection(movies) {
                     ${filteredMovies.slice(0, 18).map(movie => {
         const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
         const hasCustomLink = !!movieLinks[movie.slug];
-        const linkUrl = hasCustomLink ? `watch-simple.html?slug=${movie.slug}` : `movie-detail.html?slug=${movie.slug}`;
+        const linkUrl = hasCustomLink ? `/xem-phim/${movie.slug}` : `/phim/${movie.slug}`;
 
         let imgUrl = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 350, 75) : (movie.poster_url || movie.thumb_url || '');
         if (imgUrl && imgUrl.includes('phimimg.com')) {
@@ -252,7 +252,7 @@ function renderAllSections(sections) {
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                         ${(section.items || []).slice(0, 20).map(movie => {
             const hasCustomLink = !!movieLinks[movie.slug];
-            const linkUrl = hasCustomLink ? `watch-simple.html?slug=${movie.slug}` : `movie-detail.html?slug=${movie.slug}`;
+            const linkUrl = hasCustomLink ? `/xem-phim/${movie.slug}` : `/phim/${movie.slug}`;
             const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
 
             let imgUrl = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 350, 75) : (movie.poster_url || movie.thumb_url || '');
@@ -356,7 +356,7 @@ function renderVietnameseMovies(movies) {
 
     grid.innerHTML = movies.map(movie => {
         const hasCustomLink = !!movieLinks[movie.slug];
-        const linkUrl = hasCustomLink ? `watch-simple.html?slug=${movie.slug}` : `movie-detail.html?slug=${movie.slug}`;
+        const linkUrl = hasCustomLink ? `/xem-phim/${movie.slug}` : `/phim/${movie.slug}`;
         const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
 
         let imgUrl = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 350, 75) : (movie.poster_url || movie.thumb_url || '');

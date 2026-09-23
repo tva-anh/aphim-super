@@ -60,7 +60,7 @@ async function loadFeaturedMovies() {
 // Render movie grid
 function renderMovieGrid(movies, container) {
     container.innerHTML = movies.map(movie => `
-        <a href="movie-detail.html?slug=${movie.slug}"
+        <a href="/phim/${movie.slug}"
             class="group relative block rounded-xl overflow-hidden bg-surface-dark border border-white/5 hover:border-primary/50 transition-all duration-300">
             <div class="aspect-[2/3] w-full overflow-hidden relative">
                 <img alt="Xem Phim ${movie.name} (${movie.year}) Vietsub HD"

@@ -86,12 +86,7 @@
                 const epParam = rawEp.startsWith('tap-') ? rawEp : `tap-${rawEp}`;
                 const timeParam = currTime > 0 ? `?t=${Math.floor(currTime)}` : '';
 
-                let watchUrl = '';
-                if (isCleanRoute) {
-                    watchUrl = `/xem-phim/${item.slug}/${epParam}${timeParam}`;
-                } else {
-                    watchUrl = `watch.html?slug=${item.slug}&episode=${epParam}${timeParam.replace('?', '&')}`;
-                }
+                let watchUrl = `/xem-phim/${item.slug}/${epParam}${timeParam}`;
 
                 // Format nhãn tập sáng đẹp chuẩn Tone Vàng Ánh APhim (#ffd700)
                 let epLabel = 'Tập 1';

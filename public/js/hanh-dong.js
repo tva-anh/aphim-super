@@ -64,7 +64,7 @@ function renderMoviesGrid(movies) {
             <div class="group relative flex flex-col ${hiddenUI.containerClass}">
                 <!-- Landscape backdrop image -->
                 <div class="relative w-full aspect-video rounded-lg overflow-hidden mb-12 shadow-lg">
-                    <a href="movie-detail.html?slug=${movie.slug}">
+                    <a href="/phim/${movie.slug}">
                         <img alt="${movie.name}" 
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${hiddenUI.imgClass}"
                             src="${backdropUrl}"
@@ -94,7 +94,7 @@ function renderMoviesGrid(movies) {
                 </div>
 
                 <!-- Portrait poster overlay -->
-                <a href="movie-detail.html?slug=${movie.slug}"
+                <a href="/phim/${movie.slug}"
                     class="absolute top-[40%] left-4 w-24 md:w-28 aspect-[2/3] rounded-md overflow-hidden shadow-2xl border border-gray-700/50 z-10 transition-transform duration-300 group-hover:-translate-y-2">
                     <img alt="Poster ${movie.name}" 
                         class="w-full h-full object-cover ${hiddenUI.imgClass}"
@@ -110,7 +110,7 @@ function renderMoviesGrid(movies) {
 
                 <!-- Movie info -->
                 <div class="pl-4 mt-2">
-                    <a href="movie-detail.html?slug=${movie.slug}">
+                    <a href="/phim/${movie.slug}">
                         <h3 class="text-base font-bold text-white leading-tight truncate mt-1 group-hover:text-primary transition-colors">
                             ${movie.name}
                         </h3>

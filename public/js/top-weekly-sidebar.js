@@ -72,7 +72,7 @@
                                 imgUrl = '/android-chrome-512x512.png';
                             }
 
-                            const detailUrl = isNodeSSR ? `/phim/${item.slug}` : `movie-detail.html?slug=${item.slug}`;
+                            const detailUrl = `/phim/${item.slug}`;
                             
                             // Parse badge và số tập
                             const qualityBadge = item.quality || 'FHD';

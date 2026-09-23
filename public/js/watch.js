@@ -121,16 +121,8 @@ function updateWatchUrlState(movie, episode, serverIndex) {
     const cleanEp = (episode && episode.slug) ? episode.slug.replace(/^tap-/, '') : 'full';
     const serverParam = (!catSlug && serverIndex > 0) ? `?server=${serverIndex}` : '';
 
-    if (window.location.pathname.startsWith('/xem-phim/')) {
-        const newUrl = `/xem-phim/${movie.slug}/tap-${cleanEp}${catSlug}${serverParam}`;
-        window.history.pushState({}, '', newUrl);
-    } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('episode', `tap-${cleanEp}${catSlug}`);
-        if (serverIndex > 0) urlParams.set('server', serverIndex);
-        else urlParams.delete('server');
-        window.history.pushState({}, '', 'watch.html?' + urlParams.toString());
-    }
+    const newUrl = `/xem-phim/${movie.slug}/tap-${cleanEp}${catSlug}${serverParam}`;
+    window.history.pushState({}, '', newUrl);
 
     // Cập nhật Title trang động theo đúng phiên bản đang xem
     let epStr = episode?.name ? (episode.name.toLowerCase().includes('tập') ? episode.name : `Tập ${episode.name}`) : '';
@@ -1096,7 +1088,7 @@ window.changeVersion = function (domain) {
     }
 
     // Xây dựng URL đích
-    const isNodeDomain = domain === 'aphim.top';
+    const isNodeDomain = domain === 'aphim.top' || domain === 'aphim.store' || domain === 'localhost' || domain === '127.0.0.1';
     let newUrl = 'https://' + domain;
 
     if (isNodeDomain) {
@@ -3570,7 +3562,7 @@ function renderRecommendations(movies) {
         const episode = movie.episode_current || 'Tập 1';
 
         return `
-            <a href="movie-detail.html?slug=${movie.slug}" class="watch-rec-item group">
+            <a href="/phim/${movie.slug}" class="watch-rec-item group">
                 <img data-src="${movieAPI.getImageURL(movie.thumb_url, 300, 85, true)}" 
                      alt="${movie.name}" class="watch-rec-thumb" loading="lazy" 
                      data-tmdb-slug="${movie.slug}"

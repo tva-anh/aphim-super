@@ -157,7 +157,7 @@ function renderMoviesTable(movies, listName, totalItems, totalPages_api) {
         const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
 
         gridHTML += `
-            <a href="movie-detail.html?slug=${movie.slug}" 
+            <a href="/phim/${movie.slug}" 
                class="group relative block rounded-xl overflow-hidden bg-surface-dark hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl ${hiddenUI.containerClass}">
                 <!-- Poster -->
                 <div class="relative aspect-[2/3]">

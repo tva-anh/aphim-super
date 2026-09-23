@@ -230,7 +230,7 @@ function applyFilters() {
 
 // View movie
 window.viewMovie = function (slug) {
-    window.open(`../movie-detail.html?slug=${slug}`, '_blank');
+    window.open(`/phim/${slug}`, '_blank');
 };
 
 // Edit movie

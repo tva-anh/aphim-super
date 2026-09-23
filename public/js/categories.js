@@ -128,7 +128,7 @@ function renderMovies(movies) {
         const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
 
         return `
-            <a href="movie-detail.html?slug=${movie.slug}" 
+            <a href="/phim/${movie.slug}" 
                class="group relative block rounded-lg overflow-hidden bg-surface-dark hover:scale-105 transition-transform duration-300 ${hiddenUI.containerClass}">
                 <div class="relative aspect-[2/3]">
                     <img src="${posterUrl}" 

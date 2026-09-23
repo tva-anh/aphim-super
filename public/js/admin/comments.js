@@ -174,7 +174,7 @@ function renderComments(comments) {
                 ${userEmail ? `<div style="font-size: 11.5px; color: var(--text-muted);">${userEmail}</div>` : ''}
             </td>
             <td><div class="comment-content">${formatAdminComment(c.content)}</div></td>
-            <td><a href="../watch.html?slug=${c.movieSlug}" target="_blank" class="movie-ref">${movieTitle}</a></td>
+            <td><a href="/xem-phim/${c.movieSlug}" target="_blank" class="movie-ref">${movieTitle}</a></td>
             <td><span style="font-size: 12px; color: var(--text-muted);">${timeStr}</span></td>
             <td>${statusHtml}</td>
             <td style="text-align: center;">

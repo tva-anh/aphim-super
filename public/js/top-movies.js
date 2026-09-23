@@ -97,7 +97,7 @@ function renderTopMovies(movies) {
     container.innerHTML = movies.map((movie, index) => {
         const rank = index + 1;
         const optimizedUrl = movie.custom_poster ? movie.custom_poster : movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 400, 80);
-        const detailUrl = `movie-detail.html?slug=${movie.slug}`;
+        const detailUrl = `/phim/${movie.slug}`;
         
         // Rating & Stars
         const ratingVal = (movie.tmdb?.vote_average || movie.rating || movie.imdb?.vote_average || (9.9 - index * 0.2)).toFixed(1);

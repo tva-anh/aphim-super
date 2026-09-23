@@ -544,8 +544,8 @@ function updateHeroBannerText(movie) {
 function updateHeroButtons(movie) {
     const heroPlayBtn = document.getElementById('heroPlayBtn');
     const heroInfoBtn = document.getElementById('heroInfoBtn');
-    if (heroPlayBtn) heroPlayBtn.href = `watch.html?slug=${movie.slug}`;
-    if (heroInfoBtn) heroInfoBtn.href = `movie-detail.html?slug=${movie.slug}`;
+    if (heroPlayBtn) heroPlayBtn.href = `/xem-phim/${movie.slug}`;
+    if (heroInfoBtn) heroInfoBtn.href = `/phim/${movie.slug}`;
 }
 
 // -- Highlight thumbnail active -----------------------------------
@@ -1067,7 +1067,7 @@ function setupHeroActions(movie) {
 
     if (!movie) return;
     // B?n HTML tinh: d�ng movie-detail.html?slug=... thay v� route /phim/:slug c?a Node
-    if (infoBtn) infoBtn.href = `movie-detail.html?slug=${movie.slug}`;
+    if (infoBtn) infoBtn.href = `/phim/${movie.slug}`;
 
     if (favBtn && typeof userService !== 'undefined') {
         const icon = favBtn.querySelector('span');

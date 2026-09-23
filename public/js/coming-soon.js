@@ -49,7 +49,7 @@
         container.innerHTML = movies.map((movie, index) => {
             const rank = index + 1;
             const optimizedUrl = movieAPI.getImageURL(movie.thumb_url || movie.poster_url, 400, 80);
-            const detailUrl = `movie-detail.html?slug=${movie.slug}`;
+            const detailUrl = `/phim/${movie.slug}`;
             const episodes = movie.episode_current || '';
             
             return `

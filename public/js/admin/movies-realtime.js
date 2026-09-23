@@ -359,7 +359,7 @@
               <button class="btn btn-secondary btn-icon-sm" title="Soi tập & stream links" onclick="window.moviesAdmin.openDrawer('${escapeHtml(movie.slug)}')">
                 <i data-lucide="sliders" style="width: 14px; height: 14px;"></i>
               </button>
-              <a href="../movie-detail.html?slug=${escapeHtml(movie.slug)}" target="_blank" class="btn btn-secondary btn-icon-sm" title="Mở trang xem trên website">
+              <a href="/phim/${escapeHtml(movie.slug)}" target="_blank" class="btn btn-secondary btn-icon-sm" title="Mở trang xem trên website">
                 <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
               </a>
               <button class="btn ${isHidden ? 'btn-success' : 'btn-danger'} btn-sm" 
@@ -704,7 +704,7 @@
           <i data-lucide="${isHidden ? 'eye' : 'eye-off'}" style="width: 14px; height: 14px;"></i>
           <span>${isHidden ? 'Mở hiển thị công khai' : 'Ẩn phim này'}</span>
         </button>
-        <a href="../movie-detail.html?slug=${escapeHtml(movie.slug)}" target="_blank" class="btn btn-secondary btn-sm">
+        <a href="/phim/${escapeHtml(movie.slug)}" target="_blank" class="btn btn-secondary btn-sm">
           <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
           <span>Xem trên Web</span>
         </a>

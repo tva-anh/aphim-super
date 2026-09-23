@@ -664,12 +664,7 @@ function renderMovieDetail(movie) {
         const customLink = movieLinks[movie.slug];
 
         if (customLink) {
-            const isHtmlEnv = window.location.pathname.includes('.html');
-            if (isHtmlEnv) {
-                watchBtn.href = `/watch.html?slug=${movie.slug}`;
-            } else {
-                watchBtn.href = `/xem-phim/${movie.slug}`;
-            }
+            watchBtn.href = `/xem-phim/${movie.slug}`;
             watchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             console.log('✅ Custom link found for movie:', movie.slug);
         } else if (movie.episodes && movie.episodes.length > 0) {
@@ -686,13 +681,7 @@ function renderMovieDetail(movie) {
                 else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
             }
             const sParam = (serverIndex > 0 && !catSlug) ? `?server=${serverIndex}` : '';
-
-            const isHtmlEnv = window.location.pathname.includes('.html');
-            if (isHtmlEnv) {
-                watchBtn.href = `/watch.html?slug=${movie.slug}&episode=tap-${cleanSlug}${catSlug}&server=${serverIndex}`;
-            } else {
-                watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
-            }
+            watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
 
             // ⚡ Nạp dữ liệu vào sessionStorage ngay khi tương tác với nút Xem Ngay
             const syncPreload = () => { if (typeof savePreloadedMovieData === 'function') savePreloadedMovieData(currentMovie || movie); };
@@ -914,7 +903,7 @@ window.changeVersion = function (domain) {
     }
 
     // Xây dựng URL đích
-    const isNodeDomain = domain === 'aphim.top';
+    const isNodeDomain = domain === 'aphim.top' || domain === 'aphim.store' || domain === 'localhost' || domain === '127.0.0.1';
     let newUrl = 'https://' + domain;
 
     if (isNodeDomain) {
@@ -1412,11 +1401,7 @@ function renderEpisodes(episodes) {
             else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
         }
         const sParam = (currentServerIndexDetail > 0 && !catSlug) ? `?server=${currentServerIndexDetail}` : '';
-
-        const isHtmlEnv = window.location.pathname.includes('.html');
-        const watchHref = isHtmlEnv
-            ? `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}${catSlug}&server=${currentServerIndexDetail}`
-            : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+        const watchHref = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
 
         return `
             <a href="${watchHref}"
@@ -1455,13 +1440,7 @@ window.changeServerDetail = function (index) {
             else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
         }
         const sParam = (index > 0 && !catSlug) ? `?server=${index}` : '';
-
-        const isHtmlEnv = window.location.pathname.includes('.html');
-        if (isHtmlEnv) {
-            watchBtn.href = `/watch.html?slug=${currentMovie.slug}&episode=tap-${cleanSlug}${catSlug}&server=${index}`;
-        } else {
-            watchBtn.href = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
-        }
+        watchBtn.href = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
     }
 };
 
@@ -2098,7 +2077,7 @@ async function populateMovieTabContents(movie) {
                     if (imgUrl && !imgUrl.startsWith('http')) {
                         imgUrl = 'https://phimimg.com/' + imgUrl.replace(/^\//, '');
                     }
-                    const detailUrl = isNodeSSR ? `/phim/${item.slug}` : `movie-detail.html?slug=${item.slug}`;
+                    const detailUrl = `/phim/${item.slug}`;
                     const epText = item.episode_current || 'Full';
 
                     // Parse badges màu sắc (Match Hình 2)

@@ -28,7 +28,7 @@ function createLandscapeMovieCard(movie) {
     const posterUrl = (typeof imageOptimizer !== 'undefined' && rawImg)
         ? imageOptimizer.optimizeImageUrl(rawImg, 480, 70)
         : (rawImg.startsWith('http') ? rawImg : `https://phimimg.com/${rawImg}`);
-    const detailUrl = `movie-detail.html?slug=${movie.slug}`;
+    const detailUrl = `/phim/${movie.slug}`;
     const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
     
     const quality = movie.quality || movie.lang || 'HD';
