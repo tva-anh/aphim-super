@@ -1054,7 +1054,7 @@
             <script src="/js/playlist-modal.js?v=210" defer></script>
             <script>
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
-                window.initialEpisodes = <%- JSON.stringify(typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : []) %>;
+                window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
             </script>
             <script src="/js/movie-detail.js?v=202" defer></script>
 
