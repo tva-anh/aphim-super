@@ -7,6 +7,8 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 const BASE_URL = process.env.BASE_URL || 'https://aphim.store';
 const SITEMAP_CACHE_TTL = 45 * 60 * 1000; // 45 phút cache để tránh overload API
@@ -258,6 +260,12 @@ async function generateAllSitemaps() {
 // ── GET /sitemap.xml (Master Sitemap Index) ──────────────────────────────────
 router.get(['/sitemap.xml', '/sitemap_index.xml'], async (req, res) => {
     try {
+        const publicSitemap = path.join(__dirname, '../public/sitemap.xml');
+        if (fs.existsSync(publicSitemap)) {
+            res.header('Content-Type', 'application/xml; charset=utf-8');
+            res.header('Cache-Control', 'public, max-age=1800');
+            return res.sendFile(publicSitemap);
+        }
         const data = await generateAllSitemaps();
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
@@ -307,6 +315,12 @@ router.get('/sitemap-categories.xml', async (req, res) => {
 // ── GET /sitemap-images.xml ──────────────────────────────────────────────────
 router.get('/sitemap-images.xml', async (req, res) => {
     try {
+        const publicImagesSitemap = path.join(__dirname, '../public/sitemap-images.xml');
+        if (fs.existsSync(publicImagesSitemap)) {
+            res.header('Content-Type', 'application/xml; charset=utf-8');
+            res.header('Cache-Control', 'public, max-age=1800');
+            return res.sendFile(publicImagesSitemap);
+        }
         const data = await generateAllSitemaps();
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
