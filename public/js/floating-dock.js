@@ -51,36 +51,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateThemeIcon(isLightMode);
 
+    function toggleThemeWithoutJank() {
+        const style = document.createElement('style');
+        style.id = 'ap-theme-freeze-style';
+        style.textContent = `
+            *, *::before, *::after {
+                -webkit-transition: none !important;
+                -moz-transition: none !important;
+                -o-transition: none !important;
+                -ms-transition: none !important;
+                transition: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        const isLight = document.documentElement.classList.toggle('light-mode');
+
+        // Force a single synchronous layout flush
+        void document.documentElement.offsetHeight;
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const el = document.getElementById('ap-theme-freeze-style');
+                if (el) el.remove();
+            });
+        });
+
+        return isLight;
+    }
+
     // Theme Switcher Click Handler
     if (btnTheme) {
         btnTheme.addEventListener('click', (e) => {
             e.stopPropagation();
             if (dockGroup) dockGroup.classList.remove('expanded');
-            const isLight = document.documentElement.classList.toggle('light-mode');
+
+            // Micro-animation on theme icon
+            btnTheme.style.transform = 'scale(0.88) rotate(180deg)';
+            setTimeout(() => {
+                btnTheme.style.transform = '';
+            }, 200);
+
+            const isLight = toggleThemeWithoutJank();
             const themeVal = isLight ? 'light' : 'dark';
             localStorage.setItem('aphim_theme', themeVal);
             localStorage.setItem('cinestream_theme', themeVal);
 
-            // Đồng bộ vào tài khoản người dùng nếu đang đăng nhập
-            try {
-                const u = JSON.parse(localStorage.getItem('cinestream_user') || 'null');
-                if (u) {
-                    u.theme = themeVal;
-                    localStorage.setItem('cinestream_user', JSON.stringify(u));
-                    if (typeof authService !== 'undefined' && typeof authService.updateProfile === 'function') {
-                        authService.updateProfile({ theme: themeVal });
-                    }
-                }
-            } catch (err) { }
-            
             updateThemeIcon(isLight);
-            if (typeof updateUserUI === 'function') updateUserUI();
 
-            window.dispatchEvent(new CustomEvent('aphim:theme-changed', { detail: { theme: themeVal, isLight } }));
+            // Defer non-critical updates to next frame
+            setTimeout(() => {
+                try {
+                    const u = JSON.parse(localStorage.getItem('cinestream_user') || 'null');
+                    if (u) {
+                        u.theme = themeVal;
+                        localStorage.setItem('cinestream_user', JSON.stringify(u));
+                        if (typeof authService !== 'undefined' && typeof authService.updateProfile === 'function') {
+                            authService.updateProfile({ theme: themeVal });
+                        }
+                    }
+                } catch (err) { }
+                
+                if (typeof updateUserUI === 'function') updateUserUI();
+                window.dispatchEvent(new CustomEvent('aphim:theme-changed', { detail: { theme: themeVal, isLight } }));
 
-            if (typeof showToast === 'function') {
-                showToast(isLight ? '☀️ Đã chuyển sang Giao diện Sáng' : '🌙 Đã chuyển sang Giao diện Tối', 'info');
-            }
+                if (typeof showToast === 'function') {
+                    showToast(isLight ? '☀️ Đã chuyển sang Giao diện Sáng' : '🌙 Đã chuyển sang Giao diện Tối', 'info');
+                }
+            }, 10);
         });
     }
 

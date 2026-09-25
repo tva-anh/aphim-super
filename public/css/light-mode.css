@@ -5392,6 +5392,26 @@ html.light-mode .cine-genre-scroll-bar {
     background: #fdfbf7 !important;
 }
 
+@media (min-width: 769px) {
+    html.light-mode .panel-sub-header.cinema-sub-header {
+        border-bottom: none !important;
+        border-top: none !important;
+        border: none !important;
+        padding: 22px 24px 14px !important;
+        background: #fdfbf7 !important;
+    }
+    html.light-mode .panel-sub-header.cinema-sub-header + .cine-genre-scroll-bar,
+    html.light-mode .cine-genre-scroll-bar {
+        background: #fdfbf7 !important;
+        padding: 16px 24px 22px !important;
+        margin-top: 6px !important;
+        border-bottom: none !important;
+        border-top: none !important;
+        border: none !important;
+        justify-content: center !important;
+    }
+}
+
 html.light-mode .cine-genre-pill {
     background: #ffffff !important;
     color: #475569 !important;
@@ -6533,6 +6553,27 @@ html.light-mode .report-btn-close {
     background: #f5efe6 !important;
     color: #1c1917 !important;
     border: 1px solid #d6cebf !important;
+}
+
+/* 📱 Mobile Light Mode Menu Items Subtle Spacing */
+@media (max-width: 1023px) {
+    html.light-mode .profile-sidebar .sidebar-nav,
+    html.light-mode .profile-layout.mobile-view-hub .sidebar-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        gap: 4px !important;
+        padding: 6px 12px 10px !important;
+    }
+    html.light-mode .profile-sidebar .sidebar-nav-item,
+    html.light-mode .profile-layout.mobile-view-hub .sidebar-nav-item {
+        min-height: 38px !important;
+        max-height: none !important;
+        padding: 4px 12px 4px 4px !important;
+        gap: 10px !important;
+        flex: 0 0 auto !important;
+        border-radius: 12px !important;
+    }
 }
 
 

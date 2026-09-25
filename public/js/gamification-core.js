@@ -792,59 +792,71 @@
   }
 
   // ─── 9.5 BẢNG XẾP HẠNG CAO THỦ (LEADERBOARD) TỪ DATA THỰC TẾ ───
-  let _leaderboardCache = null;
-  let _isFetchingLb = false;
+  let _leaderboardCache = {};
+  let _isFetchingLb = {};
 
   async function fetchLeaderboard(timeframe = 'weekly') {
     const u = getUser() || {};
     const uid = u._id || u.id || '';
+    if (_isFetchingLb[timeframe]) return _leaderboardCache[timeframe] || null;
     try {
-      _isFetchingLb = true;
+      _isFetchingLb[timeframe] = true;
       const res = await fetch(`/api/gamification/leaderboard?timeframe=${encodeURIComponent(timeframe)}&userId=${encodeURIComponent(uid)}`);
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
-          _leaderboardCache = json.data;
+          _leaderboardCache[timeframe] = json.data;
           try {
-            localStorage.setItem('ap_real_leaderboard', JSON.stringify(json.data));
+            localStorage.setItem(`ap_real_lb_${timeframe}`, JSON.stringify(json.data));
+            if (timeframe === 'weekly') {
+              localStorage.setItem('ap_real_leaderboard', JSON.stringify(json.data));
+            }
           } catch (e) { }
-          return _leaderboardCache;
+          return _leaderboardCache[timeframe];
         }
       }
     } catch (err) {
       console.warn('[Gamification] fetchLeaderboard error:', err.message);
     } finally {
-      _isFetchingLb = false;
+      _isFetchingLb[timeframe] = false;
     }
     return null;
   }
 
   function getLeaderboardData(timeframe = 'weekly') {
-    // 1. Kiểm tra cache trong bộ nhớ
-    if (_leaderboardCache && _leaderboardCache.all && _leaderboardCache.all.length) {
-      return _leaderboardCache;
+    // 1. Kiểm tra cache trong bộ nhớ theo timeframe
+    if (_leaderboardCache[timeframe] && _leaderboardCache[timeframe].all && _leaderboardCache[timeframe].all.length) {
+      return _leaderboardCache[timeframe];
     }
 
-    // 2. Kiểm tra cache trong localStorage
+    // 2. Kiểm tra cache trong localStorage theo timeframe
     try {
-      const stored = JSON.parse(localStorage.getItem('ap_real_leaderboard') || 'null');
+      const stored = JSON.parse(localStorage.getItem(`ap_real_lb_${timeframe}`) || (timeframe === 'weekly' ? localStorage.getItem('ap_real_leaderboard') : 'null') || 'null');
       if (stored && stored.all && stored.all.length) {
         // Lọc bỏ mọi tên test ảo nếu còn sót từ bản cũ
         const hasFake = stored.all.some(x => (x.name || '').includes('Trần Gia Bảo') || (x.name || '').includes('Ngọc Mai Cinema') || (x.name || '').includes('Minh Hoàng Movie'));
         if (!hasFake) {
-          _leaderboardCache = stored;
-          if (!_isFetchingLb) fetchLeaderboard(timeframe);
-          return _leaderboardCache;
+          _leaderboardCache[timeframe] = stored;
+          if (!_isFetchingLb[timeframe]) fetchLeaderboard(timeframe);
+          return _leaderboardCache[timeframe];
         }
       }
     } catch (e) { }
 
     // 3. Nếu chưa có cache, tự động kích hoạt fetch async ngầm
-    if (!_isFetchingLb) {
+    if (!_isFetchingLb[timeframe]) {
       fetchLeaderboard(timeframe).then(data => {
-        if (data && typeof renderAchievements === 'function' && window._achieveSubView === 'leaderboard') {
+        if (data && typeof renderAchievements === 'function' && window._achieveSubView === 'leaderboard' && (window._leaderboardTf || 'weekly') === timeframe) {
           const panel = document.getElementById('tabPanel');
-          if (panel) panel.innerHTML = renderAchievements(getUser());
+          if (panel) {
+            const curY = window.scrollY;
+            panel.innerHTML = renderAchievements(getUser());
+            if (curY > 0) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: curY, behavior: 'instant' });
+              });
+            }
+          }
         }
       });
     }

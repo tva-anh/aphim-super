@@ -375,7 +375,7 @@ function renderTab(tab) {
       return `<button onclick="setCineGenre('${g}')" class="cine-genre-pill ${isActive ? 'active' : ''}">${g}</button>`;
     }).join('');
 
-    const headerHtml = `<div class="panel-sub-header"><div class="panel-sub-header-left"><h3 class="panel-sub-title">🎬 Lịch chiếu rạp Quốc Gia</h3><span class="panel-sub-badge">${badgeText}</span></div><button onclick="refreshCinema()" class="cinema-refresh-btn" style="padding:5px 12px;border:1px solid rgba(252,213,118,0.25);background:rgba(252,213,118,0.08);color:#fcd576;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">↻ Làm mới</button></div><div class="cine-genre-scroll-bar">${genrePillsHtml}</div>`;
+    const headerHtml = `<div class="panel-sub-header cinema-sub-header"><div class="panel-sub-header-left"><h3 class="panel-sub-title">🎬 Lịch chiếu rạp Quốc Gia</h3><span class="panel-sub-badge">${badgeText}</span></div><button onclick="refreshCinema()" class="cinema-refresh-btn" style="padding:5px 12px;border:1px solid rgba(252,213,118,0.25);background:rgba(252,213,118,0.08);color:#fcd576;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">↻ Làm mới</button></div><div class="cine-genre-scroll-bar">${genrePillsHtml}</div>`;
     panel.innerHTML = `<div class="panel-card" style="min-height:520px;display:flex;flex-direction:column;">${headerHtml}<div class="movie-grid" style="flex:1;">${pagedMovies.map(it => renderCinemaCard(it)).join('')}</div></div>`;
   } else if (tab === 'achievements') {
     panel.innerHTML = renderAchievements(u);
@@ -3988,28 +3988,54 @@ function renderAchievements(u) {
   const lbTf = window._leaderboardTf || 'weekly';
 
   window.setAchieveSubView = function (view) {
+    if (window._achieveSubView === view) return;
     window._achieveSubView = view;
     const panel = document.getElementById('tabPanel');
     if (panel) panel.innerHTML = renderAchievements(currentUser);
     if (view === 'leaderboard' && window.GamificationCore && typeof window.GamificationCore.fetchLeaderboard === 'function') {
-      window.GamificationCore.fetchLeaderboard(window._leaderboardTf || 'weekly').then(() => {
-        if (window._achieveSubView === 'leaderboard') {
+      window.GamificationCore.fetchLeaderboard(window._leaderboardTf || 'weekly').then((data) => {
+        if (window._achieveSubView === 'leaderboard' && data) {
           const p = document.getElementById('tabPanel');
-          if (p) p.innerHTML = renderAchievements(currentUser);
+          if (p) {
+            const prevScroll = window.scrollY;
+            p.innerHTML = renderAchievements(currentUser);
+            if (prevScroll > 0) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: prevScroll, behavior: 'instant' });
+              });
+            }
+          }
         }
       });
     }
   };
 
   window.setLeaderboardTf = function (tf) {
+    if (window._leaderboardTf === tf) return;
     window._leaderboardTf = tf;
     const panel = document.getElementById('tabPanel');
-    if (panel) panel.innerHTML = renderAchievements(currentUser);
+    const prevScroll = window.scrollY;
+    if (panel) {
+      panel.innerHTML = renderAchievements(currentUser);
+      if (prevScroll > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: prevScroll, behavior: 'instant' });
+        });
+      }
+    }
     if (window.GamificationCore && typeof window.GamificationCore.fetchLeaderboard === 'function') {
-      window.GamificationCore.fetchLeaderboard(tf).then(() => {
-        if (window._achieveSubView === 'leaderboard') {
+      window.GamificationCore.fetchLeaderboard(tf).then((data) => {
+        if (window._achieveSubView === 'leaderboard' && window._leaderboardTf === tf && data) {
           const p = document.getElementById('tabPanel');
-          if (p) p.innerHTML = renderAchievements(currentUser);
+          if (p) {
+            const s = window.scrollY;
+            p.innerHTML = renderAchievements(currentUser);
+            if (s > 0) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: s, behavior: 'instant' });
+              });
+            }
+          }
         }
       });
     }
@@ -4217,8 +4243,8 @@ function renderAchievements(u) {
                 
                 <!-- TOP 2 (SILVER MASTER - Á QUÂN) -->
                 <div class="lb-card-top2">
-                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-16px; width:30px; height:30px; filter:drop-shadow(0 3px 10px rgba(148,163,184,0.7));">
-                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-16px; width:32px; height:32px; filter:drop-shadow(0 4px 12px rgba(148,163,184,0.7)); z-index:4;">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                       <defs>
                         <linearGradient id="silverMedalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#ffffff"/>
@@ -4232,22 +4258,22 @@ function renderAchievements(u) {
                       <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#0f172a">2</text>
                     </svg>
                   </div>
-                  <!-- Khung Á Quân -->
-                  <div style="position:relative; width:76px; height:76px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
+                  <!-- Khung Á Quân with Aura -->
+                  <div style="position:relative; width:80px; height:80px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div class="lb-aura-ring aura-silver"></div>
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
                       <img src="${top2.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top2'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
                     <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539068/aphim-frames/a_a44e9335ea869639fdf812f3642a56a6.png" alt="Khung Á Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(203,213,225,0.5));">
                   </div>
                   <div class="lb-player-name">${top2.name || 'Thành viên'}</div>
-                  <div style="font-size:10.5px; font-weight:700; color:#cbd5e1; background:rgba(203,213,225,0.15); border:1px solid rgba(203,213,225,0.35); padding:2px 8px; border-radius:6px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
+                  <div style="font-size:11px; font-weight:800; color:#e2e8f0; background:rgba(203,213,225,0.16); border:1px solid rgba(203,213,225,0.4); padding:3px 10px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(148,163,184,0.15);">
                     <span>🥈 Á Quân</span>
                   </div>
                   <div class="lb-xp-txt">${(top2.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
-                    <span>⏱️ ${top2.hours || 0}h xem</span>
-                    <span>•</span>
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316;">
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">⏱️ ${top2.hours || 0}h xem</span>
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700; background:rgba(249,115,22,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(249,115,22,0.25);">
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                       ${top2.streak || 1}d
                     </span>
@@ -4257,8 +4283,8 @@ function renderAchievements(u) {
 
                 <!-- TOP 1 (GOLD CHAMPION - QUÁN QUÂN) -->
                 <div class="lb-card-top1">
-                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-18px; width:38px; height:30px; filter:drop-shadow(0 4px 14px rgba(245,158,11,0.9));">
-                    <svg width="38" height="30" viewBox="0 0 38 30" fill="none">
+                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-20px; width:42px; height:34px; filter:drop-shadow(0 4px 16px rgba(245,158,11,0.95)); z-index:4;">
+                    <svg width="42" height="34" viewBox="0 0 38 30" fill="none">
                       <defs>
                         <linearGradient id="goldCrownGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#fff59d"/>
@@ -4275,34 +4301,36 @@ function renderAchievements(u) {
                       <circle cx="19" cy="20" r="1.5" fill="#fff" opacity="0.9"/>
                     </svg>
                   </div>
-                  <!-- Khung Quán Quân -->
-                  <div style="position:relative; width:88px; height:88px; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; box-shadow:0 0 20px rgba(245,158,11,0.6); z-index:1;">
+                  <!-- Khung Quán Quân with Rotating Halo -->
+                  <div style="position:relative; width:94px; height:94px; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div class="lb-aura-ring aura-gold"></div>
+                    <div style="width:60px; height:60px; border-radius:50%; overflow:hidden; box-shadow:0 0 24px rgba(245,158,11,0.65); z-index:1;">
                       <img src="${top1.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top1'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
-                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539061/aphim-frames/a_386445551be850bb16b73a225d0d0602.png" alt="Khung Quán Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 14px rgba(245,158,11,0.6));">
+                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539061/aphim-frames/a_386445551be850bb16b73a225d0d0602.png" alt="Khung Quán Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 16px rgba(245,158,11,0.7));">
                   </div>
                   <div class="lb-player-name top1-name">${top1.name || 'Quán Quân'}</div>
-                  <div style="font-size:11px; font-weight:800; color:#fcd576; background:linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.2) 100%); border:1px solid rgba(245,158,11,0.55); padding:2px 10px; border-radius:8px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(245,158,11,0.2);">
-                    <svg width="12" height="11" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
-                    <span>Quán Quân</span>
+                  <div style="font-size:11.5px; font-weight:900; color:#fcd576; background:linear-gradient(135deg, rgba(245,158,11,0.28) 0%, rgba(217,119,6,0.24) 100%); border:1px solid rgba(245,158,11,0.65); padding:3px 12px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 10px rgba(245,158,11,0.25);">
+                    <svg width="13" height="12" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
+                    <span>👑 Quán Quân</span>
                   </div>
                   <div class="lb-xp-txt top1-xp">${(top1.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700;">
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:5px;">
+                    <span style="display:inline-flex; align-items:center; gap:3px; color:#f97316; font-weight:800; background:rgba(249,115,22,0.14); border:1px solid rgba(249,115,22,0.35); padding:2px 8px; border-radius:6px;">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                       ${top1.streak || 1} ngày streak
                     </span>
-                    <span>•</span>
-                    <span>⏱️ ${top1.hours || 0}h xem</span>
+                    <span style="display:inline-flex; align-items:center; gap:3px; color:#38bdf8; font-weight:700; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:6px;">
+                      ⏱️ ${top1.hours || 0}h xem
+                    </span>
                   </div>
                   <div class="lb-pedestal-base top1-pedestal">#1 QUÁN QUÂN</div>
                 </div>
 
                 <!-- TOP 3 (BRONZE MASTER - QUÝ QUÂN) -->
                 <div class="lb-card-top3">
-                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-16px; width:30px; height:30px; filter:drop-shadow(0 3px 10px rgba(217,119,6,0.6));">
-                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-16px; width:32px; height:32px; filter:drop-shadow(0 4px 12px rgba(217,119,6,0.6)); z-index:4;">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                       <defs>
                         <linearGradient id="bronzeMedalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#ffedd5"/>
@@ -4316,22 +4344,22 @@ function renderAchievements(u) {
                       <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#290b02">3</text>
                     </svg>
                   </div>
-                  <!-- Khung Quý Quân -->
-                  <div style="position:relative; width:76px; height:76px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
+                  <!-- Khung Quý Quân with Aura -->
+                  <div style="position:relative; width:80px; height:80px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div class="lb-aura-ring aura-bronze"></div>
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
                       <img src="${top3.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top3'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
                     <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789538978/aphim-frames/a_45f7f9975255971b197d34d77fb50ede.png" alt="Khung Quý Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(205,127,50,0.5));">
                   </div>
                   <div class="lb-player-name">${top3.name || 'Thành viên'}</div>
-                  <div style="font-size:10.5px; font-weight:700; color:#fed7aa; background:rgba(205,127,50,0.18); border:1px solid rgba(205,127,50,0.35); padding:2px 8px; border-radius:6px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
+                  <div style="font-size:11px; font-weight:800; color:#fed7aa; background:rgba(205,127,50,0.2); border:1px solid rgba(205,127,50,0.4); padding:3px 10px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(217,119,6,0.15);">
                     <span>🥉 Quý Quân</span>
                   </div>
                   <div class="lb-xp-txt" style="color:#fb923c;">${(top3.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
-                    <span>⏱️ ${top3.hours || 0}h xem</span>
-                    <span>•</span>
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316;">
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">⏱️ ${top3.hours || 0}h xem</span>
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700; background:rgba(249,115,22,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(249,115,22,0.25);">
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                       ${top3.streak || 1}d
                     </span>
@@ -4349,7 +4377,7 @@ function renderAchievements(u) {
                       <div class="lb-row-pos ${item.position <= 5 ? 'top5' : ''}">
                         #${item.position}
                       </div>
-                      <div style="position:relative; width:38px; height:38px; flex-shrink:0;">
+                      <div style="position:relative; width:40px; height:40px; flex-shrink:0;">
                         <img src="${item.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,0.18); display:block;">
                       </div>
                       <div style="min-width:0; flex:1;">
@@ -4368,8 +4396,8 @@ function renderAchievements(u) {
                       </div>
                     </div>
                     <div style="text-align:right; flex-shrink:0; margin-left:12px;">
-                      <div class="lb-xp-txt" style="display:flex; align-items:center; justify-content:flex-end; gap:4px;">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <div class="lb-xp-txt" style="display:flex; align-items:center; justify-content:flex-end; gap:5px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fcd576" stroke="#f59e0b" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         <span>${(item.xp || 0).toLocaleString()} XP</span>
                       </div>
                       <div class="lb-sub-meta" style="margin-top:3px;">⏱️ ${item.hours || 0} giờ xem</div>
@@ -4417,9 +4445,18 @@ function renderAchievements(u) {
   }
 
   window.setAchievementFilter = function (f) {
+    if (window._achievementFilter === f) return;
     window._achievementFilter = f;
     const panel = document.getElementById('tabPanel');
-    if (panel) panel.innerHTML = renderAchievements(currentUser);
+    const prevScroll = window.scrollY;
+    if (panel) {
+      panel.innerHTML = renderAchievements(currentUser);
+      if (prevScroll > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: prevScroll, behavior: 'instant' });
+        });
+      }
+    }
   };
 
   return `
@@ -5504,7 +5541,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const refreshProfileState = () => {
     currentUser = getUser();
     initSidebar();
-    if (typeof renderTab === 'function') renderTab(currentTab);
+    if (typeof renderTab === 'function') {
+      if (currentTab === 'shop' || currentTab === 'achievements') {
+        if (window.GamificationCore && typeof window.GamificationCore.updateHeaderChips === 'function') {
+          window.GamificationCore.updateHeaderChips();
+        }
+      } else {
+        const prevScroll = window.scrollY;
+        renderTab(currentTab);
+        if (prevScroll > 0) {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: prevScroll, behavior: 'instant' });
+          });
+        }
+      }
+    }
   };
   window.addEventListener('auth:profileSynced', refreshProfileState);
   window.addEventListener('auth:profileUpdated', refreshProfileState);

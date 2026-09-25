@@ -1327,6 +1327,26 @@
             loadUnifiedSection(apiUrl, containerId, 12);
         };
 
+        // 🎯 Helper to safely get APhimCore even if script finishes parsing after DOMContentLoaded
+        async function getAPhimCore() {
+            if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
+                return window.APhimCore;
+            }
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    attempts++;
+                    if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
+                        clearInterval(interval);
+                        resolve(window.APhimCore);
+                    } else if (attempts > 50) {
+                        clearInterval(interval);
+                        resolve(window.APhimCore || {});
+                    }
+                }, 30);
+            });
+        }
+
         // 🎯 EXACT PHOTO #3 5-COLUMN RENDER LOGIC: 12 Items Total (1 Featured + 6 Right + 5 Bottom = 12 items, 3 FULL ROWS)
         async function loadUnifiedSection(arg1, arg2, arg3, arg4 = 12) {
             let type = 'list';
@@ -1349,7 +1369,8 @@
             }
 
             try {
-                const res = await window.APhimCore.fetchMovieGridData(type, paramVal, 1);
+                const core = await getAPhimCore();
+                const res = await core.fetchMovieGridData(type, paramVal, 1);
                 const items = res?.items || [];
                 if (!items.length) return;
 
@@ -1469,7 +1490,8 @@
             }
 
             try {
-                const res = await window.APhimCore.fetchMovieGridData('list', paramVal, 1);
+                const core = await getAPhimCore();
+                const res = await core.fetchMovieGridData('list', paramVal, 1);
                 const items = res.items || [];
                 if (gridEl && items.length) {
                     gridEl.innerHTML = items.slice(0, 10).map((m, idx) => createRankingCardHTML(m, idx)).join('');
@@ -1481,7 +1503,8 @@
 
         async function loadRankingSection() {
             try {
-                const res = await window.APhimCore.fetchMovieGridData('list', 'phim-bo', 1);
+                const core = await getAPhimCore();
+                const res = await core.fetchMovieGridData('list', 'phim-bo', 1);
                 const items = res.items || [];
                 const gridEl = document.getElementById('grid-bang-xep-hang');
                 if (gridEl && items.length) {
@@ -1495,7 +1518,8 @@
         // Load Phim Mới Đề Cử Slider (Vertical Cards)
         async function loadDeCuSlider() {
             try {
-                const res = await window.APhimCore.fetchMovieGridData('list', 'phim-moi-cap-nhat', 1);
+                const core = await getAPhimCore();
+                const res = await core.fetchMovieGridData('list', 'phim-moi-cap-nhat', 1);
                 const items = res.items || [];
                 const sliderEl = document.getElementById('slider-de-cu');
                 if (sliderEl && items.length) {

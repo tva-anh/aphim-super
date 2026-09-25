@@ -1,8 +1,9 @@
 /**
- * A PHIM - Auth Modal (Login / Register)
- * Hiển thị popup đăng nhập / đăng ký ngay tại trang với giao diện Kính mờ màu trắng trong suốt (White-Tinted Glassmorphic)
- * - Chuyển tab Đăng nhập ↔ Đăng ký TỨC THÌ (Instant 0ms, không reload modal, không load lại ảnh, cực kỳ mượt mà)
- * - Tone màu nền: Kính trắng mờ viền sáng chuẩn phong cách Apple Glassmorphism
+ * A PHIM - Auth Modal (Login / Register / Forgot Password)
+ * Ultra-Fast Apple Glassmorphic Modal with GPU-Accelerated 120fps Sliding Segmented Tabs
+ * - 0ms Instant response on pointerdown/click
+ * - Single GPU compositing layer (Zero double-blur jank)
+ * - Pure Declarative CSS Mode Switching
  */
 (function () {
     'use strict';
@@ -10,62 +11,77 @@
     const _currentPage = window.location.pathname.replace(/.*\//, '');
     const _isAuthPage  = _currentPage === 'login.html' || _currentPage === 'register.html';
 
-    // Inject Styles
+    let _cachedEmail = '';
+    let _cachedPass  = '';
+    let currentAuthMode = 'login';
+
+    function loadSavedCredentials() {
+        try {
+            _cachedEmail = localStorage.getItem('ap_saved_login_email') || localStorage.getItem('cinestream_last_email') || '';
+            _cachedPass  = localStorage.getItem('ap_saved_login_pass') || '';
+        } catch (e) {
+            _cachedEmail = '';
+            _cachedPass  = '';
+        }
+    }
+
+    // Inject High-Performance Styles
     function injectStyles() {
         if (document.getElementById('ap-auth-modal-css')) return;
         const s = document.createElement('style');
         s.id = 'ap-auth-modal-css';
         s.textContent = `
-        /* ── Backdrop ── */
+        /* ── Backdrop (High Performance Solid Dim, Zero nested blur jank) ── */
         #ap-auth-backdrop {
             position: fixed; inset: 0; z-index: 999999;
-            background: rgba(0, 0, 0, 0.48);
-            backdrop-filter: blur(12px) saturate(140%);
-            -webkit-backdrop-filter: blur(12px) saturate(140%);
+            background: rgba(0, 0, 0, 0.65);
             display: flex; align-items: center; justify-content: center;
             padding: 16px;
-            animation: ap-modal-fadein 0.25s ease;
+            animation: ap-modal-fadein 0.15s ease-out;
             box-sizing: border-box;
+            contain: strict;
         }
         @keyframes ap-modal-fadein {
             from { opacity: 0; } to { opacity: 1; }
         }
 
-        /* ── Modal Card (Ultra Translucent Bright Glass) ── */
+        /* ── Modal Card (Ultra Sleek Dark Glass, 120fps GPU composited) ── */
         #ap-auth-modal {
-            width: 100%; max-width: 820px;
-            max-height: calc(100vh - 32px);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.12) 100%), rgba(18, 22, 34, 0.52) !important;
-            backdrop-filter: blur(36px) saturate(220%) !important;
-            -webkit-backdrop-filter: blur(36px) saturate(220%) !important;
-            border-radius: 26px;
+            width: 100%; max-width: 860px;
+            background: rgba(18, 22, 34, 0.92) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border-radius: 24px;
             overflow: hidden;
             display: flex;
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), 0 0 35px rgba(252, 213, 118, 0.12) !important;
-            animation: ap-modal-slidein 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7), 0 0 30px rgba(252, 213, 118, 0.1) !important;
+            animation: ap-modal-slidein 0.18s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
             box-sizing: border-box;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            contain: layout style;
         }
         #ap-auth-modal::before {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 26px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
             pointer-events: none;
             z-index: 25;
         }
         @keyframes ap-modal-slidein {
-            from { transform: scale(0.94) translateY(20px); opacity: 0; }
-            to   { transform: scale(1) translateY(0); opacity: 1; }
+            from { transform: translate3d(0, 10px, 0) scale(0.97); opacity: 0; }
+            to   { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
         }
 
-        /* Fixed Stable Dimensions for Desktop & Mobile (Immovable Frame & Tabs) */
+        /* Fixed Dimensions for Stable Geometry */
         @media (min-width: 641px) {
             #ap-auth-modal {
-                width: 900px !important;
+                width: 880px !important;
                 height: 520px !important;
                 max-width: 94vw !important;
                 max-height: 92vh !important;
@@ -76,7 +92,7 @@
             }
             .ap-auth-right {
                 height: 100% !important;
-                padding: 44px 36px 28px 36px !important;
+                padding: 40px 36px 28px 36px !important;
                 justify-content: flex-start !important;
             }
         }
@@ -85,23 +101,24 @@
         .ap-auth-left {
             width: 380px; flex-shrink: 0;
             background: linear-gradient(to bottom, rgba(15, 18, 30, 0.05) 0%, rgba(15, 18, 30, 0.25) 45%, rgba(15, 18, 30, 0.72) 100%),
-                        url('https://vsmov.com/storage/images/pxd9rc03EMMln3tVFdfd427Fpsi.jpg') center / cover no-repeat;
+                        url('/images/auth-poster-doraemon.jpg') center / cover no-repeat;
             display: flex; flex-direction: column;
             justify-content: flex-end; align-items: center;
-            padding: 36px 28px 48px 28px;
+            padding: 36px 28px 44px 28px;
             box-sizing: border-box;
             position: relative;
+            contain: paint;
         }
         @media (max-width: 640px) {
             .ap-auth-left { display: none !important; }
             #ap-auth-modal {
-                width: min(410px, 92vw) !important;
-                height: 545px !important;
-                max-height: 90vh !important;
+                width: min(420px, 94vw) !important;
+                min-height: 480px !important;
+                max-height: 92vh !important;
             }
             .ap-auth-right {
                 height: 100% !important;
-                padding: 60px 20px 32px 20px !important;
+                padding: 54px 20px 24px 20px !important;
                 justify-content: flex-start !important;
             }
         }
@@ -123,12 +140,13 @@
             z-index: 2;
             padding: 0 8px;
             box-sizing: border-box;
+            min-height: 120px;
         }
         .ap-auth-poster-title {
             font-family: inherit;
-            font-size: 26px; font-weight: 500; color: #ffffff !important;
-            line-height: 1.35; margin: 0 0 16px 0;
-            letter-spacing: 0.8px;
+            font-size: 24px; font-weight: 700; color: #ffffff !important;
+            line-height: 1.35; margin: 0 0 12px 0;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
             text-align: center;
             font-style: normal;
@@ -136,7 +154,7 @@
         }
         .ap-auth-poster-sub {
             font-family: inherit;
-            font-size: 15px; color: rgba(255, 255, 255, 0.92) !important;
+            font-size: 14px; color: rgba(255, 255, 255, 0.92) !important;
             margin: 0; font-weight: 400; line-height: 1.45;
             text-align: center;
             max-width: 290px;
@@ -146,96 +164,149 @@
 
         /* ── Right Panel (Form Area) ── */
         .ap-auth-right {
-            flex: 1; padding: 58px 30px 28px 30px;
+            flex: 1; padding: 44px 30px 28px 30px;
             display: flex; flex-direction: column;
             justify-content: flex-start !important;
             position: relative;
             overflow-y: auto;
             box-sizing: border-box;
-        }
-        @media (min-width: 641px) {
-            .ap-auth-right {
-                height: 100% !important;
-                padding: 58px 36px 28px 36px !important;
-                justify-content: flex-start !important;
-            }
-        }
-        @media (max-width: 640px) {
-            .ap-auth-right { padding: 60px 20px 32px 20px !important; }
+            isolation: isolate;
+            transform: translateZ(0);
+            contain: paint;
         }
 
         /* Close Button X */
         .ap-auth-close {
             position: absolute; top: 14px; right: 14px;
             width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.18);
             color: rgba(255, 255, 255, 0.85); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; transition: all 0.2s ease;
+            font-size: 18px;
+            transition: background 0.12s, color 0.12s, transform 0.12s;
             z-index: 10; outline: none;
+            touch-action: manipulation;
         }
         .ap-auth-close:hover {
             background: rgba(255, 255, 255, 0.25); color: #ffffff;
             transform: rotate(90deg);
         }
 
-        /* ── Segmented Pill Tabs Switcher (100% Fixed Top Anchor) ── */
+        /* ── Segmented Sliding Pill Tabs (Apple-Grade 120fps Smooth Transition) ── */
         .ap-auth-tabs-wrap {
-            background: rgba(0, 0, 0, 0.28);
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(0, 0, 0, 0.35);
             border-radius: 9999px;
-            padding: 4px;
-            display: flex;
-            margin-bottom: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 3px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0 !important;
             width: 100%;
             box-sizing: border-box;
+            isolation: isolate;
         }
+
+        /* Pure Hardware Accelerated Sliding Pill */
+        .ap-tab-slider-pill {
+            position: absolute;
+            top: 3px;
+            bottom: 3px;
+            left: 3px;
+            width: calc(50% - 3px);
+            background: rgba(255, 255, 255, 0.24);
+            border-radius: 9999px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+            z-index: 1;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        #ap-auth-modal[data-mode="register"] .ap-tab-slider-pill {
+            transform: translate3d(100%, 0, 0);
+        }
+        #ap-auth-modal[data-mode="forgot"] .ap-tab-slider-pill {
+            opacity: 0;
+        }
+
         .ap-auth-tab-btn {
-            flex: 1; border: none; background: transparent;
+            position: relative;
+            z-index: 2;
+            background: transparent !important;
+            border: none !important;
             color: rgba(255, 255, 255, 0.65);
-            font-size: 14px; font-weight: 500;
-            padding: 9px 16px; border-radius: 9999px;
-            cursor: pointer; transition: all 0.2s ease;
-            text-align: center; outline: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 9px 0;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 9999px;
+            transition: color 0.12s ease, font-weight 0.12s ease;
+            user-select: none;
+            outline: none;
             font-family: inherit;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
-        .ap-auth-tab-btn.active {
-            background: rgba(255, 255, 255, 0.28);
-            color: #ffffff; font-weight: 700;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        .ap-auth-tab-btn:hover {
+            color: #ffffff;
+        }
+
+        #ap-auth-modal[data-mode="login"] .ap-auth-tab-btn.tab-login {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        #ap-auth-modal[data-mode="register"] .ap-auth-tab-btn.tab-register {
+            color: #ffffff !important;
+            font-weight: 700 !important;
         }
 
         .ap-auth-subtitle {
             font-size: 13.5px; color: #d1d5db;
-            margin: 0 0 20px; text-align: left;
+            margin: 0 0 14px; text-align: left;
+            line-height: 1.4;
+            min-height: 20px;
         }
         .ap-gold-link {
             color: #fcd576 !important; font-weight: 700;
             cursor: pointer; text-decoration: none;
-            transition: color 0.18s ease;
+            transition: color 0.12s ease;
+            background: none; border: none; padding: 0; font-family: inherit; font-size: inherit;
+            display: inline;
+            touch-action: manipulation;
         }
         .ap-gold-link:hover {
             color: #ffe18d !important;
             text-decoration: underline;
         }
 
-        /* ── Form Inputs ── */
+        /* ── Form Inputs (Ultra-Fast GPU Typing, 0ms Lag) ── */
         .ap-auth-field {
-            margin-bottom: 14px; position: relative;
-            transition: all 0.2s ease;
+            margin-bottom: 12px; position: relative;
+            contain: layout style;
         }
         .ap-auth-input {
             width: 100%; box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.28);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 14px; padding: 13px 16px;
-            color: #ffffff; font-size: 14.5px; font-family: inherit;
-            outline: none; transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px; padding: 12px 16px;
+            color: #ffffff; font-size: 15px; font-family: inherit;
+            outline: none;
+            caret-color: #fcd576;
+            transform: translateZ(0);
+            -webkit-appearance: none;
+            appearance: none;
+            transition: border-color 0.1s ease, box-shadow 0.1s ease;
+        }
+        @media (max-width: 640px) {
+            .ap-auth-input { font-size: 16px !important; }
         }
         .ap-auth-input:focus {
             border-color: #fcd576;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.45);
             box-shadow: 0 0 0 3px rgba(252, 213, 118, 0.18);
         }
         .ap-auth-input::placeholder {
@@ -251,7 +322,8 @@
             color: rgba(255, 255, 255, 0.5);
             cursor: pointer; padding: 4px;
             display: flex; align-items: center; justify-content: center;
-            transition: color 0.2s ease; outline: none;
+            transition: color 0.12s ease; outline: none;
+            touch-action: manipulation;
         }
         .ap-pwd-toggle-btn:hover { color: #fcd576; }
 
@@ -273,60 +345,47 @@
             user-select: none !important;
             margin: 0 !important;
             padding: 2px 0 !important;
+            touch-action: manipulation;
         }
         #ap-field-remember {
             appearance: auto !important;
             -webkit-appearance: checkbox !important;
-            -moz-appearance: checkbox !important;
             width: 16px !important;
             height: 16px !important;
-            min-width: 16px !important;
-            min-height: 16px !important;
             accent-color: #fcd576 !important;
             cursor: pointer !important;
             margin: 0 !important;
-            display: inline-block !important;
-            border-radius: 4px !important;
-            pointer-events: auto !important;
         }
         .ap-forgot-link {
             font-size: 13px; color: #9ca3af;
             cursor: pointer; text-decoration: none;
-            transition: color 0.2s ease; font-weight: 500;
+            transition: color 0.12s ease; font-weight: 500;
+            background: none; border: none; padding: 0; font-family: inherit;
+            touch-action: manipulation;
         }
         .ap-forgot-link:hover { color: #fcd576; }
 
         /* ── Submit Button ── */
         .ap-auth-submit-btn {
-            width: 100%; padding: 14px;
+            width: 100%; padding: 13px;
             background: linear-gradient(135deg, #fff3b0 0%, #fcd576 45%, #f59e0b 100%);
             color: #0d0f1a; font-size: 15px; font-weight: 800;
             border: 1.5px solid rgba(255, 248, 210, 0.85);
             border-radius: 14px; cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
             margin-top: 4px; letter-spacing: 0.02em;
             box-shadow: 0 8px 22px rgba(252, 213, 118, 0.35), 0 2px 6px rgba(0, 0, 0, 0.4);
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
             outline: none;
+            touch-action: manipulation;
         }
         .ap-auth-submit-btn:hover {
             background: linear-gradient(135deg, #ffffff 0%, #ffe18d 45%, #e69d05 100%);
-            transform: translateY(-1.5px) scale(1.01);
+            transform: translateY(-1px);
             box-shadow: 0 12px 28px rgba(252, 213, 118, 0.5), 0 4px 10px rgba(0, 0, 0, 0.5);
         }
-        .ap-auth-submit-btn.is-forgot {
-            background: linear-gradient(135deg, #b5c6ff 0%, #9cb0ff 100%) !important;
-            color: #0c0f1d !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
-            box-shadow: 0 8px 22px rgba(156, 176, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-            text-shadow: none !important;
-        }
-        .ap-auth-submit-btn.is-forgot:hover {
-            background: linear-gradient(135deg, #c7d5ff 0%, #adbfff 100%) !important;
-            box-shadow: 0 12px 28px rgba(156, 176, 255, 0.5), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
-        }
         .ap-auth-submit-btn:active {
-            transform: translateY(0) scale(0.99);
+            transform: translateY(1px);
         }
         .ap-auth-submit-btn:disabled {
             opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none;
@@ -334,8 +393,8 @@
 
         /* Message */
         .ap-auth-msg {
-            font-size: 13.5px; padding: 11px 14px;
-            border-radius: 12px; margin-bottom: 14px;
+            font-size: 13.5px; padding: 10px 14px;
+            border-radius: 12px; margin-bottom: 12px;
             display: none; font-weight: 500;
         }
         .ap-auth-msg.error   { background: rgba(239,68,68,0.22);  color: #fca5a5; display: block; border-left: 4px solid #ef4444; }
@@ -345,11 +404,45 @@
             overflow: hidden !important;
         }
 
+        /* ── DECLARATIVE 0ms MODE SWITCHING RULES ── */
+        .ap-mode-login,
+        .ap-mode-register,
+        .ap-mode-forgot {
+            display: none !important;
+        }
+
+        /* LOGIN MODE */
+        #ap-auth-modal[data-mode="login"] .ap-mode-login { display: block !important; }
+        #ap-auth-modal[data-mode="login"] .ap-forgot-wrap { display: flex !important; }
+        #ap-auth-modal[data-mode="login"] .ap-not-forgot { display: block !important; }
+
+        /* REGISTER MODE */
+        #ap-auth-modal[data-mode="register"] .ap-mode-register { display: block !important; }
+        #ap-auth-modal[data-mode="register"] .ap-forgot-wrap { display: none !important; }
+        #ap-auth-modal[data-mode="register"] .ap-not-forgot { display: block !important; }
+
+        /* FORGOT MODE */
+        #ap-auth-modal[data-mode="forgot"] .ap-mode-forgot { display: block !important; }
+        #ap-auth-modal[data-mode="forgot"] .ap-mode-login,
+        #ap-auth-modal[data-mode="forgot"] .ap-mode-register,
+        #ap-auth-modal[data-mode="forgot"] .ap-not-forgot,
+        #ap-auth-modal[data-mode="forgot"] .ap-forgot-wrap { display: none !important; }
+        
+        #ap-auth-modal[data-mode="forgot"] .ap-auth-submit-btn {
+            background: linear-gradient(135deg, #b5c6ff 0%, #9cb0ff 100%) !important;
+            color: #0c0f1d !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 8px 22px rgba(156, 176, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+            text-shadow: none !important;
+        }
+        #ap-auth-modal[data-mode="forgot"] .ap-auth-submit-btn:hover {
+            background: linear-gradient(135deg, #c7d5ff 0%, #adbfff 100%) !important;
+            box-shadow: 0 12px 28px rgba(156, 176, 255, 0.5), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+        }
+
         /* ── Light Mode Overrides ── */
         html.light-mode #ap-auth-backdrop {
-            background: rgba(40, 32, 20, 0.55) !important;
-            backdrop-filter: blur(12px) saturate(140%) !important;
-            -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+            background: rgba(30, 24, 15, 0.6) !important;
         }
         html.light-mode #ap-auth-modal {
             background: #faf7f2 !important;
@@ -384,16 +477,6 @@
             font-size: 14px !important;
             font-weight: 500 !important;
         }
-        html.light-mode .ap-auth-input::-webkit-input-placeholder,
-        html.light-mode input.ap-auth-input::-webkit-input-placeholder,
-        html.light-mode #ap-auth-modal input::-webkit-input-placeholder,
-        html.light-mode #ap-auth-form input::-webkit-input-placeholder {
-            color: #57534e !important;
-            -webkit-text-fill-color: #57534e !important;
-            opacity: 1 !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-        }
         html.light-mode .ap-auth-input:focus,
         html.light-mode input.ap-auth-input:focus,
         html.light-mode #ap-auth-modal input:focus {
@@ -404,22 +487,21 @@
             -webkit-text-fill-color: #1c1917 !important;
             box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2) !important;
         }
-        html.light-mode input.ap-auth-input:-webkit-autofill {
-            -webkit-text-fill-color: #1c1917 !important;
-            -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
-        }
         html.light-mode .ap-pwd-toggle-btn { color: #57534e !important; }
         html.light-mode .ap-pwd-toggle-btn:hover { color: #d97706 !important; }
         html.light-mode .ap-auth-tabs-wrap {
             background: #eae3d5 !important;
             border: 1px solid #d6cebf !important;
         }
-        html.light-mode .ap-auth-tab-btn { color: #57534e !important; }
-        html.light-mode .ap-auth-tab-btn.active {
+        html.light-mode .ap-tab-slider-pill {
             background: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(78, 64, 45, 0.15) !important;
+        }
+        html.light-mode .ap-auth-tab-btn { color: #57534e !important; }
+        html.light-mode #ap-auth-modal[data-mode="login"] .ap-auth-tab-btn.tab-login,
+        html.light-mode #ap-auth-modal[data-mode="register"] .ap-auth-tab-btn.tab-register {
             color: #1c1917 !important;
             font-weight: 800 !important;
-            box-shadow: 0 2px 8px rgba(78, 64, 45, 0.12) !important;
         }
         html.light-mode .ap-auth-subtitle { color: #57534e !important; }
         html.light-mode .ap-gold-link { color: #b45309 !important; font-weight: 700 !important; }
@@ -449,15 +531,13 @@
             box-shadow: 0 6px 18px rgba(217, 119, 6, 0.5) !important;
         }
         html.light-mode .ap-auth-poster-title,
-        html.light-mode #ap-auth-modal .ap-auth-poster-title,
-        html.light-mode #ap-auth-poster-title {
+        html.light-mode #ap-auth-modal .ap-auth-poster-title {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8) !important;
         }
         html.light-mode .ap-auth-poster-sub,
-        html.light-mode #ap-auth-modal .ap-auth-poster-sub,
-        html.light-mode #ap-auth-poster-sub {
+        html.light-mode #ap-auth-modal .ap-auth-poster-sub {
             color: rgba(255, 255, 255, 0.95) !important;
             -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
             text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8) !important;
@@ -466,22 +546,8 @@
         document.head.appendChild(s);
     }
 
-    // Dynamic Poster Image preloader (Defaults to Doraemon Nobita movie poster)
-    let dynamicPosterURL = 'https://vsmov.com/storage/images/pxd9rc03EMMln3tVFdfd427Fpsi.jpg';
-    if (typeof window !== 'undefined') {
-        setTimeout(async () => {
-            try {
-                const metaImg = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
-                if (metaImg && metaImg.startsWith('http') && !metaImg.includes('logo') && !metaImg.includes('mascot')) {
-                    dynamicPosterURL = metaImg;
-                    const leftPanels = document.querySelectorAll('.ap-auth-left');
-                    leftPanels.forEach(p => {
-                        p.style.backgroundImage = `linear-gradient(to bottom, rgba(15, 18, 30, 0.05) 0%, rgba(15, 18, 30, 0.25) 45%, rgba(15, 18, 30, 0.72) 100%), url('${dynamicPosterURL}')`;
-                    });
-                }
-            } catch(e) {}
-        }, 100);
-    }
+    // Cinema Poster Image
+    const defaultPosterURL = '/images/auth-poster-doraemon.jpg';
 
     // Toggle Password Visibility
     window.apTogglePassword = function (inputId, btnEl) {
@@ -500,87 +566,45 @@
             </svg>`;
     };
 
-    let currentAuthMode = 'login';
-
+    /**
+     * Instant 0ms Tab Switcher
+     */
     function switchAuthTab(mode) {
+        if (currentAuthMode === mode) return;
         currentAuthMode = mode;
-        const isLogin    = mode === 'login';
-        const isRegister = mode === 'register';
-        const isForgot   = mode === 'forgot';
+        const modal = document.getElementById('ap-auth-modal');
+        if (!modal) return;
 
-        // Update tab buttons (neither active if forgot)
-        const tabLogin    = document.getElementById('ap-tab-login');
-        const tabRegister = document.getElementById('ap-tab-register');
-        if (tabLogin)    tabLogin.className    = `ap-auth-tab-btn ${isLogin ? 'active' : ''}`;
-        if (tabRegister) tabRegister.className = `ap-auth-tab-btn ${isRegister ? 'active' : ''}`;
+        // 1. Instant CSS data-mode attribute switch
+        modal.setAttribute('data-mode', mode);
 
-        // Update subtitle text
-        const subtitleEl = document.getElementById('ap-auth-subtitle-wrap');
-        if (subtitleEl) {
-            if (isForgot) {
-                subtitleEl.innerHTML = 'Nhập email đã đăng ký để nhận liên kết khôi phục, hoặc <a id="ap-switch-to-login" class="ap-gold-link" onclick="window.switchAuthTab(\'login\')">quay lại đăng nhập</a>';
-            } else if (isLogin) {
-                subtitleEl.innerHTML = 'Nếu bạn chưa có tài khoản, <a id="ap-switch-to-register" class="ap-gold-link" onclick="window.switchAuthTab(\'register\')">đăng ký ngay</a>';
-            } else {
-                subtitleEl.innerHTML = 'Nếu bạn đã có tài khoản, <a id="ap-switch-to-login" class="ap-gold-link" onclick="window.switchAuthTab(\'login\')">đăng nhập ngay</a>';
-            }
-        }
-
-        // Update poster left column text dynamically
-        const posterTitle = document.getElementById('ap-auth-poster-title');
-        const posterSub   = document.getElementById('ap-auth-poster-sub');
-        if (posterTitle) {
-            posterTitle.textContent = isForgot
-                ? 'KHÔI PHỤC MẬT KHẨU'
-                : (isLogin ? 'CHÀO MỪNG BẠN ĐẾN VỚI A PHIM' : 'GIA NHẬP CỘNG ĐỒNG A PHIM');
-        }
-        if (posterSub) {
-            posterSub.textContent = isForgot
-                ? 'Điền email của bạn để nhận liên kết tạo lại mật khẩu mới.'
-                : (isLogin ? 'Thỏa sức thưởng thức hàng ngàn bộ phim Vietsub HD chất lượng cao mỗi ngày.' : 'Tạo tài khoản miễn phí để lưu phim hay và thảo luận cùng bạn bè.');
-        }
-
-        // Toggle form fields
-        const nameField     = document.getElementById('ap-field-name-wrap');
-        const passwordField = document.getElementById('ap-field-password-wrap');
-        const confirmField  = document.getElementById('ap-field-confirm-wrap');
-        const forgotWrap    = document.getElementById('ap-forgot-wrap');
-        const submitBtn     = document.getElementById('ap-auth-submit-btn');
-        const emailInput    = document.getElementById('ap-field-email');
-        const passwordInput = document.getElementById('ap-field-password');
-
-        if (nameField)     nameField.style.display     = isRegister ? 'block' : 'none';
-        if (passwordField) passwordField.style.display = isForgot ? 'none' : 'block';
-        if (confirmField)  confirmField.style.display  = isRegister ? 'block' : 'none';
-        if (forgotWrap)    forgotWrap.style.display    = isLogin ? 'flex' : 'none';
-
-        if (submitBtn) {
-            if (isForgot) {
-                submitBtn.textContent = 'Gửi yêu cầu';
-                submitBtn.classList.add('is-forgot');
-            } else {
-                submitBtn.textContent = isLogin ? 'Đăng nhập' : 'Đăng ký';
-                submitBtn.classList.remove('is-forgot');
-            }
-        }
-
-        if (emailInput) {
-            emailInput.placeholder = isForgot ? 'hungcao993@gmail.com' : (isLogin ? 'Nhập email của bạn' : 'Email');
-        }
-        if (passwordInput) {
-            if (isForgot) passwordInput.removeAttribute('required');
-            else passwordInput.setAttribute('required', 'required');
-        }
-
-        if (isLogin) {
-            populateSavedLoginInfo();
-        }
-
-        // Clear error/success msg
+        // 2. Clear error/success
         const msgEl = document.getElementById('ap-auth-msg');
         if (msgEl) {
             msgEl.className = 'ap-auth-msg';
             msgEl.textContent = '';
+        }
+
+        // 3. Fast Input prefill & state
+        const emailInput    = document.getElementById('ap-field-email');
+        const passwordInput = document.getElementById('ap-field-password');
+
+        if (mode === 'forgot') {
+            if (passwordInput) passwordInput.removeAttribute('required');
+            if (emailInput) emailInput.placeholder = 'hungcao993@gmail.com';
+        } else if (mode === 'register') {
+            if (passwordInput) passwordInput.setAttribute('required', 'required');
+            if (emailInput) emailInput.placeholder = 'Email';
+        } else {
+            // mode === 'login'
+            if (passwordInput) passwordInput.setAttribute('required', 'required');
+            if (emailInput) {
+                emailInput.placeholder = 'Nhập email của bạn';
+                if (!emailInput.value && _cachedEmail) emailInput.value = _cachedEmail;
+            }
+            if (passwordInput && !passwordInput.value && _cachedPass) {
+                passwordInput.value = _cachedPass;
+            }
         }
     }
     window.switchAuthTab = switchAuthTab;
@@ -589,23 +613,20 @@
     function populateSavedLoginInfo(backdrop) {
         if (!backdrop) backdrop = document.getElementById('ap-auth-backdrop');
         if (!backdrop) return;
-        try {
-            const savedEmail = localStorage.getItem('ap_saved_login_email') || localStorage.getItem('cinestream_last_email') || '';
-            const savedPass  = localStorage.getItem('ap_saved_login_pass') || '';
-            const emailInput = backdrop.querySelector('#ap-field-email');
-            const passInput  = backdrop.querySelector('#ap-field-password');
-            const remInput   = backdrop.querySelector('#ap-field-remember');
+        loadSavedCredentials();
+        const emailInput = backdrop.querySelector('#ap-field-email');
+        const passInput  = backdrop.querySelector('#ap-field-password');
+        const remInput   = backdrop.querySelector('#ap-field-remember');
 
-            if (savedEmail && emailInput && !emailInput.value) {
-                emailInput.value = savedEmail;
-            }
-            if (savedPass && passInput && !passInput.value) {
-                passInput.value = savedPass;
-            }
-            if (remInput) {
-                remInput.checked = true;
-            }
-        } catch (e) {}
+        if (_cachedEmail && emailInput && !emailInput.value) {
+            emailInput.value = _cachedEmail;
+        }
+        if (_cachedPass && passInput && !passInput.value) {
+            passInput.value = _cachedPass;
+        }
+        if (remInput) {
+            remInput.checked = true;
+        }
     }
 
     // Build & Open Modal Box
@@ -617,20 +638,18 @@
         }
 
         injectStyles();
+        loadSavedCredentials();
         currentAuthMode = mode || 'login';
-        const isLogin    = currentAuthMode === 'login';
-        const isRegister = currentAuthMode === 'register';
-        const isForgot   = currentAuthMode === 'forgot';
 
-        const dynamicPosterURL = window.AUTH_MODAL_POSTER || 'https://vsmov.com/storage/images/pxd9rc03EMMln3tVFdfd427Fpsi.jpg';
+        const posterURL = window.AUTH_MODAL_POSTER || defaultPosterURL;
 
         backdrop = document.createElement('div');
         backdrop.id = 'ap-auth-backdrop';
 
         backdrop.innerHTML = `
-        <div id="ap-auth-modal">
+        <div id="ap-auth-modal" data-mode="${currentAuthMode}">
             <!-- Left Poster Column (Desktop) -->
-            <div class="ap-auth-left" style="background: linear-gradient(to bottom, rgba(15, 18, 30, 0.1) 0%, rgba(15, 18, 30, 0.4) 45%, rgba(15, 18, 30, 0.85) 100%), url('${dynamicPosterURL}') center / cover no-repeat;">
+            <div class="ap-auth-left" style="background: linear-gradient(to bottom, rgba(15, 18, 30, 0.1) 0%, rgba(15, 18, 30, 0.4) 45%, rgba(15, 18, 30, 0.85) 100%), url('${posterURL}') center / cover no-repeat;">
                 <div class="ap-auth-brand-logo">
                     <picture>
                         <source srcset="/logo-aphim1.webp" type="image/webp" />
@@ -639,8 +658,21 @@
                 </div>
 
                 <div class="ap-auth-poster-text">
-                    <h3 class="ap-auth-poster-title" id="ap-auth-poster-title">${isForgot ? 'KHÔI PHỤC MẬT KHẨU' : (isLogin ? 'CHÀO MỪNG BẠN ĐẾN VỚI A PHIM' : 'GIA NHẬP CỘNG ĐỒNG A PHIM')}</h3>
-                    <p class="ap-auth-poster-sub" id="ap-auth-poster-sub">${isForgot ? 'Điền email của bạn để nhận liên kết tạo lại mật khẩu mới.' : (isLogin ? 'Thỏa sức thưởng thức hàng ngàn bộ phim Vietsub HD chất lượng cao mỗi ngày.' : 'Tạo tài khoản miễn phí để lưu phim hay và thảo luận cùng bạn bè.')}</p>
+                    <!-- Login Poster Text -->
+                    <div class="ap-mode-login">
+                        <h3 class="ap-auth-poster-title">CHÀO MỪNG BẠN ĐẾN VỚI A PHIM</h3>
+                        <p class="ap-auth-poster-sub">Thỏa sức thưởng thức hàng ngàn bộ phim Vietsub HD chất lượng cao mỗi ngày.</p>
+                    </div>
+                    <!-- Register Poster Text -->
+                    <div class="ap-mode-register">
+                        <h3 class="ap-auth-poster-title">GIA NHẬP CỘNG ĐỒNG A PHIM</h3>
+                        <p class="ap-auth-poster-sub">Tạo tài khoản miễn phí để lưu phim hay và thảo luận cùng bạn bè.</p>
+                    </div>
+                    <!-- Forgot Poster Text -->
+                    <div class="ap-mode-forgot">
+                        <h3 class="ap-auth-poster-title">KHÔI PHỤC MẬT KHẨU</h3>
+                        <p class="ap-auth-poster-sub">Điền email của bạn để nhận liên kết tạo lại mật khẩu mới.</p>
+                    </div>
                 </div>
             </div>
 
@@ -648,39 +680,42 @@
             <div class="ap-auth-right">
                 <button class="ap-auth-close" id="ap-auth-close-btn" aria-label="Đóng">&times;</button>
 
-                <!-- Segmented Pill Tabs Switcher -->
+                <!-- Segmented Sliding Pill Tabs Switcher -->
                 <div class="ap-auth-tabs-wrap">
-                    <button type="button" class="ap-auth-tab-btn ${isLogin ? 'active' : ''}" id="ap-tab-login" onclick="window.switchAuthTab('login')">Đăng nhập</button>
-                    <button type="button" class="ap-auth-tab-btn ${isRegister ? 'active' : ''}" id="ap-tab-register" onclick="window.switchAuthTab('register')">Đăng ký</button>
+                    <div class="ap-tab-slider-pill"></div>
+                    <button type="button" class="ap-auth-tab-btn tab-login" data-tab-action="login">Đăng nhập</button>
+                    <button type="button" class="ap-auth-tab-btn tab-register" data-tab-action="register">Đăng ký</button>
                 </div>
 
-                <!-- Subtitle Link -->
-                <p class="ap-auth-subtitle" id="ap-auth-subtitle-wrap">
-                    ${isForgot
-                        ? 'Nhập email đã đăng ký để nhận liên kết khôi phục, hoặc <a id="ap-switch-to-login" class="ap-gold-link" onclick="window.switchAuthTab(\'login\')">quay lại đăng nhập</a>'
-                        : (isLogin
-                            ? 'Nếu bạn chưa có tài khoản, <a id="ap-switch-to-register" class="ap-gold-link" onclick="window.switchAuthTab(\'register\')">đăng ký ngay</a>'
-                            : 'Nếu bạn đã có tài khoản, <a id="ap-switch-to-login" class="ap-gold-link" onclick="window.switchAuthTab(\'login\')">đăng nhập ngay</a>'
-                          )
-                    }
-                </p>
+                <!-- Subtitle Links (Declarative 0ms Switch) -->
+                <div class="ap-auth-subtitle" id="ap-auth-subtitle-wrap">
+                    <div class="ap-mode-login">
+                        Nếu bạn chưa có tài khoản, <button type="button" class="ap-gold-link" data-tab-action="register">đăng ký ngay</button>
+                    </div>
+                    <div class="ap-mode-register">
+                        Nếu bạn đã có tài khoản, <button type="button" class="ap-gold-link" data-tab-action="login">đăng nhập ngay</button>
+                    </div>
+                    <div class="ap-mode-forgot">
+                        Nhập email đã đăng ký để nhận liên kết khôi phục, hoặc <button type="button" class="ap-gold-link" data-tab-action="login">quay lại đăng nhập</button>
+                    </div>
+                </div>
 
                 <div class="ap-auth-msg" id="ap-auth-msg"></div>
 
                 <form id="ap-auth-form" autocomplete="on">
                     <!-- Tên hiển thị (Chỉ hiện khi Đăng ký) -->
-                    <div class="ap-auth-field" id="ap-field-name-wrap" style="display: ${isRegister ? 'block' : 'none'};">
-                        <input class="ap-auth-input" type="text" id="ap-field-name" name="name" autocomplete="name" placeholder="Tên hiển thị">
+                    <div class="ap-auth-field ap-mode-register" id="ap-field-name-wrap">
+                        <input class="ap-auth-input" type="text" id="ap-field-name" name="name" autocomplete="name" placeholder="Tên hiển thị" spellcheck="false" autocorrect="off" autocapitalize="none" data-gramm="false">
                     </div>
 
-                    <!-- Email -->
-                    <div class="ap-auth-field">
-                        <input class="ap-auth-input" type="email" id="ap-field-email" name="email" autocomplete="username email" placeholder="${isForgot ? 'hungcao993@gmail.com' : (isLogin ? 'Nhập email của bạn' : 'Email')}" required>
+                    <!-- Email (Luôn hiện) -->
+                    <div class="ap-auth-field" id="ap-field-email-wrap">
+                        <input class="ap-auth-input" type="email" id="ap-field-email" name="email" autocomplete="username email" placeholder="${currentAuthMode === 'forgot' ? 'hungcao993@gmail.com' : (currentAuthMode === 'login' ? 'Nhập email của bạn' : 'Email')}" spellcheck="false" autocorrect="off" autocapitalize="none" data-gramm="false" required>
                     </div>
 
-                    <!-- Mật khẩu -->
-                    <div class="ap-auth-field" id="ap-field-password-wrap" style="display: ${isForgot ? 'none' : 'block'};">
-                        <input class="ap-auth-input" type="password" id="ap-field-password" name="password" autocomplete="current-password" placeholder="Mật khẩu" ${isForgot ? '' : 'required'}>
+                    <!-- Mật khẩu (Hiện khi Login & Register) -->
+                    <div class="ap-auth-field ap-not-forgot" id="ap-field-password-wrap">
+                        <input class="ap-auth-input" type="password" id="ap-field-password" name="password" autocomplete="current-password" placeholder="Mật khẩu" spellcheck="false" autocorrect="off" autocapitalize="none" data-gramm="false" required>
                         <button type="button" class="ap-pwd-toggle-btn" onclick="window.apTogglePassword('ap-field-password', this)" aria-label="Ẩn hiện mật khẩu">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -690,8 +725,8 @@
                     </div>
 
                     <!-- Nhập lại mật khẩu (Chỉ hiện khi Đăng ký) -->
-                    <div class="ap-auth-field" id="ap-field-confirm-wrap" style="display: ${isRegister ? 'block' : 'none'};">
-                        <input class="ap-auth-input" type="password" id="ap-field-confirm" name="confirm_password" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
+                    <div class="ap-auth-field ap-mode-register" id="ap-field-confirm-wrap">
+                        <input class="ap-auth-input" type="password" id="ap-field-confirm" name="confirm_password" autocomplete="new-password" placeholder="Nhập lại mật khẩu" spellcheck="false" autocorrect="off" autocapitalize="none" data-gramm="false">
                         <button type="button" class="ap-pwd-toggle-btn" onclick="window.apTogglePassword('ap-field-confirm', this)" aria-label="Ẩn hiện mật khẩu">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -701,16 +736,19 @@
                     </div>
 
                     <!-- Ghi nhớ & Quên mật khẩu (Chỉ hiện khi Đăng nhập) -->
-                    <div class="ap-forgot-wrap" id="ap-forgot-wrap" style="display: ${isLogin ? 'flex' : 'none'}; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 14px;">
-                        <label id="ap-field-remember-label" for="ap-field-remember" style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; user-select: none;">
-                            <input type="checkbox" id="ap-field-remember" name="remember" checked style="cursor: pointer; width: 16px; height: 16px; margin: 0;">
-                            <span style="cursor: pointer;">Ghi nhớ đăng nhập</span>
+                    <div class="ap-forgot-wrap ap-mode-login" id="ap-forgot-wrap">
+                        <label id="ap-field-remember-label" for="ap-field-remember">
+                            <input type="checkbox" id="ap-field-remember" name="remember" checked>
+                            <span>Ghi nhớ đăng nhập</span>
                         </label>
-                        <a class="ap-forgot-link" id="ap-forgot-link" onclick="window.switchAuthTab('forgot')">Quên mật khẩu?</a>
+                        <button type="button" class="ap-forgot-link" id="ap-forgot-link" data-tab-action="forgot">Quên mật khẩu?</button>
                     </div>
 
-                    <button class="ap-auth-submit-btn ${isForgot ? 'is-forgot' : ''}" type="submit" id="ap-auth-submit-btn">
-                        ${isForgot ? 'Gửi yêu cầu' : (isLogin ? 'Đăng nhập' : 'Đăng ký')}
+                    <!-- Submit Button -->
+                    <button class="ap-auth-submit-btn" type="submit" id="ap-auth-submit-btn">
+                        <span class="ap-mode-login">Đăng nhập</span>
+                        <span class="ap-mode-register">Đăng ký</span>
+                        <span class="ap-mode-forgot">Gửi yêu cầu</span>
                     </button>
                 </form>
             </div>
@@ -719,24 +757,34 @@
         document.body.appendChild(backdrop);
         document.body.classList.add("ap-modal-open");
 
-        // Pre-fill credentials if available
-        if (isLogin) {
+        if (currentAuthMode === 'login') {
             populateSavedLoginInfo(backdrop);
         }
 
-        // Event: Backdrop click close
-        backdrop.addEventListener('click', (e) => {
-            if (e.target === backdrop) removeModal(backdrop);
-        });
+        // Instant Touch / Pointer / Click Handling for 0ms tab transitions
+        const handleTabTrigger = (e) => {
+            const actionBtn = e.target.closest('[data-tab-action]');
+            if (actionBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const targetTab = actionBtn.getAttribute('data-tab-action');
+                switchAuthTab(targetTab);
+            }
+        };
 
-        // Close button click
-        const closeBtn = backdrop.querySelector('#ap-auth-close-btn');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
+        backdrop.addEventListener('pointerdown', handleTabTrigger, { passive: false });
+        backdrop.addEventListener('click', (e) => {
+            if (e.target === backdrop) {
+                removeModal(backdrop);
+                return;
+            }
+            const closeBtn = e.target.closest('#ap-auth-close-btn');
+            if (closeBtn) {
+                e.preventDefault();
                 e.stopPropagation();
                 removeModal(backdrop);
-            });
-        }
+            }
+        });
 
         // Keyboard ESC close
         document._apModalEsc = (e) => {
@@ -744,20 +792,15 @@
         };
         document.addEventListener('keydown', document._apModalEsc);
 
-        // Focus first input
-        setTimeout(() => {
-            const emailInput = backdrop.querySelector('#ap-field-email');
-            const passwordInput = backdrop.querySelector('#ap-field-password');
-            if (emailInput && emailInput.value && passwordInput && !passwordInput.value) {
-                passwordInput.focus();
-            } else if (emailInput && !emailInput.value) {
-                emailInput.focus();
-            }
-        }, 100);
-
-        // Form Submit listener
+        // Form Submit & Key Event Isolation (Stops background search/hotkey interference while typing)
         const form = backdrop.querySelector('#ap-auth-form');
         if (form) {
+            form.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape' && e.key !== 'Tab' && e.key !== 'Enter') {
+                    e.stopPropagation();
+                }
+            }, { passive: true });
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 await handleSubmit(backdrop);
@@ -771,14 +814,13 @@
         const msgEl = backdrop.querySelector('#ap-auth-msg');
         const email = (backdrop.querySelector('#ap-field-email')?.value || '').trim();
 
-        // Handle Forgot Password mode
         if (currentAuthMode === 'forgot') {
             if (!email) {
                 showMsg(msgEl, 'Vui lòng nhập email của bạn', 'error');
                 return;
             }
             btn.disabled = true;
-            const originalText = btn.textContent;
+            const originalText = btn.innerHTML;
             btn.textContent = 'Đang gửi yêu cầu...';
             msgEl.className = 'ap-auth-msg';
 
@@ -797,6 +839,7 @@
                     setTimeout(() => {
                         window.switchAuthTab('login');
                         btn.disabled = false;
+                        btn.innerHTML = originalText;
                     }, 2500);
                 } else {
                     showMsg(msgEl, result.message || 'Không thể gửi yêu cầu, vui lòng thử lại', 'error');
@@ -818,7 +861,7 @@
         }
 
         btn.disabled = true;
-        const originalText = btn.textContent;
+        const originalText = btn.innerHTML;
         btn.textContent = isLogin ? 'Đang xử lý đăng nhập...' : 'Đang xử lý đăng ký...';
         msgEl.className = 'ap-auth-msg';
 
@@ -840,7 +883,6 @@
                     return;
                 }
 
-                // Check từ khóa đặc quyền Admin/BQT
                 const normName = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd');
                 const reservedRegex = /\b(admin|administrator|superadmin|super\s*admin|bqt|quan\s*tri|quan\s*tri\s*vien|ban\s*quan\s*tri|moderator|mod\s*aphim|he\s*thong|system)\b/i;
                 if (reservedRegex.test(normName) || normName.includes('admin') || normName.includes('bqt') || normName.includes('quan tri vien')) {
@@ -868,7 +910,6 @@
             }
 
             if (result.success) {
-                // Save credentials if Remember Me is active
                 const rememberMe = backdrop.querySelector('#ap-field-remember')?.checked ?? true;
                 try {
                     localStorage.setItem('ap_saved_login_email', email);
@@ -877,6 +918,8 @@
                     } else {
                         localStorage.removeItem('ap_saved_login_pass');
                     }
+                    _cachedEmail = email;
+                    _cachedPass  = rememberMe ? password : '';
                 } catch (e) {}
 
                 showMsg(msgEl, isLogin ? '✓ Đăng nhập thành công!' : '✓ Đăng ký thành công!', 'success');
@@ -890,7 +933,7 @@
                     if (typeof window.rebuildBottomNav === 'function') {
                         window.rebuildBottomNav();
                     }
-                }, 700);
+                }, 600);
             } else {
                 showMsg(msgEl, result.message || 'Thất bại, vui lòng thử lại', 'error');
                 resetBtn(btn, originalText);
@@ -907,9 +950,9 @@
         msgEl.className   = 'ap-auth-msg ' + type;
     }
 
-    function resetBtn(btn, text) {
-        btn.disabled    = false;
-        btn.textContent = text;
+    function resetBtn(btn, originalHTML) {
+        btn.disabled  = false;
+        btn.innerHTML = originalHTML;
     }
 
     function removeModal(specificBackdrop) {
@@ -920,7 +963,7 @@
         el.style.opacity = '0';
         const modal = el.querySelector('#ap-auth-modal');
         if (modal) {
-            modal.style.transform = 'scale(0.94) translateY(20px)';
+            modal.style.transform = 'translate3d(0, 10px, 0) scale(0.97)';
         }
 
         setTimeout(() => {
@@ -932,7 +975,7 @@
                 document.removeEventListener('keydown', document._apModalEsc);
                 delete document._apModalEsc;
             }
-        }, 250);
+        }, 160);
     }
 
     // Public API
@@ -947,7 +990,7 @@
         createModal(mode || 'login');
     };
 
-    // Global Click Interceptor (Intercepts any login/register/profile action when logged out)
+    // Global Click Interceptor
     if (!_isAuthPage) {
         document.addEventListener('click', function (e) {
             if (e.target.closest('#ap-auth-modal')) return;
@@ -955,7 +998,6 @@
             const el = e.target.closest('a, button, [role="button"], .sofa-login-rect-btn, .nav-auth-btn, .mm-user-wrap, .bn-tab-item');
             if (!el) return;
 
-            // If user is ALREADY logged in, allow normal navigation (e.g. to /profile)
             const token = localStorage.getItem('cinestream_token');
             const user  = (typeof authService !== 'undefined' && authService.getCurrentUser) ? authService.getCurrentUser() : null;
             if (token || user) return;

@@ -118,6 +118,7 @@
     }
 
     document.addEventListener('touchstart', function (e) {
+        if (e.target.closest('#ap-auth-modal, #ap-auth-backdrop')) return;
         var target = e.target.closest('a[href], [data-href], .mm-card-item[href], .mm-nav-full[href]');
         if (!target) return;
 

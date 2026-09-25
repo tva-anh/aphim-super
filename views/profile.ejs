@@ -2439,6 +2439,8 @@
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+        line-height: 1.4 !important;
+        min-height: 30px !important;
         background: rgba(255, 255, 255, 0.06) !important;
         color: #94a3b8 !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -2454,6 +2456,26 @@
         color: #1a1000 !important;
         border: none !important;
         box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3) !important;
+      }
+
+      /* Desktop Cinema Header: Clean borderless unified header & centered genre pills */
+      @media (min-width: 769px) {
+        .panel-sub-header.cinema-sub-header {
+          border-bottom: none !important;
+          border-top: none !important;
+          border: none !important;
+          padding: 22px 24px 14px !important;
+        }
+        .panel-sub-header.cinema-sub-header + .cine-genre-scroll-bar,
+        .cine-genre-scroll-bar {
+          padding: 16px 24px 22px !important;
+          margin-top: 6px !important;
+          border-bottom: none !important;
+          border-top: none !important;
+          border: none !important;
+          background: transparent !important;
+          justify-content: center !important;
+        }
       }
 
       @media (max-width: 600px) {
@@ -3108,35 +3130,37 @@
         border-color: #fde68a !important;
       }
 
-      /* Dual Tab Switcher */
+      /* ══════════════════════════════════════════════════════════════
+         💎 DUAL TAB SWITCHER (Enterprise Glass Dock)
+         ══════════════════════════════════════════════════════════════ */
       .lb-nav-switcher {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 6px;
-        margin-bottom: 18px;
+        margin-bottom: 20px;
         background: rgba(13, 17, 28, 0.75);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
         padding: 5px;
         border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45), 0 6px 24px rgba(0, 0, 0, 0.25);
         width: 100%;
         box-sizing: border-box;
       }
       html.light-mode .lb-nav-switcher {
         background: #f1ede4 !important;
         border-color: #e5dfd2 !important;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.04);
       }
       .lb-switch-btn {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 10px 14px;
+        padding: 11px 16px;
         border-radius: 12px;
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 800;
         letter-spacing: -0.2px;
         border: none;
@@ -3151,48 +3175,47 @@
       }
       .lb-switch-btn svg {
         flex-shrink: 0;
-        transition: transform 0.25s ease;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .lb-switch-btn:hover svg {
-        transform: scale(1.12);
-      }
-      .lb-switch-btn span {
-        white-space: nowrap;
+        transform: scale(1.14);
       }
       .lb-switch-btn.inactive {
         background: transparent;
         color: #94a3b8;
       }
       .lb-switch-btn.inactive:hover {
-        background: rgba(255, 255, 255, 0.04);
-        color: #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
+        color: #f8fafc;
       }
       html.light-mode .lb-switch-btn.inactive {
         color: #64748b !important;
       }
       html.light-mode .lb-switch-btn.inactive:hover {
         background: rgba(0, 0, 0, 0.05);
-        color: #1c1917 !important;
+        color: #0f172a !important;
       }
       .lb-switch-btn.active-badges {
         background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%);
         color: #111827;
-        box-shadow: 0 4px 18px rgba(245, 158, 11, 0.42), 0 0 0 1px rgba(253, 224, 71, 0.3);
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.45), 0 0 0 1px rgba(253, 224, 71, 0.35);
       }
       .lb-switch-btn.active-lb {
         background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
         color: #ffffff;
-        box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.35);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.35);
       }
 
-      /* Leaderboard Sub-Header & Realtime Pulse */
+      /* ══════════════════════════════════════════════════════════════
+         👑 SUB-HEADER & REALTIME PULSE
+         ══════════════════════════════════════════════════════════════ */
       .lb-sub-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 14px;
+        gap: 12px;
+        margin-bottom: 16px;
       }
       .lb-live-dot {
         width: 7px;
@@ -3200,24 +3223,26 @@
         border-radius: 50%;
         background: #10b981;
         display: inline-block;
-        box-shadow: 0 0 8px #10b981;
+        box-shadow: 0 0 10px #10b981;
         animation: lbDotPulse 2s infinite;
       }
       @keyframes lbDotPulse {
         0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.3); opacity: 0.6; }
+        50% { transform: scale(1.35); opacity: 0.6; }
       }
 
-      /* Timeframe filter bar */
+      /* ══════════════════════════════════════════════════════════════
+         ⏳ TIMEFRAME SELECTOR & REWARD BANNER
+         ══════════════════════════════════════════════════════════════ */
       .lb-filter-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 12px;
+        margin-bottom: 22px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
       }
       html.light-mode .lb-filter-bar {
         border-bottom-color: #e5dfd2;
@@ -3225,19 +3250,20 @@
       .lb-tf-group {
         display: inline-flex;
         gap: 6px;
-        background: rgba(15, 23, 42, 0.5);
+        background: rgba(15, 23, 42, 0.55);
         padding: 4px;
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
       }
       html.light-mode .lb-tf-group {
         background: #f1ede4;
         border-color: #e5dfd2;
       }
       .lb-tf-btn {
-        padding: 7px 14px;
+        padding: 7px 15px;
         border-radius: 9px;
-        font-size: 12px;
+        font-size: 12.5px;
         font-weight: 700;
         border: 1px solid transparent;
         background: transparent;
@@ -3255,17 +3281,17 @@
         transition: transform 0.2s ease;
       }
       .lb-tf-btn:hover {
-        color: #f1f5f9;
-        background: rgba(255, 255, 255, 0.04);
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.05);
       }
       .lb-tf-btn:hover svg {
         transform: scale(1.15);
       }
       .lb-tf-btn.active {
-        background: rgba(245, 158, 11, 0.15) !important;
+        background: rgba(245, 158, 11, 0.16) !important;
         color: #fcd576 !important;
         border-color: rgba(245, 158, 11, 0.45) !important;
-        box-shadow: 0 2px 10px rgba(245, 158, 11, 0.18);
+        box-shadow: 0 2px 12px rgba(245, 158, 11, 0.2);
       }
       html.light-mode .lb-tf-btn {
         color: #64748b !important;
@@ -3288,23 +3314,25 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-        border: 1px solid rgba(245, 158, 11, 0.28);
-        padding: 5px 12px;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border: 1px solid rgba(245, 158, 11, 0.32);
+        padding: 6px 14px;
         border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
       }
       html.light-mode .lb-reward-tag {
         background: linear-gradient(135deg, #fffbeb 0%, #faf5ff 100%) !important;
         border-color: #fde68a !important;
         color: #57534e !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       }
       .lb-reward-chip {
         color: #fcd576;
         font-weight: 800;
-        background: rgba(245, 158, 11, 0.18);
+        background: rgba(245, 158, 11, 0.2);
         padding: 3px 10px;
         border-radius: 8px;
-        border: 1px solid rgba(245, 158, 11, 0.35);
+        border: 1px solid rgba(245, 158, 11, 0.4);
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -3316,37 +3344,43 @@
         border-color: #fed7aa !important;
       }
 
-      /* 🏆 GRAND 3D PODIUM GRID */
+      /* ══════════════════════════════════════════════════════════════
+         🏆 THE GRAND 3D OLYMPIC PODIUM GRID
+         ══════════════════════════════════════════════════════════════ */
       .lb-podium-grid {
         display: grid;
-        grid-template-columns: 1fr 1.25fr 1fr;
-        gap: 12px;
+        grid-template-columns: 1fr 1.22fr 1fr;
+        gap: 14px;
         align-items: flex-end;
-        margin-bottom: 24px;
-        padding: 16px 0 6px;
+        margin-bottom: 26px;
+        padding: 20px 0 8px;
         width: 100%;
         box-sizing: border-box;
       }
 
-      /* Animations */
+      /* Aura & Floating Animations */
       @keyframes lbCrownFloat {
         0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-5px) rotate(1deg); }
+        50% { transform: translateY(-6px) rotate(1.2deg); }
       }
-      @keyframes lbAuraGlow {
-        0%, 100% { opacity: 0.5; transform: scale(1); }
-        50% { opacity: 0.85; transform: scale(1.06); }
+      @keyframes lbAuraRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes lbGoldPulse {
+        0%, 100% { opacity: 0.55; transform: scale(1); }
+        50% { opacity: 0.85; transform: scale(1.05); }
       }
 
       .lb-podium-crown {
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: lbCrownFloat 3s ease-in-out infinite;
-        transition: transform 0.25s ease;
+        animation: lbCrownFloat 3.2s ease-in-out infinite;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .lb-card-top1:hover .lb-podium-crown {
-        transform: translateY(-8px) scale(1.15);
+        transform: translateY(-9px) scale(1.15);
       }
       .lb-podium-medal {
         display: flex;
@@ -3356,132 +3390,159 @@
       }
       .lb-card-top2:hover .lb-podium-medal,
       .lb-card-top3:hover .lb-podium-medal {
-        transform: translateY(-4px) scale(1.15);
+        transform: translateY(-5px) scale(1.15);
       }
 
-      /* Top 1 Champion Card */
+      /* Rotating Halo Aura behind avatars */
+      .lb-aura-ring {
+        position: absolute;
+        inset: -6px;
+        border-radius: 50%;
+        filter: blur(5px);
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: 0;
+        animation: lbAuraRotate 8s linear infinite;
+      }
+      .aura-gold {
+        background: conic-gradient(from 0deg, #fcd576, #f59e0b, #ef4444, #f59e0b, #fcd576);
+      }
+      .aura-silver {
+        background: conic-gradient(from 0deg, #f8fafc, #94a3b8, #38bdf8, #94a3b8, #f8fafc);
+      }
+      .aura-bronze {
+        background: conic-gradient(from 0deg, #fed7aa, #fb923c, #ea580c, #fb923c, #fed7aa);
+      }
+
+      /* 🥇 TOP 1 CHAMPION CARD */
       .lb-card-top1 {
-        background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.25) 0%, rgba(20, 16, 8, 0.92) 80%);
-        border: 1.5px solid rgba(245, 158, 11, 0.65);
-        border-radius: 20px;
-        padding: 24px 10px 16px;
+        background: radial-gradient(130% 100% at 50% -10%, rgba(245, 158, 11, 0.3) 0%, rgba(28, 20, 10, 0.88) 60%, rgba(13, 17, 28, 0.95) 100%);
+        border: 1.5px solid rgba(245, 158, 11, 0.75);
+        border-radius: 22px;
+        padding: 26px 12px 18px;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
         position: relative;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 28px rgba(245, 158, 11, 0.25);
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 35px rgba(245, 158, 11, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         min-width: 0;
-        min-height: 255px;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        min-height: 275px;
+        transform: translateY(-8px);
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .lb-card-top1::before {
         content: '';
         position: absolute;
         inset: 0;
-        border-radius: 19px;
-        background: radial-gradient(circle at 50% 25%, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+        border-radius: 21px;
+        background: radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
         pointer-events: none;
-        animation: lbAuraGlow 4s ease-in-out infinite;
+        animation: lbGoldPulse 4s ease-in-out infinite;
       }
       .lb-card-top1:hover {
-        transform: translateY(-5px);
-        border-color: rgba(253, 224, 71, 0.9);
-        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 36px rgba(245, 158, 11, 0.4);
+        transform: translateY(-13px);
+        border-color: rgba(253, 224, 71, 0.95);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(245, 158, 11, 0.45);
       }
       html.light-mode .lb-card-top1 {
         background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%) !important;
         border: 2px solid #f59e0b !important;
-        box-shadow: 0 10px 28px rgba(245, 158, 11, 0.22) !important;
+        box-shadow: 0 12px 32px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
       }
 
-      /* Top 2 Silver Card */
+      /* 🥈 TOP 2 SILVER MASTER CARD */
       .lb-card-top2 {
-        background: radial-gradient(circle at 50% 0%, rgba(148, 163, 184, 0.2) 0%, rgba(15, 23, 42, 0.92) 80%);
-        border: 1.5px solid rgba(148, 163, 184, 0.45);
-        border-radius: 18px;
-        padding: 20px 8px 14px;
+        background: radial-gradient(130% 100% at 50% -10%, rgba(148, 163, 184, 0.25) 0%, rgba(15, 23, 42, 0.88) 60%, rgba(10, 15, 26, 0.95) 100%);
+        border: 1.5px solid rgba(203, 213, 225, 0.5);
+        border-radius: 20px;
+        padding: 22px 10px 16px;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
         position: relative;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(148, 163, 184, 0.15);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(148, 163, 184, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         min-width: 0;
-        min-height: 220px;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        min-height: 240px;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .lb-card-top2:hover {
-        transform: translateY(-4px);
-        border-color: rgba(226, 232, 240, 0.8);
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(148, 163, 184, 0.3);
+        transform: translateY(-6px);
+        border-color: rgba(241, 245, 249, 0.85);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.6), 0 0 30px rgba(148, 163, 184, 0.35);
       }
       html.light-mode .lb-card-top2 {
         background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
         border: 1.5px solid #94a3b8 !important;
-        box-shadow: 0 8px 20px rgba(100, 116, 139, 0.15) !important;
+        box-shadow: 0 10px 24px rgba(100, 116, 139, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
       }
 
-      /* Top 3 Bronze Card */
+      /* 🥉 TOP 3 BRONZE MASTER CARD */
       .lb-card-top3 {
-        background: radial-gradient(circle at 50% 0%, rgba(217, 119, 6, 0.2) 0%, rgba(20, 15, 10, 0.92) 80%);
-        border: 1.5px solid rgba(217, 119, 6, 0.45);
-        border-radius: 18px;
-        padding: 20px 8px 14px;
+        background: radial-gradient(130% 100% at 50% -10%, rgba(217, 119, 6, 0.25) 0%, rgba(26, 17, 12, 0.88) 60%, rgba(14, 10, 8, 0.95) 100%);
+        border: 1.5px solid rgba(251, 146, 60, 0.5);
+        border-radius: 20px;
+        padding: 22px 10px 16px;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
         position: relative;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(217, 119, 6, 0.15);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(217, 119, 6, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         min-width: 0;
-        min-height: 210px;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        min-height: 230px;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .lb-card-top3:hover {
-        transform: translateY(-4px);
-        border-color: rgba(251, 146, 60, 0.8);
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(217, 119, 6, 0.3);
+        transform: translateY(-6px);
+        border-color: rgba(253, 186, 116, 0.85);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.6), 0 0 30px rgba(217, 119, 6, 0.35);
       }
       html.light-mode .lb-card-top3 {
         background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%) !important;
         border: 1.5px solid #ea580c !important;
-        box-shadow: 0 8px 20px rgba(234, 88, 12, 0.15) !important;
+        box-shadow: 0 10px 24px rgba(234, 88, 12, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
       }
 
       /* 3D Podium Pedestal Step Bases */
       .lb-pedestal-base {
         width: 100%;
         margin-top: 10px;
-        padding: 5px 0;
-        border-radius: 10px;
+        padding: 6px 0;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
+        font-size: 12.5px;
         font-weight: 900;
-        letter-spacing: 1px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
       }
       .top1-pedestal {
-        background: linear-gradient(180deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.08) 100%);
-        border: 1px solid rgba(245, 158, 11, 0.45);
+        background: linear-gradient(180deg, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0.1) 100%);
+        border: 1px solid rgba(245, 158, 11, 0.6);
         color: #fcd576;
-        text-shadow: 0 1px 6px rgba(245, 158, 11, 0.6);
+        text-shadow: 0 1px 8px rgba(245, 158, 11, 0.6);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(245, 158, 11, 0.15);
       }
       .top2-pedestal {
-        background: linear-gradient(180deg, rgba(148, 163, 184, 0.25) 0%, rgba(148, 163, 184, 0.06) 100%);
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        color: #e2e8f0;
+        background: linear-gradient(180deg, rgba(148, 163, 184, 0.3) 0%, rgba(148, 163, 184, 0.08) 100%);
+        border: 1px solid rgba(203, 213, 225, 0.45);
+        color: #f1f5f9;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
       }
       .top3-pedestal {
-        background: linear-gradient(180deg, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0.06) 100%);
-        border: 1px solid rgba(217, 119, 6, 0.4);
+        background: linear-gradient(180deg, rgba(217, 119, 6, 0.3) 0%, rgba(217, 119, 6, 0.08) 100%);
+        border: 1px solid rgba(251, 146, 60, 0.45);
         color: #fed7aa;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
       }
       html.light-mode .top1-pedestal {
         background: #fef3c7 !important;
         color: #b45309 !important;
         border-color: #f59e0b !important;
+        text-shadow: none !important;
       }
       html.light-mode .top2-pedestal {
         background: #f1f5f9 !important;
@@ -3494,9 +3555,9 @@
         border-color: #fdba74 !important;
       }
 
-      /* Common text in Podium */
+      /* Common Typography in Podium */
       .lb-player-name {
-        font-size: 13.5px;
+        font-size: 14px;
         font-weight: 800;
         color: #ffffff;
         white-space: nowrap;
@@ -3504,14 +3565,15 @@
         text-overflow: ellipsis;
         max-width: 100%;
         margin-top: 4px;
+        letter-spacing: -0.2px;
       }
       html.light-mode .lb-player-name {
         color: #1c1917 !important;
       }
       .lb-player-name.top1-name {
-        font-size: 15px;
+        font-size: 15.5px;
         color: #fcd576;
-        text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        text-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
       }
       html.light-mode .lb-player-name.top1-name {
         color: #b45309 !important;
@@ -3519,7 +3581,7 @@
       }
 
       .lb-xp-txt {
-        font-size: 14px;
+        font-size: 14.5px;
         font-weight: 900;
         color: #38bdf8;
       }
@@ -3527,9 +3589,9 @@
         color: #0284c7 !important;
       }
       .lb-xp-txt.top1-xp {
-        font-size: 16px;
+        font-size: 16.5px;
         color: #fcd576;
-        text-shadow: 0 2px 12px rgba(245, 158, 11, 0.6);
+        text-shadow: 0 2px 14px rgba(245, 158, 11, 0.65);
       }
       html.light-mode .lb-xp-txt.top1-xp {
         color: #d97706 !important;
@@ -3537,9 +3599,9 @@
       }
 
       .lb-sub-meta {
-        font-size: 11px;
+        font-size: 11.5px;
         color: #94a3b8;
-        margin-top: 3px;
+        margin-top: 4px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -3549,49 +3611,53 @@
         color: #57534e !important;
       }
 
-      /* 📋 CONTENDERS ROWS (#4 - #10) */
+      /* ══════════════════════════════════════════════════════════════
+         📋 CONTENDERS ROWS (#4 - #10)
+         ══════════════════════════════════════════════════════════════ */
       .lb-row-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 16px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.025);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 13px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         box-sizing: border-box;
       }
       .lb-row-item:hover {
         transform: translateY(-2px);
-        background: rgba(255, 255, 255, 0.045);
-        border-color: rgba(255, 255, 255, 0.16);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        background: rgba(255, 255, 255, 0.055);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
       }
       .lb-row-item.is-me {
-        background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%) !important;
-        border: 1.5px solid rgba(245, 158, 11, 0.55) !important;
-        box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15) !important;
+        background: linear-gradient(90deg, rgba(245, 158, 11, 0.18) 0%, rgba(99, 102, 241, 0.12) 100%) !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.65) !important;
+        box-shadow: 0 6px 22px rgba(245, 158, 11, 0.2) !important;
       }
       html.light-mode .lb-row-item {
         background: #ffffff !important;
         border: 1px solid #e7e0d3 !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.035);
       }
       html.light-mode .lb-row-item:hover {
-        box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1 !important;
       }
       html.light-mode .lb-row-item.is-me {
         background: linear-gradient(90deg, #fffbeb 0%, #faf5ff 100%) !important;
         border: 1.5px solid #f59e0b !important;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15) !important;
       }
       .lb-row-pos {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -3601,9 +3667,10 @@
         flex-shrink: 0;
       }
       .lb-row-pos.top5 {
-        color: #fcd576;
-        background: rgba(245, 158, 11, 0.12);
-        border-color: rgba(245, 158, 11, 0.35);
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.14);
+        border-color: rgba(16, 185, 129, 0.4);
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
       }
       html.light-mode .lb-row-pos {
         background: #f1ede4 !important;
@@ -3611,17 +3678,17 @@
         color: #57534e !important;
       }
       html.light-mode .lb-row-pos.top5 {
-        background: #fef3c7 !important;
-        border-color: #fde68a !important;
-        color: #b45309 !important;
+        background: #ecfdf5 !important;
+        border-color: #a7f3d0 !important;
+        color: #059669 !important;
       }
       .lb-row-name {
-        font-size: 13.5px;
+        font-size: 14px;
         font-weight: 800;
         color: #ffffff;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 7px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -3636,29 +3703,31 @@
         color: #b45309 !important;
       }
 
-      /* 🎯 STICKY USER POSITION HUD BAR */
+      /* ══════════════════════════════════════════════════════════════
+         🎯 STICKY USER POSITION HUD BAR
+         ══════════════════════════════════════════════════════════════ */
       .lb-my-rank-bar {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(99, 102, 241, 0.14) 100%);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1.5px solid rgba(245, 158, 11, 0.45);
-        border-radius: 18px;
-        padding: 14px 18px;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(99, 102, 241, 0.16) 100%);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1.5px solid rgba(245, 158, 11, 0.5);
+        border-radius: 20px;
+        padding: 14px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 20px rgba(245, 158, 11, 0.15);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(245, 158, 11, 0.18);
         box-sizing: border-box;
       }
       html.light-mode .lb-my-rank-bar {
         background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
         border: 1.5px solid #f59e0b !important;
-        box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2) !important;
+        box-shadow: 0 8px 26px rgba(245, 158, 11, 0.2) !important;
       }
       .lb-my-rank-title {
-        font-size: 13.5px;
+        font-size: 14px;
         font-weight: 800;
         color: #ffffff;
       }
@@ -3666,7 +3735,7 @@
         color: #1c1917 !important;
       }
       .lb-my-rank-sub {
-        font-size: 12px;
+        font-size: 12.5px;
         color: #cbd5e1;
         margin-top: 3px;
       }
@@ -3712,31 +3781,32 @@
         }
         .lb-podium-grid {
           gap: 6px;
-          padding: 10px 0 4px;
+          padding: 12px 0 4px;
         }
         .lb-card-top1 {
-          padding: 18px 4px 12px;
-          min-height: 220px;
+          padding: 20px 4px 12px;
+          min-height: 235px;
+          transform: translateY(-4px);
         }
         .lb-card-top2,
         .lb-card-top3 {
-          padding: 14px 4px 10px;
-          min-height: 190px;
+          padding: 16px 4px 10px;
+          min-height: 205px;
         }
         .lb-player-name {
-          font-size: 11.5px;
-        }
-        .lb-player-name.top1-name {
-          font-size: 12.5px;
-        }
-        .lb-xp-txt {
           font-size: 12px;
         }
+        .lb-player-name.top1-name {
+          font-size: 13px;
+        }
+        .lb-xp-txt {
+          font-size: 12.5px;
+        }
         .lb-xp-txt.top1-xp {
-          font-size: 13.5px;
+          font-size: 14px;
         }
         .lb-sub-meta {
-          font-size: 9.5px;
+          font-size: 10px;
         }
         .achievements-panel-card {
           padding-bottom: 75px !important;
@@ -3970,6 +4040,28 @@
           max-height: calc(100vh - 160px) !important;
           overflow-y: auto !important;
           -webkit-overflow-scrolling: touch;
+        }
+        /* 📱 Mobile Menu Items Spacing (Dãn nhẹ danh mục Thông tin -> Cài đặt tiện ích trên Mobile) */
+        .profile-layout.mobile-view-hub .sidebar-nav,
+        .profile-sidebar .sidebar-nav,
+        html.light-mode .profile-sidebar .sidebar-nav,
+        html.light-mode .profile-layout.mobile-view-hub .sidebar-nav {
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: flex-start !important;
+          gap: 4px !important;
+          padding: 6px 12px 10px !important;
+        }
+        .profile-layout.mobile-view-hub .sidebar-nav-item,
+        .profile-sidebar .sidebar-nav-item,
+        html.light-mode .profile-sidebar .sidebar-nav-item,
+        html.light-mode .profile-layout.mobile-view-hub .sidebar-nav-item {
+          min-height: 38px !important;
+          max-height: none !important;
+          padding: 4px 12px 4px 4px !important;
+          gap: 10px !important;
+          flex: 0 0 auto !important;
+          border-radius: 12px !important;
         }
         .profile-layout.mobile-view-hub .profile-content {
           display: none !important;
@@ -5169,15 +5261,19 @@
 
         try { initSidebar(); } catch(e) {}
 
+        const isTabChange = currentTab !== tab;
         currentTab = tab;
 
-        // Mobile 2-tier architecture: switch from Hub to Detail view
+        // Mobile 2-tier architecture: switch from Hub to Detail view (only when changing tabs)
         if (window.innerWidth < 1024 && !options.keepHub) {
           const layout = document.querySelector('.profile-layout');
           if (layout) {
+            const wasHub = layout.classList.contains('mobile-view-hub');
             layout.classList.remove('mobile-view-hub');
             layout.classList.add('mobile-view-detail');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (wasHub || (isTabChange && !options.preserveScroll)) {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
           }
         }
 
@@ -5186,7 +5282,9 @@
         const activeNav = document.getElementById('snav-' + tab);
         if (activeNav) {
           activeNav.classList.add('active');
-          try { activeNav.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(e){}
+          if (isTabChange) {
+            try { activeNav.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(e){}
+          }
         }
 
         // Update header text
@@ -5567,7 +5665,7 @@
           }).join('');
 
           const headerHtml = `
-            <div class="panel-sub-header">
+            <div class="panel-sub-header cinema-sub-header">
                 <div class="panel-sub-header-left">
                     <h3 class="panel-sub-title">🎬 Lịch chiếu rạp Quốc Gia</h3>
                     <span class="panel-sub-badge">${badgeText}</span>
@@ -10038,28 +10136,56 @@
         const lbTf = window._leaderboardTf || 'weekly';
 
         window.setAchieveSubView = function (view) {
+          if (window._achieveSubView === view) return;
           window._achieveSubView = view;
           const panel = document.getElementById('tabPanel');
-          if (panel) panel.innerHTML = renderAchievements(currentUser);
+          if (panel) {
+            panel.innerHTML = renderAchievements(currentUser);
+          }
           if (view === 'leaderboard' && window.GamificationCore && typeof window.GamificationCore.fetchLeaderboard === 'function') {
-            window.GamificationCore.fetchLeaderboard(window._leaderboardTf || 'weekly').then(() => {
-              if (window._achieveSubView === 'leaderboard') {
+            window.GamificationCore.fetchLeaderboard(window._leaderboardTf || 'weekly').then((data) => {
+              if (window._achieveSubView === 'leaderboard' && data) {
                 const p = document.getElementById('tabPanel');
-                if (p) p.innerHTML = renderAchievements(currentUser);
+                if (p) {
+                  const prevScroll = window.scrollY;
+                  p.innerHTML = renderAchievements(currentUser);
+                  if (prevScroll > 0) {
+                    requestAnimationFrame(() => {
+                      window.scrollTo({ top: prevScroll, behavior: 'instant' });
+                    });
+                  }
+                }
               }
             });
           }
         };
 
         window.setLeaderboardTf = function (tf) {
+          if (window._leaderboardTf === tf) return;
           window._leaderboardTf = tf;
           const panel = document.getElementById('tabPanel');
-          if (panel) panel.innerHTML = renderAchievements(currentUser);
+          const prevScroll = window.scrollY;
+          if (panel) {
+            panel.innerHTML = renderAchievements(currentUser);
+            if (prevScroll > 0) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: prevScroll, behavior: 'instant' });
+              });
+            }
+          }
           if (window.GamificationCore && typeof window.GamificationCore.fetchLeaderboard === 'function') {
-            window.GamificationCore.fetchLeaderboard(tf).then(() => {
-              if (window._achieveSubView === 'leaderboard') {
+            window.GamificationCore.fetchLeaderboard(tf).then((data) => {
+              if (window._achieveSubView === 'leaderboard' && window._leaderboardTf === tf && data) {
                 const p = document.getElementById('tabPanel');
-                if (p) p.innerHTML = renderAchievements(currentUser);
+                if (p) {
+                  const s = window.scrollY;
+                  p.innerHTML = renderAchievements(currentUser);
+                  if (s > 0) {
+                    requestAnimationFrame(() => {
+                      window.scrollTo({ top: s, behavior: 'instant' });
+                    });
+                  }
+                }
               }
             });
           }
@@ -10267,8 +10393,8 @@
                 
                 <!-- TOP 2 (SILVER MASTER - Á QUÂN) -->
                 <div class="lb-card-top2">
-                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-16px; width:30px; height:30px; filter:drop-shadow(0 3px 10px rgba(148,163,184,0.7));">
-                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-16px; width:32px; height:32px; filter:drop-shadow(0 4px 12px rgba(148,163,184,0.7)); z-index:4;">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                       <defs>
                         <linearGradient id="silverMedalGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#ffffff"/>
@@ -10282,22 +10408,22 @@
                       <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#0f172a">2</text>
                     </svg>
                   </div>
-                  <!-- Khung Á Quân -->
-                  <div style="position:relative; width:76px; height:76px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
+                  <!-- Khung Á Quân with Aura -->
+                  <div style="position:relative; width:80px; height:80px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div class="lb-aura-ring aura-silver"></div>
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
                       <img src="${top2.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top2'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
                     <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539068/aphim-frames/a_a44e9335ea869639fdf812f3642a56a6.png" alt="Khung Á Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(203,213,225,0.5));">
                   </div>
                   <div class="lb-player-name">${top2.name || 'Thành viên'}</div>
-                  <div style="font-size:10.5px; font-weight:700; color:#cbd5e1; background:rgba(203,213,225,0.15); border:1px solid rgba(203,213,225,0.35); padding:2px 8px; border-radius:6px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
+                  <div style="font-size:11px; font-weight:800; color:#e2e8f0; background:rgba(203,213,225,0.16); border:1px solid rgba(203,213,225,0.4); padding:3px 10px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(148,163,184,0.15);">
                     <span>🥈 Á Quân</span>
                   </div>
                   <div class="lb-xp-txt">${(top2.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
-                    <span>⏱️ ${top2.hours || 0}h xem</span>
-                    <span>•</span>
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316;">
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">⏱️ ${top2.hours || 0}h xem</span>
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700; background:rgba(249,115,22,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(249,115,22,0.25);">
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                       ${top2.streak || 1}d
                     </span>
@@ -10307,8 +10433,8 @@
 
                 <!-- TOP 1 (GOLD CHAMPION - QUÁN QUÂN) -->
                 <div class="lb-card-top1">
-                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-18px; width:38px; height:30px; filter:drop-shadow(0 4px 14px rgba(245,158,11,0.9));">
-                    <svg width="38" height="30" viewBox="0 0 38 30" fill="none">
+                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-20px; width:42px; height:34px; filter:drop-shadow(0 4px 16px rgba(245,158,11,0.95)); z-index:4;">
+                    <svg width="42" height="34" viewBox="0 0 38 30" fill="none">
                       <defs>
                         <linearGradient id="goldCrownGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#fff59d"/>
@@ -10325,34 +10451,36 @@
                       <circle cx="19" cy="20" r="1.5" fill="#fff" opacity="0.9"/>
                     </svg>
                   </div>
-                  <!-- Khung Quán Quân -->
-                  <div style="position:relative; width:88px; height:88px; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; box-shadow:0 0 20px rgba(245,158,11,0.6); z-index:1;">
+                  <!-- Khung Quán Quân with Rotating Halo -->
+                  <div style="position:relative; width:94px; height:94px; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div class="lb-aura-ring aura-gold"></div>
+                    <div style="width:60px; height:60px; border-radius:50%; overflow:hidden; box-shadow:0 0 24px rgba(245,158,11,0.65); z-index:1;">
                       <img src="${top1.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top1'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
-                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539061/aphim-frames/a_386445551be850bb16b73a225d0d0602.png" alt="Khung Quán Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 14px rgba(245,158,11,0.6));">
+                    <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789539061/aphim-frames/a_386445551be850bb16b73a225d0d0602.png" alt="Khung Quán Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 16px rgba(245,158,11,0.7));">
                   </div>
                   <div class="lb-player-name top1-name">${top1.name || 'Quán Quân'}</div>
-                  <div style="font-size:11px; font-weight:800; color:#fcd576; background:linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.2) 100%); border:1px solid rgba(245,158,11,0.55); padding:2px 10px; border-radius:8px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(245,158,11,0.2);">
-                    <svg width="12" height="11" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
-                    <span>Quán Quân</span>
+                  <div style="font-size:11.5px; font-weight:900; color:#fcd576; background:linear-gradient(135deg, rgba(245,158,11,0.28) 0%, rgba(217,119,6,0.24) 100%); border:1px solid rgba(245,158,11,0.65); padding:3px 12px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 10px rgba(245,158,11,0.25);">
+                    <svg width="13" height="12" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
+                    <span>👑 Quán Quân</span>
                   </div>
                   <div class="lb-xp-txt top1-xp">${(top1.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700;">
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:5px;">
+                    <span style="display:inline-flex; align-items:center; gap:3px; color:#f97316; font-weight:800; background:rgba(249,115,22,0.14); border:1px solid rgba(249,115,22,0.35); padding:2px 8px; border-radius:6px;">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                       ${top1.streak || 1} ngày streak
                     </span>
-                    <span>•</span>
-                    <span>⏱️ ${top1.hours || 0}h xem</span>
+                    <span style="display:inline-flex; align-items:center; gap:3px; color:#38bdf8; font-weight:700; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:6px;">
+                      ⏱️ ${top1.hours || 0}h xem
+                    </span>
                   </div>
                   <div class="lb-pedestal-base top1-pedestal">#1 QUÁN QUÂN</div>
                 </div>
 
                 <!-- TOP 3 (BRONZE MASTER - QUÝ QUÂN) -->
                 <div class="lb-card-top3">
-                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-16px; width:30px; height:30px; filter:drop-shadow(0 3px 10px rgba(217,119,6,0.6));">
-                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-16px; width:32px; height:32px; filter:drop-shadow(0 4px 12px rgba(217,119,6,0.6)); z-index:4;">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                       <defs>
                         <linearGradient id="bronzeMedalGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#ffedd5"/>
@@ -10366,22 +10494,22 @@
                       <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#290b02">3</text>
                     </svg>
                   </div>
-                  <!-- Khung Quý Quân -->
-                  <div style="position:relative; width:76px; height:76px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
+                  <!-- Khung Quý Quân with Aura -->
+                  <div style="position:relative; width:80px; height:80px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <div class="lb-aura-ring aura-bronze"></div>
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
                       <img src="${top3.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top3'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
                     <img src="https://res.cloudinary.com/ththhwm2/image/upload/v1789538978/aphim-frames/a_45f7f9975255971b197d34d77fb50ede.png" alt="Khung Quý Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(205,127,50,0.5));">
                   </div>
                   <div class="lb-player-name">${top3.name || 'Thành viên'}</div>
-                  <div style="font-size:10.5px; font-weight:700; color:#fed7aa; background:rgba(205,127,50,0.18); border:1px solid rgba(205,127,50,0.35); padding:2px 8px; border-radius:6px; margin:4px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:4px;">
+                  <div style="font-size:11px; font-weight:800; color:#fed7aa; background:rgba(205,127,50,0.2); border:1px solid rgba(205,127,50,0.4); padding:3px 10px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(217,119,6,0.15);">
                     <span>🥉 Quý Quân</span>
                   </div>
                   <div class="lb-xp-txt" style="color:#fb923c;">${(top3.xp || 0).toLocaleString()} XP</div>
-                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:4px;">
-                    <span>⏱️ ${top3.hours || 0}h xem</span>
-                    <span>•</span>
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316;">
+                  <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">⏱️ ${top3.hours || 0}h xem</span>
+                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700; background:rgba(249,115,22,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(249,115,22,0.25);">
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
                       ${top3.streak || 1}d
                     </span>
@@ -10399,7 +10527,7 @@
                       <div class="lb-row-pos ${item.position <= 5 ? 'top5' : ''}">
                         #${item.position}
                       </div>
-                      <div style="position:relative; width:38px; height:38px; flex-shrink:0;">
+                      <div style="position:relative; width:40px; height:40px; flex-shrink:0;">
                         <img src="${item.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,0.18); display:block;">
                       </div>
                       <div style="min-width:0; flex:1;">
@@ -10418,8 +10546,8 @@
                       </div>
                     </div>
                     <div style="text-align:right; flex-shrink:0; margin-left:12px;">
-                      <div class="lb-xp-txt" style="display:flex; align-items:center; justify-content:flex-end; gap:4px;">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <div class="lb-xp-txt" style="display:flex; align-items:center; justify-content:flex-end; gap:5px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#fcd576" stroke="#f59e0b" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         <span>${(item.xp || 0).toLocaleString()} XP</span>
                       </div>
                       <div class="lb-sub-meta" style="margin-top:3px;">⏱️ ${item.hours || 0} giờ xem</div>
@@ -10467,9 +10595,18 @@
         }
 
         window.setAchievementFilter = function(f) {
+          if (window._achievementFilter === f) return;
           window._achievementFilter = f;
           const panel = document.getElementById('tabPanel');
-          if (panel) panel.innerHTML = renderAchievements(currentUser);
+          const prevScroll = window.scrollY;
+          if (panel) {
+            panel.innerHTML = renderAchievements(currentUser);
+            if (prevScroll > 0) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: prevScroll, behavior: 'instant' });
+              });
+            }
+          }
         };
 
         return `
@@ -12209,8 +12346,22 @@
               const currentXu = getProfileCoins(currentUser);
               shopCoinEl.innerHTML = `${currentXu.toLocaleString()} <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">Xu</span>`;
             }
+          } else if (currentTab === 'achievements') {
+            // Khi đang ở tab bảng vinh danh / thành tựu, cập nhật level badge mà không phá hủy DOM gây giật cuộn trang
+            const userLvl = document.getElementById('userLevelBadge');
+            if (userLvl && window.GamificationCore) {
+              const curXP = window.GamificationCore.getXP();
+              const lvlInfo = window.GamificationCore.calculateLevel(curXP);
+              userLvl.textContent = `Lv.${lvlInfo.level}`;
+            }
           } else {
+            const prevScroll = window.scrollY;
             renderTab(currentTab);
+            if (prevScroll > 0) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: prevScroll, behavior: 'instant' });
+              });
+            }
           }
         }
       };

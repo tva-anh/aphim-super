@@ -1,16 +1,17 @@
 /**
- * APhim — Nav Instant Search Suggestion Module v4.0
+ * APhim — Nav Instant Search Suggestion Module v5.0 (Ultra High-Performance)
  * ─────────────────────────────────────────────────────────────
- * • Gợi ý phim realtime theo từng chữ cái trực tiếp khi người dùng gõ
- * • Tự động căn chỉnh 1:1 chuẩn xác cả mép Trái & mép Phải khớp 100% với khung thanh tìm kiếm
- * • Thiết kế khung gợi ý chuẩn theo Hình 1 (Bo góc 16px, viền vàng ánh kim, badge FHD, năm, số tập)
- * • Chuyển hướng chuẩn: /watch/slug & /search?keyword=
+ * • Gợi ý phim realtime siêu mượt (0ms cache fast-path, không giật lag khi gõ/xóa chữ)
+ * • Hỗ trợ tiếng Việt Unikey/Telex/IME mượt mà (compositionstart/end)
+ * • Tự động AbortController hủy bỏ request cũ khi gõ tiếp, tránh quá tải CPU/mạng
+ * • Bộ nhớ đệm LRU Cache thông minh cho phản hồi tức thì khi Backspace xóa chữ
+ * • Khớp 1:1 chuẩn xác cả mép Trái & mép Phải với khung tìm kiếm
  */
 (function () {
     'use strict';
 
     const STYLE = `
-        /* ── Suggestion Panel Container (Matching Image 1) ── */
+        /* ── Suggestion Panel Container ── */
         .ap-suggest-panel {
             position: fixed;
             z-index: 999999;
@@ -18,19 +19,21 @@
             border: 1px solid rgba(212, 175, 55, 0.45);
             border-radius: 16px;
             overflow: hidden;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(212, 175, 55, 0.2);
-            transform: translateY(4px) scale(0.99);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(212, 175, 55, 0.15);
+            transform: translateY(3px) scale(0.995);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.18s cubic-bezier(.4,0,.2,1), transform 0.18s cubic-bezier(.4,0,.2,1);
+            transition: opacity 0.14s ease, transform 0.14s ease;
             max-height: 80vh;
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
             box-sizing: border-box !important;
             font-family: 'Inter', 'Be Vietnam Pro', system-ui, -apple-system, sans-serif !important;
+            will-change: opacity, transform;
+            contain: layout style;
         }
         .ap-suggest-panel.visible {
             opacity: 1;
@@ -43,11 +46,11 @@
             display: flex !important;
             align-items: center !important;
             gap: 12px !important;
-            padding: 10px 14px !important;
+            padding: 9px 14px !important;
             text-decoration: none !important;
             cursor: pointer !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-            transition: background 0.18s ease, border-color 0.18s ease !important;
+            transition: background 0.12s ease !important;
             background: transparent !important;
             width: 100% !important;
             box-sizing: border-box !important;
@@ -57,14 +60,14 @@
         }
         .ap-suggest-row:hover,
         .ap-suggest-row:focus {
-            background: rgba(255, 255, 255, 0.05) !important;
+            background: rgba(255, 255, 255, 0.06) !important;
             outline: none !important;
         }
         .ap-suggest-row:hover .ap-suggest-title {
             color: #facc15 !important;
         }
 
-        /* ── Thumbnail Image (Image 1 Specs: ~48x68px, Radius 8px) ── */
+        /* ── Thumbnail Image (~48x68px, Radius 8px) ── */
         .ap-suggest-thumb-box {
             width: 48px !important;
             min-width: 48px !important;
@@ -77,7 +80,7 @@
             flex-shrink: 0 !important;
             background: #0d0f1a !important;
             border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
         }
         .ap-suggest-thumb {
             width: 100% !important;
@@ -101,7 +104,7 @@
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            transition: color 0.15s ease !important;
+            transition: color 0.12s ease !important;
             line-height: 1.3 !important;
         }
         .ap-suggest-en {
@@ -133,7 +136,7 @@
             line-height: 1.3 !important;
         }
 
-        /* ── "View All Results" Footer Row (Matching Image 1) ── */
+        /* ── "View All Results" Footer Row ── */
         .ap-suggest-footer {
             display: flex !important;
             align-items: center !important;
@@ -147,7 +150,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             text-decoration: none !important;
             cursor: pointer !important;
-            transition: background 0.15s, color 0.15s !important;
+            transition: background 0.12s, color 0.12s !important;
             text-align: center !important;
         }
         .ap-suggest-footer:hover {
@@ -176,40 +179,92 @@
         document.head.appendChild(s);
     }
 
-    // ── API Fetch Realtime ───────────────────────────────────────────────────────
+    // ── High-Performance In-Memory LRU Cache ─────────────────────────────────────
+    const _searchCache = new Map();
+    const MAX_CACHE_SIZE = 150;
+
+    function getCached(key) {
+        if (!key) return null;
+        const k = key.toLowerCase().trim();
+        if (_searchCache.has(k)) {
+            const data = _searchCache.get(k);
+            _searchCache.delete(k);
+            _searchCache.set(k, data); // Refresh LRU
+            return data;
+        }
+        return null;
+    }
+
+    function setCache(key, data) {
+        if (!key || !data) return;
+        const k = key.toLowerCase().trim();
+        if (_searchCache.size >= MAX_CACHE_SIZE) {
+            const oldestKey = _searchCache.keys().next().value;
+            _searchCache.delete(oldestKey);
+        }
+        _searchCache.set(k, data);
+    }
+
+    // ── API Fetch Realtime with AbortController & Cache ─────────────────────────
+    let activeAbortController = null;
+
     async function fetchSearchSuggestions(keyword, limit = 5) {
         if (!keyword || keyword.trim().length < 2) return [];
         const cleanKw = keyword.trim();
+        const cacheKey = cleanKw.toLowerCase();
 
-        // 1. Gọi PhimAPI
+        // 1. Kiểm tra Cache tức thì (0ms)
+        const cached = getCached(cacheKey);
+        if (cached) return cached;
+
+        // 2. Abort request đang chạy trước đó
+        if (activeAbortController) {
+            try { activeAbortController.abort(); } catch (e) {}
+        }
+        activeAbortController = new AbortController();
+        const signal = activeAbortController.signal;
+
+        // 3. Gọi PhimAPI
         try {
             const url = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(cleanKw)}&limit=${limit}&page=1`;
-            const res = await fetch(url);
+            const res = await fetch(url, { signal });
             if (res.ok) {
                 const data = await res.json();
                 const items = data?.data?.items || data?.items || [];
-                if (items && items.length > 0) return items.slice(0, limit);
+                if (items && items.length > 0) {
+                    const sliced = items.slice(0, limit);
+                    setCache(cacheKey, sliced);
+                    return sliced;
+                }
             }
         } catch (e) {
-            console.warn('[Suggest API] PhimAPI fetch error:', e);
+            if (e.name === 'AbortError') return null; // Cancelled silently
         }
 
-        // 2. Fallback qua movieAPI
+        // 4. Fallback qua movieAPI
         try {
             if (typeof movieAPI !== 'undefined' && movieAPI.searchMovies) {
                 const data = await movieAPI.searchMovies(cleanKw, 1, limit);
                 const items = data?.items || data?.data?.items || [];
-                if (items && items.length > 0) return items.slice(0, limit);
+                if (items && items.length > 0) {
+                    const sliced = items.slice(0, limit);
+                    setCache(cacheKey, sliced);
+                    return sliced;
+                }
             }
         } catch (e) {}
 
-        // 3. Fallback qua Ophim API cũ
+        // 5. Fallback qua Ophim API cũ
         try {
-            const res = await fetch(`https://ophim1.com/v1/api/tim-kiem?keyword=${encodeURIComponent(cleanKw)}`);
+            const res = await fetch(`https://ophim1.com/v1/api/tim-kiem?keyword=${encodeURIComponent(cleanKw)}`, { signal });
             if (res.ok) {
                 const data = await res.json();
                 const items = data?.data?.items || [];
-                if (items && items.length > 0) return items.slice(0, limit);
+                if (items && items.length > 0) {
+                    const sliced = items.slice(0, limit);
+                    setCache(cacheKey, sliced);
+                    return sliced;
+                }
             }
         } catch (e) {}
 
@@ -246,7 +301,7 @@
         return `
             <a class="ap-suggest-row" href="${detailUrl}">
                 <div class="ap-suggest-thumb-box">
-                    <img class="ap-suggest-thumb" src="${thumb}" alt="${title}" loading="lazy"
+                    <img class="ap-suggest-thumb" src="${thumb}" alt="${title}" loading="lazy" decoding="async"
                          onerror="window.autoHealMovieImage ? window.autoHealMovieImage(this, '${slug}', '${title}') : null" />
                 </div>
                 <div class="ap-suggest-info">
@@ -279,7 +334,8 @@
         document.body.appendChild(panel);
 
         function getSearchContainer() {
-            return input.closest('.sofa-search-form') ||
+            return input.closest('.sofa-desktop-search-form') ||
+                   input.closest('.sofa-search-form') ||
                    input.closest('.nav-search-v2') ||
                    input.closest('.mobile-inline-search') ||
                    input.closest('.mobile-search-overlay') ||
@@ -287,11 +343,20 @@
                    input;
         }
 
+        const container = getSearchContainer();
+        if (container && container !== input) {
+            container.addEventListener('pointerdown', (e) => {
+                if (e.target !== input && !e.target.closest('button, a')) {
+                    e.preventDefault();
+                    input.focus();
+                }
+            });
+        }
+
         function positionPanel() {
-            const container = getSearchContainer();
             const rect = container.getBoundingClientRect();
             
-            // Khung rộng bằng ĐÚNG CHÍNH XÁC chiều rộng khung tìm kiếm (1:1 Cân bằng cả Trái lẫn Phải)
+            // Khung rộng bằng ĐÚNG CHÍNH XÁC chiều rộng khung tìm kiếm
             const exactWidth = rect.width > 220 ? Math.round(rect.width) : Math.max(Math.round(rect.width), 280);
             
             let leftPos = rect.left;
@@ -309,6 +374,19 @@
 
         let debounceTimer = null;
         let lastKeyword = '';
+        let isComposing = false;
+
+        const handleOutsideClick = (e) => {
+            if (!panel.classList.contains('visible')) return;
+            if (input.contains(e.target) || panel.contains(e.target)) return;
+            hide();
+        };
+
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && panel.classList.contains('visible')) {
+                hide();
+            }
+        };
 
         function show(movies, keyword) {
             if (!movies || !movies.length) {
@@ -330,7 +408,6 @@
             `;
 
             panel.innerHTML = html;
-
             positionPanel();
 
             panel.style.display = 'block';
@@ -340,17 +417,23 @@
                 panel.classList.add('visible');
                 backdrop.classList.add('active');
             });
+
+            // Chỉ lắng nghe click ra ngoài khi panel mở
+            document.addEventListener('pointerdown', handleOutsideClick);
+            document.addEventListener('keydown', handleEscape);
         }
 
         function hide() {
             panel.classList.remove('visible');
             backdrop.classList.remove('active');
+            document.removeEventListener('pointerdown', handleOutsideClick);
+            document.removeEventListener('keydown', handleEscape);
             setTimeout(() => {
                 if (!panel.classList.contains('visible')) {
                     panel.style.display = 'none';
                     backdrop.style.display = 'none';
                 }
-            }, 180);
+            }, 140);
         }
 
         async function onKeyword(kw) {
@@ -363,48 +446,69 @@
             if (trimmed === lastKeyword && panel.classList.contains('visible')) return;
             lastKeyword = trimmed;
 
+            // Kiểm tra cache trước (0ms)
+            const cached = getCached(trimmed.toLowerCase());
+            if (cached) {
+                if (input.value.trim() === trimmed) {
+                    show(cached, trimmed);
+                }
+                return;
+            }
+
             const movies = await fetchSearchSuggestions(trimmed, 5);
+            if (movies === null) return; // Request was aborted by newer input
             if (input.value.trim() === trimmed) {
                 show(movies, trimmed);
             }
         }
 
-        input.addEventListener('input', (e) => {
-            if (e && e.isComposing) return;
-            clearTimeout(debounceTimer);
+        function handleInputChange() {
+            if (isComposing) return;
             const v = input.value.trim();
+
             if (!v || v.length < 2) {
+                clearTimeout(debounceTimer);
+                if (activeAbortController) {
+                    try { activeAbortController.abort(); } catch (e) {}
+                }
                 hide();
                 lastKeyword = '';
                 return;
             }
-            debounceTimer = setTimeout(() => onKeyword(v), 120);
+
+            // Fast-path: Nếu từ khóa đã có trong cache -> hiển thị tức thì (0ms)
+            const cached = getCached(v.toLowerCase());
+            if (cached) {
+                clearTimeout(debounceTimer);
+                onKeyword(v);
+                return;
+            }
+
+            // Debounce 100ms tối ưu cực nhanh khi gõ từ mới
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                onKeyword(v);
+            }, 100);
+        }
+
+        input.addEventListener('compositionstart', () => {
+            isComposing = true;
         });
 
         input.addEventListener('compositionend', () => {
-            input.dispatchEvent(new Event('input'));
+            isComposing = false;
+            handleInputChange();
+        });
+
+        input.addEventListener('input', (e) => {
+            if (e && e.isComposing) return;
+            handleInputChange();
         });
 
         input.addEventListener('focus', () => {
             const v = input.value.trim();
             if (v.length >= 2) {
                 onKeyword(v);
-            }
-        });
-
-        // Ẩn panel khi click ra ngoài
-        const handleOutsideClick = (e) => {
-            if (!panel.classList.contains('visible')) return;
-            if (input.contains(e.target) || panel.contains(e.target)) return;
-            hide();
-        };
-
-        document.addEventListener('click', handleOutsideClick, true);
-        document.addEventListener('touchstart', handleOutsideClick, { passive: true, capture: true });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && panel.classList.contains('visible')) {
-                hide();
             }
         });
 
@@ -421,6 +525,8 @@
         injectCSS();
 
         const selectors = [
+            '.sofa-desktop-search-input',
+            '.sofa-mobile-search-input-field',
             '.sofa-search-input',
             'input[name="keyword"]',
             '.nav-search-v2 input',
