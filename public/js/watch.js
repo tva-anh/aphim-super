@@ -2310,7 +2310,7 @@ function initializePlayer(episode) {
         showSeekOverlay('+10s', true);
     };
     if (btnNext) btnNext.onclick = () => {
-        if (typeof autoPlayNext === 'function') autoPlayNext();
+        playNextEpisode();
     };
 
     // Volume Slider & Mute
@@ -3048,27 +3048,26 @@ function initializePlayer(episode) {
     });
 
     let isTimeRestored = false;
+    const activeEpSlug = (episode && episode.slug) ? episode.slug : null;
+    const activeEpName = (episode && episode.name) ? episode.name : null;
 
-    // Helper lưu tiến độ xem
+    // Helper lưu tiến độ xem (Gắn chặt theo episode hiện tại, chống ghi đè nhầm tập khác)
     function doSaveProgress() {
-        if (player && player.currentTime > 0 && player.duration > 0 && currentMovie) {
-            const epSlug = (currentEpisode && currentEpisode.slug) ? currentEpisode.slug : (episode ? episode.slug : null);
-            const epName = (currentEpisode && currentEpisode.name) ? currentEpisode.name : (episode ? episode.name : null);
-
+        if (player && player.currentTime > 5 && player.duration > 0 && currentMovie && activeEpSlug) {
             userService.saveWatchProgress(
                 currentMovie.slug,
                 player.currentTime,
                 player.duration,
-                epSlug,
+                activeEpSlug,
                 currentMovie
             );
 
             if (typeof userService.addToHistory === 'function') {
-                userService.addToHistory(currentMovie, epSlug, {
+                userService.addToHistory(currentMovie, activeEpSlug, {
                     currentTime: player.currentTime,
                     duration: player.duration,
-                    episode: epName,
-                    episodeSlug: epSlug
+                    episode: activeEpName,
+                    episodeSlug: activeEpSlug
                 });
             }
         }
@@ -3095,13 +3094,20 @@ function initializePlayer(episode) {
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
             console.log('🚀 Manifest parsed, ready to play');
-            if (!isTimeRestored && progress && progress.currentTime > 0) {
+            const shouldResume = !isTimeRestored && 
+                                 progress && 
+                                 progress.currentTime > 5 && 
+                                 !progress.completed &&
+                                 (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
+
+            if (shouldResume) {
                 isTimeRestored = true;
                 setTimeout(() => {
                     player.currentTime = progress.currentTime;
                     player.play().catch(e => console.log('Auto-play prevented:', e));
                 }, 150);
             } else {
+                player.currentTime = 0;
                 player.play().catch(e => {
                     console.log('⚠️ Autoplay prevented:', e);
                 });
@@ -3134,11 +3140,19 @@ function initializePlayer(episode) {
     } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
         player.src = videoUrl;
         player.addEventListener('canplay', () => {
-            if (!isTimeRestored && progress && progress.currentTime > 0) {
+            const shouldResume = !isTimeRestored && 
+                                 progress && 
+                                 progress.currentTime > 5 && 
+                                 !progress.completed &&
+                                 (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
+
+            if (shouldResume) {
                 isTimeRestored = true;
                 setTimeout(() => {
                     player.currentTime = progress.currentTime;
                 }, 200);
+            } else {
+                player.currentTime = 0;
             }
         }, { once: true });
     }
@@ -3559,22 +3573,7 @@ function addFullscreenButton() {
 
 // Change episode is defined globally as an instant transition helper below
 
-// Auto play next episode
-function autoPlayNext() {
-    if (!currentMovie.episodes || currentMovie.episodes.length === 0) return;
-
-    const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-    const currentIndex = serverData.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
-
-    if (currentIndex < serverData.length - 1) {
-        const nextEpisode = serverData[currentIndex + 1];
-        setTimeout(() => {
-            if (confirm(`Tự động phát ${nextEpisode.name}?`)) {
-                changeEpisode(nextEpisode.slug);
-            }
-        }, 3000);
-    }
-}
+// Auto play next episode is implemented with Netflix-grade countdown overlay below
 
 // Load recommendations
 async function loadRecommendations() {
@@ -4137,6 +4136,21 @@ function showSeekOverlay(text, isRight) {
 window.changeEpisode = function (episodeSlug) {
     if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0) return;
 
+    // 0. Clean up any active countdown overlay and timer
+    if (window._autoNextInterval) {
+        clearInterval(window._autoNextInterval);
+        window._autoNextInterval = null;
+    }
+    const existingNextOverlay = document.getElementById('netflix-next-countdown');
+    if (existingNextOverlay) {
+        existingNextOverlay.remove();
+    }
+
+    // Pause old player to prevent background sound or ghost progress events
+    if (player && typeof player.pause === 'function') {
+        try { player.pause(); } catch(e) {}
+    }
+
     const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
     const foundEp = serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, ''));
     if (!foundEp) return;
@@ -4216,97 +4230,233 @@ function playNextEpisode() {
     }
 }
 
-// Autoplay next episode with a gorgeous Netflix-style countdown overlay
+// Autoplay next episode with a gorgeous Netflix/Apple TV+ style countdown overlay
 function autoPlayNext() {
     if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0 || !currentEpisode) return;
     const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
     const currentIndex = serverData.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
 
     // If it's the last episode, do nothing
-    if (currentIndex >= serverData.length - 1) return;
+    if (currentIndex < 0 || currentIndex >= serverData.length - 1) return;
 
     const nextEpisode = serverData[currentIndex + 1];
     const playerContainer = document.querySelector('.aspect-video');
     if (!playerContainer) return;
 
-    // Create the overlay container
+    // Check if autoNext is enabled in settings
+    const isAutoNextOn = localStorage.getItem('autoNext') !== 'false';
+
+    // Clear any existing next-countdown
+    if (window._autoNextInterval) {
+        clearInterval(window._autoNextInterval);
+        window._autoNextInterval = null;
+    }
+    const oldOverlay = document.getElementById('netflix-next-countdown');
+    if (oldOverlay) oldOverlay.remove();
+
+    // Hide control bar so it doesn't clutter behind the countdown card
+    const controls = document.getElementById('aphim-controls');
+    if (controls) {
+        controls.classList.add('aphim-controls-hidden');
+        controls.style.opacity = '0';
+        controls.style.visibility = 'hidden';
+    }
+
     const overlay = document.createElement('div');
     overlay.id = 'netflix-next-countdown';
-    overlay.className = 'absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-white z-[99] transition-opacity duration-300 opacity-0';
-    overlay.style.borderRadius = '12px';
+    overlay.className = 'aphim-next-overlay';
 
     let countdownVal = 10;
+    const totalDuration = 10;
+    const circumference = 2 * Math.PI * 38; // ~238.76
+
+    const movieName = currentMovie.name || currentMovie.title || '';
+    const nextEpLabel = nextEpisode.name || `Tập ${currentIndex + 2}`;
+
+    const movieThumb = (typeof movieAPI !== 'undefined' && movieAPI.getImageURL)
+        ? movieAPI.getImageURL(currentMovie.thumb_url || currentMovie.poster_url, 600, 85, true)
+        : (currentMovie.thumb_url || currentMovie.poster_url || '');
 
     overlay.innerHTML = `
-        <div class="text-center p-6 space-y-4 max-w-sm select-none">
-            <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] md:text-xs">TẬP TIẾP THEO</p>
-            <h4 class="text-lg md:text-2xl font-black text-[#fcd576] truncate max-w-[280px] md:max-w-xs mx-auto">${nextEpisode.name}</h4>
-            
-            <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center">
-                <!-- Circular SVG Countdown Progress Bar -->
-                <svg class="w-full h-full transform -rotate-90">
-                    <circle cx="40" cy="40" r="34" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="transparent" />
-                    <circle id="countdown-progress-bar" cx="40" cy="40" r="34" stroke="#fcd576" stroke-width="4" fill="transparent" 
-                            stroke-dasharray="213.6" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;" />
-                </svg>
-                <span id="countdown-number" class="absolute text-xl md:text-2xl font-black text-white">${countdownVal}</span>
+        <div class="aphim-next-backdrop-img" style="background-image: url('${movieThumb}');"></div>
+        <div class="aphim-next-backdrop-vignette"></div>
+
+        <div class="aphim-next-card" id="aphim-next-card">
+            <!-- Left: Thumbnail Preview with Glowing Circular Countdown Overlay -->
+            <div class="aphim-next-thumb-wrap">
+                <img src="${movieThumb}" alt="${nextEpLabel}" class="aphim-next-thumb-img" onerror="this.style.opacity='0'" />
+                <div class="aphim-next-thumb-overlay"></div>
+                
+                <!-- Countdown Ring on Thumbnail -->
+                <div class="aphim-next-thumb-timer">
+                    <svg class="aphim-next-timer-svg" viewBox="0 0 88 88">
+                        <defs>
+                            <linearGradient id="aphimCountdownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="45%" stop-color="#fcd576" />
+                                <stop offset="100%" stop-color="#f59e0b" />
+                            </linearGradient>
+                            <filter id="aphimGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#fcd576" flood-opacity="0.8" />
+                            </filter>
+                        </defs>
+                        <circle cx="44" cy="44" r="38" stroke="rgba(255, 255, 255, 0.2)" stroke-width="4.5" fill="rgba(0, 0, 0, 0.45)" />
+                        <circle id="countdown-progress-bar" cx="44" cy="44" r="38" 
+                                stroke="${isAutoNextOn ? 'url(#aphimCountdownGrad)' : 'rgba(252, 211, 118, 0.4)'}" 
+                                stroke-width="4.5" 
+                                stroke-linecap="round" 
+                                fill="none" 
+                                stroke-dasharray="${circumference}" 
+                                stroke-dashoffset="0" 
+                                filter="url(#aphimGlow)" 
+                                style="transition: stroke-dashoffset 1s linear;"
+                                transform="rotate(-90 44 44)" />
+                    </svg>
+                    <div class="aphim-next-timer-center">
+                        ${isAutoNextOn ? `
+                            <span id="countdown-number" class="aphim-next-timer-num">${countdownVal}</span>
+                            <span id="countdown-unit" class="aphim-next-timer-unit">s</span>
+                        ` : `
+                            <div class="flex items-center justify-center text-[#fcd576]">
+                                <svg class="w-5 h-5 fill-current ml-0.5 drop-shadow-[0_0_8px_rgba(252,211,118,0.8)]" viewBox="0 0 24 24"><polygon points="6 4 19 12 6 20 6 4"></polygon></svg>
+                            </div>
+                        `}
+                    </div>
+                </div>
+
+                <div class="aphim-next-thumb-pill">
+                    <span>HD</span>
+                    <span>•</span>
+                    <span>Vietsub</span>
+                </div>
             </div>
-            
-            <div class="flex items-center justify-center gap-3 pt-2">
-                <button id="cancel-countdown-btn" class="px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer active:scale-95">
-                    Hủy
-                </button>
-                <button id="play-now-countdown-btn" class="px-4 py-1.5 bg-[#fcd576] hover:bg-white hover:text-black text-black rounded-lg font-bold text-xs transition-colors cursor-pointer active:scale-95">
-                    Phát ngay
-                </button>
+
+            <!-- Right: Episode Information & Actions -->
+            <div class="aphim-next-info-wrap">
+                <div class="aphim-next-badge-row">
+                    <div class="aphim-next-badge">
+                        <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></line></svg>
+                        <span>Tập tiếp theo</span>
+                    </div>
+                    ${isAutoNextOn ? `
+                        <span class="aphim-next-status-hint">Tự động phát sau <b id="countdown-sec-text">${countdownVal}</b>s</span>
+                    ` : `
+                        <span class="aphim-next-status-hint">Sẵn sàng phát</span>
+                    `}
+                </div>
+
+                <div class="aphim-next-titles">
+                    <h3 class="aphim-next-ep-name" title="${nextEpLabel}">${nextEpLabel}</h3>
+                    ${movieName ? `<div class="aphim-next-movie-name" title="${movieName}">${movieName}</div>` : ''}
+                </div>
+
+                <div class="aphim-next-actions">
+                    <button type="button" id="play-now-countdown-btn" class="aphim-next-btn-play" title="Phát tập tiếp theo ngay (Enter)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>Phát ngay</span>
+                    </button>
+                    <button type="button" id="cancel-countdown-btn" class="aphim-next-btn-cancel" title="Ở lại tập này (Esc)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        <span>Ở lại</span>
+                    </button>
+                </div>
+
+                <div class="aphim-next-kbd-hint">
+                    <span><span class="aphim-next-kbd">Enter</span> Phát ngay</span>
+                    <span>•</span>
+                    <span><span class="aphim-next-kbd">Esc</span> Ở lại</span>
+                </div>
             </div>
         </div>
     `;
 
     playerContainer.appendChild(overlay);
 
-    // Force reflow and fade in
+    // Fade and scale in smoothly
     requestAnimationFrame(() => {
-        overlay.classList.remove('opacity-0');
-        overlay.classList.add('opacity-100');
+        overlay.classList.add('is-active');
     });
 
     const progressCircle = document.getElementById('countdown-progress-bar');
     const countdownNumber = document.getElementById('countdown-number');
-    const maxOffset = 213.6;
 
-    // Set initial stroke-dashoffset logic
-    if (progressCircle) {
-        progressCircle.setAttribute('cx', playerContainer.clientWidth > 640 ? '40' : '32');
-        progressCircle.setAttribute('cy', playerContainer.clientWidth > 640 ? '40' : '32');
+    // Dismiss helper
+    function dismissCountdown() {
+        if (window._autoNextInterval) {
+            clearInterval(window._autoNextInterval);
+            window._autoNextInterval = null;
+        }
+        window.removeEventListener('keydown', handleKeyDown);
+        overlay.classList.remove('is-active');
+        setTimeout(() => {
+            if (overlay.parentNode) overlay.remove();
+        }, 320);
+        if (typeof showControls === 'function') {
+            showControls(3000);
+        }
     }
 
-    const intervalId = setInterval(() => {
-        countdownVal--;
-        if (countdownNumber) countdownNumber.textContent = countdownVal;
-        if (progressCircle) {
-            const offset = maxOffset - (maxOffset * (10 - countdownVal) / 10);
-            progressCircle.style.strokeDashoffset = offset;
+    // Play next helper
+    function triggerPlayNext() {
+        if (window._autoNextInterval) {
+            clearInterval(window._autoNextInterval);
+            window._autoNextInterval = null;
         }
-
-        if (countdownVal <= 0) {
-            clearInterval(intervalId);
-            window.changeEpisode(nextEpisode.slug);
-        }
-    }, 1000);
-
-    // Wire up events
-    document.getElementById('cancel-countdown-btn').onclick = () => {
-        clearInterval(intervalId);
-        overlay.classList.remove('opacity-100');
-        overlay.classList.add('opacity-0');
-        setTimeout(() => overlay.remove(), 300);
-    };
-
-    document.getElementById('play-now-countdown-btn').onclick = () => {
-        clearInterval(intervalId);
+        window.removeEventListener('keydown', handleKeyDown);
+        overlay.classList.remove('is-active');
+        setTimeout(() => {
+            if (overlay.parentNode) overlay.remove();
+        }, 200);
         window.changeEpisode(nextEpisode.slug);
+    }
+
+    // Keyboard navigation listener
+    function handleKeyDown(e) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            dismissCountdown();
+        } else if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            triggerPlayNext();
+        }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Button event listeners
+    const cancelBtn = document.getElementById('cancel-countdown-btn');
+    if (cancelBtn) cancelBtn.onclick = (e) => {
+        e.stopPropagation();
+        dismissCountdown();
     };
+
+    const playBtn = document.getElementById('play-now-countdown-btn');
+    if (playBtn) playBtn.onclick = (e) => {
+        e.stopPropagation();
+        triggerPlayNext();
+    };
+
+    // If autoNext is ON, start the 10-second countdown
+    if (isAutoNextOn) {
+        window._autoNextInterval = setInterval(() => {
+            countdownVal--;
+            if (countdownNumber) countdownNumber.textContent = countdownVal;
+            const secText = document.getElementById('countdown-sec-text');
+            if (secText) secText.textContent = countdownVal;
+            if (progressCircle) {
+                const offset = circumference * (1 - countdownVal / totalDuration);
+                progressCircle.style.strokeDashoffset = offset;
+            }
+
+            if (countdownVal <= 0) {
+                triggerPlayNext();
+            }
+        }, 1000);
+    }
 }
 
 // =========================================================================

@@ -159,13 +159,55 @@ class UserService {
         }
     }
 
-    // Get watch progress for a movie
+    // Get watch progress for a movie or specific episode
     getWatchProgress(slug, episode = null) {
+        if (!slug) return { currentTime: 0, duration: 0, percentage: 0 };
         const progressStr = localStorage.getItem(STORAGE_KEYS.WATCH_PROGRESS);
         const allProgress = progressStr ? JSON.parse(progressStr) : {};
 
-        const key = episode ? `${slug}_${episode}` : slug;
-        return allProgress[key] || allProgress[slug] || { currentTime: 0, duration: 0 };
+        let prog = null;
+        if (episode) {
+            const key = `${slug}_${episode}`;
+            if (allProgress[key]) {
+                prog = allProgress[key];
+            } else {
+                // Try normalizing episode slug (tap-01 vs tap-1 vs 1)
+                const cleanEp = String(episode).replace(/^tap-/, '').replace(/^0+/, '');
+                for (const k in allProgress) {
+                    if (k.startsWith(`${slug}_`)) {
+                        const savedEp = k.slice(slug.length + 1);
+                        const cleanSaved = String(savedEp).replace(/^tap-/, '').replace(/^0+/, '');
+                        if (cleanSaved === cleanEp) {
+                            prog = allProgress[k];
+                            break;
+                        }
+                    }
+                }
+            }
+            // CRITICAL: If no progress found for THIS specific episode, return 0!
+            // NEVER fall back to allProgress[slug], because allProgress[slug] stores the previous episode's end time!
+            if (!prog) {
+                return { currentTime: 0, duration: 0, percentage: 0 };
+            }
+        } else {
+            prog = allProgress[slug];
+        }
+
+        if (!prog) {
+            return { currentTime: 0, duration: 0, percentage: 0 };
+        }
+
+        // If the user already watched 95%+ of the video or reached the last 15 seconds, consider it finished.
+        // Returning currentTime: 0 prevents resuming at the end credits and immediately looping next episode!
+        const isNearEnd = prog.duration > 0 && (
+            (prog.duration - prog.currentTime <= 15) || 
+            (prog.currentTime / prog.duration >= 0.95)
+        );
+        if (isNearEnd || prog.completed) {
+            return { ...prog, currentTime: 0, percentage: 100, completed: true };
+        }
+
+        return prog;
     }
 
     // Save watch progress (Hỗ trợ cả Khách & Thành viên)
@@ -176,12 +218,18 @@ class UserService {
         const allProgress = progressStr ? JSON.parse(progressStr) : {};
 
         const key = episode ? `${slug}_${episode}` : slug;
+        const isCompleted = duration > 0 && (
+            (duration - currentTime <= 15) || 
+            (currentTime / duration >= 0.95)
+        );
+
         const progressData = {
             slug,
             episode,
             currentTime,
             duration,
-            percentage: duration > 0 ? (currentTime / duration) * 100 : 0,
+            percentage: duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0,
+            completed: Boolean(isCompleted),
             updatedAt: new Date().toISOString()
         };
 
