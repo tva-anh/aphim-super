@@ -1151,13 +1151,15 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         const movieWithoutEpisodes = { ...meta };
         delete movieWithoutEpisodes.episodes;
 
-        // Detail page chỉ cần name và slug của các tập (loại bỏ streaming links link_m3u8, link_embed, filename giúp giảm 90% dung lượng)
+        // Detail page: giữ name, slug, link_m3u8, link_embed để preload mượt mà sang trang xem phim (bỏ filename dài thừa)
         const detailEpisodes = (meta.episodes || []).map(server => ({
             server_name: server.server_name,
             original_server_name: server.original_server_name || server.server_name,
             server_data: (server.server_data || []).map(ep => ({
                 name: ep.name,
-                slug: ep.slug
+                slug: ep.slug,
+                link_m3u8: ep.link_m3u8 || '',
+                link_embed: ep.link_embed || ''
             }))
         }));
 

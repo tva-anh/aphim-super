@@ -134,6 +134,12 @@ function updateWatchUrlState(movie, episode, serverIndex) {
 async function loadMovieAndPlay(slug, episodeSlug) {
     let ophimOk = false;
 
+    // Helper kiểm tra danh sách server có ít nhất 1 tập có stream link hợp lệ hay không
+    const checkHasStreamLinks = (epList) => {
+        if (!epList || !Array.isArray(epList)) return false;
+        return epList.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
+    };
+
     // ⚡ 1. KIỂM TRA DỮ LIỆU TẢI TRƯỚC TỪ SESSIONSTORAGE (Chuyển từ /phim sang xem ngay trong 0ms)
     let preloaded = null;
     try {
@@ -141,7 +147,17 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         if (raw) preloaded = JSON.parse(raw);
     } catch (e) { }
 
-    if (preloaded && preloaded.slug === slug && preloaded.episodes && preloaded.episodes.length > 0) {
+    // Nếu preloaded thiếu stream links, tự động bổ sung từ window.initialEpisodes (SSR có links)
+    if (preloaded && preloaded.slug === slug) {
+        if (!checkHasStreamLinks(preloaded.episodes) && checkHasStreamLinks(window.initialEpisodes)) {
+            console.log('🔄 [Watch] Tự động bổ sung streaming links từ SSR vào Preloaded Data');
+            preloaded.episodes = window.initialEpisodes;
+        }
+    }
+
+    const canUsePreloaded = preloaded && preloaded.slug === slug && preloaded.episodes && preloaded.episodes.length > 0 && checkHasStreamLinks(preloaded.episodes);
+
+    if (canUsePreloaded) {
         console.log('⚡ [Watch] Khởi chạy tức thì từ Preloaded Data (0ms, 0 Network Request)!', preloaded.name);
         currentMovie = preloaded;
 
@@ -187,7 +203,8 @@ async function loadMovieAndPlay(slug, episodeSlug) {
             currentMovie.episodes = window.initialEpisodes;
         }
 
-        if (currentMovie.episodes && currentMovie.episodes.length > 0) {
+        const ssrHasLinks = checkHasStreamLinks(currentMovie.episodes);
+        if (ssrHasLinks) {
             currentMovie.episodes.forEach((server, idx) => {
                 if (!server.original_server_name) server.original_server_name = server.server_name;
                 server.server_name = `Nguồn ${idx + 1}`;
@@ -203,16 +220,20 @@ async function loadMovieAndPlay(slug, episodeSlug) {
                 : serverData[0];
 
             if (!currentEpisode) currentEpisode = serverData[0];
-        }
 
-        renderMovieInfo(currentMovie, currentEpisode);
-        renderEpisodeList(currentMovie.episodes);
-        renderPlayerPlaceholder(currentEpisode);
-        setupActionButtons();
-        injectVideoSchema(currentMovie, currentEpisode);
-        userService.addToHistory(currentMovie, currentEpisode?.name);
-        ophimOk = true;
-    } else {
+            renderMovieInfo(currentMovie, currentEpisode);
+            renderEpisodeList(currentMovie.episodes);
+            renderPlayerPlaceholder(currentEpisode);
+            setupActionButtons();
+            injectVideoSchema(currentMovie, currentEpisode);
+            userService.addToHistory(currentMovie, currentEpisode?.name);
+            ophimOk = true;
+        } else {
+            console.warn('⚠️ [Watch] SSR thiếu stream links, chuyển sang nạp API trực tiếp...');
+        }
+    }
+
+    if (!ophimOk) {
         try {
             console.log('🎥 Loading movie:', slug);
             const response = await movieAPI.getMovieDetail(slug);
@@ -725,7 +746,7 @@ function renderMovieInfo(movie, episode) {
 
     const sidebarGenresRow = document.getElementById('sidebar-genres-row');
     if (sidebarGenresRow) {
-        if (movie.category && movie.category.length > 0) {
+        if (movie.category && (Array.isArray(movie.category) ? movie.category.length > 0 : Object.keys(movie.category).length > 0)) {
             const genreColors = [
                 { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.4)', color: '#60a5fa' },   // Blue (Chính Kịch, etc.)
                 { bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.4)', color: '#c084fc' },  // Purple (Tâm Lý, etc.)
@@ -734,12 +755,32 @@ function renderMovieInfo(movie, episode) {
                 { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', color: '#fbbf24' },   // Amber Gold
                 { bg: 'rgba(14, 165, 233, 0.15)', border: 'rgba(14, 165, 233, 0.4)', color: '#38bdf8' }    // Sky Cyan
             ];
-            sidebarGenresRow.innerHTML = movie.category.map((cat, idx) => {
-                const palette = genreColors[idx % genreColors.length];
-                return `<a href="/categories?category=${cat.slug}" style="background-color: ${palette.bg}; border: 1px solid ${palette.border}; color: ${palette.color};" class="px-2.5 py-1 rounded-lg text-xs font-bold hover:brightness-125 transition-all shadow-sm">
-                    ${cat.name}
-                </a>`;
-            }).join('');
+
+            let rawCats = [];
+            if (Array.isArray(movie.category)) {
+                rawCats = movie.category;
+            } else if (movie.category && typeof movie.category === 'object') {
+                rawCats = Object.values(movie.category).flatMap(g => g.list || g);
+            }
+
+            const validCats = rawCats.map((cat) => {
+                const name = typeof cat === 'string' ? cat : (cat?.name || '');
+                const slug = typeof cat === 'string'
+                    ? cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+                    : (cat?.slug || '');
+                return { name, slug };
+            }).filter(c => c.name && c.name !== 'undefined');
+
+            if (validCats.length > 0) {
+                sidebarGenresRow.innerHTML = validCats.map((cat, idx) => {
+                    const palette = genreColors[idx % genreColors.length];
+                    return `<a href="/categories?category=${cat.slug}" style="background-color: ${palette.bg}; border: 1px solid ${palette.border}; color: ${palette.color};" class="px-2.5 py-1 rounded-lg text-xs font-bold hover:brightness-125 transition-all shadow-sm">
+                        ${cat.name}
+                    </a>`;
+                }).join('');
+            } else {
+                sidebarGenresRow.innerHTML = `<span style="background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;" class="px-3 py-1 rounded-lg text-xs font-bold shadow-sm">Tổng hợp</span>`;
+            }
         } else {
             sidebarGenresRow.innerHTML = `<span style="background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;" class="px-3 py-1 rounded-lg text-xs font-bold shadow-sm">Tổng hợp</span>`;
         }
@@ -1776,6 +1817,29 @@ function initializePlayer(episode) {
     let videoUrl = customLink || episode.link_m3u8 || episode.link_embed;
 
     if (!videoUrl) {
+        console.warn('⚠️ Tập hiện tại thiếu link phát, đang tự động quét các server khác...', episode);
+        if (currentMovie && currentMovie.episodes && currentMovie.episodes.length > 0) {
+            for (let sIdx = 0; sIdx < currentMovie.episodes.length; sIdx++) {
+                const s = currentMovie.episodes[sIdx];
+                const altEp = (s.server_data || []).find(e => {
+                    const matchName = e.name && episode.name && e.name.toLowerCase() === episode.name.toLowerCase();
+                    const matchSlug = e.slug && episode.slug && e.slug.replace(/^tap-/, '') === episode.slug.replace(/^tap-/, '');
+                    return (matchName || matchSlug) && Boolean(e.link_m3u8 || e.link_embed);
+                }) || (s.server_data || []).find(e => Boolean(e.link_m3u8 || e.link_embed));
+
+                if (altEp && (altEp.link_m3u8 || altEp.link_embed)) {
+                    console.log(`✅ Đã tìm thấy luồng phát hợp lệ từ ${s.server_name}!`);
+                    _isInitializingPlayer = false;
+                    currentServerIndex = sIdx;
+                    currentEpisode = altEp;
+                    renderServerList(currentMovie.episodes);
+                    renderEpisodeList(currentMovie.episodes);
+                    initializePlayer(altEp);
+                    return;
+                }
+            }
+        }
+
         console.error('❌ No video link found in episode:', episode);
         showError('Không tìm thấy link phim. Vui lòng liên hệ admin để cập nhật link.');
         return;
@@ -2396,6 +2460,7 @@ function initializePlayer(episode) {
         if (wasPlayingBeforeDrag && player) {
             player.play().catch(err => console.log('Resume playback error:', err));
         }
+        showControls(3800);
         doSaveProgress();
     }
 
@@ -2851,11 +2916,11 @@ function initializePlayer(episode) {
         });
     }
 
-    // Controls Auto-Hide & Mouse Hover Visibility Logic (Professional Cinema Standard)
+    // Controls Auto-Hide & Mouse Hover Visibility Logic (Professional Cinema Standard - YouTube/Netflix)
     let hideTimeout = null;
     let isHoveringControls = false;
 
-    function showControls() {
+    function showControls(customDelay) {
         if (!controls) return;
         controls.classList.remove('aphim-controls-hidden');
         controls.style.opacity = '1';
@@ -2866,13 +2931,22 @@ function initializePlayer(episode) {
             wrapper.style.cursor = 'default';
         }
 
-        scheduleHideControls(2500);
+        const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768);
+        const delay = (typeof customDelay === 'number' && customDelay > 0) ? customDelay : (isTouch ? 3800 : 2500);
+        scheduleHideControls(delay);
     }
 
-    function hideControls() {
+    function hideControls(force = false) {
         if (!controls) return;
-        if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
-        if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
+        if (!force) {
+            if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
+            if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
+        }
+
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
 
         controls.classList.add('aphim-controls-hidden');
         controls.style.opacity = '0';
@@ -2885,17 +2959,25 @@ function initializePlayer(episode) {
         if (settingsMenu) settingsMenu.classList.add('hidden');
     }
 
-    function scheduleHideControls(delay = 2500) {
-        if (hideTimeout) clearTimeout(hideTimeout);
+    function scheduleHideControls(delay) {
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
+        // Khi video đang tạm dừng (paused), hoặc đang kéo timeline, hoặc đang chạm/rê chuột trên thanh điều khiển: KHÔNG bao giờ tự ẩn!
         if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
         if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
 
+        const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768);
+        const actualDelay = (typeof delay === 'number' && delay > 0) ? delay : (isTouch ? 3800 : 2500);
+
         hideTimeout = setTimeout(() => {
             hideControls();
-        }, delay);
+        }, actualDelay);
     }
 
     if (controls) {
+        // Desktop mouse hover
         controls.addEventListener('mouseenter', () => {
             isHoveringControls = true;
             if (hideTimeout) clearTimeout(hideTimeout);
@@ -2903,8 +2985,18 @@ function initializePlayer(episode) {
         });
         controls.addEventListener('mouseleave', () => {
             isHoveringControls = false;
-            scheduleHideControls(1200);
+            scheduleHideControls(1500);
         });
+        // Mobile touch interaction: Chạm vào bất kỳ nút nào hoặc thanh tiến trình -> Giữ sáng và gia hạn timer 3.8s
+        ['touchstart', 'touchmove'].forEach(evt => {
+            controls.addEventListener(evt, () => {
+                isHoveringControls = false;
+                showControls(3800);
+            }, { passive: true });
+        });
+        controls.addEventListener('touchend', () => {
+            showControls(3800);
+        }, { passive: true });
     }
 
     if (settingsMenu) {
@@ -2914,31 +3006,38 @@ function initializePlayer(episode) {
         });
         settingsMenu.addEventListener('mouseleave', () => {
             isHoveringControls = false;
-            scheduleHideControls(1200);
+            scheduleHideControls(1500);
+        });
+        ['touchstart', 'touchmove', 'touchend'].forEach(evt => {
+            settingsMenu.addEventListener(evt, () => {
+                showControls(4500);
+            }, { passive: true });
         });
     }
 
     if (wrapper) {
-        wrapper.addEventListener('mousemove', () => {
+        wrapper.addEventListener('mousemove', (e) => {
+            if (e && e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
             showControls();
         });
-        wrapper.addEventListener('mouseenter', () => {
+        wrapper.addEventListener('mouseenter', (e) => {
+            if (e && e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
             showControls();
         });
         wrapper.addEventListener('mouseleave', () => {
+            // Không áp dụng mouseleave trên thiết bị cảm ứng (tránh synthetic event làm ẩn mất thanh điều khiển sau 300ms)
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) return;
             isHoveringControls = false;
             if (hideTimeout) clearTimeout(hideTimeout);
             if (wrapper) wrapper.style.cursor = 'default';
             if (player && !player.paused && !isDraggingTimeline) {
-                // Di chuột ra khỏi player -> Lập tức ẩn thanh điều khiển sau 300ms mượt mà
                 hideTimeout = setTimeout(() => {
                     hideControls();
-                }, 300);
+                }, 800);
             }
         });
-        wrapper.addEventListener('touchstart', () => {
-            showControls();
-        }, { passive: true });
+        // ĐÃ LOẠI BỎ wrapper.addEventListener('touchstart') gọi showControls() sớm
+        // Để clickzone quản lý luồng tap/double-tap/long-press chuẩn xác 100%
     }
 
     // Global listener for Fullscreen mode
@@ -3104,90 +3203,145 @@ function initializePlayer(episode) {
         if (typeof autoPlayNext === 'function') autoPlayNext();
     });
 
-    // Mobile Gestures (Ảnh số 2):
-    // 1. Chạm một lần để hiện / ẩn thanh điều khiển
-    // 2. Chạm đúp bên trái / phải để tua 10 giây
-    // 3. Nhấn giữ trên video để tua nhanh 2x, thả tay để trở lại tốc độ cũ
-    let lastTap = 0;
-    let singleTapTimeout = null;
+    // Mobile Gestures & Touch Controller (Chuẩn YouTube / Netflix Mobile Standard)
+    let lastTapTime = 0;
+    let singleTapTimer = null;
     let longPressTimer = null;
     let isLongPressActive = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchMoved = false;
+    let wasControlsVisibleOnTouchStart = false;
     let preSpeed = 1.0;
 
     if (clickzone) {
+        // Touchstart: Ghi nhận vị trí và trạng thái ban đầu của bộ công cụ
         clickzone.addEventListener('touchstart', (e) => {
             if (e.touches.length !== 1) return;
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchMoved = false;
+
+            // Ghi nhớ xem bộ công cụ ĐANG HIỆN hay ĐANG ẨN tại đúng khoảnh khắc ngón tay vừa chạm vào màn hình
+            wasControlsVisibleOnTouchStart = controls && 
+                !controls.classList.contains('aphim-controls-hidden') && 
+                controls.style.opacity !== '0' && 
+                controls.style.visibility !== 'hidden';
+
+            // Kích hoạt tính năng nhấn giữ để tua nhanh 2x (YouTube style)
             isLongPressActive = false;
+            if (longPressTimer) clearTimeout(longPressTimer);
             longPressTimer = setTimeout(() => {
-                isLongPressActive = true;
-                preSpeed = player.playbackRate || 1.0;
-                player.playbackRate = 2.0;
-                showSeekOverlay('2x ▶▶', true);
-            }, 400);
+                if (!touchMoved && player && !player.paused) {
+                    isLongPressActive = true;
+                    preSpeed = player.playbackRate || 1.0;
+                    player.playbackRate = 2.0;
+                    showSeekOverlay('2x ▶▶', true);
+                }
+            }, 450);
         }, { passive: true });
 
-        const cancelLongPress = (e) => {
+        // Touchmove: Nếu người dùng vuốt ngón tay (cuộn trang web) -> huỷ tap và long-press
+        clickzone.addEventListener('touchmove', (e) => {
+            if (!e.touches.length) return;
+            const t = e.touches[0];
+            const dist = Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY);
+            if (dist > 12) {
+                touchMoved = true;
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            }
+        }, { passive: true });
+
+        const cancelLongPress = () => {
             if (longPressTimer) {
                 clearTimeout(longPressTimer);
                 longPressTimer = null;
             }
             if (isLongPressActive) {
                 isLongPressActive = false;
-                player.playbackRate = preSpeed || 1.0;
-                showSeekOverlay(`${player.playbackRate}x`, false);
-                if (e) {
-                    try {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    } catch (err) {}
+                if (player) {
+                    player.playbackRate = preSpeed || 1.0;
+                    showSeekOverlay(`${player.playbackRate}x`, false);
                 }
                 return true;
             }
             return false;
         };
 
+        // Touchend: Xử lý Chạm đơn (Bật/Tắt thanh công cụ) và Chạm đúp (Tua 10s Trái / Phải)
         clickzone.addEventListener('touchend', (e) => {
-            if (cancelLongPress(e)) {
-                lastTap = 0;
+            // Nếu vừa thả ngón tay sau khi nhấn giữ 2x -> chỉ trở về 1x, không kích hoạt tap
+            if (cancelLongPress()) {
+                lastTapTime = 0;
+                return;
+            }
+
+            // Nếu người dùng đang vuốt cuộn trang web -> bỏ qua
+            if (touchMoved) {
+                lastTapTime = 0;
                 return;
             }
 
             const now = Date.now();
-            const DOUBLE_TAP_DELAY = 280;
-            if (now - lastTap < DOUBLE_TAP_DELAY) {
-                if (singleTapTimeout) clearTimeout(singleTapTimeout);
-                e.preventDefault();
+            const DOUBLE_TAP_THRESHOLD = 280;
+            const timeSinceLastTap = now - lastTapTime;
+
+            if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD) {
+                // ── TRƯỜNG HỢP: CHẠM ĐÚP (DOUBLE TAP) ──
+                lastTapTime = 0; // Reset để không bị kích hoạt nhầm lần 3
+
                 const rect = clickzone.getBoundingClientRect();
-                const touch = e.changedTouches[0] || e.touches[0];
-                if (touch) {
-                    const tapX = touch.clientX - rect.left;
-                    if (tapX > (rect.width / 2)) {
-                        player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+                const t = e.changedTouches[0] || e.touches[0];
+                if (t && rect.width > 0) {
+                    const tapX = t.clientX - rect.left;
+                    const leftZone = rect.width * 0.4;
+                    const rightZone = rect.width * 0.6;
+
+                    if (tapX < leftZone) {
+                        // Chạm đúp 40% bên trái: Lùi 10s
+                        if (player) player.currentTime = Math.max(0, player.currentTime - 10);
+                        showSeekOverlay('-10s', false);
+                    } else if (tapX > rightZone) {
+                        // Chạm đúp 40% bên phải: Tới 10s
+                        if (player) player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
                         showSeekOverlay('+10s', true);
                     } else {
-                        player.currentTime = Math.max(0, player.currentTime - 10);
-                        showSeekOverlay('-10s', false);
+                        // Chạm đúp ở giữa màn: Tạm dừng / Tiếp tục
+                        togglePlayPause();
                     }
+                    showControls(3800);
                 }
-                lastTap = 0;
             } else {
-                lastTap = now;
-                if (window.innerWidth <= 768) {
-                    singleTapTimeout = setTimeout(() => {
-                        if (controls) {
-                            if (controls.classList.contains('aphim-controls-hidden') || controls.style.opacity === '0') {
-                                showControls();
-                            } else {
-                                hideControls();
-                            }
-                        }
-                    }, DOUBLE_TAP_DELAY);
+                // ── TRƯỜNG HỢP: CHẠM ĐƠN (SINGLE TAP) - PHẢN HỒI REALTIME 0MS ──
+                lastTapTime = now;
+                if (!controls) return;
+
+                if (!wasControlsVisibleOnTouchStart) {
+                    // Nếu bộ công cụ đang ẩn -> BẬT LÊN NGAY LẬP TỨC (0ms delay, Realtime 100%)
+                    showControls(3800);
+                } else {
+                    // Nếu bộ công cụ đang hiện -> ẨN ĐI NGAY LẬP TỨC
+                    if (settingsMenu && !settingsMenu.classList.contains('hidden')) {
+                        settingsMenu.classList.add('hidden');
+                    } else {
+                        hideControls(true);
+                    }
                 }
             }
         });
 
         clickzone.addEventListener('touchcancel', () => {
             cancelLongPress();
+            touchMoved = false;
+            lastTapTime = 0;
+            if (singleTapTimer) {
+                clearTimeout(singleTapTimer);
+                singleTapTimer = null;
+            }
         });
     }
 

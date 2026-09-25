@@ -71,6 +71,22 @@ if (typeof window.openLightbox === 'undefined') {
 function savePreloadedMovieData(movie) {
     if (!movie || !movie.slug) return;
     try {
+        let existingPreloaded = null;
+        try {
+            const raw = sessionStorage.getItem('aphim_preloaded_movie_' + movie.slug);
+            if (raw) existingPreloaded = JSON.parse(raw);
+        } catch (e) { }
+
+        const hasStreamLinks = (epList) => {
+            if (!epList || !Array.isArray(epList)) return false;
+            return epList.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
+        };
+
+        let finalEpisodes = movie.episodes || [];
+        if (!hasStreamLinks(finalEpisodes) && existingPreloaded && hasStreamLinks(existingPreloaded.episodes)) {
+            finalEpisodes = existingPreloaded.episodes;
+        }
+
         const payload = {
             name: movie.name || '',
             origin_name: movie.origin_name || '',
@@ -90,7 +106,7 @@ function savePreloadedMovieData(movie) {
             country: movie.country || [],
             actor: movie.actor || [],
             director: movie.director || [],
-            episodes: movie.episodes || [],
+            episodes: finalEpisodes,
             tmdb: movie.tmdb || {},
             imdb: movie.imdb || {},
             saved_at: Date.now()
