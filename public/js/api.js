@@ -9,20 +9,15 @@ window.autoHealMovieImage = async function(imgEl, slug, movieTitle) {
     const cleanSlug = slug || imgEl.getAttribute('data-tmdb-slug') || imgEl.getAttribute('data-slug') || '';
     const nameStr = movieTitle || imgEl.alt || imgEl.getAttribute('data-tmdb-name') || cleanSlug.replace(/-/g, ' ');
 
-    // STEP 1: Fast CDN domain rewrite
+    // STEP 1: Fast CDN retry / mirror rewrite
     if (step === 1) {
-        if (oldSrc.includes('phimimg.com')) {
-            imgEl.src = oldSrc.replace('phimimg.com', 'phimimg.com');
-            return;
-        }
-        if (oldSrc.includes('phimimg.com/uploads')) {
-            imgEl.src = oldSrc.replace('ophim1.com', 'phimimg.com');
-            return;
-        }
         if (oldSrc.includes('phimimg.com/uploads/movies/') && !oldSrc.includes('/202') && !oldSrc.includes('/upload/vod/')) {
             imgEl.src = oldSrc.replace('phimimg.com/uploads/movies/', 'phimimg.com/upload/vod/');
             return;
         }
+        const cleanUrl = oldSrc.split('?')[0];
+        imgEl.src = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+        return;
     }
 
     // STEP 2: Fetch PhimAPI detail for exact live poster URL

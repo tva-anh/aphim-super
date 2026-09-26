@@ -1137,9 +1137,54 @@
 
         function getImgUrl(url) {
             if (!url) return '/images/no-poster.jpg';
-            if (url.startsWith('http')) return url;
-            return 'https://phimimg.com/' + url.replace(/^\//, '');
+            let u = String(url).trim();
+            if (u.startsWith('http://') || u.startsWith('https://')) {
+                return u.replace('img.ophimimg.com', 'phimimg.com')
+                        .replace('ophim1.com/uploads', 'phimimg.com/uploads');
+            }
+            const clean = u.replace(/^\//, '');
+            if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
+                return 'https://phimimg.com/' + clean;
+            }
+            return 'https://phimimg.com/uploads/movies/' + clean;
         }
+
+        // 🛡️ ULTRA ROBUST IMAGE AUTO-HEALING & NETWORK RETRY ENGINE
+        window.handleCardImgError = function(imgEl) {
+            if (!imgEl) return;
+            const step = parseInt(imgEl.dataset.errStep || '0', 10) + 1;
+            imgEl.dataset.errStep = String(step);
+
+            const fallbackUrl = imgEl.dataset.fallback;
+            const currentSrc = imgEl.src || '';
+
+            // Step 1: Thử link poster / thumb dự phòng ngay lập tức
+            if (step === 1 && fallbackUrl && fallbackUrl !== currentSrc && fallbackUrl !== '/images/no-poster.jpg') {
+                imgEl.src = fallbackUrl;
+                return;
+            }
+
+            // Step 2: Tự động Retry lại sau 350ms (giải quyết nghẽn kết nối CDN khi tải 80+ ảnh đồng thời)
+            if (step <= 2) {
+                setTimeout(() => {
+                    const cleanUrl = currentSrc.split('?')[0];
+                    imgEl.src = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+                }, 350);
+                return;
+            }
+
+            // Step 3: Thử autoHealMovieImage
+            const slug = imgEl.dataset.slug || '';
+            const title = imgEl.alt || '';
+            if (step === 3 && typeof window.autoHealMovieImage === 'function') {
+                window.autoHealMovieImage(imgEl, slug, title);
+                return;
+            }
+
+            // Step 4: Fallback ảnh placeholder poster
+            imgEl.onerror = null;
+            imgEl.src = '/images/no-poster.jpg';
+        };
 
         window.scrollSlider = function(amount) {
             const slider = document.getElementById('slider-de-cu');
@@ -1197,7 +1242,8 @@
         // 1. Render Vertical 2:3 Movie Card (For PHIM MỚI ĐỀ CỬ Slider Only)
         function createDeCuCardHTML(movie) {
             const watchUrl = '/phim/' + movie.slug;
-            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const primaryImg = getImgUrl(movie.poster_url || movie.thumb_url);
+            const fallbackImg = getImgUrl(movie.thumb_url || movie.poster_url);
             const epText = movie.episode_current || 'Tập 1';
             const langBadges = formatLangBadges(movie.lang || 'Vietsub');
             const isFull = epText.toLowerCase().includes('full') || epText.toLowerCase().includes('hoàn tất');
@@ -1211,7 +1257,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" />
+                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1234,7 +1280,8 @@
         // 2. Render Featured Card
         function createFeaturedCardHTML(movie) {
             const watchUrl = '/phim/' + movie.slug;
-            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url);
+            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
             const epText = movie.episode_current || 'Tập 1';
             const epBadgeHTML = getEpBadgeHTML(epText);
             const langBadges = formatLangBadges(movie.lang || 'Vietsub');
@@ -1248,7 +1295,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" class="single-feature-img" />
+                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" class="single-feature-img" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1269,7 +1316,8 @@
         // 3. Render Normal Card Item (1x1 in Unified Grid)
         function createNormalCardHTML(movie) {
             const watchUrl = '/phim/' + movie.slug;
-            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+            const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url);
+            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
             const epText = movie.episode_current || 'Full';
             const epBadgeHTML = getEpBadgeHTML(epText);
             const langBadges = formatLangBadges(movie.lang || 'Vietsub');
@@ -1283,7 +1331,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" />
+                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1413,7 +1461,7 @@
                 <a href="${watchUrl}" title="${movie.name}" class="ranking-card ${rankClass}">
                     <div class="ranking-num ${numClass} rank-delay-${index}">${rank}</div>
                     <div class="ranking-poster-box">
-                        <img class="ranking-poster-img" src="${img}" alt="${movie.name}" loading="lazy" decoding="async" onError="window.APhimCore.handleImgError(this)" />
+                        <img class="ranking-poster-img" src="${img}" data-fallback="${getImgUrl(movie.poster_url || movie.thumb_url)}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" onerror="window.handleCardImgError(this)" />
                     </div>
                     <div class="ranking-info">
                         <div class="ranking-title-vi" title="${movie.name}">${movie.name}</div>

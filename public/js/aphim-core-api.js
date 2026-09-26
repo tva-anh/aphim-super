@@ -28,38 +28,29 @@
     window.APhimCore.handleImgError = async function(imgEl) {
         if (!imgEl) return;
         const currentSrc = imgEl.src || '';
-        const stage = parseInt(imgEl.dataset.fallbackStage || '0');
+        const stage = parseInt(imgEl.dataset.fallbackStage || '0', 10) + 1;
+        imgEl.dataset.fallbackStage = String(stage);
 
-        if (stage === 0) {
-            imgEl.dataset.fallbackStage = '1';
-            // Stage 1: Try img.ophimimg.com mirror
-            if (currentSrc.includes('phimimg.com')) {
-                imgEl.src = currentSrc.replace('phimimg.com', 'img.ophimimg.com');
-                return;
-            }
-        } else if (stage === 1) {
-            imgEl.dataset.fallbackStage = '2';
-            // Stage 2: Try img.ophim.live mirror
-            if (currentSrc.includes('img.ophimimg.com') || currentSrc.includes('phimimg.com')) {
-                imgEl.src = currentSrc.replace('img.ophimimg.com', 'img.ophim.live').replace('phimimg.com', 'img.ophim.live');
-                return;
-            }
+        const altSrc = imgEl.dataset.fallback;
+        if (stage === 1 && altSrc && altSrc !== currentSrc && altSrc !== '/images/no-poster.jpg') {
+            imgEl.src = altSrc;
+            return;
         }
 
-        // Stage 3: Try TMDB Poster API
-        const slug = imgEl.dataset.tmdbSlug;
-        if (slug && stage < 3) {
-            imgEl.dataset.fallbackStage = '3';
-            try {
-                const res = await fetch(`/api/tmdb/search/movie?query=${encodeURIComponent(slug.replace(/-/g, ' '))}&language=vi-VN`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.results && data.results[0] && data.results[0].poster_path) {
-                        imgEl.src = 'https://image.tmdb.org/t/p/w500' + data.results[0].poster_path;
-                        return;
-                    }
-                }
-            } catch (e) {}
+        if (stage <= 2) {
+            setTimeout(() => {
+                const cleanUrl = currentSrc.split('?')[0];
+                imgEl.src = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+            }, 350);
+            return;
+        }
+
+        // Stage 3: Try TMDB Poster API / Slug lookup
+        const slug = imgEl.dataset.tmdbSlug || imgEl.dataset.slug;
+        const nameStr = imgEl.alt || imgEl.title || '';
+        if (stage === 3 && typeof window.autoHealMovieImage === 'function') {
+            window.autoHealMovieImage(imgEl, slug, nameStr);
+            return;
         }
 
         // Final fallback: local SVG/No-poster placeholder
