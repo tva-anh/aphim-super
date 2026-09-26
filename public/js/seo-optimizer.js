@@ -83,7 +83,10 @@ const SEO = {
         this.setMeta('keywords', `${title}, xem phim ${title}, ${title} full hd, ${title} vietsub, ${title} thuyet minh, ${originTitle}, phim ${year}, ${genreList}, aphim, aphim store`);
         
         // 5. Open Graph & Twitter Cards
-        const thumbUrl = movie.poster_url || movie.thumb_url || `${this.domain}/android-chrome-512x512.png`;
+        // Trang xem phim (Watch page) ưu tiên thumb_url 16:9 ngang cho Google Rich Snippet & Share
+        const thumbUrl = isWatchPage
+            ? (movie.thumb_url || movie.poster_url || `${this.domain}/android-chrome-512x512.png`)
+            : (movie.poster_url || movie.thumb_url || `${this.domain}/android-chrome-512x512.png`);
         const absoluteThumb = thumbUrl.startsWith('http') ? thumbUrl : `https://phimimg.com/${thumbUrl.replace(/^\//, '')}`;
         const canonicalUrl = isWatchPage 
             ? `${this.domain}/xem-phim/${slug}`
@@ -196,12 +199,20 @@ const SEO = {
 
         // 2. VideoObject Schema (Nếu đang ở trang xem phim - bí quyết video search top 1)
         if (isWatchPage) {
+            const landscapeThumb = movie.thumb_url 
+                ? (movie.thumb_url.startsWith('http') ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url.replace(/^\//, '')}`)
+                : imgUrl;
+            const posterThumb = movie.poster_url
+                ? (movie.poster_url.startsWith('http') ? movie.poster_url : `https://phimimg.com/${movie.poster_url.replace(/^\//, '')}`)
+                : '';
+            const thumbList = [landscapeThumb, posterThumb].filter(Boolean);
+
             const videoSchema = {
                 "@context": "https://schema.org",
                 "@type": "VideoObject",
                 "name": `Xem phim ${name} ${episodeInfo ? '- ' + episodeInfo : ''} Full HD Vietsub`,
                 "description": desc,
-                "thumbnailUrl": [imgUrl],
+                "thumbnailUrl": thumbList.length ? thumbList : [imgUrl],
                 "uploadDate": movie.created?.time ? new Date(movie.created.time).toISOString() : new Date().toISOString(),
                 "contentUrl": pageUrl,
                 "embedUrl": pageUrl,

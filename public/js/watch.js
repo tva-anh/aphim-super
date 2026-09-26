@@ -484,11 +484,28 @@ function injectVideoSchema(movie, episode) {
 
         const slug = movie.slug;
         const epSlug = episode ? episode.slug : '';
-        const pageUrl = 'https://aphim.io.vn/xem-phim/' + encodeURIComponent(slug)
+        const pageUrl = 'https://aphim.store/xem-phim/' + encodeURIComponent(slug)
             + (epSlug ? '/tap-' + encodeURIComponent(epSlug) : '');
-        const canonicalUrl = 'https://aphim.io.vn/phim/' + encodeURIComponent(slug);
+        const canonicalUrl = 'https://aphim.store/phim/' + encodeURIComponent(slug);
 
-        const thumbUrl = movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 600, 85, true);
+        let rawThumb = movie.thumb_url || movie.poster_url || '';
+        let absoluteThumb = 'https://aphim.store/android-chrome-512x512.png';
+        if (rawThumb) {
+            if (rawThumb.startsWith('http')) {
+                absoluteThumb = rawThumb;
+            } else {
+                absoluteThumb = 'https://phimimg.com/' + rawThumb.replace(/^\//, '');
+            }
+        }
+
+        let rawPoster = movie.poster_url || movie.thumb_url || '';
+        let absolutePoster = '';
+        if (rawPoster) {
+            absolutePoster = rawPoster.startsWith('http') ? rawPoster : ('https://phimimg.com/' + rawPoster.replace(/^\//, ''));
+        }
+
+        const thumbsList = [absoluteThumb, absolutePoster].filter(Boolean);
+
         const videoUrl = (episode && (episode.link_m3u8 || episode.link_embed)) || pageUrl;
         const epName = episode ? episode.name : '';
         const fullName = epName ? (movie.name + ' - ' + epName) : movie.name;
@@ -504,7 +521,7 @@ function injectVideoSchema(movie, episode) {
             '@type': 'VideoObject',
             'name': fullName,
             'description': description,
-            'thumbnailUrl': thumbUrl,
+            'thumbnailUrl': thumbsList,
             'uploadDate': uploadDate,
             'contentUrl': videoUrl,
             'embedUrl': pageUrl,
@@ -512,11 +529,11 @@ function injectVideoSchema(movie, episode) {
             'inLanguage': 'vi',
             'publisher': {
                 '@type': 'Organization',
-                'name': 'APhim',
-                'url': 'https://aphim.io.vn',
+                'name': 'APhim Super',
+                'url': 'https://aphim.store',
                 'logo': {
                     '@type': 'ImageObject',
-                    'url': 'https://aphim.io.vn/apple-touch-icon.png'
+                    'url': 'https://aphim.store/android-chrome-512x512.png'
                 }
             }
         };

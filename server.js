@@ -1386,7 +1386,7 @@ app.get([
 
         const rawWatchDesc = `Xem phim ${meta.name} ${epText}${variantDescText || 'Full HD Vietsub Thuyết minh'} không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
         const metaDescription = formatMetaDescription(rawWatchDesc, 155);
-        const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
+        const ogImage = meta.thumb_url || meta.poster_url || 'https://aphim.store/android-chrome-512x512.png';
         const metaKeywords = `xem phim ${meta.name}, ${meta.name} ${epNumber ? 'tap ' + epNumber : ''}, ${meta.name} ${variantKeyword}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, xem phim khong quang cao, aphim, aphim store`;
 
         // Smart Canonical URL: Phân biệt rõ bản nội dung khác nhau vs server clone kỹ thuật
@@ -1403,11 +1403,14 @@ app.get([
 
         const mainCategory = meta.category[0] || 'Phim mới';
 
+        const videoThumbnails = [meta.thumb_url, meta.poster_url].filter(Boolean);
+        if (!videoThumbnails.length) videoThumbnails.push('https://aphim.store/android-chrome-512x512.png');
+
         const videoObject = {
             "@type": "VideoObject",
             "name": title,
             "description": metaDescription,
-            "thumbnailUrl": [ogImage],
+            "thumbnailUrl": videoThumbnails,
             "uploadDate": meta.year ? `${meta.year}-01-01T00:00:00Z` : new Date().toISOString(),
             "contentUrl": canonicalUrl,
             "embedUrl": canonicalUrl,
