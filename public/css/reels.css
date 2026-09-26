@@ -1,0 +1,1238 @@
+/**
+ * public/css/reels.css
+ * 🎬 APhim Super Cinematic Reels & Review UI Suite
+ * Inspired by TikTok, Instagram Reels & Netflix Shorts.
+ * Enterprise Dark Glassmorphism with Smooth 60fps Micro-interactions.
+ */
+
+:root {
+    --reels-bg: #07090e;
+    --reels-surface: #101422;
+    --reels-card-bg: #14192b;
+    --reels-accent: #fcd576;
+    --reels-accent-gradient: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%);
+    --reels-primary: #6366f1;
+    --reels-red: #f43f5e;
+    --reels-border: rgba(255, 255, 255, 0.1);
+    --reels-border-glow: rgba(252, 213, 118, 0.3);
+    --reels-text: #f8fafc;
+    --reels-text-muted: #94a3b8;
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base Viewport Container */
+.reels-page-wrapper {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: var(--reels-bg);
+    color: var(--reels-text);
+    overflow: hidden;
+    position: relative;
+    font-family: 'Be Vietnam Pro', 'Inter', -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ===================================================
+   🖥️ DESKTOP CINEMATIC SIDEBAR (Hidden on Mobile)
+   =================================================== */
+.reels-desktop-sidebar {
+    display: none;
+    width: 280px;
+    height: 100%;
+    background: rgba(13, 17, 28, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid var(--reels-border);
+    flex-direction: column;
+    z-index: 50;
+    flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+    .reels-desktop-sidebar {
+        display: flex;
+    }
+}
+
+.sidebar-brand-wrapper {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.sidebar-brand-logo img {
+    height: 34px;
+    width: auto;
+    object-fit: contain;
+}
+
+.sidebar-scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.sidebar-nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: var(--reels-text-muted);
+    text-decoration: none;
+    font-size: 14.5px;
+    font-weight: 600;
+    transition: all 0.2s var(--ease-spring);
+    border: 1px solid transparent;
+}
+
+.sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+.sidebar-nav-item.active {
+    background: linear-gradient(135deg, rgba(252, 213, 118, 0.15), rgba(245, 158, 11, 0.08));
+    color: var(--reels-accent);
+    border-color: rgba(252, 213, 118, 0.3);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12);
+}
+
+.sidebar-nav-icon {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+    color: #64748b;
+    padding: 0 16px 8px;
+}
+
+.sidebar-tags-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 8px 20px;
+}
+
+.sidebar-tag-item {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.sidebar-tag-item:hover {
+    background: rgba(252, 213, 118, 0.15);
+    border-color: var(--reels-accent);
+    color: var(--reels-accent);
+}
+
+/* ===================================================
+   📱 MAIN REELS VIEWPORT (Centered TikTok Stage)
+   =================================================== */
+.reels-main-container {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(circle at 50% 50%, #151a2d 0%, #07090e 100%);
+    overflow: hidden;
+}
+
+.reels-viewport {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 640px) {
+    .reels-viewport {
+        max-width: 440px;
+        height: min(94vh, 880px);
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 32px rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+    }
+}
+
+/* Top Floating Bar & Tab Switcher */
+.reels-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 40;
+    background: linear-gradient(to bottom, rgba(7, 9, 14, 0.85) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.reels-top-bar > * {
+    pointer-events: auto;
+}
+
+.reels-top-tabs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(20, 25, 43, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 4px 8px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reels-tab-item {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    transition: all 0.25s var(--ease-spring);
+}
+
+.reels-tab-item.active {
+    color: #000000;
+    background: var(--reels-accent);
+    box-shadow: 0 2px 10px rgba(252, 213, 118, 0.4);
+}
+
+.reels-top-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(20, 25, 43, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reels-top-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.08);
+}
+
+/* ===================================================
+   📜 VERTICAL SCROLL FEED (MANDATORY SNAP)
+   =================================================== */
+.reels-feed {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    position: relative;
+}
+
+.reels-feed::-webkit-scrollbar {
+    display: none;
+}
+
+.reel-item {
+    width: 100%;
+    height: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    background: #000000;
+}
+
+/* Media / Player Layer */
+.reel-media-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    z-index: 1;
+}
+
+.reel-thumb-cover {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 0.3s ease;
+    z-index: 4;
+}
+
+.reel-thumb-cover.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Global Dual YouTube Players */
+.reels-global-player-host {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.reels-global-player-host.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.reel-gradient-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(7, 9, 14, 0.95) 0%, rgba(7, 9, 14, 0.4) 30%, transparent 60%, rgba(7, 9, 14, 0.7) 100%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Gesture Overlay for Double-Tap & Seek */
+.reel-gesture-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reel-heart-burst {
+    position: absolute;
+    font-size: 80px;
+    opacity: 0;
+    transform: scale(0.4);
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 0 20px rgba(244, 63, 94, 0.8));
+}
+
+.reel-heart-burst.animate {
+    opacity: 1;
+    transform: scale(1.3) rotate(-10deg);
+}
+
+/* ===================================================
+   ⚡ RIGHT SIDE ACTION BAR (CTA + LIKES + SHARE)
+   =================================================== */
+.reels-actions-bar {
+    position: absolute;
+    right: 12px;
+    bottom: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 25;
+}
+
+.reel-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s var(--ease-spring);
+}
+
+.reel-action-btn:hover {
+    transform: scale(1.12);
+}
+
+.reel-action-btn:active {
+    transform: scale(0.92);
+}
+
+.action-circle-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(20, 25, 43, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+}
+
+.action-label {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 4px;
+    color: #f1f5f9;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* 🔥 HERO CTA: "XEM PHIM" BUTTON (STANDOUT GLOW) */
+.btn-watch-movie {
+    margin-bottom: 6px;
+}
+
+.btn-watch-movie .action-circle-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--reels-accent-gradient);
+    color: #000000;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 24px rgba(252, 213, 118, 0.6), 0 4px 12px rgba(0, 0, 0, 0.5);
+    animation: watchPulse 2.5s infinite;
+}
+
+.btn-watch-movie .action-label {
+    color: var(--reels-accent);
+    font-weight: 800;
+    font-size: 11.5px;
+}
+
+@keyframes watchPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(252, 213, 118, 0.5);
+    }
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 30px rgba(252, 213, 118, 0.85);
+    }
+}
+
+/* Like Heart Active State */
+.btn-like.liked .action-circle-icon {
+    color: var(--reels-red);
+    background: rgba(244, 63, 94, 0.2);
+    border-color: var(--reels-red);
+}
+
+/* ===================================================
+   ℹ️ BOTTOM MOVIE METADATA OVERLAY
+   =================================================== */
+.reel-bottom-info {
+    position: relative;
+    z-index: 20;
+    padding: 0 16px 12px;
+    margin-right: 68px; /* Leave space for action bar */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reel-movie-card-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(20, 25, 43, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 6px 10px;
+    text-decoration: none;
+    color: #ffffff;
+    width: fit-content;
+    max-width: 100%;
+    transition: all 0.2s ease;
+}
+
+.reel-movie-card-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--reels-accent);
+}
+
+.reel-movie-mini-poster {
+    width: 28px;
+    height: 38px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.reel-movie-header-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.reel-movie-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--reels-accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reel-movie-meta-sub {
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reel-caption-text {
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: #f1f5f9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ===================================================
+   🎛️ SCRUBBER & PLAYBACK CONTROLS
+   =================================================== */
+.reel-controls-bar {
+    position: relative;
+    z-index: 25;
+    padding: 0 16px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11.5px;
+    color: #cbd5e1;
+}
+
+.reel-progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    transition: height 0.2s ease;
+}
+
+.reel-progress-track:hover {
+    height: 6px;
+}
+
+.reel-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--reels-accent);
+    border-radius: 4px;
+    position: relative;
+}
+
+.reel-speed-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.reel-speed-badge:hover {
+    background: var(--reels-accent);
+    color: #000000;
+}
+
+/* Sound Unlock Prompt */
+.reels-sound-prompt {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.reels-sound-prompt.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sound-pulse-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: var(--reels-accent);
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 0 30px rgba(252, 213, 118, 0.6);
+    animation: soundPulse 1.8s infinite;
+}
+
+@keyframes soundPulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(252, 213, 118, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(252, 213, 118, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(252, 213, 118, 0); }
+}
+
+/* ===================================================
+   🖥️ DESKTOP RIGHT INFO PANEL (>= 1280px)
+   =================================================== */
+.reels-desktop-info-panel {
+    display: none;
+    width: 340px;
+    height: 100%;
+    background: rgba(13, 17, 28, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-left: 1px solid var(--reels-border);
+    flex-direction: column;
+    padding: 24px 20px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    z-index: 40;
+    flex-shrink: 0;
+}
+
+@media (min-width: 1280px) {
+    .reels-desktop-info-panel {
+        display: flex;
+    }
+}
+
+.info-panel-poster-wrap {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.info-panel-poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.info-panel-poster-wrap:hover .info-panel-poster-img {
+    transform: scale(1.05);
+}
+
+.info-panel-badge-overlay {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    display: flex;
+    gap: 6px;
+}
+
+.info-panel-pill {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-panel-pill.gold {
+    background: var(--reels-accent-gradient);
+    color: #000000;
+    border: none;
+}
+
+.info-panel-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+
+.info-panel-sub {
+    font-size: 12.5px;
+    color: var(--reels-accent);
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.info-panel-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.info-panel-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.info-panel-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.info-panel-watch-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--reels-accent-gradient);
+    color: #000000;
+    font-size: 14.5px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(252, 213, 118, 0.4);
+    transition: all 0.25s var(--ease-spring);
+    margin-bottom: 24px;
+}
+
+.info-panel-watch-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(252, 213, 118, 0.6);
+}
+
+.info-panel-related-title {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+
+.info-panel-related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-related-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.info-related-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(252, 213, 118, 0.3);
+    transform: translateX(3px);
+}
+
+.info-related-thumb {
+    width: 48px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.info-related-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-related-title {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-related-channel {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* ===================================================
+   💬 SLIDE-OVER COMMENTS DRAWER
+   =================================================== */
+.reels-comments-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 80;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.reels-comments-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.reels-comments-drawer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 420px;
+    height: 70vh;
+    background: #0f1422;
+    border-top: 1px solid var(--reels-border);
+    border-radius: 20px 20px 0 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.35s var(--ease-spring);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+}
+
+@media (min-width: 640px) {
+    .reels-comments-drawer {
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        border-radius: 20px 0 0 20px;
+        border-top: none;
+        border-left: 1px solid var(--reels-border);
+        transform: translateX(100%);
+    }
+}
+
+.reels-comments-drawer.active {
+    transform: translate(0, 0);
+}
+
+.drawer-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.drawer-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.drawer-close-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.comment-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.comment-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.comment-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-author {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.comment-time {
+    font-size: 11px;
+    font-weight: 400;
+    color: #64748b;
+}
+
+.comment-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #f1f5f9;
+}
+
+.comment-like-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    gap: 2px;
+    padding-top: 4px;
+}
+
+.comment-like-btn:hover {
+    color: var(--reels-red);
+}
+
+.drawer-footer {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(13, 17, 28, 0.9);
+}
+
+.drawer-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 10px 16px;
+    color: #ffffff;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.drawer-input:focus {
+    border-color: var(--reels-accent);
+}
+
+.drawer-send-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--reels-accent-gradient);
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.drawer-send-btn:hover {
+    transform: scale(1.08);
+}
+
+/* ===================================================
+   🔍 SEARCH MODAL (SPOTLIGHT DIALOG)
+   =================================================== */
+.reels-search-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 16px 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.reels-search-modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.reels-search-dialog {
+    width: 100%;
+    max-width: 580px;
+    background: #101422;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 20px rgba(99, 102, 241, 0.2);
+    overflow: hidden;
+    transform: translateY(-20px) scale(0.96);
+    transition: all 0.3s var(--ease-spring);
+}
+
+.reels-search-modal-backdrop.active .reels-search-dialog {
+    transform: translateY(0) scale(1);
+}
+
+.search-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.search-dialog-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-dialog-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.search-dialog-close:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.search-dialog-body {
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 16px 20px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.search-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.search-result-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.search-result-row:hover {
+    background: rgba(252, 213, 118, 0.1);
+    border-color: rgba(252, 213, 118, 0.3);
+}
+
+.search-row-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.search-row-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.search-row-subtitle {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* ===================================================
+   🔔 TOAST NOTIFICATIONS
+   =================================================== */
+.reels-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-30px);
+    background: rgba(20, 25, 43, 0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(252, 213, 118, 0.4);
+    border-radius: 30px;
+    padding: 10px 20px;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s var(--ease-spring);
+}
+
+.reels-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* ===================================================
+   ✨ LUCIDE ICONS STYLING (LATEST ICON TOOLKIT)
+   =================================================== */
+.lucide {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.2;
+    display: inline-block;
+    vertical-align: middle;
+    stroke: currentColor;
+    fill: none;
+}
+
+.lucide-lg {
+    width: 26px;
+    height: 26px;
+}
+
+.lucide-xl {
+    width: 32px;
+    height: 32px;
+}
+
+.lucide-sm {
+    width: 16px;
+    height: 16px;
+}
+
+/* Subtle Pulsing Animation */
+.animate-glow {
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px rgba(252, 213, 118, 0.4)); }
+    50% { opacity: 0.8; filter: drop-shadow(0 0 16px rgba(252, 213, 118, 0.8)); }
+}

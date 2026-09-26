@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+
+<head>
+    <%- include('partials/head') %>
+    <link rel="stylesheet" href="/css/reels.css?v=101" />
+    <!-- Latest Lucide Icons Library CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-[#07090e] text-gray-100 min-h-screen overflow-hidden w-full select-none">
+
+    <div class="reels-page-wrapper">
+
+        <!-- =========================================================
+             🖥️ DESKTOP CINEMATIC SIDEBAR (Visible >= 1024px)
+             ========================================================= -->
+        <aside class="reels-desktop-sidebar">
+            <div class="sidebar-brand-wrapper">
+                <a href="/" class="sidebar-brand-logo" title="Về trang chủ APhim Super">
+                    <img src="/logo-aphim.png" alt="APhim Super Logo" onerror="this.src='/android-chrome-192x192.png'; this.style.height='28px';" />
+                    <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent flex items-center gap-1.5">
+                        REELS <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30">PRO</span>
+                    </span>
+                </a>
+                <a href="/" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all" title="Về trang chủ">
+                    <i data-lucide="home" class="lucide-sm"></i>
+                </a>
+            </div>
+
+            <div class="sidebar-scrollable-content">
+                <!-- Navigation Menu -->
+                <div class="sidebar-nav-group">
+                    <a href="/reels?tab=review" class="sidebar-nav-item <%= currentTab === 'review' ? 'active' : '' %>">
+                        <span class="sidebar-nav-icon"><i data-lucide="clapperboard"></i></span>
+                        <span>Review & Tóm Tắt</span>
+                    </a>
+                    <a href="/reels?tab=reel" class="sidebar-nav-item <%= currentTab === 'reel' ? 'active' : '' %>">
+                        <span class="sidebar-nav-icon"><i data-lucide="flame"></i></span>
+                        <span>Trích Đoạn Viral</span>
+                    </a>
+                    <a href="javascript:void(0)" onclick="openReelsSearchModal()" class="sidebar-nav-item">
+                        <span class="sidebar-nav-icon"><i data-lucide="search"></i></span>
+                        <span>Tìm Phim Theo Tên</span>
+                    </a>
+                    <a href="/danh-sach?list=phim-chieu-rap" class="sidebar-nav-item">
+                        <span class="sidebar-nav-icon"><i data-lucide="film"></i></span>
+                        <span>Phim Chiếu Rạp Mới</span>
+                    </a>
+                    <a href="/danh-sach?list=phim-bo" class="sidebar-nav-item">
+                        <span class="sidebar-nav-icon"><i data-lucide="tv"></i></span>
+                        <span>Phim Bộ Hot Nhất</span>
+                    </a>
+                </div>
+
+                <!-- Trending Categories -->
+                <div class="sidebar-section-title">Chủ Đề Thịnh Hành</div>
+                <div class="sidebar-tags-grid">
+                    <a href="/reels?q=hành+động" class="sidebar-tag-item">🔥 Hành Động</a>
+                    <a href="/reels?q=kinh+dị" class="sidebar-tag-item">👻 Kinh Dị</a>
+                    <a href="/reels?q=cổ+trang" class="sidebar-tag-item">⚔️ Cổ Trang</a>
+                    <a href="/reels?q=hàn+quốc" class="sidebar-tag-item">🌸 Hàn Quốc</a>
+                    <a href="/reels?q=anime" class="sidebar-tag-item">⚡ Anime</a>
+                    <a href="/reels?q=viễn+tưởng" class="sidebar-tag-item">🚀 Viễn Tưởng</a>
+                    <a href="/reels?q=tình+cảm" class="sidebar-tag-item">💖 Tình Cảm</a>
+                </div>
+
+                <!-- Desktop Hot Shortcuts -->
+                <div class="sidebar-section-title">Phím Tắt Tiện Ích</div>
+                <div class="px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-gray-400 space-y-1.5 font-mono">
+                    <div class="flex justify-between items-center">
+                        <span>Lướt tiếp theo:</span>
+                        <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white text-[11px]">↓ / J</kbd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Video trước:</span>
+                        <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white text-[11px]">↑ / K</kbd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Tạm dừng/Phát:</span>
+                        <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white text-[11px]">Space</kbd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Bật/Tắt tiếng:</span>
+                        <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white text-[11px]">M</kbd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Thích video:</span>
+                        <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-white text-[11px]">L</kbd>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- =========================================================
+             📱 CENTER REELS VIEWPORT (TikTok / Reels Feed Container)
+             ========================================================= -->
+        <main class="reels-main-container">
+            <div class="reels-viewport">
+
+                <!-- Top Floating Navigation Bar -->
+                <div class="reels-top-bar">
+                    <a href="/" class="reels-top-btn" title="Về trang chủ">
+                        <i data-lucide="arrow-left" class="lucide-sm"></i>
+                    </a>
+
+                    <!-- Tab Switcher -->
+                    <div class="reels-top-tabs">
+                        <a href="/reels?tab=review" class="reels-tab-item <%= currentTab === 'review' ? 'active' : '' %>">
+                            Review Phim
+                        </a>
+                        <a href="/reels?tab=reel" class="reels-tab-item <%= currentTab === 'reel' ? 'active' : '' %>">
+                            Trích Đoạn
+                        </a>
+                    </div>
+
+                    <!-- Right Controls: Mute Toggle & Search Button -->
+                    <div class="flex items-center gap-2">
+                        <button id="reels-mute-toggle-btn" class="reels-top-btn" title="Bật/Tắt âm thanh" onclick="toggleMuteGlobal()">
+                            <i data-lucide="volume-x" id="reels-mute-icon" class="lucide-sm text-amber-300"></i>
+                        </button>
+                        <button class="reels-top-btn" title="Tìm kiếm phim" onclick="openReelsSearchModal()">
+                            <i data-lucide="search" class="lucide-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Global YouTube Player Host Slots (Dual Host A/B for Seamless Switching) -->
+                <div id="reels-player-host-a" class="reels-global-player-host"></div>
+                <div id="reels-player-host-b" class="reels-global-player-host"></div>
+
+                <!-- Vertical Scroll Feed Container -->
+                <div id="reels-feed-container" class="reels-feed">
+
+                    <% if (initialReels && initialReels.length > 0) { %>
+                        <% initialReels.forEach(function(item, index) { %>
+                            <div class="reel-item" 
+                                 id="reel-item-<%= index %>"
+                                 data-index="<%= index %>"
+                                 data-id="<%= item.id %>"
+                                 data-yt="<%= item.yt %>"
+                                 data-slug="<%= item.slug %>"
+                                 data-title="<%= item.title %>"
+                                 data-movie-title="<%= item.movieTitle %>"
+                                 data-poster="<%= item.poster %>"
+                                 data-backdrop="<%= item.backdrop %>"
+                                 data-quality="<%= item.quality %>"
+                                 data-year="<%= item.year %>"
+                                 data-rating="<%= item.rating %>"
+                                 data-categories="<%= Array.isArray(item.categories) ? item.categories.join(', ') : item.categories %>"
+                                 data-author="<%= item.author %>"
+                                 data-likes="<%= item.likes %>"
+                                 data-comments="<%= item.comments %>"
+                                 data-shares="<%= item.shares %>"
+                                 data-watch-url="<%= item.watchUrl %>"
+                                 data-description="<%= item.description %>">
+
+                                <!-- Media Layer / Poster Placeholder -->
+                                <div class="reel-media-wrapper">
+                                    <div class="reel-thumb-cover" style="background-image: url('<%= item.poster || item.backdrop %>');"></div>
+                                </div>
+
+                                <!-- Ambient Top/Bottom Gradient -->
+                                <div class="reel-gradient-overlay"></div>
+
+                                <!-- Gesture Tap Overlay (Double-tap like, single-tap pause) -->
+                                <div class="reel-gesture-overlay" onclick="handleReelGestureTap(event, '<%= index %>')">
+                                    <div class="reel-heart-burst" id="heart-burst-<%= index %>">
+                                        <i data-lucide="heart" class="text-rose-500 fill-rose-500 w-24 h-24"></i>
+                                    </div>
+                                    <div class="reel-play-indicator hidden" id="play-indicator-<%= index %>">
+                                        <i data-lucide="play" class="text-white/80 w-16 h-16 fill-white/60"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Sound Unlock Prompt (Shown on first visit if autoplay muted) -->
+                                <div class="reels-sound-prompt <%= index === 0 ? '' : 'hidden' %>" id="sound-prompt-<%= index %>" onclick="unlockSoundAndPlay()">
+                                    <div class="sound-pulse-circle">
+                                        <i data-lucide="volume-2" class="w-8 h-8 text-black"></i>
+                                    </div>
+                                    <span class="text-sm font-bold text-white shadow-md">Chạm để bật âm thanh</span>
+                                </div>
+
+                                <!-- Right Action Bar (TikTok / Reels Style) -->
+                                <div class="reels-actions-bar">
+                                    <!-- Mini Avatar / Movie Poster Icon -->
+                                    <a href="/phim/<%= item.slug %>" class="reel-action-btn group" title="Xem thông tin <%= item.movieTitle %>">
+                                        <div class="w-11 h-11 rounded-full border-2 border-amber-300 p-0.5 overflow-hidden bg-black/60 shadow-lg group-hover:scale-105 transition-transform">
+                                            <img src="<%= item.poster || item.backdrop %>" alt="<%= item.movieTitle %>" class="w-full h-full rounded-full object-cover" onerror="this.src='/android-chrome-192x192.png';" />
+                                        </div>
+                                    </a>
+
+                                    <!-- 🔥 HERO CTA BUTTON: "XEM PHIM" (Direct Watch Tap 1) -->
+                                    <a href="<%= item.watchUrl %>" class="reel-action-btn btn-watch-movie" title="Xem trọn bộ <%= item.movieTitle %> ngay">
+                                        <div class="action-circle-icon">
+                                            <i data-lucide="play" class="w-6 h-6 fill-black text-black ml-0.5"></i>
+                                        </div>
+                                        <span class="action-label">XEM PHIM</span>
+                                    </a>
+
+                                    <!-- Like Heart Button -->
+                                    <button class="reel-action-btn btn-like" id="btn-like-<%= index %>" onclick="toggleLikeReel('<%= item.id %>', '<%= index %>')" title="Thích video này">
+                                        <div class="action-circle-icon">
+                                            <i data-lucide="heart" class="like-icon w-5 h-5"></i>
+                                        </div>
+                                        <span class="action-label like-count"><%= item.likes %></span>
+                                    </button>
+
+                                    <!-- Comments Button -->
+                                    <button class="reel-action-btn btn-comment" onclick="openReelsCommentsDrawer('<%= item.id %>', '<%= item.movieTitle %>')" title="Xem và gửi bình luận">
+                                        <div class="action-circle-icon">
+                                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                                        </div>
+                                        <span class="action-label"><%= item.comments %></span>
+                                    </button>
+
+                                    <!-- Bookmark Button -->
+                                    <button class="reel-action-btn btn-bookmark" onclick="toggleBookmarkReel('<%= item.id %>', '<%= index %>')" title="Lưu lại xem sau">
+                                        <div class="action-circle-icon">
+                                            <i data-lucide="bookmark" class="w-5 h-5"></i>
+                                        </div>
+                                        <span class="action-label">Lưu</span>
+                                    </button>
+
+                                    <!-- Share Button -->
+                                    <button class="reel-action-btn btn-share" onclick="shareCurrentReel('<%= item.slug %>', '<%= item.title %>')" title="Chia sẻ video">
+                                        <div class="action-circle-icon">
+                                            <i data-lucide="share-2" class="w-5 h-5"></i>
+                                        </div>
+                                        <span class="action-label"><%= item.shares %></span>
+                                    </button>
+
+                                    <!-- Speed Button -->
+                                    <button class="reel-action-btn btn-speed" onclick="cyclePlaybackSpeed()" title="Đổi tốc độ phát">
+                                        <div class="action-circle-icon">
+                                            <i data-lucide="gauge" class="w-5 h-5"></i>
+                                        </div>
+                                        <span class="action-label" id="speed-label">1.0x</span>
+                                    </button>
+                                </div>
+
+                                <!-- Bottom Movie Meta Info Card -->
+                                <div class="reel-bottom-info">
+                                    <a href="/phim/<%= item.slug %>" class="reel-movie-card-link">
+                                        <img src="<%= item.poster || item.backdrop %>" alt="<%= item.movieTitle %>" class="reel-movie-mini-poster" onerror="this.src='/android-chrome-192x192.png';" />
+                                        <div class="reel-movie-header-info">
+                                            <div class="reel-movie-title"><%= item.movieTitle %></div>
+                                            <div class="reel-movie-meta-sub">
+                                                <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-bold text-[10px]"><%= item.quality %></span>
+                                                <span>• <%= item.year %></span>
+                                                <span>• ⭐ <%= item.rating %></span>
+                                            </div>
+                                        </div>
+                                        <i data-lucide="chevron-right" class="lucide-sm text-gray-400 ml-1"></i>
+                                    </a>
+
+                                    <div class="reel-caption-text">
+                                        <b class="text-amber-300 font-semibold">@<%= item.author %>:</b> <%= item.title %> — <%= item.description %>
+                                    </div>
+                                </div>
+
+                                <!-- Scrubber / Progress Bar -->
+                                <div class="reel-controls-bar">
+                                    <span class="reel-current-time" id="time-current-<%= index %>">00:00</span>
+                                    <div class="reel-progress-track" onclick="seekReelProgress(event, '<%= index %>')">
+                                        <div class="reel-progress-fill" id="progress-fill-<%= index %>"></div>
+                                    </div>
+                                    <span class="reel-duration" id="time-duration-<%= index %>"><%= item.duration || '03:00' %></span>
+                                </div>
+
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="flex flex-col items-center justify-center h-full text-center p-6 space-y-4">
+                            <i data-lucide="film" class="w-16 h-16 text-amber-300 animate-bounce"></i>
+                            <h2 class="text-lg font-bold">Đang tổng hợp Reels & Review mới nhất...</h2>
+                            <p class="text-sm text-gray-400 max-w-xs">Hệ thống đang tải dữ liệu video từ kho phim. Vui lòng bấm làm mới.</p>
+                            <a href="/reels" class="px-5 py-2.5 rounded-full bg-amber-400 text-black font-bold text-sm hover:scale-105 transition-transform">
+                                Tải Lại Trang
+                            </a>
+                        </div>
+                    <% } %>
+
+                </div>
+
+            </div>
+        </main>
+
+        <!-- =========================================================
+             🖥️ DESKTOP RIGHT INFO PANEL (Visible >= 1280px)
+             ========================================================= -->
+        <aside class="reels-desktop-info-panel" id="reels-desktop-info-panel">
+            <% if (initialReels && initialReels[0]) { var first = initialReels[0]; %>
+                <div class="info-panel-poster-wrap">
+                    <img src="<%= first.backdrop || first.poster %>" alt="<%= first.movieTitle %>" class="info-panel-poster-img" id="panel-hero-img" onerror="this.src='/android-chrome-512x512.png';" />
+                    <div class="info-panel-badge-overlay">
+                        <span class="info-panel-pill gold" id="panel-quality"><%= first.quality %></span>
+                        <span class="info-panel-pill" id="panel-year"><%= first.year %></span>
+                    </div>
+                </div>
+
+                <div class="info-panel-title" id="panel-title"><%= first.movieTitle %></div>
+                <div class="info-panel-sub" id="panel-sub"><%= first.title %></div>
+
+                <div class="info-panel-meta-row">
+                    <div class="info-panel-meta-item">
+                        <i data-lucide="star" class="w-4 h-4 text-amber-300 fill-amber-300"></i>
+                        <span id="panel-rating"><%= first.rating %> / 10</span>
+                    </div>
+                    <div class="info-panel-meta-item">
+                        <i data-lucide="film" class="w-4 h-4 text-indigo-400"></i>
+                        <span id="panel-categories"><%= Array.isArray(first.categories) ? first.categories.join(', ') : first.categories %></span>
+                    </div>
+                </div>
+
+                <div class="info-panel-desc" id="panel-desc">
+                    <%= first.description %>
+                </div>
+
+                <a href="<%= first.watchUrl %>" class="info-panel-watch-cta" id="panel-watch-btn">
+                    <i data-lucide="play" class="w-5 h-5 fill-black"></i>
+                    <span>XEM PHIM NGAY (TẬP 1)</span>
+                </a>
+
+                <div class="info-panel-related-title">Review Tương Tự</div>
+                <div class="info-panel-related-list" id="panel-related-list">
+                    <% initialReels.slice(1, 5).forEach(function(rel, rIdx) { %>
+                        <div class="info-related-item" onclick="scrollToReelIndex('<%= rIdx + 1 %>')">
+                            <img src="<%= rel.poster || rel.backdrop %>" alt="<%= rel.movieTitle %>" class="info-related-thumb" />
+                            <div class="info-related-text">
+                                <div class="info-related-title"><%= rel.movieTitle %></div>
+                                <div class="info-related-channel">@<%= rel.author %> • <%= rel.likes %> thích</div>
+                            </div>
+                            <i data-lucide="play-circle" class="w-5 h-5 text-amber-300 flex-shrink-0"></i>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </aside>
+
+    </div>
+
+    <!-- =========================================================
+         💬 COMMENTS SLIDE-OVER DRAWER
+         ========================================================= -->
+    <div class="reels-comments-backdrop" id="reels-comments-backdrop" onclick="closeReelsCommentsDrawer()"></div>
+    <div class="reels-comments-drawer" id="reels-comments-drawer">
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <i data-lucide="message-circle" class="text-amber-300 w-5 h-5"></i>
+                <span id="drawer-comments-count">Bình luận (142)</span>
+            </div>
+            <button class="drawer-close-btn" onclick="closeReelsCommentsDrawer()" title="Đóng">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <div class="drawer-body" id="drawer-comments-list">
+            <!-- Sample dynamic comments -->
+            <div class="comment-item">
+                <div class="comment-avatar">NV</div>
+                <div class="comment-content">
+                    <div class="comment-author">
+                        <span>Nguyễn Văn An</span>
+                        <span class="text-[10px] px-1 py-0.2 rounded bg-amber-400/20 text-amber-300">VIP</span>
+                        <span class="comment-time">• 2 giờ trước</span>
+                    </div>
+                    <div class="comment-text">Phim này cuốn dã man! Đoạn cao trào xem nghẹt thở luôn. Web load mượt cực!</div>
+                </div>
+                <button class="comment-like-btn" onclick="toggleCommentLike(this)">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                    <span>24</span>
+                </button>
+            </div>
+
+            <div class="comment-item">
+                <div class="comment-avatar bg-gradient-to-tr from-pink-500 to-rose-600">TH</div>
+                <div class="comment-content">
+                    <div class="comment-author">
+                        <span>Trần Hương</span>
+                        <span class="comment-time">• 4 giờ trước</span>
+                    </div>
+                    <div class="comment-text">Review tóm tắt ngắn gọn xúc tích dễ hiểu, bấm phát vào phim xem ngay tiện thật sự 🔥</div>
+                </div>
+                <button class="comment-like-btn" onclick="toggleCommentLike(this)">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                    <span>18</span>
+                </button>
+            </div>
+
+            <div class="comment-item">
+                <div class="comment-avatar bg-gradient-to-tr from-cyan-500 to-blue-600">LK</div>
+                <div class="comment-content">
+                    <div class="comment-author">
+                        <span>Lê Khang</span>
+                        <span class="comment-time">• Hôm qua</span>
+                    </div>
+                    <div class="comment-text">Nhờ review này mà mình tìm được bộ phim tâm đắc cả tháng nay. 10/10 nha admin!</div>
+                </div>
+                <button class="comment-like-btn" onclick="toggleCommentLike(this)">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                    <span>9</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="drawer-footer">
+            <input type="text" id="drawer-comment-input" class="drawer-input" placeholder="Viết bình luận cho phim này..." onkeydown="handleCommentInputKey(event)" />
+            <button class="drawer-send-btn" onclick="submitReelComment()" title="Gửi bình luận">
+                <i data-lucide="send" class="w-4 h-4 fill-black"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         🔍 SEARCH SPOTLIGHT MODAL
+         ========================================================= -->
+    <div class="reels-search-modal-backdrop" id="reels-search-modal" onclick="handleSearchBackdropClick(event)">
+        <div class="reels-search-dialog">
+            <div class="search-dialog-header">
+                <i data-lucide="search" class="text-amber-300 w-5 h-5"></i>
+                <input type="text" id="reels-search-input" class="search-dialog-input" placeholder="Tìm kiếm phim, review, anime..." autofocus oninput="debounceReelsSearch(this.value)" />
+                <button class="search-dialog-close" onclick="closeReelsSearchModal()">Đóng (ESC)</button>
+            </div>
+
+            <div class="search-dialog-body">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2" id="search-results-heading">Gợi ý thịnh hành</div>
+                <div class="search-results-list" id="search-results-list">
+                    <div class="search-result-row" onclick="filterReelsByQuery('Mai')">
+                        <div class="w-10 h-10 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold">🎬</div>
+                        <div>
+                            <div class="search-row-title">Mai (Trấn Thành)</div>
+                            <div class="search-row-subtitle">Review tóm tắt trọn bộ • Phim Chiếu Rạp 2024</div>
+                        </div>
+                    </div>
+                    <div class="search-result-row" onclick="filterReelsByQuery('Đào, Phở và Piano')">
+                        <div class="w-10 h-10 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold">🎹</div>
+                        <div>
+                            <div class="search-row-title">Đào, Phở và Piano</div>
+                            <div class="search-row-subtitle">Review lịch sử hào hùng • Phim Việt Nam</div>
+                        </div>
+                    </div>
+                    <div class="search-result-row" onclick="filterReelsByQuery('Lật Mặt 7')">
+                        <div class="w-10 h-10 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center font-bold">🔥</div>
+                        <div>
+                            <div class="search-row-title">Lật Mặt 7: Một Điều Ước</div>
+                            <div class="search-row-subtitle">Review tình cảm gia đình • Lý Hải</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         🔔 FLOATING TOAST NOTIFICATION
+         ========================================================= -->
+    <div id="reels-toast" class="reels-toast">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400" id="reels-toast-icon"></i>
+        <span id="reels-toast-msg">Đã sao chép liên kết video!</span>
+    </div>
+
+    <!-- =========================================================
+         🚀 SCRIPTS: YouTube Iframe API + Client Controller
+         ========================================================= -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="/js/reels.js?v=101"></script>
+    <script>
+        // Khởi tạo Lucide Icons ngay khi HTML sẵn sàng
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

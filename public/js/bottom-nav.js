@@ -172,7 +172,7 @@
        INIT & RESIZE OBSERVER
     ──────────────────────────────────────────── */
     function init() {
-        if (window.innerWidth >= 1024) {
+        if (window.innerWidth >= 1024 || window.location.pathname.startsWith('/reels')) {
             const existing = document.getElementById('bottom-nav-dock');
             if (existing) existing.remove();
             return;
