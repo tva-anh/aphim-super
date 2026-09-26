@@ -36,6 +36,14 @@ jobs:
           git diff --staged --quiet || git commit -m "chore(seo): auto-update high-capacity sitemaps [$(date +'%Y-%m-%d')] [skip ci]"
           git push
 
+      - name: Submit to IndexNow Protocol (Bing, Yandex, Seznam)
+        run: |
+          echo "⚡ Đang gửi thông báo IndexNow..."
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d '{"host":"aphim.store","key":"e7b92f4c19a8451187491cf02b9365c1","keyLocation":"https://aphim.store/e7b92f4c19a8451187491cf02b9365c1.txt","urlList":["https://aphim.store/","https://aphim.store/sitemap.xml","https://aphim.store/sitemap-images.xml","https://aphim.store/danh-sach","https://aphim.store/categories"]}' || true
+          echo "✅ Đã kích hoạt IndexNow thành công!"
+
       - name: Ping Search Engines (Google & Bing)
         run: |
           echo "📢 Đang ping Google & Bing với bộ sitemap mới..."

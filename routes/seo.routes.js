@@ -395,6 +395,29 @@ router.get(['/rss.xml', '/rss', '/feed.xml', '/feed'], async (req, res) => {
     }
 });
 
+// ── GET IndexNow Verification Key Route ──────────────────────────────────────
+const { INDEXNOW_KEY, submitUrlsToIndexNow, autoSubmitRecentMovies } = require('../lib/indexnow.service');
+
+router.get([`/${INDEXNOW_KEY}.txt`, '/indexnow-key.txt'], (req, res) => {
+    res.type('text/plain; charset=utf-8');
+    res.send(INDEXNOW_KEY);
+});
+
+// ── POST /api/seo/indexnow/submit (Admin manual trigger or webhook) ──────────
+router.post('/api/seo/indexnow/submit', async (req, res) => {
+    try {
+        const { urls } = req.body;
+        if (Array.isArray(urls) && urls.length > 0) {
+            const result = await submitUrlsToIndexNow(urls);
+            return res.json(result);
+        }
+        const autoResult = await autoSubmitRecentMovies();
+        res.json(autoResult || { success: true, message: 'Đã hoàn tất kích hoạt IndexNow' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // ── POST /api/seo/clear-cache (Admin only) ───────────────────────────────────
 router.post('/api/seo/clear-cache', (req, res) => {
     sitemapCache = { index: null, main: null, movies: null, categories: null, images: null, lastFetched: 0 };

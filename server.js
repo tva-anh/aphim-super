@@ -1856,6 +1856,18 @@ server.listen(PORT, () => {
     console.log(`🔵 Supabase: ${process.env.SUPABASE_URL ? '✅ Đã cấu hình' : '❌ Chưa cấu hình'}`);
     console.log(`🟠 MongoDB : ${process.env.MONGODB_URI && !process.env.MONGODB_URI.includes('<YOUR_MONGODB_PASSWORD>') ? '✅ Đang kết nối...' : '❌ Chưa cấu hình password'}`);
     console.log(`🟢 Firebase: ✅ Client-side (aphim-super-new)`);
+    console.log(`⚡ IndexNow: ✅ Tự động lập chỉ mục Bing & Yandex`);
+
+    // ⚡ Automated IndexNow Scheduler (Chạy ngầm siêu nhẹ, gửi phim mới mỗi 2 tiếng)
+    try {
+        const { autoSubmitRecentMovies } = require('./lib/indexnow.service');
+        setTimeout(() => {
+            autoSubmitRecentMovies().catch(() => {});
+        }, 45 * 1000);
+        setInterval(() => {
+            autoSubmitRecentMovies().catch(() => {});
+        }, 2 * 60 * 60 * 1000);
+    } catch (e) {}
 });
 
 server.on('error', (err) => {
