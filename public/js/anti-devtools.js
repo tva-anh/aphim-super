@@ -88,27 +88,12 @@
         return false;
     }, true);
 
-    // 4. BẪY DEBUGGER & PHÁT HIỆN MỞ DEVTOOLS QUA MENU TRÌNH DUYỆT (ĐÁ BAY KHỎI TRANG)
+    // 4. BẪY ĐÓNG BĂNG DEBUGGER NẾU CỐ TÌNH MỞ DEVTOOLS BẰNG MENU TRÌNH DUYỆT
     setInterval(() => {
-        const start = performance.now();
-        (function() {
-            return false;
-        }['constructor']('debugger')['call']());
-        const elapsed = performance.now() - start;
-
-        // Nếu DevTools đang mở, lệnh debugger sẽ dừng chương trình > 100ms
-        if (elapsed > 100) {
-            triggerRedirectTrap();
-        }
-    }, 1200);
-
-    // 5. THEO DÕI THAY ĐỔI KÍCH THƯỚC DEVTOOLS ĐỘT BIẾN (DOCK/UNDOCK DETECTOR)
-    const threshold = 160;
-    setInterval(() => {
-        const widthDiff = window.outerWidth - window.innerWidth > threshold;
-        const heightDiff = window.outerHeight - window.innerHeight > threshold;
-        if (widthDiff || heightDiff) {
-            triggerRedirectTrap();
-        }
-    }, 1200);
+        try {
+            (function() {
+                return false;
+            }['constructor']('debugger')['call']());
+        } catch (e) {}
+    }, 2000);
 })();
