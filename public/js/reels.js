@@ -34,6 +34,11 @@
             a: { hostId: 'reels-player-host-a', fr: null, ytId: null, ready: false },
             b: { hostId: 'reels-player-host-b', fr: null, ytId: null, ready: false }
         },
+        nativePlayers: {
+            a: { hostId: 'reels-native-host-a', videoId: 'reels-native-video-a', videoEl: null, src: null },
+            b: { hostId: 'reels-native-host-b', videoId: 'reels-native-video-b', videoEl: null, src: null }
+        },
+        currentEngine: 'youtube', // 'youtube' or 'native'
         likedReels: new Set(JSON.parse(localStorage.getItem('aphim_reels_liked') || '[]')),
         savedReels: new Set(JSON.parse(localStorage.getItem('aphim_reels_saved') || '[]')),
         userInterests: JSON.parse(localStorage.getItem('aphim_reels_user_interests') || '{}'),
@@ -47,6 +52,19 @@
         userPaused: false,
         seenYtSet: new Set()
     };
+
+    // ⚡ Facebook-style Head-Chunk Prefetching (~1MB initial buffer in memory for native streams)
+    const nativePrefetchedUrls = new Set();
+    function prefetchNativeVideoChunk(url) {
+        if (!url || nativePrefetchedUrls.has(url)) return;
+        nativePrefetchedUrls.add(url);
+        try {
+            fetch(url, {
+                headers: { 'Range': 'bytes=0-1048576' },
+                mode: 'cors'
+            }).catch(() => {});
+        } catch (e) {}
+    }
 
     // ── TikTok AI Recommendation & Topic Recognition Engine ─────────────────
     const GENRE_KEYWORD_MAP = {
@@ -338,18 +356,66 @@
             }
         }, 7500);
 
-        const hostA = document.getElementById('reels-player-host-a');
-        const hostB = document.getElementById('reels-player-host-b');
+        // 🚀 SMART ADAPTIVE HYBRID ROUTING (Native MP4/HLS Stream vs YouTube Embed)
+        const nativeUrl = currentItem.getAttribute('data-video-url') || currentItem.getAttribute('data-src');
+        const nextNativeUrl = nextItem ? (nextItem.getAttribute('data-video-url') || nextItem.getAttribute('data-src')) : null;
 
-        if (!hostA || !hostA.querySelector('iframe')) {
-            setupDualPlayers(currentYt, nextYt);
-            // ⚡ Instant reveal for initial load
-            state.revealFallbackTimer = setTimeout(() => {
-                if (state.currentIndex === idx) {
-                    revealPlayingVideo(idx);
+        if (nativeUrl) {
+            state.currentEngine = 'native';
+            // Hide YouTube player hosts
+            document.querySelectorAll('.reels-global-player-host').forEach(h => h.classList.remove('active'));
+            
+            const currentNativeKey = state.activeHostKey;
+            const otherNativeKey = currentNativeKey === 'a' ? 'b' : 'a';
+            state.activeHostKey = otherNativeKey;
+
+            const activeNativeHost = document.getElementById(state.nativePlayers[otherNativeKey].hostId);
+            const idleNativeHost = document.getElementById(state.nativePlayers[currentNativeKey].hostId);
+            const activeVideo = document.getElementById(state.nativePlayers[otherNativeKey].videoId);
+            const idleVideo = document.getElementById(state.nativePlayers[currentNativeKey].videoId);
+
+            if (idleVideo) {
+                idleVideo.pause();
+                idleNativeHost?.classList.remove('active');
+            }
+
+            if (activeVideo && activeNativeHost) {
+                activeNativeHost.classList.add('active');
+                if (activeVideo.src !== nativeUrl) {
+                    activeVideo.src = nativeUrl;
                 }
-            }, 180);
+                activeVideo.playbackRate = state.playbackSpeed || 1.0;
+                activeVideo.volume = (state.volume || 100) / 100;
+                activeVideo.muted = false;
+                activeVideo.play().catch(() => {});
+                revealPlayingVideo(idx);
+            }
+
+            // Preload next native video chunk in background (Facebook MSE style)
+            if (nextNativeUrl) {
+                prefetchNativeVideoChunk(nextNativeUrl);
+            }
         } else {
+            // YouTube stream: Hide native players
+            document.querySelectorAll('.reels-native-player-host').forEach(h => {
+                h.classList.remove('active');
+                const v = h.querySelector('video');
+                if (v) v.pause();
+            });
+            state.currentEngine = 'youtube';
+
+            const hostA = document.getElementById('reels-player-host-a');
+            const hostB = document.getElementById('reels-player-host-b');
+
+            if (!hostA || !hostA.querySelector('iframe')) {
+                setupDualPlayers(currentYt, nextYt);
+                // ⚡ Instant reveal for initial load
+                state.revealFallbackTimer = setTimeout(() => {
+                    if (state.currentIndex === idx) {
+                        revealPlayingVideo(idx);
+                    }
+                }, 180);
+            } else {
             const currentHostKey = state.activeHostKey;
             const otherHostKey = currentHostKey === 'a' ? 'b' : 'a';
 

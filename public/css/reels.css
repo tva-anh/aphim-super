@@ -5231,6 +5231,36 @@ body.reels-cinema-mode .reels-yt-logo-shield {
 .reels-watermark-cover {
     display: none !important;
 }
+/* 🚀 DUAL NATIVE HTML5 MSE VIDEO HOSTS (Facebook Style) */
+.reels-native-player-host {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: #000000 !important;
+    z-index: 1 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.reels-native-player-host.active {
+    z-index: 2 !important;
+    opacity: 1 !important;
+}
+.reels-native-player-host video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    background: transparent !important;
+}
+.reels-viewport.mode-16-9 .reels-native-player-host video,
+body.reels-cinema-mode .reels-native-player-host video {
+    object-fit: contain !important;
+}
 /* 🛡️ Tránh tràn chữ / dính chữ vào các nút Chia Sẻ, Like ở bên phải */
 body.reels-cinema-mode .reel-bottom-info,
 .reels-viewport.mode-16-9 .reel-bottom-info {

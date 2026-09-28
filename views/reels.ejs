@@ -6,6 +6,25 @@
     <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].poster) { %>
     <link rel="preload" as="image" href="<%= initialReels[0].poster %>" fetchpriority="high">
     <% } %>
+    <!-- 🎥 Google Video Rich Snippets (Schema.org VideoObject) -->
+    <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0) { 
+        const primaryReel = initialReels[0];
+    %>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": "<%= (primaryReel.title || primaryReel.movieTitle || 'Review Phim').replace(/"/g, '\\"') %>",
+      "description": "<%= (primaryReel.description || 'Xem video review phim chất lượng cao tại APhim').replace(/"/g, '\\"') %>",
+      "thumbnailUrl": [
+        "<%= primaryReel.poster || 'https://aphim.store/images/comment-mascot.webp' %>"
+      ],
+      "uploadDate": "2026-01-01T08:00:00+07:00",
+      "contentUrl": "https://aphim.store/reels",
+      "embedUrl": "https://www.youtube.com/embed/<%= primaryReel.yt %>"
+    }
+    </script>
+    <% } %>
     <script>
         // Force Cinematic Deep Dark Mode
         document.documentElement.classList.remove('light-mode');
@@ -2714,6 +2733,14 @@
                 <!-- 🚀 DUAL GLOBAL PLAYER HOSTS (Zero-Lag Switch) -->
                 <div class="reels-global-player-host active" id="reels-player-host-a" data-player="a"></div>
                 <div class="reels-global-player-host" id="reels-player-host-b" data-player="b"></div>
+
+                <!-- 🚀 DUAL NATIVE HTML5 MSE VIDEO HOSTS (Facebook / Meta Ultra-Low Latency Engine) -->
+                <div class="reels-native-player-host" id="reels-native-host-a" data-player="native-a">
+                    <video id="reels-native-video-a" playsinline webkit-playsinline preload="auto" loop></video>
+                </div>
+                <div class="reels-native-player-host" id="reels-native-host-b" data-player="native-b">
+                    <video id="reels-native-video-b" playsinline webkit-playsinline preload="auto" loop></video>
+                </div>
 
                 <!-- ⏱️ Smart 10s YouTube Logo Shield (Compact mask directly covering YouTube watermark, auto-fades in 10s) -->
                 <div class="reels-yt-logo-shield" id="reels-yt-logo-shield" aria-hidden="true"></div>
