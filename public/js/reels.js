@@ -8,17 +8,17 @@
     'use strict';
 
     // ── Application State ────────────────────────────────────────────────────────
-    const isUnmutedSaved = localStorage.getItem('aphim_reels_unmuted') === 'true';
+    localStorage.setItem('aphim_reels_unmuted', 'true');
     const state = {
         currentIndex: 0,
         currentTab: new URLSearchParams(window.location.search).get('tab') || 'review',
         currentPage: 1,
         isLoadingMore: false,
         hasMore: true,
-        volume: parseInt(localStorage.getItem('aphim_reels_volume') || '100', 10),
+        volume: parseInt(localStorage.getItem('aphim_reels_volume') || '100', 10) || 100,
         prevVolume: 100,
-        isMuted: !isUnmutedSaved,
-        userInteracted: isUnmutedSaved,
+        isMuted: false, // 🔊 TỰ ĐỘNG BẬT ÂM THANH FULL 100% KHI VÀO REELS
+        userInteracted: true,
         playbackSpeed: 1.0,
         videoQuality: '720p',
         autoNext: true,
@@ -226,6 +226,22 @@
         return host ? host.querySelector('iframe') : null;
     }
 
+    // ⚡ Multi-pulse autoplay trigger for mobile browsers (Eliminates YouTube center play button)
+    function triggerAutoPlayWithSound(targetIfr, idx) {
+        if (!targetIfr) return;
+        const vol = state.volume > 0 ? state.volume : 100;
+        
+        [0, 50, 120, 250, 450, 750, 1100].forEach(delay => {
+            setTimeout(() => {
+                if (state.currentIndex === idx && !state.userPaused) {
+                    sendCmd(targetIfr, 'playVideo');
+                    sendCmd(targetIfr, 'unMute');
+                    sendCmd(targetIfr, 'setVolume', [vol]);
+                }
+            }, delay);
+        });
+    }
+
     // ── Setup & Boot Dual Players (TikTok Low-Latency Engine) ───────────────────
     function setupDualPlayers(initialYtId, nextYtId) {
         const hostA = document.getElementById('reels-player-host-a');
@@ -240,11 +256,7 @@
                 state.players.a.ready = true;
                 state.players.a.ytId = initialYtId;
                 sendCmd(ifrA, 'setPlaybackRate', [state.playbackSpeed]);
-                sendCmd(ifrA, 'playVideo');
-                if (!state.isMuted && state.userInteracted) {
-                    sendCmd(ifrA, 'unMute');
-                    sendCmd(ifrA, 'setVolume', [state.volume]);
-                }
+                triggerAutoPlayWithSound(ifrA, 0);
             });
             hostA.appendChild(ifrA);
             state.players.a.fr = ifrA;
@@ -349,11 +361,7 @@
                 document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
 
                 sendCmd(state.players[otherHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
-                if (!state.isMuted && state.userInteracted) {
-                    sendCmd(state.players[otherHostKey].fr, 'unMute');
-                    sendCmd(state.players[otherHostKey].fr, 'setVolume', [state.volume]);
-                }
-                sendCmd(state.players[otherHostKey].fr, 'playVideo');
+                triggerAutoPlayWithSound(state.players[otherHostKey].fr, idx);
 
                 if (state.players[currentHostKey].fr) {
                     sendCmd(state.players[currentHostKey].fr, 'mute');
@@ -366,11 +374,7 @@
             // Current host already has this video
             else if (state.players[currentHostKey].ytId === currentYt && state.players[currentHostKey].fr) {
                 sendCmd(state.players[currentHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
-                if (!state.isMuted && state.userInteracted) {
-                    sendCmd(state.players[currentHostKey].fr, 'unMute');
-                    sendCmd(state.players[currentHostKey].fr, 'setVolume', [state.volume]);
-                }
-                sendCmd(state.players[currentHostKey].fr, 'playVideo');
+                triggerAutoPlayWithSound(state.players[currentHostKey].fr, idx);
 
                 // 🚀 INSTANT REVEAL
                 revealPlayingVideo(idx);
@@ -386,11 +390,7 @@
                 if (targetIfr) {
                     sendCmd(targetIfr, 'loadVideoById', [currentYt, 0]);
                     sendCmd(targetIfr, 'setPlaybackRate', [state.playbackSpeed]);
-                    if (!state.isMuted && state.userInteracted) {
-                        sendCmd(targetIfr, 'unMute');
-                        sendCmd(targetIfr, 'setVolume', [state.volume]);
-                    }
-                    sendCmd(targetIfr, 'playVideo');
+                    triggerAutoPlayWithSound(targetIfr, idx);
                 }
 
                 if (state.players[currentHostKey].fr) {
@@ -865,10 +865,14 @@
         startTikTokLiveAutoStream(); // ⚡ Continuous Live Stream Background Auto-Feeder (TikTok Style)
         resetYtLogoShield(); // ⏱️ Start 10s logo shield timer for initial slide
 
-        // If previously unmuted, ensure sound prompt is hidden
-        if (isUnmutedSaved) {
-            document.querySelectorAll('.reels-sound-prompt').forEach((el) => el.classList.add('hidden'));
-        }
+        // 🔊 TỰ ĐỘNG BẬT FULL 100% ÂM THANH KHI VÀO REELS
+        ensureFullSound();
+        ['click', 'pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(evt => {
+            document.addEventListener(evt, ensureFullSound, { once: true, passive: true });
+        });
+
+        // Ensure sound prompt is hidden
+        document.querySelectorAll('.reels-sound-prompt').forEach((el) => el.classList.add('hidden'));
 
         // Mark if native vertical reel tab or review tab for ambient glow
         const viewport = document.querySelector('.reels-viewport');
@@ -1092,14 +1096,35 @@
     }
 
     // ── Sound & Volume Engine (Image 2: Vertical Volume Slider) ────────────────
-    window.unlockSoundAndPlay = function () {
+    function ensureFullSound() {
         state.isMuted = false;
         state.userInteracted = true;
+        state.volume = 100;
         localStorage.setItem('aphim_reels_unmuted', 'true');
-        const targetVol = state.volume > 0 ? state.volume : 100;
-        state.volume = targetVol;
-        localStorage.setItem('aphim_reels_volume', targetVol);
+        localStorage.setItem('aphim_reels_volume', '100');
         updateMuteButtonUI();
+        document.querySelectorAll('.reels-sound-prompt').forEach((el) => el.classList.add('hidden'));
+
+        const fill = document.getElementById('reels-volume-fill');
+        const label = document.getElementById('reels-volume-label');
+        if (fill) fill.style.height = '100%';
+        if (label) label.textContent = '100%';
+
+        const activeIframe = getActiveIframe();
+        if (activeIframe) {
+            sendCmd(activeIframe, 'unMute');
+            sendCmd(activeIframe, 'setVolume', [100]);
+        }
+    }
+    window.ensureFullSound = ensureFullSound;
+
+    window.unlockSoundAndPlay = function () {
+        ensureFullSound();
+        const activeIframe = getActiveIframe();
+        if (activeIframe) {
+            sendCmd(activeIframe, 'playVideo');
+        }
+    };
 
         // Always hide sound prompt permanently once unlocked
         document.querySelectorAll('.reels-sound-prompt').forEach((el) => el.classList.add('hidden'));
@@ -3573,6 +3598,12 @@
             if (typeof e.preventDefault === 'function') e.preventDefault();
             if (typeof e.stopPropagation === 'function') e.stopPropagation();
         }
+
+        try {
+            if (window.TouchSpeed && typeof window.TouchSpeed.showProgress === 'function') {
+                window.TouchSpeed.showProgress();
+            }
+        } catch (err) {}
 
         // 1. Kiểm tra tham số URL (?return=... hoặc ?from=... hoặc ?back=...)
         try {

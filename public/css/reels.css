@@ -2088,33 +2088,9 @@ body.light-mode {
     visibility: hidden !important;
 }
 
-/* Sound Unlock Prompt */
+/* Sound Unlock Prompt - Permanently disabled for clean direct playback */
 .reels-sound-prompt {
-    position: absolute;
-    top: 72px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(15, 20, 34, 0.92);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(252, 213, 118, 0.5);
-    padding: 8px 18px;
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 40;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(252, 213, 118, 0.3);
-    animation: soundPulseBanner 2s infinite ease-in-out;
-}
-
-.reels-sound-prompt.hidden {
     display: none !important;
-}
-
-@keyframes soundPulseBanner {
-    0%, 100% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.04); }
 }
 
 /* ===================================================

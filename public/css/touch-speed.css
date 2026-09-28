@@ -330,17 +330,18 @@ body { /* removed overscroll-behavior-y to fix desktop wheel */
     -webkit-backface-visibility: hidden;
 }
 
-/* ── 9. Prefetch indicator — subtle loading bar ───────────── */
+/* ── 9. Prefetch indicator — Ultra-Luxury Top Glowing Navigation Bar ───────────── */
 #page-progress-bar {
     position: fixed;
     top: 0;
     left: 0;
     width: 0%;
-    height: 2px;
-    background: linear-gradient(90deg, #f2f20d, #ffd700, #f2f20d);
+    height: 3px;
+    background: linear-gradient(90deg, #ff1744 0%, #ff2b54 50%, #ff0055 100%);
+    box-shadow: 0 0 14px rgba(255, 43, 84, 1), 0 0 4px #ff2b54, 0 0 25px rgba(255, 43, 84, 0.6);
     background-size: 200% 100%;
-    z-index: 99999;
-    transition: width 0.1s ease-out;
+    z-index: 9999999;
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
     animation: progress-shimmer 1.5s linear infinite;
     pointer-events: none;
     opacity: 0;

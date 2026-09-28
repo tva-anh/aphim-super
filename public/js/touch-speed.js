@@ -12,31 +12,38 @@
 
     function showProgressBar() {
         if (!_bar) {
-            _bar = document.createElement('div');
-            _bar.id = 'page-progress-bar';
-            document.body ? document.body.appendChild(_bar) : document.addEventListener('DOMContentLoaded', function() {
-                document.body.appendChild(_bar);
-            });
+            _bar = document.getElementById('page-progress-bar');
+            if (!_bar) {
+                _bar = document.createElement('div');
+                _bar.id = 'page-progress-bar';
+                document.body ? document.body.appendChild(_bar) : document.addEventListener('DOMContentLoaded', function() {
+                    document.body.appendChild(_bar);
+                });
+            }
         }
+        _bar.style.transition = 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease';
         _bar.style.width = '0%';
         _bar.classList.add('active');
-        // Tiến dần đến 80% đợi response
         clearTimeout(_barTimer);
-        setTimeout(function () { if (_bar) _bar.style.width = '30%'; }, 50);
-        setTimeout(function () { if (_bar) _bar.style.width = '60%'; }, 200);
-        setTimeout(function () { if (_bar) _bar.style.width = '80%'; }, 500);
+        setTimeout(function () { if (_bar) _bar.style.width = '35%'; }, 30);
+        setTimeout(function () { if (_bar) _bar.style.width = '65%'; }, 180);
+        setTimeout(function () { if (_bar) _bar.style.width = '85%'; }, 450);
     }
 
     function completeProgressBar() {
         if (document.body) document.body.classList.remove('page-exiting');
+        if (!_bar) _bar = document.getElementById('page-progress-bar');
         if (!_bar) return;
         _bar.style.width = '100%';
+        clearTimeout(_barTimer);
         _barTimer = setTimeout(function () {
             if (_bar) {
                 _bar.classList.remove('active');
-                _bar.style.width = '0%';
+                setTimeout(function () {
+                    if (_bar) _bar.style.width = '0%';
+                }, 200);
             }
-        }, 300);
+        }, 250);
     }
 
     // ── Ripple effect ─────────────────────────────────────────
