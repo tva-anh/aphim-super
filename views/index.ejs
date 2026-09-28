@@ -1631,14 +1631,16 @@
         ];
 
         function formatHomeCardContent(raw) {
-            if (!raw) return { text: '', gifUrl: null };
+            if (!raw || typeof raw !== 'string') return { text: '', gifUrl: null };
             let text = raw;
             let gifUrl = null;
-            const gifMatch = raw.match(/\[gif:(https?:\/\/[^\]\s]+)\]/i);
-            if (gifMatch) {
-                gifUrl = gifMatch[1];
-                text = raw.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, '').trim();
-            }
+            try {
+                const gifMatch = raw.match(/\[gif:(https?:\/\/[^\]\s]+)\]/i);
+                if (gifMatch) {
+                    gifUrl = gifMatch[1];
+                    text = raw.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, '').trim();
+                }
+            } catch (e) {}
             return { text, gifUrl };
         }
 
@@ -1646,46 +1648,7 @@
             const track = document.getElementById('homeCommentsTrack');
             if (!track) return;
 
-            let items = [...allHomeComments];
-            if (currentCommentTab === 'featured') {
-                // Tab "Nổi Bật": Ưu tiên hiển thị các bình luận từ Admin, VIP, VIP PRO, danh hiệu cấp cao hoặc nhiều tương tác
-                const isInfluential = (c) => {
-                    const badge = (c.badge || '').toLowerCase();
-                    const name = (c.userName || '').toLowerCase();
-                    return c.isAdmin || 
-                           c.isVip || 
-                           name.includes('admin') || 
-                           badge.includes('admin') || 
-                           badge.includes('vip') || 
-                           badge.includes('fan cứng') || 
-                           badge.includes('cày phim') || 
-                           badge.includes('top') ||
-                           (c.reactionsCount && c.reactionsCount > 0) ||
-                           (c.level && c.level >= 10);
-                };
-
-                const influentialOnly = items.filter(isInfluential);
-                if (influentialOnly.length > 0) {
-                    items = influentialOnly;
-                }
-
-                // Sắp xếp ưu tiên: Admin đứng đầu (100k điểm) -> VIP PRO / VIP (50k điểm) -> Level cao -> Lượt thích (thả tim)
-                items.sort((a, b) => {
-                    const getScore = (item) => {
-                        const bName = (item.badge || '').toLowerCase();
-                        const uName = (item.userName || '').toLowerCase();
-                        let score = 0;
-                        if (item.isAdmin || uName.includes('admin') || bName.includes('admin')) score += 100000;
-                        if (item.isVip || bName.includes('vip')) score += 50000;
-                        if (bName.includes('fan cứng') || bName.includes('cày phim') || bName.includes('top')) score += 10000;
-                        score += (item.level || 0) * 100;
-                        score += (item.reactionsCount || 0) * 50;
-                        return score;
-                    };
-                    return getScore(b) - getScore(a);
-                });
-            }
-
+            let items = Array.isArray(allHomeComments) ? [...allHomeComments] : [];
             if (!items.length) {
                 track.innerHTML = `
                     <div class="py-6 text-center text-gray-400 text-xs w-full">
@@ -1695,72 +1658,118 @@
                 return;
             }
 
-            track.innerHTML = items.map((c, idx) => {
-                const frameUrl = (c.equippedFrameUrl && c.equippedFrameUrl.startsWith('http')) 
-                    ? c.equippedFrameUrl 
-                    : (c.frameUrl && c.frameUrl.startsWith('http')) 
-                        ? c.frameUrl 
-                        : HOME_FALLBACK_FRAMES[idx % HOME_FALLBACK_FRAMES.length];
+            try {
+                if (currentCommentTab === 'featured') {
+                    const isInfluential = (c) => {
+                        const badge = String(c?.badge || '').toLowerCase();
+                        const name = String(c?.userName || '').toLowerCase();
+                        return !!(c?.isAdmin || 
+                               c?.isVip || 
+                               name.includes('admin') || 
+                               badge.includes('admin') || 
+                               badge.includes('vip') || 
+                               badge.includes('fan cứng') || 
+                               badge.includes('cày phim') || 
+                               badge.includes('top') ||
+                               (c?.reactionsCount && c.reactionsCount > 0) ||
+                               (c?.level && c.level >= 10));
+                    };
 
-                const badgeHtml = c.badge ? (typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(c.badge) : `<span class="home-card-badge">${c.badge}</span>`) : '';
-                const { text: cleanText, gifUrl } = formatHomeCardContent(c.content);
-                const gifHtml = gifUrl 
-                    ? `<div class="home-card-gif-preview"><img src="${gifUrl}" loading="lazy" alt="GIF"></div>` 
-                    : '';
-                const textHtml = cleanText ? `<div class="home-card-text">${cleanText}</div>` : '';
-                const titleTooltip = cleanText || (gifUrl ? 'Đã gửi một GIF' : '');
+                    const influentialOnly = items.filter(isInfluential);
+                    if (influentialOnly.length > 0) {
+                        items = influentialOnly;
+                    }
 
-                const nameColorCls = c.nameColor && c.nameColor !== 'color_default' ? `ap-nc-${c.nameColor} has-custom-name-color` : '';
+                    items.sort((a, b) => {
+                        const getScore = (item) => {
+                            const bName = String(item?.badge || '').toLowerCase();
+                            const uName = String(item?.userName || '').toLowerCase();
+                            let score = 0;
+                            if (item?.isAdmin || uName.includes('admin') || bName.includes('admin')) score += 100000;
+                            if (item?.isVip || bName.includes('vip')) score += 50000;
+                            if (bName.includes('fan cứng') || bName.includes('cày phim') || bName.includes('top')) score += 10000;
+                            score += (Number(item?.level) || 0) * 100;
+                            score += (Number(item?.reactionsCount) || 0) * 50;
+                            return score;
+                        };
+                        return getScore(b) - getScore(a);
+                    });
+                }
 
-                return `
-                    <div class="home-comment-card">
-                        <div>
-                            <!-- User Row With Avatar Frame -->
-                            <div class="home-card-user-row">
-                                <div class="home-card-avatar-wrap">
-                                    <div class="home-card-avatar-circle">
-                                        <img src="${c.userAvatar}" alt="${c.userName}" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(c.userName)}';">
+                track.innerHTML = items.map((c, idx) => {
+                    if (!c) return '';
+                    const uName = String(c.userName || 'Thành viên APhim');
+                    const uAvatar = c.userAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(uName)}`;
+                    const frameUrl = (c.equippedFrameUrl && typeof c.equippedFrameUrl === 'string' && c.equippedFrameUrl.startsWith('http')) 
+                        ? c.equippedFrameUrl 
+                        : (c.frameUrl && typeof c.frameUrl === 'string' && c.frameUrl.startsWith('http')) 
+                            ? c.frameUrl 
+                            : HOME_FALLBACK_FRAMES[idx % HOME_FALLBACK_FRAMES.length];
+
+                    const badgeHtml = c.badge ? (typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(c.badge) : `<span class="home-card-badge">${c.badge}</span>`) : '';
+                    const { text: cleanText, gifUrl } = formatHomeCardContent(c.content);
+                    const gifHtml = gifUrl 
+                        ? `<div class="home-card-gif-preview"><img src="${gifUrl}" loading="lazy" alt="GIF"></div>` 
+                        : '';
+                    const textHtml = cleanText ? `<div class="home-card-text">${cleanText}</div>` : '';
+                    const titleTooltip = cleanText || (gifUrl ? 'Đã gửi một GIF' : '');
+                    const nameColorCls = c.nameColor && c.nameColor !== 'color_default' ? `ap-nc-${c.nameColor} has-custom-name-color` : '';
+                    const mSlug = c.movieSlug || 'phim';
+                    const mName = c.movieName || 'Xem phim';
+                    const timeAgoStr = c.timeAgo || 'Gần đây';
+
+                    return `
+                        <div class="home-comment-card">
+                            <div>
+                                <div class="home-card-user-row">
+                                    <div class="home-card-avatar-wrap">
+                                        <div class="home-card-avatar-circle">
+                                            <img src="${uAvatar}" alt="${uName}" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(uName)}';">
+                                        </div>
+                                        ${frameUrl ? `<img src="${frameUrl}" class="home-card-frame-img" alt="Khung Avatar" loading="lazy">` : ''}
                                     </div>
-                                    ${frameUrl ? `<img src="${frameUrl}" class="home-card-frame-img" alt="Khung Avatar" loading="lazy">` : ''}
+                                    <div class="home-card-user-info">
+                                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.2;">
+                                            <span class="home-card-username ${nameColorCls}" title="${uName}">${uName}</span>
+                                            ${badgeHtml}
+                                        </div>
+                                        <span class="home-card-time">- ${timeAgoStr}</span>
+                                    </div>
                                 </div>
-                                <div class="home-card-user-info">
-                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.2;">
-                                        <span class="home-card-username ${nameColorCls}" title="${c.userName}">${c.userName}</span>
-                                        ${badgeHtml}
-                                    </div>
-                                    <span class="home-card-time">- ${c.timeAgo}</span>
+
+                                <div class="home-card-content" title="${titleTooltip}">
+                                    ${textHtml}
+                                    ${gifHtml}
                                 </div>
                             </div>
 
-                            <!-- Content Snippet -->
-                            <div class="home-card-content" title="${titleTooltip}">
-                                ${textHtml}
-                                ${gifHtml}
-                            </div>
+                            <a href="/phim/${mSlug}" class="home-card-movie-link" title="Xem phim ${mName}">
+                                <svg class="home-card-movie-icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zm2 14H4V8h16v10z"/>
+                                </svg>
+                                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${mName}</span>
+                            </a>
                         </div>
-
-                        <!-- Modern Movie Link (No Box Pill, Clean Modern SVG & Standout Text) -->
-                        <a href="/phim/${c.movieSlug}" class="home-card-movie-link" title="Xem phim ${c.movieName}">
-                            <svg class="home-card-movie-icon" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zm2 14H4V8h16v10z"/>
-                            </svg>
-                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.movieName}</span>
-                        </a>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            } catch (renderErr) {
+                console.warn('Lỗi hiển thị bình luận:', renderErr);
+            }
         }
 
         async function loadHomeCommentsShowcase() {
             try {
                 const res = await fetch('/api/comments/home-showcase');
                 const data = await res.json();
-                if (data.success && Array.isArray(data.data)) {
+                if (data.success && Array.isArray(data.data) && data.data.length > 0) {
                     allHomeComments = data.data;
+                    renderHomeComments();
+                } else {
                     renderHomeComments();
                 }
             } catch (err) {
                 console.warn('Lỗi tải bình luận trang chủ:', err);
+                renderHomeComments();
             }
         }
 
