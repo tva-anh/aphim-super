@@ -23,6 +23,7 @@
         const path = window.location.pathname.toLowerCase();
         const search = window.location.search.toLowerCase();
         
+        if (path.includes('reels') || path.includes('shorts')) return 'reels';
         if (path === '/' || path.includes('index') || path === '') return 'home';
         if (
             path.includes('danh-sach') || 
@@ -37,7 +38,7 @@
             path.includes('phim-chieu-rap') ||
             path.includes('tv-shows') ||
             path.includes('phim-moi')
-        ) return 'filter';
+        ) return 'reels';
         if (path.includes('lich-su') || search.includes('tab=history')) return 'history';
         if (path.includes('yeu-thich') || search.includes('tab=favorites')) return 'favorite';
         if (path.includes('profile') || path.includes('tai-khoan') || path.includes('login') || path.includes('register')) return 'account';
@@ -75,15 +76,16 @@
             </svg>
 
             <div class="bn-tabs-container">
-                <!-- 1. Bộ lọc (Slender Sliders 1.35) -->
-                <a href="/danh-sach" class="bn-tab ${active === 'filter' ? 'active' : ''}" id="bn-tab-filter" aria-label="Bộ lọc">
-                    <svg class="bn-tab-icon" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
-                        <circle cx="14" cy="6" r="2" fill="rgba(30, 41, 69, 0.85)" stroke="currentColor" stroke-width="1.35"/>
-                        <circle cx="8" cy="12" r="2" fill="rgba(30, 41, 69, 0.85)" stroke="currentColor" stroke-width="1.35"/>
-                        <circle cx="16" cy="18" r="2" fill="rgba(30, 41, 69, 0.85)" stroke="currentColor" stroke-width="1.35"/>
+                <!-- 1. Reels (Ultra Modern Instagram/TikTok Clapperboard with Glowing Red Dot) -->
+                <a href="/reels" class="bn-tab ${active === 'reels' ? 'active' : ''}" id="bn-tab-reels" aria-label="Reels">
+                    <svg class="bn-tab-icon bn-reels-icon" viewBox="0 0 24 24" fill="none">
+                        <rect x="2.5" y="2.5" width="19" height="19" rx="5.2" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M2.5 8.8h19M7.2 2.5l3.2 6.3M13.8 2.5l3.2 6.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                        <path d="M10 12.2l5 2.8-5 2.8v-5.6z" fill="currentColor"/>
                     </svg>
-                    <span class="bn-tab-label">Bộ lọc</span>
+                    <span class="bn-tab-label bn-reels-label-wrap">
+                        <span>Reels</span><span class="bn-reels-dot"></span>
+                    </span>
                 </a>
 
                 <!-- 2. Lịch sử (Slender Clock History 1.35) -->

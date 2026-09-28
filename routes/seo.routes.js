@@ -20,6 +20,7 @@ let sitemapCache = {
     movies: null,
     categories: null,
     images: null,
+    reels: null,
     lastFetched: 0
 };
 
@@ -119,7 +120,8 @@ async function generateAllSitemaps() {
         `${BASE_URL}/sitemap-main.xml`,
         `${BASE_URL}/sitemap-categories.xml`,
         `${BASE_URL}/sitemap-movies.xml`,
-        `${BASE_URL}/sitemap-images.xml`
+        `${BASE_URL}/sitemap-images.xml`,
+        `${BASE_URL}/sitemap-reels.xml`
     ];
 
     sitemapsList.forEach(sm => {
@@ -133,6 +135,7 @@ async function generateAllSitemaps() {
     // 2. MAIN STATIC SITEMAP (/sitemap-main.xml)
     const staticRoutes = [
         { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'always' },
+        { loc: `${BASE_URL}/reels`, priority: '0.95', changefreq: 'always' },
         { loc: `${BASE_URL}/danh-sach`, priority: '0.9', changefreq: 'daily' },
         { loc: `${BASE_URL}/tat-ca`, priority: '0.9', changefreq: 'daily' },
         { loc: `${BASE_URL}/categories`, priority: '0.9', changefreq: 'daily' },
@@ -209,7 +212,7 @@ async function generateAllSitemaps() {
         movieXml += `    <priority>0.9</priority>\n`;
         movieXml += `  </url>\n`;
 
-        // Biến thể SEO Đa Tầng theo Search Intent: Thuyết Minh (Search intent lớn nhất tại VN)
+        // Biến thể SEO Đa Tầng theo Search Intent: Thuyết Minh
         movieXml += `  <url>\n`;
         movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/thuyet-minh</loc>\n`;
         movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
@@ -243,6 +246,104 @@ async function generateAllSitemaps() {
     });
     imgXml += `</urlset>`;
 
+    // 6. REELS & REVIEW VIDEO SITEMAP (/sitemap-reels.xml) — Chuẩn Google Video XML
+    let reelsXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    reelsXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n`;
+
+    // Entry chính: /reels
+    reelsXml += `  <url>\n`;
+    reelsXml += `    <loc>${BASE_URL}/reels</loc>\n`;
+    reelsXml += `    <lastmod>${todayStr}</lastmod>\n`;
+    reelsXml += `    <changefreq>always</changefreq>\n`;
+    reelsXml += `    <priority>0.95</priority>\n`;
+    reelsXml += `  </url>\n`;
+
+    // Entries theo Thể loại & Quốc gia
+    const REELS_GENRES = ['hanh-dong', 'tinh-cam', 'co-trang', 'kinh-di', 'hai-huoc', 'vien-tuong', 'tam-ly', 'vo-thuat', 'hoat-hinh'];
+    REELS_GENRES.forEach(g => {
+        reelsXml += `  <url>\n`;
+        reelsXml += `    <loc>${BASE_URL}/reels/chu-de/${g}</loc>\n`;
+        reelsXml += `    <lastmod>${todayStr}</lastmod>\n`;
+        reelsXml += `    <changefreq>daily</changefreq>\n`;
+        reelsXml += `    <priority>0.85</priority>\n`;
+        reelsXml += `  </url>\n`;
+    });
+
+    const REELS_COUNTRIES = ['viet-nam', 'han-quoc', 'trung-quoc', 'au-my', 'thai-lan', 'nhat-ban'];
+    REELS_COUNTRIES.forEach(c => {
+        reelsXml += `  <url>\n`;
+        reelsXml += `    <loc>${BASE_URL}/reels/quoc-gia/${c}</loc>\n`;
+        reelsXml += `    <lastmod>${todayStr}</lastmod>\n`;
+        reelsXml += `    <changefreq>daily</changefreq>\n`;
+        reelsXml += `    <priority>0.85</priority>\n`;
+        reelsXml += `  </url>\n`;
+    });
+
+    // Entries video review phim chi tiết (/reels/review/:slug)
+    const { CURATED_REVIEWS, CURATED_REELS } = require('../lib/reels.seeds');
+    const allReelSeeds = [...(CURATED_REVIEWS || []), ...(CURATED_REELS || [])];
+    const seenReelSlugs = new Set();
+
+    allReelSeeds.forEach(seed => {
+        const slug = seed.slug || seed.yt;
+        if (slug && !seenReelSlugs.has(slug)) {
+            seenReelSlugs.add(slug);
+            const title = escapeXml(seed.title || 'Review Phim');
+            const desc = escapeXml(seed.desc || `Xem video review phim ${seed.title} tóm tắt trọn bộ Full HD Vietsub tại APhim Super.`);
+            const thumb = escapeXml(seed.poster || seed.thumb || `https://i.ytimg.com/vi/${seed.yt}/hqdefault.jpg`);
+            const duration = seed.tab === 'reel' ? '60' : '270';
+
+            reelsXml += `  <url>\n`;
+            reelsXml += `    <loc>${BASE_URL}/reels/review/${escapeXml(slug)}</loc>\n`;
+            reelsXml += `    <lastmod>${todayStr}</lastmod>\n`;
+            reelsXml += `    <changefreq>weekly</changefreq>\n`;
+            reelsXml += `    <priority>0.9</priority>\n`;
+            if (seed.yt) {
+                reelsXml += `    <video:video>\n`;
+                reelsXml += `      <video:thumbnail_loc>${thumb}</video:thumbnail_loc>\n`;
+                reelsXml += `      <video:title>${title} - Review Phim APhim</video:title>\n`;
+                reelsXml += `      <video:description>${desc}</video:description>\n`;
+                reelsXml += `      <video:player_loc>https://www.youtube-nocookie.com/embed/${seed.yt}</video:player_loc>\n`;
+                reelsXml += `      <video:duration>${duration}</video:duration>\n`;
+                reelsXml += `      <video:publication_date>${todayStr}</video:publication_date>\n`;
+                reelsXml += `      <video:family_friendly>yes</video:family_friendly>\n`;
+                reelsXml += `      <video:live>no</video:live>\n`;
+                reelsXml += `      <video:uploader info="${BASE_URL}/">APhim Super</video:uploader>\n`;
+                reelsXml += `    </video:video>\n`;
+            }
+            reelsXml += `  </url>\n`;
+        }
+    });
+
+    // Bổ sung các phim hot mới nhất vào sitemap video
+    movies.slice(0, 150).forEach(m => {
+        if (m.slug && !seenReelSlugs.has(m.slug)) {
+            seenReelSlugs.add(m.slug);
+            const name = escapeXml(m.name);
+            const poster = escapeXml(m.poster_url || m.thumb_url || '');
+
+            reelsXml += `  <url>\n`;
+            reelsXml += `    <loc>${BASE_URL}/reels/review/${escapeXml(m.slug)}</loc>\n`;
+            reelsXml += `    <lastmod>${m.modified || todayStr}</lastmod>\n`;
+            reelsXml += `    <changefreq>daily</changefreq>\n`;
+            reelsXml += `    <priority>0.88</priority>\n`;
+            if (poster) {
+                reelsXml += `    <video:video>\n`;
+                reelsXml += `      <video:thumbnail_loc>${poster}</video:thumbnail_loc>\n`;
+                reelsXml += `      <video:title>Review Phim ${name} (${m.year}) - Tóm Tắt Trọn Bộ</video:title>\n`;
+                reelsXml += `      <video:description>Xem video tóm tắt review phim ${name} (${m.origin_name}) Full HD Vietsub tại APhim Reels</video:description>\n`;
+                reelsXml += `      <video:duration>240</video:duration>\n`;
+                reelsXml += `      <video:publication_date>${m.modified || todayStr}</video:publication_date>\n`;
+                reelsXml += `      <video:family_friendly>yes</video:family_friendly>\n`;
+                reelsXml += `      <video:uploader info="${BASE_URL}/">APhim Super</video:uploader>\n`;
+                reelsXml += `    </video:video>\n`;
+            }
+            reelsXml += `  </url>\n`;
+        }
+    });
+
+    reelsXml += `</urlset>`;
+
     // Cập nhật Cache
     sitemapCache = {
         index: indexXml,
@@ -250,10 +351,11 @@ async function generateAllSitemaps() {
         movies: movieXml,
         categories: catXml,
         images: imgXml,
+        reels: reelsXml,
         lastFetched: Date.now()
     };
 
-    console.log(`🚀 [SEO Sitemap] Đã xây dựng thành công bộ Sitemap (${movies.length} phim, ${movies.length * 2 + staticRoutes.length + CATEGORIES.length + COUNTRIES.length} URLs)!`);
+    console.log(`🚀 [SEO Sitemap] Đã xây dựng thành công bộ Sitemap (${movies.length} phim, ${movies.length * 2 + staticRoutes.length + CATEGORIES.length + COUNTRIES.length + seenReelSlugs.size} URLs)!`);
     return sitemapCache;
 }
 
@@ -330,11 +432,26 @@ router.get('/sitemap-images.xml', async (req, res) => {
     }
 });
 
+// ── GET /sitemap-reels.xml (Google Video XML Sitemap) ────────────────────────
+router.get('/sitemap-reels.xml', async (req, res) => {
+    try {
+        const data = await generateAllSitemaps();
+        res.header('Content-Type', 'application/xml; charset=utf-8');
+        res.header('Cache-Control', 'public, max-age=1800');
+        res.send(data.reels);
+    } catch (err) {
+        console.error('[SEO Sitemap Reels Error]:', err.message);
+        res.status(500).send('Error generating reels video sitemap');
+    }
+});
+
 // ── GET /robots.txt (Crawl Budget & Search Engine Guidance) ──────────────────
 router.get('/robots.txt', (req, res) => {
     res.type('text/plain; charset=utf-8');
     res.send(`User-agent: *
 Allow: /
+Allow: /reels
+Allow: /reels/
 Allow: /phim/
 Allow: /xem-phim/
 Allow: /danh-sach
@@ -353,6 +470,7 @@ Disallow: /*?*keyword=
 
 # Search Engines Master Sitemaps
 Sitemap: ${BASE_URL}/sitemap.xml
+Sitemap: ${BASE_URL}/sitemap-reels.xml
 Sitemap: ${BASE_URL}/sitemap-movies.xml
 Sitemap: ${BASE_URL}/sitemap-categories.xml
 Sitemap: ${BASE_URL}/sitemap-images.xml

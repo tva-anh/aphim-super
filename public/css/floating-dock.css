@@ -201,16 +201,25 @@ html.light-mode nav.header-modern-nav {
     box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
 }
 
-html.light-mode header a,
-html.light-mode nav a,
+html.light-mode header a:not(.reels-nav-pill):not(.reels-pill):not(.sofa-login-rect-btn),
+html.light-mode nav a:not(.reels-nav-pill):not(.reels-pill),
 html.light-mode .nav-link-text,
-html.light-mode .sofa-nav-item,
-html.light-mode .nav-pill {
+html.light-mode .sofa-nav-item:not(.reels-nav-pill),
+html.light-mode .nav-pill:not(.reels-nav-pill) {
     background: transparent !important;
     border: none !important;
     color: #292524 !important;
     text-shadow: none !important;
     box-shadow: none !important;
+}
+
+html.light-mode .sofa-nav-item.reels-nav-pill,
+html.light-mode .reels-nav-pill,
+html.light-mode .drawer-pill-btn.reels-pill {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22) !important;
+    border-radius: 9999px !important;
 }
 
 html.light-mode .panel-card,

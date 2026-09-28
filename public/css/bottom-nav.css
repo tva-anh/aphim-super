@@ -124,15 +124,15 @@
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 1.1;
+    font-size: 10.5px;
+    font-weight: 550;
+    line-height: 1.15;
     color: inherit;
     white-space: nowrap;
     text-align: center;
     font-family: 'Be Vietnam Pro', sans-serif;
     transition: color 0.18s ease, font-weight 0.18s ease;
-    letter-spacing: 0;
+    letter-spacing: 0.1px;
 }
 
 /* Active State (Gold #fcd576 Accent) */
@@ -147,9 +147,71 @@
 }
 
 .bn-tab.active .bn-tab-icon path,
-.bn-tab.active .bn-tab-icon circle {
+.bn-tab.active .bn-tab-icon circle,
+.bn-tab.active .bn-tab-icon rect {
     stroke: #fcd576 !important;
     stroke-width: 1.6 !important;
+}
+
+#bn-tab-reels,
+#bn-tab-reels .bn-tab-label {
+    overflow: visible !important;
+}
+
+/* 🎬 REELS TAB WITH CRISP LIVE NEON DOT (NO BLUR BLEEDING, NO CLIPPING) */
+.bn-reels-label-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3.5px !important;
+    overflow: visible !important;
+}
+
+.bn-reels-dot {
+    display: inline-block !important;
+    width: 5px !important;
+    height: 5px !important;
+    min-width: 5px !important;
+    min-height: 5px !important;
+    border-radius: 50% !important;
+    background: #ff2b54 !important;
+    box-shadow: 0 0 4px rgba(255, 43, 84, 0.8) !important;
+    flex-shrink: 0 !important;
+    margin-left: 1px !important;
+    animation: bnReelsDotPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes bnReelsDotPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+        box-shadow: 0 0 3px rgba(255, 43, 84, 0.6);
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+        box-shadow: 0 0 5px rgba(255, 43, 84, 0.9);
+    }
+}
+
+#bn-tab-reels.active {
+    color: #ff3b68 !important;
+    text-shadow: 0 0 12px rgba(255, 59, 104, 0.6);
+}
+
+#bn-tab-reels.active .bn-tab-label {
+    color: #ff3b68 !important;
+    font-weight: 600 !important;
+}
+
+#bn-tab-reels.active .bn-tab-icon rect,
+#bn-tab-reels.active .bn-tab-icon path {
+    stroke: #ff3b68 !important;
+    stroke-width: 1.6 !important;
+}
+
+#bn-tab-reels.active .bn-tab-icon path:last-child {
+    fill: #ff3b68 !important;
 }
 
 /* Center Floating Home Button (Glowing Gold #fcd576) */

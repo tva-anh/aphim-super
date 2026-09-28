@@ -842,6 +842,82 @@ function renderMovieInfo(movie, episode) {
         sidebarInfoLink.href = `/phim/${movie.slug}`;
     }
 
+    const sidebarReelsReviewLink = document.getElementById('sidebar-reels-review-link');
+    if (sidebarReelsReviewLink && movie && movie.slug) {
+        const currentWatchUrl = window.location.pathname + window.location.search;
+        const targetReelsUrl = `/reels/review/${movie.slug}?return=${encodeURIComponent(currentWatchUrl)}`;
+        sidebarReelsReviewLink.href = targetReelsUrl;
+
+        // 🚀 Instant Prefetch on Hover / Touch
+        const prefetchReelsPage = () => {
+            if (!sidebarReelsReviewLink.dataset.prefetched) {
+                sidebarReelsReviewLink.dataset.prefetched = 'true';
+                const prefetchTag = document.createElement('link');
+                prefetchTag.rel = 'prefetch';
+                prefetchTag.href = targetReelsUrl;
+                document.head.appendChild(prefetchTag);
+            }
+        };
+        sidebarReelsReviewLink.addEventListener('mouseenter', prefetchReelsPage, { once: true });
+        sidebarReelsReviewLink.addEventListener('touchstart', prefetchReelsPage, { once: true, passive: true });
+
+        // ⚡ Ultra-Smooth Seamless Transition on Click
+        sidebarReelsReviewLink.onclick = () => {
+            try {
+                sessionStorage.setItem('aphim_reels_referrer', currentWatchUrl);
+                if (window.artInstance && typeof window.artInstance.currentTime === 'number') {
+                    sessionStorage.setItem('aphim_watch_time_' + movie.slug, String(window.artInstance.currentTime));
+                }
+            } catch (err) {}
+
+            // Pause watch player immediately to stop audio overlap
+            try {
+                if (window.artInstance && typeof window.artInstance.pause === 'function') window.artInstance.pause();
+                document.querySelectorAll('video, audio').forEach(v => { try { v.pause(); } catch(_) {} });
+            } catch (_) {}
+
+            // Show top loading progress bar
+            let bar = document.getElementById('reels-transit-bar');
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.id = 'reels-transit-bar';
+                bar.className = 'reels-transit-bar';
+                document.body.appendChild(bar);
+            }
+            bar.style.width = '35%';
+            sidebarReelsReviewLink.classList.add('is-transitioning');
+            requestAnimationFrame(() => {
+                if (bar) bar.style.width = '90%';
+            });
+        };
+    }
+
+    // 🎬 Dynamically fetch & update exact Review Video Duration (e.g. "1 GIỜ 43P", "45 PHÚT", "15 PHÚT")
+    const durationChip = document.getElementById('sidebar-reels-duration-chip');
+    if (durationChip && movie) {
+        const queryTarget = movie.name || movie.slug;
+        fetch(`/api/reels/search?q=${encodeURIComponent(queryTarget)}&tab=review`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success && data.items && data.items.length > 0) {
+                    const firstMatch = data.items[0];
+                    if (firstMatch.durationBadge) {
+                        durationChip.textContent = firstMatch.durationBadge;
+                    } else if (firstMatch.duration) {
+                        const parts = String(firstMatch.duration).trim().split(':').map(p => parseInt(p, 10) || 0);
+                        if (parts.length === 3) {
+                            const [h, m, s] = parts;
+                            durationChip.textContent = h > 0 ? `${h} GIỜ ${m > 0 ? m + 'P' : ''}`.trim() : `${m} PHÚT`;
+                        } else if (parts.length === 2) {
+                            const [m, s] = parts;
+                            durationChip.textContent = m >= 60 ? `${Math.floor(m / 60)} GIỜ ${m % 60 > 0 ? (m % 60) + 'P' : ''}`.trim() : `${m} PHÚT`;
+                        }
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+
     const sidebarQuality = document.getElementById('sidebar-quality');
     if (sidebarQuality) sidebarQuality.textContent = movie.quality || 'HD';
 

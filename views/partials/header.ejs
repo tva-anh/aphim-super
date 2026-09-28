@@ -50,7 +50,7 @@
     .sofa-header-left-group {
         display: flex !important;
         align-items: center !important;
-        gap: 32px !important;
+        gap: 18px !important;
         flex-shrink: 0 !important;
         overflow: visible !important;
     }
@@ -102,8 +102,8 @@
     .sofa-nav-links {
         display: flex !important;
         align-items: center !important;
-        gap: 20px !important;
-        margin-left: 10px !important;
+        gap: 12px !important;
+        margin-left: 4px !important;
         flex-shrink: 0 !important;
     }
 
@@ -589,14 +589,257 @@
         text-decoration: none !important;
         font-size: 13px !important;
         font-weight: 500 !important;
-        padding: 12px 16px !important;
+        padding: 12px 10px !important;
         border-radius: 10px !important;
         text-align: center !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        white-space: nowrap !important;
+        min-height: 48px !important;
+        height: 48px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        gap: 5px !important;
     }
+    /* ========================================================
+       🎬 PREMIUM REELS NAVBAR PILL & SILKY 60FPS GPU WAVE
+       ======================================================== */
+    .sofa-nav-item.reels-nav-pill,
+    .reels-nav-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        height: 30px !important;
+        max-height: 30px !important;
+        line-height: 1 !important;
+        padding: 0 11px 0 9px !important;
+        border-radius: 9999px !important;
+        border: 1.5px solid rgba(255, 43, 84, 0.5) !important;
+        background: rgba(255, 43, 84, 0.12) !important;
+        box-shadow: 0 2px 8px rgba(255, 43, 84, 0.18) !important;
+        position: relative !important;
+        text-decoration: none !important;
+        margin: auto 4px !important;
+        flex-shrink: 0 !important;
+        align-self: center !important;
+        cursor: pointer !important;
+        box-sizing: border-box !important;
+        transform: translateZ(0) !important;
+        will-change: transform, background, border-color, box-shadow !important;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    .sofa-nav-item.reels-nav-pill:hover,
+    .reels-nav-pill:hover {
+        background: rgba(255, 43, 84, 0.22) !important;
+        border-color: #ff2b54 !important;
+        box-shadow: 0 3px 12px rgba(255, 43, 84, 0.35) !important;
+        transform: translateY(-1px) scale(1.04) translateZ(0) !important;
+    }
+
+    /* ✨ Silky Smooth 60FPS Letter Wave (Pure GPU translation, No Text Scale Jitter) */
+    .reels-shimmer-text {
+        display: inline-flex !important;
+        align-items: center !important;
+        font-weight: 850 !important;
+        font-size: 13.5px !important;
+        letter-spacing: 0.02em !important;
+        line-height: 1 !important;
+        user-select: none !important;
+    }
+
+    .reels-shimmer-text .reels-char {
+        display: inline-block !important;
+        color: #ff2b54 !important;
+        transform: translateZ(0) !important;
+        will-change: transform, color !important;
+        animation: reelsSilkyWave 2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        animation-delay: calc(var(--char-index) * 0.12s) !important;
+    }
+
+    @keyframes reelsSilkyWave {
+        0%, 100% {
+            color: #ff2b54;
+            transform: translateY(0) translateZ(0);
+        }
+        25% {
+            color: #ff6b8b;
+            transform: translateY(-1.5px) translateZ(0);
+        }
+        50% {
+            color: #ff2b54;
+            transform: translateY(0) translateZ(0);
+        }
+    }
+
+    /* Flame icon: Silky smooth 60FPS GPU breathing */
+    .reels-flame-icon {
+        width: 15px !important;
+        height: 15px !important;
+        min-width: 15px !important;
+        vertical-align: middle !important;
+        display: inline-block !important;
+        flex-shrink: 0 !important;
+        filter: drop-shadow(0 1px 3px rgba(255, 43, 84, 0.3)) !important;
+        transform-origin: bottom center !important;
+        transform: translateZ(0) !important;
+        will-change: transform !important;
+        animation: reelsFlameSilky 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate !important;
+    }
+
+    @keyframes reelsFlameSilky {
+        0% {
+            transform: scale(0.95) rotate(-3deg) translateZ(0);
+        }
+        100% {
+            transform: scale(1.08) rotate(3deg) translateZ(0);
+        }
+    }
+
+    /* Drawer Reels Pill override for mobile */
+    .drawer-pill-btn.reels-pill {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        background: rgba(255, 43, 84, 0.12) !important;
+        border: 1.5px solid rgba(255, 43, 84, 0.45) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+        transform: translateZ(0) !important;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease !important;
+    }
+
+    /* ☀️ LIGHT / CREAM MODE ADAPTATION: Luxury Gold/Yellow Border with Glowing Pill */
+    html.light-mode #sofa-header .sofa-nav-item.reels-nav-pill,
+    html.light-mode header .sofa-nav-item.reels-nav-pill,
+    html.light-mode .sofa-nav-item.reels-nav-pill,
+    html.light-mode .reels-nav-pill,
+    .light-mode #sofa-header .sofa-nav-item.reels-nav-pill,
+    .light-mode header .sofa-nav-item.reels-nav-pill,
+    .light-mode .sofa-nav-item.reels-nav-pill,
+    .light-mode .reels-nav-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #fffbeb !important;
+        background-color: #fffbeb !important;
+        border: 1.5px solid #f59e0b !important;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
+        border-radius: 9999px !important;
+        height: 30px !important;
+        padding: 0 11px 0 9px !important;
+        color: #e11d48 !important;
+        -webkit-text-fill-color: #e11d48 !important;
+    }
+
+    html.light-mode #sofa-mobile-drawer .drawer-pill-btn.reels-pill,
+    html.light-mode .drawer-pill-btn.reels-pill,
+    .light-mode #sofa-mobile-drawer .drawer-pill-btn.reels-pill,
+    .light-mode .drawer-pill-btn.reels-pill {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #fffbeb !important;
+        background-color: #fffbeb !important;
+        border: 1.5px solid #f59e0b !important;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
+        border-radius: 10px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        color: #e11d48 !important;
+        -webkit-text-fill-color: #e11d48 !important;
+        font-weight: 800 !important;
+    }
+    html.light-mode .reels-nav-pill:hover,
+    .light-mode .reels-nav-pill:hover,
+    html.light-mode .drawer-pill-btn.reels-pill:hover,
+    .light-mode .drawer-pill-btn.reels-pill:hover {
+        background: #fef3c7 !important;
+        border-color: #d97706 !important;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+    }
+    html.light-mode .reels-char,
+    .light-mode .reels-char {
+        color: #e11d48 !important;
+        text-shadow: none !important;
+    }
+    html.light-mode .reels-shimmer-text .reels-char {
+        animation: reelsSilkyWaveLight 2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        animation-delay: calc(var(--char-index) * 0.12s) !important;
+    }
+    @keyframes reelsSilkyWaveLight {
+        0%, 100% {
+            color: #e11d48;
+            transform: translateY(0) translateZ(0);
+        }
+        25% {
+            color: #ff3b65;
+            transform: translateY(-1.5px) translateZ(0);
+        }
+        50% {
+            color: #e11d48;
+            transform: translateY(0) translateZ(0);
+        }
+    }
+
+    /* ⚡ INSTANT RECOGNITION & ACTIVE TOUCH STATES FOR REELS BUTTONS (0ms latency feedback) */
+    .reels-nav-pill,
+    .drawer-pill-btn.reels-pill {
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+    }
+
+    .reels-nav-pill:active,
+    .reels-nav-pill.is-pressed,
+    .drawer-pill-btn.reels-pill:active,
+    .drawer-pill-btn.reels-pill.is-pressed {
+        transform: scale(0.95) translateY(1px) !important;
+        background: rgba(244, 63, 94, 0.22) !important;
+        border-color: #ff2b54 !important;
+        box-shadow: 0 1px 4px rgba(255, 43, 84, 0.25) !important;
+        transition: transform 0.04s ease, background 0.04s ease !important;
+    }
+
+    .reels-nav-pill.is-navigating,
+    .drawer-pill-btn.reels-pill.is-navigating {
+        opacity: 0.85 !important;
+        pointer-events: none !important;
+    }
+
+    .reels-nav-pill.is-navigating .reels-flame-icon,
+    .drawer-pill-btn.reels-pill.is-navigating .reels-flame-icon {
+        animation: flameSpinPulse 0.35s ease-in-out infinite alternate !important;
+    }
+
+    @keyframes flameSpinPulse {
+        0% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+        100% { transform: scale(1.2) rotate(-8deg); opacity: 1; }
+    }
+
+    /* 🚀 YouTube-style Global Top Progress Bar */
+    #aphim-nav-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3.5px;
+        width: 0%;
+        background: linear-gradient(90deg, #ff244d, #ff6b8b, #ff244d);
+        box-shadow: 0 0 12px rgba(255, 36, 77, 0.9), 0 0 24px rgba(255, 36, 77, 0.6);
+        z-index: 9999999;
+        transition: width 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
+        pointer-events: none;
+        display: none;
+    }
+
 
     /* ── RESPONSIVE COMPACT MEDIA QUERIES FOR 110% ZOOM & MEDIUM SCREENS (1380px - 1536px) ── */
     @media (max-width: 1536px) {
@@ -806,10 +1049,12 @@
                     </div>
                 </div>
 
-                <!-- 4. Reels & Review (TikTok Style Movie Reviews) -->
-                <a href="/reels" class="sofa-nav-item" style="color: #fcd576 !important; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
-                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 8px #f43f5e;"></span>
-                    <span>Reels & Review</span>
+                <!-- 4. Reels & Review (TikTok Style — Sequential Letter Light Wave) -->
+                <a href="/reels" class="sofa-nav-item reels-nav-pill" title="Xem video ngắn Reels & Review phim">
+                    <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥">
+                    <span class="reels-shimmer-text">
+                        <span class="reels-char" style="--char-index:0">R</span><span class="reels-char" style="--char-index:1">e</span><span class="reels-char" style="--char-index:2">e</span><span class="reels-char" style="--char-index:3">l</span><span class="reels-char" style="--char-index:4">s</span>
+                    </span>
                 </a>
 
                 <!-- 5. Ngẫu Nhiên -->
@@ -891,7 +1136,7 @@
         <!-- Accordion Group -->
         <div class="drawer-accordion-group">
             <!-- 1. Loại Phim Accordion -->
-            <div class="drawer-accordion-item active" id="drawer-acc-loai">
+            <div class="drawer-accordion-item" id="drawer-acc-loai">
                 <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-loai')">
                     <span>Loại Phim</span>
                     <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
@@ -971,7 +1216,12 @@
 
         <!-- Quick Action Pills Grid at Bottom -->
         <div class="drawer-quick-pills">
-            <a href="/reels" class="drawer-pill-btn" style="background: rgba(252, 213, 118, 0.15) !important; color: #fcd576 !important; border: 1px solid rgba(252, 213, 118, 0.3) !important; font-weight: 700 !important;">🎬 Reels Review</a>
+            <a href="/reels" class="drawer-pill-btn reels-pill" title="Xem video ngắn Reels & Review phim">
+                <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥" style="flex-shrink:0;">
+                <span class="reels-shimmer-text">
+                    <span class="reels-char" style="--char-index:0">R</span><span class="reels-char" style="--char-index:1">e</span><span class="reels-char" style="--char-index:2">e</span><span class="reels-char" style="--char-index:3">l</span><span class="reels-char" style="--char-index:4">s</span>
+                </span>
+            </a>
             <a href="/danh-sach?list=phim-moi-cap-nhat" class="drawer-pill-btn">Ngẫu Nhiên</a>
             <a href="#" class="drawer-pill-btn">Cộng Đồng</a>
             <a href="/danh-sach?list=phim-bo" class="drawer-pill-btn">Song Ngữ</a>
@@ -1073,6 +1323,76 @@
             document.addEventListener('DOMContentLoaded', forceHeaderTopState);
         } else {
             forceHeaderTopState();
+        }
+    })();
+</script>
+
+<!-- 🚀 YouTube-style Global Top Loading Progress Bar -->
+<div id="aphim-nav-progress"></div>
+
+<script>
+    /* ⚡ INSTANT RECOGNITION & SMART PREFETCH FOR REELS */
+    (function() {
+        var reelsPrefetched = false;
+
+        function prefetchReelsNow() {
+            if (reelsPrefetched) return;
+            reelsPrefetched = true;
+            try {
+                var link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = '/reels';
+                link.as = 'document';
+                document.head.appendChild(link);
+                if (window.fetch) {
+                    fetch('/reels', { priority: 'low' }).catch(function(){});
+                }
+            } catch(e) {}
+        }
+
+        function triggerNavProgress() {
+            var bar = document.getElementById('aphim-nav-progress');
+            if (!bar) return;
+            bar.style.display = 'block';
+            bar.style.width = '30%';
+            setTimeout(function() {
+                if (bar) bar.style.width = '88%';
+            }, 50);
+        }
+
+        function setupInstantReelsInteraction() {
+            var btns = document.querySelectorAll('.reels-nav-pill, .drawer-pill-btn.reels-pill, a[href="/reels"]');
+            btns.forEach(function(btn) {
+                // 1. Prefetch instantly upon mouse hover or initial touch
+                btn.addEventListener('pointerenter', prefetchReelsNow, { passive: true, once: true });
+                btn.addEventListener('touchstart', prefetchReelsNow, { passive: true, once: true });
+
+                // 2. Immediate tactile feedback on press down (0ms latency recognition)
+                btn.addEventListener('pointerdown', function() {
+                    btn.classList.add('is-pressed');
+                    triggerNavProgress();
+                }, { passive: true });
+
+                // Clear press state on release
+                btn.addEventListener('pointerup', function() {
+                    btn.classList.remove('is-pressed');
+                }, { passive: true });
+                btn.addEventListener('pointercancel', function() {
+                    btn.classList.remove('is-pressed');
+                }, { passive: true });
+
+                // 3. Mark navigating on click/tap
+                btn.addEventListener('click', function() {
+                    btn.classList.add('is-navigating');
+                    triggerNavProgress();
+                });
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupInstantReelsInteraction);
+        } else {
+            setupInstantReelsInteraction();
         }
     })();
 </script>

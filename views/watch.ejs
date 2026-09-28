@@ -3,7 +3,7 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css?v=345" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=346" />
 </head>
 
 <body class="bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
@@ -433,6 +433,9 @@
                             <!-- Dynamic Episode Grid Buttons Rendered by JS -->
                         </div>
 
+                        <!-- 📱 Mobile Slot: Movie Info Summary Card relocated here on Mobile (< 1024px) directly above server change notice -->
+                        <div id="mobile-movie-info-slot" class="w-full my-4"></div>
+
                         <!-- SVAP Alternate Server Section (Rendered dynamically by JS renderVersions) -->
                         <div id="watch-versions-container" class="w-full"></div>
                     </div>
@@ -558,8 +561,10 @@
                 <aside id="sidebar-col" style="will-change: transform; transform: translateZ(0);"
                     class="lg:col-span-4 space-y-6 lg:space-y-8 sticky top-20">
 
-                    <!-- Sleek Movie Info Summary Card (Auto-Aligned Height with Left Player Box) -->
-                    <div id="main-movie-info-card"
+                    <!-- Desktop Slot for Movie Info Summary Card (lg: screens) -->
+                    <div id="desktop-movie-info-slot" class="w-full">
+                        <!-- Sleek Movie Info Summary Card (Auto-Aligned Height with Left Player Box) -->
+                        <div id="main-movie-info-card"
                         style="background-color: #151722; border: none; box-sizing: border-box;"
                         class="rounded-2xl p-5 md:p-6 pb-6 md:pb-7 flex flex-col justify-between space-y-5 shadow-xl">
                         <div class="flex gap-4 items-start">
@@ -632,13 +637,13 @@
 
                         <!-- Description & Information Link Row (Divider removed) -->
                         <div style="border-top: none;"
-                            class="pt-2 md:pt-3 space-y-3 flex-1 flex flex-col justify-between min-h-0">
+                            class="pt-1.5 space-y-2 flex-1 flex flex-col justify-between min-h-0">
                             <p id="sidebar-description-text"
-                                style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;"
-                                class="line-clamp-10">
+                                style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;"
+                                class="line-clamp-3">
                                 Tóm tắt nội dung phim đang được tải...
                             </p>
-                            <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center justify-between pt-0.5">
                                 <a id="sidebar-info-link" href="/phim/<%= movie ? movie.slug : '' %>"
                                     style="color: #f59e0b !important; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;"
                                     class="font-bold text-xs sm:text-sm transition-colors cursor-pointer hover:opacity-80">
@@ -663,11 +668,67 @@
                                     </button>
                                 </div>
                             </div>
+
+                            <!-- 🔥 SEO Power Loop: Nút xem Video Review & Tóm tắt 3 phút tại APhim Reels (Enterprise UI Redesign) -->
+                            <div class="pt-1.5">
+                                <a id="sidebar-reels-review-link" href="/reels/review/<%= movie ? movie.slug : '' %>?return=<%= encodeURIComponent('/xem-phim/' + (movie ? movie.slug : '') + '/tap-1') %>"
+                                   class="reels-cta-banner group"
+                                   title="Xem video tóm tắt & phân tích phim <%= movie ? movie.name : '' %>">
+                                    <div class="reels-cta-left">
+                                        <!-- Modern Animated Clapper/Play 3D Gradient Icon -->
+                                        <div class="reels-cta-icon-box">
+                                            <div class="reels-cta-icon-inner">
+                                                <svg class="reels-cta-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M4.5 7.5C4.5 5.84315 5.84315 4.5 7.5 4.5H16.5C18.1569 4.5 19.5 5.84315 19.5 7.5V16.5C19.5 18.1569 18.1569 19.5 16.5 19.5H7.5C5.84315 19.5 4.5 18.1569 4.5 16.5V7.5Z" fill="url(#reelsIconGrad)" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+                                                    <!-- Film Reel / Clapper stripes -->
+                                                    <path d="M4.5 8.5H19.5" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round"/>
+                                                    <path d="M8.5 4.5L6.5 8.5M13.5 4.5L11.5 8.5M18.5 4.5L16.5 8.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" stroke-linecap="round"/>
+                                                    <!-- Play Arrow inside -->
+                                                    <polygon points="10.5,11.2 15.5,14 10.5,16.8" fill="#ffffff" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.3))"/>
+                                                    <defs>
+                                                        <linearGradient id="reelsIconGrad" x1="4.5" y1="4.5" x2="19.5" y2="19.5" gradientUnits="userSpaceOnUse">
+                                                            <stop stop-color="#ff1e56"/>
+                                                            <stop offset="0.5" stop-color="#ff007f"/>
+                                                            <stop offset="1" stop-color="#ff9900"/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
+                                                <span class="reels-cta-pulse-ring"></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Content Block -->
+                                        <div class="reels-cta-content">
+                                            <div class="reels-cta-tags-row">
+                                                <span class="reels-cta-badge-live">
+                                                    <span class="reels-cta-live-dot"></span>
+                                                    <span>REELS & REVIEW</span>
+                                                </span>
+                                                <span id="sidebar-reels-duration-chip" class="reels-cta-time-chip">TÓM TẮT FULL</span>
+                                            </div>
+                                            <div class="reels-cta-headline">
+                                                Xem video tóm tắt & phân tích phim
+                                            </div>
+                                            <div class="reels-cta-subtext">
+                                                ⚡ Nhanh gọn • Không spoil • Siêu cuốn
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Action Circle Button -->
+                                    <div class="reels-cta-action-btn">
+                                        <svg class="w-4 h-4 reels-cta-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                                        </svg>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
 
-                        <!-- Integrated Cast Block (Diễn viên) directly inside Movie Info Card -->
+                        <!-- Integrated Cast Block (Diễn viên) directly inside Movie Info Card (Divider line removed, full avatar visible) -->
                         <div id="sidebar-cast-section"
-                            class="border-t border-white/10 pt-4 mt-2 space-y-2.5 pb-2 md:pb-3 overflow-hidden">
+                            style="border-top: none !important;"
+                            class="pt-2 mt-1 space-y-2 pb-1 overflow-visible">
                             <div class="flex items-center justify-between">
                                 <h3
                                     class="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
@@ -678,10 +739,11 @@
                                     ngang &rsaquo;</span>
                             </div>
                             <div id="sidebar-cast" data-drag-scroll="true"
-                                class="flex flex-nowrap gap-3 items-center justify-start text-center overflow-x-auto scrollbar-none py-1 select-none scroll-smooth">
+                                class="flex flex-nowrap gap-3 items-center justify-start text-center overflow-x-auto scrollbar-none pt-1 pb-1 select-none scroll-smooth">
                                 <!-- Dynamic Circular Cast Avatars -->
                             </div>
                         </div>
+                    </div>
                     </div>
 
                     <!-- Bảng Xếp Hạng Top Phim Tuần -->
@@ -704,6 +766,15 @@
 
             <!-- Page Scripts & Setup -->
             <script>
+                (function() {
+                    try {
+                        if (window.innerWidth < 1024) {
+                            var info = document.getElementById('main-movie-info-card');
+                            var slot = document.getElementById('mobile-movie-info-slot');
+                            if (info && slot) slot.appendChild(info);
+                        }
+                    } catch(e) {}
+                })();
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
                 window.activeVariant = <%- JSON.stringify(typeof activeVariant !== 'undefined' ? activeVariant : null) %>;
@@ -719,7 +790,7 @@
             <script src="/js/playlist-service.js?v=100" defer></script>
             <script src="/js/playlist-modal.js?v=210" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=100" defer></script>
-            <script src="/js/watch.js?v=10098" defer></script>
+            <script src="/js/watch.js?v=10099" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
             <script src="/js/watch-ui-init.js?v=218" defer></script>
     <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->

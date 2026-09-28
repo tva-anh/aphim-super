@@ -258,9 +258,15 @@
         async toggleSpoiler(slug, commentId, currentState) {}
 
         async fetchData(slug, cb) {
+            if (!slug) return;
+            if (this._isFetching && this._fetchingSlug === slug) return;
+            this._isFetching = true;
+            this._fetchingSlug = slug;
             let serverList = [];
             try {
-                const res = await fetch(`${API_URL}/comments/movie/${encodeURIComponent(slug)}`).catch(() => null);
+                const res = await fetch(`${API_URL}/comments/movie/${encodeURIComponent(slug)}`, {
+                    headers: { 'Cache-Control': 'no-cache' }
+                }).catch(() => null);
                 if (res && res.ok) {
                     const data = await res.json();
                     if (data && data.success && Array.isArray(data.data)) {
@@ -288,6 +294,9 @@
                     }
                 }
             } catch(e) {}
+            finally {
+                this._isFetching = false;
+            }
 
             // Load local user added comments (fallbacks not yet in server)
             const localKey = 'ap_local_comments_' + (slug || 'main');
@@ -409,7 +418,9 @@
             let totalCount = topLevelComments.length;
             topLevelComments.forEach(tc => { if(tc.replies) totalCount += tc.replies.length; });
 
-            cb({ comments: topLevelComments, count: totalCount });
+            if (typeof cb === 'function') {
+                cb({ comments: topLevelComments, count: totalCount });
+            }
         }
 
         listen(slug, cb) {
@@ -437,7 +448,7 @@
                             this.fetchData(slug, cb);
                         });
                         this.eventSource.onerror = () => {
-                            // Will automatically reconnect or use fallback polling
+                            // Will automatically reconnect
                         };
                     } catch(e) {
                         console.warn('[CommentsSSE] Stream init warning:', e);
@@ -466,9 +477,9 @@
                 } catch(e) {}
             }
 
-            // 3. Fallback active polling (every 5 seconds)
+            // 3. Relaxed background sync interval (every 25 seconds)
             if (this.pollInterval) clearInterval(this.pollInterval);
-            this.pollInterval = setInterval(() => this.fetchData(slug, cb), 5000);
+            this.pollInterval = setInterval(() => this.fetchData(slug, cb), 25000);
         }
 
         stopListen() { 

@@ -368,8 +368,30 @@
                         setTimeout(() => { toast.classList.remove('opacity-100', 'translate-y-0'); toast.classList.add('opacity-0', '-translate-y-4'); setTimeout(() => toast.remove(), 300); }, 3000);
                     };
 
-                    // ?? DYNAMIC AUTO-SYNC HEIGHT: Guarantees Movie Info Card height matches Player Box EXACTLY
+                    // 📱 DYNAMIC MOBILE RELOCATION: Moves Movie Info Card (Hình 1) above Server Change Notice (Hình 2) on Mobile (< 1024px)
+                    function relocateMovieInfoCard() {
+                        const infoCard = document.getElementById('main-movie-info-card');
+                        const mobileSlot = document.getElementById('mobile-movie-info-slot');
+                        const desktopSlot = document.getElementById('desktop-movie-info-slot');
+                        if (!infoCard || !mobileSlot || !desktopSlot) return;
+
+                        if (window.innerWidth < 1024) {
+                            if (infoCard.parentElement !== mobileSlot) {
+                                mobileSlot.appendChild(infoCard);
+                            }
+                        } else {
+                            if (infoCard.parentElement !== desktopSlot) {
+                                desktopSlot.appendChild(infoCard);
+                            }
+                        }
+                    }
+
+                    window.relocateMovieInfoCard = relocateMovieInfoCard;
+                    relocateMovieInfoCard();
+
+                    // 📐 DYNAMIC AUTO-SYNC HEIGHT: Guarantees Movie Info Card height matches Player Box with full content visibility
                     function syncSidebarCardHeight() {
+                        relocateMovieInfoCard();
                         const playerBox = document.getElementById('main-player-box');
                         const infoCard = document.getElementById('main-movie-info-card');
                         if (!playerBox || !infoCard) return;
@@ -377,9 +399,9 @@
                         if (window.innerWidth >= 1024) {
                             const playerHeight = Math.round(playerBox.getBoundingClientRect().height);
                             if (playerHeight > 100) {
-                                infoCard.style.height = playerHeight + 'px';
-                                infoCard.style.maxHeight = playerHeight + 'px';
                                 infoCard.style.minHeight = playerHeight + 'px';
+                                infoCard.style.height = 'auto';
+                                infoCard.style.maxHeight = 'none';
                             }
                         } else {
                             infoCard.style.height = 'auto';
@@ -390,10 +412,14 @@
 
                     window.syncSidebarCardHeight = syncSidebarCardHeight;
                     window.addEventListener('resize', syncSidebarCardHeight);
+                    window.addEventListener('orientationchange', () => {
+                        setTimeout(syncSidebarCardHeight, 50);
+                    });
                     window.addEventListener('load', syncSidebarCardHeight);
-                    setTimeout(syncSidebarCardHeight, 200);
-                    setTimeout(syncSidebarCardHeight, 800);
-                    setTimeout(syncSidebarCardHeight, 2000);
+                    setTimeout(syncSidebarCardHeight, 100);
+                    setTimeout(syncSidebarCardHeight, 400);
+                    setTimeout(syncSidebarCardHeight, 1000);
+                    setTimeout(syncSidebarCardHeight, 2500);
 
                     if (typeof ResizeObserver !== 'undefined') {
                         const ro = new ResizeObserver(() => {
@@ -414,7 +440,7 @@
                             window.GamificationCore.progressDailyMission('favorite', 1);
                         }
                     });
-    <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic) -->
+                    // 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic)
 
                 })();
 

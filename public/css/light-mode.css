@@ -132,18 +132,50 @@ html.light-mode .sofa-header-container {
     box-shadow: none !important;
 }
 
-/* FIX: Eliminate White Box Block Effect Behind Nav Pills & Header Links (Exclude Login Button) */
-html.light-mode header a:not(.sofa-login-rect-btn),
-html.light-mode #sofa-header a:not(.sofa-login-rect-btn),
-html.light-mode .sofa-nav-links a,
-html.light-mode .sofa-nav-item,
-html.light-mode .nav-pill,
+/* FIX: Eliminate White Box Block Effect Behind Nav Pills & Header Links (Exclude Login Button & Reels Pill) */
+html.light-mode header a:not(.sofa-login-rect-btn):not(.reels-nav-pill):not(.reels-pill),
+html.light-mode #sofa-header a:not(.sofa-login-rect-btn):not(.reels-nav-pill):not(.reels-pill),
+html.light-mode .sofa-nav-links a:not(.reels-nav-pill),
+html.light-mode .sofa-nav-item:not(.reels-nav-pill),
+html.light-mode .nav-pill:not(.reels-nav-pill),
 html.light-mode .sofa-dropdown,
 html.light-mode .nav-item {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+/* 🌟 REELS NAVBAR PILL IN LIGHT / CREAM MODE (Gold/Yellow Luxury Border & Glow) */
+html.light-mode .sofa-nav-item.reels-nav-pill,
+html.light-mode .reels-nav-pill,
+html.light-mode .drawer-pill-btn.reels-pill,
+.light-mode .sofa-nav-item.reels-nav-pill,
+.light-mode .reels-nav-pill,
+.light-mode .drawer-pill-btn.reels-pill {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22) !important;
+    color: #e11d48 !important;
+    transform: translateZ(0) !important;
+}
+
+html.light-mode .sofa-nav-item.reels-nav-pill:hover,
+html.light-mode .reels-nav-pill:hover,
+html.light-mode .drawer-pill-btn.reels-pill:hover,
+.light-mode .sofa-nav-item.reels-nav-pill:hover,
+.light-mode .reels-nav-pill:hover,
+.light-mode .drawer-pill-btn.reels-pill:hover {
+    background: #fef3c7 !important;
+    border-color: #d97706 !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+    transform: translateY(-1px) scale(1.04) translateZ(0) !important;
+}
+
+html.light-mode .reels-char,
+.light-mode .reels-char {
+    color: #e11d48 !important;
+    text-shadow: none !important;
 }
 
 /* Header Login Button Box in Light Mode (Desktop & Mobile) */
@@ -207,7 +239,7 @@ html.light-mode .sofa-menu-btn svg {
 }
 
 /* Desktop Navigation Links */
-html.light-mode .sofa-nav-item,
+html.light-mode .sofa-nav-item:not(.reels-nav-pill),
 html.light-mode .nav-link-text,
 html.light-mode .nav-text {
     color: #292524 !important;
@@ -216,9 +248,9 @@ html.light-mode .nav-text {
     background: transparent !important;
     border: none !important;
 }
-html.light-mode .sofa-nav-item:hover,
-html.light-mode .sofa-dropdown:hover .sofa-nav-item,
-html.light-mode .nav-pill:hover .nav-text {
+html.light-mode .sofa-nav-item:not(.reels-nav-pill):hover,
+html.light-mode .sofa-dropdown:hover .sofa-nav-item:not(.reels-nav-pill),
+html.light-mode .nav-pill:not(.reels-nav-pill):hover .nav-text {
     color: #d97706 !important;
     background: transparent !important;
 }
@@ -479,8 +511,8 @@ html.light-mode #sofa-mobile-drawer .drawer-sub-link:hover {
     text-decoration: underline !important;
 }
 
-html.light-mode .drawer-pill-btn,
-html.light-mode #sofa-mobile-drawer .drawer-pill-btn {
+html.light-mode .drawer-pill-btn:not(.reels-pill),
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn:not(.reels-pill) {
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #1c1917 !important;
@@ -490,13 +522,35 @@ html.light-mode #sofa-mobile-drawer .drawer-pill-btn {
     box-shadow: 0 2px 8px rgba(78, 64, 45, 0.08) !important;
 }
 
-html.light-mode .drawer-pill-btn:hover,
-html.light-mode #sofa-mobile-drawer .drawer-pill-btn:hover {
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn.reels-pill,
+html.light-mode .drawer-pill-btn.reels-pill {
+    background: #fffbeb !important;
+    background-color: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    border-radius: 10px !important;
+    color: #e11d48 !important;
+    -webkit-text-fill-color: #e11d48 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22) !important;
+}
+
+html.light-mode .drawer-pill-btn:not(.reels-pill):hover,
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn:not(.reels-pill):hover {
     background: #fff7ed !important;
     background-color: #fff7ed !important;
     border-color: #d97706 !important;
     color: #b45309 !important;
     -webkit-text-fill-color: #b45309 !important;
+}
+
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn.reels-pill:hover,
+html.light-mode .drawer-pill-btn.reels-pill:hover {
+    background: #fef3c7 !important;
+    background-color: #fef3c7 !important;
+    border-color: #d97706 !important;
+    color: #be123c !important;
+    -webkit-text-fill-color: #be123c !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
 }
 
 

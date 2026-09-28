@@ -2816,6 +2816,332 @@
     }
 }
 
+/* ==========================================================================
+   🎬 ENTERPRISE REELS & REVIEW CTA BANNER (LIGHT & DARK MODE READY)
+   ========================================================================== */
+.reels-cta-banner {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 14px;
+    text-decoration: none !important;
+    background: linear-gradient(135deg, rgba(255, 30, 86, 0.12) 0%, rgba(255, 153, 0, 0.08) 50%, rgba(20, 24, 38, 0.85) 100%);
+    border: 1px solid rgba(255, 30, 86, 0.3);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.reels-cta-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transform: skewX(-20deg);
+    transition: none;
+    pointer-events: none;
+}
+
+.reels-cta-banner:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 30, 86, 0.6);
+    box-shadow: 0 8px 24px -2px rgba(255, 30, 86, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.reels-cta-banner:active {
+    transform: scale(0.98);
+}
+
+.reels-cta-banner.is-transitioning {
+    pointer-events: none;
+    transform: scale(0.975);
+    filter: brightness(1.12);
+    box-shadow: 0 0 20px rgba(255, 30, 86, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ─── Ultra Smooth Top Loading Bar for Reels Transition ─── */
+.reels-transit-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #ff1e56, #ff007f, #ff9900);
+    box-shadow: 0 0 10px rgba(255, 30, 86, 0.8), 0 0 20px rgba(255, 153, 0, 0.5);
+    z-index: 1000000;
+    pointer-events: none;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reels-cta-banner:hover::before {
+    left: 150%;
+    transition: left 0.75s ease-in-out;
+}
+
+.reels-cta-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.reels-cta-icon-box {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+}
+
+.reels-cta-icon-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(255, 30, 86, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.reels-cta-banner:hover .reels-cta-icon-inner {
+    transform: scale(1.08) rotate(-3deg);
+    box-shadow: 0 6px 20px rgba(255, 30, 86, 0.6);
+}
+
+.reels-cta-svg {
+    width: 42px;
+    height: 42px;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+.reels-cta-pulse-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(255, 30, 86, 0.5);
+    opacity: 0;
+    animation: reelsPulsePing 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+}
+
+@keyframes reelsPulsePing {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    70%, 100% { transform: scale(1.22); opacity: 0; }
+}
+
+.reels-cta-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.reels-cta-tags-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1px;
+}
+
+.reels-cta-badge-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #ff3366;
+}
+
+.reels-cta-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff1e56;
+    box-shadow: 0 0 8px #ff1e56;
+    animation: reelsDotBlink 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes reelsDotBlink {
+    0% { opacity: 0.4; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 10px #ff1e56; }
+}
+
+.reels-cta-time-chip {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(255, 30, 86, 0.18);
+    color: #ff6b81;
+    border: 1px solid rgba(255, 30, 86, 0.3);
+    letter-spacing: 0.4px;
+}
+
+.reels-cta-headline {
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
+}
+
+.reels-cta-banner:hover .reels-cta-headline {
+    color: #ffe4e6;
+}
+
+.reels-cta-subtext {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reels-cta-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ff477e;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reels-cta-banner:hover .reels-cta-action-btn {
+    background: #e11d48;
+    background: radial-gradient(circle at 50% 50%, #ff2a5f 0%, #e11d48 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: scale(1.08);
+    box-shadow: 0 0 16px rgba(255, 30, 86, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.reels-cta-arrow {
+    transition: transform 0.25s ease;
+}
+
+.reels-cta-banner:hover .reels-cta-arrow {
+    transform: translateX(2px);
+}
+
+/* ─── LIGHT MODE OVERRIDES FOR REELS CTA BANNER ─── */
+html.light-mode .reels-cta-banner {
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f5 55%, #ffe4e6 100%) !important;
+    border: 1px solid rgba(225, 29, 72, 0.22) !important;
+    box-shadow: 0 4px 18px -2px rgba(225, 29, 72, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light-mode .reels-cta-banner:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #fff1f2 50%, #fecdd3 100%) !important;
+    border-color: rgba(225, 29, 72, 0.45) !important;
+    box-shadow: 0 8px 24px -2px rgba(225, 29, 72, 0.2), 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light-mode .reels-cta-banner::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent) !important;
+}
+
+html.light-mode .reels-cta-badge-live {
+    color: #e11d48 !important;
+}
+
+html.light-mode .reels-cta-live-dot {
+    background: #e11d48 !important;
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.6) !important;
+}
+
+html.light-mode .reels-cta-time-chip {
+    background: rgba(225, 29, 72, 0.1) !important;
+    border-color: rgba(225, 29, 72, 0.25) !important;
+    color: #be123c !important;
+}
+
+html.light-mode .reels-cta-headline {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .reels-cta-banner:hover .reels-cta-headline {
+    color: #e11d48 !important;
+}
+
+html.light-mode .reels-cta-subtext {
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+
+html.light-mode .reels-cta-action-btn {
+    background: #ffffff !important;
+    border: 1px solid rgba(225, 29, 72, 0.25) !important;
+    color: #e11d48 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-mode .reels-cta-banner:hover .reels-cta-action-btn {
+    background: #e11d48 !important;
+    background: radial-gradient(circle at 50% 50%, #ff2a5f 0%, #e11d48 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(225, 29, 72, 0.3) !important;
+    transform: scale(1.08) !important;
+    box-shadow: 0 0 16px rgba(225, 29, 72, 0.45), 0 2px 6px rgba(225, 29, 72, 0.25) !important;
+}
+
+/* ─── SIDEBAR CAST SECTION (NO DIVIDER, NO CLIPPING) ─── */
+#sidebar-cast-section {
+    border-top: none !important;
+    overflow: visible !important;
+}
+
+html.light-mode #sidebar-cast-section {
+    border-top: none !important;
+}
+
+#sidebar-cast {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    padding-top: 4px !important;
+    padding-bottom: 6px !important;
+}
+
+.actor-avatar-container {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.light-mode .actor-avatar-container {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light-mode #sidebar-cast p {
+    color: #475569 !important;
+}
+
+
+
 
 
 

@@ -1,4 +1,6 @@
 require('dotenv').config();
+const dns = require('dns');
+try { dns.setDefaultResultOrder('ipv4first'); } catch (e) {}
 const express = require('express');
 const compression = require('compression');
 const path = require('path');
@@ -250,12 +252,16 @@ app.get('/api/comments/stream/:slug', (req, res) => {
 
 // 2. Fetch comments for a movie
 app.get('/api/comments/movie/:slug', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     try {
         const slug = req.params.slug;
         let dbList = [];
         try {
             if (Comment) {
                 dbList = await Comment.find({ movieSlug: slug, status: { $ne: 'hidden' } })
+                    .maxTimeMS(2500)
                     .sort({ createdAt: 1 })
                     .lean();
             }
