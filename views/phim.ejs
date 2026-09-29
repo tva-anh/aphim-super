@@ -493,18 +493,119 @@
                                 </button>
                             </div>
 
-                            <!-- Mục Đánh giá màu xanh dương nằm góc bên phải -->
+                            <!-- Review phim: opens the movie review (Reels) page - RED button at right -->
+                            <%
+                                var reviewSlug = (typeof movie !== 'undefined' && movie && movie.slug) ? movie.slug : (typeof slug !== 'undefined' ? slug : '');
+                                var reviewUrl = '/reels/review/' + reviewSlug + '?return=' + encodeURIComponent('/phim/' + reviewSlug);
+                            %>
+                            <style>
+                                /* -- Review phim button: SOFT RED, flat & clean (NO glow halo) -- */
+                                .movie-actions-container #headerRatingBtn {
+                                    background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
+                                    border: none !important;
+                                    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42) !important;
+                                    color: #ffffff !important;
+                                }
+
+                                .movie-actions-container #headerRatingBtn:hover {
+                                    background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
+                                    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5) !important;
+                                }
+
+                                /* Label: WHITE on dark mode (black on light mode, see below) */
+                                .movie-actions-container #headerRatingBtn span {
+                                    color: #ffffff !important;
+                                    font-weight: 700 !important;
+                                    text-shadow: 0 1px 3px rgba(136, 19, 55, 0.45) !important;
+                                }
+
+                                /* Icon: soft white plate + rose play triangle */
+                                .movie-actions-container #headerRatingBtn rect {
+                                    fill: rgba(255, 255, 255, 0.95) !important;
+                                }
+
+                                .movie-actions-container #headerRatingBtn path {
+                                    fill: #f43f5e !important;
+                                }
+
+                                /* Light mode: same clean soft red (no halo, no wash-out) */
+                                html.light-mode .movie-actions-container #headerRatingBtn {
+                                    background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
+                                    border: none !important;
+                                    box-shadow: 0 6px 18px rgba(159, 18, 57, 0.24) !important;
+                                    color: #ffffff !important;
+                                }
+
+                                html.light-mode .movie-actions-container #headerRatingBtn:hover {
+                                    background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
+                                    box-shadow: 0 8px 22px rgba(159, 18, 57, 0.3) !important;
+                                }
+
+                                /* Light mode: keep the label WHITE too (same as dark mode) */
+                                html.light-mode .movie-actions-container #headerRatingBtn span {
+                                    color: #ffffff !important;
+                                    font-weight: 700 !important;
+                                    text-shadow: 0 1px 3px rgba(136, 19, 55, 0.45) !important;
+                                }
+
+                                /* Light mode: keep the icon WHITE PLATE + rose play triangle (same as dark mode) */
+                                html.light-mode .movie-actions-container #headerRatingBtn rect {
+                                    fill: rgba(255, 255, 255, 0.95) !important;
+                                }
+
+                                html.light-mode .movie-actions-container #headerRatingBtn path {
+                                    fill: #f43f5e !important;
+                                }
+
+                                /* Safety net: any other descendant icon/glyph inside the button stays white */
+                                html.light-mode .movie-actions-container #headerRatingBtn svg,
+                                html.light-mode .movie-actions-container #headerRatingBtn .material-icons-round,
+                                html.light-mode .movie-actions-container #headerRatingBtn .material-symbols-rounded {
+                                    color: #ffffff !important;
+                                }
+
+                                /* -- Dark mode: hero action buttons (Luu phim / Them vao / Chia se / Binh luan) readable over bright backdrops -- */
+                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn),
+                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) {
+                                    background: rgba(13, 18, 30, 0.58) !important;
+                                    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+                                    color: #ffffff !important;
+                                    -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+                                    backdrop-filter: blur(14px) saturate(150%) !important;
+                                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+                                }
+
+                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn):hover,
+                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):hover {
+                                    background: rgba(13, 18, 30, 0.8) !important;
+                                    border-color: rgba(255, 255, 255, 0.45) !important;
+                                }
+
+                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) span,
+                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) span {
+                                    color: #ffffff !important;
+                                    font-weight: 600 !important;
+                                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65) !important;
+                                }
+
+                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg,
+                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) svg,
+                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg path,
+                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) svg path {
+                                    fill: #ffffff !important;
+                                    color: #ffffff !important;
+                                }
+                            </style>
                             <div class="ml-auto flex-shrink-0">
-                                <button id="headerRatingBtn"
-                                    onclick="document.getElementById('comments-section')?.scrollIntoView({behavior:'smooth'});"
-                                    class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm sm:text-base flex items-center gap-2 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 border border-blue-300/30 cursor-pointer">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-white flex-shrink-0"
-                                        style="fill: #ffffff !important;" viewBox="0 0 24 24">
-                                        <path
-                                            d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                <button id="headerRatingBtn" type="button"
+                                    data-review-url="<%= reviewUrl %>"
+                                    onclick="window.location.href=this.dataset.reviewUrl;"
+                                    class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm sm:text-base flex items-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
+                                        <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
                                     </svg>
-                                    <span id="headerRatingScore" class="font-black text-base sm:text-lg">0</span>
-                                    <span class="text-xs sm:text-sm font-medium tracking-wide">Đánh giá</span>
+                                    <span class="text-xs sm:text-sm font-bold tracking-wide">Review phim</span>
                                 </button>
                             </div>
                         </div>
@@ -1056,7 +1157,7 @@
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
             </script>
-            <script src="/js/movie-detail.js?v=203" defer></script>
+            <script src="/js/movie-detail.js?v=204" defer></script>
 
             <!-- ⚡ Speculative Asset Pre-warming for /xem-phim (Zero Server Overhead, Native Browser Cache Warming) -->
             <script>

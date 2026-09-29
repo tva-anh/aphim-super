@@ -1,0 +1,22 @@
+{
+    // ─────────────────────────────────────────────────────────────────────────
+    // FIX: VS Code built-in map file .ejs => HTML
+    //   (nguồn: <VS Code>/resources/app/extensions/html/package.json
+    //    languages[html].extensions = .html .htm .shtml .xhtml .xht .mdoc
+    //    .jsp .asp .aspx .jshtm .volt .ejs .rhtml)
+    //
+    // Vì thế HTML language service validate JS bên trong <script>, gặp thẻ EJS
+    // <%- ... %> thì báo "Expression expected" => gạch đỏ dưới <% và %>.
+    // Đây CHỈ là cảnh báo của editor, KHÔNG phải lỗi runtime - EJS vẫn render
+    // bình thường trên server (đã kiểm tra output HTML thực tế là JSON hợp lệ).
+    //
+    // => Tắt validate embedded script để hết gạch đỏ.
+    //    Áp dụng cho mọi file trong workspace này (setting scope: resource).
+    // ─────────────────────────────────────────────────────────────────────────
+    "html.validate.scripts": false,
+
+    // Giữ Emmet hoạt động trong file .ejs (gõ "div.foo" + Tab vẫn expand)
+    "emmet.includeLanguages": {
+        "ejs": "html"
+    }
+}

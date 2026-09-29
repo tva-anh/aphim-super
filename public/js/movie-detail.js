@@ -1745,10 +1745,6 @@ function setupCommentSystem() {
 function loadRatingsAndComments(slug) {
     const ratings = ratingService.getRatings(slug);
     const avg = ratingService.getAverageRating(slug);
-    const headerScoreEl = document.getElementById('headerRatingScore');
-    if (headerScoreEl) {
-        headerScoreEl.textContent = (ratings && ratings.length > 0) ? avg : '0';
-    }
 
     const container = document.getElementById('ratingsContainer');
 

@@ -1622,7 +1622,23 @@ function getLangTag(server, movie) {
 }
 
 // Render server list grouped by language (Exact Screenshot 1 design & color fill)
+// ⚡ Markup được sinh bởi /js/watch-early-render.js (ApWatchEarlyRender.renderServers):
+//    file đó được nạp bằng `defer` TRƯỚC watch.js nên luôn sẵn sàng ở đây, đồng thời
+//    cho phép trang render danh sách máy chủ NGAY khi HTML parse xong (không phải chờ
+//    hls.js / lottie / watch.js). Giữ 1 nguồn markup duy nhất ⇒ không lo lệch UI.
 function renderServerList(episodes) {
+    if (!episodes || episodes.length === 0) return;
+
+    if (!window.ApWatchEarlyRender || typeof window.ApWatchEarlyRender.renderServers !== 'function') {
+        console.error('[Watch] Thiếu /js/watch-early-render.js → không render được danh sách máy chủ.');
+        return;
+    }
+
+    window.ApWatchEarlyRender.renderServers(episodes, currentServerIndex, currentMovie);
+}
+
+// eslint-disable-next-line no-unused-vars
+function __legacyRenderServerList_UNUSED(episodes) {
     if (!episodes || episodes.length === 0) return;
 
     const container = document.getElementById('server-list');

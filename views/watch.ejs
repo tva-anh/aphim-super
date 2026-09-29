@@ -780,6 +780,12 @@
                 window.activeVariant = <%- JSON.stringify(typeof activeVariant !== 'undefined' ? activeVariant : null) %>;
                 window.requestedServerIndex = <%- JSON.stringify(typeof requestedServerIndex !== 'undefined' ? requestedServerIndex : null) %>;
             </script>
+            <!-- ⚡ RENDER SỚM danh sách MÁY CHỦ + TẬP từ dữ liệu SSR.
+                 Đặt TRƯỚC mọi script nặng: script `defer` chạy theo đúng thứ tự trong DOM,
+                 nên file này (rất nhẹ) chạy ngay khi HTML parse xong ⇒ nút Vietsub / Lồng Tiếng
+                 + lưới tập hiện ra tức thì, KHÔNG phải chờ hls.js / lottie / watch.js (233KB)...
+                 Lưu ý: watch.js gọi lại ApWatchEarlyRender.* để không lệch giao diện. -->
+            <script src="/js/watch-early-render.js?v=1" defer></script>
             <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" defer></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
             <script src="/js/api.js?v=100" defer></script>

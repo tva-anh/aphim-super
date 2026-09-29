@@ -116,7 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.dispatchEvent(new CustomEvent('aphim:theme-changed', { detail: { theme: themeVal, isLight } }));
 
                 if (typeof showToast === 'function') {
-                    showToast(isLight ? '☀️ Đã chuyển sang Giao diện Sáng' : '🌙 Đã chuyển sang Giao diện Tối', 'info');
+                    // Toast chỉ mang tính thông tin → tự ẩn nhanh (1.5s) cho đỡ vướng màn hình
+                    showToast(
+                        isLight ? '☀️ Đã chuyển sang Giao diện Sáng' : '🌙 Đã chuyển sang Giao diện Tối',
+                        'info',
+                        1500
+                    );
                 }
             }, 10);
         });
