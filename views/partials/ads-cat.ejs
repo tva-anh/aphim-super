@@ -1,4 +1,14 @@
 <!-- 🐱 APHIM BOTTOM STICKY CATFISH BANNER -->
+<% 
+// Ẩn hoàn toàn trên trang Thông tin phim (/phim/), Trang xem phim (/xem-phim/), và Trang Profile (/profile, /tai-khoan)
+const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMovie) || 
+                              (typeof movie !== 'undefined' && movie) || 
+                              (typeof pageType !== 'undefined' && (pageType === 'phim' || pageType === 'watch' || pageType === 'profile' || pageType === 'account')) ||
+                              (typeof activePage !== 'undefined' && (activePage === 'profile' || activePage === 'account')) ||
+                              (typeof isProfilePage !== 'undefined' && isProfilePage) ||
+                              (typeof isWatchPage !== 'undefined' && isWatchPage);
+%>
+<% if (!isHiddenCatOnThisPage) { %>
 <style>
     .aphim-catfish-wrapper {
         position: fixed !important;
@@ -135,6 +145,21 @@
 
 <script>
     (function() {
+        // Client-side safety check: Hide on /phim/, /xem-phim/, /profile, /tai-khoan
+        if (window.location.pathname.startsWith('/phim') || 
+            window.location.pathname.startsWith('/xem-phim') ||
+            window.location.pathname.startsWith('/profile') ||
+            window.location.pathname.startsWith('/tai-khoan') ||
+            document.querySelector('.profile-layout') ||
+            document.getElementById('profileSidebar')) {
+            var el = document.getElementById('aphimAdCatfish');
+            if (el) {
+                el.style.setProperty('display', 'none', 'important');
+                if (el.parentNode) el.parentNode.removeChild(el);
+            }
+            return;
+        }
+
         var isMobile = window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         var catEl = document.getElementById('aphimAdCatfish');
         
@@ -170,3 +195,4 @@
         };
     })();
 </script>
+<% } %>

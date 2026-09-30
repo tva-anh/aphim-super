@@ -12,6 +12,45 @@
    Exact Equal Bottom Alignment for Sidebar & Content Panel
    ═══════════════════════════════════════════════════════════════════ */
 
+      /* 🚫 STRICT BAN ON ANY ADS/BANNERS ON PROFILE PAGE */
+      #aphimAdTop,
+      #aphimAdCatfish,
+      .aphim-ad-top-wrapper,
+      .aphim-catfish-wrapper,
+      .aphim-ads-container,
+      [class*="aphim-ad-"],
+      [class*="aphim-catfish"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: absolute !important;
+        overflow: hidden !important;
+      }
+
+      /* 🚪 Harmonious Logout Item */
+      #snav-logout.sidebar-nav-item {
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        color: inherit !important;
+      }
+      #snav-logout.sidebar-nav-item:hover {
+        background: rgba(239, 68, 68, 0.08) !important;
+        color: #ef4444 !important;
+      }
+      #snav-logout.sidebar-nav-item:hover span {
+        color: #ef4444 !important;
+      }
+      .logout-badge {
+        background: rgba(239, 68, 68, 0.12) !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        color: #ef4444 !important;
+      }
+
       /* ─── BASE BACKGROUND & LAYOUT ─── */
       .profile-page-bg {
         position: relative;
@@ -4955,19 +4994,15 @@
                 </span>
                 <span>Cài đặt tiện ích</span>
               </button>
-            </nav>
-
-            <!-- Logout Button (Anchored to exact bottom of sidebar card) -->
-            <div class="sidebar-logout-wrap">
-              <button class="sidebar-logout" onclick="doLogout()">
+              <button class="sidebar-nav-item" id="snav-logout" onclick="doLogout()">
                 <span class="nav-icon-badge logout-badge">
-                  <svg style="width:14px;height:14px;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
                 </span>
                 <span>Thoát</span>
               </button>
-            </div>
+            </nav>
           </div>
         </aside>
 
@@ -12368,6 +12403,24 @@
       window.addEventListener('auth:profileSynced', onCloudStateChanged);
       window.addEventListener('auth:profileUpdated', onCloudStateChanged);
       window.addEventListener('ap:user-updated', onCloudStateChanged);
+
+      // 🚫 Proactive Clean-up of any Banner Ads on Profile
+      (function removeProfileAds() {
+        ['aphimAdTop', 'aphimAdCatfish'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.style.setProperty('display', 'none', 'important'); el.remove(); }
+        });
+        document.querySelectorAll('.aphim-ad-top-wrapper, .aphim-catfish-wrapper, .aphim-ads-container').forEach(el => {
+          el.style.setProperty('display', 'none', 'important');
+          el.remove();
+        });
+      })();
+      document.addEventListener('DOMContentLoaded', function() {
+        ['aphimAdTop', 'aphimAdCatfish'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.style.setProperty('display', 'none', 'important'); el.remove(); }
+        });
+      });
     </script>
 
     <script src="/js/user.js?v=205" defer></script>

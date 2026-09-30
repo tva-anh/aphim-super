@@ -1735,7 +1735,10 @@ app.get(['/profile', '/tai-khoan', '/tai-khoan/:tab'], (req, res) => {
     res.render('profile', {
         title: formatSeoTitle('Quản Lý Tài Khoản - APhim', 65),
         metaDescription: 'Quản lý thông tin cá nhân, danh sách yêu thích, lịch sử xem phim tại APhim Super.',
-        activeTab: tab
+        activeTab: tab,
+        pageType: 'profile',
+        activePage: 'profile',
+        isProfilePage: true
     });
 });
 

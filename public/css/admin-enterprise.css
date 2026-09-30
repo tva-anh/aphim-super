@@ -1931,23 +1931,118 @@ body::before {
 
 /* Pagination */
 .table-pagination {
-  padding: 16px 20px;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--border-subtle);
-  background: #ffffff;
+  background: var(--bg-surface, #ffffff);
+  border-bottom-left-radius: var(--radius-lg, 12px);
+  border-bottom-right-radius: var(--radius-lg, 12px);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .pagination-info {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-muted);
+  font-weight: 500;
+}
+
+.pagination-info strong {
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .pagination-controls {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.pagination-nav-group {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.btn-page-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface, #ffffff);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  height: 32px;
+}
+
+.btn-page-nav:hover:not(:disabled) {
+  background: var(--bg-surface-hover, #ede6d8);
+  border-color: var(--primary-light, #6366f1);
+  color: var(--primary, #4f46e5);
+  transform: translateY(-1px);
+}
+
+.btn-page-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pagination-page-chips {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.btn-page-chip {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.btn-page-chip:hover:not(.active):not(:disabled) {
+  background: var(--bg-surface-hover, #ede6d8);
+  border-color: var(--primary-light, #6366f1);
+  color: var(--primary, #4f46e5);
+  transform: translateY(-1px);
+}
+
+.btn-page-chip.active {
+  background: var(--primary, #4f46e5);
+  border-color: var(--primary, #4f46e5);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+  cursor: default;
+}
+
+.pagination-ellipsis {
+  color: var(--text-dim);
+  font-weight: 700;
+  padding: 0 4px;
+  user-select: none;
+  font-size: 13px;
 }
 
 /* ─── BUTTONS & BADGES ─── */

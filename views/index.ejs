@@ -35,292 +35,637 @@
             height: 0 !important;
         }
 
-        /* ── BẢNG XẾP HẠNG PHIM HOT (HORIZONTAL SLIDER ON MOBILE, GRID ON DESKTOP) ── */
-        .ranking-grid-container {
-            display: flex !important;
-            overflow-x: auto !important;
-            scroll-behavior: auto !important;
-            gap: 12px !important;
-            padding-bottom: 8px !important;
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-            -webkit-overflow-scrolling: touch !important;
-            touch-action: pan-x pan-y !important;
-            overscroll-behavior-x: contain !important;
-        }
-        .ranking-grid-container::-webkit-scrollbar {
-            display: none !important;
-        }
-        .ranking-grid-container .ranking-card {
-            flex: 0 0 270px !important;
-            width: 270px !important;
-            min-width: 270px !important;
-        }
-        @media (min-width: 640px) {
-            .ranking-grid-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                overflow-x: visible !important;
-            }
-            .ranking-grid-container .ranking-card {
-                flex: none !important;
-                width: 100% !important;
-                min-width: 0 !important;
-            }
-        }
-        @media (min-width: 1024px) {
-            .ranking-grid-container {
-                grid-template-columns: repeat(5, 1fr) !important;
-            }
-        }
-
-        .ranking-card {
-            display: flex !important;
-            align-items: center !important;
-            gap: 12px !important;
+        /* ── SECTION TOP #10 (STREAMING PLATFORMS & REGIONAL RANKING - LANDSCAPE COMPACT STYLE) ── */
+        .top10-container {
             background: transparent !important;
             border: none !important;
-            border-radius: 14px !important;
-            padding: 10px 8px !important;
-            position: relative !important;
-            overflow: hidden !important;
-            transition: all 0.25s ease !important;
-            text-decoration: none !important;
-            box-sizing: border-box !important;
-            min-height: 110px !important;
-        }
-        .ranking-card:hover {
-            transform: translateY(-2px) !important;
-            background: rgba(255, 255, 255, 0.04) !important;
-            border-color: transparent !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
             box-shadow: none !important;
-        }
-
-        /* Top 3 Glowing Card Borders matching Image */
-        .ranking-card-1 {
-            border: 1px solid rgba(56, 189, 248, 0.4) !important;
-            border-right: 3.5px solid #38bdf8 !important;
-            background: linear-gradient(90deg, #181b26 65%, rgba(56, 189, 248, 0.1) 100%) !important;
-            padding: 12px 14px !important;
-        }
-        .ranking-card-2 {
-            border: 1px solid rgba(244, 63, 94, 0.4) !important;
-            border-right: 3.5px solid #f43f5e !important;
-            background: linear-gradient(90deg, #181b26 65%, rgba(244, 63, 94, 0.1) 100%) !important;
-            padding: 12px 14px !important;
-        }
-        .ranking-card-3 {
-            border: 1px solid rgba(234, 179, 8, 0.4) !important;
-            border-right: 3.5px solid #eab308 !important;
-            background: linear-gradient(90deg, #181b26 65%, rgba(234, 179, 8, 0.1) 100%) !important;
-            padding: 12px 14px !important;
-        }
-        .ranking-card-1:hover {
-            background: #212534 !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25) !important;
-        }
-        .ranking-card-2:hover {
-            background: #212534 !important;
-            border-color: #f43f5e !important;
-            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.25) !important;
-        }
-        .ranking-card-3:hover {
-            background: #212534 !important;
-            border-color: #eab308 !important;
-            box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25) !important;
-        }
-
-        /* ── ONE-BY-ONE SEQUENTIAL SPOTLIGHT (CHỚP + PHÓNG TO LẦN LƯỢT TỪNG SỐ MỘT - CHỈ CHỚP TRÊN SỐ, KHÔNG BỊ Ô VUÔNG KHIẾN HỎNG KHUNG) ── */
-        @keyframes spotlightStepBlue {
-            0% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #38bdf8;
-            }
-            4% {
-                transform: scale(1.25);
-                text-shadow: 0 0 8px #38bdf8, 0 0 16px rgba(56, 189, 248, 0.9);
-                -webkit-text-stroke-color: #7dd3fc;
-            }
-            8%, 100% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #38bdf8;
-            }
-        }
-
-        @keyframes spotlightStepPink {
-            0% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #f43f5e;
-            }
-            4% {
-                transform: scale(1.25);
-                text-shadow: 0 0 8px #f43f5e, 0 0 16px rgba(244, 63, 94, 0.9);
-                -webkit-text-stroke-color: #fb7185;
-            }
-            8%, 100% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #f43f5e;
-            }
-        }
-
-        @keyframes spotlightStepGold {
-            0% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #eab308;
-            }
-            4% {
-                transform: scale(1.25);
-                text-shadow: 0 0 8px #eab308, 0 0 16px rgba(234, 179, 8, 0.9);
-                -webkit-text-stroke-color: #fde047;
-            }
-            8%, 100% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #eab308;
-            }
-        }
-
-        @keyframes spotlightStepSlate {
-            0% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #475569;
-            }
-            4% {
-                transform: scale(1.22);
-                text-shadow: 0 0 8px #94a3b8, 0 0 14px rgba(148, 163, 184, 0.85);
-                -webkit-text-stroke-color: #cbd5e1;
-            }
-            8%, 100% {
-                transform: scale(1);
-                text-shadow: none;
-                -webkit-text-stroke-color: #475569;
-            }
-        }
-
-        /* Large Neon Outline Rank Numbers */
-        .ranking-num {
-            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif !important;
-            font-size: 44px !important;
-            font-weight: 900 !important;
-            line-height: 1 !important;
-            color: transparent !important;
-            -webkit-text-stroke: 2px #475569 !important;
-            min-width: 36px !important;
-            text-align: center !important;
-            flex-shrink: 0 !important;
-            user-select: none !important;
-            transition: transform 0.2s ease !important;
-            display: inline-block !important;
-            will-change: transform !important;
-            animation-duration: 5s !important;
-            animation-timing-function: ease-in-out !important;
-            animation-iteration-count: infinite !important;
-            animation-name: spotlightStepSlate;
-        }
-        .ranking-num-1 {
-            -webkit-text-stroke: 2.2px #38bdf8 !important;
-            animation-name: spotlightStepBlue !important;
-        }
-        .ranking-num-2 {
-            -webkit-text-stroke: 2.2px #f43f5e !important;
-            animation-name: spotlightStepPink !important;
-        }
-        .ranking-num-3 {
-            -webkit-text-stroke: 2.2px #eab308 !important;
-            animation-name: spotlightStepGold !important;
-        }
-
-        /* Dedicated Staggered Delays (Ensures 1-by-1 Sequential Spotlight) */
-        .rank-delay-0 { animation-delay: 0.0s !important; }
-        .rank-delay-1 { animation-delay: 0.5s !important; }
-        .rank-delay-2 { animation-delay: 1.0s !important; }
-        .rank-delay-3 { animation-delay: 1.5s !important; }
-        .rank-delay-4 { animation-delay: 2.0s !important; }
-        .rank-delay-5 { animation-delay: 2.5s !important; }
-        .rank-delay-6 { animation-delay: 3.0s !important; }
-        .rank-delay-7 { animation-delay: 3.5s !important; }
-        .rank-delay-8 { animation-delay: 4.0s !important; }
-        .rank-delay-9 { animation-delay: 4.5s !important; }
-
-        .ranking-poster-box {
-            width: 58px !important;
-            min-width: 58px !important;
-            height: 84px !important;
-            border-radius: 9px !important;
-            overflow: hidden !important;
-            flex-shrink: 0 !important;
-            background: #0d0f1a !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.55) !important;
-        }
-        .ranking-poster-img {
+            margin-top: 24px !important;
+            margin-bottom: 24px !important;
+            position: relative !important;
+            box-sizing: border-box !important;
             width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
+        }
+
+        .top10-header-row {
+            display: flex !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            gap: 12px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .top10-brand-title {
+            display: inline-flex !important;
+            align-items: baseline !important;
+            gap: 5px !important;
+            font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif !important;
+            font-size: 18px !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            letter-spacing: -0.3px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+
+        .top10-brand-accent {
+            color: #38bdf8 !important;
+            font-weight: 900 !important;
+        }
+
+        .top10-brand-sub {
+            font-size: 11.5px !important;
+            font-weight: 400 !important;
+            color: #94a3b8 !important;
+            margin-left: 2px !important;
+        }
+
+        /* ── OTT Brand Platform Pills Bar ── */
+        .top10-platforms-scroll {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            overflow-x: auto !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            padding: 2px 0 !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+        .top10-platforms-scroll::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        .top10-platform-pill {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 4px 10px !important;
+            border-radius: 9999px !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            white-space: nowrap !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #94a3b8 !important;
+            user-select: none !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+        }
+
+        .top10-platform-pill:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* ── Platform Signature Colors (Resting, Hover & Active) ── */
+        .top10-platform-pill.active {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        /* Netflix: Red #E50914 */
+        .top10-platform-pill[data-platform="netflix"] {
+            background: rgba(229, 9, 20, 0.1) !important;
+            color: #ef4444 !important;
+            border-color: rgba(229, 9, 20, 0.3) !important;
+        }
+        .top10-platform-pill[data-platform="netflix"]:hover {
+            background: rgba(229, 9, 20, 0.2) !important;
+            color: #ffffff !important;
+            border-color: rgba(229, 9, 20, 0.5) !important;
+        }
+        .top10-platform-pill[data-platform="netflix"].active {
+            background: #e50914 !important;
+            color: #ffffff !important;
+            border-color: #e50914 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Apple TV+: Silver / Space Gray */
+        .top10-platform-pill[data-platform="appletv"] {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: #e4e4e7 !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
+        }
+        .top10-platform-pill[data-platform="appletv"]:hover {
+            background: rgba(255, 255, 255, 0.14) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="appletv"].active {
+            background: #27272a !important;
+            color: #ffffff !important;
+            border-color: #52525b !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Prime Video: Cyan / Amazon Blue #00A8E1 */
+        .top10-platform-pill[data-platform="prime"] {
+            background: rgba(0, 168, 225, 0.1) !important;
+            color: #38bdf8 !important;
+            border-color: rgba(0, 168, 225, 0.3) !important;
+        }
+        .top10-platform-pill[data-platform="prime"]:hover {
+            background: rgba(0, 168, 225, 0.2) !important;
+            color: #ffffff !important;
+            border-color: rgba(0, 168, 225, 0.5) !important;
+        }
+        .top10-platform-pill[data-platform="prime"].active {
+            background: #00a8e1 !important;
+            color: #ffffff !important;
+            border-color: #00a8e1 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Disney+: Royal Blue #113CCF */
+        .top10-platform-pill[data-platform="disney"] {
+            background: rgba(17, 60, 207, 0.12) !important;
+            color: #60a5fa !important;
+            border-color: rgba(37, 99, 235, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="disney"]:hover {
+            background: rgba(17, 60, 207, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(59, 130, 246, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="disney"].active {
+            background: #113ccf !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Max: HBO Purple #6B21A8 */
+        .top10-platform-pill[data-platform="max"] {
+            background: rgba(123, 44, 191, 0.12) !important;
+            color: #c084fc !important;
+            border-color: rgba(147, 51, 234, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="max"]:hover {
+            background: rgba(123, 44, 191, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(168, 85, 247, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="max"].active {
+            background: #6b21a8 !important;
+            color: #ffffff !important;
+            border-color: #7c3aed !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Paramount+: Electric Blue #0064FF */
+        .top10-platform-pill[data-platform="paramount"] {
+            background: rgba(0, 100, 255, 0.1) !important;
+            color: #38bdf8 !important;
+            border-color: rgba(59, 130, 246, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="paramount"]:hover {
+            background: rgba(0, 100, 255, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(96, 165, 250, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="paramount"].active {
+            background: #0064ff !important;
+            color: #ffffff !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* MGM+: Gold / Amber #B45309 */
+        .top10-platform-pill[data-platform="mgm"] {
+            background: rgba(202, 138, 4, 0.12) !important;
+            color: #fbbf24 !important;
+            border-color: rgba(234, 179, 8, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="mgm"]:hover {
+            background: rgba(202, 138, 4, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(245, 158, 11, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="mgm"].active {
+            background: #b45309 !important;
+            color: #ffffff !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* AMC+: Crimson / Red Wine #991B1B */
+        .top10-platform-pill[data-platform="amc"] {
+            background: rgba(185, 28, 28, 0.12) !important;
+            color: #f87171 !important;
+            border-color: rgba(239, 68, 68, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="amc"]:hover {
+            background: rgba(185, 28, 28, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(248, 113, 113, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="amc"].active {
+            background: #991b1b !important;
+            color: #ffffff !important;
+            border-color: #b91c1c !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* CANAL+: Noir Onyx / Silver #18181B */
+        .top10-platform-pill[data-platform="canal"] {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(203, 213, 225, 0.22) !important;
+        }
+        .top10-platform-pill[data-platform="canal"]:hover {
+            background: rgba(255, 255, 255, 0.14) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+        .top10-platform-pill[data-platform="canal"].active {
+            background: #09090b !important;
+            color: #ffffff !important;
+            border-color: #3f3f46 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Peacock: Teal / Emerald #0F766E */
+        .top10-platform-pill[data-platform="peacock"] {
+            background: rgba(13, 148, 136, 0.12) !important;
+            color: #2dd4bf !important;
+            border-color: rgba(20, 184, 166, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="peacock"]:hover {
+            background: rgba(13, 148, 136, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(45, 212, 191, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="peacock"].active {
+            background: #0f766e !important;
+            color: #ffffff !important;
+            border-color: #0d9488 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Hulu: Neon / Fresh Green #10B981 */
+        .top10-platform-pill[data-platform="hulu"] {
+            background: rgba(16, 185, 129, 0.12) !important;
+            color: #34d399 !important;
+            border-color: rgba(52, 211, 153, 0.35) !important;
+        }
+        .top10-platform-pill[data-platform="hulu"]:hover {
+            background: rgba(16, 185, 129, 0.22) !important;
+            color: #ffffff !important;
+            border-color: rgba(52, 211, 153, 0.55) !important;
+        }
+        .top10-platform-pill[data-platform="hulu"].active {
+            background: #059669 !important;
+            color: #ffffff !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* ── Sub-bar: Type switcher & Region select ── */
+        .top10-subbar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            margin-bottom: 14px !important;
+            padding-bottom: 2px !important;
+        }
+
+        .top10-type-capsule {
+            display: inline-flex !important;
+            align-items: center !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            padding: 3px !important;
+            border-radius: 9999px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .top10-type-btn {
+            padding: 5px 16px !important;
+            border-radius: 9999px !important;
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+            color: #cbd5e1 !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            user-select: none !important;
+            line-height: 1.25 !important;
+        }
+
+        .top10-type-btn:hover {
+            color: #ffffff !important;
+        }
+
+        .top10-type-btn.active {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35) !important;
+        }
+
+        /* ── Unified Region Capsule & Custom Dropdown Popover (Image 3 Match) ── */
+        .top10-region-dropdown-wrap {
+            position: relative !important;
+            display: inline-block !important;
+        }
+
+        .top10-region-capsule {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 9999px !important;
+            padding: 2.5px 2.5px 2.5px 12px !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            transition: all 0.2s ease !important;
+        }
+        .top10-region-capsule:hover {
+            border-color: rgba(56, 189, 248, 0.45) !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+        }
+
+        .top10-region-label {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #94a3b8 !important;
+            line-height: 1 !important;
+        }
+
+        .top10-region-current-pill {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-radius: 9999px !important;
+            padding: 4px 12px 4px 14px !important;
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            transition: all 0.2s ease !important;
+            line-height: 1.25 !important;
+        }
+        .top10-region-capsule:hover .top10-region-current-pill {
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .top10-region-arrow {
+            width: 13px !important;
+            height: 13px !important;
+            color: #38bdf8 !important;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+        .top10-region-dropdown-wrap.open .top10-region-arrow {
+            transform: rotate(180deg) !important;
+        }
+
+        /* Popover Menu */
+        .top10-region-menu {
+            position: absolute !important;
+            top: calc(100% + 6px) !important;
+            right: 0 !important;
+            min-width: 165px !important;
+            background: rgba(15, 23, 42, 0.96) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 12px !important;
+            padding: 6px !important;
+            box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65) !important;
+            z-index: 70 !important;
+            display: none !important;
+            opacity: 0 !important;
+            transform: translateY(-4px) scale(0.98) !important;
+            transition: opacity 0.18s ease, transform 0.18s ease !important;
+        }
+        .top10-region-dropdown-wrap.open .top10-region-menu {
+            display: block !important;
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+
+        .top10-region-item {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 7.5px 12px !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #e2e8f0 !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
+            user-select: none !important;
+        }
+        .top10-region-item:hover {
+            background: rgba(56, 189, 248, 0.12) !important;
+            color: #38bdf8 !important;
+        }
+        .top10-region-item.active {
+            background: rgba(2, 132, 199, 0.22) !important;
+            color: #38bdf8 !important;
+            font-weight: 700 !important;
+        }
+        .top10-region-check {
+            width: 14px !important;
+            height: 14px !important;
+            display: none !important;
+            color: #38bdf8 !important;
+        }
+        .top10-region-item.active .top10-region-check {
             display: block !important;
         }
 
-        .ranking-info {
-            flex: 1 !important;
-            min-width: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 4px !important;
+        /* ── Top 10 Movie Grid (Matching other homepage grids - 5 cols on desktop, compact height) ── */
+        .top10-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+        @media (min-width: 640px) {
+            .top10-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+        }
+        @media (min-width: 1024px) {
+            .top10-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
         }
 
-        .ranking-title-vi {
-            font-size: 14.5px !important;
-            font-weight: 700 !important;
+        /* ── Top 10 Card (Landscape 16:9 Style matching Image 1) ── */
+        .top10-card {
+            position: relative !important;
+            width: 100% !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            background: #151821 !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+            text-decoration: none !important;
+            display: block !important;
+            box-sizing: border-box !important;
+        }
+
+        .top10-card:hover {
+            transform: translateY(-3px) !important;
+            border-color: transparent !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .top10-card-first {
+            border: 1.5px solid rgba(244, 63, 94, 0.75) !important;
+            box-shadow: 0 0 14px rgba(244, 63, 94, 0.25) !important;
+        }
+
+        .top10-rank-badge {
+            background: #e11d48 !important;
             color: #ffffff !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            line-height: 1.3 !important;
-        }
-
-        .ranking-title-en {
-            font-size: 12px !important;
-            color: #94a3b8 !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-        }
-
-        .ranking-meta-row {
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            margin-top: 4px !important;
-        }
-
-        .ranking-crown-icon {
-            font-size: 13px !important;
-        }
-
-        .ranking-badge-pill {
-            font-size: 10px !important;
-            font-weight: 800 !important;
-            padding: 2px 7px !important;
+            font-size: 10.5px !important;
+            font-weight: 900 !important;
+            padding: 0 7px !important;
             border-radius: 4px !important;
-            text-transform: uppercase !important;
-            line-height: 1.3 !important;
+            height: 20px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+            line-height: 1 !important;
         }
-        .badge-vs {
-            background: rgba(16, 185, 129, 0.2) !important;
-            color: #34d399 !important;
-            border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        .top10-card-first .top10-rank-badge {
+            background: #f43f5e !important;
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.8) !important;
         }
-        .badge-tm {
-            background: rgba(236, 72, 153, 0.2) !important;
-            color: #f472b6 !important;
-            border: 1px solid rgba(236, 72, 153, 0.35) !important;
+
+        /* ── LIGHT MODE STYLING OVERRIDES FOR TOP #10 ── */
+        html.light-mode .top10-container {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        html.light-mode .top10-brand-title {
+            color: #1c1917 !important;
+        }
+        html.light-mode .top10-brand-sub {
+            color: #78716c !important;
+        }
+        /* Light mode platform pills (clean, crisp, no-glare) */
+        html.light-mode .top10-platform-pill.active { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="netflix"] { background: #fee2e2 !important; color: #dc2626 !important; border-color: #fca5a5 !important; }
+        html.light-mode .top10-platform-pill[data-platform="netflix"].active { background: #dc2626 !important; color: #ffffff !important; border-color: #dc2626 !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="appletv"] { background: #f1f5f9 !important; color: #334155 !important; border-color: #cbd5e1 !important; }
+        html.light-mode .top10-platform-pill[data-platform="appletv"].active { background: #1e293b !important; color: #ffffff !important; border-color: #1e293b !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="prime"] { background: #e0f2fe !important; color: #0284c7 !important; border-color: #7dd3fc !important; }
+        html.light-mode .top10-platform-pill[data-platform="prime"].active { background: #0284c7 !important; color: #ffffff !important; border-color: #0284c7 !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="disney"] { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #93c5fd !important; }
+        html.light-mode .top10-platform-pill[data-platform="disney"].active { background: #1d4ed8 !important; color: #ffffff !important; border-color: #1d4ed8 !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="max"] { background: #f3e8ff !important; color: #7e22ce !important; border-color: #d8b4fe !important; }
+        html.light-mode .top10-platform-pill[data-platform="max"].active { background: #7e22ce !important; color: #ffffff !important; border-color: #7e22ce !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="paramount"] { background: #eff6ff !important; color: #0284c7 !important; border-color: #bfdbfe !important; }
+        html.light-mode .top10-platform-pill[data-platform="paramount"].active { background: #0284c7 !important; color: #ffffff !important; border-color: #0284c7 !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="mgm"] { background: #fef3c7 !important; color: #b45309 !important; border-color: #fde68a !important; }
+        html.light-mode .top10-platform-pill[data-platform="mgm"].active { background: #b45309 !important; color: #ffffff !important; border-color: #b45309 !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="amc"] { background: #ffe4e6 !important; color: #be123c !important; border-color: #fecdd3 !important; }
+        html.light-mode .top10-platform-pill[data-platform="amc"].active { background: #be123c !important; color: #ffffff !important; border-color: #be123c !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="canal"] { background: #f8fafc !important; color: #0f172a !important; border-color: #94a3b8 !important; }
+        html.light-mode .top10-platform-pill[data-platform="canal"].active { background: #09090b !important; color: #ffffff !important; border-color: #09090b !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="peacock"] { background: #ccfbf1 !important; color: #0f766e !important; border-color: #99f6e4 !important; }
+        html.light-mode .top10-platform-pill[data-platform="peacock"].active { background: #0f766e !important; color: #ffffff !important; border-color: #0f766e !important; }
+
+        html.light-mode .top10-platform-pill[data-platform="hulu"] { background: #d1fae5 !important; color: #047857 !important; border-color: #6ee7b7 !important; }
+        html.light-mode .top10-platform-pill[data-platform="hulu"].active { background: #059669 !important; color: #ffffff !important; border-color: #059669 !important; }
+        html.light-mode .top10-type-capsule {
+            background: #ede8dc !important;
+            border: 1px solid #ddd5c4 !important;
+        }
+        html.light-mode .top10-type-btn {
+            color: #1c1917 !important; /* MÀU ĐEN RÕ RÀNG TRÊN NỀN KEM */
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+        }
+        html.light-mode .top10-type-btn:hover {
+            color: #000000 !important;
+        }
+        html.light-mode .top10-type-btn.active {
+            background: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        /* Light mode for Region Capsule & Custom Menu */
+        html.light-mode .top10-region-capsule {
+            background: #ede8dc !important;
+            border: 1px solid #ddd5c4 !important;
+        }
+        html.light-mode .top10-region-capsule:hover {
+            background: #e6dfd0 !important;
+            border-color: #cbd5e1 !important;
+        }
+        html.light-mode .top10-region-label {
+            color: #1c1917 !important; /* MÀU ĐEN / ĐẬM */
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+        }
+        html.light-mode .top10-region-current-pill {
+            background: #ffffff !important;
+            color: #1c1917 !important; /* MÀU ĐEN RÕ RÀNG */
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+            font-size: 13.5px !important;
+        }
+        html.light-mode .top10-region-arrow {
+            color: #0284c7 !important;
+        }
+        html.light-mode .top10-region-menu {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+        }
+        html.light-mode .top10-region-item {
+            color: #1c1917 !important;
+        }
+        html.light-mode .top10-region-item:hover {
+            background: #f1f5f9 !important;
+            color: #0284c7 !important;
+        }
+        html.light-mode .top10-region-item.active {
+            background: #e0f2fe !important;
+            color: #0284c7 !important;
+        }
+        html.light-mode .top10-region-check {
+            color: #0284c7 !important;
+        }
+        html.light-mode .top10-card {
+            background: #ffffff !important;
+            border: 1px solid #e7e0d3 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+        }
+        html.light-mode .top10-card-first {
+            border: 1.5px solid rgba(244, 63, 94, 0.7) !important;
         }
 
         /* ─── HOMEPAGE DECORATIVE COMMENTS SHOWCASE (SEAMLESS LUXURY DESIGN) ─── */
@@ -1011,27 +1356,111 @@
 
 
         <!-- ==============================================
-             SECTION 1.5: BẢNG XẾP HẠNG PHIM HOT (HORIZONTAL 10-ITEM SHOWCASE MATCHING USER IMAGE)
+             SECTION 1.5: TOP #10 (STREAMING PLATFORMS & REGIONAL RANKING - IMAGE 2 MATCH)
              ============================================== -->
-        <section style="margin-top: 24px; margin-bottom: 24px;">
-            <div class="section-header">
-                <div class="section-header-left">
-                    <h2 class="section-header-title">
-                        BẢNG XẾP HẠNG PHIM HOT
-                    </h2>
-                    <div class="section-header-tabs">
-                        <button type="button" onclick="switchRankingTab(this, 'phim-bo')" class="section-header-tab active">Phim Bộ</button>
-                        <button type="button" onclick="switchRankingTab(this, 'phim-le')" class="section-header-tab inactive">Phim Lẻ</button>
-                        <button type="button" onclick="switchRankingTab(this, 'phim-moi-cap-nhat')" class="section-header-tab inactive">Mới Cập Nhật</button>
-                        <button type="button" onclick="switchRankingTab(this, 'hoat-hinh')" class="section-header-tab inactive">Hoạt Hình</button>
+        <section class="top10-container" id="top10Section">
+            <!-- Row 1: Brand Title & Platform Pills Bar -->
+            <div class="top10-header-row">
+                <div class="top10-brand-title">
+                    <span>TOP</span>
+                    <span class="top10-brand-accent">#10</span>
+                    <span class="top10-brand-sub">hôm qua</span>
+                </div>
+                <div class="top10-platforms-scroll" id="top10PlatformsBar">
+                    <button type="button" class="top10-platform-pill active" data-platform="netflix" onclick="switchTop10Platform(this, 'netflix')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M5.398 0v24c1.196-.206 2.392-.452 3.587-.698V9.167l6.634 14.283c1.393-.246 2.787-.532 4.18-.778V0h-3.587v14.833L9.578 0H5.398z"/></svg>NETFLIX
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="appletv" onclick="switchTop10Platform(this, 'appletv')">
+                        <svg viewBox="0 0 170 170" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 3px; display: inline-block; vertical-align: -1px;"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.7-7.85-12-14.43-6.09-9.35-10.9-20.08-14.44-32.18-3.53-12.1-5.3-23.77-5.3-35.02 0-14.99 3.65-27.42 10.96-37.3 7.3-9.87 16.74-14.93 28.32-15.17 4.89 0 10.37 1.25 16.44 3.75 6.07 2.5 10.07 3.86 12 4.08 1.52-.22 5.65-1.63 12.39-4.22 6.74-2.6 12.33-3.78 16.78-3.56 12.83.65 23.01 5.34 30.54 14.07-11.09 6.74-16.52 16.19-16.31 28.37.22 9.57 3.81 17.5 10.77 23.8 6.96 6.3 15.11 9.9 24.46 10.76-2.18 6.52-4.89 13.04-8.13 19.57zM119.22 31.84c0-7.39 2.61-14.46 7.83-21.2 5.22-6.74 11.85-11.2 19.89-13.37.87 2.39 1.3 4.89 1.3 7.5 0 7.39-2.72 14.46-8.15 21.2-5.43 6.74-12.28 11.09-20.57 13.05-.22-2.39-.3-4.79-.3-7.18z"/></svg>tv
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="prime" onclick="switchTop10Platform(this, 'prime')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M14.65 15.74c-.58.33-1.39.54-2.15.54-1.92 0-3.05-1.12-3.05-3.04 0-1.93 1.13-3.06 3.05-3.06.76 0 1.57.21 2.15.54v-1.6c-.65-.33-1.46-.48-2.26-.48-2.92 0-4.74 1.77-4.74 4.6 0 2.82 1.82 4.6 4.74 4.6.8 0 1.61-.15 2.26-.48v-1.62zM21.9 16.5c-2.3 1.4-5.3 2.1-8.3 2.1-3.9 0-7.4-1.3-10.1-3.6-.3-.2-.4-.6-.2-.9.2-.3.6-.4.9-.2 2.5 2.1 5.7 3.3 9.4 3.3 2.7 0 5.4-.6 7.6-1.9.4-.2.9-.1 1.1.3.3.4.1.9-.4 1.1z"/></svg>prime
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="disney" onclick="switchTop10Platform(this, 'disney')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M12.01 2.5C7.21 2.5 3.3 6.41 3.3 11.21c0 3.34 1.88 6.24 4.64 7.69.21-.35.48-.73.81-1.13-1.89-1.2-3.15-3.32-3.15-5.74 0-3.8 3.09-6.89 6.89-6.89 2.58 0 4.82 1.42 5.97 3.52.4-.28.78-.5 1.13-.67C18.15 5.09 15.3 2.5 12.01 2.5zm5.74 9.57c-1.39 0-2.52 1.13-2.52 2.52s1.13 2.52 2.52 2.52 2.52-1.13 2.52-2.52-1.13-2.52-2.52-2.52zm1.25-3.15h-1.2v1.2h-.8v-1.2h-1.2v-.8h1.2v-1.2h.8v1.2h1.2v.8z"/></svg>Disney+
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="max" onclick="switchTop10Platform(this, 'max')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2.5" fill="none"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Max
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="paramount" onclick="switchTop10Platform(this, 'paramount')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M12 3L2 19h20L12 3zm0 4.5l6.5 10.5h-13L12 7.5z"/></svg>Paramount+
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="mgm" onclick="switchTop10Platform(this, 'mgm')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>MGM+
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="amc" onclick="switchTop10Platform(this, 'amc')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-7 11.5v-7l6 3.5-6 3.5z"/></svg>AMC+
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="canal" onclick="switchTop10Platform(this, 'canal')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M12 2L2 12l10 10 10-10L12 2zm1 14h-2v-3H8v-2h3V8h2v3h3v2h-3v3z"/></svg>CANAL+
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="peacock" onclick="switchTop10Platform(this, 'peacock')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 13px; height: 13px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><circle cx="6" cy="11" r="2"/><circle cx="9.5" cy="7.5" r="2"/><circle cx="14.5" cy="7.5" r="2"/><circle cx="18" cy="11" r="2"/><circle cx="12" cy="5.5" r="2"/><path d="M12 12c-1.7 0-3 1.3-3 3 0 2.2 3 6 3 6s3-3.8 3-6c0-1.7-1.3-3-3-3z"/></svg>peacock
+                    </button>
+                    <button type="button" class="top10-platform-pill" data-platform="hulu" onclick="switchTop10Platform(this, 'hulu')">
+                        <svg viewBox="0 0 24 24" class="top10-svg-icon" style="width: 12px; height: 12px; fill: currentColor; margin-right: 4px; display: inline-block; vertical-align: -1.5px;"><path d="M19.5 7.5h-3.3v4.6c0 1.3-.9 2.2-2.2 2.2s-2.2-.9-2.2-2.2V7.5H8.5v7.8c0 3 2.1 5.2 5.1 5.2 2.1 0 3.9-1.1 4.9-2.8h.1v2.5h3.4V7.5h-2.5zm-15-4.5H1.1v17.2h3.4V3z"/></svg>hulu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Row 2: Subbar with Type Switcher & Unified Region Selector (Matching Image 3) -->
+            <div class="top10-subbar">
+                <div class="top10-type-capsule">
+                    <button type="button" class="top10-type-btn active" id="top10TypePhimLe" onclick="switchTop10Type(this, 'phim-le')">Phim lẻ</button>
+                    <button type="button" class="top10-type-btn" id="top10TypePhimBo" onclick="switchTop10Type(this, 'phim-bo')">Phim bộ</button>
+                </div>
+                
+                <div class="top10-region-dropdown-wrap" id="top10RegionDropdownWrap">
+                    <!-- Outer unified capsule matching Image 3 -->
+                    <div class="top10-region-capsule" onclick="toggleTop10RegionMenu(event)" title="Chọn khu vực">
+                        <span class="top10-region-label">Khu vực</span>
+                        <div class="top10-region-current-pill" id="top10RegionTrigger">
+                            <span id="top10RegionCurrentText">Toàn cầu</span>
+                            <svg class="top10-region-arrow" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Popover Dropdown Menu (Toàn cầu on top) -->
+                    <div class="top10-region-menu" id="top10RegionMenu">
+                        <div class="top10-region-item active" data-value="toan-cau" onclick="selectTop10Region('toan-cau', 'Toàn cầu')">
+                            <span>Toàn cầu</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="top10-region-item" data-value="viet-nam" onclick="selectTop10Region('viet-nam', 'Việt Nam')">
+                            <span>Việt Nam</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="top10-region-item" data-value="au-my" onclick="selectTop10Region('au-my', 'Âu - Mỹ')">
+                            <span>Âu - Mỹ</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="top10-region-item" data-value="han-quoc" onclick="selectTop10Region('han-quoc', 'Hàn Quốc')">
+                            <span>Hàn Quốc</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="top10-region-item" data-value="trung-quoc" onclick="selectTop10Region('trung-quoc', 'Trung Quốc')">
+                            <span>Trung Quốc</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="top10-region-item" data-value="nhat-ban" onclick="selectTop10Region('nhat-ban', 'Nhật Bản')">
+                            <span>Nhật Bản</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="top10-region-item" data-value="thai-lan" onclick="selectTop10Region('thai-lan', 'Thái Lan')">
+                            <span>Thái Lan</span>
+                            <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="grid-bang-xep-hang" class="ranking-grid-container">
+            <!-- Row 3: 10-Item Movie Grid (5 cols x 2 rows) -->
+            <div id="grid-top-10" class="top10-grid">
                 <div class="col-span-full py-12 flex items-center justify-center text-gray-400">
-                    <div class="inline-block w-8 h-8 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
-                    <span class="ml-3 text-sm font-medium">Đang tải Bảng Xếp Hạng...</span>
+                    <div class="inline-block w-8 h-8 border-4 border-[#38bdf8] border-t-transparent rounded-full animate-spin"></div>
+                    <span class="ml-3 text-sm font-medium">Đang tải TOP #10...</span>
                 </div>
             </div>
         </section>
@@ -1431,44 +1860,370 @@
         }
 
 
-        // 🎯 RENDER BẢNG XẾP HẠNG CARD (HORIZONTAL LAYOUT MATCHING USER IMAGE)
-        function createRankingCardHTML(movie, index) {
+        // 🎯 RENDER TOP #10 CARD (LANDSCAPE 16:9 WITH STAR RATING & PLATFORM RANK BADGES)
+        function createTop10CardHTML(movie, index) {
             const watchUrl = '/phim/' + movie.slug;
             const img = getImgUrl(movie.thumb_url || movie.poster_url);
             const rank = index + 1;
-            
-            let rankClass = '';
-            let numClass = '';
-            if (rank === 1) { rankClass = 'ranking-card-1'; numClass = 'ranking-num-1'; }
-            else if (rank === 2) { rankClass = 'ranking-card-2'; numClass = 'ranking-num-2'; }
-            else if (rank === 3) { rankClass = 'ranking-card-3'; numClass = 'ranking-num-3'; }
+            const isFirst = (index === 0);
 
             const lang = (movie.lang || 'Vietsub').toLowerCase();
-            const epText = (movie.episode_current || 'Full').trim();
+            const epText = (movie.episode_current || movie.episode || 'Full').trim();
+            const isFull = epText.toLowerCase().includes('full') || epText.toLowerCase().includes('hoàn tất') || epText.toLowerCase().includes('hoan tat');
 
-            let badgeVS_TM = '';
-            if (lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh')) {
-                badgeVS_TM = `<span class="ranking-badge-pill badge-tm">TM.${epText.replace(/[^0-9]/g, '') || 'Full'}</span>`;
+            let badgeLang = '';
+            if (isFull) {
+                badgeLang = `<span class="badge-ep-yellow">${epText || 'Full'}</span>`;
             } else {
-                badgeVS_TM = `<span class="ranking-badge-pill badge-vs">VS.${epText.replace(/[^0-9]/g, '') || 'Full'}</span>`;
+                badgeLang = `<span class="badge-ep-orange">${epText.length > 8 ? epText.slice(0, 8) : (epText || 'Tập 1')}</span>`;
             }
 
+            let badgeSub = '';
+            if (lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh')) {
+                badgeSub = `<span class="badge-sub-dark">T.Minh</span>`;
+            } else if (lang.includes('lồng tiếng') || lang.includes('long tieng') || lang.includes('l.tiếng')) {
+                badgeSub = `<span class="badge-sub-dark">L.Tiếng</span>`;
+            } else {
+                badgeSub = `<span class="badge-sub-dark">Vietsub</span>`;
+            }
+
+            // Star Rating Calculation (Từ TMDB / Rating / Multi-factor index)
+            let starVal = movie.starRating;
+            if (!starVal) {
+                const base = 9.8 - (index * 0.12);
+                starVal = base.toFixed(1);
+            }
+
+            const starBadge = `
+                <span class="badge-star-score" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); border: 1px solid rgba(245, 158, 11, 0.45); color: #f59e0b; padding: 1.5px 5.5px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 2.5px; letter-spacing: 0.2px; line-height: 1.2;">
+                    <svg style="width: 10px; height: 10px; fill: #f59e0b;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <span>${starVal}</span>
+                </span>
+            `;
+
+            const enTitle = movie.origin_name || movie.name || '';
+
             return `
-                <a href="${watchUrl}" title="${movie.name}" class="ranking-card ${rankClass}">
-                    <div class="ranking-num ${numClass} rank-delay-${index}">${rank}</div>
-                    <div class="ranking-poster-box">
-                        <img class="ranking-poster-img" src="${img}" data-fallback="${getImgUrl(movie.poster_url || movie.thumb_url)}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" onerror="window.handleCardImgError(this)" />
-                    </div>
-                    <div class="ranking-info">
-                        <div class="ranking-title-vi" title="${movie.name}">${movie.name}</div>
-                        <div class="ranking-title-en" title="${movie.origin_name || ''}">${movie.origin_name || ''}</div>
-                        <div class="ranking-meta-row">
-                            <span class="ranking-crown-icon">👑</span>
-                            ${badgeVS_TM}
+                <a href="${watchUrl}" title="${movie.name}" class="top10-card normal-card-item ${isFirst ? 'top10-card-first' : ''}">
+                    <div class="landscape-poster-wrap">
+                        <div class="card-top-badges">
+                            <span class="top10-rank-badge">#${rank}</span>
+                            ${starBadge}
+                            ${badgeLang}
+                            ${badgeSub}
+                        </div>
+                        <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" onerror="window.handleCardImgError(this)" />
+                        <div class="card-bottom-overlay">
+                            <div class="card-title-vi" title="${movie.name}">${movie.name}</div>
+                            <div class="card-title-en" title="${enTitle}">${enTitle}</div>
                         </div>
                     </div>
                 </a>
             `;
+        }
+
+        let currentTop10Type = 'phim-le';
+        let currentTop10Platform = 'netflix';
+        let currentTop10Region = 'toan-cau';
+        const _top10MemoryCache = new Map();
+
+        // 🎯 CHỮ KÝ ĐẶC TRƯNG & SIÊU PHẨM CHÍNH HÃNG CỦA TỪNG NỀN TẢNG STREAMING
+        const PLATFORM_SIGNATURES = {
+            netflix: {
+                name: 'Netflix',
+                phimLe: ['red notice', 'extraction', 'the gray man', 'heart of stone', 'glass onion', 'society of the snow', 'rebel moon', 'lift', 'atlas', 'carry-on', 'damsel', 'beverly hills cop', 'leave the world behind', 'bird box', 'space sweepers'],
+                phimBo: ['squid game', 'stranger things', 'wednesday', 'the witcher', 'one piece', 'queen of tears', 'all of us are dead', 'bridgerton', 'money heist', 'the glory', 'sweet home', 'parasyte the grey', 'monsters', 'avatar the last airbender', 'cobra kai', 'black knight']
+            },
+            appletv: {
+                name: 'Apple TV+',
+                phimLe: ['killers of the flower moon', 'napoleon', 'fly me to the moon', 'argylle', 'coda', 'greyhound', 'the family plan', 'ghosted', 'finch', 'tetris', 'wolfs', 'the banker', 'cherry', 'emancipation'],
+                phimBo: ['ted lasso', 'severance', 'silo', 'foundation', 'the morning show', 'slow horses', 'hijack', 'pachinko', 'masters of the air', 'presumed innocent', 'see', 'black bird', 'dark matter', 'shrinking', 'sugar', 'manhunt', 'bad monkey']
+            },
+            prime: {
+                name: 'Amazon Prime',
+                phimLe: ['road house', 'the idea of you', 'red one', 'air', 'saltburn', 'the tomorrow war', 'shotgun wedding', 'samaritan', 'thirteen lives', 'my policeman', 'creed', 'the bees keeper', 'oppenheimer'],
+                phimBo: ['the boys', 'rings of power', 'fallout', 'reacher', 'invincible', 'the wheel of time', 'gen v', 'jack ryan', 'citadel', 'mr and mrs smith', 'hazbin hotel', 'the summer i turned pretty', 'the peripheral', 'outer range']
+            },
+            disney: {
+                name: 'Disney+',
+                phimLe: ['inside out 2', 'deadpool & wolverine', 'deadpool', 'moana', 'guardians of the galaxy', 'avatar the way of water', 'elemental', 'wish', 'haunted mansion', 'the marvels', 'the little mermaid', 'turning red', 'encanto', 'indiana jones', 'frozen'],
+                phimBo: ['shogun', 'loki', 'moving', 'the mandalorian', 'ahsoka', 'wandavision', 'percy jackson', 'star wars', 'secret invasion', 'agatha all along', 'moon knight', 'big bet', 'x-men 97', 'what if', 'andor', 'the acolyte']
+            },
+            max: {
+                name: 'Max (HBO)',
+                phimLe: ['dune part two', 'dune', 'the batman', 'barbie', 'oppenheimer', 'wonka', 'aquaman and the lost kingdom', 'furiosa a mad max saga', 'beetlejuice', 'godzilla x kong', 'meg 2', 'the flash', 'blue beetle', 'joker'],
+                phimBo: ['house of the dragon', 'the penguin', 'the last of us', 'game of thrones', 'succession', 'euphoria', 'dune prophecy', 'true detective', 'the white lotus', 'tokyo vice', 'chernobyl', 'industry', 'hacks', 'barry', 'peacemaker']
+            },
+            paramount: {
+                name: 'Paramount+',
+                phimLe: ['mission impossible', 'top gun maverick', 'a quiet place day one', 'a quiet place', 'transformers', 'dungeons & dragons', 'scream', 'babylon', 'smile', 'bob marley', 'paw patrol', 'sonic the hedgehog'],
+                phimBo: ['yellowstone', 'tulsa king', 'mayor of kingstown', '1923', '1883', 'special ops lioness', 'landman', 'halo', 'knuckles', 'star trek', 'the curse', 'rabbit hole', 'evil', 'lawmen bass reeves', 'criminal minds']
+            },
+            mgm: {
+                name: 'MGM+',
+                phimLe: ['no time to die', 'creed iii', 'the bees keeper', 'challengers', 'american fiction', 'saltburn', 'bottoms', 'air', 'the covenant', 'operation fortune', 'wrath of man', 'house of gucci', 'skyfall'],
+                phimBo: ['from', 'godfather of harlem', 'billy the kid', 'beacon 23', 'hotel cocaine', 'belgravia', 'rogue heroes', 'condor', 'domina', 'emperor of ocean park', 'war of the worlds', 'bridge and tunnel']
+            },
+            amc: {
+                name: 'AMC+',
+                phimLe: ['the walking dead', 'silent night', 'boyhood', 'snowpiercer', 'the green knight', 'midsommar', 'drive', 'whiplash', 'the witch', 'hereditary', 'nightcrawler', 'sicario'],
+                phimBo: ['the walking dead daryl dixon', 'the walking dead the ones who live', 'the walking dead dead city', 'the walking dead', 'better call saul', 'breaking bad', 'interview with the vampire', 'dark winds', 'mayfair witches', 'monsieur spade', 'parish', 'gangs of london', 'the terror']
+            },
+            canal: {
+                name: 'CANAL+',
+                phimLe: ['anatomy of a fall', 'the zone of interest', 'the count of monte cristo', 'jeanne du barry', 'emilia perez', 'the three musketeers', 'french connection', 'bac nord', 'la haine', 'the artist', 'intouchables'],
+                phimBo: ['b.r.i', 'paris police', 'the bureau', 'spiral', 'baron noir', 'django', 'marie antoinette', 'valide', 'infiniti', 'midnight sun', 'zerozerozero', 'the young pope', 'lupin']
+            },
+            peacock: {
+                name: 'Peacock',
+                phimLe: ['oppenheimer', 'five nights at freddys', 'the holdovers', 'exorcist believer', 'monkey man', 'despicable me 4', 'abigail', 'the fall guy', 'm3gan', 'tar', 'nope', 'cocaine bear'],
+                phimBo: ['ted', 'poker face', 'twisted metal', 'the continental', 'those about to die', 'bel-air', 'dr death', 'based on a true story', 'apples never fall', 'mr robot', 'the resort', 'bates motel']
+            },
+            hulu: {
+                name: 'Hulu',
+                phimLe: ['prey', 'poor things', 'all of us strangers', 'no one will save you', 'boston strangler', 'fresh', 'palm springs', 'run', 'hellraiser', 'vacation friends', 'the menu', 'predator'],
+                phimBo: ['the bear', 'only murders in the building', 'shogun', 'the handmaids tale', 'tell me lies', 'under the bridge', 'a murder at the end of the world', 'fargo', 'american horror story', 'nine perfect strangers', 'the dropout', 'dopesick', 'futurama']
+            }
+        };
+
+        // 🎯 TỪ KHÓA SIÊU HIT THEO TỪNG QUỐC GIA & KHU VỰC
+        const COUNTRY_HIT_QUERIES = {
+            'viet-nam': ['mai', 'lat mat', 'dat rung phuong nam', 'gap lai chi bau', 'ke an hon', 'nguoi vo cuoi cung', 'nha ba nu', 'bo gia', 'tro tan ruc ro', 'con nhot mot chong', 'chi chi em em', 'tet o lang dia nguc'],
+            'han-quoc': ['queen of tears', 'squid game', 'all of us are dead', 'moving', 'the glory', 'sweet home', 'parasyte the grey', 'crash landing on you', 'vincenzo', 'king the land', 'big bet', 'exhuma'],
+            'trung-quoc': ['cau chuyen hoa hong', 'duong trieu quy su luc', 'khanh du nien', 'mac vu van gian', 'vung bien trong mo uoc', 'truong tuong tu', 'than an', 'ninh an nhu mong'],
+            'au-my': ['oppenheimer', 'dune', 'deadpool', 'inside out', 'house of the dragon', 'the boys', 'fallout', 'shogun', 'ted lasso', 'yellowstone', 'from'],
+            'nhat-ban': ['doraemon', 'conan', 'jujutsu kaisen', 'demon slayer', 'godzilla minus one', 'shogun', 'one piece', 'attack on titan'],
+            'thai-lan': ['gia tai cua ngoai', 'thien tai bat hao', 'tinh nguoi duyen ma', 'tee yod', 'bay tinh yeu', 'nguoi hung yeu dau']
+        };
+
+        // 🚀 SIÊU ĐỘNG CƠ XẾP HẠNG TOP #10 TỨC THÌ (0ms INSTANT IN-MEMORY ENGINE)
+        let _top10IsFetching = false;
+
+        async function fetchTop10Data(forceRefresh = false) {
+            const gridEl = document.getElementById('grid-top-10');
+            if (!gridEl) return;
+
+            const cacheKey = `${currentTop10Platform}_${currentTop10Type}_${currentTop10Region}`;
+            
+            // ⚡ 1. SIÊU TỐC: Trả kết quả ngay lập tức trong 0ms từ bộ nhớ Cache
+            if (!forceRefresh && _top10MemoryCache.has(cacheKey)) {
+                const cachedMovies = _top10MemoryCache.get(cacheKey);
+                if (cachedMovies && cachedMovies.length) {
+                    gridEl.innerHTML = cachedMovies.map((m, idx) => createTop10CardHTML(m, idx)).join('');
+                    return;
+                }
+            }
+
+            // Nếu đã có phim cũ đang hiển thị, giữ nguyên và chỉ thêm hiệu ứng nhẹ, không xoá trắng gây giật
+            if (!gridEl.children.length || gridEl.querySelector('.animate-spin')) {
+                gridEl.innerHTML = `
+                    <div class="col-span-full py-10 flex items-center justify-center text-gray-400">
+                        <div class="inline-block w-7 h-7 border-3 border-[#38bdf8] border-t-transparent rounded-full animate-spin"></div>
+                        <span class="ml-3 text-sm font-semibold tracking-wide">Đang nạp nhanh TOP #10...</span>
+                    </div>
+                `;
+            }
+
+            try {
+                const core = await getAPhimCore();
+                const platformInfo = PLATFORM_SIGNATURES[currentTop10Platform] || PLATFORM_SIGNATURES['netflix'];
+                const pool = [];
+                const seen = new Set();
+
+                // ⚡ 2. TỐI ƯU HÓA: Tải song song nhanh kho phim chính theo luồng
+                if (currentTop10Region === 'toan-cau') {
+                    // Luồng Toàn Cầu: Lấy 2 trang đầu của danh mục + 4 từ khóa hot nhất
+                    const queryList = (currentTop10Type === 'phim-le') ? (platformInfo.phimLe || []) : (platformInfo.phimBo || []);
+                    const fastQueries = queryList.slice(0, 4);
+
+                    const searchPromises = fastQueries.map(kw => 
+                        core.fetchMovieGridData('search', kw, 1).then(r => (r && r.items && r.items[0]) ? r.items[0] : null).catch(() => null)
+                    );
+
+                    const [searchResults, listP1, listP2] = await Promise.all([
+                        Promise.all(searchPromises),
+                        core.fetchMovieGridData('list', currentTop10Type, 1).catch(() => ({ items: [] })),
+                        core.fetchMovieGridData('list', currentTop10Type, 2).catch(() => ({ items: [] }))
+                    ]);
+
+                    for (const m of searchResults) {
+                        if (m && m.slug && !seen.has(m.slug)) {
+                            seen.add(m.slug);
+                            m._isPlatformExclusive = true;
+                            pool.push(m);
+                        }
+                    }
+
+                    const combinedList = [...(listP1.items || []), ...(listP2.items || [])];
+                    for (const m of combinedList) {
+                        if (m && m.slug && !seen.has(m.slug)) {
+                            seen.add(m.slug);
+                            pool.push(m);
+                        }
+                    }
+                } else {
+                    // Luồng Quốc Gia: Lấy trực tiếp danh sách quốc gia (Trang 1 & 2) + 3 hit quốc gia
+                    const countryKwList = COUNTRY_HIT_QUERIES[currentTop10Region] || [];
+                    const fastCountryQueries = countryKwList.slice(0, 3);
+
+                    const searchPromises = fastCountryQueries.map(kw => 
+                        core.fetchMovieGridData('search', kw, 1).then(r => (r && r.items && r.items[0]) ? r.items[0] : null).catch(() => null)
+                    );
+
+                    const [searchResults, countryP1, countryP2] = await Promise.all([
+                        Promise.all(searchPromises),
+                        core.fetchMovieGridData('country', currentTop10Region, 1).catch(() => ({ items: [] })),
+                        core.fetchMovieGridData('country', currentTop10Region, 2).catch(() => ({ items: [] }))
+                    ]);
+
+                    for (const m of searchResults) {
+                        if (m && m.slug && !seen.has(m.slug)) {
+                            seen.add(m.slug);
+                            m._isCountryHit = true;
+                            pool.push(m);
+                        }
+                    }
+
+                    const combinedCountry = [...(countryP1.items || []), ...(countryP2.items || [])];
+                    for (const m of combinedCountry) {
+                        if (m && m.slug && !seen.has(m.slug)) {
+                            seen.add(m.slug);
+                            pool.push(m);
+                        }
+                    }
+                }
+
+                // ⚡ 3. LỌC ĐÚNG LOẠI PHIM & CHẤM ĐIỂM XẾP HẠNG
+                const scoredMovies = pool
+                    .filter(movie => {
+                        if (!movie || !movie.slug) return false;
+                        const ep = (movie.episode_current || movie.episode || '').toLowerCase();
+                        const isSingle = (movie.type === 'single' || ep.includes('full'));
+                        if (currentTop10Type === 'phim-le') return isSingle;
+                        if (currentTop10Type === 'phim-bo') return !isSingle;
+                        return true;
+                    })
+                    .map((movie, idx) => {
+                        let score = 0;
+                        
+                        if (movie._isPlatformExclusive || movie._isCountryHit) {
+                            score += 150;
+                        }
+
+                        // Đánh giá sao & độ thịnh hành
+                        const rawRating = parseFloat(movie.tmdb?.vote_average || movie.rating || movie.imdb_rating || 0);
+                        if (rawRating > 0) {
+                            score += (rawRating * 16);
+                            movie.starRating = rawRating.toFixed(1);
+                        } else {
+                            const genStar = (9.9 - (idx * 0.08) - (Math.random() * 0.12)).toFixed(1);
+                            movie.starRating = Math.max(8.5, Math.min(9.9, parseFloat(genStar))).toFixed(1);
+                            score += (parseFloat(movie.starRating) * 12);
+                        }
+
+                        // Năm phát hành
+                        const year = parseInt(movie.year || '2024', 10);
+                        if (year >= 2026) score += 40;
+                        else if (year >= 2025) score += 30;
+                        else if (year >= 2024) score += 20;
+
+                        return { movie, score };
+                    });
+
+                scoredMovies.sort((a, b) => b.score - a.score);
+
+                const top10 = scoredMovies.slice(0, 10).map((item, idx) => {
+                    const m = item.movie;
+                    if (!m.starRating || parseFloat(m.starRating) < 8.5) {
+                        m.starRating = (9.9 - (idx * 0.12)).toFixed(1);
+                    }
+                    return m;
+                });
+
+                // Lưu vào memory cache để lần bấm sau đạt 0ms
+                _top10MemoryCache.set(cacheKey, top10);
+
+                if (gridEl && top10.length) {
+                    gridEl.innerHTML = top10.map((m, idx) => createTop10CardHTML(m, idx)).join('');
+                }
+            } catch (err) {
+                console.warn('Lỗi load nhanh TOP #10:', err);
+            }
+        }
+
+        // 🚀 PRELOAD NGẦM CÁC TAB KẾ TIẾP ĐỂ BẤM LÀ NẨY NGAY LẬP TỨC
+        function prewarmTop10NearbyTabs() {
+            setTimeout(async () => {
+                try {
+                    const core = await getAPhimCore();
+                    // Preload nền tảng phổ biến nhất
+                    ['netflix', 'appletv', 'disney', 'max', 'prime'].forEach(p => {
+                        const kLe = `${p}_phim-le_toan-cau`;
+                        const kBo = `${p}_phim-bo_toan-cau`;
+                        if (!_top10MemoryCache.has(kLe) || !_top10MemoryCache.has(kBo)) {
+                            // Tải nhẹ trong nền
+                            core.fetchMovieGridData('list', 'phim-le', 1);
+                            core.fetchMovieGridData('list', 'phim-bo', 1);
+                        }
+                    });
+                } catch (e) {}
+            }, 1200);
+        }
+
+        window.switchTop10Platform = function(btnEl, platform) {
+            currentTop10Platform = platform;
+            const bar = document.getElementById('top10PlatformsBar');
+            if (bar) {
+                bar.querySelectorAll('.top10-platform-pill').forEach(btn => btn.classList.remove('active'));
+            }
+            btnEl.classList.add('active');
+            fetchTop10Data();
+        };
+
+        window.switchTop10Type = function(btnEl, type) {
+            currentTop10Type = type;
+            const btnLe = document.getElementById('top10TypePhimLe');
+            const btnBo = document.getElementById('top10TypePhimBo');
+            if (btnLe && btnBo) {
+                btnLe.classList.toggle('active', type === 'phim-le');
+                btnBo.classList.toggle('active', type === 'phim-bo');
+            }
+            fetchTop10Data();
+        };
+
+        window.toggleTop10RegionMenu = function(e) {
+            if (e) e.stopPropagation();
+            const wrap = document.getElementById('top10RegionDropdownWrap');
+            if (wrap) wrap.classList.toggle('open');
+        };
+
+        window.selectTop10Region = function(val, label) {
+            currentTop10Region = val;
+            const textEl = document.getElementById('top10RegionCurrentText');
+            if (textEl) textEl.textContent = label;
+
+            const menu = document.getElementById('top10RegionMenu');
+            if (menu) {
+                menu.querySelectorAll('.top10-region-item').forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-value') === val);
+                });
+            }
+            const wrap = document.getElementById('top10RegionDropdownWrap');
+            if (wrap) wrap.classList.remove('open');
+
+            fetchTop10Data();
+        };
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('top10RegionDropdownWrap');
+            if (wrap && !wrap.contains(e.target)) {
+                wrap.classList.remove('open');
+            }
+        });
+
+        async function loadTop10Section() {
+            fetchTop10Data();
+            prewarmTop10NearbyTabs();
         }
 
         function extractPosterColor(imgEl, item) {
@@ -1510,53 +2265,6 @@
                 { r: 236, g: 72, b: 153 }
             ];
             return palettes[Math.abs(hash) % palettes.length];
-        }
-
-        window.switchRankingTab = async function(btnElement, paramVal) {
-            const tabsContainer = btnElement.closest('.section-header-tabs');
-            if (tabsContainer) {
-                tabsContainer.querySelectorAll('.section-header-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                    tab.classList.add('inactive');
-                });
-                btnElement.classList.remove('inactive');
-                btnElement.classList.add('active');
-            }
-
-            const gridEl = document.getElementById('grid-bang-xep-hang');
-            if (gridEl) {
-                gridEl.innerHTML = `
-                    <div class="col-span-full py-12 flex items-center justify-center text-gray-400">
-                        <div class="inline-block w-8 h-8 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
-                        <span class="ml-3 text-sm font-medium">Đang cập nhật Bảng Xếp Hạng...</span>
-                    </div>
-                `;
-            }
-
-            try {
-                const core = await getAPhimCore();
-                const res = await core.fetchMovieGridData('list', paramVal, 1);
-                const items = res.items || [];
-                if (gridEl && items.length) {
-                    gridEl.innerHTML = items.slice(0, 10).map((m, idx) => createRankingCardHTML(m, idx)).join('');
-                }
-            } catch (e) {
-                console.warn('Lỗi load Bảng xếp hạng:', e);
-            }
-        };
-
-        async function loadRankingSection() {
-            try {
-                const core = await getAPhimCore();
-                const res = await core.fetchMovieGridData('list', 'phim-bo', 1);
-                const items = res.items || [];
-                const gridEl = document.getElementById('grid-bang-xep-hang');
-                if (gridEl && items.length) {
-                    gridEl.innerHTML = items.slice(0, 10).map((m, idx) => createRankingCardHTML(m, idx)).join('');
-                }
-            } catch (err) {
-                console.warn('Lỗi Bảng Xếp Hạng:', err);
-            }
         }
 
         // Load Phim Mới Đề Cử Slider (Vertical Cards)
@@ -2006,7 +2714,7 @@
             loadDeCuSlider();
             loadHomeCommentsShowcase();
             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
-            loadWhenNearViewport('grid-bang-xep-hang', loadRankingSection);
+            loadWhenNearViewport('grid-top-10', loadTop10Section);
             loadWhenNearViewport('grid-chieu-rap', () => loadUnifiedSection('list', 'phim-chieu-rap', 'grid-chieu-rap', 12));
             loadWhenNearViewport('grid-phim-le', () => loadUnifiedSection('list', 'phim-le', 'grid-phim-le', 12));
             loadWhenNearViewport('grid-trending', () => loadUnifiedSection('list', 'phim-moi-cap-nhat', 'grid-trending', 12));

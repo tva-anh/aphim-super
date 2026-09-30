@@ -2654,6 +2654,8 @@
   }
 
   let currentUsersPage = 1;
+  const USERS_PER_PAGE = 20;
+
   async function loadUsers() {
     const tbody = document.getElementById('usersTableBody');
     if (!tbody) return;
@@ -2670,6 +2672,7 @@
     if (cached) {
       // Instant 0ms Render
       renderUsers(cached.data);
+      renderUsersPagination(cached.pagination);
     } else {
       tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:30px;"><div style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-dim);"><i data-lucide="loader-2" class="spin"></i> Đang tải dữ liệu thành viên...</div></td></tr>';
       if (window.lucide) lucide.createIcons();
@@ -2679,7 +2682,7 @@
     if (!token) return;
 
     try {
-      let query = `?page=${currentUsersPage}&limit=20&search=${encodeURIComponent(search)}&role=${role}`;
+      let query = `?page=${currentUsersPage}&limit=${USERS_PER_PAGE}&search=${encodeURIComponent(search)}&role=${role}`;
       if (status === 'banned') query += '&status=blocked';
       
       const res = await fetch('/api/admin/users' + query, {
@@ -2697,6 +2700,7 @@
       if (data.success) {
         AdminCache.set(cacheKey, data);
         renderUsers(data.data);
+        renderUsersPagination(data.pagination);
         const totalUsersEl = document.getElementById('kpiTotalUsers');
         if (totalUsersEl && data.pagination && data.pagination.total && !search && !role && !status) {
           totalUsersEl.textContent = new Intl.NumberFormat('vi-VN').format(data.pagination.total);
@@ -2711,6 +2715,114 @@
       }
     }
   }
+
+  function renderUsersPagination(pagination) {
+    const infoEl = document.getElementById('usersPaginationInfo');
+    const controlsEl = document.getElementById('usersPaginationControls');
+    const container = document.getElementById('usersPaginationBar');
+    if (!controlsEl) return;
+
+    const total = (pagination && typeof pagination.total === 'number') ? pagination.total : 0;
+    const page = (pagination && typeof pagination.page === 'number') ? pagination.page : currentUsersPage;
+    const limit = (pagination && typeof pagination.limit === 'number') ? pagination.limit : USERS_PER_PAGE;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    if (container) {
+      container.style.display = total > 0 ? 'flex' : 'none';
+    }
+
+    if (infoEl) {
+      if (total === 0) {
+        infoEl.innerHTML = '<span>Không tìm thấy thành viên nào</span>';
+      } else {
+        const start = (page - 1) * limit + 1;
+        const end = Math.min(page * limit, total);
+        infoEl.innerHTML = `
+          <span>Hiển thị <strong>${start} - ${end}</strong> / <strong>${new Intl.NumberFormat('vi-VN').format(total)}</strong> thành viên</span>
+          <span class="pagination-badge-pill">Trang <b>${page}</b> / <b>${totalPages}</b></span>
+        `;
+      }
+    }
+
+    if (totalPages <= 1) {
+      controlsEl.innerHTML = `
+        <div class="pagination-page-chips">
+          <button class="btn-page-chip active" disabled>1</button>
+        </div>
+      `;
+      return;
+    }
+
+    // Smart pagination algorithm with ellipsis
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (page > 3) pages.push('...');
+
+      const start = Math.max(2, page - 1);
+      const end = Math.min(totalPages - 1, page + 1);
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) pages.push(i);
+      }
+
+      if (page < totalPages - 2) pages.push('...');
+      if (!pages.includes(totalPages)) pages.push(totalPages);
+    }
+
+    const svgFirst = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>`;
+    const svgPrev = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`;
+    const svgNext = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+    const svgLast = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>`;
+
+    controlsEl.innerHTML = `
+      <div class="pagination-nav-group">
+        <button class="btn-page-nav" ${page <= 1 ? 'disabled' : ''} onclick="AdminCore.changeUserPage(1)" title="Trang đầu">
+          ${svgFirst}
+        </button>
+        <button class="btn-page-nav prev-btn" ${page <= 1 ? 'disabled' : ''} onclick="AdminCore.changeUserPage(${page - 1})" title="Trang trước">
+          ${svgPrev}
+          <span>Trước</span>
+        </button>
+      </div>
+
+      <div class="pagination-page-chips">
+        ${pages.map(p => {
+          if (p === '...') {
+            return `<span class="pagination-ellipsis">•••</span>`;
+          }
+          const isActive = (p === page);
+          return `
+            <button class="btn-page-chip ${isActive ? 'active' : ''}" onclick="AdminCore.changeUserPage(${p})">
+              ${p}
+            </button>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="pagination-nav-group">
+        <button class="btn-page-nav next-btn" ${page >= totalPages ? 'disabled' : ''} onclick="AdminCore.changeUserPage(${page + 1})" title="Trang sau">
+          <span>Sau</span>
+          ${svgNext}
+        </button>
+        <button class="btn-page-nav" ${page >= totalPages ? 'disabled' : ''} onclick="AdminCore.changeUserPage(${totalPages})" title="Trang cuối (${totalPages})">
+          ${svgLast}
+        </button>
+      </div>
+    `;
+  }
+
+  window.AdminCore.changeUserPage = function(page) {
+    if (page < 1 || page === currentUsersPage) return;
+    currentUsersPage = page;
+    loadUsers();
+
+    const tableWrap = document.getElementById('usersMasterTable') || document.querySelector('.table-wrapper-card');
+    if (tableWrap) {
+      tableWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   function renderUsers(users) {
     const tbody = document.getElementById('usersTableBody');
@@ -2785,9 +2897,11 @@
     const si = document.getElementById('userSearchInput');
     const sr = document.getElementById('userRoleFilter');
     const ss = document.getElementById('userStatusFilter');
+    const sk = document.getElementById('userStreakFilter');
     if (si) si.value = '';
     if (sr) sr.value = '';
     if (ss) ss.value = '';
+    if (sk) sk.value = '';
     currentUsersPage = 1;
     loadUsers();
   };
@@ -3236,6 +3350,8 @@
       if (uRole) uRole.onchange = () => { currentUsersPage = 1; loadUsers(); };
       const uStatus = document.getElementById('userStatusFilter');
       if (uStatus) uStatus.onchange = () => { currentUsersPage = 1; loadUsers(); };
+      const uStreak = document.getElementById('userStreakFilter');
+      if (uStreak) uStreak.onchange = () => { currentUsersPage = 1; loadUsers(); };
     }
 
     // 3. Comments Page

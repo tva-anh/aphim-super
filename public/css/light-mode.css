@@ -993,18 +993,11 @@ html.light-mode .stat-label {
 }
 
 
-html.light-mode .sidebar-logout {
-    background: #fee2e2 !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #dc2626 !important;
-    padding: 6px 10px !important;
-    box-sizing: border-box !important;
-}
+html.light-mode #snav-logout:hover,
 html.light-mode .sidebar-logout:hover {
-    background: #fca5a5 !important;
-    color: #991b1b !important;
-    border: none !important;
+    background: rgba(220, 38, 38, 0.08) !important;
+    color: #dc2626 !important;
+    border: 1px solid transparent !important;
     box-shadow: none !important;
 }
 
@@ -3953,22 +3946,15 @@ html.light-mode .sidebar-nav-item .nav-icon {
     color: inherit !important;
 }
 
-html.light-mode .sidebar-logout {
-    background: #fee2e2 !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #dc2626 !important;
-    padding: 3px 12px 3px 3px !important;
-    gap: 9px !important;
-    border-radius: 12px !important;
-    box-sizing: border-box !important;
-}
-
+html.light-mode #snav-logout:hover,
 html.light-mode .sidebar-logout:hover {
-    background: #fca5a5 !important;
-    color: #991b1b !important;
-    border: none !important;
+    background: rgba(220, 38, 38, 0.08) !important;
+    color: #dc2626 !important;
+    border: 1px solid transparent !important;
     box-shadow: none !important;
+}
+html.light-mode #snav-logout:hover > span:not(.nav-icon-badge) {
+    color: #dc2626 !important;
 }
 
 /* 4. Content Header & Main Panel Cards */
