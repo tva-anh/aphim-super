@@ -314,10 +314,26 @@ body { /* removed overscroll-behavior-y to fix desktop wheel */
 
 /* Các container có scroll ngang */
 .scrollbar-hide, .custom-scrollbar, [class*="overflow-x-auto"],
-#mm-drawer-scroll,
-#episode-list {
+#mm-drawer-scroll {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
+}
+
+/* Khung cuộn danh sách tập phim (Vertical 60-120fps Smooth Scroll) */
+#episode-list {
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-y: contain !important;
+    scroll-behavior: smooth !important;
+    will-change: scroll-position !important;
+    transform: translateZ(0) !important;
+}
+
+#episode-list button {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 /* ── 8. GPU acceleration cho overlay ───────────────────────

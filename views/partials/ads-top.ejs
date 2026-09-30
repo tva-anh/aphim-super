@@ -1,0 +1,158 @@
+<!-- 🌟 APHIM BANNER TOP (RESPONSIVE PC 728x90 & SLIM MOBILE 320x50 WITH CLOSE BUTTON) -->
+<% 
+// Ẩn hoàn toàn trên trang Thông tin phim (/phim/) và Trang xem phim (/xem-phim/)
+const isHiddenOnThisPage = (typeof currentMovie !== 'undefined' && currentMovie) || 
+                           (typeof movie !== 'undefined' && movie) || 
+                           (typeof pageType !== 'undefined' && (pageType === 'phim' || pageType === 'watch')) ||
+                           (typeof isWatchPage !== 'undefined' && isWatchPage);
+%>
+<% if (!isHiddenOnThisPage) { %>
+<style>
+    .aphim-ad-top-wrapper {
+        width: 100%;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    .aphim-ad-top-box {
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .aphim-top-pc {
+        display: block !important;
+        width: 580px;
+        height: 64px;
+        max-width: 85vw;
+        max-height: 68px;
+        object-fit: fill;
+    }
+    .aphim-top-mobile {
+        display: none !important;
+        width: 320px;
+        height: 48px;
+        max-width: 94vw;
+        object-fit: fill;
+    }
+    /* 🔴 White Circle with Red X Close Button */
+    .aphim-top-close {
+        position: absolute !important;
+        top: -9px !important;
+        right: -9px !important;
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 50% !important;
+        background: #ffffff !important;
+        border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        z-index: 30 !important;
+        transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease !important;
+    }
+    .aphim-top-close:hover {
+        transform: scale(1.15) !important;
+        background: #fff5f5 !important;
+        box-shadow: 0 3px 14px rgba(239, 68, 68, 0.45) !important;
+    }
+    @media (max-width: 767px) {
+        .aphim-top-pc {
+            display: none !important;
+        }
+        .aphim-top-mobile {
+            display: block !important;
+        }
+        .aphim-top-close {
+            top: -8px !important;
+            right: -6px !important;
+            width: 22px !important;
+            height: 22px !important;
+        }
+    }
+</style>
+
+<div class="aphim-ad-top-wrapper" id="aphimAdTop">
+    <div class="app-container" style="display: flex; justify-content: center; align-items: center;">
+        <div class="aphim-ad-top-box">
+            <!-- 🔴 Nút đóng hình tròn trắng đỏ -->
+            <button 
+                type="button" 
+                class="aphim-top-close"
+                id="aphimAdTopCloseBtn"
+                onclick="closeAphimTopAd(event)"
+                title="Đóng quảng cáo"
+            >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <a href="https://154.82.109.157/2138052.html" target="_blank" rel="noopener noreferrer nofollow" class="aphim-ad-banner-link" title="Nhà Cái Uy Tín - i9">
+                <!-- PC Banner 728x90 -->
+                <img 
+                    src="/images/ads/728x90.gif" 
+                    alt="i9 Quảng Cáo" 
+                    class="aphim-top-pc rounded-lg shadow-lg border border-white/10 hover:border-amber-400/50 transition-all"
+                    loading="eager"
+                />
+                <!-- Mobile Banner Gọn Nhẹ 320x50 (Như Catfish) -->
+                <img 
+                    src="/images/ads/320x50.gif" 
+                    alt="i9 Quảng Cáo" 
+                    class="aphim-top-mobile rounded-md shadow-md border border-white/10 hover:border-amber-400/50 transition-all"
+                    loading="eager"
+                />
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Client-side safety check: Hide on /phim/ and /xem-phim/
+        if (window.location.pathname.startsWith('/phim') || window.location.pathname.startsWith('/xem-phim')) {
+            var el = document.getElementById('aphimAdTop');
+            if (el) el.style.display = 'none';
+            return;
+        }
+
+        var isMobile = window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        var topEl = document.getElementById('aphimAdTop');
+
+        // Tự động xóa cờ cũ localStorage nếu có để đảm bảo khi vào web mới luôn hiển thị banner
+        try {
+            localStorage.removeItem('aphim_top_ad_closed_mobile');
+        } catch (e) {}
+
+        // Trên Mobile: Nếu người dùng đã đóng trong phiên hiện tại (sessionStorage), ghi nhớ ẩn qua các trang
+        if (isMobile && sessionStorage.getItem('aphim_top_ad_closed_mobile') === 'true') {
+            if (topEl) topEl.style.display = 'none';
+        }
+
+        window.closeAphimTopAd = function(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            var el = document.getElementById('aphimAdTop');
+            if (el) el.style.display = 'none';
+
+            // Trên Desktop: Chỉ ẩn trang hiện tại, khi chuyển trang sẽ hiện lại như banner Catfish
+            // Trên Mobile: Ghi nhớ trạng thái đóng trong phiên truy cập
+            if (isMobile) {
+                try {
+                    sessionStorage.setItem('aphim_top_ad_closed_mobile', 'true');
+                } catch (err) {}
+            }
+        };
+    })();
+</script>
+<% } %>

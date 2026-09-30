@@ -294,6 +294,10 @@
         box-shadow: none !important;
         padding: 0 !important;
         min-width: 50px !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        transform: translateZ(0) !important;
+        text-rendering: optimizeSpeed !important;
     }
 
     .sofa-desktop-search-input::placeholder {
@@ -435,6 +439,10 @@
         font-size: 14px !important;
         font-family: inherit !important;
         box-shadow: none !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        transform: translateZ(0) !important;
+        text-rendering: optimizeSpeed !important;
     }
 
     .sofa-mobile-search-input-field::placeholder {
@@ -1396,3 +1404,8 @@
         }
     })();
 </script>
+
+<!-- 🌟 APHIM ADS SYSTEM (CAT BANNERS + TOP BANNER) -->
+<%- include('ads-cat') %>
+<%- include('ads-top') %>
+

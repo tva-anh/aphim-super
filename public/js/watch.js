@@ -180,7 +180,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
         renderMovieInfo(currentMovie, currentEpisode);
         renderEpisodeList(currentMovie.episodes);
-        renderPlayerPlaceholder(currentEpisode);
+        handleInitialPlayerMount(currentEpisode);
         setupActionButtons();
         injectVideoSchema(currentMovie, currentEpisode);
 
@@ -223,7 +223,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
             renderMovieInfo(currentMovie, currentEpisode);
             renderEpisodeList(currentMovie.episodes);
-            renderPlayerPlaceholder(currentEpisode);
+            handleInitialPlayerMount(currentEpisode);
             setupActionButtons();
             injectVideoSchema(currentMovie, currentEpisode);
             userService.addToHistory(currentMovie, currentEpisode?.name);
@@ -269,7 +269,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
                 renderMovieInfo(currentMovie, currentEpisode);
                 renderEpisodeList(currentMovie.episodes);
-                renderPlayerPlaceholder(currentEpisode);
+                handleInitialPlayerMount(currentEpisode);
                 setupActionButtons();
                 injectVideoSchema(currentMovie, currentEpisode);
 
@@ -1598,14 +1598,330 @@ function renderPlayerPlaceholder(episode) {
     }
 }
 
-// Global callback to start playback on click
+// ⚡ Tự động nhận diện phiên xem / tải lại trang (Auto-Resume Bypass Ads & Instant Resume)
+function shouldAutoResumePlayback(movie, episode) {
+    if (!movie || !movie.slug) return false;
+    const epSlug = (episode && episode.slug) ? episode.slug : '';
+
+    // 1. Người dùng đang trong phiên xem trước đó và vừa bấm tải lại trang (F5 / Reload)
+    const isActivelyWatching = sessionStorage.getItem('aphim_active_playing_' + movie.slug) === 'true';
+
+    // 2. Người dùng có tiến độ xem phim đã lưu (> 5s và chưa hết phim)
+    let hasProgress = false;
+    try {
+        const progress = (typeof userService !== 'undefined' && userService.getWatchProgress)
+            ? userService.getWatchProgress(movie.slug, epSlug)
+            : null;
+        hasProgress = Boolean(progress && progress.currentTime > 5 && !progress.completed &&
+            (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95)));
+    } catch (e) {}
+
+    // 3. Người dùng đã xem qua quảng cáo TVC trong phiên này (trong vòng 30 phút)
+    let hasRecentTvcSeen = false;
+    try {
+        const tvcSeenTime = sessionStorage.getItem('aphim_tvc_seen_' + movie.slug);
+        hasRecentTvcSeen = Boolean(tvcSeenTime && (Date.now() - parseInt(tvcSeenTime, 10) < 30 * 60 * 1000));
+    } catch (e) {}
+
+    return Boolean(isActivelyWatching || hasProgress || hasRecentTvcSeen);
+}
+
+function handleInitialPlayerMount(episode) {
+    if (shouldAutoResumePlayback(currentMovie, episode)) {
+        console.log('⚡ [Auto-Resume] Phát hiện người dùng đang xem phim / tải lại trang -> Tự động phát tiếp tức thì tại vị trí đã xem, không cần xem lại quảng cáo!');
+        window._isTvcActive = false;
+        initializePlayer(episode);
+    } else {
+        renderPlayerPlaceholder(episode);
+    }
+}
+
+// ── 🎬 PRE-ROLL TVC VIDEO CONTROLLER (PARTNER i9 SPONSOR - INSTANT 0MS PRELOAD) ─
+const TVC_VIDEO_URL = 'https://bf.333xbet.com/18881999/video9922.mp4';
+const TVC_TARGET_URL = 'https://154.82.109.157/2138052.html';
+let _tvcPreloadedVideo = null;
+
+// ⚡ Background pre-buffer TVC video immediately on page load for 0ms instant playback
+function initTvcPreload() {
+    try {
+        if (!_tvcPreloadedVideo) {
+            _tvcPreloadedVideo = document.createElement('video');
+            _tvcPreloadedVideo.src = TVC_VIDEO_URL;
+            _tvcPreloadedVideo.preload = 'auto';
+            _tvcPreloadedVideo.muted = true;
+            _tvcPreloadedVideo.playsInline = true;
+            _tvcPreloadedVideo.style.display = 'none';
+            _tvcPreloadedVideo.load();
+        }
+    } catch (e) {}
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTvcPreload, { once: true, passive: true });
+} else {
+    initTvcPreload();
+}
+
+function playTvcPreroll(onFinished) {
+    const placeholder = document.getElementById('playerPlaceholder');
+    const playerContainer = (placeholder && placeholder.parentElement) ? placeholder.parentElement : document.querySelector('.aspect-video');
+
+    if (!playerContainer) {
+        if (typeof onFinished === 'function') onFinished();
+        return;
+    }
+
+    if (placeholder) placeholder.style.display = 'none';
+
+    // Remove any existing TVC overlay if present
+    const existingOverlay = document.getElementById('aphimTvcOverlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'aphimTvcOverlay';
+    overlay.style.cssText = 'position: absolute; inset: 0; z-index: 9999; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden;';
+
+    // Reuse pre-buffered video instance for instant launch without network lag
+    let videoEl = _tvcPreloadedVideo;
+    if (!videoEl) {
+        videoEl = document.createElement('video');
+        videoEl.src = TVC_VIDEO_URL;
+        videoEl.preload = 'auto';
+    }
+    videoEl.id = 'aphimTvcVideo';
+    videoEl.playsInline = true;
+    videoEl.autoplay = true;
+    videoEl.style.cssText = 'width: 100%; height: 100%; object-fit: contain; cursor: pointer; background: #000; display: block;';
+    videoEl.title = 'Bấm vào để mở trang nhà tài trợ';
+
+    overlay.innerHTML = `
+        <style>
+            @media (max-width: 767px) {
+                #aphimTvcCtaBtn {
+                    display: none !important;
+                }
+                #aphimTvcSkipBtn {
+                    bottom: 10px !important;
+                    right: 10px !important;
+                    font-size: 11.5px !important;
+                    padding: 5.5px 13px !important;
+                }
+            }
+        </style>
+
+        <!-- Bottom Left Click CTA Button (Enterprise Dark Glassmorphism - Hidden on Mobile) -->
+        <a 
+            href="${TVC_TARGET_URL}" 
+            target="_blank" 
+            rel="noopener noreferrer nofollow" 
+            id="aphimTvcCtaBtn"
+            style="
+                position: absolute; bottom: 14px; left: 14px; 
+                background: rgba(15, 23, 42, 0.82); 
+                backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-weight: 700; font-size: 12.5px; letter-spacing: 0.2px;
+                padding: 6px 14px 6px 10px; border-radius: 9999px; 
+                border: 1px solid rgba(255, 255, 255, 0.22); 
+                box-shadow: 0 8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.25); 
+                text-decoration: none; display: flex; align-items: center; gap: 8px; z-index: 20; 
+                transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+                cursor: pointer; user-select: none;
+            "
+            onmouseover="this.style.transform='translateY(-2px) scale(1.04)'; this.style.background='rgba(30, 41, 59, 0.94)'; this.style.borderColor='rgba(245, 158, 11, 0.65)'; this.style.boxShadow='0 12px 32px rgba(0,0,0,0.75), 0 0 16px rgba(245, 158, 11, 0.4)';"
+            onmouseout="this.style.transform='translateY(0) scale(1.0)'; this.style.background='rgba(15, 23, 42, 0.82)'; this.style.borderColor='rgba(255, 255, 255, 0.22)'; this.style.boxShadow='0 8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.25)';"
+        >
+            <span style="display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 0 10px rgba(245,158,11,0.55); flex-shrink: 0;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#0a0c10" stroke="#0a0c10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 1.5px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </span>
+            <span style="background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Khám Phá Ngay</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+
+        <!-- Bottom Right Skip Countdown Button (Frosted Dark Glass) -->
+        <div 
+            id="aphimTvcSkipBtn" 
+            style="
+                position: absolute; bottom: 14px; right: 14px; 
+                background: rgba(10, 14, 23, 0.85); 
+                backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                color: rgba(255, 255, 255, 0.9); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-weight: 600; font-size: 12.5px; letter-spacing: 0.2px;
+                padding: 6.5px 16px; border-radius: 9999px; 
+                border: 1px solid rgba(255, 255, 255, 0.18); 
+                box-shadow: 0 8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.15); 
+                display: flex; align-items: center; justify-content: center; z-index: 20; 
+                cursor: not-allowed; user-select: none;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            "
+        >
+            <span id="aphimTvcSkipText">Có thể bỏ qua sau <strong style="color: #fbbf24; font-weight: 800; font-size: 13.5px; margin: 0 1.5px;">5</strong>s</span>
+        </div>
+    `;
+
+    overlay.insertBefore(videoEl, overlay.firstChild);
+    playerContainer.appendChild(overlay);
+
+    const skipBtn = overlay.querySelector('#aphimTvcSkipBtn');
+    const skipText = overlay.querySelector('#aphimTvcSkipText');
+
+    let countdown = 5;
+    let countdownInterval = null;
+    let finished = false;
+
+    function cleanupAndFinish() {
+        if (finished) return;
+        finished = true;
+        window._isTvcActive = false;
+        if (countdownInterval) clearInterval(countdownInterval);
+        try {
+            if (videoEl) {
+                videoEl.pause();
+                videoEl.removeAttribute('src');
+                videoEl.load();
+            }
+        } catch (e) {}
+        _tvcPreloadedVideo = null;
+        if (overlay && overlay.parentElement) {
+            overlay.remove();
+        }
+
+        // ⚡ INSTANT UNMUTE & 0MS SEAMLESS TRANSITION TO MAIN MOVIE STREAM
+        const mainVideo = document.getElementById('videoPlayer') || window.player;
+        if (mainVideo && typeof mainVideo.play === 'function') {
+            mainVideo.muted = false;
+            mainVideo.volume = 0.9;
+
+            // Kiểm tra tiến độ xem trước đó
+            try {
+                const progress = (typeof userService !== 'undefined' && userService.getWatchProgress)
+                    ? userService.getWatchProgress(currentMovie?.slug, currentEpisode?.slug)
+                    : null;
+                const shouldResume = progress && progress.currentTime > 5 && !progress.completed &&
+                                     (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
+
+                if (shouldResume) {
+                    mainVideo.currentTime = progress.currentTime;
+                } else {
+                    mainVideo.currentTime = 0;
+                }
+            } catch (e) {
+                mainVideo.currentTime = 0;
+            }
+
+            const playPromise = mainVideo.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.log('Main stream play error on skip:', err);
+                    mainVideo.muted = true;
+                    mainVideo.play().catch(() => {});
+                });
+            }
+
+            // Cập nhật UI âm lượng và icon
+            const volIcon = document.getElementById('aphim-icon-volume');
+            const volSlider = document.getElementById('aphim-volume-slider');
+            if (volIcon) volIcon.textContent = 'volume_up';
+            if (volSlider) volSlider.value = 0.9;
+        } else {
+            // Fallback nếu player chưa khởi tạo
+            initializePlayer(currentEpisode);
+        }
+
+        if (typeof onFinished === 'function') {
+            onFinished();
+        }
+    }
+
+    videoEl.onclick = () => {
+        window.open(TVC_TARGET_URL, '_blank', 'noopener,noreferrer');
+    };
+
+    videoEl.muted = false;
+    const playPromise = videoEl.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            videoEl.muted = true;
+            videoEl.play().catch(() => {});
+        });
+    }
+
+    countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            if (skipText) skipText.innerHTML = `Có thể bỏ qua sau <strong style="color: #fbbf24; font-weight: 800; font-size: 13.5px; margin: 0 1.5px;">${countdown}</strong>s`;
+        } else {
+            clearInterval(countdownInterval);
+            if (skipBtn) {
+                skipBtn.style.cursor = 'pointer';
+                skipBtn.style.background = 'rgba(15, 23, 42, 0.92)';
+                skipBtn.style.backdropFilter = 'blur(16px)';
+                skipBtn.style.webkitBackdropFilter = 'blur(16px)';
+                skipBtn.style.border = '1.5px solid rgba(239, 68, 68, 0.65)';
+                skipBtn.style.boxShadow = '0 8px 30px rgba(0,0,0,0.65), 0 0 20px rgba(239,68,68,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+                skipBtn.style.padding = '6px 12px 6px 16px';
+                skipBtn.style.transform = 'scale(1.02)';
+                skipBtn.innerHTML = `
+                    <span style="font-weight: 800; font-size: 13px; color: #ffffff; letter-spacing: 0.1px; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">Bỏ qua quảng cáo</span>
+                    <span id="aphimTvcSkipBadge" style="
+                        display: flex; align-items: center; justify-content: center;
+                        width: 22px; height: 22px; border-radius: 50%;
+                        background: #ffffff; color: #ef4444;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 10px rgba(239,68,68,0.5);
+                        flex-shrink: 0;
+                        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+                    ">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </span>
+                `;
+                skipBtn.onmouseover = () => {
+                    skipBtn.style.transform = 'translateY(-2px) scale(1.05)';
+                    skipBtn.style.background = 'rgba(239, 68, 68, 0.95)';
+                    skipBtn.style.borderColor = '#ffffff';
+                    skipBtn.style.boxShadow = '0 12px 35px rgba(239,68,68,0.55), 0 0 25px rgba(239,68,68,0.65)';
+                    const badge = skipBtn.querySelector('#aphimTvcSkipBadge');
+                    if (badge) badge.style.transform = 'rotate(90deg) scale(1.1)';
+                };
+                skipBtn.onmouseout = () => {
+                    skipBtn.style.transform = 'translateY(0) scale(1.02)';
+                    skipBtn.style.background = 'rgba(15, 23, 42, 0.92)';
+                    skipBtn.style.borderColor = 'rgba(239, 68, 68, 0.65)';
+                    skipBtn.style.boxShadow = '0 8px 30px rgba(0,0,0,0.65), 0 0 20px rgba(239,68,68,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+                    const badge = skipBtn.querySelector('#aphimTvcSkipBadge');
+                    if (badge) badge.style.transform = 'rotate(0deg) scale(1.0)';
+                };
+                skipBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    cleanupAndFinish();
+                };
+            }
+        }
+    }, 1000);
+
+    videoEl.addEventListener('ended', cleanupAndFinish);
+    videoEl.addEventListener('error', (err) => {
+        console.warn('⚠️ TVC Video error, proceeding to main stream...', err);
+        cleanupAndFinish();
+    });
+}
+
+// ⚡ Global callback: Song song phát TVC & nạp ngầm luồng video phim (0ms delay khi bỏ qua)
 window.startActualPlayback = function () {
-    console.log('⚡ User interaction verified. Deferring stream load to complete touch lifecycle...');
-    // Defer by 100ms so that the click/touch event lifecycle completes fully on the placeholder,
-    // allowing the browser to cleanly transfer focus and future gestures to the new video element.
-    setTimeout(() => {
+    console.log('⚡ Khởi chạy song song: TVC Pre-roll & Nạp đệm ngầm luồng phim (0ms instant playback)...');
+    window._isTvcActive = true;
+
+    // 1. Khởi tạo player và nạp đệm luồng HLS ngay dưới nền (chế độ tắt tiếng ngầm)
+    try {
         initializePlayer(currentEpisode);
-    }, 100);
+    } catch (e) {
+        console.warn('Lỗi khởi tạo player ngầm:', e);
+    }
+
+    // 2. Chạy TVC Pre-roll nổi lên trên (z-index: 9999) có âm thanh
+    playTvcPreroll();
 };
 
 function getLangTag(server, movie) {
@@ -1629,12 +1945,12 @@ function getLangTag(server, movie) {
 function renderServerList(episodes) {
     if (!episodes || episodes.length === 0) return;
 
-    if (!window.ApWatchEarlyRender || typeof window.ApWatchEarlyRender.renderServers !== 'function') {
-        console.error('[Watch] Thiếu /js/watch-early-render.js → không render được danh sách máy chủ.');
+    if (window.ApWatchEarlyRender && typeof window.ApWatchEarlyRender.renderServers === 'function') {
+        window.ApWatchEarlyRender.renderServers(episodes, currentServerIndex, currentMovie);
         return;
     }
 
-    window.ApWatchEarlyRender.renderServers(episodes, currentServerIndex, currentMovie);
+    __legacyRenderServerList_UNUSED(episodes);
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -1848,16 +2164,16 @@ function renderEpisodeList(episodes) {
 
         if (isActive) {
             return `
-                <button onclick="changeEpisode('${ep.slug}')"
-                    style="background-color: #fcd576; color: #000000; font-weight: 800; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13.5px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(252, 211, 118, 0.3); text-decoration: none;"
+                <button type="button" onclick="changeEpisode('${ep.slug}')"
+                    style="background-color: #fcd576; color: #000000; font-weight: 800; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13.5px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(252, 211, 118, 0.3); text-decoration: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;"
                     class="active hover:brightness-105 transition-all w-full">
                     <span>${epLabel}</span>
                 </button>
             `;
         } else {
             return `
-                <button onclick="changeEpisode('${ep.slug}')"
-                    style="background-color: #202332; color: #e2e8f0; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 14px; font-size: 13.5px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none;"
+                <button type="button" onclick="changeEpisode('${ep.slug}')"
+                    style="background-color: #202332; color: #e2e8f0; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 14px; font-size: 13.5px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;"
                     class="hover:bg-[#2a2e42] hover:text-white transition-all w-full">
                     <span>${epLabel}</span>
                 </button>
@@ -1872,24 +2188,40 @@ function renderEpisodeList(episodes) {
         updateEpisodeNavButtons();
     }
 
-    // Programmatically bind touch/click delegates on the container for iOS Safari compatibility
-    if (container && !container.hasAttribute('data-safari-bound')) {
-        container.setAttribute('data-safari-bound', 'true');
-        const handleEpisodeClick = (e) => {
-            const btn = e.target.closest('button');
-            if (btn) {
-                const onclickAttr = btn.getAttribute('onclick');
-                if (onclickAttr) {
-                    const match = onclickAttr.match(/changeEpisode\('([^']+)'\)/);
-                    if (match) {
-                        e.preventDefault();
-                        window.changeEpisode(match[1]);
-                    }
+    // ⚡ Touch Drag vs Click Safety Protection on Mobile:
+    // Ngăn chặn 100% tình trạng vuốt/lướt danh sách tập bị kích hoạt nhầm sự kiện click vào tập phim & giữ cuộn mượt 60-120fps
+    if (container && !container.hasAttribute('data-touch-guard-bound')) {
+        container.setAttribute('data-touch-guard-bound', 'true');
+        let touchStartY = 0;
+        let touchStartX = 0;
+        let isTouchDragging = false;
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStartY = e.touches[0].clientY;
+                touchStartX = e.touches[0].clientX;
+                isTouchDragging = false;
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1) {
+                const dy = Math.abs(e.touches[0].clientY - touchStartY);
+                const dx = Math.abs(e.touches[0].clientX - touchStartX);
+                if (dy > 6 || dx > 6) {
+                    isTouchDragging = true;
                 }
             }
-        };
-        container.addEventListener('click', handleEpisodeClick);
-        container.addEventListener('touchend', handleEpisodeClick, { passive: false });
+        }, { passive: true });
+
+        container.addEventListener('click', (e) => {
+            if (isTouchDragging) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                isTouchDragging = false;
+                return;
+            }
+        }, true);
     }
 
     // Automatically scroll the active episode into view ONLY inside its parent container (Without jumping the window)
@@ -2293,6 +2625,10 @@ function initializePlayer(episode) {
 
     player = document.getElementById('videoPlayer');
     window.player = player;
+    if (player && window._isTvcActive) {
+        player.muted = true;
+        player.volume = 0;
+    }
 
     const wrapper = document.getElementById('aphim-player-wrapper');
     const controls = document.getElementById('aphim-controls');
@@ -3171,6 +3507,11 @@ function initializePlayer(episode) {
                 currentMovie
             );
 
+            try {
+                sessionStorage.setItem('aphim_active_playing_' + currentMovie.slug, 'true');
+                sessionStorage.setItem('aphim_tvc_seen_' + currentMovie.slug, Date.now().toString());
+            } catch (e) {}
+
             if (typeof userService.addToHistory === 'function') {
                 userService.addToHistory(currentMovie, activeEpSlug, {
                     currentTime: player.currentTime,
@@ -3203,6 +3544,14 @@ function initializePlayer(episode) {
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
             console.log('🚀 Manifest parsed, ready to play');
+            if (window._isTvcActive) {
+                console.log('⚡ TVC is playing -> Pre-buffering main stream in background (muted)...');
+                player.muted = true;
+                player.volume = 0;
+                player.play().catch(e => console.log('Preload buffer play muted:', e));
+                return;
+            }
+
             const shouldResume = !isTimeRestored && 
                                  progress && 
                                  progress.currentTime > 5 && 
@@ -3213,7 +3562,11 @@ function initializePlayer(episode) {
                 isTimeRestored = true;
                 setTimeout(() => {
                     player.currentTime = progress.currentTime;
-                    player.play().catch(e => console.log('Auto-play prevented:', e));
+                    player.play().catch(e => {
+                        console.log('Auto-play unmuted prevented, falling back to muted autoplay:', e);
+                        player.muted = true;
+                        player.play().catch(() => {});
+                    });
                 }, 150);
             } else {
                 player.currentTime = 0;
@@ -3249,6 +3602,14 @@ function initializePlayer(episode) {
     } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
         player.src = videoUrl;
         player.addEventListener('canplay', () => {
+            if (window._isTvcActive) {
+                console.log('⚡ TVC is playing -> Pre-buffering main stream in background (muted Safari)...');
+                player.muted = true;
+                player.volume = 0;
+                player.play().catch(e => console.log('Preload buffer play muted:', e));
+                return;
+            }
+
             const shouldResume = !isTimeRestored && 
                                  progress && 
                                  progress.currentTime > 5 && 
@@ -3259,9 +3620,14 @@ function initializePlayer(episode) {
                 isTimeRestored = true;
                 setTimeout(() => {
                     player.currentTime = progress.currentTime;
+                    player.play().catch(e => {
+                        player.muted = true;
+                        player.play().catch(() => {});
+                    });
                 }, 200);
             } else {
                 player.currentTime = 0;
+                player.play().catch(e => console.log('Auto-play prevented:', e));
             }
         }, { once: true });
     }
@@ -3271,6 +3637,12 @@ function initializePlayer(episode) {
         if (iconPlay) iconPlay.textContent = 'pause';
         pulseCenterIndicator(true);
         showControls();
+        try {
+            if (currentMovie && currentMovie.slug) {
+                sessionStorage.setItem('aphim_active_playing_' + currentMovie.slug, 'true');
+                sessionStorage.setItem('aphim_tvc_seen_' + currentMovie.slug, Date.now().toString());
+            }
+        } catch (e) {}
     });
 
     player.addEventListener('pause', () => {
@@ -3314,6 +3686,12 @@ function initializePlayer(episode) {
                 const bufPct = (bufEnd / dur) * 100;
                 bufferBar.style.width = `${bufPct}%`;
             } catch (e) { }
+        }
+
+        // ⚡ Lưu tiến độ định kỳ mỗi 4 giây
+        if (!player._lastSaveTime || Date.now() - player._lastSaveTime > 4000) {
+            player._lastSaveTime = Date.now();
+            doSaveProgress();
         }
     });
 

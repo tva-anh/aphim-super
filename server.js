@@ -79,6 +79,8 @@ app.use(compression({
 app.use(helmet({
     contentSecurityPolicy: false, // Tắt CSP tạm thời để không block ảnh/phim từ CDN
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false, // Cho phép ảnh/icon PWA tải liên nguồn không bị NotSameOrigin
+    crossOriginOpenerPolicy: false,
 }));
 
 // 🚀 Serve static assets with Smart HTTP Caching (Cache-Control & ETag)

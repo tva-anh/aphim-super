@@ -33,7 +33,6 @@
         '.cs-scroll-container',
         '#movie-gallery-scroll',
         '#actor-list',
-        '#episode-list',
         '.scrollbar-hide'
     ].join(', ');
 
