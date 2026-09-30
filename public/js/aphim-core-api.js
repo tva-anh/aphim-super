@@ -7,12 +7,13 @@
     window.APhimCore = window.APhimCore || {};
     window.APhimCore.imageCache = window.APhimCore.imageCache || new Set();
 
-    const SVG_PLACEHOLDER = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' style='background:%23151821'%3E%3C/svg%3E";
+    const SVG_NO_POSTER = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%231a1d26'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-family='sans-serif' font-size='20' font-weight='bold'%3EAPhim Cinema%3C/text%3E%3C/svg%3E";
 
     // 🎯 1. SAFE IMAGE URL CLEANER & CDN REWRITE WITH MIRROR SUPPORT
     window.APhimCore.getImgUrl = function(rawUrl) {
-        if (!rawUrl) return '/images/no-poster.jpg';
+        if (!rawUrl) return SVG_NO_POSTER;
         let url = String(rawUrl).trim();
+        if (url.startsWith('data:image')) return url;
         if (url.startsWith('http://') || url.startsWith('https://')) {
             return url.replace('img.ophimimg.com', 'phimimg.com')
                       .replace('ophim1.com/uploads', 'phimimg.com/uploads');
@@ -32,30 +33,24 @@
         imgEl.dataset.fallbackStage = String(stage);
 
         const altSrc = imgEl.dataset.fallback;
-        if (stage === 1 && altSrc && altSrc !== currentSrc && altSrc !== '/images/no-poster.jpg') {
+        if (stage === 1 && altSrc && altSrc !== currentSrc && !altSrc.includes('no-poster')) {
             imgEl.src = altSrc;
             return;
         }
 
-        if (stage <= 2) {
-            setTimeout(() => {
-                const cleanUrl = currentSrc.split('?')[0];
-                imgEl.src = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-            }, 350);
-            return;
+        if (stage === 2) {
+            if (currentSrc.includes('img.phimapi.com')) {
+                imgEl.src = currentSrc.replace('img.phimapi.com', 'phimimg.com');
+                return;
+            } else if (currentSrc.includes('phimimg.com')) {
+                imgEl.src = currentSrc.replace('phimimg.com', 'img.phimapi.com');
+                return;
+            }
         }
 
-        // Stage 3: Try TMDB Poster API / Slug lookup
-        const slug = imgEl.dataset.tmdbSlug || imgEl.dataset.slug;
-        const nameStr = imgEl.alt || imgEl.title || '';
-        if (stage === 3 && typeof window.autoHealMovieImage === 'function') {
-            window.autoHealMovieImage(imgEl, slug, nameStr);
-            return;
-        }
-
-        // Final fallback: local SVG/No-poster placeholder
+        // Final fallback: inline SVG Data URI (zero 404 network errors!)
         imgEl.onerror = null;
-        imgEl.src = '/images/no-poster.jpg';
+        imgEl.src = SVG_NO_POSTER;
     };
 
     // 🎯 3. INTERSECTION OBSERVER LAZY LOADING ENGINE (0ms INITIAL DOM RENDER)
@@ -208,7 +203,13 @@
                 endpointPath = '/v1/api/danh-sach/' + paramValue + '?page=' + page;
             }
         } else if (type === 'category' || type === 'the-loai') {
-            endpointPath = '/v1/api/the-loai/' + paramValue + '?page=' + page;
+            if (paramValue && paramValue.startsWith('phim-18')) {
+                endpointPath = paramValue.includes('?') 
+                    ? `/api/the-loai/${paramValue}` 
+                    : `/api/the-loai/phim-18?page=${page}`;
+            } else {
+                endpointPath = '/v1/api/the-loai/' + paramValue + '?page=' + page;
+            }
         } else if (type === 'country' || type === 'quoc-gia') {
             endpointPath = '/v1/api/quoc-gia/' + paramValue + '?page=' + page;
         } else if (type === 'search' || type === 'tim-kiem') {
@@ -242,13 +243,14 @@
             }
         } catch (e) {}
 
-        const urlsToTry = [
-            'https://phimapi.com' + endpointPath
-        ];
-
-        // Safe fallback only if endpoint is valid /v1/api/ path
-        if (endpointPath && endpointPath.startsWith('/v1/api/')) {
-            urlsToTry.push('https://ophim1.com' + endpointPath);
+        const urlsToTry = [];
+        if (endpointPath.startsWith('/api/')) {
+            urlsToTry.push(endpointPath);
+        } else {
+            urlsToTry.push('https://phimapi.com' + endpointPath);
+            if (endpointPath && endpointPath.startsWith('/v1/api/')) {
+                urlsToTry.push('https://ophim1.com' + endpointPath);
+            }
         }
 
         let lastError = null;

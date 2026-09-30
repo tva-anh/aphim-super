@@ -33,6 +33,77 @@
                 </div>
             </div>
 
+            <!-- Phim 18+ Dedicated Quick Sub-Filters (Tất cả, Nhật Bản, Hàn Quốc, Trung Quốc, Âu Mỹ, Việt Nam) -->
+            <style>
+            /* 🔞 PHIM 18+ LUXURY PILL SUB-FILTERS (DARK & LIGHT DUAL THEMES) */
+            #phim18SubFilters {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            #phim18SubFilters::-webkit-scrollbar {
+                display: none;
+            }
+            .phim18-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 14px;
+                border-radius: 9999px;
+                font-size: 0.8125rem;
+                font-weight: 600;
+                white-space: nowrap;
+                transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                background: rgba(255, 255, 255, 0.05);
+                color: #cbd5e1;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+                text-decoration: none;
+                user-select: none;
+            }
+            .phim18-pill:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: #ffffff;
+                border-color: rgba(255, 255, 255, 0.22);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            }
+            .phim18-pill.is-active {
+                background: linear-gradient(135deg, #ffaa00 0%, #ff7700 100%) !important;
+                color: #000000 !important;
+                font-weight: 700 !important;
+                border: 1px solid rgba(255, 215, 0, 0.85) !important;
+                box-shadow: 0 4px 16px rgba(255, 153, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+                transform: translateY(-1px);
+            }
+
+            /* ☀️ LIGHT MODE (WARM SAND & CHAMPAGNE TITANIUM) */
+            html.light-mode #phim18SubFilters {
+                border: none !important;
+            }
+            html.light-mode .phim18-pill {
+                background: #ffffff !important;
+                color: #44403c !important;
+                border: 1px solid #e7e0d3 !important;
+                box-shadow: 0 2px 5px rgba(78, 64, 45, 0.06) !important;
+            }
+            html.light-mode .phim18-pill.is-active {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+                color: #ffffff !important;
+                font-weight: 700 !important;
+                border: 1px solid #b45309 !important;
+                box-shadow: 0 4px 14px rgba(217, 119, 6, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+                transform: translateY(-1px);
+            }
+            </style>
+            <div id="phim18SubFilters" class="hidden flex items-center gap-2.5 overflow-x-auto no-scrollbar py-2.5 mt-2">
+                <a href="/categories?category=phim-18" data-country="" class="phim18-pill">🔥 Tất Cả</a>
+                <a href="/categories?category=phim-18&country=nhat-ban" data-country="nhat-ban" class="phim18-pill">🇯🇵 Nhật Bản</a>
+                <a href="/categories?category=phim-18&country=han-quoc" data-country="han-quoc" class="phim18-pill">🇰🇷 Hàn Quốc</a>
+                <a href="/categories?category=phim-18&country=trung-quoc" data-country="trung-quoc" class="phim18-pill">🇨🇳 Trung Quốc</a>
+                <a href="/categories?category=phim-18&country=my" data-country="my" class="phim18-pill">🇺🇸 Âu Mỹ</a>
+                <a href="/categories?category=phim-18&country=viet-nam" data-country="viet-nam" class="phim18-pill">🇻🇳 Việt Nam</a>
+            </div>
+
             <!-- Filter Toggle Button (Matching Image 2: Clean Funnel Icon + Bộ lọc + Compact Down Chevron) -->
             <div class="mt-4 sm:mt-5 mb-4 sm:mb-5">
                 <button type="button" onclick="toggleFilterPanel()" class="inline-flex items-center gap-1.5 text-white font-bold text-sm sm:text-base transition-opacity cursor-pointer hover:opacity-80 select-none">
@@ -115,12 +186,39 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         let category = urlParams.get('category') || 'chinh-kich';
+        let country = (urlParams.get('country') || '').trim().toLowerCase();
+        let query = (urlParams.get('q') || urlParams.get('keyword') || '').trim();
         let currentPage = parseInt(urlParams.get('page')) || 1;
         let totalPages = 1;
 
         const pageTitleEl = document.getElementById('pageTitle');
         if (pageTitleEl) {
-            pageTitleEl.textContent = categoryMap[category] || ('Phim ' + category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+            let titleText = categoryMap[category] || ('Phim ' + category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+            if (category === 'phim-18') {
+                if (country === 'nhat-ban' || country === 'jp') titleText = 'Phim 18+ Nhật Bản 🇯🇵';
+                else if (country === 'han-quoc' || country === 'kr') titleText = 'Phim 18+ Hàn Quốc 🇰🇷';
+                else if (country === 'viet-nam' || country === 'vn') titleText = 'Phim 18+ Việt Nam 🇻🇳';
+                else if (country === 'my' || country === 'us') titleText = 'Phim 18+ Âu Mỹ 🇺🇸';
+                else if (country === 'trung-quoc' || country === 'cn') titleText = 'Phim 18+ Trung Quốc 🇨🇳';
+                else if (query) titleText = `Phim 18+: "${query}"`;
+            }
+            pageTitleEl.textContent = titleText;
+        }
+
+        // Setup Phim 18+ dedicated UI sub-filters
+        if (category === 'phim-18') {
+            const subWrap = document.getElementById('phim18SubFilters');
+            if (subWrap) {
+                subWrap.classList.remove('hidden');
+                subWrap.querySelectorAll('.phim18-pill').forEach(pill => {
+                    const pCountry = pill.getAttribute('data-country') || '';
+                    if (pCountry === country) {
+                        pill.classList.add('is-active');
+                    } else {
+                        pill.classList.remove('is-active');
+                    }
+                });
+            }
         }
 
         window.toggleFilterPanel = function() {
@@ -132,6 +230,17 @@
             const selectedCat = window.selectedCategoryPill || document.getElementById('filterCategory')?.value;
             const selectedCountry = document.getElementById('filterCountry')?.value;
             const selectedList = document.getElementById('filterList')?.value;
+            const searchKeyword = document.getElementById('filterKeyword')?.value || '';
+
+            // Ưu tiên cách ly riêng cho Phim 18+ không nhảy sang trang danh mục khác
+            if (category === 'phim-18') {
+                const params = new URLSearchParams();
+                params.set('category', 'phim-18');
+                if (selectedCountry) params.set('country', selectedCountry);
+                if (searchKeyword) params.set('q', searchKeyword);
+                window.location.href = '/categories?' + params.toString();
+                return;
+            }
 
             if (selectedCountry) {
                 window.location.href = '/phim-theo-quoc-gia?country=' + selectedCountry;
@@ -155,18 +264,25 @@
             `;
 
             try {
-                const res = await window.APhimCore.fetchMovieGridData('category', category, page);
+                let fetchParam = category;
+                if (category === 'phim-18') {
+                    fetchParam = `phim-18?page=${page}` + (country ? `&country=${encodeURIComponent(country)}` : '') + (query ? `&q=${encodeURIComponent(query)}` : '');
+                }
+
+                const res = await window.APhimCore.fetchMovieGridData('category', fetchParam, page);
                 totalPages = res.totalPages || 50;
-                if (res.titlePage && pageTitleEl) {
+                if (res.titlePage && pageTitleEl && category !== 'phim-18') {
                     pageTitleEl.textContent = 'Phim ' + res.titlePage;
                 }
 
                 if (!res.items || !res.items.length) {
-                    gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400 font-medium">Không tìm thấy phim trong thể loại này.</div>';
+                    gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400 font-medium">Không tìm thấy phim trong danh mục này.</div>';
                     return;
                 }
 
                 gridEl.innerHTML = res.items.map(movie => window.APhimCore.createGridCardHTML(movie)).join('');
+                if (window.APhimCore.preloadImages) window.APhimCore.preloadImages(res.items, 16);
+                if (window.APhimCore.initLazyObserver) setTimeout(() => window.APhimCore.initLazyObserver(), 20);
                 updatePaginationUI(page, totalPages);
             } catch (err) {
                 console.warn('[categories] loadMovies error', err);
@@ -206,6 +322,9 @@
             const newPage = currentPage + delta;
             if (newPage >= 1 && newPage <= totalPages) {
                 loadMovies(newPage);
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('page', newPage);
+                history.pushState(null, '', newUrl.toString());
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };
@@ -215,6 +334,9 @@
             if (p < 1) p = 1;
             if (p > totalPages) p = totalPages;
             loadMovies(p);
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('page', p);
+            history.pushState(null, '', newUrl.toString());
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 

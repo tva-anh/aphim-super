@@ -6630,4 +6630,31 @@ html.light-mode .report-btn-close {
     }
 }
 
+/* 🔞 Phim 18+ Sub-Filters Pills Light Mode */
+html.light-mode #phim18SubFilters {
+    border: none !important;
+    border-bottom: none !important;
+}
+html.light-mode .phim18-pill {
+    background: #ffffff !important;
+    color: #44403c !important;
+    border: 1px solid #e7e0d3 !important;
+    box-shadow: 0 2px 5px rgba(78, 64, 45, 0.06) !important;
+}
+html.light-mode .phim18-pill:hover {
+    background: #fbf8f2 !important;
+    color: #1c1917 !important;
+    border-color: #d6cebf !important;
+    box-shadow: 0 4px 10px rgba(78, 64, 45, 0.12) !important;
+    transform: translateY(-1px);
+}
+html.light-mode .phim18-pill.is-active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid #b45309 !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px);
+}
+
 
