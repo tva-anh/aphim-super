@@ -182,7 +182,9 @@ class MovieAPI {
             ];
         }
 
-        if (basePath.includes('phim-moi-cap-nhat')) {
+        if (basePath.includes('phim-18')) {
+            urlsToTry.unshift(`/api/the-loai/phim-18${paramStr}`);
+        } else if (basePath.includes('phim-moi-cap-nhat')) {
             urlsToTry.unshift(`https://phimapi.com/danh-sach/phim-moi-cap-nhat${paramStr}`);
         }
 
