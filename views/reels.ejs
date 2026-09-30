@@ -29,6 +29,30 @@
         // Force Cinematic Deep Dark Mode
         document.documentElement.classList.remove('light-mode');
         document.documentElement.classList.add('dark');
+
+        // 🛡️ Early Safety Stubs for Instant Tap Resiliency
+        [
+            'handleReelGestureTap', 'unlockSoundAndPlay', 'toggleLikeReel', 
+            'openReelsCommentsDrawer', 'toggleBookmarkReel', 'shareCurrentReel', 
+            'cyclePlaybackSpeed', 'seekReelProgress', 'openReelsOptionsSheet', 
+            'closeReelsOptionsSheet', 'setReelPlaybackSpeed', 'setReelQuality', 
+            'toggleRowSwitch', 'setReelAspect', 'toggleReelsFullscreen', 
+            'copyCurrentReelLink', 'openCurrentReelDetail', 'handleDesktopDockLike', 
+            'handleDesktopDockComment', 'handleDesktopDockBookmark', 'handleDesktopDockShare', 
+            'scrollToPrevReel', 'scrollToNextReel', 'toggleAspectMode', 
+            'scrollToReelIndex', 'closeReelsCommentsDrawer', 'sortDrawerComments', 
+            'insertQuickReaction', 'toggleQuickEmojiPicker', 'submitReelComment', 
+            'insertEmojiToComment', 'handleSearchBackdropClick', 'clearReelsSearchInput', 
+            'closeReelsSearchModal', 'filterReelsByQuery', 'openReelsSearchModal',
+            'openReelsHistoryModal', 'closeReelsHistoryModal', 'handleHistoryBackdropClick',
+            'clearReelsWatchHistory', 'switchReelsTab', 'toggleMuteGlobal'
+        ].forEach(function(fn) {
+            if (!window[fn]) {
+                window[fn] = function() {
+                    console.log('[Reels Early Dispatch] Queued ' + fn + ' while scripts are loading...');
+                };
+            }
+        });
     </script>
     <script src="/js/touch-speed.js"></script>
     <link rel="preconnect" href="https://www.youtube.com">
@@ -36,7 +60,7 @@
     <link rel="preconnect" href="https://phimimg.com">
     <link rel="dns-prefetch" href="https://www.youtube.com">
     <link rel="dns-prefetch" href="https://i.ytimg.com">
-    <link rel="stylesheet" href="/css/reels.css?v=429" />
+    <link rel="stylesheet" href="/css/reels.css?v=437" />
     <style>
         /* 🚀 CLIPPED IFRAME GEOMETRY: Đẩy tiêu đề (top -65px) & logo YouTube/Shorts (bottom clip 90px) ra ngoài cho dọc 9:16 */
         .reels-global-player-host iframe,
@@ -2800,16 +2824,17 @@
 
                                 <!-- Right Action Dock (TikTok / Reels Style - Pure White Crisp) -->
                                 <div class="reels-actions-bar">
-                                    <!-- 🎬 TikTok Circular Avatar with '+' Watch Movie Badge (Image 3 Style) -->
+                                    <!-- 🎬 TikTok Circular Avatar with 'Xem Phim' Watch Movie Badge -->
                                     <a href="<%= item.watchUrl %>" class="reel-action-btn reel-avatar-btn group" title="Xem phim <%= item.movieTitle %> ngay">
                                         <div class="reel-avatar-disc">
                                             <img src="<%= item.poster %>" alt="<%= item.movieTitle %>" data-yt="<%= item.yt %>" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
                                         </div>
-                                        <div class="reel-avatar-plus-badge" title="Xem phim <%= item.movieTitle %> ngay">
-                                            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                                        <div class="reel-avatar-plus-badge reel-avatar-watch-badge" title="Xem phim <%= item.movieTitle %> ngay">
+                                            <svg class="w-3.5 h-3.5 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                                                <path fill="currentColor" d="M8 5v14l11-7z"/>
                                             </svg>
                                         </div>
+                                        <span class="action-label avatar-watch-label">Xem Phim</span>
                                     </a>
 
                                     <!-- Like Heart Button (White -> Red Glowing on Like) -->
@@ -2853,11 +2878,14 @@
                                     </button>
                                 </div>
 
-                                <!-- 🎬 BOTTOM FLOATING TRANSLUCENT GLASS MOVIE CARD (IMAGE 5) -->
+                                <!-- 🎬 BOTTOM FLOATING TRANSLUCENT GLASS MOVIE CARD -->
                                 <div class="reel-bottom-info">
-                                    <a href="/phim/<%= item.slug %>" class="reel-movie-glass-card" title="Xem chi tiết <%= item.movieTitle %>">
+                                    <a href="<%= item.watchUrl %>" class="reel-movie-glass-card" title="Xem phim <%= item.movieTitle %> ngay">
                                         <div class="reel-card-thumb-wrap">
                                             <img src="<%= item.poster %>" alt="<%= item.movieTitle %>" class="reel-card-thumb" data-yt="<%= item.yt %>" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
+                                            <div class="reel-card-thumb-play">
+                                                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                            </div>
                                         </div>
                                         <div class="reel-card-details">
                                             <div class="reel-card-row-top">
@@ -3473,7 +3501,7 @@
     <!-- =========================================================
          🚀 CLIENT CONTROLLER
          ========================================================= -->
-    <script src="/js/reels.js?v=432"></script>
+    <script src="/js/reels.js?v=437"></script>
 </body>
 
 </html>

@@ -416,69 +416,70 @@
                     }
                 }, 180);
             } else {
-            const currentHostKey = state.activeHostKey;
-            const otherHostKey = currentHostKey === 'a' ? 'b' : 'a';
+                const currentHostKey = state.activeHostKey;
+                const otherHostKey = currentHostKey === 'a' ? 'b' : 'a';
 
-            // Check if other host already has target video preloaded
-            if (state.players[otherHostKey].ytId === currentYt && state.players[otherHostKey].fr) {
-                // ⚡ Instant 0ms Swap!
-                state.activeHostKey = otherHostKey;
-                document.getElementById(state.players[otherHostKey].hostId).classList.add('active');
-                document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
+                // Check if other host already has target video preloaded
+                if (state.players[otherHostKey].ytId === currentYt && state.players[otherHostKey].fr) {
+                    // ⚡ Instant 0ms Swap!
+                    state.activeHostKey = otherHostKey;
+                    document.getElementById(state.players[otherHostKey].hostId).classList.add('active');
+                    document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
 
-                sendCmd(state.players[otherHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
-                triggerAutoPlayWithSound(state.players[otherHostKey].fr, idx);
+                    sendCmd(state.players[otherHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
+                    triggerAutoPlayWithSound(state.players[otherHostKey].fr, idx);
 
-                if (state.players[currentHostKey].fr) {
-                    sendCmd(state.players[currentHostKey].fr, 'mute');
-                    sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
-                }
-
-                // 🚀 INSTANT ZERO-LAG REVEAL: Preloaded video is already decoded in background!
-                revealPlayingVideo(idx);
-            } 
-            // Current host already has this video
-            else if (state.players[currentHostKey].ytId === currentYt && state.players[currentHostKey].fr) {
-                sendCmd(state.players[currentHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
-                triggerAutoPlayWithSound(state.players[currentHostKey].fr, idx);
-
-                // 🚀 INSTANT REVEAL
-                revealPlayingVideo(idx);
-            } 
-            // Load new video into the other host and swap
-            else {
-                state.activeHostKey = otherHostKey;
-                document.getElementById(state.players[otherHostKey].hostId).classList.add('active');
-                document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
-
-                state.players[otherHostKey].ytId = currentYt;
-                const targetIfr = state.players[otherHostKey].fr;
-                if (targetIfr) {
-                    sendCmd(targetIfr, 'loadVideoById', [currentYt, 0]);
-                    sendCmd(targetIfr, 'setPlaybackRate', [state.playbackSpeed]);
-                    triggerAutoPlayWithSound(targetIfr, idx);
-                }
-
-                if (state.players[currentHostKey].fr) {
-                    sendCmd(state.players[currentHostKey].fr, 'mute');
-                    sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
-                }
-
-                // ⚡ Fast fallback reveal (180ms) so static poster never freezes/lingers
-                state.revealFallbackTimer = setTimeout(() => {
-                    if (state.currentIndex === idx && !state.videoStartedPlaying) {
-                        revealPlayingVideo(idx);
+                    if (state.players[currentHostKey].fr) {
+                        sendCmd(state.players[currentHostKey].fr, 'mute');
+                        sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
                     }
-                }, 180);
-            }
 
-            // 🚀 Active Pre-buffering in the idle host silently without cueVideoById
-            const idleHostKey = state.activeHostKey === 'a' ? 'b' : 'a';
-            if (nextYt && state.players[idleHostKey].ytId !== nextYt && state.players[idleHostKey].fr) {
-                state.players[idleHostKey].ytId = nextYt;
-                const idleIfr = state.players[idleHostKey].fr;
-                sendCmd(idleIfr, 'loadVideoById', [nextYt, 0]);
-                sendCmd(idleIfr, 'mute');
+                    // 🚀 INSTANT ZERO-LAG REVEAL: Preloaded video is already decoded in background!
+                    revealPlayingVideo(idx);
+                } 
+                // Current host already has this video
+                else if (state.players[currentHostKey].ytId === currentYt && state.players[currentHostKey].fr) {
+                    sendCmd(state.players[currentHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
+                    triggerAutoPlayWithSound(state.players[currentHostKey].fr, idx);
+
+                    // 🚀 INSTANT REVEAL
+                    revealPlayingVideo(idx);
+                } 
+                // Load new video into the other host and swap
+                else {
+                    state.activeHostKey = otherHostKey;
+                    document.getElementById(state.players[otherHostKey].hostId).classList.add('active');
+                    document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
+
+                    state.players[otherHostKey].ytId = currentYt;
+                    const targetIfr = state.players[otherHostKey].fr;
+                    if (targetIfr) {
+                        sendCmd(targetIfr, 'loadVideoById', [currentYt, 0]);
+                        sendCmd(targetIfr, 'setPlaybackRate', [state.playbackSpeed]);
+                        triggerAutoPlayWithSound(targetIfr, idx);
+                    }
+
+                    if (state.players[currentHostKey].fr) {
+                        sendCmd(state.players[currentHostKey].fr, 'mute');
+                        sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
+                    }
+
+                    // ⚡ Fast fallback reveal (180ms) so static poster never freezes/lingers
+                    state.revealFallbackTimer = setTimeout(() => {
+                        if (state.currentIndex === idx && !state.videoStartedPlaying) {
+                            revealPlayingVideo(idx);
+                        }
+                    }, 180);
+                }
+
+                // 🚀 Active Pre-buffering in the idle host silently without cueVideoById
+                const idleHostKey = state.activeHostKey === 'a' ? 'b' : 'a';
+                if (nextYt && state.players[idleHostKey].ytId !== nextYt && state.players[idleHostKey].fr) {
+                    state.players[idleHostKey].ytId = nextYt;
+                    const idleIfr = state.players[idleHostKey].fr;
+                    sendCmd(idleIfr, 'loadVideoById', [nextYt, 0]);
+                    sendCmd(idleIfr, 'mute');
+                }
             }
         }
 
@@ -836,11 +837,12 @@
                     <div class="reel-avatar-disc">
                         <img src="${item.poster}" alt="${escapeHtml(item.movieTitle)}" onerror="this.src='/android-chrome-192x192.png'" />
                     </div>
-                    <div class="reel-avatar-plus-badge" title="Xem phim ${escapeHtml(item.movieTitle)} ngay">
-                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    <div class="reel-avatar-plus-badge reel-avatar-watch-badge" title="Xem phim ${escapeHtml(item.movieTitle)} ngay">
+                        <svg class="w-3.5 h-3.5 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
+                    <span class="action-label avatar-watch-label">Xem Phim</span>
                 </a>
 
                 <button class="reel-action-btn btn-like ${isLiked ? 'liked' : ''}" id="btn-like-${index}" onclick="toggleLikeReel('${item.id}', '${index}')" title="Thích video này">
@@ -881,9 +883,12 @@
 
             <!-- 🎬 BOTTOM FLOATING TRANSLUCENT GLASS MOVIE CARD -->
             <div class="reel-bottom-info">
-                <a href="/phim/${item.slug}" class="reel-movie-glass-card" title="Xem chi tiết ${escapeHtml(item.movieTitle)}">
+                <a href="${item.watchUrl}" class="reel-movie-glass-card" title="Xem phim ${escapeHtml(item.movieTitle)} ngay">
                     <div class="reel-card-thumb-wrap">
                         <img src="${item.poster}" alt="${escapeHtml(item.movieTitle)}" class="reel-card-thumb" data-yt="${item.yt}" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
+                        <div class="reel-card-thumb-play">
+                            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
                     </div>
                     <div class="reel-card-details">
                         <div class="reel-card-row-top">
@@ -1097,17 +1102,14 @@
 
     // ── Gesture Controls (Single-Tap Play/Pause, Double-Tap Like) ───────────────
     window.handleReelGestureTap = function (e, index) {
-        // On very first tap: silently unlock sound (no banner needed)
-        if (!state.userInteracted) {
-            window.unlockSoundAndPlay();
-            return; // Let this first tap just unlock — next tap will play/pause
-        }
+        if (e && e.preventDefault) e.preventDefault();
+        if (e && e.stopPropagation) e.stopPropagation();
 
         state.userInteracted = true;
         const now = Date.now();
         const timeDiff = now - state.lastTapTime;
 
-        if (timeDiff < 240) {
+        if (timeDiff < 260) {
             clearTimeout(state.tapTimeout);
             triggerDoubleTapHeart(index);
             const item = document.getElementById(`reel-item-${index}`);
@@ -1138,16 +1140,20 @@
     function togglePlayPauseActive(index) {
         const activeIframe = getActiveIframe();
         const item = document.getElementById(`reel-item-${index}`);
-        if (!activeIframe || !item) return;
+        if (!item) return;
+
+        state.userInteracted = true;
+        ensureFullSound();
 
         const indicator = item.querySelector('.reel-play-indicator');
         if (!state.isPlaying || (indicator && !indicator.classList.contains('hidden'))) {
-            sendCmd(activeIframe, 'playVideo');
+            if (activeIframe) sendCmd(activeIframe, 'playVideo');
             state.isPlaying = true;
             state.userPaused = false;
+            revealPlayingVideo(index);
             if (indicator) indicator.classList.add('hidden');
         } else {
-            sendCmd(activeIframe, 'pauseVideo');
+            if (activeIframe) sendCmd(activeIframe, 'pauseVideo');
             state.isPlaying = false;
             state.userPaused = true;
             // Show pause icon briefly then auto-hide after 700ms
@@ -1190,22 +1196,7 @@
         if (activeIframe) {
             sendCmd(activeIframe, 'playVideo');
         }
-    };
-
-        // Always hide sound prompt permanently once unlocked
-        document.querySelectorAll('.reels-sound-prompt').forEach((el) => el.classList.add('hidden'));
-
-        const fill = document.getElementById('reels-volume-fill');
-        const label = document.getElementById('reels-volume-label');
-        if (fill) fill.style.height = `${targetVol}%`;
-        if (label) label.textContent = `${targetVol}%`;
-
-        const activeIframe = getActiveIframe();
-        if (activeIframe) {
-            sendCmd(activeIframe, 'unMute');
-            sendCmd(activeIframe, 'setVolume', [targetVol]);
-            sendCmd(activeIframe, 'playVideo');
-        }
+        revealPlayingVideo(state.currentIndex);
     };
 
     window.setReelVolume = function (vol) {
@@ -3288,11 +3279,12 @@
                             <div class="reel-avatar-disc">
                                 <img src="${poster}" alt="${movieTitle}" data-yt="${item.yt}" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
                             </div>
-                            <div class="reel-avatar-plus-badge" title="Xem phim ${movieTitle} ngay">
-                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                            <div class="reel-avatar-plus-badge reel-avatar-watch-badge" title="Xem phim ${movieTitle} ngay">
+                                <svg class="w-3.5 h-3.5 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M8 5v14l11-7z"/>
                                 </svg>
                             </div>
+                            <span class="action-label avatar-watch-label">Xem Phim</span>
                         </a>
                         <button class="reel-action-btn btn-like" id="btn-like-${index}" onclick="toggleLikeReel('${item.id}', '${index}')" title="Thích video này">
                             <div class="action-circle-icon">
@@ -3328,9 +3320,12 @@
 
                     <!-- 🎬 BOTTOM FLOATING TRANSLUCENT GLASS MOVIE CARD -->
                     <div class="reel-bottom-info">
-                        <a href="/phim/${item.slug}" class="reel-movie-glass-card" title="Xem chi tiết ${movieTitle}">
+                        <a href="${watchUrl}" class="reel-movie-glass-card" title="Xem phim ${movieTitle} ngay">
                             <div class="reel-card-thumb-wrap">
                                 <img src="${poster}" alt="${movieTitle}" class="reel-card-thumb" data-yt="${item.yt}" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
+                                <div class="reel-card-thumb-play">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
                             </div>
                             <div class="reel-card-details">
                                 <div class="reel-card-row-top">

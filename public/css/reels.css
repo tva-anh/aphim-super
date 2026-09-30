@@ -2177,7 +2177,7 @@ body.light-mode {
     display: block !important;
 }
 
-/* 🔴 Red/Pink '+' Action Badge at bottom-center of avatar */
+/* 🔴 Red/Pink Play Action Badge at bottom-center of avatar */
 .reel-avatar-plus-badge {
     position: absolute !important;
     bottom: -9px !important;
@@ -2187,25 +2187,44 @@ body.light-mode {
     height: 25px !important;
     border-radius: 50% !important;
     background: linear-gradient(135deg, #ff2b54 0%, #ff1744 100%) !important;
-    border: none !important; /* BỎ HOÀN TOÀN VIỀN ĐEN */
+    border: none !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-shadow: 0 3px 12px rgba(255, 43, 84, 0.85) !important;
     z-index: 10 !important;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+    animation: avatarWatchPulse 2.4s infinite ease-in-out !important;
 }
 
 .reel-avatar-btn:hover .reel-avatar-plus-badge {
     transform: translateX(-50%) scale(1.15) !important;
-    box-shadow: 0 0 16px rgba(255, 43, 84, 1) !important;
+    box-shadow: 0 0 18px rgba(255, 43, 84, 1) !important;
 }
 
 .reel-avatar-plus-badge svg {
     width: 14px !important;
     height: 14px !important;
-    stroke: #ffffff !important;
-    stroke-width: 3.5 !important;
+    fill: #ffffff !important;
+    color: #ffffff !important;
+}
+
+.avatar-watch-label {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    color: #fbbf24 !important;
+    margin-top: 3px !important;
+    letter-spacing: 0.01em !important;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(245, 158, 11, 0.4) !important;
+}
+
+@keyframes avatarWatchPulse {
+    0%, 100% {
+        box-shadow: 0 3px 12px rgba(255, 43, 84, 0.85);
+    }
+    50% {
+        box-shadow: 0 0 18px rgba(255, 43, 84, 1), 0 0 24px rgba(255, 43, 84, 0.5);
+    }
 }
 
 /* TikTok Style Action Icons (Pure White Crisp with Shadow) */
@@ -2549,15 +2568,18 @@ body.light-mode {
     color: #ffffff;
     width: 100%;
     max-width: 100%;
-    transition: all 0.25s ease;
+    transition: opacity 0.2s ease !important;
     box-shadow: none !important;
+    cursor: pointer;
 }
 
-.reel-movie-glass-card:hover {
+.reel-movie-glass-card:hover,
+.reel-movie-glass-card:active {
     background: transparent !important;
     border-color: transparent !important;
     transform: none !important;
     box-shadow: none !important;
+    opacity: 0.9;
 }
 
 .reel-card-thumb-wrap {
@@ -2567,9 +2589,33 @@ body.light-mode {
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
     background: #000000;
+}
+
+.reel-card-thumb-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.32);
+    border-radius: 7px;
+    pointer-events: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.reel-card-thumb-play svg {
+    width: 18px;
+    height: 18px;
+    fill: #ffffff;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.95));
+}
+
+.reel-movie-glass-card:hover .reel-card-thumb-play {
+    background: rgba(245, 158, 11, 0.4);
+    transform: scale(1.1);
 }
 
 .reel-card-thumb {

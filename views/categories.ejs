@@ -109,7 +109,8 @@
             'tai-lieu': 'Phim Tài Liệu',
             'gia-dinh': 'Phim Gia Đình',
             'bi-an': 'Phim Bí Ẩn',
-            'hoc-duong': 'Phim Học Đường'
+            'hoc-duong': 'Phim Học Đường',
+            'phim-18': 'Phim 18+'
         };
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -168,7 +169,7 @@
                 gridEl.innerHTML = res.items.map(movie => window.APhimCore.createGridCardHTML(movie)).join('');
                 updatePaginationUI(page, totalPages);
             } catch (err) {
-                console.warn(err);
+                console.warn('[categories] loadMovies error', err);
                 gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-red-400 font-medium">Có lỗi khi kết nối dữ liệu thể loại phim. Vui lòng thử lại sau.</div>';
             }
         }
