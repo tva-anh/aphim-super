@@ -767,6 +767,160 @@ app.get('/api/nguonc-episodes/:slug', async (req, res) => {
 });
 
 // ==========================================
+// ==========================================
+// 🔞 PHIM 18+ HIGH-SPEED MEMORY INDEX & API
+// ==========================================
+let adultPool = null;
+let adultPoolTimestamp = 0;
+const ADULT_POOL_TTL = 30 * 60 * 1000; // 30 phút
+
+async function getAdultMoviePool() {
+    if (adultPool && (Date.now() - adultPoolTimestamp < ADULT_POOL_TTL) && adultPool.length > 0) {
+        return adultPool;
+    }
+
+    try {
+        const fetchPromises = [];
+        for (let p = 1; p <= 61; p++) {
+            fetchPromises.push(axios.get(`https://phim.nguonc.com/api/films/the-loai/phim-18?page=${p}`, { timeout: 5000 }));
+        }
+        for (let p = 1; p <= 4; p++) {
+            fetchPromises.push(axios.get(`https://phimapi.com/v1/api/the-loai/phim-18?page=${p}`, { timeout: 5000 }));
+        }
+
+        const results = await Promise.allSettled(fetchPromises);
+        const seenSlugs = new Set();
+        const movies = [];
+
+        const jpRegex = /\b(nhật|nhat|japan|japanese|jav|tokyo|yua|mikami|hibiki|fukada|tsubasa|hatano|aoi|sora|ozawa|maria|kaede|karen|shirakawa|nagai|yamada|tanaka|sato|watanabe|takahashi|kobayashi|suzuki|matsumoto|inoue|hayashi|yamazaki|mori|abe|ikeda|hashimoto|yamashita|ishikawa|nakajima|maeda|fujita|ogawa|goto|okada|hasegawa|murakami|kondo|saito)\b/i;
+        const krRegex = /\b(hàn|han|korea|korean|seoul|gangnam|kim|park|lee|choi|jung|kang|yoon|jang|lim|seo|shin|kwon|hwang|ahn|song|ryu|hong|moon|yang|bae|baek|heo|yoo|noh|kwak|sung|cha|woo|min|jin|eom|won)\b/i;
+        const cnRegex = /\b(trung|hoa|china|chinese|hong kong|đài loan|taiwan|bắc kinh|thượng hải|quảng đông|triều|lương|triệu|vương|trần|chu|ngô|tôn|quách|lâm)\b/i;
+        const usRegex = /\b(mỹ|my|us|uk|anh|pháp|đức|ý|tây ban nha|brazil|nga|canada|úc|australia|hollywood|american|europe|western|alec|andrew|alex|john|david|michael|james|robert|william|richard|joseph|thomas|charles|daniel|matthew|anthony|donald|mark|paul|steven|george|edward|brian|jason|jeffrey|ryan|jacob|gary|nicholas|eric|stephen|larry|justin|scott|brandon|frank|benjamin|gregory|samuel|patrick|alexander|jack|dennis|jerry|tyler|aaron|adam|peter|zachary|kyle|walter|harold|jeremy|ethan|carl|keith|roger|christian|sean|arthur|austin|noah|lawrence|jesse|joe|bryan|billy|jordan|albert|dylan|bruce|willie|gabriel|logan|alan|wayne|roy|randy|eugene|vincent|russell|louis|philip|bobby|johnny|bradley|lucas|amanda|sarah|emma|olivia|sophia|isabella|mia|charlotte|amelia|harper|evelyn|abigail|emily|elizabeth|mila|ella|avery|sofia|camila|aria|scarlett|victoria|madison|luna|grace|chloe|penelope|layla|riley|zoey|nora|lily|eleanor|hannah|lillian|addison|aubrey|ellie|stella|natalie|zoe|leah|hazel|violet|aurora|savannah|audrey|brooklyn|bella|claire|skylar|lucy|paisley|everly|anna|caroline|nova|genesis|emilia|kennedy|samantha|maya|willow|kinsley|naomi|aaliyah|elena|ariana|allison|gabriella|alice|madelyn|cora|ruby|eva|serenity|autumn|adeline|hailey|gianna|valentina|isla|eliana|quinn|nevaeh|ivy|sadie|piper|lydia|alexa|josephine|emery|delilah|arianna|camilla|clara|kaylee)\b/i;
+
+        results.forEach(r => {
+            if (r.status === 'fulfilled' && r.value.data) {
+                const list = r.value.data.items || r.value.data?.data?.items || [];
+                list.forEach(it => {
+                    const slug = it.slug || it._id;
+                    if (!slug || seenSlugs.has(slug)) return;
+                    seenSlugs.add(slug);
+
+                    const name = it.name || '';
+                    const orig = it.origin_name || it.original_name || '';
+                    const desc = it.description || '';
+                    const casts = it.casts || '';
+                    const countries = (Array.isArray(it.country) ? it.country.map(c => c.name || c).join(' ') : (it.country || ''));
+                    const fullText = (name + ' ' + orig + ' ' + desc + ' ' + casts + ' ' + countries).toLowerCase();
+
+                    let matchedCountry = 'viet-nam';
+                    if (jpRegex.test(fullText)) matchedCountry = 'nhat-ban';
+                    else if (krRegex.test(fullText)) matchedCountry = 'han-quoc';
+                    else if (cnRegex.test(fullText)) matchedCountry = 'trung-quoc';
+                    else if (usRegex.test(fullText)) matchedCountry = 'my';
+
+                    const thumb = it.thumb_url ? (it.thumb_url.startsWith('http') ? it.thumb_url : `https://img.phimapi.com/${it.thumb_url}`) : '';
+                    const poster = it.poster_url ? (it.poster_url.startsWith('http') ? it.poster_url : `https://img.phimapi.com/${it.poster_url}`) : thumb;
+
+                    movies.push({
+                        _id: it._id || slug,
+                        name: name,
+                        slug: slug,
+                        origin_name: orig,
+                        thumb_url: thumb,
+                        poster_url: poster,
+                        year: it.year || 2026,
+                        quality: it.quality || 'Full HD',
+                        lang: it.lang || it.language || 'Vietsub',
+                        time: it.time || '',
+                        episode_current: it.episode_current || it.current_episode || 'FULL',
+                        type: 'single',
+                        category: [{ id: 'phim-18', name: 'Phim 18+', slug: 'phim-18' }],
+                        country_slug: matchedCountry
+                    });
+                });
+            }
+        });
+
+        if (movies.length > 0) {
+            movies.sort((a, b) => (parseInt(b.year) || 0) - (parseInt(a.year) || 0));
+            adultPool = movies;
+            adultPoolTimestamp = Date.now();
+        }
+        return adultPool || [];
+    } catch (e) {
+        console.error('[AdultPool] Fetch error:', e.message);
+        return adultPool || [];
+    }
+}
+
+app.get('/api/the-loai/phim-18', async (req, res) => {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const country = (req.query.country || '').trim().toLowerCase();
+    const query = (req.query.q || req.query.keyword || '').trim().toLowerCase();
+
+    try {
+        const pool = await getAdultMoviePool();
+        let filtered = pool;
+
+        if (query) {
+            filtered = filtered.filter(m => 
+                m.name.toLowerCase().includes(query) || 
+                (m.origin_name && m.origin_name.toLowerCase().includes(query))
+            );
+        } else if (country) {
+            if (country === 'nhat-ban' || country === 'japan' || country === 'jp') {
+                filtered = filtered.filter(m => m.country_slug === 'nhat-ban');
+            } else if (country === 'han-quoc' || country === 'korea' || country === 'kr') {
+                filtered = filtered.filter(m => m.country_slug === 'han-quoc');
+            } else if (country === 'trung-quoc' || country === 'china' || country === 'cn') {
+                filtered = filtered.filter(m => m.country_slug === 'trung-quoc');
+            } else if (country === 'my' || country === 'au-my' || country === 'us') {
+                filtered = filtered.filter(m => m.country_slug === 'my');
+            } else if (country === 'viet-nam' || country === 'vietnam' || country === 'vn') {
+                filtered = filtered.filter(m => m.country_slug === 'viet-nam');
+            }
+        }
+
+        const totalItems = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / 20));
+        const paginatedItems = filtered.slice((page - 1) * 20, page * 20);
+
+        const result = {
+            status: 'success',
+            data: {
+                seoOnPage: {
+                    titleHead: 'Phim 18+ Hay Nhất, Tuyển Chọn Mới Nhất - APhim',
+                    descriptionHead: 'Kho Phim 18+ Full HD Vietsub đặc sắc, chất lượng cao, tốc độ siêu nhanh tại APhim Super.',
+                    og_type: 'website',
+                    og_image: ['https://aphim.store/android-chrome-512x512.png']
+                },
+                items: paginatedItems,
+                params: {
+                    pagination: {
+                        totalItems: totalItems,
+                        totalItemsPerPage: 20,
+                        currentPage: page,
+                        totalPages: totalPages
+                    }
+                }
+            }
+        };
+
+        return res.json(result);
+
+    } catch (err) {
+        console.error('[API phim-18] Lỗi fetch:', err.message);
+        return res.json({
+            status: 'success',
+            data: {
+                items: [],
+                params: { pagination: { totalItems: 0, totalItemsPerPage: 20, currentPage: page, totalPages: 1 } }
+            }
+        });
+    }
+});
+
+// ==========================================
 // 📡 SERVER-SIDE MOVIE MERGED API (Tối ưu Client)
 // ==========================================
 const mergedCache = new Map();
@@ -783,7 +937,7 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
     }
 
     try {
-        // Fetch tất cả các nguồn cùng lúc
+        // Fetch tất cả các nguồn cùng lúc (PhimAPI + NguonC + VSMov)
         const [phimApiRes, nguonCRes, vsmovRes] = await Promise.allSettled([
             axios.get(`https://phimapi.com/phim/${slug}`, { timeout: 2500 }),
             axios.get(`https://phim.nguonc.com/api/film/${slug}`, { timeout: 2500 }),
@@ -873,7 +1027,9 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
             finalData.status = true;
         }
 
-        mergedCache.set(slug, { data: finalData, timestamp: Date.now() });
+        if (finalData.status) {
+            mergedCache.set(slug, { data: finalData, timestamp: Date.now() });
+        }
         res.json(finalData);
 
     } catch (err) {
@@ -1005,6 +1161,66 @@ async function fetchMovieMetadata(slug) {
     } catch (err) {
         // Fallback gracefully on timeout or network hiccup
     }
+
+    // 2. Fallback to NguonC (phim.nguonc.com) for 18+ and external titles
+    try {
+        const nRes = await axios.get(`https://phim.nguonc.com/api/film/${cleanSlug}`, {
+            timeout: 3000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+        });
+
+        if (nRes.data?.status === 'success' && nRes.data?.movie) {
+            const m = nRes.data.movie;
+            const actors = m.casts ? m.casts.split(',').map(s => s.trim()).filter(Boolean) : [];
+            const directors = m.director ? m.director.split(',').map(s => s.trim()).filter(Boolean) : [];
+            const categories = m.category ? (Array.isArray(m.category) ? m.category.map(c => c.name || c) : [m.category]) : ['Phim 18+'];
+            const countries = m.country ? (Array.isArray(m.country) ? m.country.map(c => c.name || c) : [m.country]) : ['Quốc tế'];
+            const cleanContent = (m.description || '')
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const mappedEps = (m.episodes || []).map(s => ({
+                server_name: s.server_name || 'Vietsub #1',
+                original_server_name: s.server_name || 'Vietsub #1',
+                server_data: (s.items || []).map(it => ({
+                    name: it.name && !it.name.toLowerCase().includes('tập') ? `Tập ${it.name}` : (it.name || 'Tập 1'),
+                    slug: it.slug || `tap-${it.name}`,
+                    link_embed: it.embed || '',
+                    link_m3u8: it.m3u8 || ''
+                }))
+            }));
+
+            const result = {
+                slug: cleanSlug,
+                name: m.name || cleanSlug,
+                origin_name: m.original_name || '',
+                year: m.year || (m.created ? new Date(m.created).getFullYear() : new Date().getFullYear()),
+                quality: m.quality || 'HD',
+                lang: m.language || 'Vietsub',
+                episode_current: m.current_episode || 'FULL',
+                episode_total: String(m.total_episodes || '1'),
+                status: 'completed',
+                time: m.time || '',
+                content: cleanContent,
+                thumb_url: m.thumb_url || m.thumb_url_webp || '',
+                poster_url: m.poster_url || m.poster_url_webp || '',
+                actor: actors,
+                director: directors,
+                category: categories,
+                country: countries,
+                type: (m.total_episodes && m.total_episodes > 1) ? 'series' : 'single',
+                trailer_url: '',
+                tmdb: null,
+                episodes: mappedEps
+            };
+
+            movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
+            return result;
+        }
+    } catch (err2) {}
+
     return null;
 }
 
@@ -1830,16 +2046,12 @@ server.listen(PORT, () => {
     console.log(`🟢 Firebase: ✅ Client-side (aphim-super-new)`);
     console.log(`⚡ IndexNow: ✅ Tự động lập chỉ mục Bing & Yandex`);
 
-    // ⚡ Automated IndexNow Scheduler (Chạy ngầm siêu nhẹ, gửi phim mới mỗi 2 tiếng)
-    try {
-        const { autoSubmitRecentMovies } = require('./lib/indexnow.service');
-        setTimeout(() => {
-            autoSubmitRecentMovies().catch(() => {});
-        }, 45 * 1000);
-        setInterval(() => {
-            autoSubmitRecentMovies().catch(() => {});
-        }, 2 * 60 * 60 * 1000);
-    } catch (e) {}
+    // 🔞 Khởi động ngầm Cache Phim 18+ Vietsub
+    setTimeout(() => {
+        getAdultMoviePool().then(p => {
+            console.log(`🔞 [AdultPool] Đã nạp thành công ${p.length} phim 18+ Vietsub vào bộ nhớ đệm.`);
+        }).catch(() => {});
+    }, 1000);
 });
 
 server.on('error', (err) => {

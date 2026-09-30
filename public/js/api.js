@@ -390,28 +390,44 @@ class MovieAPI {
                 // Always return data if we got a response
                 // The backend should handle the format
                 return data;
-                        } else {
-                const response = await this.fetchWithFallback(`/api/movie-merged/${slug}`, {
-                    headers: { 'accept': 'application/json' }
-                });
-                const mergedData = await response.json();
+            } else {
+                let mergedData = null;
+                try {
+                    const localRes = await fetch(`/api/movie-merged/${encodeURIComponent(slug)}`, {
+                        headers: { 'accept': 'application/json' }
+                    });
+                    if (localRes.ok) {
+                        mergedData = await localRes.json();
+                    }
+                } catch (localErr) {
+                    console.warn('[MovieAPI] Local movie-merged fetch error:', localErr);
+                }
                 
                 // Format the merged data to match the expected structure
                 // /api/movie-merged returns { status: true, movie: {...}, episodes: [...] }
-                // The old code expects { data: { item: {...} } } or similar
                 if (mergedData && mergedData.status && mergedData.movie) {
-                     return {
-                         status: true,
-                         data: {
-                             item: {
-                                 ...mergedData.movie,
-                                 episodes: mergedData.episodes
-                             }
-                         }
-                     };
+                    return {
+                        status: true,
+                        data: {
+                            item: {
+                                ...mergedData.movie,
+                                episodes: mergedData.episodes
+                            }
+                        }
+                    };
                 }
-                
-                return null;
+
+                // Fallback to OPhim / KKPhim direct mirrors
+                try {
+                    const response = await this.fetchWithFallback(`/phim/${slug}`, {
+                        headers: { 'accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    return data;
+                } catch (mirrorErr) {
+                    console.error('All mirrors failed for movie detail:', mirrorErr);
+                    return null;
+                }
             }
         } catch (error) {
             console.error('Error fetching movie detail:', error);

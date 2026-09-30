@@ -301,13 +301,30 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 // 🔄 Helper fetch nguồn phụ thông minh: Thử proxy server-side trước, nếu fail thì gọi thẳng phimapi.com (có CORS)
 // 🔄 Fetch tất cả nguồn phụ đồng thời (VSMOV proxy, PhimAPI, NguonC)
 async function getSecondaryEpisodes(slug) {
-    const proxyUrl = `/api/vsmov/${encodeURIComponent(slug)}`;
+    try {
+        // Ưu tiên nạp từ API Movie Merged tổng hợp trên server (hỗ trợ PhimAPI + NguonC + VSMov + TopXX 18+)
+        const mergedRes = await fetch(`/api/movie-merged/${encodeURIComponent(slug)}`);
+        if (mergedRes.ok) {
+            const data = await mergedRes.json();
+            if (data && data.status && data.episodes && data.episodes.length > 0) {
+                return {
+                    status: true,
+                    source: data.source || 'multi-source',
+                    episodes: data.episodes,
+                    movie: data.movie
+                };
+            }
+        }
+    } catch (err) {
+        console.warn('⚠️ Merged API fetch failed, trying direct fallbacks:', err.message);
+    }
 
+    const proxyUrl = `/api/vsmov/${encodeURIComponent(slug)}`;
     const directUrl = `https://phimapi.com/phim/${encodeURIComponent(slug)}`;
     const nguonCUrl = `https://phim.nguonc.com/api/film/${encodeURIComponent(slug)}`;
 
     try {
-        // Gọi cả 3 nguồn cùng lúc để tăng tốc độ
+        // Gọi các nguồn fallback cùng lúc
         const [vsRes, phimApiRes, ncRes] = await Promise.allSettled([
             fetch(proxyUrl).then(async r => {
                 if (!r.ok) throw new Error('VSMOV HTTP error ' + r.status);
