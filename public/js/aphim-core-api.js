@@ -278,20 +278,20 @@
                         totalPages = data.pagination?.totalPages || 50;
                     }
 
-                    if (items && items.length > 0) {
-                        const result = { items, totalPages, titlePage };
-                        // Save to In-Memory & Session Storage Cache
-                        const cacheObj = { data: result, timestamp: Date.now() };
-                        _apiMemoryCache.set(cacheKey, cacheObj);
-                        try {
-                            sessionStorage.setItem(cacheKey, JSON.stringify(cacheObj));
-                        } catch (e) {}
+                    const result = { items: items || [], totalPages: totalPages || 1, titlePage };
+                    // Save to In-Memory & Session Storage Cache
+                    const cacheObj = { data: result, timestamp: Date.now() };
+                    _apiMemoryCache.set(cacheKey, cacheObj);
+                    try {
+                        sessionStorage.setItem(cacheKey, JSON.stringify(cacheObj));
+                    } catch (e) {}
 
-                        // 🚀 PRELOAD POSTER IMAGES & INITIALIZE LAZY OBSERVER IMMEDIATELY
+                    // 🚀 PRELOAD POSTER IMAGES & INITIALIZE LAZY OBSERVER IMMEDIATELY
+                    if (items && items.length > 0) {
                         window.APhimCore.preloadImages(items, 16);
-                        setTimeout(() => window.APhimCore.initLazyObserver(), 50);
-                        return result;
                     }
+                    setTimeout(() => window.APhimCore.initLazyObserver(), 50);
+                    return result;
                 }
             } catch (err) {
                 lastError = err;
