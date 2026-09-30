@@ -838,11 +838,10 @@
                         <img src="${item.poster}" alt="${escapeHtml(item.movieTitle)}" onerror="this.src='/android-chrome-192x192.png'" />
                     </div>
                     <div class="reel-avatar-plus-badge reel-avatar-watch-badge" title="Xem phim ${escapeHtml(item.movieTitle)} ngay">
-                        <svg class="w-3.5 h-3.5 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3 text-white fill-white ml-0.5" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
-                    <span class="action-label avatar-watch-label">Xem Phim</span>
                 </a>
 
                 <button class="reel-action-btn btn-like ${isLiked ? 'liked' : ''}" id="btn-like-${index}" onclick="toggleLikeReel('${item.id}', '${index}')" title="Thích video này">
@@ -2510,9 +2509,26 @@
     });
 
     window.scrollToReelIndex = function (index) {
-        const item = document.getElementById(`reel-item-${index}`);
-        if (item && feedContainer) {
-            item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!feedContainer) return;
+        const totalItems = feedContainer.querySelectorAll('.reel-item').length;
+        const targetIdx = Math.max(0, Math.min(index, totalItems - 1));
+        const item = document.getElementById(`reel-item-${targetIdx}`) || feedContainer.querySelector(`.reel-item[data-index="${targetIdx}"]`);
+        if (item) {
+            feedContainer.scrollTo({
+                top: item.offsetTop,
+                behavior: 'smooth'
+            });
+            if (targetIdx !== state.currentIndex) {
+                const prevIndex = state.currentIndex;
+                const prevItem = feedContainer.querySelector(`.reel-item[data-index="${prevIndex}"]`);
+                if (prevItem) {
+                    const prevCover = prevItem.querySelector('.reel-thumb-cover');
+                    if (prevCover) prevCover.classList.remove('hidden');
+                }
+                state.currentIndex = targetIdx;
+                state.slideEnterTime = Date.now();
+                playReelAtIndex(targetIdx);
+            }
         }
     };
 
@@ -2524,14 +2540,13 @@
         window.scrollToReelIndex(Math.max(0, state.currentIndex - 1));
     };
 
-    // ── 🚀 TikTok-Grade Discrete Wheel & Touch Momentum Navigation Engine ────────
+    // ── 🚀 TikTok-Grade Fluid Touch Gestures & Discrete Wheel Momentum Engine ────
     function initSmoothSwipePhysics() {
         if (!feedContainer) return;
 
-        // 1. Desktop Wheel Controller: One distinct wheel roll = exactly one slide snap (Zero erratic jumping)
+        // 1. Desktop Wheel Controller: One distinct wheel roll = exactly one slide snap
         let wheelLocked = false;
         feedContainer.addEventListener('wheel', (e) => {
-            // Ignore if scrubbing or comments/search/history drawer is open
             if (isScrubbing) return;
             const commentsDrawer = document.getElementById('reels-comments-drawer');
             if (commentsDrawer && commentsDrawer.classList.contains('open')) return;
@@ -2540,8 +2555,7 @@
             const historyModal = document.getElementById('reels-history-modal');
             if (historyModal && historyModal.classList.contains('active')) return;
 
-            // Only hijack if vertical delta is noticeable
-            if (Math.abs(e.deltaY) < 28) return;
+            if (Math.abs(e.deltaY) < 25) return;
             e.preventDefault();
 
             if (wheelLocked) return;
@@ -2555,8 +2569,76 @@
 
             setTimeout(() => {
                 wheelLocked = false;
-            }, 130); // 130ms responsive snap debounce for smooth mousewheel navigation
+            }, 180);
         }, { passive: false });
+
+        // 2. 📱 Mobile Touch Gesture Engine (Ultra-Smooth Fluid Swipe Snap like TikTok App)
+        let touchStartY = 0;
+        let touchStartX = 0;
+        let touchStartTime = 0;
+        let isTouchActive = false;
+        let swipeDebounceLocked = false;
+
+        feedContainer.addEventListener('touchstart', (e) => {
+            if (isScrubbing || swipeDebounceLocked || !e.touches || e.touches.length === 0) return;
+            const commentsDrawer = document.getElementById('reels-comments-drawer');
+            if (commentsDrawer && commentsDrawer.classList.contains('open')) return;
+            const searchModal = document.getElementById('reels-search-modal');
+            if (searchModal && searchModal.classList.contains('active')) return;
+
+            const touch = e.touches[0];
+            touchStartY = touch.clientY;
+            touchStartX = touch.clientX;
+            touchStartTime = Date.now();
+            isTouchActive = true;
+        }, { passive: true });
+
+        feedContainer.addEventListener('touchmove', (e) => {
+            if (!isTouchActive || isScrubbing || !e.touches || e.touches.length === 0) return;
+            const touch = e.touches[0];
+            const deltaX = Math.abs(touch.clientX - touchStartX);
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+
+            // If user gesture is clearly horizontal, disengage vertical swipe assist
+            if (deltaX > deltaY && deltaX > 25) {
+                isTouchActive = false;
+            }
+        }, { passive: true });
+
+        feedContainer.addEventListener('touchend', (e) => {
+            if (!isTouchActive || isScrubbing || swipeDebounceLocked || !e.changedTouches || e.changedTouches.length === 0) {
+                isTouchActive = false;
+                return;
+            }
+            isTouchActive = false;
+
+            const touch = e.changedTouches[0];
+            const deltaY = touch.clientY - touchStartY;
+            const deltaX = Math.abs(touch.clientX - touchStartX);
+            const deltaTime = Math.max(1, Date.now() - touchStartTime);
+            const velocity = Math.abs(deltaY) / deltaTime; // px/ms
+
+            // Ensure vertical movement is dominant
+            if (Math.abs(deltaY) < deltaX * 1.1) return;
+
+            // Trigger on fast flick (> 0.28 px/ms and > 30px) or deliberate drag (> 12% screen height)
+            const minSwipeDist = Math.min(55, window.innerHeight * 0.12);
+            const isFlick = velocity > 0.28 && Math.abs(deltaY) > 30;
+            const isDrag = Math.abs(deltaY) > minSwipeDist;
+
+            if (isFlick || isDrag) {
+                swipeDebounceLocked = true;
+                if (deltaY < 0) {
+                    window.scrollToNextReel();
+                } else {
+                    window.scrollToPrevReel();
+                }
+
+                setTimeout(() => {
+                    swipeDebounceLocked = false;
+                }, 300);
+            }
+        }, { passive: true });
     }
 
     let toastTimeout = null;
@@ -3280,11 +3362,10 @@
                                 <img src="${poster}" alt="${movieTitle}" data-yt="${item.yt}" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
                             </div>
                             <div class="reel-avatar-plus-badge reel-avatar-watch-badge" title="Xem phim ${movieTitle} ngay">
-                                <svg class="w-3.5 h-3.5 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                                <svg class="w-3 h-3 text-white fill-white ml-0.5" viewBox="0 0 24 24">
                                     <path fill="currentColor" d="M8 5v14l11-7z"/>
                                 </svg>
                             </div>
-                            <span class="action-label avatar-watch-label">Xem Phim</span>
                         </a>
                         <button class="reel-action-btn btn-like" id="btn-like-${index}" onclick="toggleLikeReel('${item.id}', '${index}')" title="Thích video này">
                             <div class="action-circle-icon">

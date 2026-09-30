@@ -60,7 +60,7 @@
     <link rel="preconnect" href="https://phimimg.com">
     <link rel="dns-prefetch" href="https://www.youtube.com">
     <link rel="dns-prefetch" href="https://i.ytimg.com">
-    <link rel="stylesheet" href="/css/reels.css?v=437" />
+    <link rel="stylesheet" href="/css/reels.css?v=441" />
     <style>
         /* 🚀 CLIPPED IFRAME GEOMETRY: Đẩy tiêu đề (top -65px) & logo YouTube/Shorts (bottom clip 90px) ra ngoài cho dọc 9:16 */
         .reels-global-player-host iframe,
@@ -103,20 +103,20 @@
 
         .reels-actions-bar {
             position: absolute !important;
-            right: 12px !important;
+            right: 6px !important;
             left: auto !important;
             bottom: 125px !important;
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 14px !important;
+            gap: 13px !important;
             z-index: 35 !important;
         }
         .reel-bottom-info {
             position: relative !important;
             z-index: 20 !important;
-            padding: 0 14px 6px !important;
-            margin-right: 64px !important;
+            padding: 0 12px 6px !important;
+            margin-right: 54px !important;
             margin-left: 0 !important;
             display: flex !important;
             flex-direction: column !important;
@@ -1577,14 +1577,16 @@
             scroll-snap-type: y mandatory !important;
             overscroll-behavior-y: contain !important;
             -webkit-overflow-scrolling: touch !important;
-            transform: translateZ(0) !important;
+            transform: translate3d(0, 0, 0) !important;
             will-change: scroll-position !important;
+            touch-action: pan-y !important;
         }
         .reel-item {
             scroll-snap-align: start !important;
             scroll-snap-stop: always !important;
-            transform: translateZ(0) !important;
+            transform: translate3d(0, 0, 0) !important;
             will-change: transform !important;
+            touch-action: pan-y !important;
         }
         .reel-thumb-cover {
             transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.15s ease-out !important;
@@ -2824,17 +2826,16 @@
 
                                 <!-- Right Action Dock (TikTok / Reels Style - Pure White Crisp) -->
                                 <div class="reels-actions-bar">
-                                    <!-- 🎬 TikTok Circular Avatar with 'Xem Phim' Watch Movie Badge -->
+                                    <!-- 🎬 TikTok Circular Avatar with Play Watch Movie Badge -->
                                     <a href="<%= item.watchUrl %>" class="reel-action-btn reel-avatar-btn group" title="Xem phim <%= item.movieTitle %> ngay">
                                         <div class="reel-avatar-disc">
                                             <img src="<%= item.poster %>" alt="<%= item.movieTitle %>" data-yt="<%= item.yt %>" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
                                         </div>
                                         <div class="reel-avatar-plus-badge reel-avatar-watch-badge" title="Xem phim <%= item.movieTitle %> ngay">
-                                            <svg class="w-3.5 h-3.5 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                                            <svg class="w-3 h-3 text-white fill-white ml-0.5" viewBox="0 0 24 24">
                                                 <path fill="currentColor" d="M8 5v14l11-7z"/>
                                             </svg>
                                         </div>
-                                        <span class="action-label avatar-watch-label">Xem Phim</span>
                                     </a>
 
                                     <!-- Like Heart Button (White -> Red Glowing on Like) -->
@@ -3501,7 +3502,7 @@
     <!-- =========================================================
          🚀 CLIENT CONTROLLER
          ========================================================= -->
-    <script src="/js/reels.js?v=437"></script>
+    <script src="/js/reels.js?v=441"></script>
 </body>
 
 </html>

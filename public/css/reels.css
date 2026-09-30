@@ -1960,9 +1960,10 @@ body.light-mode {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
     background: transparent;
-    transform: translateZ(0);
+    transform: translate3d(0, 0, 0);
     will-change: scroll-position;
     overscroll-behavior-y: contain;
+    touch-action: pan-y;
 }
 
 .reels-feed::-webkit-scrollbar {
@@ -1980,8 +1981,9 @@ body.light-mode {
     flex-direction: column;
     justify-content: flex-end;
     overflow: hidden;
-    transform: translateZ(0);
+    transform: translate3d(0, 0, 0);
     will-change: transform;
+    touch-action: pan-y;
 }
 
 /* Poster placeholder while video buffers */
@@ -2098,13 +2100,13 @@ body.light-mode {
    =================================================== */
 .reels-actions-bar {
     position: absolute;
-    right: 12px;
+    right: 6px;
     left: auto;
-    bottom: 125px; /* Mobile: bên phải */
+    bottom: 125px; /* Mobile: bên phải sát mép viền chuẩn TikTok */
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 13px;
     z-index: 35;
 }
 
@@ -2137,14 +2139,17 @@ body.light-mode {
     transform: scale(0.92);
 }
 
-/* 🌟 TIKTOK AVATAR WITH OVERLAPPING RED '+' BADGE (IMAGE 3) */
+/* 🌟 TIKTOK AVATAR WITH OVERLAPPING RED PLAY BADGE (TIKTOK STYLE) */
 .reel-avatar-btn {
     position: relative !important;
-    margin-bottom: 8px !important;
+    width: 48px !important;
+    height: 48px !important;
+    margin-bottom: 20px !important;
     text-decoration: none !important;
     display: flex !important;
-    flex-direction: column !important;
     align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
 }
 
 .reel-avatar-disc {
@@ -2177,21 +2182,21 @@ body.light-mode {
     display: block !important;
 }
 
-/* 🔴 Red/Pink Play Action Badge at bottom-center of avatar */
+/* 🔴 Red/Pink Play Action Badge at bottom-center of avatar (like TikTok + follow badge) */
 .reel-avatar-plus-badge {
     position: absolute !important;
-    bottom: -9px !important;
+    bottom: -7px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    width: 25px !important;
-    height: 25px !important;
+    width: 18px !important;
+    height: 18px !important;
     border-radius: 50% !important;
     background: linear-gradient(135deg, #ff2b54 0%, #ff1744 100%) !important;
-    border: none !important;
+    border: 1.5px solid #000000 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    box-shadow: 0 3px 12px rgba(255, 43, 84, 0.85) !important;
+    box-shadow: 0 2px 6px rgba(255, 43, 84, 0.75) !important;
     z-index: 10 !important;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
     animation: avatarWatchPulse 2.4s infinite ease-in-out !important;
@@ -2199,31 +2204,23 @@ body.light-mode {
 
 .reel-avatar-btn:hover .reel-avatar-plus-badge {
     transform: translateX(-50%) scale(1.15) !important;
-    box-shadow: 0 0 18px rgba(255, 43, 84, 1) !important;
+    box-shadow: 0 0 12px rgba(255, 43, 84, 1) !important;
 }
 
 .reel-avatar-plus-badge svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 8.5px !important;
+    height: 8.5px !important;
     fill: #ffffff !important;
     color: #ffffff !important;
-}
-
-.avatar-watch-label {
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    color: #fbbf24 !important;
-    margin-top: 3px !important;
-    letter-spacing: 0.01em !important;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(245, 158, 11, 0.4) !important;
+    margin-left: 1px !important;
 }
 
 @keyframes avatarWatchPulse {
     0%, 100% {
-        box-shadow: 0 3px 12px rgba(255, 43, 84, 0.85);
+        box-shadow: 0 2px 10px rgba(255, 43, 84, 0.85);
     }
     50% {
-        box-shadow: 0 0 18px rgba(255, 43, 84, 1), 0 0 24px rgba(255, 43, 84, 0.5);
+        box-shadow: 0 0 16px rgba(255, 43, 84, 1), 0 0 22px rgba(255, 43, 84, 0.5);
     }
 }
 
