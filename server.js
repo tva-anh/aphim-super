@@ -772,10 +772,23 @@ app.get('/api/nguonc-episodes/:slug', async (req, res) => {
 // ==========================================
 let adultPool = null;
 let adultPoolTimestamp = 0;
-const ADULT_POOL_TTL = 30 * 60 * 1000; // 30 phút
+const ADULT_POOL_TTL = 12 * 60 * 60 * 1000; // 12 giờ cache
+
+// Nạp tức thì từ Seed JSON ngay khi khởi động server để đạt tốc độ 0ms và không phụ thuộc API ngoài
+try {
+    const seedFilePath = path.join(__dirname, 'data', 'adult-pool-seed.json');
+    if (fs.existsSync(seedFilePath)) {
+        const rawSeed = fs.readFileSync(seedFilePath, 'utf-8');
+        adultPool = JSON.parse(rawSeed);
+        adultPoolTimestamp = Date.now();
+        console.log(`[AdultPool] Đã nạp tức thì ${adultPool.length} phim 18+ từ local seed database.`);
+    }
+} catch (err) {
+    console.warn('[AdultPool] Không thể nạp seed json:', err.message);
+}
 
 async function getAdultMoviePool(forceRefresh = false) {
-    if (!forceRefresh && adultPool && (Date.now() - adultPoolTimestamp < ADULT_POOL_TTL) && adultPool.length > 100) {
+    if (!forceRefresh && adultPool && adultPool.length >= 100 && (Date.now() - adultPoolTimestamp < ADULT_POOL_TTL)) {
         return adultPool;
     }
 
