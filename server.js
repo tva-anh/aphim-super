@@ -774,21 +774,54 @@ let adultPool = null;
 let adultPoolTimestamp = 0;
 const ADULT_POOL_TTL = 30 * 60 * 1000; // 30 phút
 
-async function getAdultMoviePool() {
-    if (adultPool && (Date.now() - adultPoolTimestamp < ADULT_POOL_TTL) && adultPool.length > 0) {
+async function getAdultMoviePool(forceRefresh = false) {
+    if (!forceRefresh && adultPool && (Date.now() - adultPoolTimestamp < ADULT_POOL_TTL) && adultPool.length > 100) {
         return adultPool;
     }
 
     try {
-        const fetchPromises = [];
-        for (let p = 1; p <= 61; p++) {
-            fetchPromises.push(axios.get(`https://phim.nguonc.com/api/films/the-loai/phim-18?page=${p}`, { timeout: 5000 }));
-        }
-        for (let p = 1; p <= 4; p++) {
-            fetchPromises.push(axios.get(`https://phimapi.com/v1/api/the-loai/phim-18?page=${p}`, { timeout: 5000 }));
+        const httpHeaders = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            'Accept': 'application/json'
+        };
+
+        // 1. Kiểm tra số trang thực tế của các nguồn
+        const [rNguonc, rPhimapi] = await Promise.allSettled([
+            axios.get('https://phim.nguonc.com/api/films/the-loai/phim-18?page=1', { timeout: 8000, headers: httpHeaders }),
+            axios.get('https://phimapi.com/v1/api/the-loai/phim-18?page=1', { timeout: 8000, headers: httpHeaders })
+        ]);
+
+        let totalNguoncPages = 61;
+        if (rNguonc.status === 'fulfilled' && rNguonc.value.data?.paginate?.total_page) {
+            totalNguoncPages = Math.min(100, parseInt(rNguonc.value.data.paginate.total_page, 10));
         }
 
-        const results = await Promise.allSettled(fetchPromises);
+        let totalPhimapiPages = 4;
+        if (rPhimapi.status === 'fulfilled' && rPhimapi.value.data?.data?.params?.pagination?.totalPages) {
+            totalPhimapiPages = Math.min(20, parseInt(rPhimapi.value.data.data.params.pagination.totalPages, 10));
+        }
+
+        const urls = [];
+        for (let p = 1; p <= totalNguoncPages; p++) {
+            urls.push('https://phim.nguonc.com/api/films/the-loai/phim-18?page=' + p);
+        }
+        for (let p = 1; p <= totalPhimapiPages; p++) {
+            urls.push('https://phimapi.com/v1/api/the-loai/phim-18?page=' + p);
+        }
+
+        // 2. Tải theo từng lô nhỏ (chunks) để tránh nghẽn mạng
+        const chunkSize = 15;
+        const results = [];
+        for (let i = 0; i < urls.length; i += chunkSize) {
+            const chunk = urls.slice(i, i + chunkSize);
+            const chunkPromises = chunk.map(url => 
+                axios.get(url, { timeout: 8000, headers: httpHeaders })
+                    .catch(err => ({ error: true, msg: err.message }))
+            );
+            const chunkRes = await Promise.all(chunkPromises);
+            results.push(...chunkRes);
+        }
+
         const seenSlugs = new Set();
         const movies = [];
 
@@ -798,8 +831,8 @@ async function getAdultMoviePool() {
         const usRegex = /\b(mỹ|my|us|uk|anh|pháp|đức|ý|tây ban nha|brazil|nga|canada|úc|australia|hollywood|american|europe|western|alec|andrew|alex|john|david|michael|james|robert|william|richard|joseph|thomas|charles|daniel|matthew|anthony|donald|mark|paul|steven|george|edward|brian|jason|jeffrey|ryan|jacob|gary|nicholas|eric|stephen|larry|justin|scott|brandon|frank|benjamin|gregory|samuel|patrick|alexander|jack|dennis|jerry|tyler|aaron|adam|peter|zachary|kyle|walter|harold|jeremy|ethan|carl|keith|roger|christian|sean|arthur|austin|noah|lawrence|jesse|joe|bryan|billy|jordan|albert|dylan|bruce|willie|gabriel|logan|alan|wayne|roy|randy|eugene|vincent|russell|louis|philip|bobby|johnny|bradley|lucas|amanda|sarah|emma|olivia|sophia|isabella|mia|charlotte|amelia|harper|evelyn|abigail|emily|elizabeth|mila|ella|avery|sofia|camila|aria|scarlett|victoria|madison|luna|grace|chloe|penelope|layla|riley|zoey|nora|lily|eleanor|hannah|lillian|addison|aubrey|ellie|stella|natalie|zoe|leah|hazel|violet|aurora|savannah|audrey|brooklyn|bella|claire|skylar|lucy|paisley|everly|anna|caroline|nova|genesis|emilia|kennedy|samantha|maya|willow|kinsley|naomi|aaliyah|elena|ariana|allison|gabriella|alice|madelyn|cora|ruby|eva|serenity|autumn|adeline|hailey|gianna|valentina|isla|eliana|quinn|nevaeh|ivy|sadie|piper|lydia|alexa|josephine|emery|delilah|arianna|camilla|clara|kaylee)\b/i;
 
         results.forEach(r => {
-            if (r.status === 'fulfilled' && r.value.data) {
-                const list = r.value.data.items || r.value.data?.data?.items || [];
+            if (r && r.data) {
+                const list = r.data.items || r.data.data?.items || [];
                 list.forEach(it => {
                     const slug = it.slug || it._id;
                     if (!slug || seenSlugs.has(slug)) return;
@@ -843,8 +876,11 @@ async function getAdultMoviePool() {
 
         if (movies.length > 0) {
             movies.sort((a, b) => (parseInt(b.year) || 0) - (parseInt(a.year) || 0));
-            adultPool = movies;
-            adultPoolTimestamp = Date.now();
+            // Chỉ cập nhật nếu số lượng phim tìm được nhiều hơn hoặc bằng dữ liệu hiện có
+            if (!adultPool || movies.length >= adultPool.length) {
+                adultPool = movies;
+                adultPoolTimestamp = Date.now();
+            }
         }
         return adultPool || [];
     } catch (e) {
