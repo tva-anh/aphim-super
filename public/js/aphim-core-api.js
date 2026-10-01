@@ -16,7 +16,9 @@
         if (url.startsWith('data:image')) return url;
         if (url.startsWith('http://') || url.startsWith('https://')) {
             return url.replace('img.ophimimg.com', 'phimimg.com')
-                      .replace('ophim1.com/uploads', 'phimimg.com/uploads');
+                      .replace('img.phimapi.com', 'phimimg.com')
+                      .replace('ophim1.com/uploads', 'phimimg.com/uploads')
+                      .replace('phimapi.com/uploads', 'phimimg.com/uploads');
         }
         const clean = url.replace(/^\//, '');
         if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
@@ -38,12 +40,15 @@
             return;
         }
 
-        if (stage === 2) {
+        if (stage === 1 || stage === 2) {
             if (currentSrc.includes('img.phimapi.com')) {
                 imgEl.src = currentSrc.replace('img.phimapi.com', 'phimimg.com');
                 return;
-            } else if (currentSrc.includes('phimimg.com')) {
-                imgEl.src = currentSrc.replace('phimimg.com', 'img.phimapi.com');
+            } else if (currentSrc.includes('phimimg.com/uploads/movies/upload/')) {
+                imgEl.src = currentSrc.replace('/uploads/movies/upload/', '/upload/');
+                return;
+            } else if (currentSrc.includes('phimimg.com') && !currentSrc.includes('img.phimapi.com')) {
+                imgEl.src = currentSrc.replace('https://phimimg.com/', 'https://img.phimapi.com/');
                 return;
             }
         }

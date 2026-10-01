@@ -864,8 +864,21 @@ async function getAdultMoviePool(forceRefresh = false) {
                     else if (cnRegex.test(fullText)) matchedCountry = 'trung-quoc';
                     else if (usRegex.test(fullText)) matchedCountry = 'my';
 
-                    const thumb = it.thumb_url ? (it.thumb_url.startsWith('http') ? it.thumb_url : `https://img.phimapi.com/${it.thumb_url}`) : '';
-                    const poster = it.poster_url ? (it.poster_url.startsWith('http') ? it.poster_url : `https://img.phimapi.com/${it.poster_url}`) : thumb;
+                    const resolveCdnImg = (imgStr) => {
+                        if (!imgStr) return '';
+                        let s = String(imgStr).trim();
+                        if (s.startsWith('http://') || s.startsWith('https://')) {
+                            return s.replace('img.phimapi.com', 'phimimg.com')
+                                    .replace('img.ophimimg.com', 'phimimg.com');
+                        }
+                        const clean = s.replace(/^\//, '');
+                        return clean.startsWith('upload/') || clean.startsWith('uploads/') 
+                            ? ('https://phimimg.com/' + clean)
+                            : ('https://phimimg.com/uploads/movies/' + clean);
+                    };
+
+                    const thumb = resolveCdnImg(it.thumb_url);
+                    const poster = resolveCdnImg(it.poster_url || it.thumb_url);
 
                     movies.push({
                         _id: it._id || slug,
