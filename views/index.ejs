@@ -4,12 +4,44 @@
     <%- include('partials/head') %>
     <link rel="stylesheet" href="/css/avatar-frames.css">
     <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=21">
+    <link rel="stylesheet" href="/css/hero-banner.css?v=173">
+    <link rel="stylesheet" href="/css/interests-section.css?v=171">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Ensure body padding-top clears the fixed navbar with comfortable space */
-        body {
-            padding-top: 64px !important;
+        /* Desktop Hero: 0px body padding on Desktop so hero image bleeds to browser top */
+        @media (min-width: 1024px) {
+            body,
+            body.has-desktop-hero,
+            html.light-mode body,
+            html.light-mode body.has-desktop-hero,
+            body:has(#desktopHeroShowcase),
+            html.light-mode body:has(#desktopHeroShowcase) {
+                padding-top: 0 !important;
+            }
+            #sofa-header:not(.scrolled),
+            header#sofa-header:not(.scrolled),
+            header:not(.scrolled),
+            html.light-mode #sofa-header:not(.scrolled),
+            html.light-mode header#sofa-header:not(.scrolled),
+            body.has-desktop-hero #sofa-header:not(.scrolled),
+            html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled),
+            body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled),
+            html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) {
+                background: transparent !important;
+                background-color: transparent !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                border: none !important;
+                border-bottom: none !important;
+                box-shadow: none !important;
+            }
         }
-        @media (max-width: 1280px) {
+        @media (max-width: 1023px) {
+            body {
+                padding-top: 64px !important;
+            }
+        }
+        @media (max-width: 480px) {
             body {
                 padding-top: 60px !important;
             }
@@ -1199,14 +1231,264 @@
 
     </style>
 </head>
-<body class="bg-[#1f2331] text-white antialiased">
+<body class="bg-[#1f2331] text-white antialiased has-desktop-hero">
     <%- include('partials/header') %>
+
+    <!-- Runtime Desktop Transparent Header Enforcer -->
+    <script>
+    (function() {
+        function applyDesktopHeaderTransparent() {
+            if (window.innerWidth < 1024) return;
+            var header = document.getElementById('sofa-header') || document.querySelector('header');
+            if (!header) return;
+            var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+            if (scrollY <= 50) {
+                header.classList.remove('scrolled', 'sofa-header-scrolled');
+                header.style.setProperty('background', 'transparent', 'important');
+                header.style.setProperty('background-color', 'transparent', 'important');
+                header.style.setProperty('border', 'none', 'important');
+                header.style.setProperty('border-bottom', 'none', 'important');
+                header.style.setProperty('box-shadow', 'none', 'important');
+                header.style.setProperty('backdrop-filter', 'none', 'important');
+                header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+            } else {
+                header.classList.add('scrolled');
+                header.style.removeProperty('background');
+                header.style.removeProperty('background-color');
+                header.style.removeProperty('border');
+                header.style.removeProperty('border-bottom');
+                header.style.removeProperty('box-shadow');
+                header.style.removeProperty('backdrop-filter');
+                header.style.removeProperty('-webkit-backdrop-filter');
+            }
+        }
+        window.addEventListener('scroll', applyDesktopHeaderTransparent, { passive: true });
+        window.addEventListener('resize', applyDesktopHeaderTransparent, { passive: true });
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyDesktopHeaderTransparent);
+        } else {
+            applyDesktopHeaderTransparent();
+        }
+        window.addEventListener('load', applyDesktopHeaderTransparent);
+        setTimeout(applyDesktopHeaderTransparent, 50);
+        setTimeout(applyDesktopHeaderTransparent, 250);
+    })();
+    </script>
+
+    <!-- ==============================================
+         SECTION -0.2: DESKTOP HERO CINEMATIC SHOWCASE (STRICTLY DESKTOP ONLY: min-width: 1024px)
+         Photo #1 + Photo #2 Replica - Seamless Top-to-Bottom 100vh Full Bleed
+         ============================================== -->
+    <% 
+        const ssrHeroList = (typeof heroSlides !== 'undefined' && Array.isArray(heroSlides) && heroSlides.length > 0) ? heroSlides : null;
+        const ssrHero0 = ssrHeroList ? ssrHeroList[0] : null;
+        const ssrBgImg = ssrHero0 ? (ssrHero0.imageUrl || ssrHero0.thumb_url || ssrHero0.thumbUrl || ssrHero0.poster_url || ssrHero0.posterUrl) : 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+        const ssrLogo = ssrHero0 ? (ssrHero0.logoUrl || '') : 'https://image.tmdb.org/t/p/w500/uyABqIMLGBYCrLkeIrt6k7WEaK2.png';
+        const ssrTitle = ssrHero0 ? (ssrHero0.name || 'Nhất Âu Xuân') : 'Nhất Âu Xuân';
+        const ssrSub = ssrHero0 ? (ssrHero0.originName || ssrHero0.origin_name || 'Spring Of The Blade') : 'Spring Of The Blade';
+        const ssrImdb = ssrHero0 ? (ssrHero0.imdb?.vote_average || ssrHero0.tmdb?.vote_average || '9.5') : '9.5';
+        const ssrQuality = ssrHero0 ? (ssrHero0.quality || 'FHD') : 'FHD';
+        const ssrYear = ssrHero0 ? (ssrHero0.year || '2026') : '2026';
+        const ssrEp = ssrHero0 ? (ssrHero0.episodeCurrent || ssrHero0.episode_current || 'Tập 30') : 'Tập 30';
+        const ssrSlug = ssrHero0 ? (ssrHero0.movieSlug || ssrHero0.slug || 'nhat-au-xuan') : 'nhat-au-xuan';
+        const ssrDesc = ssrHero0 ? (ssrHero0.content || '"Người đàn ông sát phạt quyết đoán, thâm sâu mưu mô" Thẩm Nhuận và cô gái "thông minh tỉnh táo như bông sen đen" Tạ Thanh Viên trở thành lưỡi dao của nhau, cùng nhau bước trên con đường báo thù đan xen trong lý trí và tình cảm...') : '"Người đàn ông sát phạt quyết đoán, thâm sâu mưu mô" Thẩm Nhuận và cô gái "thông minh tỉnh táo như bông sen đen" Tạ Thanh Viên trở thành lưỡi dao của nhau, cùng nhau bước trên con đường báo thù đan xen trong lý trí và tình cảm...';
+    %>
+    <script>
+        window.__INITIAL_HERO_SLIDES__ = <%- JSON.stringify(ssrHeroList || null) %>;
+    </script>
+    <section id="desktopHeroShowcase" class="desktop-hero-showcase relative w-full select-none hidden lg:block">
+        <!-- Background Image & Clean Vignettes (Zero Foggy Overlay, Dual-Layer 60fps Cinema Transitions) -->
+        <div class="hero-bg-holder absolute inset-0 z-0 overflow-hidden">
+            <!-- Dual Layer Hero Images for Flawless Cinematic Crossfade & Slide Transitions -->
+            <img id="heroImageLayerA" class="hero-bg-layer is-active" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" />
+            <img id="heroImageLayerB" class="hero-bg-layer" alt="<%= ssrTitle %>" src="" style="opacity: 0;" />
+            <!-- Fallback element for compatibility -->
+            <img id="heroImage" class="hidden" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" />
+
+            <!-- Left Gradient Vignette: Natural shadow for crisp text readability without fogging the art -->
+            <div class="hero-left-blend pointer-events-none"></div>
+
+            <!-- Top Gradient: Subtle header transition -->
+            <div class="hero-top-blend pointer-events-none"></div>
+
+            <!-- Bottom Master Blend: High-end Cinema transition melting smoothly into page background -->
+            <div class="hero-bottom-blend pointer-events-none"></div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="heroContent" class="relative w-full mx-auto z-20 opacity-100 transition-opacity duration-500">
+            <div class="hero-main-row">
+                <!-- Left Info Column -->
+                <div class="hero-info-col pointer-events-auto">
+                    <!-- Title & Origin Subtitle -->
+                    <div class="hero-title-box">
+                        <% if (ssrLogo) { %>
+                            <img id="heroTitleImg" src="<%= ssrLogo %>" alt="<%= ssrTitle %>" class="w-auto h-auto max-h-[75px] md:max-h-[110px] lg:max-h-[130px] object-contain drop-shadow-2xl transition-opacity duration-300" style="filter: drop-shadow(0px 4px 10px rgba(0,0,0,0.8));">
+                            <h2 id="heroTitle" style="display: none;"><%= ssrTitle %></h2>
+                        <% } else { %>
+                            <h2 id="heroTitle"><%= ssrTitle %></h2>
+                        <% } %>
+                        <h3 id="heroSubtitle"><%= ssrSub %></h3>
+                    </div>
+
+                    <!-- Badges Row: IMDb Gold Border Pill + FHD + Age + Year + Episode -->
+                    <div id="heroBadges" class="flex flex-wrap gap-2 items-center">
+                        <span class="hero-badge-imdb">
+                            <span class="hero-badge-imdb-label">IMDb</span> <span class="hero-badge-imdb-val"><%= ssrImdb %></span>
+                        </span>
+                        <span class="hero-badge-quality"><%= ssrQuality %></span>
+                        <span class="hero-badge-age">T13</span>
+                        <span class="hero-badge-year"><%= ssrYear %></span>
+                        <span class="hero-badge-ep" data-ep-badge><%= ssrEp %></span>
+                    </div>
+
+                    <!-- Genre Tag Pills (Exact Photo 1 Layout: 2 tags) -->
+                    <div id="heroGenres" class="flex flex-wrap gap-2 items-center pt-1">
+                        <% if (ssrHero0 && Array.isArray(ssrHero0.category) && ssrHero0.category.length > 0) { %>
+                            <% ssrHero0.category.slice(0, 2).forEach(cat => { %>
+                                <a href="/the-loai/<%= cat.slug || 'phim-hot' %>" class="hero-genre-pill"><%= cat.name || cat %></a>
+                            <% }) %>
+                        <% } else { %>
+                            <a href="/the-loai/chinh-kich" class="hero-genre-pill">Chính kịch</a>
+                            <a href="/the-loai/gia-dinh" class="hero-genre-pill">Gia đình</a>
+                        <% } %>
+                    </div>
+
+                    <!-- Description Synopsis (2 lines clamped) -->
+                    <p id="heroDescription">
+                        <%= ssrDesc %>
+                    </p>
+
+                    <!-- Action Group: Play Button + Translucent Capsule Glass Pill (Heart | Info) -->
+                    <div class="hero-action-group flex items-center gap-5">
+                        <a id="heroPlayBtn" href="/xem-phim/<%= ssrSlug %>/tap-1" class="hero-play-circle-btn" title="Xem ngay" aria-label="Xem ngay">
+                            <svg viewBox="0 0 24 24" width="32" height="32"><path fill="#161922" d="M8.5 6.4c0-1.1 1.2-1.78 2.14-1.22l9.6 5.6c.92.54.92 1.9 0 2.44l-9.6 5.6c-.94.56-2.14-.12-2.14-1.22V6.4z"/></svg>
+                        </a>
+
+                        <div class="hero-actions-pill">
+                            <button id="heroFavBtn" type="button" onclick="toggleHeroFavorite(this)" title="Thêm vào danh sách yêu thích" aria-label="Yêu thích">
+                                <svg viewBox="0 0 24 24" fill="#ffffff" width="18" height="18"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </button>
+                            <a id="heroInfoBtn" href="/phim/<%= ssrSlug %>" title="Thông tin chi tiết" aria-label="Chi tiết phim">
+                                <svg viewBox="0 0 24 24" fill="#ffffff" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Thumbnail Strip (Aligned nicely on bottom right, with smooth horizontal drag & wheel scroll) -->
+                <div class="hero-thumbnails-right-col pointer-events-auto">
+                    <div id="heroThumbnails" class="flex items-center gap-2">
+                        <% if (ssrHeroList && ssrHeroList.length > 0) { %>
+                            <% ssrHeroList.forEach((m, idx) => { 
+                                const thumbImg = m.thumb_url || m.thumbUrl || m.imageUrl || m.poster_url || m.posterUrl || 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+                            %>
+                                <div class="hero-thumb-item <%= idx === 0 ? 'hero-thumb-active active' : '' %>" onclick="switchHeroSlide(<%= idx %>)" data-slide-index="<%= idx %>" title="<%= (m.name || '').replace(/"/g, '&quot;') %>">
+                                    <img src="<%= thumbImg %>" alt="<%= m.name || '' %>">
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="hero-thumb-item hero-thumb-active active" onclick="switchHeroSlide(0)" data-slide-index="0" title="Nhất Âu Xuân">
+                                <img src="https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg" alt="Nhất Âu Xuân">
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- "Bạn đang quan tâm gì?" (Interests Section directly on 1st viewport) -->
+        <section class="interests-section">
+            <div class="interests-inner-wrap app-container w-full mx-auto">
+                <div class="interests-header-row mb-1.5 flex items-center justify-between">
+                    <h3 class="interests-heading">
+                        Bạn đang quan tâm gì?
+                    </h3>
+                </div>
+
+                <div class="interests-wrapper">
+                    <!-- 1. Phim Bộ -->
+                    <div class="interest-card cat-series" onclick="window.location.href='/danh-sach?list=phim-bo'">
+                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20240310-1/759bbb161873247310b3ad71ac96d95b.jpg');"></div>
+                        <div class="interest-icon-circle" title="Phim Bộ">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                        </div>
+                        <div class="interest-content">
+                            <span class="interest-title">Phim Bộ</span>
+                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Phim Mới -->
+                    <div class="interest-card cat-new" onclick="window.location.href='/danh-sach?list=phim-moi-cap-nhat'">
+                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20250530-1/fdf11774cff47f0ffc9c2dbe2e02d0ca.jpg');"></div>
+                        <div class="interest-icon-circle" title="Phim Mới">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                        </div>
+                        <div class="interest-content">
+                            <span class="interest-title">Phim Mới</span>
+                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Hành Động -->
+                    <div class="interest-card cat-action" onclick="window.location.href='/categories?category=hanh-dong'">
+                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg');"></div>
+                        <div class="interest-icon-circle" title="Hành Động">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        </div>
+                        <div class="interest-content">
+                            <span class="interest-title">Hành Động</span>
+                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                        </div>
+                    </div>
+
+                    <!-- 4. Tình Cảm -->
+                    <div class="interest-card cat-romance" onclick="window.location.href='/categories?category=tinh-cam'">
+                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20250901-1/377ca3402a12c55372f0145f49c0e4a5.jpg');"></div>
+                        <div class="interest-icon-circle" title="Tình Cảm">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                        </div>
+                        <div class="interest-content">
+                            <span class="interest-title">Tình Cảm</span>
+                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                        </div>
+                    </div>
+
+                    <!-- 5. Hài Hước -->
+                    <div class="interest-card cat-comedy" onclick="window.location.href='/categories?category=hai-huoc'">
+                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20241118-1/3b9d2f3c9a5cf65d15a23db8d0c870ac.jpg');"></div>
+                        <div class="interest-icon-circle" title="Hài Hước">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14c1.5 2 6.5 2 8 0"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                        </div>
+                        <div class="interest-content">
+                            <span class="interest-title">Hài Hước</span>
+                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                        </div>
+                    </div>
+
+                    <!-- 6. Hoạt Hình -->
+                    <div class="interest-card cat-anime" onclick="window.location.href='/danh-sach?list=hoat-hinh'">
+                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg');"></div>
+                        <div class="interest-icon-circle" title="Hoạt Hình">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                        </div>
+                        <div class="interest-content">
+                            <span class="interest-title">Hoạt Hình</span>
+                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
 
     <!-- 1. Global Container Specification (1420px Max-Width & 24px Padding) -->
     <main class="app-container py-3">
 
         <!-- 🚀 Core H1 Heading for Bing & Google Search Engine Indexing (Under 150 chars) -->
         <h1 class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">APhim Super - Website Xem Phim Online Miễn Phí Full HD Vietsub Mới Nhất 2026</h1>
+
 
         <!-- ==============================================
              SECTION -0.5: MOBILE 3D COVERFLOW SHOWCASE (MOBILE ONLY)
@@ -1415,21 +1697,21 @@
                     <div class="top10-region-capsule" onclick="toggleTop10RegionMenu(event)" title="Chọn khu vực">
                         <span class="top10-region-label">Khu vực</span>
                         <div class="top10-region-current-pill" id="top10RegionTrigger">
-                            <span id="top10RegionCurrentText">Toàn cầu</span>
+                            <span id="top10RegionCurrentText">Việt Nam</span>
                             <svg class="top10-region-arrow" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M7 10l5 5 5-5z"/>
                             </svg>
                         </div>
                     </div>
                     
-                    <!-- Custom Popover Dropdown Menu (Toàn cầu on top) -->
+                    <!-- Custom Popover Dropdown Menu (Việt Nam on top default) -->
                     <div class="top10-region-menu" id="top10RegionMenu">
-                        <div class="top10-region-item active" data-value="toan-cau" onclick="selectTop10Region('toan-cau', 'Toàn cầu')">
-                            <span>Toàn cầu</span>
+                        <div class="top10-region-item active" data-value="viet-nam" onclick="selectTop10Region('viet-nam', 'Việt Nam')">
+                            <span>Việt Nam</span>
                             <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
-                        <div class="top10-region-item" data-value="viet-nam" onclick="selectTop10Region('viet-nam', 'Việt Nam')">
-                            <span>Việt Nam</span>
+                        <div class="top10-region-item" data-value="toan-cau" onclick="selectTop10Region('toan-cau', 'Toàn cầu')">
+                            <span>Toàn cầu</span>
                             <svg class="top10-region-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                         <div class="top10-region-item" data-value="au-my" onclick="selectTop10Region('au-my', 'Âu - Mỹ')">
@@ -1560,55 +1842,96 @@
     (function() {
         const API_BASE = 'https://phimapi.com';
 
-        function getImgUrl(url) {
-            if (!url) return '/images/no-poster.jpg';
+        function getImgUrl(url, cdnDomain) {
+            if (!url) return '';
             let u = String(url).trim();
+            if (u.startsWith('data:image')) return u;
             if (u.startsWith('http://') || u.startsWith('https://')) {
                 return u.replace('img.ophimimg.com', 'phimimg.com')
-                        .replace('ophim1.com/uploads', 'phimimg.com/uploads');
+                        .replace('ophim1.com/uploads', 'phimimg.com/uploads')
+                        .replace('img.phimapi.com', 'phimimg.com');
             }
             const clean = u.replace(/^\//, '');
             if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
                 return 'https://phimimg.com/' + clean;
             }
+            if (clean.match(/^\d{8}-\d+\//)) {
+                return 'https://phimimg.com/upload/vod/' + clean;
+            }
             return 'https://phimimg.com/uploads/movies/' + clean;
         }
 
-        // 🛡️ ULTRA ROBUST IMAGE AUTO-HEALING & NETWORK RETRY ENGINE
-        window.handleCardImgError = function(imgEl) {
+        // 🛡️ ULTRA ROBUST AUTO-HEAL & LIVE MOVIE IMAGE RESTORATION (KHÔNG BAO GIỜ GẮN LOGO BRAND THAY ẢNH PHIM)
+        window.handleCardImgError = async function(imgEl) {
             if (!imgEl) return;
             const step = parseInt(imgEl.dataset.errStep || '0', 10) + 1;
             imgEl.dataset.errStep = String(step);
 
             const fallbackUrl = imgEl.dataset.fallback;
             const currentSrc = imgEl.src || '';
+            const slug = imgEl.dataset.slug || '';
+            const title = imgEl.alt || '';
 
-            // Step 1: Thử link poster / thumb dự phòng ngay lập tức
-            if (step === 1 && fallbackUrl && fallbackUrl !== currentSrc && fallbackUrl !== '/images/no-poster.jpg') {
+            // Step 1: Thử link poster / thumb đối ứng ngay lập tức
+            if (step === 1 && fallbackUrl && fallbackUrl !== currentSrc && !fallbackUrl.includes('no-poster') && fallbackUrl.startsWith('http')) {
                 imgEl.src = fallbackUrl;
                 return;
             }
 
-            // Step 2: Tự động Retry lại sau 350ms (giải quyết nghẽn kết nối CDN khi tải 80+ ảnh đồng thời)
-            if (step <= 2) {
-                setTimeout(() => {
-                    const cleanUrl = currentSrc.split('?')[0];
-                    imgEl.src = cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-                }, 350);
-                return;
+            // Step 2: Thử chuyển đổi giữa uploads/movies/ và upload/vod/ hoặc mirror CDN
+            if (step === 2) {
+                if (currentSrc.includes('/uploads/movies/')) {
+                    imgEl.src = currentSrc.replace('/uploads/movies/', '/upload/vod/');
+                    return;
+                } else if (currentSrc.includes('/upload/vod/')) {
+                    imgEl.src = currentSrc.replace('/upload/vod/', '/uploads/movies/');
+                    return;
+                } else if (currentSrc.includes('phimimg.com')) {
+                    imgEl.src = currentSrc.replace('https://phimimg.com/', 'https://img.phimapi.com/');
+                    return;
+                }
             }
 
-            // Step 3: Thử autoHealMovieImage
-            const slug = imgEl.dataset.slug || '';
-            const title = imgEl.alt || '';
-            if (step === 3 && typeof window.autoHealMovieImage === 'function') {
-                window.autoHealMovieImage(imgEl, slug, title);
-                return;
+            // Step 3: Gọi API PhimAPI trực tiếp để lấy link ảnh LIVE chính xác 100% của phim
+            if (step === 3 && slug) {
+                try {
+                    const res = await fetch('https://phimapi.com/phim/' + slug);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.movie) {
+                            const liveImg = data.movie.thumb_url || data.movie.poster_url;
+                            if (liveImg && liveImg !== currentSrc) {
+                                imgEl.src = liveImg.startsWith('http') ? liveImg : ('https://phimimg.com/' + liveImg.replace(/^\//, ''));
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {}
             }
 
-            // Step 4: Fallback ảnh placeholder poster
+            // Step 4: Tìm ảnh TMDB chất lượng cao theo tên phim
+            if (step === 4 && (title || slug)) {
+                try {
+                    const qName = (title || slug.replace(/-/g, ' ')).replace(/xem phim/gi, '').split('(')[0].trim();
+                    const res = await fetch('/api/tmdb/search/multi?query=' + encodeURIComponent(qName) + '&language=vi-VN');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.results && data.results.length > 0) {
+                            const tmdbMatch = data.results[0];
+                            const path = tmdbMatch.backdrop_path || tmdbMatch.poster_path;
+                            if (path) {
+                                imgEl.src = 'https://image.tmdb.org/t/p/w500' + path;
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            // Step 5: Fallback ảnh poster phim tối sang trọng có tên phim (Tuyệt đối KHÔNG dán logo brand thay ảnh phim)
+            const cleanTitle = (title || slug.replace(/-/g, ' ')).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             imgEl.onerror = null;
-            imgEl.src = '/images/no-poster.jpg';
+            imgEl.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225' viewBox='0 0 400 225'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23181b24'/%3E%3Cstop offset='100%25' stop-color='%230f1218'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='225' fill='url(%23bg)'/%3E%3Ccircle cx='200' cy='95' r='32' fill='rgba(255,255,255,0.06)'/%3E%3Cpath d='M192 82 L214 95 L192 108 Z' fill='%23f59e0b'/%3E%3Ctext x='200' y='160' text-anchor='middle' fill='%23e2e8f0' font-family='sans-serif' font-size='14' font-weight='700'%3E" + encodeURIComponent(cleanTitle.slice(0, 32)) + "%3C/text%3E%3C/svg%3E";
         };
 
         window.scrollSlider = function(amount) {
@@ -1924,7 +2247,7 @@
 
         let currentTop10Type = 'phim-le';
         let currentTop10Platform = 'netflix';
-        let currentTop10Region = 'toan-cau';
+        let currentTop10Region = 'viet-nam';
         const _top10MemoryCache = new Map();
 
         // 🎯 CHỮ KÝ ĐẶC TRƯNG & SIÊU PHẨM CHÍNH HÃNG CỦA TỪNG NỀN TẢNG STREAMING
@@ -2156,14 +2479,12 @@
             setTimeout(async () => {
                 try {
                     const core = await getAPhimCore();
-                    // Preload nền tảng phổ biến nhất
+                    // Preload nền tảng và khu vực phổ biến nhất
                     ['netflix', 'appletv', 'disney', 'max', 'prime'].forEach(p => {
-                        const kLe = `${p}_phim-le_toan-cau`;
-                        const kBo = `${p}_phim-bo_toan-cau`;
+                        const kLe = `${p}_phim-le_viet-nam`;
+                        const kBo = `${p}_phim-bo_viet-nam`;
                         if (!_top10MemoryCache.has(kLe) || !_top10MemoryCache.has(kBo)) {
-                            // Tải nhẹ trong nền
-                            core.fetchMovieGridData('list', 'phim-le', 1);
-                            core.fetchMovieGridData('list', 'phim-bo', 1);
+                            core.fetchMovieGridData('country', 'viet-nam', 1);
                         }
                     });
                 } catch (e) {}
@@ -2710,7 +3031,11 @@
 
         // Load the first row immediately; defer lower rows until the user is approaching them.
         document.addEventListener('DOMContentLoaded', function() {
-            loadMobile3DShowcase();
+            if (window.innerWidth >= 1024) {
+                if (typeof loadHeroBanner === 'function') loadHeroBanner();
+            } else {
+                loadMobile3DShowcase();
+            }
             loadDeCuSlider();
             loadHomeCommentsShowcase();
             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
@@ -2722,5 +3047,6 @@
         });
     })();
     </script>
+    <script src="/js/hero-banner.js?v=168" defer></script>
 </body>
 </html>

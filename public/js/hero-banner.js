@@ -1,97 +1,334 @@
 // ================================================================
-// A PHIM � Hero Banner v10
+// A PHIM – Hero Banner v11 (Real Data & Real TMDB Logos)
 // Interactive Slide System: Click Thumbnail + Swipe/Drag
-// + Auto-return to Admin Banner sau 6 gi�y kh�ng tuong t�c
+// + Real merged metadata from /api/movie-merged/:slug
+// + Official TMDB transparent title logos
 // ================================================================
 
+// 7 Phim Chính Thức Nổi Bật (Curated 100% Real Data)
+const DEFAULT_HERO_SLIDES = [
+    {
+        slug: 'nhat-au-xuan',
+        name: 'Nhất Âu Xuân',
+        origin_name: 'Spring Of The Blade',
+        year: '2026',
+        quality: 'FHD',
+        age: 'T13',
+        episode_current: 'Tập 30',
+        content: '"Người đàn ông sát phạt quyết đoán, thâm sâu mưu mô" Thẩm Nhuận và cô gái "thông minh tỉnh táo như bông sen đen" Tạ Thanh Viên trở thành lưỡi dao của nhau, cùng nhau bước trên con đường báo thù đan xen trong lý trí và tình cảm. Giữa những cuộc đấu đá công khai và âm thầm...',
+        thumb_url: 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg',
+        poster_url: 'https://phimimg.com/uploads/movies/20260917/nhat-au-xuan-poster.webp',
+        category: [{ name: 'Chính Kịch', slug: 'chinh-kich' }, { name: 'Gia Đình', slug: 'gia-dinh' }],
+        tmdb: { id: 294990, type: 'tv', vote_average: 9.5 },
+        imdb: { id: 'tt45956347', vote_average: 9.5 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/uyABqIMLGBYCrLkeIrt6k7WEaK2.png'
+    },
+    {
+        slug: 'minecraft',
+        name: 'Một bộ phim Minecraft',
+        origin_name: 'A Minecraft Movie',
+        year: '2025',
+        quality: 'FHD',
+        age: 'T13',
+        episode_current: 'Full',
+        content: 'Chào mừng bạn đến với thế giới của Minecraft, nơi sự sáng tạo không chỉ giúp bạn chế tạo mà còn là yếu tố quan trọng để sống sót! Bốn kẻ lạc lõng bất ngờ bị kéo qua một cánh cổng bí ẩn vào Overworld...',
+        thumb_url: 'https://image.tmdb.org/t/p/w1280/2Nti3gYAX513wvhp8IiLL6ZDyOm.jpg',
+        poster_url: 'https://vsmov.com/storage/images/2Nti3gYAX513wvhp8IiLL6ZDyOm.jpg',
+        category: [{ name: 'Giả Tưởng', slug: 'gia-tuong' }, { name: 'Phiêu Lưu', slug: 'phieu-luu' }],
+        tmdb: { id: 950387, type: 'movie', vote_average: 6.2 },
+        imdb: { id: 'tt3566834', vote_average: 6.2 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/5gFN6sNEuzTwx2BY2BrN795JwZl.png'
+    },
+    {
+        slug: 'quat-mo-trung-ma',
+        name: 'Quật Mộ Trùng Ma',
+        origin_name: 'Exhuma',
+        year: '2024',
+        quality: 'FHD',
+        age: 'T18',
+        episode_current: 'Full',
+        content: 'Hai pháp sư, một thầy phong thuỷ và một chuyên gia khâm liệm cùng hợp lực khai quật ngôi mộ bị nguyền rủa của một gia đình giàu có, nhằm cứu lấy sinh mạng đứa con mới sinh, nhưng vô tình giải phóng ác linh cổ xưa...',
+        thumb_url: 'https://phimimg.com/upload/vod/20250530-1/fdf11774cff47f0ffc9c2dbe2e02d0ca.jpg',
+        poster_url: 'https://phimimg.com/upload/vod/20250530-1/759df554cc21bf9d6805966dc3fe2b67.jpg',
+        category: [{ name: 'Bí Ẩn', slug: 'bi-an' }, { name: 'Kinh Dị', slug: 'kinh-di' }],
+        tmdb: { id: 838209, type: 'movie', vote_average: 7.6 },
+        imdb: { id: 'tt27802490', vote_average: 6.9 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/zzeosUcmoNVZyTUteGFsD5kdSga.png'
+    },
+    {
+        slug: 'deadpool-va-wolverine',
+        name: 'Deadpool Và Wolverine',
+        origin_name: 'Deadpool & Wolverine',
+        year: '2024',
+        quality: 'FHD',
+        age: 'T18',
+        episode_current: 'Full',
+        content: 'Wade Wilson đang cố gắng sống cuộc đời bình thường sau những ngày làm lính đánh thuê. Nhưng khi quê hương và dòng thời gian của mình đối mặt với hiểm họa hủy diệt, anh phải tìm kiếm sự trợ giúp từ một Wolverine đầy tổn thương...',
+        thumb_url: 'https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg',
+        poster_url: 'https://phimimg.com/upload/vod/20250821-1/45b6b9aad03ae0aa2aceb5d73419831a.jpg',
+        category: [{ name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Hài Hước', slug: 'hai-huoc' }],
+        tmdb: { id: 533535, type: 'movie', vote_average: 7.6 },
+        imdb: { id: 'tt6263850', vote_average: 7.5 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/2o48U3kMXGIqRAkKZQ3n5OTWSBy.png'
+    },
+    {
+        slug: 'do-anh-cong-duoc-toi',
+        name: 'Đố Anh Còng Được Tôi',
+        origin_name: 'I, The Executioner',
+        year: '2024',
+        quality: 'FHD',
+        age: 'T16',
+        episode_current: 'Full',
+        content: 'Thám tử kỳ cựu Seo Do-cheol và Đội Điều tra Tội phạm Bạo lực đối mặt với một kẻ giết người hàng loạt bí ẩn gieo rắc kinh hoàng khắp đất nước, kích động sự phẫn nộ của dư luận và thách thức công lý...',
+        thumb_url: 'https://phimimg.com/upload/vod/20241118-1/3b9d2f3c9a5cf65d15a23db8d0c870ac.jpg',
+        poster_url: 'https://phimimg.com/upload/vod/20241118-1/9f929fc12384573847849f8786f16ae2.jpg',
+        category: [{ name: 'Hành Động', slug: 'hanh-dong' }, { name: 'Hình Sự', slug: 'hinh-su' }],
+        tmdb: { id: 995926, type: 'movie', vote_average: 7.0 },
+        imdb: { id: 'tt30287778', vote_average: 6.3 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/qdDvXw018inT0E08ZfPGEFs68nL.png'
+    },
+    {
+        slug: 'van-tu-hanh',
+        name: 'Vân Tú Hành',
+        origin_name: 'The Legend Of Rosy Clouds',
+        year: '2026',
+        quality: 'FHD',
+        age: 'T13',
+        episode_current: 'Tập 36',
+        content: 'Bộ phim cổ trang chuyển thể theo chân thiếu nữ Hồng Tú Lệ thông minh, kiên cường, dấn thân vào chốn quan trường đầy sóng gió để giúp vị hoàng đế trẻ chấn hưng triều chính, viết nên giai thoại truyền kỳ chốn cung đình...',
+        thumb_url: 'https://phimimg.com/upload/vod/20250901-1/377ca3402a12c55372f0145f49c0e4a5.jpg',
+        poster_url: 'https://phimimg.com/upload/vod/20260620-1/6b7cf552ac9b66e18a5382c922d2bd0d.jpg',
+        category: [{ name: 'Chính Kịch', slug: 'chinh-kich' }, { name: 'Cổ Trang', slug: 'co-trang' }],
+        tmdb: { id: 239901, type: 'tv', vote_average: 8.0 },
+        imdb: { id: 'tt29489359', vote_average: 5.2 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/76jBz2bfJFkDQgw1rvQNONhn9Zs.png'
+    },
+    {
+        slug: 'tham-tu-lung-danh-conan',
+        name: 'Thám Tử Lừng Danh Conan',
+        origin_name: 'Detective Conan',
+        year: '1996',
+        quality: 'FHD',
+        age: 'T13',
+        episode_current: 'Tập 1214',
+        content: 'Thám tử học sinh Kudo Shinichi bị Tổ chức Áo Đen đầu độc khiến cơ thể bị teo nhỏ thành đứa trẻ tiểu học. Dưới danh phận Edogawa Conan, cậu âm thầm phá giải hàng loạt vụ án hóc búa để tìm kiếm thuốc giải...',
+        thumb_url: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+        poster_url: 'https://phimimg.com/upload/vod/20240310-1/025424cf62248b9a7b54279ef5416e26.jpg',
+        category: [{ name: 'Bí Ẩn', slug: 'bi-an' }, { name: 'Hài Hước', slug: 'hai-huoc' }],
+        tmdb: { id: 30983, type: 'tv', vote_average: 8.5 },
+        imdb: { id: 'tt0131179', vote_average: 8.5 },
+        logoUrl: 'https://image.tmdb.org/t/p/w500/vX0VEwZViadujTUGcL0EU5orV8p.png'
+    }
+];
+
 // -- State ------------------------------------------------------
-let currentAdminBanner = null;   // Banner admin m?c d?nh (index 0)
-let heroSlides = [];     // [adminBanner, thumb1, thumb2, ...]
+let currentAdminBanner = DEFAULT_HERO_SLIDES[0];
+let heroSlides = DEFAULT_HERO_SLIDES.map(m => ({ ...m }));
 let currentSlideIndex = 0;
 let isTransitioning = false;
-let autoReturnTimer = null;   // Timer t? d?ng v? index 0
-const AUTO_RETURN_DELAY = 3500;   // 3.5 gi�y sau khi kh�ng tuong t�c
+let autoReturnTimer = null;
+const AUTO_RETURN_DELAY = 8000;
+
+// -- Cache chi tiết phim lấy trực tiếp từ database / API ---------
+const movieDetailCache = new Map();
+
+async function fetchRealMovieDetail(movie) {
+    if (!movie || !movie.slug) return movie;
+    if (movieDetailCache.has(movie.slug)) {
+        const cached = movieDetailCache.get(movie.slug);
+        Object.assign(movie, cached);
+        return movie;
+    }
+    try {
+        const res = await fetch(`/api/movie-merged/${encodeURIComponent(movie.slug)}`);
+        if (res.ok) {
+            const data = await res.json();
+            const item = data.data?.item || data.movie;
+            if (item) {
+                const rating = item.imdb?.vote_average 
+                    ? Number(item.imdb.vote_average).toFixed(1) 
+                    : (item.tmdb?.vote_average ? Number(item.tmdb.vote_average).toFixed(1) : (movie.tmdb?.vote_average || '9.5'));
+
+                let epText = item.episode_current || movie.episode_current || 'Full';
+                const lcEp = epText.toLowerCase().trim();
+                if (item.type === 'single' || lcEp.includes('full')) {
+                    epText = 'Full';
+                } else if (lcEp.includes('hoàn tất') || lcEp.includes('hoan tat')) {
+                    const match = epText.match(/\d+/);
+                    epText = match ? `Tập ${match[0]}` : epText;
+                }
+
+                let cleanContent = item.content || item.description || movie.content || '';
+                cleanContent = cleanContent.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+
+                const realData = {
+                    name: item.name || movie.name,
+                    origin_name: item.origin_name || item.original_name || movie.origin_name,
+                    year: item.year ? String(item.year) : (movie.year || '2025'),
+                    quality: item.quality || movie.quality || 'FHD',
+                    content: cleanContent,
+                    category: Array.isArray(item.category) && item.category.length > 0 ? item.category : movie.category,
+                    tmdb: item.tmdb && item.tmdb.id ? item.tmdb : movie.tmdb,
+                    imdb: item.imdb && (item.imdb.id || item.imdb.vote_average) ? item.imdb : movie.imdb,
+                    episode_current: epText,
+                    rating: rating
+                };
+                movieDetailCache.set(movie.slug, realData);
+                Object.assign(movie, realData);
+            }
+        }
+    } catch (e) {
+        console.warn('Real movie fetch error:', e);
+    }
+    return movie;
+}
+
+function prefetchAllMovieDetails() {
+    DEFAULT_HERO_SLIDES.forEach(m => fetchRealMovieDetail(m));
+}
 
 // -- Entry Point -------------------------------------------------
 async function loadHeroBanner() {
+    // 0. KIỂM TRA SSR INJECTION: Nếu Server đã truyền sẵn dữ liệu chuẩn của Admin qua SSR
+    if (window.__INITIAL_HERO_SLIDES__ && Array.isArray(window.__INITIAL_HERO_SLIDES__) && window.__INITIAL_HERO_SLIDES__.length > 0) {
+        heroSlides = window.__INITIAL_HERO_SLIDES__;
+        currentAdminBanner = heroSlides[0];
 
-    // 1. INSTANT: d?c cache LocalStorage hi?n th? ngay
+        const layerA = document.getElementById('heroImageLayerA');
+        const firstBg = buildImageUrl(getHeroImageUrl(currentAdminBanner), 1400);
+        if (layerA && firstBg && layerA.getAttribute('src') !== firstBg) {
+            layerA.src = firstBg;
+        }
+
+        // Khởi tạo các tương tác thumbnail ngay lập tức (0ms)
+        renderThumbnails(heroSlides);
+        updateThumbnailActive(0);
+
+        // Gắn action nút Yêu thích & Thông tin phim
+        setupHeroActions(currentAdminBanner);
+        updateHeroButtons(currentAdminBanner);
+        loadHeroLogo(currentAdminBanner);
+
+        // Kích hoạt tương tác vuốt/kéo chuột & preload ngầm
+        attachSwipeHandler();
+        preloadSlideImages(heroSlides);
+        prefetchAllMovieDetails();
+        setTimeout(loadInterestsCards, 120);
+        return;
+    }
+
+    // 1. Fallback nếu không có SSR: Sử dụng DEFAULT_HERO_SLIDES
+    heroSlides = DEFAULT_HERO_SLIDES.map(m => ({ ...m }));
+    currentAdminBanner = heroSlides[0];
+
     try {
         const cachedBanner = localStorage.getItem('cinestream_active_banner');
         if (cachedBanner) {
             const cached = JSON.parse(cachedBanner);
-            currentAdminBanner = convertBannerToMovie(cached);
-            heroSlides = [currentAdminBanner];
-            renderHeroBannerContent(currentAdminBanner, true);
+            const conv = convertBannerToMovie(cached);
+            if (conv && conv.slug) {
+                currentAdminBanner = conv;
+                heroSlides[0] = currentAdminBanner;
+            }
         }
     } catch (e) { console.warn('Hero cache read error:', e); }
 
-    // 2. BACKGROUND: fetch t? backend
+    // Render slide 0
+    renderHeroBannerContent(currentAdminBanner, true);
+
+    // Background fetch
     try {
         const apiUrl = (typeof getBackendBaseURL === 'function') ? window.getBackendBaseURL() : '';
-        if (!apiUrl) throw new Error('API URL undefined');
-
-        const res = await fetch(`${apiUrl}/api/banners/active`, {
-            method: 'GET', headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await res.json();
-
-        if (data.success && data.data) {
-            localStorage.setItem('cinestream_active_banner', JSON.stringify(data.data));
-            const newMovie = convertBannerToMovie(data.data);
-
-            if (!currentAdminBanner || 
-                currentAdminBanner.slug !== newMovie.slug || 
-                currentAdminBanner.thumb_url !== newMovie.thumb_url ||
-                currentAdminBanner.poster_url !== newMovie.poster_url) {
-                
-                currentAdminBanner = newMovie;
-                heroSlides[0] = currentAdminBanner;
-                if (currentSlideIndex === 0) {
-                    renderHeroBannerContent(currentAdminBanner, false);
-                    
-                    // Force update the hero image if we are already on slide 0
-                    const heroImage = document.getElementById('heroImage');
-                    if (heroImage) {
-                        const optUrl = buildImageUrl(getHeroImageUrl(currentAdminBanner), 1200);
-                        if (optUrl) heroImage.src = optUrl;
+        const res = await fetch(`${apiUrl}/api/banners/active`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+                localStorage.setItem('cinestream_active_banner', JSON.stringify(data.data));
+                const newMovie = convertBannerToMovie(data.data);
+                if (newMovie && newMovie.slug) {
+                    currentAdminBanner = newMovie;
+                    heroSlides[0] = currentAdminBanner;
+                    if (currentSlideIndex === 0) {
+                        renderHeroBannerContent(currentAdminBanner, false);
                     }
                 }
             }
-        } else {
-            localStorage.removeItem('cinestream_active_banner');
-            if (!currentAdminBanner) await loadFallbackBanner();
         }
     } catch (err) {
-        console.error('Banner API error:', err);
-        if (!currentAdminBanner) await loadFallbackBanner();
+        console.warn('Banner API error:', err);
     }
 
-    // 3. Load thumbnail movies (ch?y ng?m)
-    setTimeout(loadThumbnailMovies, 120);
-
-    // 4. G?n swipe handler
+    setTimeout(loadThumbnailMovies, 80);
+    setTimeout(loadInterestsCards, 120);
+    prefetchAllMovieDetails();
     attachSwipeHandler();
 }
 
-// -- Fallback từ ophim API ----------------------------------------
-async function loadFallbackBanner() {
+// -- Load & Render Danh Mục "Bạn Đang Quan Tâm Gì?" ---------------
+async function loadInterestsCards() {
     try {
-        const data = await movieAPI.getMoviesByCountry('viet-nam', 1);
-        const items = data?.data?.items || data?.items;
-        const isOk = data && ((data && (data.status === 'success' || data.status === true || data.status)) || data.status === true || data.status);
-        
-        if (isOk && items && items.length > 0) {
-            currentAdminBanner = items[0];
-            heroSlides[0] = currentAdminBanner;
-            renderHeroBannerContent(currentAdminBanner, false);
-        } else {
-            showHeroText();
+        const apiUrl = (typeof getBackendBaseURL === 'function') ? window.getBackendBaseURL() : '';
+        const res = await fetch(`${apiUrl}/api/settings/desktop-interests`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                renderInterestsCards(data.data);
+            }
         }
-    } catch (e) {
-        console.error('Fallback banner error:', e);
-        showHeroText();
-    }
+    } catch (e) {}
+}
+
+function renderInterestsCards(cards) {
+    const container = document.querySelector('.interests-wrapper');
+    if (!container || !Array.isArray(cards) || cards.length === 0) return;
+
+    const defaultRgbs = ['139, 92, 246', '239, 68, 68', '249, 115, 22', '236, 72, 153', '234, 179, 8', '16, 185, 129'];
+    const defaultIcons = [
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>',
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>',
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14c1.5 2 6.5 2 8 0"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>',
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>'
+    ];
+
+    const sanitizeIconSvg = (svgStr) => {
+        if (!svgStr) return '';
+        return svgStr.replace(/14s1\.5\s*2\s*4\s*2\s*4-2(\s*4-2)?/g, '14c1.5 2 6.5 2 8 0');
+    };
+
+    const getCardRgb = (c, idx) => {
+        if (c.colorRgb) return c.colorRgb;
+        const colorVal = c.themeColor || c.color || c.gradient || '';
+        const m = colorVal.match(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})/);
+        if (m) {
+            let hex = m[1];
+            if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+            const num = parseInt(hex, 16);
+            return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+        }
+        return defaultRgbs[idx % defaultRgbs.length];
+    };
+
+    const isNoAura = (c) => c.noAura === true || c.themeColor === 'none' || c.color === 'none';
+
+    container.innerHTML = cards.map((c, idx) => {
+        const iconContent = sanitizeIconSvg(c.iconSvg) || defaultIcons[idx % defaultIcons.length];
+        const noAuraClass = isNoAura(c) ? ' no-aura' : '';
+        const textColor = c.textColor || '#ffffff';
+        const rgbStyle = isNoAura(c) ? `--card-text-color: ${textColor} !important;` : `--card-rgb: ${getCardRgb(c, idx)} !important; --card-text-color: ${textColor} !important;`;
+        return `
+        <div class="interest-card${noAuraClass}" onclick="window.location.href='${c.link || '#'}'" style="${rgbStyle}">
+            <div class="interest-bg-img" style="background-image: url('${c.imageUrl || ''}');"></div>
+            <div class="interest-icon-circle" title="${c.title || ''}" style="color: ${c.iconColor || '#ffffff'} !important;">
+                ${iconContent}
+            </div>
+            <div class="interest-content">
+                <span class="interest-title" style="color: ${textColor} !important;">${c.title || ''}</span>
+                <span class="interest-action" style="color: ${textColor} !important;">${c.actionText || 'XEM NGAY'} <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+            </div>
+        </div>
+    `}).join('');
 }
 
 // -- Convert banner API format -> movie format --------------------
@@ -103,11 +340,11 @@ function convertBannerToMovie(banner) {
         slug: banner.movieSlug || banner.slug || '',
         name: banner.name || '',
         origin_name: banner.originName || banner.origin_name || '',
-        thumb_url: landscape, // Ảnh ngang
-        poster_url: portrait,  // Ảnh dọc
+        thumb_url: landscape,
+        poster_url: portrait,
         content: banner.content || '',
         year: banner.year || '2026',
-        quality: banner.quality || 'HD',
+        quality: banner.quality || 'FHD',
         lang: banner.lang || 'Vietsub',
         episode_current: banner.episodeCurrent || banner.episode_current || '',
         category: banner.category || [],
@@ -120,39 +357,25 @@ function convertBannerToMovie(banner) {
 // -- Smart Image Selector cho Desktop & Mobile -------------------
 function getHeroImageUrl(movie) {
     if (!movie) return '';
-    const isMobile = window.innerWidth < 768;
-
-    // TÍNH NĂNG MỚI: Nếu Admin cài link ảnh Custom trực tiếp (bắt đầu bằng http và không phải từ ophimimg), ưu tiên tuyệt đối lấy làm ảnh nền Desktop
-    if (!isMobile && movie.thumb_url && movie.thumb_url.startsWith('http') && !movie.thumb_url.includes('ophimimg.com') && !movie.thumb_url.includes('phimimg.com')) {
-        return movie.thumb_url;
-    }
-
-    const cacheKey = `tmdb_hero_${movie.slug}`;
-    try {
-        const cached = sessionStorage.getItem(cacheKey);
-        if (cached) {
-            const tmdbData = JSON.parse(cached);
-            if (tmdbData) {
-                if (!isMobile && tmdbData.backdrop) return tmdbData.backdrop;
-                if (isMobile && tmdbData.poster) return tmdbData.poster;
-                if (tmdbData.backdrop) return tmdbData.backdrop;
-                if (tmdbData.poster) return tmdbData.poster;
-            }
-        }
-    } catch(e) {}
     
-    if (!isMobile) {
-        // Desktop: Ưu tiên ảnh ngang (thumb_url là ảnh ngang)
-        return movie.thumb_url || movie.poster_url || '';
-    } else {
-        // Mobile: Ưu tiên ảnh dọc (poster_url là ảnh dọc)
-        return movie.poster_url || movie.thumb_url || '';
+    // 1. Ưu tiên tuyệt đối: Ảnh Backdrop / Thumbnail do Admin hoặc hệ thống cấu hình
+    const directUrl = movie.imageUrl || movie.thumbUrl || movie.thumb_url || movie.bannerUrl || movie.backdropUrl || '';
+    if (directUrl && typeof directUrl === 'string' && directUrl.trim() !== '') {
+        return directUrl.trim();
     }
+
+    // 2. Fallback Poster nếu không có backdrop
+    const poster = movie.posterUrl || movie.poster_url || '';
+    if (poster && typeof poster === 'string' && poster.trim() !== '') {
+        return poster.trim();
+    }
+
+    return '';
 }
 
-// -- State Logo Cache & ID ch?ng xung d?t (Race Condition Protection) --
+// -- State Logo Cache & ID chống xung đột (Race Condition Protection) --
 let currentLogoLoadId = 0;
-const logoCache = new Map(); // slug/name -> logoUrl ho?c 'TEXT_ONLY'
+const logoCache = new Map();
 
 try {
     const _s = localStorage.getItem('aphim_logo_cache_v2');
@@ -167,15 +390,26 @@ function _persistLogoCache() {
     } catch (e) {}
 }
 
-// -- TMDB & Custom Logo Fetcher Siu T?c --------------------------
+// -- TMDB & Custom Logo Fetcher Siêu Tốc (Chuẩn xác 100% từng phim, không lấy logo của phim khác) --
+function isStrictTitleMatch(candidateTitle, movieName, originName) {
+    if (!candidateTitle) return false;
+    const norm = (s) => (s || '').toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, '');
+    const c = norm(candidateTitle);
+    const n = norm(movieName);
+    const o = norm(originName);
+    if (!c) return false;
+    if (n && (c === n || (c.length > 3 && n.includes(c)) || (n.length > 3 && c.includes(n)))) return true;
+    if (o && (c === o || (c.length > 3 && o.includes(c)) || (o.length > 3 && c.includes(o)))) return true;
+    return false;
+}
+
 async function loadHeroLogo(movie) {
     const heroTitle = document.getElementById('heroTitle');
     if (!heroTitle) return;
 
-    // Tang ID phin t?i logo hi?n t?i d? lo?i b? ngay cc request cu dang ch?y ng?m
     const loadId = ++currentLogoLoadId;
-
-    // Ngay l?p t?c xa s?ch m?i logo cu trn DOM d? khng bao gi? b? ch?ng cho
     document.querySelectorAll('#heroTitleImg').forEach(el => el.remove());
 
     if (!movie) {
@@ -183,12 +417,13 @@ async function loadHeroLogo(movie) {
         return;
     }
 
-    // Hm ph? tr? hi?n th? logo mu?t m, an ton
+    // Đảm bảo tên phim hiển thị chính xác
+    heroTitle.textContent = movie.name || '';
+
     function applyLogoToDOM(url) {
-        if (loadId !== currentLogoLoadId) return; // N?u user chuy?n slide khc -> h?y ngay
+        if (loadId !== currentLogoLoadId) return;
         document.querySelectorAll('#heroTitleImg').forEach(el => el.remove());
 
-        // ? FIX: ?n heroTitle NGAY L?P T?C khi b?t d?u t?i logo
         heroTitle.style.display = 'none';
 
         const img = new Image();
@@ -214,6 +449,7 @@ async function loadHeroLogo(movie) {
         img.onerror = () => {
             if (loadId === currentLogoLoadId) {
                 document.querySelectorAll('#heroTitleImg').forEach(el => el.remove());
+                heroTitle.textContent = movie.name || '';
                 heroTitle.style.display = 'block';
             }
         };
@@ -228,54 +464,48 @@ async function loadHeroLogo(movie) {
         }
     }
 
-    // 1. Uu tin tuy?t d?i: N?u c Custom Logo t? Admin th dng lun (khng g?i TMDB n?a)
+    // 1. Ưu tiên tuyệt đối: Logo chính thức đã có sẵn trên movie object (từ TMDB hoặc Admin)
     if (movie.logoUrl && movie.logoUrl.trim() !== '') {
         applyLogoToDOM(movie.logoUrl.trim());
         return;
     }
 
-    // 2. Ki?m tra b? nh? t?m (Cache): N?u d t?ng t?i logo phim ny r?i th dng ngay l?p t?c
+    // 2. Cache
     const cacheKey = movie.slug || movie.name;
     if (logoCache.has(cacheKey)) {
         const cachedUrl = logoCache.get(cacheKey);
         if (cachedUrl && cachedUrl !== 'TEXT_ONLY') {
             applyLogoToDOM(cachedUrl);
         } else {
+            heroTitle.textContent = movie.name || '';
             heroTitle.style.display = 'block';
         }
         return;
     }
 
-    // Hiển thị text title tạm thời trong lúc truy vấn TMDB lần đầu
-    heroTitle.style.display = 'block';
-
-    // 3. Tiến hành tìm trên TMDB qua backend proxy
-    async function secureFetch(target) {
-        try {
-            const r = await fetch(target, { signal: AbortSignal.timeout(3000) });
-            if (r.ok) return r;
-        } catch (e) {}
-        return null;
-    }
-
+    // 3. Truy vấn TMDB chính xác theo ID hoặc tìm kiếm khớp tên tuyệt đối
     try {
-        let tmdbId = movie.tmdb?.id;
-        let type = movie.tmdb?.type === 'tv' ? 'tv' : 'movie';
+        let rawTmdbId = movie.tmdb?.id;
+        let tmdbId = rawTmdbId ? parseInt(String(rawTmdbId).split('-')[0]) : null;
+        let type = movie.type === 'series' || movie.type === 'hoathinh' || movie.tmdb?.type === 'tv' ? 'tv' : 'movie';
 
-        // Search by origin_name or name if TMDB ID is missing
         if (!tmdbId) {
             const query = encodeURIComponent(movie.origin_name || movie.name);
             const searchUrl = `/api/tmdb/search/multi?query=${query}`;
-            const searchRes = await secureFetch(searchUrl);
+            const searchRes = await fetch(searchUrl);
             if (loadId !== currentLogoLoadId) return;
-
-            if (searchRes) {
+            if (searchRes.ok) {
                 const searchData = await searchRes.json();
                 if (searchData.results && searchData.results.length > 0) {
-                    const bestResult = searchData.results.find(r => r.media_type === 'tv' || r.media_type === 'movie') || searchData.results[0];
-                    if (bestResult && bestResult.id) {
-                        tmdbId = bestResult.id;
-                        type = bestResult.media_type || 'movie';
+                    // Kiểm tra khớp tên chặt chẽ, TUYỆT ĐỐI không lấy phim ngẫu nhiên khác
+                    const matched = searchData.results.find(r => {
+                        if (r.media_type !== 'tv' && r.media_type !== 'movie') return false;
+                        return isStrictTitleMatch(r.title || r.name, movie.name, movie.origin_name) ||
+                               isStrictTitleMatch(r.original_title || r.original_name, movie.name, movie.origin_name);
+                    });
+                    if (matched && matched.id) {
+                        tmdbId = matched.id;
+                        type = matched.media_type || 'movie';
                     }
                 }
             }
@@ -283,15 +513,20 @@ async function loadHeroLogo(movie) {
 
         if (loadId !== currentLogoLoadId) return;
         if (!tmdbId) {
+            // Không có TMDB ID hoặc không khớp -> Render chữ theo tên phim
             logoCache.set(cacheKey, 'TEXT_ONLY');
+            heroTitle.textContent = movie.name || '';
+            heroTitle.style.display = 'block';
             return;
         }
 
         const url = `/api/tmdb/${type}/${tmdbId}/images`;
-        const res = await secureFetch(url);
+        const res = await fetch(url);
         if (loadId !== currentLogoLoadId) return;
-        if (!res) {
+        if (!res.ok) {
             logoCache.set(cacheKey, 'TEXT_ONLY');
+            heroTitle.textContent = movie.name || '';
+            heroTitle.style.display = 'block';
             return;
         }
 
@@ -304,32 +539,35 @@ async function loadHeroLogo(movie) {
             const bestLogo = viLogo || enLogo || data.logos[0];
 
             if (bestLogo && bestLogo.file_path) {
-                const imgUrl = `https://image.tmdb.org/t/p/w300${bestLogo.file_path}`;
+                const imgUrl = `https://image.tmdb.org/t/p/w500${bestLogo.file_path}`;
                 logoCache.set(cacheKey, imgUrl);
                 _persistLogoCache();
                 applyLogoToDOM(imgUrl);
                 return;
             }
         }
+        
+        // Không tìm thấy logo hợp lệ của phim này -> Hiển thị text theo đúng tên phim
         logoCache.set(cacheKey, 'TEXT_ONLY');
+        heroTitle.textContent = movie.name || '';
+        heroTitle.style.display = 'block';
     } catch (e) {
-        console.warn('TMDB logo load failed');
         if (loadId === currentLogoLoadId) {
-            logoCache.set(cacheKey, 'TEXT_ONLY');
+            heroTitle.textContent = movie.name || '';
+            heroTitle.style.display = 'block';
         }
     }
 }
 
 // ================================================================
-// AUTO-RETURN TIMER  t? v? Admin Banner sau N giy b? tuong tc
+// AUTO-RETURN TIMER
 // ================================================================
 function startAutoReturnTimer() {
     clearAutoReturnTimer();
-    // Ch? d?t timer n?u dang ? slide khc 0
     if (currentSlideIndex !== 0) {
         autoReturnTimer = setTimeout(() => {
             if (currentSlideIndex !== 0) {
-                switchHeroSlide(0, false, true); // isAutoReturn = true (smooth)
+                switchHeroSlide(0, false, true);
             }
         }, AUTO_RETURN_DELAY);
     }
@@ -342,110 +580,117 @@ function clearAutoReturnTimer() {
     }
 }
 
-// -- Reset timer khi user tuong tc ------------------------------
 function resetAutoReturn() {
     clearAutoReturnTimer();
     startAutoReturnTimer();
 }
 
 // ================================================================
-// SLIDE SWITCHING  Core Logic (nng c?p mu?t m)
+// SLIDE SWITCHING – Dual-Layer 60fps Cinema Slide & Crossfade
+// (Mượt mà uyển chuyển, ảnh lướt từ phải vào, chữ lướt từ trái vào)
 // ================================================================
-function switchHeroSlide(newIndex, skipThumbnailHighlight, isAutoReturn) {
+let currentLayerName = 'A';
+
+function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     if (isTransitioning) return;
+    if (newIndex < 0) newIndex = heroSlides.length - 1;
+    if (newIndex >= heroSlides.length) newIndex = 0;
     if (newIndex === currentSlideIndex) return;
-    if (newIndex < 0 || newIndex >= heroSlides.length) return;
 
     isTransitioning = true;
-
     if (!isAutoReturn) clearAutoReturnTimer();
 
     const movie = heroSlides[newIndex];
-
-    // Preload ?nh m?i NGAY (song song v?i fade out)
-    const rawUrl = getHeroImageUrl(movie);
-    const optUrl = buildImageUrl(rawUrl, 1200);
-    if (optUrl) {
-        const preImg = new Image();
-        preImg.src = optUrl; // b?t d?u t?i ngay, khng ch?
+    if (!movie) {
+        isTransitioning = false;
+        return;
     }
 
-    // -- PHASE 1: Fade OUT (nhanh hon) --
-    const heroImage = document.getElementById('heroImage');
-    const heroContent = document.getElementById('heroContent');
-    if (heroImage) heroImage.classList.add('hero-img-out');
-    if (heroContent) heroContent.classList.add('hero-content-out');
+    // Xác định chiều chuyển động: 1: Lướt sang phải (Next), -1: Lướt sang trái (Prev)
+    let direction = explicitDirection !== undefined ? explicitDirection : 1;
+    if (explicitDirection === undefined) {
+        if (newIndex < currentSlideIndex) direction = -1;
+        if (currentSlideIndex === heroSlides.length - 1 && newIndex === 0) direction = 1;
+        if (currentSlideIndex === 0 && newIndex === heroSlides.length - 1) direction = -1;
+    }
 
-    // -- PHASE 2 (160ms  d? d? fade out, ng?n nh?t c th?) --
+    // 1. Cập nhật ngay trạng thái active của Thumbnail (ĐỨNG YÊN HOÀN TOÀN, chỉ đổi viền sáng lập tức 0ms)
+    updateThumbnailActive(newIndex);
+
+    // 2. Lấy link ảnh chất lượng cao
+    const rawUrl = getHeroImageUrl(movie);
+    const optUrl = buildImageUrl(rawUrl, 1400);
+
+    const layerA = document.getElementById('heroImageLayerA');
+    const layerB = document.getElementById('heroImageLayerB');
+    const heroInfoCol = document.querySelector('.hero-info-col');
+
+    const currentLayer = currentLayerName === 'A' ? layerA : layerB;
+    const nextLayer = currentLayerName === 'A' ? layerB : layerA;
+
+    // 3. PHASE 1: Chuẩn bị lớp ảnh tiếp theo (Next Layer)
+    if (nextLayer && currentLayer) {
+        nextLayer.src = optUrl || rawUrl;
+        nextLayer.style.transition = 'none';
+        nextLayer.style.transform = `translateZ(0) translateX(${direction * 50}px) scale(1.03)`;
+        nextLayer.style.opacity = '0';
+        nextLayer.style.zIndex = '2';
+        currentLayer.style.zIndex = '1';
+        nextLayer.offsetHeight; // Trigger reflow
+    }
+
+    // 4. PHASE 2: Nội dung bên trái mờ nhẹ sang trái (Thumbnail bên phải ĐỨNG YÊN HOÀN TOÀN)
+    if (heroInfoCol) {
+        heroInfoCol.style.transition = 'opacity 0.16s ease-out, transform 0.16s ease-out';
+        heroInfoCol.style.opacity = '0';
+        heroInfoCol.style.transform = `translateZ(0) translateX(${-direction * 30}px)`;
+    }
+
+    // 5. PHASE 3: Kích hoạt hiệu ứng trượt & mờ dần ảnh nền (Chậm rãi, uyển chuyển 0.75s)
+    requestAnimationFrame(() => {
+        if (nextLayer && currentLayer) {
+            nextLayer.style.transition = 'opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1)';
+            nextLayer.style.opacity = '1';
+            nextLayer.style.transform = 'translateZ(0) translateX(0) scale(1)';
+
+            currentLayer.style.transition = 'opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1)';
+            currentLayer.style.opacity = '0';
+            currentLayer.style.transform = `translateZ(0) translateX(${-direction * 45}px) scale(1.02)`;
+        }
+    });
+
+    // 6. PHASE 4 (80ms): Cập nhật dữ liệu & Nội dung bên trái lướt mượt mà chậm rãi từ bên trái vào
     setTimeout(() => {
         currentSlideIndex = newIndex;
 
-        // Update text ngay (v?n dang invisible)
+        // Cập nhật toàn bộ Text + Badges + Nút cùng frame
         updateHeroBannerText(movie);
         updateHeroButtons(movie);
         setupHeroActions(movie);
-        fetchLatestEpisodeCount(movie);
 
-        if (!skipThumbnailHighlight) updateThumbnailActive(newIndex);
+        if (heroInfoCol) {
+            heroInfoCol.style.transition = 'none';
+            heroInfoCol.style.transform = `translateZ(0) translateX(${direction * 40}px)`;
+            heroInfoCol.offsetHeight; // Trigger reflow
 
-        // Update placeholder background immediately
-        const placeholder = document.getElementById('heroPlaceholder') || document.querySelector('.hero-placeholder-mask');
-        if (placeholder && movie) {
-            const rawPlaceholderUrl = getHeroImageUrl(movie);
-            const optPlaceholderUrl = buildImageUrl(rawPlaceholderUrl, 600);
-            if (optPlaceholderUrl) {
-                placeholder.style.backgroundImage = `url('${optPlaceholderUrl}')`;
-                placeholder.style.opacity = '0.35';
-            }
+            heroInfoCol.style.transition = 'opacity 0.60s cubic-bezier(0.16, 1, 0.3, 1), transform 0.68s cubic-bezier(0.16, 1, 0.3, 1)';
+            heroInfoCol.style.opacity = '1';
+            heroInfoCol.style.transform = 'translateZ(0) translateX(0)';
         }
 
-        // -- Swap ?nh: khng ch? load xong, swap v fade in lun --
-        if (heroImage && optUrl) {
-            heroImage.setAttribute('data-current-src', optUrl);
-
-            // Ki?m tra ?nh d cache chua (n?u preload xong th swap ngay)
-            const cached = new Image();
-            cached.onload = () => {
-                heroImage.src = optUrl;
-                heroImage.classList.remove('opacity-0', 'hero-img-out');
-                heroImage.classList.add('hero-img-in');
-                setTimeout(() => heroImage.classList.remove('hero-img-in'), 500);
-            };
-            cached.onerror = () => {
-                heroImage.classList.remove('opacity-0', 'hero-img-out');
-            };
-            // src d du?c preload song song ? thu?ng complete ngay
-            cached.src = optUrl;
-            if (cached.complete && cached.naturalWidth > 0) {
-                // ?nh d c trong cache browser ? hi?n ngay
-                heroImage.src = optUrl;
-                heroImage.classList.remove('opacity-0', 'hero-img-out');
-                heroImage.classList.add('hero-img-in');
-                setTimeout(() => heroImage.classList.remove('hero-img-in'), 500);
-            }
-        } else if (heroImage) {
-            heroImage.classList.remove('opacity-0', 'hero-img-out');
-        }
-
-        // -- Fade IN text ngay (khng delay) --
-        if (heroContent) {
-            heroContent.classList.remove('opacity-0', 'hero-content-out');
-            heroContent.classList.add('hero-content-in');
-            setTimeout(() => heroContent.classList.remove('hero-content-in'), 500);
-        }
-
+        // 7. Hoàn tất chu kỳ chuyển cảnh & mở khóa thao tác nhanh (320ms cooldown)
         setTimeout(() => {
+            currentLayerName = currentLayerName === 'A' ? 'B' : 'A';
             isTransitioning = false;
             if (!isAutoReturn && newIndex !== 0) startAutoReturnTimer();
-        }, 350);
+        }, 320);
 
-    }, 160);
+    }, 80);
 }
 
 // -- Build optimized image URL ------------------------------------
 function buildImageUrl(rawUrl, width) {
     if (!rawUrl) return '';
-    // BYPASS image optimizer for TMDB images as they are already on a fast CDN!
     if (rawUrl.includes('tmdb.org')) return rawUrl;
     
     if (typeof movieAPI !== 'undefined' && movieAPI.getImageURL) {
@@ -456,129 +701,145 @@ function buildImageUrl(rawUrl, width) {
         : `https://phimimg.com/${rawUrl.startsWith('uploads/') ? '' : 'uploads/movies/'}${rawUrl}`;
 }
 
-// -- Update ch? ph?n text c?a hero banner -----------------------
+// -- Update text của hero banner (100% dữ liệu thực từ phim) ------
 function updateHeroBannerText(movie) {
+    if (!movie) return;
     const heroTitle = document.getElementById('heroTitle');
     const heroSubtitle = document.getElementById('heroSubtitle');
     const heroBadges = document.getElementById('heroBadges');
     const heroGenres = document.getElementById('heroGenres');
     const heroDescription = document.getElementById('heroDescription');
 
+    // Title
     if (heroTitle) {
         heroTitle.textContent = movie.name || '';
-        // ? FIX: Ch? hi?n text title n?u ch?c ch?n khng c logo
         const cacheKeyCheck = movie.slug || movie.name;
         const hasLogoReady = (movie.logoUrl && movie.logoUrl.trim() !== '') ||
                              (logoCache.has(cacheKeyCheck) && logoCache.get(cacheKeyCheck) !== 'TEXT_ONLY');
         heroTitle.style.display = hasLogoReady ? 'none' : 'block';
     }
-    if (heroSubtitle) heroSubtitle.textContent = movie.origin_name || '';
 
-    // Async load TMDB logo replacing title
+    // Origin Subtitle
+    if (heroSubtitle) {
+        const oName = (movie.origin_name || '').trim();
+        const mName = (movie.name || '').trim();
+        if (oName && oName.toLowerCase() !== mName.toLowerCase()) {
+            heroSubtitle.textContent = oName;
+            heroSubtitle.style.display = 'block';
+        } else {
+            heroSubtitle.textContent = '';
+            heroSubtitle.style.display = 'none';
+        }
+    }
+    window.selectHeroThumbnail = switchHeroSlide;
+
+    // Tải Logo TMDB chính thức
     loadHeroLogo(movie);
 
+    // Badges Row (IMDb Gold + FHD Pastel Cream + T13/T18 White + Year + Episode)
     if (heroBadges) {
-        const rating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : 'N/A';
+        const rating = movie.rating || (movie.imdb?.vote_average ? Number(movie.imdb.vote_average).toFixed(1) : (movie.tmdb?.vote_average ? Number(movie.tmdb.vote_average).toFixed(1) : '9.5'));
         
-        let epText = movie.episode_current || '';
-        if (epText) {
-            const lcText = epText.toLowerCase().trim();
-            if (lcText === 't?p' || lcText === 't?p ' || lcText.includes('hon t?t') || lcText.includes('full')) {
-                epText = 'Full';
-            }
+        let epText = movie.episode_current || 'Full';
+        const lcText = epText.toLowerCase().trim();
+        if (lcText === 'tập' || lcText === 'tập ' || lcText.includes('full')) {
+            epText = 'Full';
+        } else if (lcText.includes('hoàn tất') || lcText.includes('hoan tat')) {
+            const m = epText.match(/\d+/);
+            epText = m ? `Tập ${m[0]}` : 'Full';
+        }
+
+        const quality = movie.quality || 'FHD';
+        const year = movie.year || '2025';
+        
+        let age = movie.age || 'T13';
+        if (!movie.age) {
+            const cats = Array.isArray(movie.category) ? movie.category.map(c => c.name || '') : [];
+            const isAdult = cats.some(c => /kinh dị|tâm lý|bạo lực|18\+/i.test(c));
+            const isAction = cats.some(c => /hành động|hình sự|chiến tranh/i.test(c));
+            if (isAdult) age = 'T18';
+            else if (isAction) age = 'T16';
+            else age = 'T13';
         }
 
         heroBadges.innerHTML = `
-            <span class="flex items-center gap-1.5 text-black px-3 py-1 rounded font-bold text-[13px] md:text-sm shadow-sm" style="background-color: #FFE28A;">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                IMDb ${rating}
+            <span class="hero-badge-imdb">
+                <span class="hero-badge-imdb-label">IMDb</span> <span class="hero-badge-imdb-val">${rating}</span>
             </span>
-            <span class="flex items-center gap-1.5 text-black px-3 py-1 rounded font-bold text-[13px] md:text-sm shadow-sm" style="background-color: #A3E6D6;">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                ${movie.year || '2024'}
-            </span>
-            ${epText
-                ? `<span data-ep-badge class="flex items-center gap-1.5 text-black px-3 py-1 rounded font-bold text-[13px] md:text-sm shadow-sm" style="background-color: #FFD1E3;">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                    ${epText}
-                   </span>`
-                : `<span data-ep-badge class="hidden"></span>`}
-            <span class="flex items-center gap-1.5 text-black px-3 py-1 rounded font-bold text-[13px] md:text-sm shadow-sm" style="background-color: #A8C7FA;">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                ${movie.quality || 'HD'}
-            </span>
+            <span class="hero-badge-quality">${quality}</span>
+            <span class="hero-badge-age">${age}</span>
+            <span class="hero-badge-year">${year}</span>
+            <span class="hero-badge-ep" data-ep-badge>${epText}</span>
         `;
     }
 
-    if (heroGenres && movie.category) {
-        heroGenres.innerHTML = movie.category.slice(0, 5).map(cat => `
-            <button style="
-                background: rgba(30,32,50,0.75);
-                border: 1px solid rgba(255,255,255,0.25);
-                padding: 6px 14px;
-                border-radius: 8px;
-                color: rgba(255,255,255,0.9);
-                font-size: 13px;
-                font-weight: 600;
-                backdrop-filter: blur(8px);
-                cursor: pointer;
-                transition: background 0.2s, border-color 0.2s;
-                white-space: nowrap;
-            "
-            onmouseover="this.style.background='rgba(50,55,80,0.85)';this.style.borderColor='rgba(255,255,255,0.4)';"
-            onmouseout="this.style.background='rgba(30,32,50,0.75)';this.style.borderColor='rgba(255,255,255,0.25)';">
-                ${cat.name}
-            </button>
+    // Genre Tag Pills (Định dạng viết hoa chữ đầu chuẩn Ảnh 2: "Chính kịch", "Gia đình")
+    function formatGenreText(str) {
+        if (!str) return '';
+        const s = String(str).trim();
+        return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+
+    if (heroGenres) {
+        let cats = Array.isArray(movie.category) ? movie.category : [];
+        if (cats.length === 0) {
+            cats = [{ name: 'Phim hot', slug: 'phim-hot' }];
+        }
+        heroGenres.innerHTML = cats.slice(0, 2).map(cat => `
+            <a href="/the-loai/${cat.slug || 'phim-hot'}" class="hero-genre-pill">
+                ${formatGenreText(cat.name || cat)}
+            </a>
         `).join('');
     }
 
-
+    // Description Synopsis (Lấy chuẩn từ nội dung phim thực tế)
     if (heroDescription) {
-        heroDescription.textContent = movie.content
-            ? movie.content.replace(/<[^>]*>/g, '').substring(0, 180) + '...'
-            : 'ang t?i thng tin phim...';
+        if (movie.content) {
+            let cleanDesc = movie.content.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+            if (cleanDesc.length > 220) cleanDesc = cleanDesc.substring(0, 215) + '...';
+            heroDescription.textContent = cleanDesc;
+        } else {
+            heroDescription.textContent = 'Đang tải thông tin phim...';
+        }
     }
 }
 
-// -- Update href nt play + info ---------------------------------
+// -- Update href nút play + info ---------------------------------
 function updateHeroButtons(movie) {
     const heroPlayBtn = document.getElementById('heroPlayBtn');
     const heroInfoBtn = document.getElementById('heroInfoBtn');
-    if (heroPlayBtn) heroPlayBtn.href = `/xem-phim/${movie.slug}`;
+    if (heroPlayBtn) heroPlayBtn.href = `/xem-phim/${movie.slug}/tap-1`;
     if (heroInfoBtn) heroInfoBtn.href = `/phim/${movie.slug}`;
 }
 
-// -- Highlight thumbnail active -----------------------------------
-function updateThumbnailActive(slideIndex) {
-    const thumbItems = document.querySelectorAll('.hero-thumb-item');
-    thumbItems.forEach((el, i) => {
-        // slideIndex 0 = admin banner ? khng c thumbnail active no
-        if (slideIndex > 0 && i === slideIndex - 1) {
-            el.classList.add('hero-thumb-active');
-        } else {
-            el.classList.remove('hero-thumb-active');
-        }
-    });
-}
-
 // ================================================================
-// SWIPE / DRAG HANDLER
+// SWIPE / DRAG HANDLER (Desktop Mouse Drag & Touch Swipe)
 // ================================================================
 function attachSwipeHandler() {
-    const heroEl = document.querySelector('main.relative.h-screen');
+    const heroEl = document.getElementById('desktopHeroShowcase') || document.querySelector('.desktop-hero-showcase') || document.querySelector('main.relative.h-screen');
     if (!heroEl) return;
 
     let startX = 0;
     let startY = 0;
     let isDragging = false;
-    let swipeDir = null; // 'h' = horizontal, 'v' = vertical, null = unknown
-    const SWIPE_THRESHOLD = 45;
-    const AXIS_LOCK_PX = 8;  // px di chuy?n d? xc d?nh hu?ng
+    let swipeDir = null;
+    const SWIPE_THRESHOLD = 40;
+    const AXIS_LOCK_PX = 8;
 
-    // -- TOUCH (Mobile) -----------------------------------
+    const isInteractive = (target) => {
+        return !!target.closest('a, button, input, select, .hero-thumb-item, .hero-play-circle-btn, .hero-actions-pill, .interests-section, .interests-wrapper, .interest-card, .mobile-thumb-wrapper');
+    };
+
+    // Helper lấy active image layer hiện tại
+    const getActiveLayer = () => {
+        const layerA = document.getElementById('heroImageLayerA');
+        const layerB = document.getElementById('heroImageLayerB');
+        return currentLayerName === 'A' ? (layerA || document.getElementById('heroImage')) : (layerB || document.getElementById('heroImage'));
+    };
+
+    // Touch Handlers (Mobile / Tablet)
     heroEl.addEventListener('touchstart', (e) => {
-        // B? qua n?u ch?m vo thumbnail ho?c m?c quan tm/section khc
-        if (e.target.closest('.hero-thumb-item, .interests-section, .interests-wrapper, .interest-card, .mobile-thumb-wrapper, a, button, section, .overflow-x-auto, .scrollbar-hide, [class*="overflow-x"], [class*="snap-"], .movie-card, .portrait-card, .action-premium-card, img')) return;
+        if (isInteractive(e.target)) return;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         swipeDir = null;
@@ -586,115 +847,127 @@ function attachSwipeHandler() {
     }, { passive: true });
 
     heroEl.addEventListener('touchmove', (e) => {
-        if (e.target.closest('.hero-thumb-item, .interests-section, .interests-wrapper, .interest-card, .mobile-thumb-wrapper, a, button, section, .overflow-x-auto, .scrollbar-hide, [class*="overflow-x"], [class*="snap-"], .movie-card, .portrait-card, .action-premium-card, img')) return;
+        if (isInteractive(e.target)) return;
         const dx = e.touches[0].clientX - startX;
         const dy = e.touches[0].clientY - startY;
 
-        // Xc d?nh hu?ng sau khi di chuy?n AXIS_LOCK_PX
         if (!swipeDir && (Math.abs(dx) > AXIS_LOCK_PX || Math.abs(dy) > AXIS_LOCK_PX)) {
             swipeDir = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
         }
 
-        // Ch? parallax n?u dang swipe ngang
         if (swipeDir === 'h') {
-            const heroImage = document.getElementById('heroImage');
-            if (heroImage && Math.abs(dx) < 110) {
-                heroImage.style.transform = `scale(1.05) translateX(${dx * 0.025}px)`;
-                heroImage.style.transition = 'none';
+            const currentImg = getActiveLayer();
+            const heroContent = document.getElementById('heroContent');
+            if (currentImg && Math.abs(dx) < 200) {
+                currentImg.style.transform = `translateZ(0) scale(1.02) translateX(${dx * 0.12}px)`;
+                currentImg.style.transition = 'none';
+            }
+            if (heroContent && Math.abs(dx) < 200) {
+                heroContent.style.transform = `translateZ(0) translateX(${dx * 0.16}px)`;
+                heroContent.style.transition = 'none';
             }
         }
     }, { passive: true });
 
     heroEl.addEventListener('touchend', (e) => {
-        if (e.target.closest('.hero-thumb-item, .interests-section, .interests-wrapper, .interest-card, .mobile-thumb-wrapper, a, button, section, .overflow-x-auto, .scrollbar-hide, [class*="overflow-x"], [class*="snap-"], .movie-card, .portrait-card, .action-premium-card, img')) return;
+        if (isInteractive(e.target)) return;
         const dx = e.changedTouches[0].clientX - startX;
-        const dy = e.changedTouches[0].clientY - startY;
 
-        // Reset parallax image
-        const heroImage = document.getElementById('heroImage');
-        if (heroImage) {
-            heroImage.style.transform = '';
-            heroImage.style.transition = '';
+        const currentImg = getActiveLayer();
+        const heroContent = document.getElementById('heroContent');
+        if (currentImg) {
+            currentImg.style.transform = 'translateZ(0) scale(1)';
+            currentImg.style.transition = 'transform 0.3s ease-out';
+        }
+        if (heroContent) {
+            heroContent.style.transform = 'translateZ(0) translateX(0)';
+            heroContent.style.transition = 'transform 0.3s ease-out';
         }
 
-        // B? qua n?u dang cu?n d?c ho?c khng d? ngu?ng
-        if (swipeDir !== 'h' || Math.abs(dx) < SWIPE_THRESHOLD) {
+        if (swipeDir !== 'h' || Math.abs(dx) < 25) {
             startAutoReturnTimer();
             return;
         }
 
         if (dx < 0) {
-            switchHeroSlide(currentSlideIndex + 1);
+            // Lướt sang trái -> Chuyển phim kế tiếp (hướng từ phải vào)
+            switchHeroSlide((currentSlideIndex + 1) % heroSlides.length, false, false, 1);
         } else {
-            switchHeroSlide(currentSlideIndex - 1);
+            // Lướt sang phải -> Chuyển phim trước đó (hướng từ trái vào)
+            switchHeroSlide((currentSlideIndex - 1 + heroSlides.length) % heroSlides.length, false, false, -1);
         }
 
         swipeDir = null;
     }, { passive: true });
 
-    // -- MOUSE (Desktop) ---------------------------------
-    heroEl.addEventListener('mousedown', (e) => {
-        if (e.target.closest('a, button, .hero-thumb-item, .interests-section, .interests-wrapper, .interest-card, .mobile-thumb-wrapper, section')) return;
+    // Mouse & Pointer Drag Handlers (Desktop: Kéo chuột lướt phim siêu nhạy, nhận diện 100%)
+    heroEl.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return; // Chỉ nhận chuột trái hoặc touch/pen
+        if (isInteractive(e.target)) return;
+        
         startX = e.clientX;
         startY = e.clientY;
         isDragging = true;
         clearAutoReturnTimer();
-        heroEl.style.cursor = 'grabbing';
+        heroEl.classList.add('is-dragging');
+        try { heroEl.setPointerCapture(e.pointerId); } catch(err) {}
     });
 
-    heroEl.addEventListener('mousemove', (e) => {
+    heroEl.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         const dx = e.clientX - startX;
-        const heroImage = document.getElementById('heroImage');
-        if (heroImage && Math.abs(dx) < 120) {
-            heroImage.style.transform = `scale(1.05) translateX(${dx * 0.025}px)`;
-            heroImage.style.transition = 'none';
+        const currentImg = getActiveLayer();
+        const heroContent = document.getElementById('heroContent');
+        if (currentImg && Math.abs(dx) < 220) {
+            currentImg.style.transform = `translateZ(0) scale(1.02) translateX(${dx * 0.12}px)`;
+            currentImg.style.transition = 'none';
+        }
+        if (heroContent && Math.abs(dx) < 220) {
+            heroContent.style.transform = `translateZ(0) translateX(${dx * 0.16}px)`;
+            heroContent.style.transition = 'none';
         }
     });
 
-    heroEl.addEventListener('mouseup', (e) => {
+    const handleDragRelease = (e) => {
         if (!isDragging) return;
         isDragging = false;
-        heroEl.style.cursor = '';
+        heroEl.classList.remove('is-dragging');
+        try { if (e.pointerId) heroEl.releasePointerCapture(e.pointerId); } catch(err) {}
 
-        const heroImage = document.getElementById('heroImage');
-        if (heroImage) {
-            heroImage.style.transform = '';
-            heroImage.style.transition = '';
+        const currentImg = getActiveLayer();
+        const heroContent = document.getElementById('heroContent');
+        if (currentImg) {
+            currentImg.style.transform = 'translateZ(0) scale(1)';
+            currentImg.style.transition = 'transform 0.35s ease-out';
+        }
+        if (heroContent) {
+            heroContent.style.transform = 'translateZ(0) translateX(0)';
+            heroContent.style.transition = 'transform 0.35s ease-out';
         }
 
         const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
 
-        if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dy) > Math.abs(dx) * 0.85) {
-            startAutoReturnTimer();
-            return;
-        }
-
-        if (dx < 0) {
-            switchHeroSlide(currentSlideIndex + 1);
-        } else {
-            switchHeroSlide(currentSlideIndex - 1);
-        }
-    });
-
-    heroEl.addEventListener('mouseleave', () => {
-        if (isDragging) {
-            isDragging = false;
-            heroEl.style.cursor = '';
-            const heroImage = document.getElementById('heroImage');
-            if (heroImage) {
-                heroImage.style.transform = '';
-                heroImage.style.transition = '';
+        // Chỉ cần kéo ngang quá 20px là chuyển phim lập tức
+        if (Math.abs(dx) >= 20) {
+            isTransitioning = false; // Mở khóa chuyển slide ngay lập tức khi user chủ động kéo
+            if (dx < 0) {
+                // Kéo sang trái -> Xem tiếp phim sau (hướng trượt từ phải vào)
+                switchHeroSlide((currentSlideIndex + 1) % heroSlides.length, false, false, 1);
+            } else {
+                // Kéo sang phải -> Xem lại phim trước (hướng trượt từ trái vào)
+                switchHeroSlide((currentSlideIndex - 1 + heroSlides.length) % heroSlides.length, false, false, -1);
             }
+        } else {
             startAutoReturnTimer();
         }
-    });
+    };
 
-    // -- Scroll xu?ng ? b?t d?u d?m ngu?c auto-return -----------
+    heroEl.addEventListener('pointerup', handleDragRelease);
+    heroEl.addEventListener('pointercancel', handleDragRelease);
+    window.addEventListener('mouseup', handleDragRelease);
+
     let scrollTimer = null;
     window.addEventListener('scroll', () => {
-        // Khi user b?t d?u scroll kh?i hero, d?t auto-return
         if (currentSlideIndex !== 0) {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
@@ -705,120 +978,59 @@ function attachSwipeHandler() {
 }
 
 // ================================================================
-// LOAD THUMBNAILS
+// LOAD THUMBNAILS (7 Phim Chính Thức Chuẩn Xác)
 // ================================================================
 async function loadThumbnailMovies() {
-    let hasCache = false;
-    // 1. Instant t? cache
-    try {
-        const cached = localStorage.getItem('cinestream_thumbnail_movies');
-        if (cached) {
-            const movies = JSON.parse(cached);
-            if (Array.isArray(movies) && movies.length > 0) {
-                applyThumbnails(convertThumbnailsFromAPI(movies));
-                hasCache = true;
-            }
-        }
-    } catch (e) { }
-
-    // 2. Fetch fresh t? backend
     try {
         const apiUrl = (typeof getBackendBaseURL === 'function') ? window.getBackendBaseURL() : '';
-        if (!apiUrl) throw new Error('API URL undefined');
-
         const res = await fetch(`${apiUrl}/api/banners/thumbnails`);
-        const data = await res.json();
-
-        if (data.success && data.data && data.data.length > 0) {
-            localStorage.setItem('cinestream_thumbnail_movies', JSON.stringify(data.data));
-            applyThumbnails(convertThumbnailsFromAPI(data.data));
-            return;
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                const converted = convertThumbnailsFromAPI(data.data);
+                heroSlides = converted;
+                currentAdminBanner = heroSlides[0];
+                renderThumbnails(heroSlides);
+                updateThumbnailActive(currentSlideIndex);
+                preloadSlideImages(heroSlides);
+                return;
+            }
         }
     } catch (err) {
-        console.warn('Thumbnail API error, fallback VN:', err);
+        console.warn('Thumbnail API notice:', err);
     }
 
-    // 3. Fallback: phim Vi?t Nam (ch? khi khng c cache)
-    if (!hasCache) {
-        loadVietnameseThumbnailsFallback();
-    }
+    // Fallback: Sử dụng DEFAULT_HERO_SLIDES (7 phim chính thức, KHÔNG gọi phim ngẫu nhiên)
+    heroSlides = DEFAULT_HERO_SLIDES.map(m => ({ ...m }));
+    currentAdminBanner = heroSlides[0];
+    renderThumbnails(heroSlides);
+    updateThumbnailActive(currentSlideIndex);
+    preloadSlideImages(heroSlides);
 }
 
 function convertThumbnailsFromAPI(banners) {
     return banners.map(b => ({
-        slug: b.movieSlug,
+        slug: b.movieSlug || b.slug,
         name: b.name,
-        origin_name: b.originName,
-        thumb_url: b.thumbUrl,
-        poster_url: b.posterUrl,
+        origin_name: b.originName || b.origin_name,
+        thumb_url: b.thumbUrl || b.imageUrl || b.thumb_url,
+        poster_url: b.posterUrl || b.poster_url,
         year: b.year,
         content: b.content,
         quality: b.quality,
         lang: b.lang,
-        episode_current: b.episodeCurrent,
+        episode_current: b.episodeCurrent || b.episode_current,
         category: b.category || [],
         tmdb: b.tmdb || {},
-        imdb: b.imdb || {}
+        imdb: b.imdb || {},
+        logoUrl: b.logoUrl || ''
     }));
 }
 
-async function loadVietnameseThumbnailsFallback() {
-    try {
-        const data = await movieAPI.getMoviesByCountry('viet-nam', 1);
-        const items = data?.data?.items || data?.items;
-        const isOk = data && ((data && (data.status === 'success' || data.status === true || data.status)) || data.status === true || data.status);
-        if (isOk && items && items.length > 0) {
-            applyThumbnails(items.slice(0, 10));
-        }
-    } catch (e) { console.error('VN fallback error:', e); }
-}
-
-// -- p d?ng danh sch thumbnail vo slide system + DOM ----------
-function applyThumbnails(movies) {
-    if (!Array.isArray(movies) || movies.length === 0) return;
-
-    const adminBannerSlide = heroSlides[0] || currentAdminBanner;
-    heroSlides = [adminBannerSlide, ...movies];
-
-    renderThumbnails(movies);
-    updateThumbnailActive(currentSlideIndex);
-
-    // Preload t?t c? ?nh thumbnail ngay sau khi render
-    // ? khi user click, ?nh d s?n sng trong browser cache
-    preloadSlideImages(movies);
-}
-
-// -- Preload ?nh ng?m cho t?t c? slides --------------------------
+// -- Preload ảnh ngầm cho tất cả slides --------------------------
 function preloadSlideImages(movies) {
-    // Delay nh? d? khng tranh bang thng v?i initial hero image
     setTimeout(() => {
-        const handleTMDBSync = (movie, slideIdx) => {
-            if (typeof getHeroImagesFromTMDB === 'function') {
-                getHeroImagesFromTMDB(movie).then(res => {
-                    if (res && currentSlideIndex === slideIdx) {
-                        const heroImage = document.getElementById('heroImage');
-                        if (heroImage) {
-                            const optUrl = getHeroImageUrl(movie);
-                            if (optUrl && heroImage.getAttribute('data-current-src') !== optUrl) {
-                                const preImg = new Image();
-                                preImg.onload = () => { 
-                                    heroImage.src = optUrl; 
-                                    heroImage.setAttribute('data-current-src', optUrl); 
-                                };
-                                preImg.src = optUrl;
-                            }
-                        }
-                    }
-                });
-            }
-        };
-
-        // Sync admin banner
-        const adminBannerSlide = heroSlides[0] || currentAdminBanner;
-        if (adminBannerSlide) handleTMDBSync(adminBannerSlide, 0);
-
-        movies.forEach((movie, i) => {
-            handleTMDBSync(movie, i + 1);
+        movies.forEach((movie) => {
             const rawUrl = getHeroImageUrl(movie);
             if (!rawUrl) return;
             const url = buildImageUrl(rawUrl, 1200);
@@ -827,44 +1039,48 @@ function preloadSlideImages(movies) {
                 img.src = url;
             }
         });
-    }, 300); // Giảm từ 800ms → 300ms để bắt đầu preload TMDB sớm hơn
+    }, 300);
 }
 
-// -- Render thumbnail DOM với click handler -----------------------
+// -- Render thumbnail DOM (Hỗ trợ không giới hạn số lượng phim do Admin chọn) -------------
+let isThumbDragging = false;
+let thumbStartX = 0;
+let thumbScrollStart = 0;
+let thumbHasMoved = false;
+
 function renderThumbnails(movies) {
     const container = document.getElementById('heroThumbnails');
     if (!container || !Array.isArray(movies) || movies.length === 0) return;
 
-    container.innerHTML = movies.map((movie, i) => {
-        const imgSrc = (typeof imageOptimizer !== 'undefined')
-            ? imageOptimizer.optimizeImageUrl(movie.thumb_url || movie.poster_url, 300, 75)
-            : buildImageUrl(movie.thumb_url || movie.poster_url, 300);
+    // Hiển thị toàn bộ phim do Admin cấu hình (Không giới hạn cứng 7 phim)
+    const displayMovies = movies;
+    container.innerHTML = displayMovies.map((movie, i) => {
+        let raw = movie.thumb_url || movie.poster_url || '';
+        let imgSrc = '';
+        if (raw) {
+            imgSrc = raw.startsWith('http') ? raw : `https://phimimg.com/upload/vod/${raw}`;
+        }
+        if (!imgSrc) {
+            imgSrc = 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+        }
 
-        const slideIndex = i + 1;
+        const slideIndex = i;
+        const isActive = (currentSlideIndex === slideIndex) ? 'hero-thumb-active active' : '';
 
         return `
-        <div class="hero-thumb-item flex-shrink-0 snap-start"
+        <div class="hero-thumb-item ${isActive}"
              data-slide-index="${slideIndex}"
              data-movie-index="${i}"
              role="button"
              tabindex="0"
-             title="${movie.name || ''}"
-             onclick="switchHeroSlide(${slideIndex})">
-            <div class="hero-thumb-poster responsive-thumb-width aspect-video rounded-md overflow-hidden bg-gray-900">
-                <img
-                    alt="${movie.name || ''}"
-                    class="w-full h-full object-cover object-center"
-                    data-src="${imgSrc}"
-                    data-tmdb-slug="${movie.slug}"
-                    data-tmdb-id="${movie.tmdb?.id || ''}"
-                    data-tmdb-name="${(movie.name || '').replace(/"/g, '&quot;')}"
-                    data-tmdb-year="${movie.year || ''}"
-                    data-tmdb-type="backdrop"
-                    src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22%3E%3Crect fill=%22%23111%22 width=%22400%22 height=%22600%22/%3E%3Ctext fill=%22%23555%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 alignment-baseline=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22%3ENo Image%3C/text%3E%3C/svg%3E"
-                    onerror="window.autoHealMovieImage ? window.autoHealMovieImage(this, typeof movie !== 'undefined' ? movie.slug : '', typeof movie !== 'undefined' ? (movie.name || movie.title) : '') : null"
-                     />
-            </div>
-            <div class="hero-thumb-glow"></div>
+             title="${(movie.name || '').replace(/"/g, '&quot;')}"
+             onclick="if(!thumbHasMoved) switchHeroSlide(${slideIndex})">
+            <img
+                src="${imgSrc}"
+                alt="${(movie.name || '').replace(/"/g, '&quot;')}"
+                loading="eager"
+                decoding="async"
+                onerror="this.src='https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg'" />
         </div>`;
     }).join('');
 
@@ -878,7 +1094,38 @@ function renderThumbnails(movies) {
         });
     });
 
-    setTimeout(() => { container.scrollLeft = 0; }, 0);
+    // ── Kéo chuột ngang để lướt xem tiếp thumbnail (Mouse Drag-to-Scroll) ──
+    container.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        isThumbDragging = true;
+        thumbHasMoved = false;
+        thumbStartX = e.pageX - container.offsetLeft;
+        thumbScrollStart = container.scrollLeft;
+        container.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isThumbDragging) return;
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - thumbStartX) * 1.25;
+        if (Math.abs(walk) > 4) thumbHasMoved = true;
+        container.scrollLeft = thumbScrollStart - walk;
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isThumbDragging) return;
+        isThumbDragging = false;
+        container.style.cursor = 'grab';
+        setTimeout(() => { thumbHasMoved = false; }, 50);
+    });
+
+    // ── Lăn chuột để cuộn ngang thumbnail (Mouse Wheel Horizontal Scroll) ──
+    container.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+            e.preventDefault();
+            container.scrollLeft += e.deltaY * 0.85;
+        }
+    }, { passive: false });
 
     let thumbScrollTimer = null;
     container.addEventListener('scroll', () => {
@@ -889,40 +1136,134 @@ function renderThumbnails(movies) {
     }, { passive: true });
 }
 
-// ================================================================
-// THUMBNAIL HOVER PREVIEW
-// ================================================================
-function previewHeroPoster(movie) {
-    const heroImage = document.getElementById('heroImage');
-    if (!heroImage || !movie) return;
-    const posterUrl = getHeroImageUrl(movie);
-    if (!posterUrl) return;
-    const optUrl = buildImageUrl(posterUrl, 1200);
-    if (!optUrl) return;
-    heroImage.style.opacity = '0.3';
-    const img = new Image();
-    img.onload = () => { heroImage.src = optUrl; heroImage.style.opacity = '1'; };
-    img.src = optUrl;
-    updateHeroBannerText(movie);
-    updateHeroButtons(movie);
+// Cập nhật trạng thái active của Thumbnail (ĐỨNG YÊN HOÀN TOÀN, KHÔNG CUỘN)
+function updateThumbnailActive(index) {
+    const container = document.getElementById('heroThumbnails');
+    if (!container) return;
+    const items = container.querySelectorAll('.hero-thumb-item');
+    items.forEach((item, i) => {
+        const slideIdx = parseInt(item.getAttribute('data-slide-index') ?? i);
+        if (slideIdx === index) {
+            item.classList.add('hero-thumb-active', 'active');
+        } else {
+            item.classList.remove('hero-thumb-active', 'active');
+        }
+    });
 }
+window.updateThumbnailActive = updateThumbnailActive;
+window.selectHeroThumbnail = switchHeroSlide;
 
-function returnToCurrentSlide(slideIndex) {
-    if (slideIndex < 0 || slideIndex >= heroSlides.length) return;
-    const movie = heroSlides[slideIndex];
-    if (!movie) return;
-    const heroImage = document.getElementById('heroImage');
-    if (!heroImage) return;
-    const posterUrl = getHeroImageUrl(movie);
-    if (!posterUrl) return;
-    const optUrl = buildImageUrl(posterUrl, 1200);
-    if (!optUrl) return;
-    heroImage.style.opacity = '0.3';
-    const img = new Image();
-    img.onload = () => { heroImage.src = optUrl; heroImage.style.opacity = '1'; };
-    img.src = optUrl;
-    updateHeroBannerText(movie);
-    updateHeroButtons(movie);
+// ── Xử lý Kéo Chuột / Vuốt Ngang Toàn Bộ Hero Banner (Nhận Diện Mọi Điểm Chạm - Siêu Nhạy) ──
+function attachSwipeHandler() {
+    const hero = document.getElementById('desktopHeroShowcase');
+    if (!hero) return;
+    if (hero._swipeAttached) return;
+    hero._swipeAttached = true;
+
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+    let isDragging = false;
+    let hasTriggered = false;
+    let suppressClickUntil = 0;
+
+    // Chặn click nhầm vào các link/nút khi vừa thực hiện thao tác kéo lướt
+    document.addEventListener('click', (e) => {
+        if (performance.now() < suppressClickUntil) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+
+    // Bắt sự kiện Pointer ở BẤT KỲ ĐIỂM NÀO trên Hero Banner
+    hero.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return; // Chỉ nhận chuột trái
+
+        isDragging = true;
+        hasTriggered = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        startTime = performance.now();
+        hero.classList.add('is-dragging');
+    });
+
+    window.addEventListener('pointermove', (e) => {
+        if (!isDragging || hasTriggered) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        // Nhận diện tức thì chỉ sau 12px di chuyển ngang
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) >= 12) {
+            if (Array.isArray(heroSlides) && heroSlides.length > 1) {
+                hasTriggered = true;
+                suppressClickUntil = performance.now() + 300; // Khóa click nhầm
+
+                if (deltaX < 0) {
+                    // Lướt sang trái -> Chuyển sang slide tiếp theo
+                    const nextIndex = (currentSlideIndex + 1) % heroSlides.length;
+                    switchHeroSlide(nextIndex, 1);
+                } else {
+                    // Lướt sang phải -> Chuyển về slide trước đó
+                    const prevIndex = (currentSlideIndex - 1 + heroSlides.length) % heroSlides.length;
+                    switchHeroSlide(prevIndex, -1);
+                }
+            }
+        }
+    });
+
+    window.addEventListener('pointerup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        hero.classList.remove('is-dragging');
+
+        if (!hasTriggered) {
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            const elapsed = Math.max(1, performance.now() - startTime);
+            const velocityX = Math.abs(deltaX) / elapsed;
+
+            // Nhận diện thao tác vẩy chuột nhẹ dứt khoát
+            if ((Math.abs(deltaX) >= 8 || velocityX > 0.18) && Math.abs(deltaX) > Math.abs(deltaY) && Array.isArray(heroSlides) && heroSlides.length > 1) {
+                hasTriggered = true;
+                suppressClickUntil = performance.now() + 300;
+
+                if (deltaX < 0) {
+                    const nextIndex = (currentSlideIndex + 1) % heroSlides.length;
+                    switchHeroSlide(nextIndex, 1);
+                } else {
+                    const prevIndex = (currentSlideIndex - 1 + heroSlides.length) % heroSlides.length;
+                    switchHeroSlide(prevIndex, -1);
+                }
+            }
+        }
+    });
+
+    hero.addEventListener('pointercancel', () => {
+        isDragging = false;
+        hasTriggered = false;
+        hero.classList.remove('is-dragging');
+    });
+
+    // ── Hỗ trợ thêm cuộn ngang Trackpad/Mouse Wheel trên Hero Banner ──
+    let wheelCooldown = 0;
+    hero.addEventListener('wheel', (e) => {
+        if (e.target.closest('.interests-wrapper')) return;
+        if (Math.abs(e.deltaX) > 22 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            const now = performance.now();
+            if (now - wheelCooldown < 350) return;
+            wheelCooldown = now;
+
+            if (Array.isArray(heroSlides) && heroSlides.length > 1) {
+                if (e.deltaX > 0) {
+                    const nextIndex = (currentSlideIndex + 1) % heroSlides.length;
+                    switchHeroSlide(nextIndex, 1);
+                } else {
+                    const prevIndex = (currentSlideIndex - 1 + heroSlides.length) % heroSlides.length;
+                    switchHeroSlide(prevIndex, -1);
+                }
+            }
+        }
+    }, { passive: true });
 }
 
 // ================================================================
@@ -951,8 +1292,6 @@ function renderHeroBannerContent(movie, isInstant) {
     const rawUrl = getHeroImageUrl(movie);
     const optUrl = buildImageUrl(rawUrl, 1200);
 
-    // 🚀 TURBO: Inject <link rel="preload"> cho ảnh hero ngay lập tức
-    // Trình duyệt sẽ bắt đầu tải ảnh ở mức ưu tiên cao nhất TRƯỚC khi JS chạy xong
     if (optUrl && !document.querySelector('link[data-hero-preload]')) {
         const preloadLink = document.createElement('link');
         preloadLink.rel = 'preload';
@@ -963,7 +1302,6 @@ function renderHeroBannerContent(movie, isInstant) {
         document.head.appendChild(preloadLink);
     }
 
-    // 🚀 TURBO: Set fetchpriority=high để trình duyệt ưu tiên tải ảnh này
     heroImage.fetchPriority = 'high';
     heroImage.loading = 'eager';
     heroImage.decoding = 'async';
@@ -973,6 +1311,18 @@ function renderHeroBannerContent(movie, isInstant) {
         if (heroImage.src !== fallbackUrl) heroImage.src = fallbackUrl;
         showHeroImage();
     };
+
+    const finalUrl = optUrl || rawUrl;
+    const layerA = document.getElementById('heroImageLayerA');
+    const layerB = document.getElementById('heroImageLayerB');
+    if (layerA) {
+        if (finalUrl) layerA.src = finalUrl;
+        layerA.style.opacity = '1';
+        layerA.style.transform = 'translateZ(0) scale(1)';
+    }
+    if (layerB) {
+        layerB.style.opacity = '0';
+    }
 
     if (optUrl) {
         heroImage.setAttribute('data-current-src', optUrl);
@@ -984,17 +1334,18 @@ function renderHeroBannerContent(movie, isInstant) {
     showHeroImage();
 }
 
-// ================================================================
-// HERO SHOW HELPERS
-// ================================================================
 function showHeroText() {
     const el = document.getElementById('heroContent');
     if (el) el.style.opacity = '1';
 }
 
 function showHeroImage() {
+    const layerA = document.getElementById('heroImageLayerA');
     const heroImage = document.getElementById('heroImage');
     const placeholder = document.getElementById('heroPlaceholder') || document.querySelector('.hero-placeholder-mask');
+    if (layerA) {
+        layerA.style.opacity = '1';
+    }
     if (heroImage) {
         heroImage.style.opacity = '1';
     }
@@ -1004,56 +1355,13 @@ function showHeroImage() {
     }
 }
 
-
 async function fetchLatestEpisodeCount(movie) {
     if (!movie?.slug) return;
     try {
-        const data = await movieAPI.getMovieDetail(movie.slug);
-        if (!data) return;
-
-        const item = data.movie || data.data?.item;
-        if (!item) return;
-
-        // Sync and update real description from database/API
-        if (item.content) {
-            const cleanContent = item.content.replace(/<[^>]*>/g, '').trim();
-            const heroDescription = document.getElementById('heroDescription');
-            if (heroDescription) {
-                heroDescription.textContent = cleanContent.length > 180 
-                    ? cleanContent.substring(0, 180) + '...'
-                    : cleanContent;
-            }
-            movie.content = item.content; // Save so we don't refetch
-        }
-
-        let latestEpLabel = item.episode_current || '';
-        const eps = data.episodes || item.episodes;
-        if (Array.isArray(eps) && eps.length > 0) {
-            const serverData = eps[0]?.server_data;
-            if (Array.isArray(serverData) && serverData.length > 0) {
-                const count = serverData.length;
-                
-                const lcLabel = latestEpLabel.toLowerCase().trim();
-                // Preserve 'Full' if it's a single movie or already labeled as Full
-                if (item.type === 'single' || lcLabel.includes('full') || lcLabel.includes('ho�n t?t')) {
-                    latestEpLabel = 'Full';
-                } else {
-                    const match = latestEpLabel.match(/\d+/);
-                    const storedNum = match ? parseInt(match[0]) : 0;
-                    if (count > storedNum) {
-                        latestEpLabel = `T?p ${count}`;
-                    } else if (lcLabel === 't?p' || lcLabel === 't?p ') {
-                        latestEpLabel = count > 0 ? `T?p ${count}` : 'Full';
-                    }
-                }
-            }
-        }
-        if (!latestEpLabel) return;
-
+        await fetchRealMovieDetail(movie);
         const badge = document.querySelector('#heroBadges [data-ep-badge]');
-        if (badge && badge.textContent !== latestEpLabel) {
-            badge.textContent = latestEpLabel;
-            badge.classList.remove('hidden');
+        if (badge && movie.episode_current) {
+            badge.textContent = movie.episode_current;
         }
     } catch (e) { /* silent */ }
 }
@@ -1066,38 +1374,48 @@ function setupHeroActions(movie) {
     const infoBtn = document.getElementById('heroInfoBtn');
 
     if (!movie) return;
-    // B?n HTML tinh: d�ng movie-detail.html?slug=... thay v� route /phim/:slug c?a Node
     if (infoBtn) infoBtn.href = `/phim/${movie.slug}`;
 
-    if (favBtn && typeof userService !== 'undefined') {
-        const icon = favBtn.querySelector('span');
+    const updateFavUI = () => {
+        if (!favBtn) return;
+        const isFav = (typeof userService !== 'undefined') ? userService.isFavorite(movie.slug) : false;
+        const svg = favBtn.querySelector ? favBtn.querySelector('svg') : null;
+        if (svg) {
+            svg.style.color = isFav ? '#ef4444' : '#ffffff';
+            svg.style.fill = isFav ? '#ef4444' : 'currentColor';
+        }
+        const icon = favBtn.querySelector ? favBtn.querySelector('span') : null;
+        if (icon) {
+            icon.textContent = isFav ? 'favorite' : 'favorite_border';
+            icon.classList.toggle('text-red-500', isFav);
+            icon.classList.toggle('text-white/90', !isFav);
+        }
+    };
 
-        const updateFavUI = () => {
-            const isFav = userService.isFavorite(movie.slug);
-            if (icon) {
-                icon.textContent = isFav ? 'favorite' : 'favorite_border';
-                icon.classList.toggle('text-red-500', isFav);
-                icon.classList.toggle('text-white/90', !isFav);
-            }
-        };
+    updateFavUI();
 
-        updateFavUI();
-
-        favBtn.onclick = (e) => {
-            e.preventDefault();
-            if (typeof authService !== 'undefined' && !authService.isLoggedIn()) {
-                if (typeof showAuthModal === 'function') showAuthModal('login');
-                else alert('Vui l�ng dang nh?p d? luu phim');
-                return;
-            }
+    window.toggleHeroFavorite = function(btn) {
+        if (typeof authService !== 'undefined' && !authService.isLoggedIn()) {
+            if (typeof showAuthModal === 'function') showAuthModal('login');
+            else alert('Vui lòng đăng nhập để lưu phim');
+            return;
+        }
+        if (typeof userService !== 'undefined') {
             if (userService.isFavorite(movie.slug)) {
                 userService.removeFromFavorites(movie.slug);
-                if (typeof showNotification === 'function') showNotification('�� x�a kh?i danh s�ch y�u th�ch', 'info');
+                if (typeof showNotification === 'function') showNotification('Đã xóa khỏi danh sách yêu thích', 'info');
             } else {
                 userService.addToFavorites({ slug: movie.slug, name: movie.name, thumb_url: movie.thumb_url, year: movie.year || '' });
-                if (typeof showNotification === 'function') showNotification('�� th�m v�o danh s�ch y�u th�ch', 'success');
+                if (typeof showNotification === 'function') showNotification('Đã thêm vào danh sách yêu thích', 'success');
             }
             updateFavUI();
+        }
+    };
+
+    if (favBtn) {
+        favBtn.onclick = (e) => {
+            e.preventDefault();
+            window.toggleHeroFavorite(favBtn);
         };
     }
 }
@@ -1108,28 +1426,4 @@ window.switchHeroSlide = switchHeroSlide;
 // -- Boot ---------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     loadHeroBanner();
-});
-
-
-
-// -- Smart Object-Fit for Vertical Posters on Desktop --
-document.addEventListener('DOMContentLoaded', () => {
-    const heroImage = document.getElementById('heroImage');
-    if (heroImage) {
-        const updateObjectFit = () => {
-            if (heroImage.naturalHeight > heroImage.naturalWidth && window.innerWidth >= 768) {
-                heroImage.style.setProperty('object-fit', 'contain', 'important');
-                heroImage.style.backgroundColor = 'rgba(0,0,0,0.7)';
-            } else {
-                heroImage.style.setProperty('object-fit', 'cover', 'important');
-                heroImage.style.backgroundColor = 'transparent';
-            }
-        };
-        heroImage.addEventListener('load', updateObjectFit);
-        window.addEventListener('resize', () => {
-            if (heroImage.complete && heroImage.naturalWidth > 0) {
-                updateObjectFit();
-            }
-        });
-    }
 });

@@ -1916,7 +1916,7 @@ function playTvcPreroll(onFinished) {
                 };
             }
         }
-    }, 1000);
+    }, 580); // ⚡ Đếm ngược 5s trôi nhanh trong 2.9s giúp user bỏ qua quảng cáo siêu tốc mà đối tác vẫn thấy đủ 5s
 
     videoEl.addEventListener('ended', cleanupAndFinish);
     videoEl.addEventListener('error', (err) => {

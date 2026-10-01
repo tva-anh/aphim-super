@@ -50,14 +50,24 @@
     const MobileShowcaseAdmin = {
         async init() {
             if (!document.getElementById('mobileShowcaseList')) return;
-            await this.loadData();
+            if (showcaseItems && showcaseItems.length > 0) {
+                this.renderList();
+            }
             this.bindEvents();
+            await this.loadData();
             if (!cachedTrendingList || cachedTrendingList.length === 0) {
-                this.preloadTrending();
+                if (window.requestIdleCallback) {
+                    window.requestIdleCallback(() => this.preloadTrending());
+                } else {
+                    setTimeout(() => this.preloadTrending(), 1000);
+                }
             }
         },
 
         bindEvents() {
+            if (this._eventsBound) return;
+            this._eventsBound = true;
+
             const openBtn = document.getElementById('btnOpenAddShowcase3D');
             if (openBtn) {
                 openBtn.onclick = (e) => {
@@ -91,6 +101,7 @@
         },
 
         async preloadTrending() {
+            if (cachedTrendingList && cachedTrendingList.length > 0) return;
             try {
                 const res = await fetch('https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1');
                 const data = await res.json();
@@ -145,47 +156,51 @@
             }
 
             container.innerHTML = showcaseItems.map((item, idx) => `
-                <div class="glass-card" style="display: flex; gap: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; background: rgba(15, 23, 42, 0.65); position: relative;">
+                <div class="mobile-card-v2" style="display: flex; gap: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; background: linear-gradient(180deg, rgba(20, 27, 45, 0.95) 0%, rgba(10, 14, 25, 0.98) 100%); position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.45); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
                     <!-- Badge Order Number -->
-                    <div style="position: absolute; top: 10px; left: 10px; z-index: 5; background: #0284c7; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
+                    <div style="position: absolute; top: 10px; left: 10px; z-index: 5; background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.45); color: #38bdf8; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
                         #${idx + 1}
                     </div>
 
                     <!-- Poster -->
-                    <div style="width: 80px; height: 115px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.15);">
+                    <div style="width: 80px; height: 115px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                         <img src="${item.poster_url || item.thumb_url || ''}" alt="${item.name || ''}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
                     </div>
 
                     <!-- Info -->
                     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
-                            <h4 style="color: #ffffff; font-size: 13.5px; font-weight: 700; margin: 0 0 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name || ''}">
+                            <h4 style="color: #ffffff; font-size: 13.5px; font-weight: 700; margin: 0 0 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.name || ''}">
                                 ${item.name || 'Chưa đặt tên'}
                             </h4>
-                            <div style="color: #64748b; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px;">
+                            <div style="color: #64748b; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 8px;">
                                 ${item.origin_name || item.slug || ''}
                             </div>
                             <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                                <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">${item.quality || 'FHD'}</span>
-                                <span style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">${item.year || '2026'}</span>
-                                <span style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">${item.lang || 'Vietsub'}</span>
+                                <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">${item.quality || 'FHD'}</span>
+                                <span style="background: rgba(255, 255, 255, 0.06); color: #cbd5e1; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08);">${item.year || '2026'}</span>
+                                <span style="background: rgba(255, 255, 255, 0.06); color: #cbd5e1; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08);">${item.lang || 'Vietsub'}</span>
                             </div>
                         </div>
 
-                        <!-- Actions (Move Up, Move Down, Edit, Remove) -->
-                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 8px;">
-                            <button type="button" class="btn btn-xs btn-outline" onclick="MobileShowcaseAdmin.moveItem(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.35;cursor:not-allowed;"' : ''} title="Đưa lên trên">
-                                <i data-lucide="arrow-up" style="width:13px;height:13px;"></i>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-outline" onclick="MobileShowcaseAdmin.moveItem(${idx}, 1)" ${idx === showcaseItems.length - 1 ? 'disabled style="opacity:0.35;cursor:not-allowed;"' : ''} title="Đưa xuống dưới">
-                                <i data-lucide="arrow-down" style="width:13px;height:13px;"></i>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-outline" onclick="MobileShowcaseAdmin.editItem(${idx})" title="Chỉnh sửa">
-                                <i data-lucide="edit" style="width:13px;height:13px;"></i>
-                            </button>
-                            <button type="button" class="btn btn-xs btn-danger" onclick="MobileShowcaseAdmin.removeItem(${idx})" title="Xóa khỏi 3D Showcase">
-                                <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
-                            </button>
+                        <!-- Actions Toolbar (Unified Symmetrical Buttons) -->
+                        <div class="unified-action-bar">
+                            <div class="u-btn-group">
+                                <button type="button" class="u-btn u-btn-icon" onclick="MobileShowcaseAdmin.moveItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Đưa lên trên">
+                                    <i data-lucide="chevron-up" style="width:13px;height:13px;"></i>
+                                </button>
+                                <button type="button" class="u-btn u-btn-icon" onclick="MobileShowcaseAdmin.moveItem(${idx}, 1)" ${idx === showcaseItems.length - 1 ? 'disabled' : ''} title="Đưa xuống dưới">
+                                    <i data-lucide="chevron-down" style="width:13px;height:13px;"></i>
+                                </button>
+                            </div>
+                            <div class="u-btn-group">
+                                <button type="button" class="u-btn u-btn-amber" onclick="MobileShowcaseAdmin.editItem(${idx})" title="Chỉnh sửa">
+                                    <i data-lucide="edit" style="width:12px;height:12px;"></i> Sửa
+                                </button>
+                                <button type="button" class="u-btn u-btn-rose u-btn-icon" onclick="MobileShowcaseAdmin.removeItem(${idx})" title="Xóa khỏi 3D Showcase">
+                                    <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,11 +224,22 @@
         async removeItem(index) {
             const item = showcaseItems[index];
             if (!item) return;
-            if (confirm(`Bạn có chắc muốn xóa phim "${item.name}" khỏi 3D Showcase Mobile?`)) {
+            
+            const doRemove = async () => {
                 showcaseItems.splice(index, 1);
                 this.renderList();
                 await this.saveConfig(true);
-                showNotice(`Đã xóa phim "${item.name}" khỏi 3D Showcase`, 'info');
+                if (window.AdminNotice) {
+                    AdminNotice.toast(`Đã xóa phim "${item.name}" khỏi 3D Showcase`, 'info');
+                }
+            };
+
+            if (window.AdminNotice) {
+                AdminNotice.confirm('Xóa Phim 3D Showcase', `Bạn có chắc muốn xóa phim "${item.name}" khỏi danh sách Showcase 3D Mobile?`, doRemove);
+            } else {
+                if (confirm(`Bạn có chắc muốn xóa phim "${item.name}" khỏi 3D Showcase Mobile?`)) {
+                    await doRemove();
+                }
             }
         },
 
@@ -580,7 +606,11 @@
             const content = document.getElementById('scContent')?.value.trim() || '';
 
             if (!name || !slug || !poster_url) {
-                alert('Vui lòng điền đầy đủ Tên phim, Slug và Link Poster!');
+                if (window.AdminNotice) {
+                    AdminNotice.toast('Vui lòng điền đầy đủ Tên phim, Slug và Link Poster!', 'error');
+                } else {
+                    alert('Vui lòng điền đầy đủ Tên phim, Slug và Link Poster!');
+                }
                 return;
             }
 
@@ -608,7 +638,11 @@
             // Auto-save immediately
             const ok = await this.saveConfig(false);
             if (ok) {
-                showNotice(`🎉 Đã thêm/cập nhật phim "${name}" thành công!`, 'success');
+                if (window.AdminNotice) {
+                    AdminNotice.toast(`🎉 Đã thêm/cập nhật phim "${name}" thành công!`, 'success');
+                } else {
+                    showNotice(`🎉 Đã thêm/cập nhật phim "${name}" thành công!`, 'success');
+                }
             }
         },
 
@@ -635,17 +669,22 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    if (!isSilent) {
+                    if (window.AdminNotice) {
+                        AdminNotice.toast(isSilent ? 'Đã lưu thay đổi vào hệ thống' : '🎉 Đã lưu cấu hình Showcase 3D Mobile thành công!', 'success');
+                    } else if (!isSilent) {
                         alert('🎉 Đã lưu cấu hình Showcase 3D Mobile thành công! Giao diện điện thoại đã được cập nhật.');
                     } else {
                         showNotice('Đã lưu thay đổi vào hệ thống', 'success');
                     }
                     return true;
                 } else {
-                    if (!isSilent) {
-                        alert('❌ Lỗi khi lưu: ' + (data.message || 'Thao tác thất bại'));
+                    const errMsg = data.message || 'Thao tác thất bại';
+                    if (window.AdminNotice) {
+                        AdminNotice.toast(`❌ Lỗi khi lưu: ${errMsg}`, 'error');
+                    } else if (!isSilent) {
+                        alert(`❌ Lỗi khi lưu: ${errMsg}`);
                     } else {
-                        showNotice('Lỗi khi lưu: ' + (data.message || 'Thất bại'), 'error');
+                        showNotice(`Lỗi khi lưu: ${errMsg}`, 'error');
                     }
                     return false;
                 }

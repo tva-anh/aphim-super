@@ -1,4 +1,4 @@
-<%- include('partials/head', { title: 'Quản Lý Banners & Slider', activePage: 'banners' }) %>
+<%- include('partials/head', { title: 'Quản Lý Banners & Hero Slider', activePage: 'banners' }) %>
 
 <div class="admin-wrapper">
   <!-- Sidebar Navigation -->
@@ -7,103 +7,424 @@
   <!-- Main Content Layout -->
   <div class="admin-main">
     <!-- Header -->
-    <%- include('partials/header', { pageTitle: 'Banners & Hero Slider' }) %>
+    <%- include('partials/header', { pageTitle: 'Banners & Hero Showcase' }) %>
 
     <!-- Page Body -->
     <main class="admin-content">
+      <style>
+        /* =========================================================
+           ENTERPRISE HIGH-PERFORMANCE DARK DESIGN FOR ADMIN BANNERS
+           ========================================================= */
+        .admin-content {
+          contain: paint;
+          transform: translateZ(0);
+        }
+        .admin-section-panel {
+          position: relative;
+          border-radius: 18px;
+          background: #0f172a;
+          background: linear-gradient(180deg, #111827 0%, #0b0f19 100%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+          margin-bottom: 24px;
+          padding: 22px;
+          transform: translateZ(0);
+          contain: content;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .admin-section-panel.panel-gold {
+          border-color: rgba(245, 158, 11, 0.25);
+        }
+        .admin-section-panel.panel-gold:hover {
+          border-color: rgba(245, 158, 11, 0.4);
+          box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55), 0 0 20px rgba(245, 158, 11, 0.06);
+        }
+        .admin-section-panel.panel-purple {
+          border-color: rgba(168, 85, 247, 0.25);
+        }
+        .admin-section-panel.panel-purple:hover {
+          border-color: rgba(168, 85, 247, 0.4);
+          box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55), 0 0 20px rgba(168, 85, 247, 0.06);
+        }
+        .admin-section-panel.panel-cyan {
+          border-color: rgba(56, 189, 248, 0.25);
+        }
+        .admin-section-panel.panel-cyan:hover {
+          border-color: rgba(56, 189, 248, 0.4);
+          box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55), 0 0 20px rgba(56, 189, 248, 0.06);
+        }
+
+        .panel-header-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 14px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+          padding-bottom: 16px;
+          margin-bottom: 18px;
+        }
+
+        /* Top Action Buttons */
+        .btn-top-action {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 8px 16px;
+          border-radius: 9px;
+          font-size: 12.5px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+          border: 1px solid transparent;
+          text-decoration: none;
+          transform: translateZ(0);
+        }
+        .btn-top-gold-outline {
+          background: rgba(245, 158, 11, 0.08);
+          border-color: rgba(245, 158, 11, 0.4);
+          color: #fbbf24;
+        }
+        .btn-top-gold-outline:hover {
+          background: rgba(245, 158, 11, 0.2);
+          border-color: #f59e0b;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+          transform: translateY(-1px);
+        }
+        .btn-top-gold-solid {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: #0b0f19;
+          font-weight: 800;
+          box-shadow: 0 3px 12px rgba(245, 158, 11, 0.25);
+        }
+        .btn-top-gold-solid:hover {
+          background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+          color: #000000;
+          box-shadow: 0 5px 18px rgba(245, 158, 11, 0.4);
+          transform: translateY(-1px);
+        }
+
+        .btn-top-cyan-outline {
+          background: rgba(56, 189, 248, 0.08);
+          border-color: rgba(56, 189, 248, 0.4);
+          color: #38bdf8;
+        }
+        .btn-top-cyan-outline:hover {
+          background: rgba(56, 189, 248, 0.2);
+          border-color: #38bdf8;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+          transform: translateY(-1px);
+        }
+        .btn-top-cyan-solid {
+          background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+          color: #ffffff;
+          font-weight: 800;
+          box-shadow: 0 3px 12px rgba(14, 165, 233, 0.25);
+        }
+        .btn-top-cyan-solid:hover {
+          background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+          box-shadow: 0 5px 18px rgba(14, 165, 233, 0.4);
+          transform: translateY(-1px);
+        }
+
+        /* =========================================================
+           UNIFIED ACTION BUTTON BAR (EQUAL HEIGHTS & BALANCED LUXURY)
+           ========================================================= */
+        .unified-action-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 6px;
+          border-top: 1px solid rgba(255, 255, 255, 0.07);
+          padding-top: 8px;
+          margin-top: 8px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .u-btn-group {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .u-btn {
+          height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
+          padding: 0 9px !important;
+          border-radius: 7px !important;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 4px !important;
+          border: 1px solid rgba(255, 255, 255, 0.12) !important;
+          background: rgba(255, 255, 255, 0.05) !important;
+          color: #cbd5e1 !important;
+          transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease !important;
+          cursor: pointer !important;
+          text-decoration: none !important;
+          user-select: none !important;
+          line-height: 1 !important;
+          box-sizing: border-box !important;
+          white-space: nowrap !important;
+          transform: translateZ(0);
+        }
+        .u-btn:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.12) !important;
+          color: #ffffff !important;
+          border-color: rgba(255, 255, 255, 0.25) !important;
+          transform: translateY(-1px);
+        }
+        .u-btn:active:not(:disabled) {
+          transform: scale(0.96) !important;
+        }
+        .u-btn:disabled {
+          opacity: 0.25 !important;
+          cursor: not-allowed !important;
+          background: rgba(255, 255, 255, 0.02) !important;
+          border-color: rgba(255, 255, 255, 0.04) !important;
+          color: #475569 !important;
+          pointer-events: none !important;
+        }
+        .u-btn.u-btn-icon {
+          width: 28px !important;
+          min-width: 28px !important;
+          max-width: 28px !important;
+          padding: 0 !important;
+        }
+        .u-btn.u-btn-cyan {
+          border-color: rgba(56, 189, 248, 0.35) !important;
+          color: #38bdf8 !important;
+          background: rgba(56, 189, 248, 0.08) !important;
+        }
+        .u-btn.u-btn-cyan:hover:not(:disabled) {
+          background: rgba(56, 189, 248, 0.22) !important;
+          border-color: #38bdf8 !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+        .u-btn.u-btn-amber {
+          border-color: rgba(245, 158, 11, 0.35) !important;
+          color: #f59e0b !important;
+          background: rgba(245, 158, 11, 0.08) !important;
+        }
+        .u-btn.u-btn-amber:hover:not(:disabled) {
+          background: rgba(245, 158, 11, 0.22) !important;
+          border-color: #f59e0b !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+        .u-btn.u-btn-rose {
+          border-color: rgba(244, 63, 94, 0.35) !important;
+          color: #f43f5e !important;
+          background: rgba(244, 63, 94, 0.08) !important;
+        }
+        .u-btn.u-btn-rose:hover:not(:disabled) {
+          background: rgba(244, 63, 94, 0.25) !important;
+          border-color: #f43f5e !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
+        }
+
+        /* =========================================================
+           DISCOVERY CATEGORY CARDS ("BẠN ĐANG QUAN TÂM GÌ?")
+           ========================================================= */
+        .discovery-card-v2 {
+          position: relative;
+          border-radius: 14px;
+          background: linear-gradient(180deg, #141a2b 0%, #0b0f1a 100%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          overflow: hidden;
+          padding: 14px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+          transform: translateZ(0);
+          contain: content;
+          transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .discovery-card-v2:hover {
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        .discovery-backdrop-blend {
+          position: absolute;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          width: 55%;
+          background-size: cover;
+          background-position: center;
+          opacity: 0.35;
+          mask-image: linear-gradient(to right, transparent 0%, black 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 100%);
+          pointer-events: none;
+          transform: translateZ(0);
+          transition: opacity 0.25s ease;
+        }
+        .discovery-card-v2:hover .discovery-backdrop-blend {
+          opacity: 0.55;
+        }
+
+        /* =========================================================
+           SPLIT 2-PART DESKTOP HERO SHOWCASE ADMIN
+           ========================================================= */
+        .desktop-hero-split-grid {
+          display: grid;
+          grid-template-columns: 390px 1fr;
+          gap: 20px;
+          align-items: start;
+        }
+        @media (max-width: 1200px) {
+          .desktop-hero-split-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .hero-part-panel {
+          background: rgba(15, 23, 42, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          border-radius: 16px;
+          padding: 16px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+          transform: translateZ(0);
+        }
+        .hero-part-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 12px;
+          margin-bottom: 14px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .hero-spotlight-card {
+          border: 1.5px solid rgba(245, 158, 11, 0.55);
+          border-radius: 16px;
+          background: linear-gradient(180deg, #1a233a 0%, #0c111e 100%);
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          transform: translateZ(0);
+        }
+        .hero-spotlight-preview {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          position: relative;
+          background: #000;
+          overflow: hidden;
+        }
+        .hero-add-thumb-card {
+          border: 2px dashed rgba(245, 158, 11, 0.35);
+          border-radius: 14px;
+          background: rgba(245, 158, 11, 0.03);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 190px;
+          cursor: pointer;
+          transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+          color: #f59e0b;
+          text-align: center;
+          padding: 16px;
+          transform: translateZ(0);
+        }
+        .hero-add-thumb-card:hover {
+          background: rgba(245, 158, 11, 0.1);
+          border-color: #f59e0b;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(245, 158, 11, 0.18);
+        }
+      </style>
+
       <!-- Section Header -->
       <div class="page-title-row">
         <div>
-          <h1 class="page-main-title">Quản Lý Banners & Slider Trang Chủ</h1>
-          <p class="page-sub-title">Cấu hình slider phim hot trên đầu trang chủ, popup thông báo sự kiện và vị trí quảng cáo tài trợ</p>
-        </div>
-        <div class="page-action-buttons">
-          <button class="btn btn-primary" onclick="AdminCore.openAddBannerModal()">
-            <i data-lucide="plus-circle"></i> Thêm Banner Mới
-          </button>
+          <h1 class="page-main-title">Quản Lý Banners & Hero Showcase Trang Chủ</h1>
+          <p class="page-sub-title">Cấu hình Hero Banner Điện ảnh Desktop (Phim Chính #1 + Dải Thumbnails Tiếp Theo), Cụm "Bạn đang quan tâm gì?" và Showcase 3D Mobile</p>
         </div>
       </div>
 
-      <!-- Banner Visual Cards Grid -->
-      <div class="banners-grid">
-        <!-- Banner 1 -->
-        <div class="banner-card">
-          <div class="banner-preview-wrap">
-            <img src="https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg" alt="Banner" class="banner-img">
-            <div class="banner-overlay-badge"><span class="badge badge-gold">Vị trí #1 (Hero Main)</span></div>
+      <!-- ==============================================
+           PHẦN 1: CẤU HÌNH HERO SHOWCASE DESKTOP (CHIA 2 PHẦN: BANNER CHÍNH 1 BÊN & THUMBNAILS 1 BÊN)
+           ============================================== -->
+      <div class="admin-section-panel panel-gold">
+        <div class="panel-header-row">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge badge-gold" style="font-size: 11px; padding: 4px 10px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; border-radius: 6px;">
+                <i data-lucide="monitor"></i> DESKTOP EXCLUSIVE (100vh Cinema)
+              </span>
+              <h2 id="desktopHeroSectionTitle" style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0;">Hero Showcase Điện Ảnh Desktop (Phim Chính #1 & Dải Thumbnails)</h2>
+            </div>
+            <p style="color: #94a3b8; font-size: 12.5px; margin: 5px 0 0 0;">Chia rõ 2 phần: Bên trái là Banner Hero chính mở đầu trang chủ; Bên phải là dải Thumbnails tiếp theo. Bạn có thể thêm, xóa, đổi thứ tự thumbnails tùy thích và trang chủ sẽ hiển thị chính xác theo cấu hình.</p>
           </div>
-          <div class="banner-body">
-            <h4 class="banner-title">Lật Mặt 7: Một Điều Ước</h4>
-            <p class="banner-desc">Phim chiếu rạp ăn khách nhất 2024 của đạo diễn Lý Hải</p>
-            <div class="banner-meta">
-              <span><i data-lucide="link"></i> /phim/lat-mat-7-mot-dieu-uoc</span>
-              <span class="status-pill active"><span class="dot"></span> Đang chạy</span>
-            </div>
-            <div class="banner-actions">
-              <button class="btn btn-xs btn-outline" onclick="AdminCore.editBanner(1)"><i data-lucide="edit"></i> Sửa</button>
-              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteBanner(1)"><i data-lucide="trash-2"></i> Xóa</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Banner 2 -->
-        <div class="banner-card">
-          <div class="banner-preview-wrap">
-            <img src="https://phimimg.com/upload/vod/20231128-1/593fcabff3c7fa823d53a25b3cf54707.jpg" alt="Banner" class="banner-img">
-            <div class="banner-overlay-badge"><span class="badge badge-cyan">Vị trí #2 (Hero Slider)</span></div>
-          </div>
-          <div class="banner-body">
-            <h4 class="banner-title">Ninh An Như Mộng</h4>
-            <p class="banner-desc">Siêu phẩm cổ trang ngôn tình đỉnh cao Bạch Lộc x Trương Lăng Hách</p>
-            <div class="banner-meta">
-              <span><i data-lucide="link"></i> /phim/ninh-an-nhu-mong</span>
-              <span class="status-pill active"><span class="dot"></span> Đang chạy</span>
-            </div>
-            <div class="banner-actions">
-              <button class="btn btn-xs btn-outline" onclick="AdminCore.editBanner(2)"><i data-lucide="edit"></i> Sửa</button>
-              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteBanner(2)"><i data-lucide="trash-2"></i> Xóa</button>
-            </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn-top-action btn-top-gold-outline" id="btnOpenAddDesktopHero" onclick="if(window.DesktopHeroAdmin){DesktopHeroAdmin.openHeroModal();}else{AdminNotice.toast('Đang tải công cụ, vui lòng thử lại sau 1 giây!','info');}">
+              <i data-lucide="plus-circle"></i> Thêm Phim / Thumbnail
+            </button>
+            <button class="btn-top-action btn-top-gold-solid" onclick="if(window.DesktopHeroAdmin)DesktopHeroAdmin.saveHeroConfig()" id="btnSaveDesktopHero">
+              <i data-lucide="save"></i> Lưu Cấu Hình Hero Desktop
+            </button>
           </div>
         </div>
 
-        <!-- Banner 3 -->
-        <div class="banner-card">
-          <div class="banner-preview-wrap">
-            <img src="https://phimimg.com/upload/vod/20240325-1/bb432f8b5aef74f07a78eb594b41394f.jpg" alt="Banner" class="banner-img">
-            <div class="banner-overlay-badge"><span class="badge badge-pink">Vị trí #3 (Hero Slider)</span></div>
+        <!-- 2-Part Split Layout: Bên Trái = Hero #1 Chính, Bên Phải = Dải Thumbnails Phim Tiếp Theo -->
+        <div id="desktopHeroSplitLayout" class="desktop-hero-split-grid">
+          <div id="desktopHeroSpotlightCol">
+            <!-- Rendered by JS -->
           </div>
-          <div class="banner-body">
-            <h4 class="banner-title">Dữ Phượng Hành</h4>
-            <p class="banner-desc">Triệu Lệ Dĩnh x Lâm Canh Tân tái hợp trong siêu phẩm tiên hiệp</p>
-            <div class="banner-meta">
-              <span><i data-lucide="link"></i> /phim/du-phuong-hanh</span>
-              <span class="status-pill active"><span class="dot"></span> Đang chạy</span>
-            </div>
-            <div class="banner-actions">
-              <button class="btn btn-xs btn-outline" onclick="AdminCore.editBanner(3)"><i data-lucide="edit"></i> Sửa</button>
-              <button class="btn btn-xs btn-danger" onclick="AdminCore.deleteBanner(3)"><i data-lucide="trash-2"></i> Xóa</button>
-            </div>
+          <div id="desktopHeroThumbnailsCol">
+            <!-- Rendered by JS -->
           </div>
         </div>
       </div>
 
       <!-- ==============================================
-           SHOWCASE 3D MOBILE TRANG CHỦ CONFIGURATION
+           PHẦN 2: CẤU HÌNH "BẠN ĐANG QUAN TÂM GÌ?" (INTERESTS CARDS)
            ============================================== -->
-      <div class="glass-card" style="margin-top: 32px; padding: 24px; border: 1.5px solid rgba(56, 189, 248, 0.35); background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(2, 6, 23, 0.95) 100%); border-radius: 18px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 18px; margin-bottom: 20px;">
+      <div class="admin-section-panel panel-purple">
+        <div class="panel-header-row">
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="badge badge-cyan" style="font-size: 11px; padding: 4px 10px;"><i data-lucide="smartphone"></i> MOBILE EXCLUSIVE</span>
+              <span class="badge" style="font-size: 11px; padding: 4px 10px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); font-weight: 800; border-radius: 6px;">
+                <i data-lucide="compass"></i> DANH MỤC NỔI BẬT (6 Thẻ Khám Phá)
+              </span>
+              <h2 style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0;">Mục "Bạn Đang Quan Tâm Gì?" (Trang Chủ)</h2>
+            </div>
+            <p style="color: #94a3b8; font-size: 12.5px; margin: 5px 0 0 0;">Cấu hình 6 thẻ danh mục (Phim Bộ, Phim Mới, Hành Động, Tình Cảm, Hài Hước, Hoạt Hình...). Bấm "Tìm Ảnh / Sửa" để tìm kiếm phim và chọn ảnh trực tiếp.</p>
+          </div>
+        </div>
+
+        <!-- Interests Cards Grid -->
+        <div id="interestsAdminList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;">
+          <div style="color: #64748b; font-size: 13px; text-align: center; grid-column: 1 / -1; padding: 20px;">
+            ⏳ Đang tải danh mục "Bạn đang quan tâm gì?"...
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           PHẦN 3: SHOWCASE 3D MOBILE TRANG CHỦ (GIỮ NGUYÊN 100% CỦA MOBILE)
+           ============================================== -->
+      <div class="admin-section-panel panel-cyan">
+        <div class="panel-header-row">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge badge-cyan" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;"><i data-lucide="smartphone"></i> MOBILE EXCLUSIVE</span>
               <h2 style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 0;">Showcase Phim 3D Coverflow Mobile (Trang Chủ)</h2>
             </div>
-            <p style="color: #94a3b8; font-size: 12.5px; margin: 4px 0 0 0;">Cấu hình danh sách phim hiển thị ở khối 3D trên giao diện điện thoại (nằm trên mục Phim Mới Đề Cử). Kéo thả hoặc bấm nút mũi tên để đổi thứ tự.</p>
+            <p style="color: #94a3b8; font-size: 12.5px; margin: 5px 0 0 0;">Cấu hình danh sách phim hiển thị ở khối 3D trên giao diện điện thoại (nằm trên mục Phim Mới Đề Cử). Kéo thả hoặc bấm nút mũi tên để đổi thứ tự.</p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
-            <button class="btn btn-outline" id="btnOpenAddShowcase3D" onclick="if(window.MobileShowcaseAdmin){MobileShowcaseAdmin.openAddModal();}else{alert('Đang tải công cụ, vui lòng thử lại sau 1 giây!');}" style="border-color: #38bdf8; color: #38bdf8; cursor: pointer;">
+            <button class="btn-top-action btn-top-cyan-outline" id="btnOpenAddShowcase3D" onclick="if(window.MobileShowcaseAdmin){MobileShowcaseAdmin.openAddModal();}else{AdminNotice.toast('Đang tải công cụ, vui lòng thử lại sau 1 giây!','info');}">
               <i data-lucide="plus-circle"></i> Thêm Phim Vào 3D Showcase
             </button>
-            <button class="btn btn-primary" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.saveConfig()" id="btnSave3DShowcase" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); cursor: pointer;">
+            <button class="btn-top-action btn-top-cyan-solid" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.saveConfig()" id="btnSave3DShowcase">
               <i data-lucide="save"></i> Lưu Cấu Hình 3D Mobile
             </button>
           </div>
@@ -119,7 +440,384 @@
     </main>
 
 <!-- ==============================================
-     MODAL: THÊM / SỬA PHIM 3D SHOWCASE MOBILE
+     MODAL 1: THÊM / SỬA PHIM HERO SHOWCASE DESKTOP (BỘ SƯU TẬP BACKDROP + LOGO TMDB)
+     ============================================== -->
+<div id="modalAddDesktopHero" class="admin-modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);z-index:999999;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div class="glass-card" style="width:100%;max-width:820px;background:#0d111d;border:1.5px solid rgba(245,158,11,0.4);border-radius:20px;padding:24px;box-shadow:0 30px 70px rgba(0,0,0,0.9);max-height:92vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:14px;margin-bottom:16px;">
+      <h3 id="modalDesktopHeroTitle" style="font-size:17px;font-weight:800;color:#ffffff;margin:0;display:flex;align-items:center;gap:8px;">
+        ✨ Thêm Phim Mới Vào Hero Showcase Desktop
+      </h3>
+      <button type="button" onclick="DesktopHeroAdmin.closeHeroModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:22px;padding:4px 8px;">✕</button>
+    </div>
+
+    <!-- Tìm kiếm tự động từ API Phim -->
+    <div style="margin-bottom: 16px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 14px; padding: 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <label style="font-size:12px;font-weight:700;color:#f59e0b;margin:0;">🔍 Tìm kiếm phim từ kho dữ liệu (Tự động điền đầy đủ & tải Backdrop 4K):</label>
+        <span id="heroSearchLoading" style="display:none;font-size:11px;color:#f59e0b;font-weight:600;">⏳ Đang tìm...</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="inputSearchHeroMovie" class="form-control" placeholder="Gõ tên phim (VD: Nhất Âu Xuân, Conan, Doraemon, Lật Mặt 7, Deadpool...)" style="font-size:13px;background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" oninput="DesktopHeroAdmin.handleSearchInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();DesktopHeroAdmin.searchMovieFromAPI();}">
+        <button type="button" class="btn btn-primary" onclick="DesktopHeroAdmin.searchMovieFromAPI()" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);color:#000;font-weight:800;white-space:nowrap;font-size:12.5px;padding:0 16px;cursor:pointer;">Tìm Kiếm</button>
+      </div>
+
+      <!-- Gợi ý từ khóa Hot nhanh -->
+      <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Gợi ý hot:</span>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Nhất Âu Xuân')" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Nhất Âu Xuân</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Minecraft')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Minecraft</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Quật Mộ Trùng Ma')" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Quật Mộ Trùng Ma</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Deadpool & Wolverine')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Deadpool</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Đố Anh Còng Được Tôi')" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Đố Anh Còng</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Vân Tú Hành')" style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);color:#f472b6;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Vân Tú Hành</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Conan')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Conan</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearch('Doraemon')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 8px;cursor:pointer;">Doraemon</button>
+      </div>
+
+      <div id="heroSearchResults" style="max-height:210px;overflow-y:auto;margin-top:10px;display:none;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- LIVE HERO DESKTOP MOCKUP PREVIEW -->
+    <div style="margin-bottom: 16px; border-radius: 14px; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.15); background: #000; position: relative; height: 175px;">
+      <img id="mockupBgImg" src="https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8);">
+      <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,10,18,0.92) 0%, rgba(8,10,18,0.6) 40%, transparent 80%);"></div>
+      
+      <!-- Mini Left Hero Content -->
+      <div style="position: absolute; bottom: 14px; left: 18px; z-index: 5; max-width: 60%;">
+        <div id="mockupLogoArea" style="margin-bottom: 4px;">
+          <img src="https://image.tmdb.org/t/p/w500/uyABqIMLGBYCrLkeIrt6k7WEaK2.png" style="max-height: 40px; max-width: 150px; object-fit: contain;">
+        </div>
+        <div id="mockupSubtitle" style="color: #cbd5e1; font-size: 11px; font-weight: 600; margin-bottom: 6px;">Spring Of The Blade</div>
+        <div id="mockupBadges" style="display: flex; gap: 4px; align-items: center;">
+          <span style="border:1px solid #f59e0b;color:#f59e0b;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;">IMDb 9.5</span>
+          <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:9.5px;padding:1px 5px;border-radius:4px;">FHD</span>
+          <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:9.5px;padding:1px 5px;border-radius:4px;">2026</span>
+          <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:9.5px;padding:1px 5px;border-radius:4px;">Tập 30</span>
+        </div>
+      </div>
+
+      <div style="position: absolute; top: 10px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); border-radius: 6px; padding: 2px 8px; color: #f59e0b; font-size: 10.5px; font-weight: 800; border: 1px solid rgba(245,158,11,0.3);">
+        ✨ MÔ PHỎNG XEM TRƯỚC DESKTOP HERO
+      </div>
+    </div>
+
+    <!-- BỘ SƯU TẬP ẢNH NỀN BACKDROP TMDB (1-CLICK CHỌN ẢNH ĐẸP NHẤT) -->
+    <div style="margin-bottom: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <label style="font-size:12.5px;font-weight:700;color:#f59e0b;margin:0;">🖼️ Bộ Sưu Tập Ảnh Nền Điện Ảnh (Backdrops TMDB 4K / Full HD) - Bấm Để Chọn Ngay:</label>
+      </div>
+      <div id="dhBackdropGallery" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));gap:8px;max-height:160px;overflow-y:auto;padding:4px;">
+        <div style="color:#64748b;font-size:12px;text-align:center;padding:15px;grid-column:1/-1;">Tìm kiếm hoặc chọn phim bên trên để tải bộ sưu tập Backdrop...</div>
+      </div>
+    </div>
+
+    <!-- BỘ SƯU TẬP LOGO TMDB (PNG TRONG SUỐT) -->
+    <div style="margin-bottom: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <label style="font-size:12.5px;font-weight:700;color:#38bdf8;margin:0;">🏷️ Bộ Sưu Tập Logo Phim TMDB (PNG Trong Suốt) - Bấm Để Chọn Logo:</label>
+      </div>
+      <div id="dhLogoGallery" style="display:flex;gap:8px;overflow-x:auto;padding:4px;align-items:center;">
+        <div style="color:#64748b;font-size:12px;text-align:center;padding:10px;width:100%;">Chưa có logo</div>
+      </div>
+    </div>
+
+    <form id="formDesktopHero" onsubmit="DesktopHeroAdmin.submitHeroForm(event)">
+      <input type="hidden" id="dhEditIndex" value="-1">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tên phim (Tiếng Việt) <span style="color:#f43f5e">*</span></label>
+          <input type="text" id="dhName" required class="form-control" placeholder="Tên phim tiếng Việt" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tên gốc / Tiếng Anh</label>
+          <input type="text" id="dhOriginName" class="form-control" placeholder="Origin Name" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Slug phim <span style="color:#f43f5e">*</span></label>
+          <input type="text" id="dhSlug" required class="form-control" placeholder="slug-phim" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Điểm IMDb</label>
+          <input type="text" id="dhImdb" class="form-control" placeholder="9.5" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="9.5">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Link Ảnh Nền Backdrop (Hero Image) <span style="color:#f43f5e">*</span></label>
+          <input type="url" id="dhImageUrl" required class="form-control" placeholder="https://image.tmdb.org/t/p/original/..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Link Logo Phim (PNG trong suốt - Để trống nếu dùng chữ nghệ thuật)</label>
+          <input type="text" id="dhLogoUrl" class="form-control" placeholder="https://image.tmdb.org/t/p/w500/..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div style="display:none;">
+          <input type="text" id="dhPosterUrl">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Chất lượng</label>
+          <input type="text" id="dhQuality" class="form-control" placeholder="FHD, 4K..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="FHD">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Năm phát hành</label>
+          <input type="text" id="dhYear" class="form-control" placeholder="2026..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="2026">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Nhãn Ngôn Ngữ</label>
+          <input type="text" id="dhLang" class="form-control" placeholder="Vietsub Full" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="Vietsub Full">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Nhãn Tập (Episode Badge)</label>
+          <input type="text" id="dhEpisodeCurrent" class="form-control" placeholder="Tập 30, Full..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" value="Full">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tóm tắt ngắn (Synopsis hiển thị trên Hero)</label>
+          <textarea id="dhContent" rows="3" class="form-control" placeholder="Nội dung ngắn của phim..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;resize:none;"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;">
+        <button type="button" class="btn btn-outline" onclick="DesktopHeroAdmin.closeHeroModal()">Đóng</button>
+        <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);color:#000;font-weight:800;cursor:pointer;">
+          <i data-lucide="check"></i> Lưu Vào Hero Showcase Desktop
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================
+     MODAL 2: CHỈNH SỬA THẺ "BẠN ĐANG QUAN TÂM GÌ?" (CÓ TÌM KIẾM PHIM & CHỌN ẢNH)
+     ============================================== -->
+<div id="modalEditInterestsCard" class="admin-modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:999999;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div class="glass-card" style="width:100%;max-width:580px;background:#0f172a;border:1.5px solid rgba(168,85,247,0.4);border-radius:18px;padding:22px;box-shadow:0 25px 50px rgba(0,0,0,0.85);max-height:92vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px;margin-bottom:14px;">
+      <h3 style="font-size:16px;font-weight:800;color:#ffffff;margin:0;display:flex;align-items:center;gap:8px;">
+        🎨 Chỉnh Sửa Thẻ "Bạn Đang Quan Tâm Gì?"
+      </h3>
+      <button type="button" onclick="DesktopHeroAdmin.closeInterestsModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:22px;padding:4px 8px;">✕</button>
+    </div>
+
+    <!-- Tìm kiếm phim để chọn ảnh tự động -->
+    <div style="margin-bottom: 14px; background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.3); border-radius: 12px; padding: 12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <label style="font-size:12px;font-weight:700;color:#c084fc;margin:0;">🔍 Tìm phim để chọn nhiều ảnh Backdrop HD/4K (Bấm để chọn ngay):</label>
+        <span id="intSearchLoading" style="display:none;font-size:11px;color:#c084fc;font-weight:600;">⏳ Đang tìm...</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input type="text" id="inputSearchInterestMovie" class="form-control" placeholder="Gõ tên phim (VD: Nhất Âu Xuân, Conan, Doraemon, Lật Mặt, Deadpool...)" style="font-size:12.5px;background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;" oninput="DesktopHeroAdmin.handleInterestSearchInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();DesktopHeroAdmin.searchMovieForInterests(this.value);}">
+        <button type="button" class="btn btn-primary" onclick="DesktopHeroAdmin.searchMovieForInterests(document.getElementById('inputSearchInterestMovie').value)" style="background:linear-gradient(135deg, #a855f7 0%, #9333ea 100%);white-space:nowrap;font-size:12px;padding:0 14px;cursor:pointer;">Tìm Kiếm</button>
+      </div>
+
+      <!-- Gợi ý từ khóa nhanh -->
+      <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
+        <span style="font-size: 10.5px; color: #94a3b8; font-weight: 600;">Gợi ý:</span>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearchInterest('Nhất Âu Xuân')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:5px;font-size:10.5px;padding:1px 6px;cursor:pointer;">Nhất Âu Xuân</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearchInterest('Quật Mộ Trùng Ma')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:5px;font-size:10.5px;padding:1px 6px;cursor:pointer;">Quật Mộ</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearchInterest('Deadpool & Wolverine')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:5px;font-size:10.5px;padding:1px 6px;cursor:pointer;">Deadpool</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearchInterest('Conan')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:5px;font-size:10.5px;padding:1px 6px;cursor:pointer;">Conan</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearchInterest('Doraemon')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:5px;font-size:10.5px;padding:1px 6px;cursor:pointer;">Doraemon</button>
+        <button type="button" onclick="DesktopHeroAdmin.quickSearchInterest('Vân Tú Hành')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:5px;font-size:10.5px;padding:1px 6px;cursor:pointer;">Vân Tú Hành</button>
+      </div>
+
+      <!-- Search results list -->
+      <div id="intSearchResults" style="max-height:160px;overflow-y:auto;margin-bottom:8px;display:none;flex-direction:column;gap:5px;"></div>
+
+      <!-- Bộ Sưu Tập Ảnh Nền Backdrop TMDB HD/4K -->
+      <div>
+        <span style="font-size:11px;font-weight:700;color:#cbd5e1;display:block;margin-bottom:4px;">🖼️ Bộ Sưu Tập Backdrop Phim (Bấm để chọn ảnh ngay):</span>
+        <div id="intMovieGallery" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));gap:6px;max-height:140px;overflow-y:auto;padding:2px;">
+          <div style="color:#64748b;font-size:11.5px;text-align:center;padding:10px;grid-column:1/-1;">Đang tải gợi ý ảnh phim...</div>
+        </div>
+      </div>
+    </div>
+
+    <form id="formInterestsCard" onsubmit="DesktopHeroAdmin.submitInterestsForm(event)">
+      <input type="hidden" id="intEditIndex" value="-1">
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Tiêu đề thẻ <span style="color:#f43f5e">*</span></label>
+          <input type="text" id="intTitle" required class="form-control" placeholder="Phim Bộ, Hành Động..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Link chuyển hướng khi click <span style="color:#f43f5e">*</span></label>
+          <input type="text" id="intLink" required class="form-control" placeholder="/danh-sach?list=phim-bo" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:4px;">Link Ảnh Nền Card (URL) <span style="color:#f43f5e">*</span></label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="url" id="intImageUrl" required class="form-control" placeholder="https://phimimg.com/upload/..." style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;flex:1;" oninput="DesktopHeroAdmin.updateInterestLivePreview()">
+            <img id="intImgPreview" src="" alt="Preview" style="width:40px;height:40px;border-radius:6px;object-fit:cover;background:#000;border:1px solid rgba(255,255,255,0.2);">
+          </div>
+        </div>
+
+        <!-- Icon Selection & Icon Color Customizer -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px;">
+          <label style="display:block;font-size:12px;font-weight:700;color:#c084fc;margin-bottom:8px;">✨ Tùy Chỉnh Biểu Tượng (Icon) & Màu Sắc Icon:</label>
+          
+          <!-- Icon Picker -->
+          <div style="margin-bottom: 10px;">
+            <span style="font-size:11px;color:#94a3b8;display:block;margin-bottom:6px;">1. Chọn biểu tượng icon:</span>
+            <input type="hidden" id="intIconName" value="tv">
+            <div id="intIconOptions" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="int-icon-opt-btn active" data-icon="tv" onclick="DesktopHeroAdmin.selectCardIcon('tv')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.08);border:1.5px solid #a855f7;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="20" height="15" x="2" y="7" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline></svg> TV
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="flame" onclick="DesktopHeroAdmin.selectCardIcon('flame')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg> Lửa (Mới)
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="zap" onclick="DesktopHeroAdmin.selectCardIcon('zap')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Sấm Sét
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="heart" onclick="DesktopHeroAdmin.selectCardIcon('heart')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> Trái Tim
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="smile" onclick="DesktopHeroAdmin.selectCardIcon('smile')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14c1.5 2 6.5 2 8 0"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg> Cười
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="sparkles" onclick="DesktopHeroAdmin.selectCardIcon('sparkles')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> Anime / Sao
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="film" onclick="DesktopHeroAdmin.selectCardIcon('film')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 3v18"></path><path d="M17 3v18"></path></svg> Phim
+              </button>
+              <button type="button" class="int-icon-opt-btn" data-icon="crown" onclick="DesktopHeroAdmin.selectCardIcon('crown')" style="padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.201a4 4 0 0 1-3.847 2.93H8.7a4 4 0 0 1-3.847-2.93L2.019 6.02a.5.5 0 0 1 .798-.52l4.277 3.665a1 1 0 0 0 1.516-.294z"></path></svg> Vương Miện
+              </button>
+            </div>
+          </div>
+
+          <!-- Icon Color -->
+          <div>
+            <span style="font-size:11px;color:#94a3b8;display:block;margin-bottom:6px;">2. Chọn màu sắc cho icon:</span>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+              <input type="color" id="intIconColorPicker" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.25);cursor:pointer;background:#1e293b;" oninput="DesktopHeroAdmin.handleIconColorChange(this.value)">
+              <input type="text" id="intIconColorHex" class="form-control" placeholder="#ffffff" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:monospace;font-size:12.5px;width:115px;" oninput="DesktopHeroAdmin.handleIconHexChange(this.value)">
+              <button type="button" class="btn btn-outline" onclick="DesktopHeroAdmin.syncIconColorWithCard()" style="font-size:11px;padding:4px 10px;border-color:rgba(168,85,247,0.5);color:#c084fc;" title="Lấy cùng màu với màu ánh xạ thẻ">
+                🎨 Theo Màu Thẻ
+              </button>
+            </div>
+
+            <!-- Icon Quick Colors -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#ffffff')" style="width:24px;height:24px;border-radius:6px;background:#ffffff;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(255,255,255,0.4);" title="Trắng (#ffffff)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#f59e0b')" style="width:24px;height:24px;border-radius:6px;background:#f59e0b;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(245,158,11,0.4);" title="Vàng Hoàng Kim (#f59e0b)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#ef4444')" style="width:24px;height:24px;border-radius:6px;background:#ef4444;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(239,68,68,0.4);" title="Đỏ (#ef4444)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#f97316')" style="width:24px;height:24px;border-radius:6px;background:#f97316;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(249,115,22,0.4);" title="Cam (#f97316)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#ec4899')" style="width:24px;height:24px;border-radius:6px;background:#ec4899;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(236,72,153,0.4);" title="Hồng (#ec4899)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#a855f7')" style="width:24px;height:24px;border-radius:6px;background:#a855f7;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(168,85,247,0.4);" title="Tím (#a855f7)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#10b981')" style="width:24px;height:24px;border-radius:6px;background:#10b981;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(168,85,247,0.4);" title="Xanh Ngọc (#10b981)"></button>
+              <button type="button" onclick="DesktopHeroAdmin.setIconColorPreset('#0ea5e9')" style="width:24px;height:24px;border-radius:6px;background:#0ea5e9;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(14,165,233,0.4);" title="Xanh Biển (#0ea5e9)"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Tùy chỉnh màu chữ Tiêu Đề & Xem Ngay -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px;">
+          <label style="display:block;font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:8px;">✍️ Tùy Chỉnh Màu Chữ Thẻ (Tiêu Đề & Xem Ngay):</label>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+            <input type="color" id="intTextColorPicker" value="#ffffff" style="width:42px;height:34px;padding:2px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.25);cursor:pointer;background:#1e293b;" oninput="DesktopHeroAdmin.handleTextColorChange(this.value)">
+            <input type="text" id="intTextColorHex" class="form-control" placeholder="#ffffff" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:monospace;font-size:12.5px;width:115px;" oninput="DesktopHeroAdmin.handleTextHexChange(this.value)">
+            <button type="button" class="btn btn-outline" onclick="DesktopHeroAdmin.syncTextColorWithCard()" style="font-size:11px;padding:4px 10px;border-color:rgba(56,189,248,0.5);color:#38bdf8;" title="Lấy cùng màu với màu thẻ">
+              🎨 Theo Màu Thẻ
+            </button>
+            <button type="button" class="btn btn-outline" onclick="DesktopHeroAdmin.setTextColorPreset('#ffffff')" style="font-size:11px;padding:4px 10px;border-color:rgba(255,255,255,0.3);color:#ffffff;" title="Đặt lại màu trắng chuẩn">
+              ↺ Trắng Chuẩn
+            </button>
+          </div>
+
+          <!-- Text Quick Colors -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <span style="font-size:10.5px;color:#94a3b8;font-weight:600;margin-right:2px;">Gợi ý:</span>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#ffffff')" style="width:24px;height:24px;border-radius:6px;background:#ffffff;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(255,255,255,0.4);" title="Trắng (#ffffff)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#fde047')" style="width:24px;height:24px;border-radius:6px;background:#fde047;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(253,224,71,0.4);" title="Vàng Nắng (#fde047)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#fcd576')" style="width:24px;height:24px;border-radius:6px;background:#fcd576;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(252,213,118,0.4);" title="Vàng Hoàng Kim (#fcd576)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#ef4444')" style="width:24px;height:24px;border-radius:6px;background:#ef4444;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(239,68,68,0.4);" title="Đỏ (#ef4444)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#fb923c')" style="width:24px;height:24px;border-radius:6px;background:#fb923c;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(251,146,60,0.4);" title="Cam (#fb923c)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#f472b6')" style="width:24px;height:24px;border-radius:6px;background:#f472b6;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(244,114,182,0.4);" title="Hồng (#f472b6)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#38bdf8')" style="width:24px;height:24px;border-radius:6px;background:#38bdf8;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(56,189,248,0.4);" title="Xanh Biển (#38bdf8)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#34d399')" style="width:24px;height:24px;border-radius:6px;background:#34d399;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(52,211,153,0.4);" title="Xanh Ngọc (#34d399)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#c084fc')" style="width:24px;height:24px;border-radius:6px;background:#c084fc;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 5px rgba(192,132,252,0.4);" title="Tím (#c084fc)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setTextColorPreset('#18181b')" style="width:24px;height:24px;border-radius:6px;background:#18181b;border:2px solid rgba(255,255,255,0.4);cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,0.6);" title="Đen Đậm (#18181b)"></button>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <label style="font-size:12px;font-weight:600;color:#cbd5e1;margin:0;">🎨 Màu Ánh Xạ Điện Ảnh (Tone Màu Chủ Đạo Của Thẻ)</label>
+            <input type="hidden" id="intNoAura" value="false">
+            <button type="button" id="btnDisableIntAura" onclick="DesktopHeroAdmin.toggleDisableAura()" style="padding:4px 10px;border-radius:7px;background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.4);color:#fca5a5;font-size:11px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.2s;" title="Tắt màu nền ánh xạ, chỉ giữ ảnh thuần và bóng tối chữ">
+              <span>🚫</span> Bỏ Màu Ánh Xạ
+            </button>
+          </div>
+          
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+            <input type="color" id="intColorPicker" value="#8b5cf6" style="width:46px;height:38px;padding:2px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.25);cursor:pointer;background:#1e293b;" oninput="DesktopHeroAdmin.handleColorPickerChange(this.value)">
+            <input type="text" id="intColorHex" class="form-control" placeholder="#8b5cf6" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:monospace;font-size:13px;width:130px;" oninput="DesktopHeroAdmin.handleColorHexChange(this.value)">
+            <input type="hidden" id="intGradient" value="">
+            <span style="font-size:11.5px;color:#94a3b8;">Chọn màu từ bảng màu hoặc nhập mã Hex</span>
+          </div>
+          
+          <!-- Cinematic Color Presets -->
+          <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:8px 10px;border-radius:10px;">
+            <span style="font-size:11px;color:#94a3b8;font-weight:700;margin-right:2px;">Gợi ý màu chuẩn:</span>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#ffffff')" style="width:26px;height:26px;border-radius:7px;background:#ffffff;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(255,255,255,0.7);" title="Trắng Bạc Tinh Khôi (#ffffff)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#8b5cf6')" style="width:26px;height:26px;border-radius:7px;background:#8b5cf6;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(139,92,246,0.5);" title="Tím Huyền Bí (#8b5cf6)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#ef4444')" style="width:26px;height:26px;border-radius:7px;background:#ef4444;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(239,68,68,0.5);" title="Đỏ Rực Cháy (#ef4444)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#f97316')" style="width:26px;height:26px;border-radius:7px;background:#f97316;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(249,115,22,0.5);" title="Cam Hổ Phách (#f97316)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#ec4899')" style="width:26px;height:26px;border-radius:7px;background:#ec4899;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(236,72,153,0.5);" title="Hồng Lãng Mạn (#ec4899)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#eab308')" style="width:26px;height:26px;border-radius:7px;background:#eab308;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(234,179,8,0.5);" title="Vàng Hoàng Kim (#eab308)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#10b981')" style="width:26px;height:26px;border-radius:7px;background:#10b981;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(16,185,129,0.5);" title="Xanh Ngọc Lục Bảo (#10b981)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#0ea5e9')" style="width:26px;height:26px;border-radius:7px;background:#0ea5e9;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(14,165,233,0.5);" title="Xanh Biển Sâu (#0ea5e9)"></button>
+            <button type="button" onclick="DesktopHeroAdmin.setColorPreset('#a855f7')" style="width:26px;height:26px;border-radius:7px;background:#a855f7;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(168,85,247,0.5);" title="Tím Neon (#a855f7)"></button>
+          </div>
+        </div>
+
+        <!-- Live Card Preview Box inside Modal -->
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:6px;">👁️ Xem trước hiệu ứng ánh xạ điện ảnh trực tiếp:</label>
+          <div id="intCardLivePreview" style="height:100px;border-radius:12px;overflow:hidden;position:relative;background:#0f121d;border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 20px rgba(0,0,0,0.5);">
+            <div id="intPreviewBg" style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.95;"></div>
+            <div id="intPreviewAura" style="position:absolute;inset:0;pointer-events:none;"></div>
+            <div id="intPreviewShine" style="position:absolute;inset:0;background:radial-gradient(circle at 15% 15%, rgba(255,255,255,0.2) 0%, transparent 45%), linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 35%);box-shadow:inset 0 1px 1px rgba(255,255,255,0.25);pointer-events:none;"></div>
+            <div style="position:relative;z-index:10;padding:10px 14px;height:100%;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;">
+              <div id="intPreviewIcon" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));color:#fff;display:inline-flex;align-items:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle></svg>
+              </div>
+              <div>
+                <div id="intPreviewTitle" style="color:#fff;font-size:14px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,0.85);margin-bottom:2px;">Tiêu đề thẻ</div>
+                <div id="intPreviewAction" style="color:rgba(255,255,255,0.85);font-size:10px;font-weight:600;letter-spacing:0.4px;">XEM NGAY ›</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;">
+        <button type="button" class="btn btn-outline" onclick="DesktopHeroAdmin.closeInterestsModal()">Đóng</button>
+        <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg, #a855f7 0%, #9333ea 100%);cursor:pointer;">
+          <i data-lucide="check"></i> Cập Nhật Thẻ
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================
+     MODAL 3: THÊM / SỬA PHIM 3D SHOWCASE MOBILE (GIỮ NGUYÊN 100% CỦA MOBILE)
      ============================================== -->
 <div id="modalAddShowcase3D" class="admin-modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:999999;display:none;align-items:center;justify-content:center;padding:16px;">
   <div class="glass-card" style="width:100%;max-width:560px;background:#0f172a;border:1.5px solid rgba(56,189,248,0.3);border-radius:18px;padding:22px;box-shadow:0 25px 50px rgba(0,0,0,0.85);max-height:92vh;overflow-y:auto;">
@@ -141,7 +839,7 @@
         <button type="button" class="btn btn-primary" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.searchMovieFromAPI()" style="background:#0284c7;white-space:nowrap;font-size:12.5px;padding:0 14px;cursor:pointer;">Tìm Kiếm</button>
       </div>
 
-      <!-- Gợi ý từ khóa Hot nhanh (1 Click tìm ngay) -->
+      <!-- Gợi ý từ khóa Hot nhanh -->
       <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
         <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Gợi ý hot:</span>
         <button type="button" onclick="if(window.MobileShowcaseAdmin)MobileShowcaseAdmin.quickSearch('Doraemon')" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:6px;font-size:11px;padding:2px 7px;cursor:pointer;">Doraemon</button>
@@ -219,9 +917,7 @@
         </button>
       </div>
     </form>
-    </div>
   </div>
-</div>
 </div>
 
 <!-- Partials & Scripts -->
@@ -229,4 +925,3 @@
 <%- include('partials/cmd_palette') %>
 <%- include('partials/lock_modal') %>
 <%- include('partials/scripts') %>
-

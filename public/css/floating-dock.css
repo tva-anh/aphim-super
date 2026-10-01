@@ -201,6 +201,21 @@ html.light-mode nav.header-modern-nav {
     box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
 }
 
+@media (min-width: 1024px) {
+    html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled),
+    html.light-mode body.has-desktop-hero header#sofa-header:not(.scrolled),
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled),
+    html.light-mode body:has(#desktopHeroShowcase) header#sofa-header:not(.scrolled) {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+}
+
 html.light-mode header a:not(.reels-nav-pill):not(.reels-pill):not(.sofa-login-rect-btn),
 html.light-mode nav a:not(.reels-nav-pill):not(.reels-pill),
 html.light-mode .nav-link-text,

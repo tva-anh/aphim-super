@@ -11,7 +11,7 @@
 
     // 🎯 1. SAFE IMAGE URL CLEANER & CDN REWRITE WITH MIRROR SUPPORT
     window.APhimCore.getImgUrl = function(rawUrl) {
-        if (!rawUrl) return SVG_NO_POSTER;
+        if (!rawUrl) return '';
         let url = String(rawUrl).trim();
         if (url.startsWith('data:image')) return url;
         if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -24,6 +24,9 @@
         if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
             return 'https://phimimg.com/' + clean;
         }
+        if (clean.match(/^\d{8}-\d+\//)) {
+            return 'https://phimimg.com/upload/vod/' + clean;
+        }
         return 'https://phimimg.com/uploads/movies/' + clean;
     };
 
@@ -35,25 +38,25 @@
         imgEl.dataset.fallbackStage = String(stage);
 
         const altSrc = imgEl.dataset.fallback;
-        if (stage === 1 && altSrc && altSrc !== currentSrc && !altSrc.includes('no-poster')) {
+        if (stage === 1 && altSrc && altSrc !== currentSrc && !altSrc.includes('no-poster') && altSrc.startsWith('http')) {
             imgEl.src = altSrc;
             return;
         }
 
-        if (stage === 1 || stage === 2) {
-            if (currentSrc.includes('img.phimapi.com')) {
-                imgEl.src = currentSrc.replace('img.phimapi.com', 'phimimg.com');
+        if (stage === 2) {
+            if (currentSrc.includes('/uploads/movies/')) {
+                imgEl.src = currentSrc.replace('/uploads/movies/', '/upload/vod/');
                 return;
-            } else if (currentSrc.includes('phimimg.com/uploads/movies/upload/')) {
-                imgEl.src = currentSrc.replace('/uploads/movies/upload/', '/upload/');
+            } else if (currentSrc.includes('/upload/vod/')) {
+                imgEl.src = currentSrc.replace('/upload/vod/', '/uploads/movies/');
                 return;
-            } else if (currentSrc.includes('phimimg.com') && !currentSrc.includes('img.phimapi.com')) {
+            } else if (currentSrc.includes('phimimg.com')) {
                 imgEl.src = currentSrc.replace('https://phimimg.com/', 'https://img.phimapi.com/');
                 return;
             }
         }
 
-        // Final fallback: inline SVG Data URI (zero 404 network errors!)
+        // Final fallback: inline SVG Data URI (zero 404 network errors, never brand logo)
         imgEl.onerror = null;
         imgEl.src = SVG_NO_POSTER;
     };

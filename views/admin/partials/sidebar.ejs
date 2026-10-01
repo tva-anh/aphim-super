@@ -1,7 +1,7 @@
 <aside class="admin-sidebar" id="adminSidebar">
-  <!-- Brand Logo -->
+  <!-- Brand Logo & Collapse Toggle -->
   <div class="sidebar-header">
-    <a href="/admin" class="sidebar-brand">
+    <a href="/admin" class="sidebar-brand" title="APhim Super Enterprise">
       <div class="brand-logo-icon">
         <i data-lucide="clapperboard"></i>
       </div>
@@ -10,31 +10,34 @@
         <span class="brand-badge">ENTERPRISE</span>
       </div>
     </a>
+    <button type="button" class="sidebar-collapse-toggle-btn" id="btnToggleSidebarCollapse" title="Thu gọn / Mở rộng Menu (Ctrl + B)">
+      <i data-lucide="panel-left-close" id="sidebarCollapseIcon"></i>
+    </button>
   </div>
 
   <!-- Main Navigation Links -->
   <nav class="sidebar-nav">
     <div class="nav-section-title">HỆ THỐNG QUẢN TRỊ</div>
 
-    <a href="/admin" class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>">
+    <a href="/admin" class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>" title="Tổng Quan KPI" data-tooltip="Tổng Quan KPI">
       <div class="nav-item-icon"><i data-lucide="layout-dashboard"></i></div>
       <span class="nav-item-label">Tổng Quan KPI</span>
       <span class="badge badge-primary">LIVE</span>
     </a>
 
-    <a href="/admin/movies" class="nav-item <%= activePage === 'movies' ? 'active' : '' %>">
+    <a href="/admin/movies" class="nav-item <%= activePage === 'movies' ? 'active' : '' %>" title="Kho Phim API" data-tooltip="Kho Phim API">
       <div class="nav-item-icon"><i data-lucide="film"></i></div>
       <span class="nav-item-label">Kho Phim API</span>
       <span class="badge badge-cyan" id="sidebarMovieCount">API SYNC</span>
     </a>
 
-    <a href="/admin/users" class="nav-item <%= activePage === 'users' ? 'active' : '' %>">
+    <a href="/admin/users" class="nav-item <%= activePage === 'users' ? 'active' : '' %>" title="Thành Viên & Xu/XP" data-tooltip="Thành Viên & Xu/XP">
       <div class="nav-item-icon"><i data-lucide="users"></i></div>
       <span class="nav-item-label">Thành Viên & Xu/XP</span>
       <span class="badge badge-gold">VIP</span>
     </a>
 
-    <a href="/admin/subscriptions" class="nav-item <%= activePage === 'subscriptions' ? 'active' : '' %>">
+    <a href="/admin/subscriptions" class="nav-item <%= activePage === 'subscriptions' ? 'active' : '' %>" title="Gói VIP & Doanh Thu" data-tooltip="Gói VIP & Doanh Thu">
       <div class="nav-item-icon"><i data-lucide="crown"></i></div>
       <span class="nav-item-label">Gói VIP & Doanh Thu</span>
       <span class="badge badge-emerald">PRO</span>
@@ -42,12 +45,12 @@
 
     <div class="nav-section-title">NỘI DUNG & TƯƠNG TÁC</div>
 
-    <a href="/admin/banners" class="nav-item <%= activePage === 'banners' ? 'active' : '' %>">
+    <a href="/admin/banners" class="nav-item <%= activePage === 'banners' ? 'active' : '' %>" title="Banners & Slider" data-tooltip="Banners & Slider">
       <div class="nav-item-icon"><i data-lucide="image"></i></div>
       <span class="nav-item-label">Banners & Slider</span>
     </a>
 
-    <a href="/admin/comments" class="nav-item <%= activePage === 'comments' ? 'active' : '' %>">
+    <a href="/admin/comments" class="nav-item <%= activePage === 'comments' ? 'active' : '' %>" title="Bình Luận & Chat" data-tooltip="Bình Luận & Chat">
       <div class="nav-item-icon"><i data-lucide="message-square"></i></div>
       <span class="nav-item-label">Bình Luận & Chat</span>
       <span class="badge badge-pink" id="sidebarCommentCount">MOD</span>
@@ -55,12 +58,12 @@
 
     <div class="nav-section-title">HỆ THỐNG & BẢO MẬT</div>
 
-    <a href="/admin/settings" class="nav-item <%= activePage === 'settings' ? 'active' : '' %>">
+    <a href="/admin/settings" class="nav-item <%= activePage === 'settings' ? 'active' : '' %>" title="Cấu Hình & Security" data-tooltip="Cấu Hình & Security">
       <div class="nav-item-icon"><i data-lucide="settings"></i></div>
       <span class="nav-item-label">Cấu Hình & Security</span>
     </a>
 
-    <a href="/" target="_blank" class="nav-item external-link">
+    <a href="/" target="_blank" class="nav-item external-link" title="Xem Trang Web Khách" data-tooltip="Xem Trang Web Khách">
       <div class="nav-item-icon"><i data-lucide="external-link"></i></div>
       <span class="nav-item-label">Xem Trang Web Khách</span>
     </a>
@@ -69,7 +72,7 @@
   <!-- Sidebar Footer: Admin Profile & Auto-lock status -->
   <div class="sidebar-footer">
     <div class="admin-user-card">
-      <div class="user-avatar-wrap">
+      <div class="user-avatar-wrap" title="Super Admin Pro (ROOT ACCESS)">
         <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Super Admin" class="user-avatar" id="currentAdminAvatar">
         <div class="status-indicator online"></div>
       </div>

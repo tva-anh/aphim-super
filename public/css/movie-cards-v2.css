@@ -7,8 +7,14 @@ body {
     padding-top: 64px !important;
     background-color: #1f2331 !important;
 }
+@media (min-width: 1024px) {
+    body.has-desktop-hero,
+    body:has(#desktopHeroShowcase) {
+        padding-top: 0 !important;
+    }
+}
 @media (max-width: 1280px) {
-    body {
+    body:not(.has-desktop-hero):not(:has(#desktopHeroShowcase)) {
         padding-top: 60px !important;
     }
 }

@@ -20,6 +20,20 @@
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
     }
+    @media (min-width: 1024px) {
+        body.has-desktop-hero #sofa-header:not(.scrolled),
+        body.has-desktop-hero header#sofa-header:not(.scrolled),
+        body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled),
+        body:has(#desktopHeroShowcase) header#sofa-header:not(.scrolled) {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+    }
     body.is-scrolling iframe {
         pointer-events: none !important;
     }
@@ -34,6 +48,15 @@
         justify-content: space-between !important;
         gap: 16px !important;
         box-sizing: border-box !important;
+    }
+    @media (min-width: 1024px) {
+        body.has-desktop-hero .sofa-header-container,
+        body:has(#desktopHeroShowcase) .sofa-header-container {
+            max-width: 1540px !important;
+            margin: 0 auto !important;
+            padding-left: 24px !important;
+            padding-right: 24px !important;
+        }
     }
     @media (max-width: 1023px) {
         .sofa-header-container {
@@ -623,11 +646,12 @@
         height: 30px !important;
         max-height: 30px !important;
         line-height: 1 !important;
-        padding: 0 11px 0 9px !important;
+        padding: 0 5px !important;
         border-radius: 9999px !important;
-        border: 1.5px solid rgba(255, 43, 84, 0.5) !important;
-        background: rgba(255, 43, 84, 0.12) !important;
-        box-shadow: 0 2px 8px rgba(255, 43, 84, 0.18) !important;
+        border: 1.5px solid transparent !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
         position: relative !important;
         text-decoration: none !important;
         margin: auto 4px !important;
@@ -637,9 +661,72 @@
         box-sizing: border-box !important;
         transform: translateZ(0) !important;
         will-change: transform, background, border-color, box-shadow !important;
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease !important;
     }
 
+    /* Khi ở đầu trang (chưa cuộn): Bỏ bọc nền và viền, hiển thị chữ + icon tự nhiên */
+    #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    #sofa-header:not(.scrolled) .reels-nav-pill,
+    header#sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    header#sofa-header:not(.scrolled) .reels-nav-pill,
+    header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    header:not(.scrolled) .reels-nav-pill,
+    html.light-mode #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    html.light-mode #sofa-header:not(.scrolled) .reels-nav-pill,
+    html.light-mode header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    html.light-mode header:not(.scrolled) .reels-nav-pill,
+    .light-mode #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    .light-mode #sofa-header:not(.scrolled) .reels-nav-pill,
+    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill,
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: 1.5px solid transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+        padding: 0 5px !important;
+    }
+
+    /* Khi cuộn xuống: Hiện bọc pill nổi bật (Dark mode) */
+    #sofa-header.scrolled .sofa-nav-item.reels-nav-pill,
+    #sofa-header.scrolled .reels-nav-pill,
+    header#sofa-header.scrolled .sofa-nav-item.reels-nav-pill,
+    header.scrolled .sofa-nav-item.reels-nav-pill,
+    header.scrolled .reels-nav-pill {
+        border: 1.5px solid rgba(255, 43, 84, 0.5) !important;
+        border-color: rgba(255, 43, 84, 0.5) !important;
+        background: rgba(255, 43, 84, 0.12) !important;
+        background-color: rgba(255, 43, 84, 0.12) !important;
+        box-shadow: 0 2px 8px rgba(255, 43, 84, 0.18) !important;
+        padding: 0 11px 0 9px !important;
+    }
+
+    #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill:hover,
+    #sofa-header:not(.scrolled) .reels-nav-pill:hover,
+    header#sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill:hover,
+    header#sofa-header:not(.scrolled) .reels-nav-pill:hover,
+    header:not(.scrolled) .sofa-nav-item.reels-nav-pill:hover,
+    header:not(.scrolled) .reels-nav-pill:hover {
+        background: rgba(255, 43, 84, 0.15) !important;
+        border: 1.5px solid rgba(255, 43, 84, 0.35) !important;
+        box-shadow: 0 2px 8px rgba(255, 43, 84, 0.25) !important;
+        border-radius: 9999px !important;
+        padding: 0 9px !important;
+    }
+
+    html.light-mode #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill:hover,
+    html.light-mode #sofa-header:not(.scrolled) .reels-nav-pill:hover,
+    .light-mode #sofa-header:not(.scrolled) .sofa-nav-item.reels-nav-pill:hover,
+    .light-mode #sofa-header:not(.scrolled) .reels-nav-pill:hover {
+        background: rgba(245, 158, 11, 0.14) !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.35) !important;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2) !important;
+        border-radius: 9999px !important;
+        padding: 0 9px !important;
+    }
+
+    #sofa-header.scrolled .sofa-nav-item.reels-nav-pill:hover,
+    #sofa-header.scrolled .reels-nav-pill:hover,
     .sofa-nav-item.reels-nav-pill:hover,
     .reels-nav-pill:hover {
         background: rgba(255, 43, 84, 0.22) !important;
@@ -723,21 +810,21 @@
         transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease !important;
     }
 
-    /* ☀️ LIGHT / CREAM MODE ADAPTATION: Luxury Gold/Yellow Border with Glowing Pill */
-    html.light-mode #sofa-header .sofa-nav-item.reels-nav-pill,
-    html.light-mode header .sofa-nav-item.reels-nav-pill,
-    html.light-mode .sofa-nav-item.reels-nav-pill,
-    html.light-mode .reels-nav-pill,
-    .light-mode #sofa-header .sofa-nav-item.reels-nav-pill,
-    .light-mode header .sofa-nav-item.reels-nav-pill,
-    .light-mode .sofa-nav-item.reels-nav-pill,
-    .light-mode .reels-nav-pill {
+    /* ☀️ LIGHT / CREAM MODE ADAPTATION: Only display luxury glowing pill when scrolled */
+    html.light-mode #sofa-header.scrolled .sofa-nav-item.reels-nav-pill,
+    html.light-mode header.scrolled .sofa-nav-item.reels-nav-pill,
+    html.light-mode #sofa-header.scrolled .reels-nav-pill,
+    html.light-mode header.scrolled .reels-nav-pill,
+    .light-mode #sofa-header.scrolled .sofa-nav-item.reels-nav-pill,
+    .light-mode header.scrolled .sofa-nav-item.reels-nav-pill,
+    .light-mode #sofa-header.scrolled .reels-nav-pill {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         background: #fffbeb !important;
         background-color: #fffbeb !important;
         border: 1.5px solid #f59e0b !important;
+        border-color: #f59e0b !important;
         box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
         border-radius: 9999px !important;
         height: 30px !important;
@@ -756,6 +843,7 @@
         background: #fffbeb !important;
         background-color: #fffbeb !important;
         border: 1.5px solid #f59e0b !important;
+        border-color: #f59e0b !important;
         box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
         border-radius: 10px !important;
         height: 48px !important;
@@ -764,8 +852,10 @@
         -webkit-text-fill-color: #e11d48 !important;
         font-weight: 800 !important;
     }
-    html.light-mode .reels-nav-pill:hover,
-    .light-mode .reels-nav-pill:hover,
+    html.light-mode #sofa-header.scrolled .reels-nav-pill:hover,
+    html.light-mode header.scrolled .reels-nav-pill:hover,
+    .light-mode #sofa-header.scrolled .reels-nav-pill:hover,
+    .light-mode header.scrolled .reels-nav-pill:hover,
     html.light-mode .drawer-pill-btn.reels-pill:hover,
     .light-mode .drawer-pill-btn.reels-pill:hover {
         background: #fef3c7 !important;
@@ -1408,4 +1498,5 @@
 <!-- 🌟 APHIM ADS SYSTEM (CAT BANNERS + TOP BANNER) -->
 <%- include('ads-cat') %>
 <%- include('ads-top') %>
+
 

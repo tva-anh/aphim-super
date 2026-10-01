@@ -14,8 +14,14 @@ html.light-mode body {
     color: #1c1917 !important;
     padding-top: 64px !important;
 }
+@media (min-width: 1024px) {
+    html.light-mode body.has-desktop-hero,
+    html.light-mode body:has(#desktopHeroShowcase) {
+        padding-top: 0 !important;
+    }
+}
 @media (max-width: 1280px) {
-    html.light-mode body {
+    html.light-mode body:not(.has-desktop-hero):not(:has(#desktopHeroShowcase)) {
         padding-top: 60px !important;
     }
 }
@@ -122,6 +128,21 @@ html.light-mode header {
     width: 100% !important;
     left: 0 !important;
     right: 0 !important;
+}
+
+@media (min-width: 1024px) {
+    html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled),
+    html.light-mode body.has-desktop-hero header#sofa-header:not(.scrolled),
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled),
+    html.light-mode body:has(#desktopHeroShowcase) header#sofa-header:not(.scrolled) {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
 }
 
 html.light-mode .sofa-header-container {
@@ -231,11 +252,21 @@ html.light-mode .nav-pill::after {
 }
 
 /* Header Hamburger Button & Icons */
-html.light-mode .sofa-menu-btn {
+html.light-mode #sofa-header.scrolled .sofa-menu-btn,
+html.light-mode header.scrolled .sofa-menu-btn {
     color: #1c1917 !important;
 }
-html.light-mode .sofa-menu-btn svg {
+html.light-mode #sofa-header.scrolled .sofa-menu-btn svg,
+html.light-mode header.scrolled .sofa-menu-btn svg {
     stroke: #1c1917 !important;
+}
+html.light-mode #sofa-header:not(.scrolled) .sofa-menu-btn,
+html.light-mode header:not(.scrolled) .sofa-menu-btn {
+    color: #ffffff !important;
+}
+html.light-mode #sofa-header:not(.scrolled) .sofa-menu-btn svg,
+html.light-mode header:not(.scrolled) .sofa-menu-btn svg {
+    stroke: #ffffff !important;
 }
 
 /* Desktop Navigation Links */

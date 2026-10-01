@@ -48,7 +48,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Enterprise Master Admin Stylesheet -->
-    <link rel="stylesheet" href="/css/admin-enterprise.css?v=130">
+    <link rel="stylesheet" href="/css/admin-enterprise.css?v=131">
+    
+    <script>
+      (function() {
+        try {
+          if (localStorage.getItem('aphim_admin_sidebar_collapsed') === 'true') {
+            document.documentElement.classList.add('sidebar-collapsed');
+          }
+        } catch(e) {}
+      })();
+    </script>
     
     <style>
       /* Smooth transitions and warm cream custom scrollbar */

@@ -3414,7 +3414,22 @@
       loadAdminTransactions();
     }
 
-    // 6. Banners & Mobile 3D Showcase Page
+    // 6. Banners, Desktop Hero & Mobile 3D Showcase Page
+    if (document.getElementById('desktopHeroSplitLayout') || document.getElementById('desktopHeroSpotlightCol') || document.getElementById('interestsAdminList')) {
+      if (window.DesktopHeroAdmin && typeof window.DesktopHeroAdmin.init === 'function') {
+        window.DesktopHeroAdmin.init();
+      } else {
+        const s = document.createElement('script');
+        s.src = '/js/admin/desktop-hero-admin.js?v=' + Date.now();
+        s.onload = () => {
+          if (window.DesktopHeroAdmin && typeof window.DesktopHeroAdmin.init === 'function') {
+            window.DesktopHeroAdmin.init();
+          }
+        };
+        document.body.appendChild(s);
+      }
+    }
+
     if (document.getElementById('mobileShowcaseList')) {
       if (window.MobileShowcaseAdmin && typeof window.MobileShowcaseAdmin.init === 'function') {
         window.MobileShowcaseAdmin.init();
@@ -3439,6 +3454,7 @@
     if (btnQuickLock) btnQuickLock.onclick = lockAdminScreen;
 
     initNotificationDropdown();
+    initSidebarCollapse();
 
     const btnAdminLogout = document.getElementById('btnAdminLogout');
     if (btnAdminLogout) {
@@ -3460,6 +3476,95 @@
 
     if (window.lucide) lucide.createIcons();
   }
+
+  // ─── 8. ENTERPRISE SIDEBAR COLLAPSE / MINI-SIDEBAR ENGINE ───
+  function initSidebarCollapse() {
+    const isCollapsed = localStorage.getItem('aphim_admin_sidebar_collapsed') === 'true';
+    applySidebarCollapseState(isCollapsed);
+
+    // Bind sidebar collapse toggle button
+    const btnToggleSidebarCollapse = document.getElementById('btnToggleSidebarCollapse');
+    if (btnToggleSidebarCollapse) {
+      btnToggleSidebarCollapse.onclick = (e) => {
+        e.preventDefault();
+        toggleSidebarCollapse();
+      };
+    }
+
+    // Bind header sidebar toggle button
+    const headerSidebarToggle = document.getElementById('headerSidebarToggle');
+    if (headerSidebarToggle) {
+      headerSidebarToggle.onclick = (e) => {
+        e.preventDefault();
+        toggleSidebarCollapse();
+      };
+    }
+
+    // Bind mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    if (mobileMenuToggle) {
+      mobileMenuToggle.onclick = (e) => {
+        e.preventDefault();
+        const sidebar = document.getElementById('adminSidebar');
+        if (sidebar) {
+          sidebar.classList.toggle('mobile-open');
+        }
+      };
+    }
+
+    // Keyboard shortcut: Ctrl + B or Cmd + B
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b' && !e.shiftKey && !e.altKey) {
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag !== 'input' && activeTag !== 'textarea') {
+          e.preventDefault();
+          toggleSidebarCollapse();
+        }
+      }
+    });
+  }
+
+  function toggleSidebarCollapse() {
+    const currentlyCollapsed = document.body.classList.contains('sidebar-collapsed');
+    const newState = !currentlyCollapsed;
+    applySidebarCollapseState(newState);
+    try {
+      localStorage.setItem('aphim_admin_sidebar_collapsed', String(newState));
+    } catch(e) {}
+    
+    // Trigger smooth resize for charts / layouts
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 280);
+  }
+
+  function applySidebarCollapseState(collapsed) {
+    const sidebar = document.getElementById('adminSidebar');
+    if (collapsed) {
+      document.body.classList.add('sidebar-collapsed');
+      if (sidebar) sidebar.classList.add('collapsed');
+    } else {
+      document.body.classList.remove('sidebar-collapsed');
+      if (sidebar) sidebar.classList.remove('collapsed');
+    }
+
+    // Update icons
+    const iconName = collapsed ? 'panel-left-open' : 'panel-left-close';
+    const sidebarIcon = document.getElementById('sidebarCollapseIcon');
+    if (sidebarIcon) {
+      sidebarIcon.setAttribute('data-lucide', iconName);
+    }
+    
+    const headerIcon = document.getElementById('headerSidebarToggleIcon');
+    if (headerIcon) {
+      headerIcon.setAttribute('data-lucide', iconName);
+    }
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  AdminCore.toggleSidebarCollapse = toggleSidebarCollapse;
+  AdminCore.initSidebarCollapse = initSidebarCollapse;
 
   // ─── INITIALIZATION ON DOM READY ───
   document.addEventListener('DOMContentLoaded', () => {

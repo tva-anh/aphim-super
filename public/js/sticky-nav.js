@@ -13,6 +13,10 @@
     let ticking = false;
     let lastWidth = window.innerWidth;
 
+    function isDesktopHeroPresent() {
+        return !!document.getElementById('desktopHeroShowcase') && window.innerWidth >= 1024;
+    }
+
     function updateNavOnScroll() {
         const header = getHeaderElement();
         if (!header) return;
@@ -21,11 +25,29 @@
 
         if (scrollTop > 50) {
             header.classList.add('scrolled');
+            if (isDesktopHeroPresent()) {
+                header.style.removeProperty('background');
+                header.style.removeProperty('background-color');
+                header.style.removeProperty('border');
+                header.style.removeProperty('border-bottom');
+                header.style.removeProperty('box-shadow');
+                header.style.removeProperty('backdrop-filter');
+                header.style.removeProperty('-webkit-backdrop-filter');
+            }
         } else {
             header.classList.remove('scrolled', 'sofa-header-scrolled');
-            // Remove any inline background set via JS
-            header.style.backgroundColor = '';
-            header.style.background = '';
+            if (isDesktopHeroPresent()) {
+                header.style.setProperty('background', 'transparent', 'important');
+                header.style.setProperty('background-color', 'transparent', 'important');
+                header.style.setProperty('border', 'none', 'important');
+                header.style.setProperty('border-bottom', 'none', 'important');
+                header.style.setProperty('box-shadow', 'none', 'important');
+                header.style.setProperty('backdrop-filter', 'none', 'important');
+                header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+            } else {
+                header.style.backgroundColor = '';
+                header.style.background = '';
+            }
         }
         header.classList.remove('nav-hidden');
         header.classList.add('nav-visible');
@@ -37,8 +59,18 @@
         const header = getHeaderElement();
         if (header) {
             header.classList.remove('scrolled', 'sofa-header-scrolled');
-            header.style.backgroundColor = '';
-            header.style.background = '';
+            if (isDesktopHeroPresent()) {
+                header.style.setProperty('background', 'transparent', 'important');
+                header.style.setProperty('background-color', 'transparent', 'important');
+                header.style.setProperty('border', 'none', 'important');
+                header.style.setProperty('border-bottom', 'none', 'important');
+                header.style.setProperty('box-shadow', 'none', 'important');
+                header.style.setProperty('backdrop-filter', 'none', 'important');
+                header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+            } else {
+                header.style.backgroundColor = '';
+                header.style.background = '';
+            }
         }
     }
 
