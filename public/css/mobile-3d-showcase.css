@@ -418,43 +418,174 @@
         transform: scale(0.96);
     }
 
-    /* ─── BADGES ─── */
-    .showcase-3d-badges {
+    /* ─── BADGES GROUP (Chuẩn 100% Giao diện Image 1 & Watch Page) ─── */
+    .showcase-3d-badges-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        margin: 2px 0;
+        box-sizing: border-box;
+    }
+
+    /* Hàng 1: IMDb Gold Pill + Khối ô nối liền (Connected Capsule) */
+    .showcase-3d-badges-row {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        flex-wrap: nowrap;
-        height: 28px;
-        min-height: 28px;
-        margin-top: 2px;
-        overflow: hidden;
+        gap: 7px;
+        flex-wrap: wrap;
+        width: 100%;
     }
 
-    .showcase-badge-pill {
+    /* IMDb Amber Gold Outline Pill (Solid High Contrast Pastel) */
+    .showcase-badge-imdb {
+        background-color: #fef3c7 !important;
+        border: 1.5px solid #f59e0b !important;
+        color: #9a3412 !important;
+        padding: 2.5px 8.5px !important;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 3.5px !important;
+        box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25) !important;
+        letter-spacing: 0.1px;
+        height: 24px;
+        box-sizing: border-box;
+    }
+
+    .showcase-badge-imdb-label {
+        font-weight: 800;
+        color: #d97706 !important;
+    }
+
+    .showcase-badge-imdb-val {
+        font-weight: 900;
+        color: #7c2d12 !important;
+    }
+
+    /* Connected Pill Group: FHD | CC VS.1 | 12 Tập | 2026 */
+    .showcase-connected-badge-group {
+        display: inline-flex !important;
+        align-items: center !important;
+        border-radius: 7px !important;
+        overflow: hidden !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+        height: 24px;
+        box-sizing: border-box;
+    }
+
+    .showcase-badge-segment {
+        padding: 0 7.5px !important;
+        height: 100% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        box-sizing: border-box;
+    }
+
+    /* Segment 1: FHD (Pastel Blue) */
+    .showcase-badge-segment.segment-quality {
+        background-color: #a5b4fc !important;
+        color: #0f172a !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.2px;
+    }
+
+    /* Segment 2: Lang / VS.1 (Pastel Mint Green) */
+    .showcase-badge-segment.segment-lang {
+        background-color: #a7f3d0 !important;
+        color: #064e3b !important;
+        font-weight: 800 !important;
+        gap: 3px;
+    }
+
+    .showcase-cc-icon {
+        width: 12px;
+        height: 12px;
+        fill: #064e3b;
+        flex-shrink: 0;
+    }
+
+    /* Segment 3: Episodes / Series (Dark Slate) */
+    .showcase-badge-segment.segment-ep {
+        background-color: #374151 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    /* Segment 4: Year (Crisp White) */
+    .showcase-badge-segment.segment-year {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-weight: 900 !important;
+    }
+
+    /* Hàng 2: Vibrant Pastel Genre Tag Pills (Chính Kịch, Hài Hước, Tình Cảm...) */
+    .showcase-3d-genres-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        max-width: 100%;
+        margin-top: 2px;
+    }
+
+    .showcase-genre-pill {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 4px 11px;
-        border-radius: 8px;
-        font-size: 11.5px;
+        padding: 2.5px 9px;
+        border-radius: 7px;
+        font-size: 11px;
         font-weight: 700;
-        background: #1e2433;
-        color: #cbd5e1;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        transition: all 0.2s ease;
     }
 
-    /* DARK MODE: Nhãn FHD Hòa trộn Trắng & Vàng không viền */
-    .showcase-badge-quality {
-        background: linear-gradient(135deg, #ffffff 0%, #fffbeb 30%, #fef08a 65%, #fcd34d 100%) !important;
-        color: #000000 !important;
-        border: none !important;
-        box-shadow: 0 2px 10px rgba(253, 224, 71, 0.45) !important;
+    .showcase-genre-pill.genre-blue {
+        background-color: #dbeafe !important;
+        border: 1.5px solid #93c5fd !important;
+        color: #1e3a8a !important;
         font-weight: 800 !important;
-        letter-spacing: 0.2px;
-        text-shadow: none !important;
+    }
+
+    .showcase-genre-pill.genre-purple {
+        background-color: #f3e8ff !important;
+        border: 1.5px solid #d8b4fe !important;
+        color: #581c87 !important;
+        font-weight: 800 !important;
+    }
+
+    .showcase-genre-pill.genre-pink {
+        background-color: #ffe4e6 !important;
+        border: 1.5px solid #fecdd3 !important;
+        color: #881337 !important;
+        font-weight: 800 !important;
+    }
+
+    .showcase-genre-pill.genre-mint {
+        background-color: #d1fae5 !important;
+        border: 1.5px solid #a7f3d0 !important;
+        color: #064e3b !important;
+        font-weight: 800 !important;
+    }
+
+    .showcase-genre-pill.genre-amber {
+        background-color: #fef3c7 !important;
+        border: 1.5px solid #fde68a !important;
+        color: #78350f !important;
+        font-weight: 800 !important;
     }
 
     /* ─── TÓM TẮT PHIM ─── */

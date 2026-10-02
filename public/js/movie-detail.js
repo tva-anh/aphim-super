@@ -628,23 +628,32 @@ function renderMovieDetail(movie) {
     const infoContainer = document.querySelector('.movie-info-container') || document.querySelector('.flex.flex-wrap.items-center.gap-4.mb-8');
     if (infoContainer) {
         // Wrap on mobile so badges don't get hidden
-        infoContainer.className = 'movie-info-container flex flex-wrap justify-center lg:justify-start items-center gap-2 sm:gap-3 md:gap-4 mb-0 md:mb-0 text-[11px] sm:text-sm md:text-base w-full';
+        infoContainer.className = 'movie-info-container flex flex-col justify-center lg:justify-start items-center lg:items-start gap-2 mb-2 md:mb-3 text-[11px] sm:text-sm md:text-base w-full';
 
-        const avgRating = ratingService.getAverageRating(movie.slug);
-        const ratings = ratingService.getRatings(movie.slug);
+        const imdbVal = (movie.tmdb && movie.tmdb.vote_average) ? movie.tmdb.vote_average : (movie.imdb && movie.imdb.vote_average ? movie.imdb.vote_average : (movie.imdb_rating || ''));
+        const imdbHtml = imdbVal ? `
+            <span style="background-color: #fef3c7; border: 1.5px solid #f59e0b; color: #9a3412; height: 28px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 6px; white-space: nowrap; gap: 4px; font-weight: 800; font-size: 12px; line-height: 1; flex-shrink: 0; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);" class="shadow-sm">
+                <span style="color: #d97706; font-weight: 800;">IMDb</span> <span style="color: #7c2d12; font-weight: 900;">${imdbVal}</span>
+            </span>
+        ` : '';
+
+        const typeName = (movie.type === 'series') ? 'Series' : (movie.type === 'hoathinh' ? 'Hoạt hình' : (movie.type === 'tvshows' ? 'TV Shows' : 'Phim Lẻ'));
+        const typeHtml = `<span style="background-color: #dbeafe; border: 1.5px solid #93c5fd; color: #1e3a8a; height: 28px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 6px; white-space: nowrap; font-weight: 800; font-size: 12px; line-height: 1; flex-shrink: 0; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);">${typeName}</span>`;
+
+        const yearHtml = movie.year ? `<span style="background-color: #f3e8ff; border: 1.5px solid #d8b4fe; color: #581c87; height: 28px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 6px; white-space: nowrap; font-weight: 800; font-size: 12px; line-height: 1; flex-shrink: 0; box-shadow: 0 2px 6px rgba(168, 85, 247, 0.15);">${movie.year}</span>` : '';
+
+        const langHtml = movie.lang ? `<span style="background-color: #d1fae5; border: 1.5px solid #a7f3d0; color: #064e3b; height: 28px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 6px; white-space: nowrap; font-weight: 800; font-size: 12px; line-height: 1; flex-shrink: 0; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);">${movie.lang}</span>` : '';
+
+        const qualityHtml = movie.quality ? `<span style="background-color: #fee2e2; border: 1.5px solid #fca5a5; color: #991b1b; height: 28px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 6px; white-space: nowrap; font-weight: 800; font-size: 12px; line-height: 1; flex-shrink: 0; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);">${movie.quality}</span>` : '';
 
         infoContainer.innerHTML = `
-            ${movie.tmdb && movie.tmdb.vote_average ? `<span style="background-color: #3f1e00; color: #f97316; border: 1px solid rgba(249, 115, 22, 0.3); box-shadow: 0 2px 8px rgba(63, 30, 0, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide flex items-center gap-1">IMDb ${movie.tmdb.vote_average}</span>` : ''}
-
-            ${movie.type === 'series' || movie.type === 'hoathinh' || movie.type === 'tvshows' ?
-                `<span style="background-color: #1e3a5f; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); box-shadow: 0 2px 8px rgba(30, 58, 95, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.type === 'series' ? 'Series' : movie.type === 'hoathinh' ? 'Hoạt hình' : 'TV Shows'}</span>`
-                : `<span style="background-color: #1e3a5f; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); box-shadow: 0 2px 8px rgba(30, 58, 95, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">Phim Lẻ</span>`}
-            
-            ${movie.year ? `<span style="background-color: #3b2854; color: #d8b4fe; border: 1px solid rgba(216, 180, 254, 0.2); box-shadow: 0 2px 8px rgba(59, 40, 84, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.year}</span>` : ''}
-            
-            ${movie.lang ? `<span style="background-color: #164e32; color: #86efac; border: 1px solid rgba(134, 239, 172, 0.2); box-shadow: 0 2px 8px rgba(22, 78, 50, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.lang}</span>` : ''}
-            
-            ${movie.quality ? `<span style="background-color: #5b3e15; color: #fde047; border: 1px solid rgba(253, 224, 71, 0.2); box-shadow: 0 2px 8px rgba(91, 62, 21, 0.4);" class="px-3 py-1.5 rounded-md text-[13px] font-bold leading-none tracking-wide">${movie.quality}</span>` : ''}
+            <div class="flex flex-wrap items-center gap-2 w-full justify-center lg:justify-start">
+                ${imdbHtml}
+                ${typeHtml}
+                ${yearHtml}
+                ${langHtml}
+                ${qualityHtml}
+            </div>
         `;
     }
 

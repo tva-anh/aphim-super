@@ -395,7 +395,7 @@
         flex-wrap: wrap !important;
         align-items: center !important;
         gap: 7px !important;
-        margin-bottom: 9px !important;
+        margin-bottom: 5px !important;
     }
 
     /* 1. IMDb Badge: Viền vàng kim 1px siêu mỏng, nền kính mờ trong suốt, chiều dọc thoáng đãng */
@@ -488,7 +488,8 @@
         flex-wrap: wrap !important;
         align-items: center !important;
         gap: 7px !important;
-        margin-top: 8px !important;
+        margin-top: 5px !important;
+        padding-top: 0 !important;
     }
 
     .hero-genre-pill {
@@ -737,7 +738,7 @@
     .hero-thumb-item.active {
         opacity: 1 !important;
         border-color: #fcd576 !important;
-        box-shadow: 0 0 18px rgba(252, 213, 118, 0.7), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6) !important;
         transform: none !important;
     }
 

@@ -3,8 +3,8 @@
 <head>
     <%- include('partials/head') %>
     <link rel="stylesheet" href="/css/avatar-frames.css">
-    <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=21">
-    <link rel="stylesheet" href="/css/hero-banner.css?v=174">
+    <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=23">
+    <link rel="stylesheet" href="/css/hero-banner.css?v=177">
     <link rel="stylesheet" href="/css/interests-section.css?v=171">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -1343,7 +1343,7 @@
                     </div>
 
                     <!-- Genre Tag Pills (Exact Photo 1 Layout: 2 tags) -->
-                    <div id="heroGenres" class="flex flex-wrap gap-2 items-center pt-1">
+                    <div id="heroGenres" class="flex flex-wrap gap-2 items-center">
                         <% if (ssrHero0 && Array.isArray(ssrHero0.category) && ssrHero0.category.length > 0) { %>
                             <% ssrHero0.category.slice(0, 2).forEach(cat => { %>
                                 <a href="/the-loai/<%= cat.slug || 'phim-hot' %>" class="hero-genre-pill"><%= cat.name || cat %></a>
@@ -1512,7 +1512,8 @@
                     <h3 class="showcase-3d-title" id="showcase3DTitle">Đang tải phim...</h3>
                     <div class="showcase-3d-origin-title" id="showcase3DOrigin"></div>
                 </div>
-                
+
+                <!-- 2 Action CTA Buttons (Xem phim & Thong tin) -->
                 <div class="showcase-3d-actions">
                     <a href="#" id="showcase3DBtnWatch" class="btn-3d-watch">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -1524,10 +1525,27 @@
                     </a>
                 </div>
 
-                <div class="showcase-3d-badges" id="showcase3DBadges">
-                    <span class="showcase-badge-pill showcase-badge-quality" id="showcase3DQuality">FHD</span>
-                    <span class="showcase-badge-pill" id="showcase3DYear">2026</span>
-                    <span class="showcase-badge-pill" id="showcase3DLang">Lồng Tiếng Full, Vietsub Full</span>
+                <!-- BADGES GROUP (Exact Image 1 & Watch Page Style) NẰM DƯỚI 2 NÚT HÀNH ĐỘNG -->
+                <div class="showcase-3d-badges-group" id="showcase3DBadgesGroup">
+                    <!-- Hàng 1: IMDb Gold Pill + Connected Capsule Group -->
+                    <div class="showcase-3d-badges-row">
+                        <!-- IMDb Amber Gold Outline Pill -->
+                        <span class="showcase-badge-imdb" id="showcase3DImdbWrap">
+                            <span class="showcase-badge-imdb-label">IMDb</span>
+                            <span class="showcase-badge-imdb-val" id="showcase3DImdb">9.2</span>
+                        </span>
+
+                        <!-- Connected Pill Group: FHD | CC VS.1 | 12 Tập | 2026 -->
+                        <div class="showcase-connected-badge-group">
+                            <span class="showcase-badge-segment segment-quality" id="showcase3DQuality">FHD</span>
+                            <span class="showcase-badge-segment segment-lang" id="showcase3DLangWrap">
+                                <svg class="showcase-cc-icon" viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" fill="currentColor"/></svg>
+                                <span id="showcase3DLang">VS.1</span>
+                            </span>
+                            <span class="showcase-badge-segment segment-ep" id="showcase3DEp">12 Tập</span>
+                            <span class="showcase-badge-segment segment-year" id="showcase3DYear">2026</span>
+                        </div>
+                    </div>
                 </div>
 
                 <p class="showcase-3d-desc" id="showcase3DDesc"></p>
@@ -2950,18 +2968,75 @@
             const elOrigin = document.getElementById('showcase3DOrigin');
             const elBtnWatch = document.getElementById('showcase3DBtnWatch');
             const elBtnInfo = document.getElementById('showcase3DBtnInfo');
+            const elImdb = document.getElementById('showcase3DImdb');
             const elQuality = document.getElementById('showcase3DQuality');
             const elYear = document.getElementById('showcase3DYear');
             const elLang = document.getElementById('showcase3DLang');
+            const elEp = document.getElementById('showcase3DEp');
+            const elGenres = document.getElementById('showcase3DGenres');
             const elDesc = document.getElementById('showcase3DDesc');
 
             if (elTitle) elTitle.textContent = current.name || '';
             if (elOrigin) elOrigin.textContent = current.origin_name || '';
             if (elBtnWatch) elBtnWatch.href = `/xem-phim/${current.slug}/tap-1`;
             if (elBtnInfo) elBtnInfo.href = `/phim/${current.slug}`;
+
+            // IMDb Badge
+            if (elImdb) elImdb.textContent = current.imdb || current.vote_average || '9.2';
+
+            // Quality
             if (elQuality) elQuality.textContent = current.quality || 'FHD';
+
+            // Compact / Clean Lang (e.g., "VS.1", "LT", "VS + LT")
+            if (elLang) {
+                let l = (current.lang || 'Vietsub').trim();
+                if (l.toLowerCase().includes('vietsub') && l.toLowerCase().includes('lồng tiếng')) {
+                    l = 'VS + LT';
+                } else if (l.toLowerCase().includes('vietsub') && l.toLowerCase().includes('thuyết minh')) {
+                    l = 'VS + TM';
+                } else if (l.toLowerCase().includes('vietsub')) {
+                    l = 'VS.1';
+                } else if (l.toLowerCase().includes('thuyết minh')) {
+                    l = 'TM';
+                } else if (l.toLowerCase().includes('lồng tiếng')) {
+                    l = 'LT';
+                }
+                elLang.textContent = l;
+            }
+
+            // Episode / Type (e.g. "12 Tập", "Series", "Phim Lẻ")
+            if (elEp) {
+                let ep = current.episode_current || current.episode_total || current.episodes || '';
+                if (!ep) {
+                    if (current.type === 'single' || current.type === 'movie') ep = 'Phim Lẻ';
+                    else if (current.type === 'series') ep = 'Series';
+                    else ep = '12 Tập';
+                }
+                elEp.textContent = ep;
+            }
+
+            // Year
             if (elYear) elYear.textContent = current.year || '2026';
-            if (elLang) elLang.textContent = current.lang || 'Lồng Tiếng Full, Vietsub Full';
+
+            // Colorful Pastel Genres (Image 1 style)
+            if (elGenres) {
+                const genreColors = ['genre-blue', 'genre-purple', 'genre-pink', 'genre-mint', 'genre-amber'];
+                let cats = current.category || current.categories || current.genres || [];
+                if (!Array.isArray(cats) || cats.length === 0) {
+                    if (typeof cats === 'string' && cats.trim()) {
+                        cats = cats.split(/[,/|]/).map(s => s.trim()).filter(Boolean);
+                    } else {
+                        // Intelligent fallback genres
+                        cats = ['Chính Kịch', 'Hài Hước', 'Tình Cảm'];
+                    }
+                }
+                elGenres.innerHTML = cats.slice(0, 4).map((c, i) => {
+                    const cName = typeof c === 'object' ? (c.name || c.title || '') : String(c);
+                    const colorClass = genreColors[i % genreColors.length];
+                    return `<span class="showcase-genre-pill ${colorClass}">${cName}</span>`;
+                }).join('');
+            }
+
             if (elDesc) elDesc.textContent = current.content ? current.content.replace(/<[^>]*>/g, '').trim() : '';
 
             // Update Pagination Dots
