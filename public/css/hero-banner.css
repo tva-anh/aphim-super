@@ -709,13 +709,13 @@
         border-radius: 6px !important;
         overflow: hidden !important;
         position: relative !important;
-        border: 2px solid rgba(255, 255, 255, 0.42) !important;
-        transition: border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease !important;
+        border: 2px solid #ffffff !important; /* 1. Viền trắng tinh khôi, rõ nét trên mọi nền */
+        transition: border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
         cursor: pointer !important;
         flex-shrink: 0 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55) !important;
-        opacity: 0.90 !important; /* Rõ nét, sáng rõ, không bị mờ hay đục */
-        background: #151821;
+        box-shadow: none !important; /* 2. Tắt hoàn toàn bóng đổ đen nặng nề, loại bỏ triệt để bóng/vệt ánh xạ chiếu xuống dưới */
+        opacity: 0.95 !important;
+        background: transparent !important;
         transform: none !important;
         scroll-snap-align: start;
     }
@@ -731,14 +731,15 @@
 
     .hero-thumb-item:hover {
         opacity: 1 !important;
-        border-color: rgba(255, 255, 255, 0.85) !important;
+        border-color: #ffffff !important;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.4) !important;
     }
 
     .hero-thumb-item.hero-thumb-active,
     .hero-thumb-item.active {
         opacity: 1 !important;
         border-color: #fcd576 !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+        box-shadow: 0 0 8px rgba(252, 213, 118, 0.5) !important;
         transform: none !important;
     }
 
