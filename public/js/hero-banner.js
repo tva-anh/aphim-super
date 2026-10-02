@@ -1244,7 +1244,7 @@ function renderThumbnails(movies) {
     }, { passive: true });
 }
 
-// Cập nhật trạng thái active của Thumbnail (Tự động cuộn mượt thumbnail được chọn vào tầm nhìn)
+// Cập nhật trạng thái active của Thumbnail (Tự động cuộn mượt thumbnail được chọn trong khung riêng, không cuộn window)
 function updateThumbnailActive(index) {
     const container = document.getElementById('heroThumbnails');
     if (!container) return;
@@ -1253,9 +1253,16 @@ function updateThumbnailActive(index) {
         const slideIdx = parseInt(item.getAttribute('data-slide-index') ?? i);
         if (slideIdx === index) {
             item.classList.add('hero-thumb-active', 'active');
+            // Cuộn ngang NỘI BỘ trong container thumbnails mà TUYỆT ĐỐI KHÔNG làm nhảy cuộn trang window
             try {
-                item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-            } catch (e) {}
+                const itemLeft = item.offsetLeft;
+                const itemWidth = item.offsetWidth;
+                const containerWidth = container.clientWidth;
+                const targetScroll = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+                container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+            } catch (e) {
+                container.scrollLeft = item.offsetLeft - 40;
+            }
         } else {
             item.classList.remove('hero-thumb-active', 'active');
         }

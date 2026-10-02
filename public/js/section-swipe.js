@@ -40,11 +40,13 @@
     }
 
     function getScrollContainer(target) {
+        if (!target || typeof target.closest !== 'function') return null;
+        const matched = target.closest(SLIDER_SELECTORS);
+        if (matched && (matched.scrollWidth > matched.clientWidth || matched.id === 'slider-de-cu' || matched.classList.contains('de-cu-slider'))) {
+            return matched;
+        }
         let el = target;
         while (el && el !== document.body && el !== document.documentElement) {
-            if (el.matches && el.matches(SLIDER_SELECTORS)) {
-                if (el.scrollWidth > el.clientWidth + 2) return el;
-            }
             if (el.scrollWidth > el.clientWidth + 2) {
                 const style = window.getComputedStyle(el);
                 if (style.overflowX === 'auto' || style.overflowX === 'scroll') {
@@ -85,13 +87,12 @@
         }
     }, true);
 
-    // ── 2. NHẤN CHUỘT (POINTER DOWN) ──
+    // ── 2. NHẤN CHUỘT / CHẠM TỨC THỜI (POINTER DOWN) ──
     function onPointerDown(e) {
-        if (!isDesktopDevice()) return;
-        if (e.pointerType === 'touch') return; // Cảm ứng điện thoại dùng native touch
-        if (e.button !== 0) return; // Chỉ nhận chuột trái
+        // Chỉ nhận chuột trái hoặc cảm ứng chạm
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-        // Bỏ qua nếu click vào nút điều hướng, ô nhập liệu hoặc switch
+        // Bỏ qua nếu click vào nút điều hướng, ô nhập liệu, switch
         if (e.target.closest('button, input, textarea, select, .home-comments-scroll-btn, .section-header-nav, .comment-switch, a[data-no-drag]')) {
             return;
         }
@@ -110,62 +111,69 @@
         scrollStart = container.scrollLeft;
         lastTime = performance.now();
         velocity = 0;
+
+        // Bật capture ngay lập tức để không bao giờ bị tuột chuột
+        if (e.pointerId !== undefined && container.setPointerCapture) {
+            try {
+                container.setPointerCapture(e.pointerId);
+            } catch (err) {}
+        }
     }
 
-    // ── 3. RÊ CHUỘT (POINTER MOVE) — 120FPS REAL-TIME TRACKING ──
+    // ── 3. RÊ CHUỘT (POINTER MOVE) — ĐI LIỀN TỨC THÌ 0MS ──
     function onPointerMove(e) {
         if (!isPointerDown || !activeContainer) return;
 
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
 
-        // Khóa hướng: Nếu người dùng đang cuộn dọc trang, hủy kéo ngang ngay lập tức để không khựng trang
+        // Nhận diện ngay lập tức khi di chuyển ngang
         if (!isDragging) {
-            if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+            // Nếu người dùng cuộn dọc rõ rệt (deltaY > 12 và gấp đôi deltaX), nhả kéo ngang để cuộn trang mượt
+            if (Math.abs(deltaY) > 12 && Math.abs(deltaY) > Math.abs(deltaX) * 1.8) {
                 isPointerDown = false;
+                if (e.pointerId !== undefined && activeContainer.releasePointerCapture) {
+                    try { activeContainer.releasePointerCapture(e.pointerId); } catch(err) {}
+                }
                 activeContainer = null;
                 return;
             }
 
-            // Lướt đâu đi liền ở đấy tức thì sau 2px
-            if (Math.abs(deltaX) >= 2 && Math.abs(deltaX) >= Math.abs(deltaY)) {
+            // Bắt đầu kéo ngay khi di chuyển ngang >= 2px
+            if (Math.abs(deltaX) >= 2) {
                 isDragging = true;
                 activeContainer.classList.add('is-smooth-dragging');
                 activeContainer.style.scrollBehavior = 'auto';
                 activeContainer.style.scrollSnapType = 'none';
-
-                if (e.pointerId !== undefined && activeContainer.setPointerCapture) {
-                    try {
-                        activeContainer.setPointerCapture(e.pointerId);
-                    } catch (err) {}
-                }
             }
         }
 
         if (isDragging) {
-            // Cập nhật vị trí tức thời 100% bám sát theo con trỏ chuột (Lướt đâu đi liền ở đấy)
+            // Lướt đâu đi liền ở đấy 100% bám sát con trỏ (1:1 direct tracking)
             activeContainer.scrollLeft = scrollStart - deltaX;
 
             const now = performance.now();
             const dt = now - lastTime;
             if (dt > 3) {
-                const instantV = (e.clientX - lastX) / dt; // px/ms
-                velocity = velocity * 0.25 + instantV * 0.75;
+                const instantV = (e.clientX - lastX) / dt;
+                velocity = velocity * 0.2 + instantV * 0.8;
                 lastX = e.clientX;
                 lastTime = now;
             }
 
-            e.preventDefault();
+            if (e.cancelable) {
+                e.preventDefault();
+            }
         }
     }
 
-    // ── 4. THẢ CHUỘT (POINTER UP) — QUÁN TÍNH NHẸ DỨT KHOÁT, KHÔNG TRÔI TUỘT ──
+    // ── 4. THẢ CHUỘT (POINTER UP) — DỪNG DỨT KHOÁT TỨC THÌ ──
     function onPointerUp(e) {
         if (!isPointerDown) return;
 
         const container = activeContainer;
         const wasDragging = isDragging;
-        const releaseV = velocity;
+        const totalMoved = Math.abs(e.clientX - startX);
 
         isPointerDown = false;
         isDragging = false;
@@ -180,44 +188,13 @@
                     }
                 } catch (err) {}
             }
+            container.style.scrollBehavior = '';
+            container.style.scrollSnapType = '';
         }
 
-        if (wasDragging) {
-            // Khóa click nhầm vào poster phim vừa kéo
-            suppressClickUntil = performance.now() + 250;
-
-            // Quán tính hãm phanh nhẹ nhàng, dứt khoát như các dự án lớn
-            if (container && Math.abs(releaseV) > 0.1) {
-                let currentV = Math.max(Math.min(releaseV * 4.5, 16), -16); // Giới hạn quán tính gọn gàng
-                const friction = 0.82; // Hãm phanh nhanh dứt khoát, dừng dính ngay
-                let lastFrameTime = performance.now();
-                let exactScroll = container.scrollLeft;
-
-                function glidePhysicsStep(now) {
-                    const dt = Math.min(now - lastFrameTime, 32);
-                    lastFrameTime = now;
-
-                    const step = currentV * (dt / 16.67);
-                    exactScroll -= step;
-                    container.scrollLeft = exactScroll;
-                    currentV *= Math.pow(friction, dt / 16.67);
-
-                    const maxScroll = container.scrollWidth - container.clientWidth;
-                    if (container.scrollLeft <= 0 || container.scrollLeft >= maxScroll || Math.abs(currentV) < 0.3) {
-                        momentumAnimId = null;
-                        container.style.scrollBehavior = '';
-                        container.style.scrollSnapType = '';
-                        return;
-                    }
-
-                    momentumAnimId = requestAnimationFrame(glidePhysicsStep);
-                }
-
-                momentumAnimId = requestAnimationFrame(glidePhysicsStep);
-            } else if (container) {
-                container.style.scrollBehavior = '';
-                container.style.scrollSnapType = '';
-            }
+        if (wasDragging || totalMoved > 6) {
+            // Khóa click nhầm nếu đã thực hiện thao tác kéo
+            suppressClickUntil = performance.now() + 200;
         }
     }
 
@@ -226,6 +203,17 @@
     window.addEventListener('pointermove', onPointerMove, { capture: false, passive: false });
     window.addEventListener('pointerup', onPointerUp, { capture: true, passive: true });
     window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: true });
+
+    // Hỗ trợ bổ sung Mouse Event để đảm bảo 100% trình duyệt nhận diện mượt mà
+    document.addEventListener('mousedown', (e) => {
+        if (!window.PointerEvent) onPointerDown(e);
+    }, { capture: true, passive: true });
+    window.addEventListener('mousemove', (e) => {
+        if (!window.PointerEvent) onPointerMove(e);
+    }, { capture: false, passive: false });
+    window.addEventListener('mouseup', (e) => {
+        if (!window.PointerEvent) onPointerUp(e);
+    }, { capture: true, passive: true });
 
     document.addEventListener('dragstart', function (e) {
         if (getScrollContainer(e.target)) {
