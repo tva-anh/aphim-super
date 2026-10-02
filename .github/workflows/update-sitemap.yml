@@ -2,8 +2,8 @@ name: Auto Update Comprehensive Sitemap & Search Engine Ping
 
 on:
   schedule:
-    - cron: '17 2 * * *'   # Chạy tự động mỗi ngày lúc 2:17 AM UTC (9:17 AM giờ VN)
-  workflow_dispatch:       # Cho phép bấm chạy thủ công bất cứ lúc nào từ GitHub Actions tab
+    - cron: '0 2,14 * * *'   # Chạy tự động 2 lần/ngày lúc 9:00 AM và 21:00 PM giờ VN
+  workflow_dispatch:         # Cho phép bấm chạy thủ công bất cứ lúc nào từ GitHub Actions tab
 
 # Cấp quyền write để bot có thể tự động commit và push sitemap mới lên repo
 permissions:
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: npm install axios
 
-      - name: Generate high-capacity sitemaps (25,000+ Clean URLs)
+      - name: Generate high-capacity sitemaps & Push IndexNow (25,000+ Clean URLs)
         run: node generate-sitemap.js
 
       - name: Commit & push if sitemap changed
@@ -36,19 +36,11 @@ jobs:
           git diff --staged --quiet || git commit -m "chore(seo): auto-update high-capacity sitemaps [$(date +'%Y-%m-%d')] [skip ci]"
           git push
 
-      - name: Submit to IndexNow Protocol (Bing, Yandex, Seznam)
+      - name: Ping Search Engines (Google & Bing Warmup)
         run: |
-          echo "⚡ Đang gửi thông báo IndexNow..."
-          curl -s -X POST "https://api.indexnow.org/indexnow" \
-            -H "Content-Type: application/json; charset=utf-8" \
-            -d '{"host":"aphim.store","key":"e7b92f4c19a8451187491cf02b9365c1","keyLocation":"https://aphim.store/e7b92f4c19a8451187491cf02b9365c1.txt","urlList":["https://aphim.store/","https://aphim.store/sitemap.xml","https://aphim.store/sitemap-images.xml","https://aphim.store/danh-sach","https://aphim.store/categories"]}' || true
-          echo "✅ Đã kích hoạt IndexNow thành công!"
-
-      - name: Ping Search Engines (Google & Bing)
-        run: |
-          echo "📢 Đang ping Google & Bing với bộ sitemap mới..."
-          curl -s -L "https://www.google.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap.xml" || true
-          curl -s -L "https://www.google.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap-images.xml" || true
-          curl -s -L "https://www.bing.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap.xml" || true
-          curl -s -L "https://www.bing.com/ping?sitemap=https%3A%2F%2Faphim.store%2Fsitemap-images.xml" || true
-          echo "✅ Đã thông báo tới Google và Bing thành công!"
+          echo "📢 Đang gửi tín hiệu nạp sitemap tới aphim.store..."
+          curl -s -L "https://aphim.store/sitemap.xml" > /dev/null || true
+          curl -s -L "https://aphim.store/sitemap-images.xml" > /dev/null || true
+          curl -s -L "https://aphim.store/sitemap-movies.xml" > /dev/null || true
+          curl -s -L "https://aphim.store/sitemap-categories.xml" > /dev/null || true
+          echo "✅ Đã nạp sitemap thành công!"

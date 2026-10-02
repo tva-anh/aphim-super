@@ -68,11 +68,11 @@ async function processInBatches(items, batchSize, fn) {
 
     // 1. PhimAPI Main Lists (Phim mới, Phim bộ, Phim lẻ, Hoạt hình, TV Shows)
     const lists = [
-        { type: 'phim-moi-cap-nhat', pages: 200 },
-        { type: 'phim-bo', pages: 150 },
-        { type: 'phim-le', pages: 150 },
-        { type: 'hoat-hinh', pages: 150 },
-        { type: 'tv-shows', pages: 100 }
+        { type: 'phim-moi-cap-nhat', pages: 300 },
+        { type: 'phim-bo', pages: 200 },
+        { type: 'phim-le', pages: 200 },
+        { type: 'hoat-hinh', pages: 180 },
+        { type: 'tv-shows', pages: 120 }
     ];
 
     lists.forEach(l => {
@@ -92,7 +92,7 @@ async function processInBatches(items, batchSize, fn) {
         'co-trang', 'chinh-kich', 'bi-an', 'hoc-duong'
     ];
     categories.forEach(cat => {
-        for (let p = 1; p <= 120; p++) {
+        for (let p = 1; p <= 150; p++) {
             targets.push({
                 url: `https://phimapi.com/v1/api/the-loai/${cat}?page=${p}`,
                 extractor: data => data?.data?.items || []
@@ -105,7 +105,7 @@ async function processInBatches(items, batchSize, fn) {
         'au-my', 'hong-kong', 'dai-loan', 'an-do', 'anh', 'phap', 'canada'
     ];
     countries.forEach(c => {
-        for (let p = 1; p <= 100; p++) {
+        for (let p = 1; p <= 120; p++) {
             targets.push({
                 url: `https://phimapi.com/v1/api/quoc-gia/${c}?page=${p}`,
                 extractor: data => data?.data?.items || []
@@ -114,7 +114,7 @@ async function processInBatches(items, batchSize, fn) {
     });
 
     // 3. NguonC Main List (Dự phòng thêm kho phim phong phú)
-    for (let p = 1; p <= 200; p++) {
+    for (let p = 1; p <= 250; p++) {
         targets.push({
             url: `https://phim.nguonc.com/api/films/phim-moi-cap-nhat?page=${p}`,
             extractor: data => data?.items || []
@@ -246,6 +246,40 @@ async function processInBatches(items, batchSize, fn) {
         console.log(`📄 Đã tạo file: ${sitemapPath} (Tổng ${movies.length * 2 + staticPages.length} URLs)`);
         console.log(`🖼️ Đã tạo file: ${imagesPath} (Tổng ${imageCount} ảnh)`);
     });
+
+    // 4. KÍCH HOẠT INDEXNOW PROTOCOL TRỰC TIẾP CHO TOP 500 PHIM MỚI NHẤT
+    try {
+        const topMovies = movies.slice(0, 500);
+        const indexNowUrls = [
+            `${BASE_URL}/`,
+            `${BASE_URL}/danh-sach`,
+            `${BASE_URL}/categories`,
+            `${BASE_URL}/reels`,
+            `${BASE_URL}/sitemap.xml`,
+            `${BASE_URL}/sitemap-images.xml`
+        ];
+        topMovies.forEach(m => {
+            indexNowUrls.push(`${BASE_URL}/phim/${m.slug}`);
+            indexNowUrls.push(`${BASE_URL}/xem-phim/${m.slug}`);
+        });
+
+        console.log(`\n⚡ Đang gửi ${indexNowUrls.length} URLs mới nhất tới IndexNow (Bing, Yandex, Seznam, Naver)...`);
+        const indexNowPayload = {
+            host: 'aphim.store',
+            key: 'e7b92f4c19a8451187491cf02b9365c1',
+            keyLocation: 'https://aphim.store/e7b92f4c19a8451187491cf02b9365c1.txt',
+            urlList: indexNowUrls
+        };
+
+        const inRes = await axios.post('https://api.indexnow.org/indexnow', indexNowPayload, {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            timeout: 15000
+        }).catch(err => ({ status: err?.response?.status || 500 }));
+
+        console.log(`✅ IndexNow phản hồi: Status ${inRes.status || 200} (Đã thông báo bot cào tức thì)`);
+    } catch (inErr) {
+        console.warn('IndexNow notice:', inErr.message);
+    }
 
     console.log(`\n✨ TOÀN BỘ SITEMAP CHO APHIM SUPER ĐÃ HOÀN TẤT THÀNH CÔNG!`);
 })().catch(err => {
