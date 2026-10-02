@@ -213,7 +213,7 @@ async function loadHeroBanner() {
         attachSwipeHandler();
         preloadSlideImages(heroSlides);
         prefetchAllMovieDetails();
-        setTimeout(loadInterestsCards, 120);
+        initHeroAutoSlide();
         return;
     }
 
@@ -262,11 +262,16 @@ async function loadHeroBanner() {
     setTimeout(loadInterestsCards, 120);
     prefetchAllMovieDetails();
     attachSwipeHandler();
+    initHeroAutoSlide();
 }
 
 // -- Load & Render Danh Mục "Bạn Đang Quan Tâm Gì?" ---------------
 async function loadInterestsCards() {
     try {
+        if (window.__INITIAL_DESKTOP_INTERESTS__ && Array.isArray(window.__INITIAL_DESKTOP_INTERESTS__) && window.__INITIAL_DESKTOP_INTERESTS__.length > 0) {
+            // Đã render hoàn tất 0ms từ Server-Side Rendering (SSR) — không chớp giật
+            return;
+        }
         const apiUrl = (typeof getBackendBaseURL === 'function') ? window.getBackendBaseURL() : '';
         const res = await fetch(`${apiUrl}/api/settings/desktop-interests`);
         if (res.ok) {
@@ -560,29 +565,121 @@ async function loadHeroLogo(movie) {
 }
 
 // ================================================================
-// AUTO-RETURN TIMER
+// DYNAMIC AUTO-SLIDE CONTROLLER (CẤU HÌNH TỰ ĐỘNG CHUYỂN HERO BANNER)
+// Giới hạn cấu hình từ 3s - 10s theo cài đặt của Admin (Không vượt 10s)
+// Tối ưu: Di chuột vào VẪN CHUYỂN BÌNH THƯỜNG; CHỈ TẠM DỪNG KHI ẤN GIỮ / KÉO LƯỚT
 // ================================================================
-function startAutoReturnTimer() {
-    clearAutoReturnTimer();
-    if (currentSlideIndex !== 0) {
-        autoReturnTimer = setTimeout(() => {
-            if (currentSlideIndex !== 0) {
-                switchHeroSlide(0, false, true);
+let autoSlideConfig = {
+    enabled: true,
+    interval: 6 // 3s đến 10s (mặc định 6s)
+};
+let autoSlideTimer = null;
+let isUserHoldingOrDragging = false;
+let lastAutoSlideConfigHash = '';
+
+function initHeroAutoSlide() {
+    // 1. Đọc dữ liệu SSR trước nếu có
+    if (window.__INITIAL_HERO_AUTOSLIDE__ && typeof window.__INITIAL_HERO_AUTOSLIDE__ === 'object') {
+        applyAutoSlideConfig(window.__INITIAL_HERO_AUTOSLIDE__, true);
+    }
+
+    // 2. Fetch cấu hình mới nhất từ backend API (không gián đoạn đếm giờ nếu cấu hình giống nhau)
+    fetch('/api/settings/desktop-hero-autoslide')
+        .then(r => r.json())
+        .then(res => {
+            if (res.success && res.data) {
+                applyAutoSlideConfig(res.data, false);
             }
-        }, AUTO_RETURN_DELAY);
+        })
+        .catch(() => {});
+
+    // 3. Gắn sự kiện nhấn giữ / chuẩn bị lướt (Hold / Drag to pause)
+    // Di chuột vào (hover) thì VẪN CHUYỂN BÌNH THƯỜNG. Chỉ dừng khi người dùng chủ động ấn giữ (mousedown / touchstart / pointerdown)
+    const heroEl = document.getElementById('desktopHeroShowcase') || document.querySelector('.desktop-hero-showcase');
+    if (heroEl && !heroEl._hasAutoSlideEvents) {
+        heroEl._hasAutoSlideEvents = true;
+
+        const onUserHoldStart = (e) => {
+            // Khi người dùng ấn giữ chuột hoặc chạm màn hình chuẩn bị lướt
+            isUserHoldingOrDragging = true;
+            clearAutoSlideTimer();
+        };
+
+        const onUserHoldEnd = (e) => {
+            // Khi người dùng nhả chuột / thả tay -> Tiếp tục đếm giờ chuyển slide
+            if (isUserHoldingOrDragging) {
+                isUserHoldingOrDragging = false;
+                if (autoSlideConfig.enabled) {
+                    startAutoSlideTimer();
+                }
+            }
+        };
+
+        heroEl.addEventListener('pointerdown', onUserHoldStart, { passive: true });
+        heroEl.addEventListener('touchstart', onUserHoldStart, { passive: true });
+        heroEl.addEventListener('mousedown', onUserHoldStart, { passive: true });
+
+        window.addEventListener('pointerup', onUserHoldEnd, { passive: true });
+        window.addEventListener('pointercancel', onUserHoldEnd, { passive: true });
+        window.addEventListener('touchend', onUserHoldEnd, { passive: true });
+        window.addEventListener('mouseup', onUserHoldEnd, { passive: true });
+    }
+
+    // 4. Kích hoạt đếm giờ chuẩn xác
+    startAutoSlideTimer();
+}
+
+function applyAutoSlideConfig(cfg, forceRestart = false) {
+    if (!cfg || typeof cfg !== 'object') return;
+    const isEnabled = typeof cfg.enabled === 'boolean' ? cfg.enabled : true;
+    const intervalSec = parseInt(cfg.interval, 10);
+    // Giới hạn chặt chẽ: tối thiểu 3s, tối đa 10s (không được vượt quá 10s)
+    const cleanInterval = Math.min(10, Math.max(3, !isNaN(intervalSec) ? intervalSec : 6));
+
+    const newHash = `${isEnabled}_${cleanInterval}`;
+    if (!forceRestart && newHash === lastAutoSlideConfigHash && autoSlideTimer !== null) {
+        return; // Đang chạy đúng cấu hình, không làm gián đoạn chu kỳ chuyển
+    }
+    lastAutoSlideConfigHash = newHash;
+
+    autoSlideConfig.enabled = isEnabled;
+    autoSlideConfig.interval = cleanInterval;
+
+    if (autoSlideConfig.enabled) {
+        startAutoSlideTimer();
+    } else {
+        clearAutoSlideTimer();
     }
 }
 
-function clearAutoReturnTimer() {
-    if (autoReturnTimer) {
-        clearTimeout(autoReturnTimer);
-        autoReturnTimer = null;
+function startAutoSlideTimer() {
+    clearAutoSlideTimer();
+    if (!autoSlideConfig.enabled || !heroSlides || heroSlides.length <= 1) return;
+    if (isUserHoldingOrDragging) return; // Đang ấn giữ chuẩn bị kéo lướt -> tạm dừng
+
+    // Giới hạn độ trễ chuẩn xác theo đúng số giây Admin cài (3s - 10s)
+    const delayMs = Math.min(10, Math.max(3, Number(autoSlideConfig.interval) || 6)) * 1000;
+
+    autoSlideTimer = setTimeout(() => {
+        if (!isUserHoldingOrDragging && autoSlideConfig.enabled && heroSlides.length > 1 && !isTransitioning) {
+            const nextIdx = (currentSlideIndex + 1) % heroSlides.length;
+            switchHeroSlide(nextIdx, 1, false);
+            return; // switchHeroSlide sẽ kích hoạt lại startAutoSlideTimer khi hoàn tất
+        }
+        startAutoSlideTimer();
+    }, delayMs);
+}
+
+function clearAutoSlideTimer() {
+    if (autoSlideTimer) {
+        clearTimeout(autoSlideTimer);
+        autoSlideTimer = null;
     }
 }
 
 function resetAutoReturn() {
-    clearAutoReturnTimer();
-    startAutoReturnTimer();
+    clearAutoSlideTimer();
+    startAutoSlideTimer();
 }
 
 // ================================================================
@@ -598,7 +695,7 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     if (newIndex === currentSlideIndex) return;
 
     isTransitioning = true;
-    if (!isAutoReturn) clearAutoReturnTimer();
+    clearAutoSlideTimer();
 
     const movie = heroSlides[newIndex];
     if (!movie) {
@@ -628,64 +725,58 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     const currentLayer = currentLayerName === 'A' ? layerA : layerB;
     const nextLayer = currentLayerName === 'A' ? layerB : layerA;
 
-    // 3. PHASE 1: Chuẩn bị lớp ảnh tiếp theo (Next Layer)
+    // 3. PHASE 1: Cập nhật dữ liệu phim & Chuẩn bị vị trí xuất phát cho cả 2 bên
+    updateHeroBannerText(movie);
+    updateHeroButtons(movie);
+    setupHeroActions(movie);
+
+    // Chuẩn bị lớp ảnh nền tiếp theo (Lướt từ bên phải vào)
     if (nextLayer && currentLayer) {
         nextLayer.src = optUrl || rawUrl;
         nextLayer.style.transition = 'none';
-        nextLayer.style.transform = `translateZ(0) translateX(${direction * 50}px) scale(1.03)`;
+        nextLayer.style.transform = `translateZ(0) translateX(${direction * 48}px) scale(1.03)`;
         nextLayer.style.opacity = '0';
         nextLayer.style.zIndex = '2';
         currentLayer.style.zIndex = '1';
         nextLayer.offsetHeight; // Trigger reflow
     }
 
-    // 4. PHASE 2: Nội dung bên trái mờ nhẹ sang trái (Thumbnail bên phải ĐỨNG YÊN HOÀN TOÀN)
+    // Chuẩn bị khung nội dung bên trái (Lướt nhẹ nhàng đồng bộ từ bên trái vào)
     if (heroInfoCol) {
-        heroInfoCol.style.transition = 'opacity 0.16s ease-out, transform 0.16s ease-out';
+        heroInfoCol.style.transition = 'none';
         heroInfoCol.style.opacity = '0';
-        heroInfoCol.style.transform = `translateZ(0) translateX(${-direction * 30}px)`;
+        heroInfoCol.style.transform = `translateZ(0) translateX(${-direction * 45}px)`;
+        heroInfoCol.offsetHeight; // Trigger reflow
     }
 
-    // 5. PHASE 3: Kích hoạt hiệu ứng trượt & mờ dần ảnh nền (Chậm rãi, uyển chuyển 0.75s)
+    // 4. PHASE 2: Kích hoạt đồng thời hiệu ứng lướt êm ái cho CẢ 2 BÊN (Cùng 0.75s, cùng gia tốc chuẩn điện ảnh)
     requestAnimationFrame(() => {
+        // Ảnh lớn lướt từ phải vào giữa
         if (nextLayer && currentLayer) {
-            nextLayer.style.transition = 'opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1)';
+            nextLayer.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
             nextLayer.style.opacity = '1';
             nextLayer.style.transform = 'translateZ(0) translateX(0) scale(1)';
 
-            currentLayer.style.transition = 'opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1)';
+            currentLayer.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
             currentLayer.style.opacity = '0';
             currentLayer.style.transform = `translateZ(0) translateX(${-direction * 45}px) scale(1.02)`;
         }
-    });
 
-    // 6. PHASE 4 (80ms): Cập nhật dữ liệu & Nội dung bên trái lướt mượt mà chậm rãi từ bên trái vào
-    setTimeout(() => {
-        currentSlideIndex = newIndex;
-
-        // Cập nhật toàn bộ Text + Badges + Nút cùng frame
-        updateHeroBannerText(movie);
-        updateHeroButtons(movie);
-        setupHeroActions(movie);
-
+        // Khung chữ / nội dung lướt nhẹ nhàng từ trái vào giữa (Đồng bộ 100% với ảnh nền)
         if (heroInfoCol) {
-            heroInfoCol.style.transition = 'none';
-            heroInfoCol.style.transform = `translateZ(0) translateX(${direction * 40}px)`;
-            heroInfoCol.offsetHeight; // Trigger reflow
-
-            heroInfoCol.style.transition = 'opacity 0.60s cubic-bezier(0.16, 1, 0.3, 1), transform 0.68s cubic-bezier(0.16, 1, 0.3, 1)';
+            heroInfoCol.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
             heroInfoCol.style.opacity = '1';
             heroInfoCol.style.transform = 'translateZ(0) translateX(0)';
         }
+    });
 
-        // 7. Hoàn tất chu kỳ chuyển cảnh & mở khóa thao tác nhanh (320ms cooldown)
-        setTimeout(() => {
-            currentLayerName = currentLayerName === 'A' ? 'B' : 'A';
-            isTransitioning = false;
-            if (!isAutoReturn && newIndex !== 0) startAutoReturnTimer();
-        }, 320);
-
-    }, 80);
+    // 5. PHASE 3: Hoàn tất chu kỳ chuyển cảnh & mở khóa thao tác nhanh
+    setTimeout(() => {
+        currentSlideIndex = newIndex;
+        currentLayerName = currentLayerName === 'A' ? 'B' : 'A';
+        isTransitioning = false;
+        startAutoSlideTimer();
+    }, 450);
 }
 
 // -- Build optimized image URL ------------------------------------

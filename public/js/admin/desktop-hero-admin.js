@@ -234,11 +234,18 @@
             } catch (e) {}
         },
 
+        autoSlideState: {
+            enabled: true,
+            interval: 6,
+            pauseOnHover: true
+        },
+
         async loadData() {
             try {
-                const [heroRes, intRes] = await Promise.all([
+                const [heroRes, intRes, autoRes] = await Promise.all([
                     fetch('/api/settings/desktop-hero-showcase?t=' + Date.now()).then(r => r.json()).catch(() => ({ success: false })),
-                    fetch('/api/settings/desktop-interests?t=' + Date.now()).then(r => r.json()).catch(() => ({ success: false }))
+                    fetch('/api/settings/desktop-interests?t=' + Date.now()).then(r => r.json()).catch(() => ({ success: false })),
+                    fetch('/api/settings/desktop-hero-autoslide?t=' + Date.now()).then(r => r.json()).catch(() => ({ success: false }))
                 ]);
 
                 if (heroRes && heroRes.success && Array.isArray(heroRes.data)) {
@@ -249,8 +256,109 @@
                     interestsCards = intRes.data;
                     this.renderInterestsList();
                 }
+                if (autoRes && autoRes.success && autoRes.data) {
+                    this.renderAutoSlideControls(autoRes.data);
+                }
             } catch (e) {
                 console.error('Lỗi load desktop hero slides & interests:', e);
+            }
+        },
+
+        // ================================================================
+        // AUTO-SLIDE CONTROLS (TỰ ĐỘNG CHUYỂN HERO BANNER THEO GIÂY)
+        // ================================================================
+        renderAutoSlideControls(data) {
+            if (!data) return;
+            this.autoSlideState.enabled = typeof data.enabled === 'boolean' ? data.enabled : true;
+            const parsed = parseInt(data.interval, 10);
+            this.autoSlideState.interval = Math.min(10, Math.max(3, !isNaN(parsed) ? parsed : 6));
+            this.autoSlideState.pauseOnHover = typeof data.pauseOnHover === 'boolean' ? data.pauseOnHover : true;
+
+            const toggleEl = document.getElementById('heroAutoSlideToggle');
+            const intervalEl = document.getElementById('heroAutoSlideIntervalInput');
+            const pauseEl = document.getElementById('heroAutoSlidePauseOnHover');
+            const badgeEl = document.getElementById('heroAutoSlideStatusBadge');
+
+            if (toggleEl) toggleEl.checked = this.autoSlideState.enabled;
+            if (intervalEl) intervalEl.value = this.autoSlideState.interval;
+            if (pauseEl) pauseEl.checked = this.autoSlideState.pauseOnHover;
+            if (badgeEl) {
+                if (this.autoSlideState.enabled) {
+                    badgeEl.textContent = `Đang Bật (${this.autoSlideState.interval}s/phim)`;
+                    badgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+                    badgeEl.style.color = '#34d399';
+                    badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                } else {
+                    badgeEl.textContent = 'Đã Tắt';
+                    badgeEl.style.background = 'rgba(148, 163, 184, 0.12)';
+                    badgeEl.style.color = '#94a3b8';
+                    badgeEl.style.borderColor = 'rgba(148, 163, 184, 0.25)';
+                }
+            }
+        },
+
+        handleAutoSlideToggle(checked) {
+            this.autoSlideState.enabled = !!checked;
+            this.renderAutoSlideControls(this.autoSlideState);
+            this.saveAutoSlideConfig();
+        },
+
+        handleAutoSlideIntervalInput(val) {
+            let num = parseInt(val, 10);
+            if (isNaN(num)) num = 6;
+            // GIỚI HẠN TUYỆT ĐỐI: 3s <= num <= 10s (Không quá 10s)
+            if (num > 10) {
+                num = 10;
+                const el = document.getElementById('heroAutoSlideIntervalInput');
+                if (el) el.value = 10;
+                AdminNotice.toast('Giới hạn thời gian tự động chuyển tối đa là 10 giây!', 'info');
+            }
+            if (num < 3 && val !== '') {
+                num = 3;
+            }
+            this.autoSlideState.interval = num;
+            this.renderAutoSlideControls(this.autoSlideState);
+            this.saveAutoSlideConfigDebounced();
+        },
+
+        setAutoSlidePreset(seconds) {
+            let num = Math.min(10, Math.max(3, parseInt(seconds, 10) || 6));
+            this.autoSlideState.interval = num;
+            this.autoSlideState.enabled = true;
+            this.renderAutoSlideControls(this.autoSlideState);
+            this.saveAutoSlideConfig();
+            AdminNotice.toast(`⏱️ Đã chọn tự động chuyển mỗi ${num} giây!`, 'success');
+        },
+
+        handleAutoSlidePauseHover(checked) {
+            this.autoSlideState.pauseOnHover = !!checked;
+            this.saveAutoSlideConfig();
+        },
+
+        saveAutoSlideConfigDebounced() {
+            if (this._autoSlideSaveTimer) clearTimeout(this._autoSlideSaveTimer);
+            this._autoSlideSaveTimer = setTimeout(() => {
+                this.saveAutoSlideConfig();
+            }, 500);
+        },
+
+        async saveAutoSlideConfig() {
+            try {
+                const token = getAdminToken();
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+
+                const res = await fetch('/api/settings/desktop-hero-autoslide', {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify(this.autoSlideState)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    AdminNotice.toast(data.message || 'Đã lưu cấu hình tự động chuyển!', 'success');
+                }
+            } catch (err) {
+                console.warn('Lỗi lưu cấu hình AutoSlide:', err);
             }
         },
 

@@ -359,6 +359,75 @@ router.put('/desktop-hero-showcase', requireAdmin, async (req, res) => {
     }
 });
 
+// ── GET /api/settings/desktop-hero-autoslide — Public/Admin ──────────────────────
+router.get('/desktop-hero-autoslide', async (req, res) => {
+    try {
+        const { data: row } = await supabaseAdmin
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'desktop_hero_autoslide')
+            .maybeSingle();
+
+        const defaultConfig = {
+            enabled: true,
+            interval: 6, // Giới hạn tối đa 10s theo cấu hình Admin
+            pauseOnHover: true
+        };
+
+        if (row && row.value && typeof row.value === 'object') {
+            const val = row.value;
+            const parsedInterval = parseInt(val.interval, 10);
+            return res.json({
+                success: true,
+                data: {
+                    enabled: typeof val.enabled === 'boolean' ? val.enabled : true,
+                    interval: Math.min(10, Math.max(3, !isNaN(parsedInterval) ? parsedInterval : 6)),
+                    pauseOnHover: typeof val.pauseOnHover === 'boolean' ? val.pauseOnHover : true
+                }
+            });
+        }
+
+        return res.json({ success: true, data: defaultConfig });
+    } catch (e) {
+        return res.json({ success: true, data: { enabled: true, interval: 6, pauseOnHover: true } });
+    }
+});
+
+// ── PUT /api/settings/desktop-hero-autoslide — Admin cập nhật Tự Động Chuyển Slide ──
+router.put('/desktop-hero-autoslide', requireAdmin, async (req, res) => {
+    try {
+        const { enabled, interval, pauseOnHover } = req.body;
+        const parsedInterval = parseInt(interval, 10);
+        // Giới hạn cấu hình từ 3s đến 10s (KHÔNG vượt quá ngưỡng 10s)
+        const cleanInterval = Math.min(10, Math.max(3, !isNaN(parsedInterval) ? parsedInterval : 6));
+        const cleanConfig = {
+            enabled: enabled === true || enabled === 'true' || enabled === 1,
+            interval: cleanInterval,
+            pauseOnHover: pauseOnHover !== false && pauseOnHover !== 'false' && pauseOnHover !== 0
+        };
+
+        await supabaseAdmin.from('system_settings').upsert({
+            key: 'desktop_hero_autoslide',
+            value: cleanConfig,
+            category: 'content',
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+
+        if (typeof global.invalidateHeroCache === 'function') {
+            global.invalidateHeroCache();
+        }
+
+        return res.json({
+            success: true,
+            message: `Đã lưu cấu hình tự động chuyển Hero Banner (${cleanConfig.enabled ? `Bật, mỗi ${cleanConfig.interval}s` : 'Đã Tắt'}) thành công!`,
+            data: cleanConfig
+        });
+    } catch (err) {
+        console.error('[Desktop Hero AutoSlide Save Error]', err);
+        return res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
+    }
+});
+
 // ── GET /api/settings/desktop-interests — Public, Cụm "Bạn đang quan tâm gì?" ──
 router.get('/desktop-interests', async (req, res) => {
     try {
@@ -453,6 +522,10 @@ router.put('/desktop-interests', requireAdmin, async (req, res) => {
             category: 'content',
             updated_at: new Date().toISOString()
         }, { onConflict: 'key' });
+
+        if (typeof global.invalidateInterestsCache === 'function') {
+            global.invalidateInterestsCache();
+        }
 
         return res.json({ success: true, message: 'Đã lưu cấu hình "Bạn đang quan tâm gì?" thành công!', data: items });
     } catch (err) {

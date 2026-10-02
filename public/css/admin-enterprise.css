@@ -130,14 +130,18 @@ body::before {
 }
 
 .sidebar-header {
-  padding: 20px 18px 18px;
-  border-bottom: 1px solid var(--border-subtle);
+  height: 68px;
+  min-height: 68px;
+  max-height: 68px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border-default);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   position: relative;
-  transition: padding 0.25s ease;
+  box-sizing: border-box;
+  transition: width 0.25s ease, padding 0.25s ease;
 }
 
 .sidebar-brand {
@@ -171,12 +175,12 @@ body::before {
 }
 
 .header-sidebar-toggle-btn {
+  display: none; /* Ẩn nút trùng lặp khi menu mở rộng */
   width: 36px;
   height: 36px;
   border-radius: 9px;
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
@@ -327,16 +331,29 @@ body.sidebar-collapsed .admin-sidebar,
   width: 72px !important;
   min-width: 72px !important;
   max-width: 72px !important;
+  overflow: visible !important;
+  z-index: 10000 !important;
+}
+
+html.sidebar-collapsed .sidebar-nav,
+body.sidebar-collapsed .sidebar-nav,
+.admin-sidebar.collapsed .sidebar-nav {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
 }
 
 html.sidebar-collapsed .sidebar-header,
 body.sidebar-collapsed .sidebar-header,
 .admin-sidebar.collapsed .sidebar-header {
-  padding: 16px 10px 14px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
+  height: 68px !important;
+  min-height: 68px !important;
+  max-height: 68px !important;
+  padding: 0 !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0 !important;
+  box-sizing: border-box !important;
 }
 
 html.sidebar-collapsed .sidebar-brand,
@@ -344,6 +361,7 @@ body.sidebar-collapsed .sidebar-brand,
 .admin-sidebar.collapsed .sidebar-brand {
   gap: 0;
   justify-content: center;
+  align-items: center;
 }
 
 html.sidebar-collapsed .brand-text,
@@ -364,8 +382,12 @@ body.sidebar-collapsed .brand-logo-icon,
 html.sidebar-collapsed .sidebar-collapse-toggle-btn,
 body.sidebar-collapsed .sidebar-collapse-toggle-btn,
 .admin-sidebar.collapsed .sidebar-collapse-toggle-btn {
-  width: 28px;
-  height: 28px;
+  display: none !important;
+}
+
+html.sidebar-collapsed .header-sidebar-toggle-btn,
+body.sidebar-collapsed .header-sidebar-toggle-btn {
+  display: inline-flex !important;
 }
 
 html.sidebar-collapsed .nav-section-title,
@@ -390,6 +412,8 @@ body.sidebar-collapsed .nav-item,
   margin: 4px 6px !important;
   border-radius: 10px;
   transform: none !important;
+  position: relative !important;
+  overflow: visible !important;
 }
 
 html.sidebar-collapsed .nav-item:hover,
@@ -450,25 +474,43 @@ body.sidebar-collapsed .icon-btn#btnAdminLogout,
 
 /* Tooltip on Hover when Sidebar is Collapsed */
 html.sidebar-collapsed .admin-sidebar .nav-item:hover::after,
-body.sidebar-collapsed .admin-sidebar .nav-item:hover::after {
+body.sidebar-collapsed .admin-sidebar .nav-item:hover::after,
+.admin-sidebar.collapsed .nav-item:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  left: calc(100% + 14px);
+  left: calc(100% + 12px);
   top: 50%;
   transform: translateY(-50%);
   background: #0f172a;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 7px 14px;
+  border-radius: 9px;
   white-space: nowrap;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 0, 0, 0.4);
   pointer-events: none;
-  z-index: 999999;
+  z-index: 99999999 !important;
   letter-spacing: 0.02em;
-  animation: sidebarTooltipIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: sidebarTooltipIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Tooltip Arrow Indicator */
+html.sidebar-collapsed .admin-sidebar .nav-item:hover::before,
+body.sidebar-collapsed .admin-sidebar .nav-item:hover::before,
+.admin-sidebar.collapsed .nav-item:hover::before {
+  content: '';
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px 6px 5px 0;
+  border-style: solid;
+  border-color: transparent #0f172a transparent transparent;
+  pointer-events: none;
+  z-index: 99999999 !important;
+  animation: sidebarTooltipIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes sidebarTooltipIn {
@@ -3322,8 +3364,6 @@ body.sidebar-collapsed .admin-sidebar .nav-item:hover::after {
   to {
     box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
   }
-}
-  overflow: hidden;
 }
 
 .kpi-sparkline svg {

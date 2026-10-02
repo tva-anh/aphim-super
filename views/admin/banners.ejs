@@ -16,8 +16,7 @@
            ENTERPRISE HIGH-PERFORMANCE DARK DESIGN FOR ADMIN BANNERS
            ========================================================= */
         .admin-content {
-          contain: paint;
-          transform: translateZ(0);
+          position: relative;
         }
         .admin-section-panel {
           position: relative;
@@ -370,6 +369,51 @@
             <button class="btn-top-action btn-top-gold-solid" onclick="if(window.DesktopHeroAdmin)DesktopHeroAdmin.saveHeroConfig()" id="btnSaveDesktopHero">
               <i data-lucide="save"></i> Lưu Cấu Hình Hero Desktop
             </button>
+          </div>
+        </div>
+
+        <!-- Cấu hình Tự Động Chuyển Slide (Auto-Slide Carousel) -->
+        <div class="hero-autoslide-config-card" style="margin-bottom: 18px; padding: 14px 18px; background: rgba(245, 158, 11, 0.05); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px; min-width: 260px;">
+            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); display: flex; align-items: center; justify-content: center; color: #fbbf24; font-size: 20px; flex-shrink: 0;">
+              ⏱️
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 14px; font-weight: 800; color: #ffffff;">Tự Động Chuyển Hero Banner (Auto-Slide)</span>
+                <span id="heroAutoSlideStatusBadge" class="badge" style="font-size: 10.5px; padding: 2px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700;">Đang Bật</span>
+              </div>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #94a3b8;">Tự động lướt chuyển lần lượt từng phim trong danh sách theo thời gian cấu hình (Giới hạn chuẩn: 3s – 10s)</p>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <!-- Toggle Bật/Tắt -->
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 700; color: #e2e8f0; background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+              <input type="checkbox" id="heroAutoSlideToggle" checked onchange="DesktopHeroAdmin.handleAutoSlideToggle(this.checked)" style="width: 17px; height: 17px; accent-color: #f59e0b; cursor: pointer;">
+              <span>Bật tự động chuyển</span>
+            </label>
+
+            <!-- Chọn khoảng thời gian (3s - 10s) -->
+            <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.35); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+              <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Thời gian:</span>
+              <input type="number" id="heroAutoSlideIntervalInput" min="3" max="10" step="1" value="6" oninput="DesktopHeroAdmin.handleAutoSlideIntervalInput(this.value)" style="width: 52px; background: #1e293b; border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 6px; color: #fbbf24; font-size: 13.5px; font-weight: 800; text-align: center; padding: 3px 0;">
+              <span style="font-size: 12px; color: #fbbf24; font-weight: 700;">giây (s)</span>
+            </div>
+
+            <!-- Quick Presets -->
+            <div style="display: flex; gap: 5px; align-items: center;">
+              <button type="button" onclick="DesktopHeroAdmin.setAutoSlidePreset(3)" class="btn-preset" style="padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #cbd5e1; font-size: 11px; font-weight: 700; cursor: pointer;">3s</button>
+              <button type="button" onclick="DesktopHeroAdmin.setAutoSlidePreset(5)" class="btn-preset" style="padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #cbd5e1; font-size: 11px; font-weight: 700; cursor: pointer;">5s</button>
+              <button type="button" onclick="DesktopHeroAdmin.setAutoSlidePreset(7)" class="btn-preset" style="padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #cbd5e1; font-size: 11px; font-weight: 700; cursor: pointer;">7s</button>
+              <button type="button" onclick="DesktopHeroAdmin.setAutoSlidePreset(10)" class="btn-preset" style="padding: 4px 8px; border-radius: 6px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; font-size: 11px; font-weight: 800; cursor: pointer;" title="Thời gian tối đa 10s">10s (Tối đa)</button>
+            </div>
+
+            <!-- Checkbox Tạm dừng khi rê chuột -->
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 12px; color: #94a3b8;" title="Tự động tạm dừng đếm ngược khi người dùng di chuột vào banner">
+              <input type="checkbox" id="heroAutoSlidePauseOnHover" checked onchange="DesktopHeroAdmin.handleAutoSlidePauseHover(this.checked)" style="width: 15px; height: 15px; accent-color: #f59e0b; cursor: pointer;">
+              <span>Dừng khi di chuột</span>
+            </label>
           </div>
         </div>
 

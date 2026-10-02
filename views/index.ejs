@@ -1295,6 +1295,7 @@
     %>
     <script>
         window.__INITIAL_HERO_SLIDES__ = <%- JSON.stringify(ssrHeroList || null) %>;
+        window.__INITIAL_HERO_AUTOSLIDE__ = <%- JSON.stringify(typeof heroAutoSlide !== 'undefined' ? heroAutoSlide : null) %>;
     </script>
     <section id="desktopHeroShowcase" class="desktop-hero-showcase relative w-full select-none hidden lg:block">
         <!-- Background Image & Clean Vignettes (Zero Foggy Overlay, Dual-Layer 60fps Cinema Transitions) -->
@@ -1407,77 +1408,111 @@
                 </div>
 
                 <div class="interests-wrapper">
-                    <!-- 1. Phim Bộ -->
-                    <div class="interest-card cat-series" onclick="window.location.href='/danh-sach?list=phim-bo'">
-                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20240310-1/759bbb161873247310b3ad71ac96d95b.jpg');"></div>
-                        <div class="interest-icon-circle" title="Phim Bộ">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-                        </div>
-                        <div class="interest-content">
-                            <span class="interest-title">Phim Bộ</span>
-                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
-                        </div>
-                    </div>
+                    <% 
+                        const defaultInterestsRgbs = ['139, 92, 246', '239, 68, 68', '249, 115, 22', '236, 72, 153', '234, 179, 8', '16, 185, 129'];
+                        const defaultInterestsIcons = [
+                            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="3"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>',
+                            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+                            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+                            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>',
+                            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14c1.5 2 6.5 2 8 0"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>',
+                            '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>'
+                        ];
 
-                    <!-- 2. Phim Mới -->
-                    <div class="interest-card cat-new" onclick="window.location.href='/danh-sach?list=phim-moi-cap-nhat'">
-                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20250530-1/fdf11774cff47f0ffc9c2dbe2e02d0ca.jpg');"></div>
-                        <div class="interest-icon-circle" title="Phim Mới">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
-                        </div>
-                        <div class="interest-content">
-                            <span class="interest-title">Phim Mới</span>
-                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
-                        </div>
-                    </div>
+                        const getCardRgbSSR = (c, idx) => {
+                            if (c.colorRgb) return c.colorRgb;
+                            const colorVal = c.themeColor || c.color || c.gradient || '';
+                            const m = String(colorVal).match(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})/);
+                            if (m) {
+                                let hex = m[1];
+                                if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+                                const num = parseInt(hex, 16);
+                                return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+                            }
+                            return defaultInterestsRgbs[idx % defaultInterestsRgbs.length];
+                        };
 
-                    <!-- 3. Hành Động -->
-                    <div class="interest-card cat-action" onclick="window.location.href='/categories?category=hanh-dong'">
-                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg');"></div>
-                        <div class="interest-icon-circle" title="Hành Động">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                        </div>
-                        <div class="interest-content">
-                            <span class="interest-title">Hành Động</span>
-                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
-                        </div>
-                    </div>
+                        const isNoAuraSSR = (c) => c.noAura === true || c.themeColor === 'none' || c.color === 'none';
 
-                    <!-- 4. Tình Cảm -->
-                    <div class="interest-card cat-romance" onclick="window.location.href='/categories?category=tinh-cam'">
-                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20250901-1/377ca3402a12c55372f0145f49c0e4a5.jpg');"></div>
-                        <div class="interest-icon-circle" title="Tình Cảm">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                        const rawInterestsList = (typeof desktopInterests !== 'undefined' && Array.isArray(desktopInterests) && desktopInterests.length > 0) ? desktopInterests : [
+                            {
+                                id: 'phim-bo',
+                                title: 'Phim Bộ',
+                                actionText: 'XEM NGAY',
+                                link: '/danh-sach?list=phim-bo',
+                                imageUrl: 'https://phimimg.com/upload/vod/20240310-1/759bbb161873247310b3ad71ac96d95b.jpg',
+                                colorRgb: '139, 92, 246',
+                                iconSvg: defaultInterestsIcons[0]
+                            },
+                            {
+                                id: 'phim-moi',
+                                title: 'Phim Mới',
+                                actionText: 'XEM NGAY',
+                                link: '/danh-sach?list=phim-moi-cap-nhat',
+                                imageUrl: 'https://phimimg.com/upload/vod/20250530-1/fdf11774cff47f0ffc9c2dbe2e02d0ca.jpg',
+                                colorRgb: '239, 68, 68',
+                                iconSvg: defaultInterestsIcons[1]
+                            },
+                            {
+                                id: 'hanh-dong',
+                                title: 'Hành Động',
+                                actionText: 'XEM NGAY',
+                                link: '/categories?category=hanh-dong',
+                                imageUrl: 'https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg',
+                                colorRgb: '249, 115, 22',
+                                iconSvg: defaultInterestsIcons[2]
+                            },
+                            {
+                                id: 'tinh-cam',
+                                title: 'Tình Cảm',
+                                actionText: 'XEM NGAY',
+                                link: '/categories?category=tinh-cam',
+                                imageUrl: 'https://phimimg.com/upload/vod/20250901-1/377ca3402a12c55372f0145f49c0e4a5.jpg',
+                                colorRgb: '236, 72, 153',
+                                iconSvg: defaultInterestsIcons[3]
+                            },
+                            {
+                                id: 'hai-huoc',
+                                title: 'Hài Hước',
+                                actionText: 'XEM NGAY',
+                                link: '/categories?category=hai-huoc',
+                                imageUrl: 'https://phimimg.com/upload/vod/20241118-1/3b9d2f3c9a5cf65d15a23db8d0c870ac.jpg',
+                                colorRgb: '234, 179, 8',
+                                iconSvg: defaultInterestsIcons[4]
+                            },
+                            {
+                                id: 'hoat-hinh',
+                                title: 'Hoạt Hình',
+                                actionText: 'XEM NGAY',
+                                link: '/danh-sach?list=hoat-hinh',
+                                imageUrl: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+                                colorRgb: '16, 185, 129',
+                                iconSvg: defaultInterestsIcons[5]
+                            }
+                        ];
+                    %>
+                    <script>
+                        window.__INITIAL_DESKTOP_INTERESTS__ = <%- JSON.stringify(rawInterestsList) %>;
+                    </script>
+                    <% 
+                        rawInterestsList.forEach(function(c, idx) { 
+                            const noAuraClass = isNoAuraSSR(c) ? ' no-aura' : '';
+                            const textColor = c.textColor || '#ffffff';
+                            const cardRgbVal = getCardRgbSSR(c, idx);
+                            const rgbStyle = isNoAuraSSR(c) ? ('--card-text-color: ' + textColor + ' !important;') : ('--card-rgb: ' + cardRgbVal + ' !important; --card-text-color: ' + textColor + ' !important;');
+                            const rawIcon = c.iconSvg ? c.iconSvg.replace(/14s1\.5\s*2\s*4\s*2\s*4-2(\s*4-2)?/g, '14c1.5 2 6.5 2 8 0') : defaultInterestsIcons[idx % defaultInterestsIcons.length];
+                    %>
+                        <div class="interest-card<%= noAuraClass %>" onclick="window.location.href='<%= c.link || '#' %>'" style="<%= rgbStyle %>">
+                            <div class="interest-bg-img" style="background-image: url('<%= c.imageUrl || '' %>');"></div>
+                            <div class="interest-icon-circle" title="<%= c.title || '' %>" style="color: <%= c.iconColor || '#ffffff' %> !important;">
+                                <%- rawIcon %>
+                            </div>
+                            <div class="interest-content">
+                                <span class="interest-title" style="color: <%= textColor %> !important;"><%= c.title || '' %></span>
+                                <span class="interest-action" style="color: <%= textColor %> !important;"><%= c.actionText || 'XEM NGAY' %> <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
+                            </div>
                         </div>
-                        <div class="interest-content">
-                            <span class="interest-title">Tình Cảm</span>
-                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
-                        </div>
-                    </div>
-
-                    <!-- 5. Hài Hước -->
-                    <div class="interest-card cat-comedy" onclick="window.location.href='/categories?category=hai-huoc'">
-                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20241118-1/3b9d2f3c9a5cf65d15a23db8d0c870ac.jpg');"></div>
-                        <div class="interest-icon-circle" title="Hài Hước">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14c1.5 2 6.5 2 8 0"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
-                        </div>
-                        <div class="interest-content">
-                            <span class="interest-title">Hài Hước</span>
-                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
-                        </div>
-                    </div>
-
-                    <!-- 6. Hoạt Hình -->
-                    <div class="interest-card cat-anime" onclick="window.location.href='/danh-sach?list=hoat-hinh'">
-                        <div class="interest-bg-img" style="background-image: url('https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg');"></div>
-                        <div class="interest-icon-circle" title="Hoạt Hình">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
-                        </div>
-                        <div class="interest-content">
-                            <span class="interest-title">Hoạt Hình</span>
-                            <span class="interest-action">XEM NGAY <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
-                        </div>
-                    </div>
+                    <% }); %>
                 </div>
             </div>
         </section>
@@ -3122,6 +3157,6 @@
         });
     })();
     </script>
-    <script src="/js/hero-banner.js?v=169" defer></script>
+    <script src="/js/hero-banner.js?v=175" defer></script>
 </body>
 </html>

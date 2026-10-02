@@ -1318,14 +1318,79 @@ async function getDesktopHeroSlides() {
     return null;
 }
 
+let cachedHeroAutoSlide = null;
+let cachedHeroAutoSlideTime = 0;
+
+async function getDesktopHeroAutoSlide() {
+    if (cachedHeroAutoSlide && (Date.now() - cachedHeroAutoSlideTime < 5000)) {
+        return cachedHeroAutoSlide;
+    }
+    try {
+        const { data: row } = await supabaseAdmin
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'desktop_hero_autoslide')
+            .maybeSingle();
+
+        if (row && row.value && typeof row.value === 'object') {
+            cachedHeroAutoSlide = {
+                enabled: typeof row.value.enabled === 'boolean' ? row.value.enabled : true,
+                interval: Math.min(10, Math.max(3, parseInt(row.value.interval, 10) || 6)),
+                pauseOnHover: typeof row.value.pauseOnHover === 'boolean' ? row.value.pauseOnHover : true
+            };
+            cachedHeroAutoSlideTime = Date.now();
+            return cachedHeroAutoSlide;
+        }
+    } catch (e) {}
+    return { enabled: true, interval: 6, pauseOnHover: true };
+}
+
+// ── In-Memory Cache for Desktop Interests ("Bạn đang quan tâm gì?") ──
+let cachedDesktopInterests = null;
+let cachedDesktopInterestsTime = 0;
+
+global.invalidateInterestsCache = function() {
+    cachedDesktopInterests = null;
+    cachedDesktopInterestsTime = 0;
+};
+
+async function getDesktopInterests() {
+    if (cachedDesktopInterests && (Date.now() - cachedDesktopInterestsTime < 5000)) {
+        return cachedDesktopInterests;
+    }
+    try {
+        const { data: row } = await supabaseAdmin
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'desktop_interests')
+            .maybeSingle();
+
+        if (row && Array.isArray(row.value) && row.value.length > 0) {
+            cachedDesktopInterests = row.value.map(item => ({
+                ...item,
+                iconSvg: item.iconSvg ? item.iconSvg.replace(/14s1\.5\s*2\s*4\s*2\s*4-2(\s*4-2)?/g, '14c1.5 2 6.5 2 8 0') : item.iconSvg
+            }));
+            cachedDesktopInterestsTime = Date.now();
+            return cachedDesktopInterests;
+        }
+    } catch (e) {}
+    return null;
+}
+
 // 1. Homepage Route (SSR Direct Injection for 0ms Instant First Paint)
 app.get('/', async (req, res) => {
-    const heroSlides = await getDesktopHeroSlides();
+    const [heroSlides, heroAutoSlide, desktopInterests] = await Promise.all([
+        getDesktopHeroSlides(),
+        getDesktopHeroAutoSlide(),
+        getDesktopInterests()
+    ]);
     res.render('index', {
         title: formatSeoTitle('APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026', 65),
         metaDescription: 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.',
         canonicalUrl: 'https://aphim.store/',
-        heroSlides: heroSlides || null
+        heroSlides: heroSlides || null,
+        heroAutoSlide: heroAutoSlide || null,
+        desktopInterests: desktopInterests || null
     });
 });
 
