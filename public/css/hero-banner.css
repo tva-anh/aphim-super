@@ -632,7 +632,7 @@
         flex-shrink: 0 !important;
     }
 
-    /* Thumbnail Carousel Strip (Bên phải NGANG BẰNG CHÍNH XÁC TRỤC GIỮA NÚT PLAY & CON NHỘNG, hỗ trợ lướt xem không giới hạn) */
+    /* Thumbnail Carousel Strip (Cố định hiển thị vừa vặn 8 thumbnails, các thumbnail sau ẩn ra sau và lướt ngang mượt mà) */
     .hero-thumbnails-right-col {
         display: flex !important;
         align-items: center !important;
@@ -641,14 +641,18 @@
         flex-shrink: 0 !important;
         align-self: flex-end !important;
         margin-bottom: 0px !important;
-        max-width: clamp(340px, 46vw, 680px) !important;
+        width: 100% !important;
+        max-width: 604px !important; /* Cố định chuẩn xác 8 thumbnails (8 x 68px + 7 x 8px + 4px = 604px) */
         position: relative !important;
+        overflow: hidden !important;
     }
 
     #heroThumbnails {
         display: flex !important;
         align-items: center !important;
         height: 100% !important;
+        width: 100% !important;
+        max-width: 604px !important;
         gap: 8px !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
@@ -658,6 +662,8 @@
         padding: 4px 2px !important;
         cursor: grab;
         user-select: none;
+        touch-action: pan-x;
+        scroll-snap-type: x proximity;
     }
     #heroThumbnails:active {
         cursor: grabbing;
@@ -696,6 +702,8 @@
 
     .hero-thumb-item {
         width: 68px !important;
+        min-width: 68px !important;
+        max-width: 68px !important;
         height: 39px !important;
         border-radius: 6px !important;
         overflow: hidden !important;
@@ -708,6 +716,7 @@
         opacity: 0.90 !important; /* Rõ nét, sáng rõ, không bị mờ hay đục */
         background: #151821;
         transform: none !important;
+        scroll-snap-align: start;
     }
 
     .hero-thumb-item img {

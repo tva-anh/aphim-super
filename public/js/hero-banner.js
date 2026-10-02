@@ -1119,6 +1119,23 @@ function renderThumbnails(movies) {
         setTimeout(() => { thumbHasMoved = false; }, 50);
     });
 
+    // ── Vuốt chạm trên Mobile / Tablet ──
+    let thumbTouchStartX = 0;
+    let thumbTouchScrollStart = 0;
+    container.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+            thumbTouchStartX = e.touches[0].pageX;
+            thumbTouchScrollStart = container.scrollLeft;
+        }
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+            const diff = thumbTouchStartX - e.touches[0].pageX;
+            container.scrollLeft = thumbTouchScrollStart + diff;
+        }
+    }, { passive: true });
+
     // ── Lăn chuột để cuộn ngang thumbnail (Mouse Wheel Horizontal Scroll) ──
     container.addEventListener('wheel', (e) => {
         if (e.deltaY !== 0) {
@@ -1136,7 +1153,7 @@ function renderThumbnails(movies) {
     }, { passive: true });
 }
 
-// Cập nhật trạng thái active của Thumbnail (ĐỨNG YÊN HOÀN TOÀN, KHÔNG CUỘN)
+// Cập nhật trạng thái active của Thumbnail (Tự động cuộn mượt thumbnail được chọn vào tầm nhìn)
 function updateThumbnailActive(index) {
     const container = document.getElementById('heroThumbnails');
     if (!container) return;
@@ -1145,6 +1162,9 @@ function updateThumbnailActive(index) {
         const slideIdx = parseInt(item.getAttribute('data-slide-index') ?? i);
         if (slideIdx === index) {
             item.classList.add('hero-thumb-active', 'active');
+            try {
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+            } catch (e) {}
         } else {
             item.classList.remove('hero-thumb-active', 'active');
         }
