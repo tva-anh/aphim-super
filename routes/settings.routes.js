@@ -497,6 +497,7 @@ router.get('/movie-backdrops', async (req, res) => {
         }
 
         const backdrops = [];
+        const posters = [];
         const logos = [];
 
         // 2. Fetch images từ TMDB nếu có targetId
@@ -504,6 +505,21 @@ router.get('/movie-backdrops', async (req, res) => {
             try {
                 const imgRes = await fetch(`https://api.tmdb.org/3/${targetType}/${targetId}/images?api_key=${TMDB_KEY}&include_image_language=vi,en,zh,ja,ko,null`);
                 const imgData = await imgRes.json();
+
+                if (imgData.posters && Array.isArray(imgData.posters)) {
+                    imgData.posters
+                        .slice(0, 24)
+                        .forEach(p => {
+                            posters.push({
+                                url: `https://image.tmdb.org/t/p/original${p.file_path}`,
+                                previewUrl: `https://image.tmdb.org/t/p/w500${p.file_path}`,
+                                width: p.width,
+                                height: p.height,
+                                aspectRatio: p.aspect_ratio,
+                                voteAverage: p.vote_average
+                            });
+                        });
+                }
 
                 if (imgData.backdrops && Array.isArray(imgData.backdrops)) {
                     imgData.backdrops
@@ -543,6 +559,18 @@ router.get('/movie-backdrops', async (req, res) => {
                 const pData = await pRes.json();
                 if (pData.status === true && pData.movie) {
                     const m = pData.movie;
+                    if (m.poster_url) {
+                        const fullPoster = m.poster_url.startsWith('http') ? m.poster_url : `https://phimimg.com/${m.poster_url.replace(/^\//, '')}`;
+                        if (!posters.some(p => p.url === fullPoster)) {
+                            posters.unshift({
+                                url: fullPoster,
+                                previewUrl: fullPoster,
+                                width: 800,
+                                height: 1200,
+                                isPrimary: true
+                            });
+                        }
+                    }
                     if (m.thumb_url) {
                         const fullThumb = m.thumb_url.startsWith('http') ? m.thumb_url : `https://phimimg.com/${m.thumb_url.replace(/^\//, '')}`;
                         if (!backdrops.some(b => b.url === fullThumb)) {
@@ -563,11 +591,12 @@ router.get('/movie-backdrops', async (req, res) => {
             success: true,
             tmdbId: targetId,
             mediaType: targetType,
+            posters,
             backdrops,
             logos
         });
     } catch (err) {
-        return res.status(500).json({ success: false, message: err.message, backdrops: [], logos: [] });
+        return res.status(500).json({ success: false, message: err.message, posters: [], backdrops: [], logos: [] });
     }
 });
 

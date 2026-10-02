@@ -284,6 +284,16 @@
             modal.style.display = 'flex';
             if (window.lucide) window.lucide.createIcons();
 
+            // Load TMDB Poster gallery if movie info is present
+            if (existingItem?.name || existingItem?.slug) {
+                this.loadPostersForMovie(existingItem.name, existingItem.origin_name, existingItem.slug);
+            } else {
+                const gallery = document.getElementById('scPosterGallery');
+                if (gallery) {
+                    gallery.innerHTML = '<div style="color:#64748b;font-size:11.5px;text-align:center;padding:12px;grid-column:1/-1;">Tìm kiếm hoặc chọn phim bên trên để tải bộ sưu tập Poster HD/4K...</div>';
+                }
+            }
+
             // Hiển thị danh sách phim hot gợi ý ngay khi mở modal nếu chưa gõ gì
             if (editIndex === -1) {
                 this.renderTrendingSuggestions();
@@ -298,6 +308,112 @@
         closeModal() {
             const modal = document.getElementById('modalAddShowcase3D');
             if (modal) modal.style.display = 'none';
+        },
+
+        async loadPostersForMovie(name, originName = '', slug = '', tmdbId = '') {
+            const gallery = document.getElementById('scPosterGallery');
+            const loading = document.getElementById('scPosterGalleryLoading');
+            if (!gallery) return;
+
+            if (loading) loading.style.display = 'inline';
+            gallery.innerHTML = '<div style="color:#38bdf8;font-size:11.5px;text-align:center;padding:12px;grid-column:1/-1;">⏳ Đang tải bộ sưu tập Poster từ TMDB & PhimAPI...</div>';
+
+            try {
+                const queryParams = new URLSearchParams({
+                    name: name || '',
+                    origin_name: originName || '',
+                    slug: slug || ''
+                });
+                if (tmdbId) queryParams.set('tmdbId', tmdbId);
+
+                const res = await fetch(`/api/settings/movie-backdrops?${queryParams.toString()}`);
+                const data = await res.json();
+
+                const currentPoster = document.getElementById('scPoster')?.value || '';
+                const posterList = (data.success && Array.isArray(data.posters) && data.posters.length > 0) ? data.posters : [];
+
+                if (posterList.length > 0) {
+                    gallery.innerHTML = posterList.map(p => {
+                        const isSelected = currentPoster === p.url || currentPoster === p.previewUrl;
+                        return `
+                            <div onclick="MobileShowcaseAdmin.selectPoster('${p.url}')" class="sc-poster-item" style="aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:#000;position:relative;cursor:pointer;border:2px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'};transition:all 0.2s;box-shadow:${isSelected ? '0 0 12px rgba(56,189,248,0.5)' : 'none'};" onmouseover="this.style.borderColor='#38bdf8';this.style.transform='scale(1.04)';" onmouseout="this.style.borderColor='${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'}';this.style.transform='scale(1)';">
+                                <img src="${p.previewUrl || p.url}" alt="Poster" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
+                                <div style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.8);color:#fff;font-size:8.5px;font-weight:700;padding:1px 4px;border-radius:4px;backdrop-filter:blur(4px);">
+                                    ${p.height ? `${p.height}p` : (p.width ? `${p.width}w` : 'HD')}
+                                </div>
+                                <div style="position:absolute;top:3px;right:3px;background:${isSelected ? '#0284c7' : 'rgba(56,189,248,0.9)'};color:#fff;font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.5);">
+                                    ${isSelected ? '✓ Đang dùng' : 'Chọn'}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else if (data.backdrops && data.backdrops.length > 0) {
+                    // Fallback to backdrops if no vertical posters
+                    gallery.innerHTML = data.backdrops.map(b => {
+                        const isSelected = currentPoster === b.url || currentPoster === b.previewUrl;
+                        return `
+                            <div onclick="MobileShowcaseAdmin.selectPoster('${b.url}')" class="sc-poster-item" style="aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:#000;position:relative;cursor:pointer;border:2px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'};transition:all 0.2s;" onmouseover="this.style.borderColor='#38bdf8';this.style.transform='scale(1.04)';" onmouseout="this.style.borderColor='${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'}';this.style.transform='scale(1)';">
+                                <img src="${b.previewUrl || b.url}" alt="Backdrop" style="width:100%;height:100%;object-fit:cover;">
+                                <div style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.8);color:#fff;font-size:8.5px;font-weight:700;padding:1px 4px;border-radius:4px;">
+                                    ${b.width ? `${b.width}p` : 'HD'}
+                                </div>
+                                <div style="position:absolute;top:3px;right:3px;background:#38bdf8;color:#000;font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:4px;">
+                                    Chọn
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    gallery.innerHTML = '<div style="color:#94a3b8;font-size:11.5px;text-align:center;padding:12px;grid-column:1/-1;">Không tìm thấy thêm ảnh TMDB. Bạn có thể dán link ảnh trực tiếp vào ô URL bên dưới.</div>';
+                }
+            } catch (err) {
+                gallery.innerHTML = `<div style="color:#ef4444;font-size:11.5px;padding:8px;text-align:center;grid-column:1/-1;">Lỗi tải ảnh: ${err.message}</div>`;
+            } finally {
+                if (loading) loading.style.display = 'none';
+            }
+        },
+
+        selectPoster(url) {
+            if (!url) return;
+            const posterInput = document.getElementById('scPoster');
+            if (posterInput) posterInput.value = url;
+
+            const name = document.getElementById('scName')?.value || 'Phim mới';
+            const year = document.getElementById('scYear')?.value || '';
+            this.updatePosterPreview(url, name, year);
+
+            // Re-render gallery items borders to highlight the newly selected poster
+            const gallery = document.getElementById('scPosterGallery');
+            if (gallery) {
+                const items = gallery.querySelectorAll('.sc-poster-item');
+                items.forEach(item => {
+                    const img = item.querySelector('img');
+                    const badge = item.querySelectorAll('div')[1];
+                    if (img && (img.src === url || url.includes(img.src.split('?')[0]))) {
+                        item.style.borderColor = '#38bdf8';
+                        item.style.boxShadow = '0 0 12px rgba(56,189,248,0.5)';
+                        if (badge) {
+                            badge.textContent = '✓ Đang dùng';
+                            badge.style.background = '#0284c7';
+                            badge.style.color = '#fff';
+                        }
+                    } else {
+                        item.style.borderColor = 'rgba(255,255,255,0.15)';
+                        item.style.boxShadow = 'none';
+                        if (badge) {
+                            badge.textContent = 'Chọn';
+                            badge.style.background = 'rgba(56,189,248,0.9)';
+                            badge.style.color = '#fff';
+                        }
+                    }
+                });
+            }
+
+            if (window.AdminNotice) {
+                AdminNotice.toast('✨ Đã chọn ảnh Poster cho 3D Showcase Mobile!', 'success');
+            } else {
+                showNotice('✨ Đã chọn ảnh Poster cho 3D Showcase Mobile!', 'success');
+            }
         },
 
         quickSearch(keyword) {
@@ -482,7 +598,10 @@
                 const resultsBox = document.getElementById('apiSearchResults');
                 if (resultsBox) resultsBox.style.display = 'none';
 
-                showNotice(`Đã chọn phim "${m.name}". Đang đồng bộ nội dung...`, 'info');
+                showNotice(`Đã chọn phim "${m.name}". Đang tải poster & nội dung...`, 'info');
+
+                // Load kho ảnh Poster TMDB ngay lập tức
+                this.loadPostersForMovie(m.name, m.origin_name, m.slug);
 
                 // Tự động fetch nội dung chi tiết từ API nếu chưa có hoặc cập nhật đầy đủ nhất
                 if (m.slug) {
