@@ -315,7 +315,7 @@ async function generateAllSitemaps() {
         }
     });
 
-    // Bổ sung các phim hot mới nhất vào sitemap video
+    // Bổ sung các phim hot mới nhất vào sitemap video (gắn player_loc hợp lệ sang player xem phim)
     movies.slice(0, 150).forEach(m => {
         if (m.slug && !seenReelSlugs.has(m.slug)) {
             seenReelSlugs.add(m.slug);
@@ -332,6 +332,7 @@ async function generateAllSitemaps() {
                 reelsXml += `      <video:thumbnail_loc>${poster}</video:thumbnail_loc>\n`;
                 reelsXml += `      <video:title>Review Phim ${name} (${m.year}) - Tóm Tắt Trọn Bộ</video:title>\n`;
                 reelsXml += `      <video:description>Xem video tóm tắt review phim ${name} (${m.origin_name}) Full HD Vietsub tại APhim Reels</video:description>\n`;
+                reelsXml += `      <video:player_loc>${BASE_URL}/xem-phim/${escapeXml(m.slug)}</video:player_loc>\n`;
                 reelsXml += `      <video:duration>240</video:duration>\n`;
                 reelsXml += `      <video:publication_date>${m.modified || todayStr}</video:publication_date>\n`;
                 reelsXml += `      <video:family_friendly>yes</video:family_friendly>\n`;

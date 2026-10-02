@@ -1672,7 +1672,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
             metaDescription: metaDescription,
             metaKeywords: metaKeywords,
             ogImage: ogImage,
-            ogType: 'video.movie',
+            ogType: 'website',
             canonicalUrl: canonicalUrl,
             schemaData: schemaData
         });
@@ -1915,12 +1915,7 @@ app.get([
             "uploadDate": meta.year ? `${meta.year}-01-01T00:00:00Z` : new Date().toISOString(),
             "contentUrl": canonicalUrl,
             "embedUrl": canonicalUrl,
-            "inLanguage": "vi",
-            "potentialAction": {
-                "@type": "SeekToAction",
-                "target": `${canonicalUrl}?t={seek_to_second_number}`,
-                "startOffset-input": "required name=seek_to_second_number"
-            }
+            "inLanguage": "vi"
         };
 
         if (subtitleSchema) videoObject.subtitle = subtitleSchema;

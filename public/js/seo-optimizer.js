@@ -96,7 +96,7 @@ const SEO = {
         this.setOG('og:description', metaDesc);
         this.setOG('og:image', absoluteThumb);
         this.setOG('og:url', canonicalUrl);
-        this.setOG('og:type', isWatchPage ? 'video.movie' : 'video.other');
+        this.setOG('og:type', isWatchPage ? 'video.movie' : 'website');
         this.setOG('og:site_name', this.siteName);
 
         this.setTwitter('twitter:title', pageTitle);
@@ -215,12 +215,7 @@ const SEO = {
                 "thumbnailUrl": thumbList.length ? thumbList : [imgUrl],
                 "uploadDate": movie.created?.time ? new Date(movie.created.time).toISOString() : new Date().toISOString(),
                 "contentUrl": pageUrl,
-                "embedUrl": pageUrl,
-                "potentialAction": {
-                    "@type": "SeekToAction",
-                    "target": `${pageUrl}?t={seek_to_second_number}`,
-                    "startOffset-input": "required name=seek_to_second_number"
-                }
+                "embedUrl": pageUrl
             };
             graph.push(videoSchema);
         }

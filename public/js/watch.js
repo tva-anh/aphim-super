@@ -540,9 +540,9 @@ function injectVideoSchema(movie, episode) {
             'description': description,
             'thumbnailUrl': thumbsList,
             'uploadDate': uploadDate,
-            'contentUrl': videoUrl,
+            'contentUrl': pageUrl,
             'embedUrl': pageUrl,
-            'url': canonicalUrl,
+            'url': pageUrl,
             'inLanguage': 'vi',
             'publisher': {
                 '@type': 'Organization',
