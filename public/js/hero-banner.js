@@ -687,13 +687,17 @@ function resetAutoReturn() {
 // (Mượt mà uyển chuyển, ảnh lướt từ phải vào, chữ lướt từ trái vào)
 // ================================================================
 let currentLayerName = 'A';
+let transitionTimer = null;
 
 function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
-    if (isTransitioning) return;
     if (newIndex < 0) newIndex = heroSlides.length - 1;
     if (newIndex >= heroSlides.length) newIndex = 0;
-    if (newIndex === currentSlideIndex) return;
+    if (newIndex === currentSlideIndex && !isTransitioning) return;
 
+    if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+    }
     isTransitioning = true;
     clearAutoSlideTimer();
 
@@ -711,7 +715,7 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
         if (currentSlideIndex === 0 && newIndex === heroSlides.length - 1) direction = -1;
     }
 
-    // 1. Cập nhật ngay trạng thái active của Thumbnail (ĐỨNG YÊN HOÀN TOÀN, chỉ đổi viền sáng lập tức 0ms)
+    // 1. Cập nhật ngay trạng thái active của Thumbnail (chuyển viền sáng lập tức 0ms)
     updateThumbnailActive(newIndex);
 
     // 2. Lấy link ảnh chất lượng cao
@@ -771,12 +775,13 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     });
 
     // 5. PHASE 3: Hoàn tất chu kỳ chuyển cảnh & mở khóa thao tác nhanh
-    setTimeout(() => {
+    transitionTimer = setTimeout(() => {
         currentSlideIndex = newIndex;
         currentLayerName = currentLayerName === 'A' ? 'B' : 'A';
         isTransitioning = false;
+        transitionTimer = null;
         startAutoSlideTimer();
-    }, 450);
+    }, 350);
 }
 
 // -- Build optimized image URL ------------------------------------
@@ -827,7 +832,7 @@ function updateHeroBannerText(movie) {
     // Tải Logo TMDB chính thức
     loadHeroLogo(movie);
 
-    // Badges Row (IMDb Gold + FHD Pastel Cream + T13/T18 White + Year + Episode)
+    // Badges Row (Theo chuẩn Ảnh Tham Khảo: Clock Pill + Calendar Pill + IMDb Pill + Segmented Multi-Color Ribbon)
     if (heroBadges) {
         const rating = movie.rating || (movie.imdb?.vote_average ? Number(movie.imdb.vote_average).toFixed(1) : (movie.tmdb?.vote_average ? Number(movie.tmdb.vote_average).toFixed(1) : '9.5'));
         
@@ -838,10 +843,12 @@ function updateHeroBannerText(movie) {
         } else if (lcText.includes('hoàn tất') || lcText.includes('hoan tat')) {
             const m = epText.match(/\d+/);
             epText = m ? `Tập ${m[0]}` : 'Full';
+        } else if (/^\d+$/.test(lcText)) {
+            epText = `Tập ${lcText}`;
         }
 
         const quality = movie.quality || 'FHD';
-        const year = movie.year || '2025';
+        const year = movie.year || '2026';
         
         let age = movie.age || 'T13';
         if (!movie.age) {
@@ -854,13 +861,35 @@ function updateHeroBannerText(movie) {
         }
 
         heroBadges.innerHTML = `
+            <span class="hero-badge-ep" data-ep-badge>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>${epText}</span>
+            </span>
+            <span class="hero-badge-year">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                <span>${year}</span>
+            </span>
             <span class="hero-badge-imdb">
                 <span class="hero-badge-imdb-label">IMDb</span> <span class="hero-badge-imdb-val">${rating}</span>
             </span>
-            <span class="hero-badge-quality">${quality}</span>
-            <span class="hero-badge-age">${age}</span>
-            <span class="hero-badge-year">${year}</span>
-            <span class="hero-badge-ep" data-ep-badge>${epText}</span>
+            <div class="hero-feature-ribbon">
+                <span class="hero-ribbon-seg hero-seg-vs" title="Phụ đề Vietsub">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1z"/></svg>
+                    <span>VS</span>
+                </span>
+                <span class="hero-ribbon-seg hero-seg-age" title="Độ tuổi">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 5h2v2h-2V7zm0 4h2v6h-2v-6z"/></svg>
+                    <span>${age}</span>
+                </span>
+                <span class="hero-ribbon-seg hero-seg-tm" title="Thuyết minh / Lồng tiếng">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    <span>TM</span>
+                </span>
+                <span class="hero-ribbon-seg hero-seg-fhd" title="Chất lượng Full HD">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                    <span>${quality}</span>
+                </span>
+            </div>
         `;
     }
 
@@ -1175,12 +1204,20 @@ function renderThumbnails(movies) {
         </div>`;
     }).join('');
 
-    // Keyboard navigation
+    // Direct Click & Keyboard navigation for thumbnails
     container.querySelectorAll('.hero-thumb-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+            if (thumbHasMoved) return;
+            const idx = parseInt(el.getAttribute('data-slide-index'), 10);
+            if (!isNaN(idx)) {
+                switchHeroSlide(idx);
+            }
+        });
         el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                switchHeroSlide(parseInt(el.getAttribute('data-slide-index')));
+                const idx = parseInt(el.getAttribute('data-slide-index'), 10);
+                if (!isNaN(idx)) switchHeroSlide(idx);
             }
         });
     });
@@ -1293,9 +1330,14 @@ function attachSwipeHandler() {
         }
     }, true);
 
-    // Bắt sự kiện Pointer ở BẤT KỲ ĐIỂM NÀO trên Hero Banner
+    // Bắt sự kiện Pointer ở Hero Banner (Chỉ nhận diện swipe trên ảnh nền, KHÔNG bắt trên dải thumbnails)
     hero.addEventListener('pointerdown', (e) => {
         if (e.button !== 0 && e.pointerType === 'mouse') return; // Chỉ nhận chuột trái
+        
+        // 1. Khi user thao tác trên dải Thumbnails, Interests hoặc Nút: KHÔNG kích hoạt Hero swipe
+        if (e.target.closest('#heroThumbnails, .hero-thumbnails-right-col, .hero-thumb-item, .interests-section, .interests-wrapper, a, button, input')) {
+            return;
+        }
 
         isDragging = true;
         hasTriggered = false;

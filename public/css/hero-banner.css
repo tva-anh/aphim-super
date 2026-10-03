@@ -389,32 +389,64 @@
         line-height: 1.2 !important;
     }
 
-    /* Badges Bar (Exact Photo Replica - Thoáng đãng, mỏng nhẹ, sắc nét, siêu hòa trộn nền) */
+    /* Badges Bar (Chuẩn phong cách Ảnh Tham Khảo: Capsule Icons + IMDb Gold + Segmented Pastel Color Ribbon) */
     #heroBadges {
         display: flex !important;
         flex-wrap: wrap !important;
         align-items: center !important;
         gap: 7px !important;
-        margin-bottom: 5px !important;
+        margin-bottom: 6px !important;
     }
 
-    /* 1. IMDb Badge: Viền vàng kim 1px siêu mỏng, nền kính mờ trong suốt, chiều dọc thoáng đãng */
-    .hero-badge-imdb {
-        background: rgba(0, 0, 0, 0.22) !important;
-        backdrop-filter: blur(6px) !important;
-        -webkit-backdrop-filter: blur(6px) !important;
-        border: 1px solid #facc15 !important;
+    /* 1. Episode (Tập) & Year (Năm) Capsule Badges: Nền Trong Suốt Hòa Trộn Hoàn Hảo */
+    .hero-badge-ep,
+    .hero-badge-year {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
         color: #ffffff !important;
+        font-weight: 600 !important;
         font-size: 11.5px !important;
-        font-weight: 700 !important;
-        padding: 5px 10px !important;
+        padding: 4px 9px !important;
+        height: 25px !important;
+        box-sizing: border-box !important;
         border-radius: 6px !important;
+        border: 1px solid rgba(255, 255, 255, 0.55) !important;
+        box-shadow: none !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         gap: 5px !important;
+        line-height: 1 !important;
+        letter-spacing: 0.1px !important;
+        user-select: none !important;
+    }
+    .hero-badge-ep svg,
+    .hero-badge-year svg {
+        flex-shrink: 0 !important;
+        color: #ffffff !important;
+    }
+
+    /* 2. IMDb Badge: Viền vàng kim tinh tế, nền trong suốt hòa trộn */
+    .hero-badge-imdb {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid #facc15 !important;
+        color: #ffffff !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        padding: 4px 9px !important;
+        height: 25px !important;
+        box-sizing: border-box !important;
+        border-radius: 6px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
         box-shadow: none !important;
-        line-height: 1.25 !important;
+        line-height: 1 !important;
+        user-select: none !important;
     }
     .hero-badge-imdb .hero-badge-imdb-label {
         color: #facc15 !important;
@@ -428,58 +460,62 @@
         font-size: 11.5px !important;
     }
 
-    /* 2. FHD Badge: Ánh xạ vàng kim 3D gradient + Vệt sáng phản quang mép trên */
-    .hero-badge-quality {
-        background: radial-gradient(circle at 35% 25%, #ffea98 0%, #fcd264 55%, #f5b938 100%) !important;
-        color: #161922 !important;
-        font-weight: 800 !important;
-        font-size: 11.5px !important;
-        padding: 5px 11px !important;
-        border-radius: 6px !important;
-        border: none !important;
-        box-shadow: 0 0 14px rgba(252, 210, 100, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.7) !important;
+    /* 3. Segmented Multi-Color Ribbon (Dải màu Pastel liền mạch: VS Xanh Mint | T13 Hồng | TM Tím | FHD Vàng) */
+    .hero-feature-ribbon {
         display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: 1.25 !important;
-        letter-spacing: 0.2px !important;
+        align-items: stretch !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+        height: 25px !important;
+        box-sizing: border-box !important;
     }
 
-    /* 3. T13 / T16 / T18 Badge: Ánh xạ ngọc trai trắng 3D gradient + Vệt sáng phản chiếu */
-    .hero-badge-age {
-        background: radial-gradient(circle at 35% 25%, #ffffff 0%, #f4f6fa 60%, #e2e7ef 100%) !important;
-        color: #161922 !important;
-        font-weight: 800 !important;
-        font-size: 11.5px !important;
-        padding: 5px 11px !important;
-        border-radius: 6px !important;
-        border: none !important;
-        box-shadow: 0 0 14px rgba(255, 255, 255, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+    .hero-ribbon-seg {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        line-height: 1.25 !important;
+        gap: 4px !important;
+        padding: 0 8.5px !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
         letter-spacing: 0.2px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        user-select: none !important;
+        border: none !important;
+    }
+    .hero-ribbon-seg svg {
+        flex-shrink: 0 !important;
+        width: 12px !important;
+        height: 12px !important;
+        fill: currentColor !important;
     }
 
-    /* 4 & 5. 2026 & Tập 30: Viền trắng mảnh 1px, NỀN TRONG SUỐT HÒA TRỘN, chiều dọc thoáng đẹp */
-    .hero-badge-year,
-    .hero-badge-ep {
-        background: rgba(0, 0, 0, 0.15) !important;
-        backdrop-filter: blur(3px) !important;
-        -webkit-backdrop-filter: blur(3px) !important;
-        color: #ffffff !important;
-        font-weight: 500 !important;
-        font-size: 11.5px !important;
-        padding: 5px 11px !important;
-        border-radius: 6px !important;
-        border: 1px solid rgba(255, 255, 255, 0.65) !important;
-        box-shadow: none !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: 1.25 !important;
-        letter-spacing: 0.1px !important;
+    /* Segment 1: Vietsub (VS) - Mint Green Pastel */
+    .hero-seg-vs {
+        background: #86efac !important;
+        color: #064e3b !important;
+    }
+
+    /* Segment 2: Age / Song Ngữ (T13 / T18 / SN) - Rose Pink Pastel */
+    .hero-seg-age,
+    .hero-seg-sn {
+        background: #fbcfe8 !important;
+        color: #831843 !important;
+    }
+
+    /* Segment 3: Thuyết Minh (TM) - Lavender Purple Pastel */
+    .hero-seg-tm {
+        background: #c4b5fd !important;
+        color: #4c1d95 !important;
+    }
+
+    /* Segment 4: Chất Lượng Video (FHD / 4K) - Warm Amber Gold Pastel */
+    .hero-seg-fhd,
+    .hero-seg-quality {
+        background: #fde047 !important;
+        color: #78350f !important;
     }
 
     /* Row 2: Category Tags (Siêu mỏng nhẹ, nền hòa trộn thấy luôn ảnh phía sau, padding rộng thoáng) */
