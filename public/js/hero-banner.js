@@ -689,10 +689,20 @@ function resetAutoReturn() {
 let currentLayerName = 'A';
 let transitionTimer = null;
 
+function selectHeroThumbnail(index) {
+    switchHeroSlide(index);
+}
+window.selectHeroThumbnail = selectHeroThumbnail;
+window.switchHeroSlide = switchHeroSlide;
+
 function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
+    if (!heroSlides || heroSlides.length === 0) return;
     if (newIndex < 0) newIndex = heroSlides.length - 1;
     if (newIndex >= heroSlides.length) newIndex = 0;
     if (newIndex === currentSlideIndex && !isTransitioning) return;
+
+    const prevIndex = currentSlideIndex;
+    currentSlideIndex = newIndex;
 
     if (transitionTimer) {
         clearTimeout(transitionTimer);
@@ -710,9 +720,9 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     // Xác định chiều chuyển động: 1: Lướt sang phải (Next), -1: Lướt sang trái (Prev)
     let direction = explicitDirection !== undefined ? explicitDirection : 1;
     if (explicitDirection === undefined) {
-        if (newIndex < currentSlideIndex) direction = -1;
-        if (currentSlideIndex === heroSlides.length - 1 && newIndex === 0) direction = 1;
-        if (currentSlideIndex === 0 && newIndex === heroSlides.length - 1) direction = -1;
+        if (newIndex < prevIndex) direction = -1;
+        if (prevIndex === heroSlides.length - 1 && newIndex === 0) direction = 1;
+        if (prevIndex === 0 && newIndex === heroSlides.length - 1) direction = -1;
     }
 
     // 1. Cập nhật ngay trạng thái active của Thumbnail (chuyển viền sáng lập tức 0ms)
@@ -753,7 +763,7 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
         heroInfoCol.offsetHeight; // Trigger reflow
     }
 
-    // 4. PHASE 2: Kích hoạt đồng thời hiệu ứng lướt êm ái cho CẢ 2 BÊN (Cùng 0.75s, cùng gia tốc chuẩn điện ảnh)
+    // 4. PHASE 2: Kích hoạt đồng thời hiệu ứng lướt êm ái cho CẢ 2 BÊN (Cùng 0.68s, cùng gia tốc chuẩn điện ảnh)
     requestAnimationFrame(() => {
         // Ảnh lớn lướt từ phải vào giữa
         if (nextLayer && currentLayer) {
@@ -776,7 +786,6 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
 
     // 5. PHASE 3: Hoàn tất chu kỳ chuyển cảnh & mở khóa thao tác nhanh
     transitionTimer = setTimeout(() => {
-        currentSlideIndex = newIndex;
         currentLayerName = currentLayerName === 'A' ? 'B' : 'A';
         isTransitioning = false;
         transitionTimer = null;
@@ -1194,7 +1203,7 @@ function renderThumbnails(movies) {
              role="button"
              tabindex="0"
              title="${(movie.name || '').replace(/"/g, '&quot;')}"
-             onclick="if(!thumbHasMoved) switchHeroSlide(${slideIndex})">
+             onclick="selectHeroThumbnail(${slideIndex})">
             <img
                 src="${imgSrc}"
                 alt="${(movie.name || '').replace(/"/g, '&quot;')}"
@@ -1204,73 +1213,76 @@ function renderThumbnails(movies) {
         </div>`;
     }).join('');
 
-    // Direct Click & Keyboard navigation for thumbnails
+    // Direct click and keyboard navigation for thumbnails
     container.querySelectorAll('.hero-thumb-item').forEach(el => {
         el.addEventListener('click', (e) => {
-            if (thumbHasMoved) return;
             const idx = parseInt(el.getAttribute('data-slide-index'), 10);
             if (!isNaN(idx)) {
-                switchHeroSlide(idx);
+                selectHeroThumbnail(idx);
             }
         });
         el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 const idx = parseInt(el.getAttribute('data-slide-index'), 10);
-                if (!isNaN(idx)) switchHeroSlide(idx);
+                if (!isNaN(idx)) selectHeroThumbnail(idx);
             }
         });
     });
 
-    // ── Kéo chuột ngang để lướt xem tiếp thumbnail (Mouse Drag-to-Scroll) ──
-    container.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        isThumbDragging = true;
-        thumbHasMoved = false;
-        thumbStartX = e.pageX - container.offsetLeft;
-        thumbScrollStart = container.scrollLeft;
-        container.style.cursor = 'grabbing';
-    });
+    if (!container._dragEventsBound) {
+        container._dragEventsBound = true;
 
-    window.addEventListener('mousemove', (e) => {
-        if (!isThumbDragging) return;
-        const x = e.pageX - container.offsetLeft;
-        const walk = (x - thumbStartX) * 1.25;
-        if (Math.abs(walk) > 4) thumbHasMoved = true;
-        container.scrollLeft = thumbScrollStart - walk;
-    });
+        // ── Kéo chuột ngang để lướt xem tiếp thumbnail (Mouse Drag-to-Scroll) ──
+        container.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isThumbDragging = true;
+            thumbHasMoved = false;
+            thumbStartX = e.pageX - container.offsetLeft;
+            thumbScrollStart = container.scrollLeft;
+            container.style.cursor = 'grabbing';
+        });
 
-    window.addEventListener('mouseup', () => {
-        if (!isThumbDragging) return;
-        isThumbDragging = false;
-        container.style.cursor = 'grab';
-        setTimeout(() => { thumbHasMoved = false; }, 50);
-    });
+        window.addEventListener('mousemove', (e) => {
+            if (!isThumbDragging) return;
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - thumbStartX) * 1.25;
+            if (Math.abs(walk) > 12) thumbHasMoved = true;
+            container.scrollLeft = thumbScrollStart - walk;
+        });
 
-    // ── Vuốt chạm trên Mobile / Tablet ──
-    let thumbTouchStartX = 0;
-    let thumbTouchScrollStart = 0;
-    container.addEventListener('touchstart', (e) => {
-        if (e.touches && e.touches[0]) {
-            thumbTouchStartX = e.touches[0].pageX;
-            thumbTouchScrollStart = container.scrollLeft;
-        }
-    }, { passive: true });
+        window.addEventListener('mouseup', () => {
+            if (!isThumbDragging) return;
+            isThumbDragging = false;
+            container.style.cursor = 'grab';
+            setTimeout(() => { thumbHasMoved = false; }, 60);
+        });
 
-    container.addEventListener('touchmove', (e) => {
-        if (e.touches && e.touches[0]) {
-            const diff = thumbTouchStartX - e.touches[0].pageX;
-            container.scrollLeft = thumbTouchScrollStart + diff;
-        }
-    }, { passive: true });
+        // ── Vuốt chạm trên Mobile / Tablet ──
+        let thumbTouchStartX = 0;
+        let thumbTouchScrollStart = 0;
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches[0]) {
+                thumbTouchStartX = e.touches[0].pageX;
+                thumbTouchScrollStart = container.scrollLeft;
+            }
+        }, { passive: true });
 
-    // ── Lăn chuột để cuộn ngang thumbnail (Mouse Wheel Horizontal Scroll) ──
-    container.addEventListener('wheel', (e) => {
-        if (e.deltaY !== 0) {
-            e.preventDefault();
-            container.scrollLeft += e.deltaY * 0.85;
-        }
-    }, { passive: false });
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches[0]) {
+                const diff = thumbTouchStartX - e.touches[0].pageX;
+                container.scrollLeft = thumbTouchScrollStart + diff;
+            }
+        }, { passive: true });
+
+        // ── Lăn chuột để cuộn ngang thumbnail (Mouse Wheel Horizontal Scroll) ──
+        container.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                container.scrollLeft += e.deltaY * 0.85;
+            }
+        }, { passive: false });
+    }
 
     let thumbScrollTimer = null;
     container.addEventListener('scroll', () => {

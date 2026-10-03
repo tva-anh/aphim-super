@@ -801,7 +801,7 @@
 
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <label style="font-size:12px;font-weight:600;color:#cbd5e1;margin:0;">🎨 Màu Ánh Xạ Điện Ảnh (Tone Màu Chủ Đạo Của Thẻ)</label>
+            <label style="font-size:12px;font-weight:700;color:#cbd5e1;margin:0;">🎨 Màu Ánh Xạ Điện Ảnh (Tone Màu Chủ Đạo Của Thẻ):</label>
             <input type="hidden" id="intNoAura" value="false">
             <button type="button" id="btnDisableIntAura" onclick="DesktopHeroAdmin.toggleDisableAura()" style="padding:4px 10px;border-radius:7px;background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.4);color:#fca5a5;font-size:11px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 0.2s;" title="Tắt màu nền ánh xạ, chỉ giữ ảnh thuần và bóng tối chữ">
               <span>🚫</span> Bỏ Màu Ánh Xạ
@@ -809,8 +809,12 @@
           </div>
           
           <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
-            <input type="color" id="intColorPicker" value="#8b5cf6" style="width:46px;height:38px;padding:2px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.25);cursor:pointer;background:#1e293b;" oninput="DesktopHeroAdmin.handleColorPickerChange(this.value)">
-            <input type="text" id="intColorHex" class="form-control" placeholder="#8b5cf6" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;font-family:monospace;font-size:13px;width:130px;" oninput="DesktopHeroAdmin.handleColorHexChange(this.value)">
+            <!-- Custom Styled Color Swatch Picker Box -->
+            <div style="position:relative;width:44px;height:36px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.25);background:#1e293b;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;" title="Bấm để chọn màu tự do hoặc dùng ống hút màu">
+              <div id="intColorBoxDisplay" style="width:28px;height:20px;border-radius:4px;background:#8b5cf6;pointer-events:none;border:1px solid rgba(255,255,255,0.25);box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);"></div>
+              <input type="color" id="intColorPicker" value="#8b5cf6" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;" oninput="DesktopHeroAdmin.handleColorPickerChange(this.value)">
+            </div>
+            <input type="text" id="intColorHex" class="form-control" placeholder="#8b5cf6" value="#8b5cf6" style="background:#1e293b;border:1.5px solid rgba(255,255,255,0.2);color:#fff;font-family:monospace;font-size:13.5px;font-weight:700;width:120px;border-radius:8px;padding:6px 10px;" oninput="DesktopHeroAdmin.handleColorHexChange(this.value)">
             <input type="hidden" id="intGradient" value="">
             <span style="font-size:11.5px;color:#94a3b8;">Chọn màu từ bảng màu hoặc nhập mã Hex</span>
           </div>

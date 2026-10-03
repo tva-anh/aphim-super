@@ -994,15 +994,17 @@
                 this.updateLiveMockupPreview();
                 AdminNotice.toast(`Đang tải bộ sưu tập Backdrop TMDB cho "${m.name}"...`, 'info');
 
-                await this.fetchAndFillMovieDetails(m.slug);
-                await this.loadBackdropsForMovie(m.name, m.origin_name, m.slug);
+                const detail = await this.fetchAndFillMovieDetails(m.slug);
+                const tmdbId = detail?.tmdb?.id || m.tmdbId || null;
+                const mediaType = detail?.tmdb?.type || (detail?.type === 'series' || detail?.type === 'hoathinh' || detail?.type === 'tvshows' ? 'tv' : 'movie');
+                await this.loadBackdropsForMovie(m.name, m.origin_name, m.slug, tmdbId, mediaType);
             } catch (e) {
                 console.error('Lỗi parse movie json:', e);
             }
         },
 
         async fetchAndFillMovieDetails(slug) {
-            if (!slug) return;
+            if (!slug) return null;
             const contentEl = document.getElementById('dhContent');
 
             try {
@@ -1036,18 +1038,22 @@
                     if (detail.quality) document.getElementById('dhQuality').value = detail.quality;
                     if (detail.year) document.getElementById('dhYear').value = String(detail.year);
                     if (detail.lang) document.getElementById('dhLang').value = detail.lang;
+                    if (detail.tmdb && detail.tmdb.vote_average) document.getElementById('dhImdb').value = String(detail.tmdb.vote_average);
+                    else if (detail.imdb && detail.imdb.vote_average) document.getElementById('dhImdb').value = String(detail.imdb.vote_average);
 
                     this.updateLiveMockupPreview();
+                    return detail;
                 }
             } catch (err) {
                 console.warn('Lỗi fetch movie details:', err);
             }
+            return null;
         },
 
         // ================================================================
         // BỘ SƯU TẬP BACKDROP & LOGO TMDB
         // ================================================================
-        async loadBackdropsForMovie(name, originName, slug, tmdbId = null) {
+        async loadBackdropsForMovie(name, originName, slug, tmdbId = null, mediaType = null) {
             const backdropGallery = document.getElementById('dhBackdropGallery');
             const logoGallery = document.getElementById('dhLogoGallery');
             if (!backdropGallery) return;
@@ -1056,19 +1062,95 @@
             if (logoGallery) logoGallery.innerHTML = '<div style="color:#f59e0b;font-size:11px;padding:8px;text-align:center;width:100%;">⏳ Đang tải logo...</div>';
 
             try {
-                const queryParams = new URLSearchParams({
-                    name: name || '',
-                    origin_name: originName || '',
-                    slug: slug || ''
-                });
-                if (tmdbId) queryParams.set('tmdbId', tmdbId);
+                let backdrops = [];
+                let logos = [];
 
-                const res = await fetch(`/api/settings/movie-backdrops?${queryParams.toString()}`);
-                const data = await res.json();
+                // 1. Gọi backend /api/settings/movie-backdrops
+                try {
+                    const queryParams = new URLSearchParams({
+                        name: name || '',
+                        origin_name: originName || '',
+                        slug: slug || ''
+                    });
+                    if (tmdbId) queryParams.set('tmdbId', tmdbId);
+                    if (mediaType) queryParams.set('mediaType', mediaType);
 
-                if (data.success && data.backdrops && data.backdrops.length > 0) {
-                    currentLoadedBackdrops = data.backdrops;
-                    backdropGallery.innerHTML = data.backdrops.map((b) => `
+                    const res = await fetch(`/api/settings/movie-backdrops?${queryParams.toString()}`);
+                    const contentType = res.headers.get('content-type') || '';
+                    if (res.ok && contentType.includes('application/json')) {
+                        const data = await res.json();
+                        if (data.success) {
+                            backdrops = data.backdrops || [];
+                            logos = data.logos || [];
+                        }
+                    }
+                } catch(e) {}
+
+                // 2. Fallback trực tiếp nếu thiếu logo hoặc backdrop
+                if (!logos.length || !backdrops.length) {
+                    const TMDB_KEY = '5fb3c8d9ad2ca4cd2029836befcc3ab5';
+                    let targetTmdbId = tmdbId;
+                    let targetType = mediaType || 'tv';
+
+                    async function tmdbFetch(url) {
+                        try {
+                            const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+                            if (r.ok) return r;
+                        } catch(e) {}
+                        const proxies = [
+                            `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                            `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+                        ];
+                        for (const p of proxies) {
+                            try {
+                                const r = await fetch(p, { signal: AbortSignal.timeout(4500) });
+                                if (r.ok) return r;
+                            } catch(e) {}
+                        }
+                        return null;
+                    }
+
+                    if (!targetTmdbId) {
+                        const query = encodeURIComponent(originName || name || slug);
+                        const sRes = await tmdbFetch(`https://api.tmdb.org/3/search/multi?api_key=${TMDB_KEY}&query=${query}&include_adult=false`);
+                        if (sRes) {
+                            const sData = await sRes.json();
+                            if (sData.results && sData.results.length > 0) {
+                                const valid = sData.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv');
+                                const found = valid.find(r => r.vote_count > 0) || valid[0];
+                                if (found && found.id) {
+                                    targetTmdbId = found.id;
+                                    targetType = found.media_type;
+                                }
+                            }
+                        }
+                    }
+
+                    if (targetTmdbId) {
+                        const imgRes = await tmdbFetch(`https://api.tmdb.org/3/${targetType}/${targetTmdbId}/images?api_key=${TMDB_KEY}&include_image_language=vi,en,zh,ja,ko,null`);
+                        if (imgRes) {
+                            const imgData = await imgRes.json();
+                            if ((!backdrops.length) && imgData.backdrops && Array.isArray(imgData.backdrops)) {
+                                backdrops = imgData.backdrops.slice(0, 20).map(b => ({
+                                    url: `https://image.tmdb.org/t/p/original${b.file_path}`,
+                                    previewUrl: `https://image.tmdb.org/t/p/w780${b.file_path}`,
+                                    width: b.width || 1920
+                                }));
+                            }
+                            if ((!logos.length) && imgData.logos && Array.isArray(imgData.logos)) {
+                                logos = imgData.logos.slice(0, 20).map(l => ({
+                                    url: `https://image.tmdb.org/t/p/w500${l.file_path}`,
+                                    previewUrl: `https://image.tmdb.org/t/p/w300${l.file_path}`
+                                }));
+                            }
+                        }
+                    }
+                }
+
+                // Render backdrops gallery
+                if (backdrops.length > 0) {
+                    currentLoadedBackdrops = backdrops;
+                    backdropGallery.innerHTML = backdrops.map((b) => `
                         <div onclick="DesktopHeroAdmin.selectBackdrop('${b.url}')" style="aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;position:relative;cursor:pointer;border:2px solid rgba(255,255,255,0.15);transition:all 0.2s;" onmouseover="this.style.borderColor='#f59e0b';this.style.transform='scale(1.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.transform='scale(1)'">
                             <img src="${b.previewUrl || b.url}" style="width:100%;height:100%;object-fit:cover;">
                             <div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.75);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;">
@@ -1083,11 +1165,12 @@
                     backdropGallery.innerHTML = '<div style="color:#94a3b8;font-size:12px;text-align:center;padding:15px;grid-column:1/-1;">Không tìm thấy ảnh nền TMDB. Bạn có thể dán link ảnh trực tiếp vào ô URL bên dưới.</div>';
                 }
 
+                // Render logos gallery
                 if (logoGallery) {
                     let logosHtml = '';
-                    if (data.success && data.logos && data.logos.length > 0) {
-                        currentLoadedLogos = data.logos;
-                        logosHtml = data.logos.map(l => `
+                    if (logos.length > 0) {
+                        currentLoadedLogos = logos;
+                        logosHtml = logos.map(l => `
                             <div onclick="DesktopHeroAdmin.selectLogo('${l.url}')" style="height:44px;min-width:90px;padding:4px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='#38bdf8';this.style.background='rgba(56,189,248,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.06)'">
                                 <img src="${l.previewUrl || l.url}" style="max-height:100%;max-width:120px;object-fit:contain;">
                             </div>
@@ -1308,6 +1391,9 @@
             const colorHex = document.getElementById('intColorHex');
             if (colorHex) colorHex.value = hexColor;
 
+            const colorBox = document.getElementById('intColorBoxDisplay');
+            if (colorBox) colorBox.style.background = hexColor;
+
             const iconPicker = document.getElementById('intIconColorPicker');
             if (iconPicker) iconPicker.value = iconColor.startsWith('#') ? iconColor : '#ffffff';
 
@@ -1459,6 +1545,8 @@
         handleColorPickerChange(colorHex) {
             const hexInput = document.getElementById('intColorHex');
             if (hexInput) hexInput.value = colorHex;
+            const colorBox = document.getElementById('intColorBoxDisplay');
+            if (colorBox) colorBox.style.background = colorHex;
             document.getElementById('intGradient').value = colorHex;
             const noAuraInput = document.getElementById('intNoAura');
             if (noAuraInput) noAuraInput.value = 'false';
@@ -1472,6 +1560,8 @@
             if (/^#[0-9a-fA-F]{6}$/i.test(hex)) {
                 const picker = document.getElementById('intColorPicker');
                 if (picker) picker.value = hex;
+                const colorBox = document.getElementById('intColorBoxDisplay');
+                if (colorBox) colorBox.style.background = hex;
             }
             document.getElementById('intGradient').value = hex;
             const noAuraInput = document.getElementById('intNoAura');
@@ -1485,6 +1575,8 @@
             if (picker) picker.value = hexColor;
             const hexInput = document.getElementById('intColorHex');
             if (hexInput) hexInput.value = hexColor;
+            const colorBox = document.getElementById('intColorBoxDisplay');
+            if (colorBox) colorBox.style.background = hexColor;
             document.getElementById('intGradient').value = hexColor;
             const noAuraInput = document.getElementById('intNoAura');
             if (noAuraInput) noAuraInput.value = 'false';

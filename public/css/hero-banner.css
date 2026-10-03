@@ -742,15 +742,17 @@
         min-width: 68px !important;
         max-width: 68px !important;
         height: 39px !important;
-        border-radius: 6px !important;
+        border-radius: 7px !important;
         overflow: hidden !important;
         position: relative !important;
-        border: 2px solid #ffffff !important; /* 1. Viền trắng tinh khôi, rõ nét trên mọi nền */
-        transition: border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.32) !important; /* Viền trong suốt mờ tinh tế */
+        transition: border-color 0.2s ease, opacity 0.2s ease !important;
         cursor: pointer !important;
         flex-shrink: 0 !important;
-        box-shadow: none !important; /* 2. Tắt hoàn toàn bóng đổ đen nặng nề, loại bỏ triệt để bóng/vệt ánh xạ chiếu xuống dưới */
-        opacity: 0.95 !important;
+        box-shadow: none !important; /* Loại bỏ hoàn toàn ánh xạ / bóng xám đổ xuống dưới */
+        filter: none !important;
+        -webkit-box-reflect: none !important;
+        opacity: 0.9 !important;
         background: transparent !important;
         transform: none !important;
         scroll-snap-align: start;
@@ -767,15 +769,15 @@
 
     .hero-thumb-item:hover {
         opacity: 1 !important;
-        border-color: #ffffff !important;
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.4) !important;
+        border-color: rgba(255, 255, 255, 0.65) !important;
+        box-shadow: none !important;
     }
 
     .hero-thumb-item.hero-thumb-active,
     .hero-thumb-item.active {
         opacity: 1 !important;
         border-color: #fcd576 !important;
-        box-shadow: 0 0 8px rgba(252, 213, 118, 0.5) !important;
+        box-shadow: 0 0 6px rgba(252, 213, 118, 0.5) !important; /* Chỉ giữ ánh sáng vàng dịu bám sát viền */
         transform: none !important;
     }
 

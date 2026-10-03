@@ -19,7 +19,6 @@
         '.de-cu-slider',
         '#homeCommentsTrack',
         '.home-comments-track',
-        '#heroThumbnails',
         '.interests-wrapper',
         '.ranking-grid-container',
         '.country-scroll-container',
@@ -92,8 +91,8 @@
         // Chỉ nhận chuột trái hoặc cảm ứng chạm
         if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-        // Bỏ qua nếu click vào nút điều hướng, ô nhập liệu, switch
-        if (e.target.closest('button, input, textarea, select, .home-comments-scroll-btn, .section-header-nav, .comment-switch, a[data-no-drag]')) {
+        // Bỏ qua nếu click vào nút điều hướng, ô nhập liệu, switch, hoặc thumbnail hero
+        if (e.target.closest('button, input, textarea, select, .hero-thumb-item, #heroThumbnails, .home-comments-scroll-btn, .section-header-nav, .comment-switch, a[data-no-drag]')) {
             return;
         }
 

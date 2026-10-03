@@ -537,47 +537,87 @@ router.put('/desktop-interests', requireAdmin, async (req, res) => {
 // ── GET /api/settings/movie-backdrops — Tìm kiếm & Tải tất cả Backdrop & Logo TMDB cho phim ──
 router.get('/movie-backdrops', async (req, res) => {
     try {
-        const { query = '', name = '', origin_name = '', tmdbId, mediaType = 'movie', slug = '' } = req.query;
+        const { query = '', name = '', origin_name = '', tmdbId, mediaType, slug = '' } = req.query;
         const TMDB_KEY = process.env.TMDB_API_KEY || '5fb3c8d9ad2ca4cd2029836befcc3ab5';
 
         let targetId = tmdbId ? parseInt(tmdbId, 10) : null;
-        let targetType = mediaType || 'movie';
+        let targetType = mediaType || null;
+        let movieDetail = null;
 
-        // 1. Tìm TMDB ID nếu chưa có
+        // 1. Nếu có slug, trước tiên lấy thông tin chi tiết từ PhimAPI để trích xuất TMDB ID chuẩn xác nhất
+        if (slug) {
+            try {
+                const pRes = await fetch(`https://phimapi.com/phim/${encodeURIComponent(slug)}`);
+                const pData = await pRes.json();
+                if (pData.status === true && pData.movie) {
+                    movieDetail = pData.movie;
+                    if (!targetId && movieDetail.tmdb && movieDetail.tmdb.id) {
+                        targetId = parseInt(movieDetail.tmdb.id, 10);
+                        targetType = movieDetail.tmdb.type || (movieDetail.type === 'series' || movieDetail.type === 'hoathinh' || movieDetail.type === 'tvshows' ? 'tv' : 'movie');
+                    }
+                }
+            } catch (e) {}
+
+            if (!targetId && !movieDetail) {
+                try {
+                    const ophimRes = await fetch(`https://ophim1.com/phim/${encodeURIComponent(slug)}`);
+                    const ophimData = await ophimRes.json();
+                    if (ophimData.status === 'success' && ophimData.data?.item) {
+                        movieDetail = ophimData.data.item;
+                        if (movieDetail.tmdb && movieDetail.tmdb.id) {
+                            targetId = parseInt(movieDetail.tmdb.id, 10);
+                            targetType = movieDetail.tmdb.type || (movieDetail.type === 'series' ? 'tv' : 'movie');
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // 2. Tìm kiếm qua TMDB Multi Search nếu vẫn chưa có TMDB ID
         if (!targetId) {
             const searchTerms = [origin_name, name, query, slug.replace(/-/g, ' ')].filter(Boolean);
             for (const term of searchTerms) {
                 if (targetId) break;
                 try {
-                    // Thử tìm movie
-                    const mRes = await fetch(`https://api.tmdb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(term)}&language=vi-VN`);
-                    const mData = await mRes.json();
-                    if (mData.results && mData.results.length > 0) {
-                        targetId = mData.results[0].id;
-                        targetType = 'movie';
-                        break;
-                    }
-                    // Thử tìm tv
-                    const tvRes = await fetch(`https://api.tmdb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(term)}&language=vi-VN`);
-                    const tvData = await tvRes.json();
-                    if (tvData.results && tvData.results.length > 0) {
-                        targetId = tvData.results[0].id;
-                        targetType = 'tv';
-                        break;
+                    const multiRes = await fetch(`https://api.tmdb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(term)}&include_adult=false`);
+                    const multiData = await multiRes.json();
+                    if (multiData.results && multiData.results.length > 0) {
+                        const validResults = multiData.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv');
+                        if (validResults.length > 0) {
+                            const bestMatch = validResults.sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0))[0];
+                            targetId = bestMatch.id;
+                            targetType = bestMatch.media_type;
+                            break;
+                        }
                     }
                 } catch (e) {}
             }
+        }
+
+        if (!targetType) {
+            targetType = 'movie';
         }
 
         const backdrops = [];
         const posters = [];
         const logos = [];
 
-        // 2. Fetch images từ TMDB nếu có targetId
+        // 3. Fetch images từ TMDB nếu có targetId
         if (targetId) {
             try {
-                const imgRes = await fetch(`https://api.tmdb.org/3/${targetType}/${targetId}/images?api_key=${TMDB_KEY}&include_image_language=vi,en,zh,ja,ko,null`);
-                const imgData = await imgRes.json();
+                let imgRes = await fetch(`https://api.tmdb.org/3/${targetType}/${targetId}/images?api_key=${TMDB_KEY}&include_image_language=vi,en,zh,ja,ko,null`);
+                let imgData = await imgRes.json();
+
+                // Nếu không có kết quả ảnh, thử đảo ngược giữa tv <-> movie
+                if ((!imgData.backdrops || !imgData.backdrops.length) && (!imgData.logos || !imgData.logos.length)) {
+                    const altType = targetType === 'tv' ? 'movie' : 'tv';
+                    const altRes = await fetch(`https://api.tmdb.org/3/${altType}/${targetId}/images?api_key=${TMDB_KEY}&include_image_language=vi,en,zh,ja,ko,null`);
+                    const altData = await altRes.json();
+                    if ((altData.backdrops && altData.backdrops.length) || (altData.logos && altData.logos.length)) {
+                        targetType = altType;
+                        imgData = altData;
+                    }
+                }
 
                 if (imgData.posters && Array.isArray(imgData.posters)) {
                     imgData.posters
@@ -597,7 +637,7 @@ router.get('/movie-backdrops', async (req, res) => {
                 if (imgData.backdrops && Array.isArray(imgData.backdrops)) {
                     imgData.backdrops
                         .filter(b => (!b.aspect_ratio || b.aspect_ratio >= 1.2) && (!b.width || !b.height || b.width > b.height))
-                        .slice(0, 20)
+                        .slice(0, 24)
                         .forEach(b => {
                             backdrops.push({
                                 url: `https://image.tmdb.org/t/p/original${b.file_path}`,
@@ -611,7 +651,7 @@ router.get('/movie-backdrops', async (req, res) => {
                 }
 
                 if (imgData.logos && Array.isArray(imgData.logos)) {
-                    imgData.logos.slice(0, 15).forEach(l => {
+                    imgData.logos.slice(0, 20).forEach(l => {
                         logos.push({
                             url: `https://image.tmdb.org/t/p/w500${l.file_path}`,
                             previewUrl: `https://image.tmdb.org/t/p/w300${l.file_path}`,
@@ -625,39 +665,32 @@ router.get('/movie-backdrops', async (req, res) => {
             }
         }
 
-        // 3. Fallback lấy thêm ảnh từ PhimAPI / Ophim nếu có slug
-        if (slug) {
-            try {
-                const pRes = await fetch(`https://phimapi.com/phim/${encodeURIComponent(slug)}`);
-                const pData = await pRes.json();
-                if (pData.status === true && pData.movie) {
-                    const m = pData.movie;
-                    if (m.poster_url) {
-                        const fullPoster = m.poster_url.startsWith('http') ? m.poster_url : `https://phimimg.com/${m.poster_url.replace(/^\//, '')}`;
-                        if (!posters.some(p => p.url === fullPoster)) {
-                            posters.unshift({
-                                url: fullPoster,
-                                previewUrl: fullPoster,
-                                width: 800,
-                                height: 1200,
-                                isPrimary: true
-                            });
-                        }
-                    }
-                    if (m.thumb_url) {
-                        const fullThumb = m.thumb_url.startsWith('http') ? m.thumb_url : `https://phimimg.com/${m.thumb_url.replace(/^\//, '')}`;
-                        if (!backdrops.some(b => b.url === fullThumb)) {
-                            backdrops.unshift({
-                                url: fullThumb,
-                                previewUrl: fullThumb,
-                                width: 1920,
-                                height: 1080,
-                                isPrimary: true
-                            });
-                        }
-                    }
+        // 4. Bổ sung ảnh từ movieDetail nếu có
+        if (movieDetail) {
+            if (movieDetail.poster_url) {
+                const fullPoster = movieDetail.poster_url.startsWith('http') ? movieDetail.poster_url : `https://phimimg.com/${movieDetail.poster_url.replace(/^\//, '')}`;
+                if (!posters.some(p => p.url === fullPoster)) {
+                    posters.unshift({
+                        url: fullPoster,
+                        previewUrl: fullPoster,
+                        width: 800,
+                        height: 1200,
+                        isPrimary: true
+                    });
                 }
-            } catch (e) {}
+            }
+            if (movieDetail.thumb_url) {
+                const fullThumb = movieDetail.thumb_url.startsWith('http') ? movieDetail.thumb_url : `https://phimimg.com/${movieDetail.thumb_url.replace(/^\//, '')}`;
+                if (!backdrops.some(b => b.url === fullThumb)) {
+                    backdrops.unshift({
+                        url: fullThumb,
+                        previewUrl: fullThumb,
+                        width: 1920,
+                        height: 1080,
+                        isPrimary: true
+                    });
+                }
+            }
         }
 
         return res.json({

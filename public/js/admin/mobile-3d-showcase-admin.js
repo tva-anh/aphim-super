@@ -10,6 +10,7 @@
     let isSaving = false;
     let searchDebounceTimer = null;
     let cachedTrendingList = [];
+    let draggedShowcaseIndex = null;
 
     function getAdminToken() {
         try {
@@ -156,14 +157,23 @@
             }
 
             container.innerHTML = showcaseItems.map((item, idx) => `
-                <div class="mobile-card-v2" style="display: flex; gap: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; background: linear-gradient(180deg, rgba(20, 27, 45, 0.95) 0%, rgba(10, 14, 25, 0.98) 100%); position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.45); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
-                    <!-- Badge Order Number -->
-                    <div style="position: absolute; top: 10px; left: 10px; z-index: 5; background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.45); color: #38bdf8; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
-                        #${idx + 1}
+                <div class="mobile-card-v2" 
+                     draggable="true"
+                     data-index="${idx}"
+                     ondragstart="MobileShowcaseAdmin.handleDragStart(event, ${idx})"
+                     ondragover="MobileShowcaseAdmin.handleDragOver(event, ${idx})"
+                     ondragleave="MobileShowcaseAdmin.handleDragLeave(event)"
+                     ondrop="MobileShowcaseAdmin.handleDrop(event, ${idx})"
+                     ondragend="MobileShowcaseAdmin.handleDragEnd(event)"
+                     style="display: flex; gap: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; background: linear-gradient(180deg, rgba(20, 27, 45, 0.95) 0%, rgba(10, 14, 25, 0.98) 100%); position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.45); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease; cursor: grab; user-select: none;">
+                    <!-- Badge Order Number + Drag indicator -->
+                    <div style="position: absolute; top: 10px; left: 10px; z-index: 5; display: inline-flex; align-items: center; gap: 4px; background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.45); color: #38bdf8; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); pointer-events: none;">
+                        <i data-lucide="grip-vertical" style="width: 10px; height: 10px; opacity: 0.85;"></i>
+                        <span>#${idx + 1}</span>
                     </div>
 
                     <!-- Poster -->
-                    <div style="width: 80px; height: 115px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                    <div style="width: 80px; height: 115px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: none;">
                         <img src="${item.poster_url || item.thumb_url || ''}" alt="${item.name || ''}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
                     </div>
 
@@ -184,7 +194,7 @@
                         </div>
 
                         <!-- Actions Toolbar (Unified Symmetrical Buttons) -->
-                        <div class="unified-action-bar">
+                        <div class="unified-action-bar" style="cursor: default;" onmousedown="event.stopPropagation()">
                             <div class="u-btn-group">
                                 <button type="button" class="u-btn u-btn-icon" onclick="MobileShowcaseAdmin.moveItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Đưa lên trên">
                                     <i data-lucide="chevron-up" style="width:13px;height:13px;"></i>
@@ -207,6 +217,82 @@
             `).join('');
 
             if (window.lucide) window.lucide.createIcons();
+        },
+
+        // ================================================================
+        // DRAG AND DROP HANDLERS (KÉO THẢ ĐỔI THỨ TỰ BẰNG CHUỘT)
+        // ================================================================
+        handleDragStart(e, index) {
+            draggedShowcaseIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', index);
+            if (e.currentTarget) {
+                e.currentTarget.style.opacity = '0.45';
+                e.currentTarget.style.transform = 'scale(0.97)';
+                e.currentTarget.style.cursor = 'grabbing';
+            }
+        },
+
+        handleDragOver(e, index) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const targetCard = e.currentTarget;
+            if (targetCard && draggedShowcaseIndex !== null && draggedShowcaseIndex !== index) {
+                targetCard.style.borderColor = '#38bdf8';
+                targetCard.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.5)';
+                targetCard.style.transform = 'scale(1.02)';
+            }
+        },
+
+        handleDragLeave(e) {
+            const targetCard = e.currentTarget;
+            if (targetCard) {
+                targetCard.style.borderColor = 'rgba(255,255,255,0.08)';
+                targetCard.style.boxShadow = '0 8px 24px rgba(0,0,0,0.45)';
+                targetCard.style.transform = 'scale(1)';
+            }
+        },
+
+        async handleDrop(e, targetIndex) {
+            e.preventDefault();
+            const targetCard = e.currentTarget;
+            if (targetCard) {
+                targetCard.style.borderColor = 'rgba(255,255,255,0.08)';
+                targetCard.style.boxShadow = '0 8px 24px rgba(0,0,0,0.45)';
+                targetCard.style.transform = 'scale(1)';
+            }
+
+            if (draggedShowcaseIndex === null || draggedShowcaseIndex === targetIndex) return;
+
+            const fromIndex = draggedShowcaseIndex;
+            const draggedItem = showcaseItems.splice(fromIndex, 1)[0];
+            showcaseItems.splice(targetIndex, 0, draggedItem);
+            draggedShowcaseIndex = null;
+
+            this.renderList();
+            await this.saveConfig(true);
+            const msg = `Đã chuyển phim "${draggedItem.name}" (#${fromIndex + 1} ➔ #${targetIndex + 1})!`;
+            if (window.AdminNotice) {
+                AdminNotice.toast(msg, 'success');
+            } else {
+                showNotice(msg, 'success');
+            }
+        },
+
+        handleDragEnd(e) {
+            if (e.currentTarget) {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.cursor = 'grab';
+            }
+            draggedShowcaseIndex = null;
+            document.querySelectorAll('.mobile-card-v2').forEach(card => {
+                card.style.borderColor = 'rgba(255,255,255,0.08)';
+                card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.45)';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+                card.style.cursor = 'grab';
+            });
         },
 
         async moveItem(index, direction) {
