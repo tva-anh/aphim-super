@@ -466,30 +466,34 @@ router.get('/users', requireAdmin, async (req, res) => {
 
         if (role)   query = query.eq('role', role);
         if (status === 'blocked') query = query.eq('is_blocked', true);
-        if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+        if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
 
         const { data: users, count, error } = await query;
         if (error) throw error;
 
         // Bổ sung dữ liệu thật nhất từ MongoDB (Gamification)
         if (users && users.length > 0) {
-            const userIds = users.map(u => u.id);
-            const Gamification = require('../models/Gamification');
-            const gamifs = await Gamification.find({ user_id: { $in: userIds } }).lean();
-            
-            const gamifMap = {};
-            for (const g of gamifs) {
-                gamifMap[g.user_id] = g;
-            }
-
-            for (const u of users) {
-                const g = gamifMap[u.id];
-                if (g) {
-                    u.xu = g.xu;
-                    u.xp = g.xp;
-                    u.level = g.level;
-                    u.streak_current = g.streak_current;
+            try {
+                const userIds = users.map(u => u.id);
+                const Gamification = require('../models/Gamification');
+                const gamifs = await Gamification.find({ user_id: { $in: userIds } }).lean();
+                
+                const gamifMap = {};
+                for (const g of gamifs) {
+                    gamifMap[g.user_id] = g;
                 }
+
+                for (const u of users) {
+                    const g = gamifMap[u.id];
+                    if (g) {
+                        u.xu = g.xu;
+                        u.xp = g.xp;
+                        u.level = g.level;
+                        u.streak_current = g.streak_current;
+                    }
+                }
+            } catch (mongoErr) {
+                console.warn('[Admin Users] MongoDB gamification sync skipped:', mongoErr.message);
             }
         }
 
