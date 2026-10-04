@@ -96,7 +96,7 @@ async function computeDashboardSummary(timeRange = '7d') {
         safeSupabase(supabaseAdmin.from('profiles').select('xu').limit(2000), { data: [] }),
         safeSupabase(supabaseAdmin.from('transactions').select('*', { count: 'exact', head: true }).eq('status', 'pending'), { count: 0 }),
         safeSupabase(supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString()), { count: 0 }),
-        safeSupabase(supabaseAdmin.from('transactions').select('id, amount_vnd, type, status, created_at, user_id, profiles(name, email)').order('created_at', { ascending: false }).limit(10), { data: [] }),
+        safeSupabase(supabaseAdmin.from('transactions').select('id, amount_vnd, type, status, created_at, user_id').order('created_at', { ascending: false }).limit(10), { data: [] }),
         safeSupabase(supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, xu, created_at').order('created_at', { ascending: false }).limit(8), { data: [] }),
         AdminLog.find().sort({ created_at: -1 }).limit(10).lean().catch(() => []),
         Comment.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]).catch(() => []),
@@ -1055,15 +1055,15 @@ router.get('/notifications', requireAdmin, async (req, res) => {
     try {
         const Comment = require('../models/Comment');
         const [recentUsersRes, recentTxRes, recentCommentsRes] = await Promise.all([
-            supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, created_at').order('created_at', { ascending: false }).limit(10),
-            supabaseAdmin.from('transactions').select('id, user_id, amount_vnd, type, status, created_at, profiles(name, email)').order('created_at', { ascending: false }).limit(10),
-            Comment ? Comment.find().sort({ createdAt: -1 }).limit(10).lean() : []
+            supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, created_at').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
+            supabaseAdmin.from('transactions').select('id, user_id, amount_vnd, type, status, created_at').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
+            Comment ? Comment.find().sort({ createdAt: -1 }).limit(10).lean().catch(() => []) : []
         ]);
 
         const items = [];
 
         // 1. Thành viên mới đăng ký
-        (recentUsersRes.data || []).forEach(u => {
+        (recentUsersRes?.data || []).forEach(u => {
             const displayName = u.name || (u.email ? u.email.split('@')[0] : 'Thành viên mới');
             items.push({
                 id: `user_${u.id}`,
@@ -1079,15 +1079,14 @@ router.get('/notifications', requireAdmin, async (req, res) => {
         });
 
         // 2. Giao dịch nạp tiền / nâng cấp VIP
-        (recentTxRes.data || []).forEach(tx => {
-            const userName = tx.profiles?.name || tx.profiles?.email || 'Khách hàng';
+        (recentTxRes?.data || []).forEach(tx => {
             const amount = new Intl.NumberFormat('vi-VN').format(tx.amount_vnd || 0);
             const isConfirmed = tx.status === 'confirmed';
             items.push({
                 id: `tx_${tx.id}`,
                 category: 'orders',
                 title: isConfirmed ? 'Giao dịch thành công' : 'Giao dịch chờ duyệt',
-                desc: `${userName} nạp ${amount}đ (${tx.type === 'vip' ? 'Gói VIP' : 'Nạp Xu'}).`,
+                desc: `Giao dịch ${amount}đ (${tx.type === 'vip' ? 'Gói VIP' : 'Nạp Xu'}).`,
                 icon: isConfirmed ? 'coins' : 'clock',
                 badgeColor: isConfirmed ? 'emerald' : 'gold',
                 time: tx.created_at,
