@@ -1035,14 +1035,22 @@
     }
 
 
-    // ── 🔄 Toggle Landscape 16:9 / Vertical 9:16 (Xoay Nằm Ngang / Đứng Dọc - Zero Jank) ──
+    // ── 🔄 Toggle Landscape 16:9 / Vertical 9:16 (Xoay Nằm Ngang / Đứng Dọc - Zero Jank GPU) ──
+    let _isAspectTransitioning = false;
+
     window.toggleAspectMode = function () {
+        if (_isAspectTransitioning) return;
+        _isAspectTransitioning = true;
+        setTimeout(() => { _isAspectTransitioning = false; }, 360);
+
         const aspectBtn = document.getElementById('reels-aspect-btn');
         if (aspectBtn) {
-            aspectBtn.classList.add('is-rotating');
+            aspectBtn.classList.remove('is-rotating', 'is-animating');
+            void aspectBtn.offsetWidth; // trigger reflow for clean animation restart
+            aspectBtn.classList.add('is-rotating', 'is-animating');
             setTimeout(() => {
-                try { aspectBtn.classList.remove('is-rotating'); } catch (e) {}
-            }, 460);
+                try { aspectBtn.classList.remove('is-rotating', 'is-animating'); } catch (e) {}
+            }, 560);
         }
 
         const isLandscape = document.body.classList.contains('reels-cinema-mode') || 
@@ -1071,7 +1079,7 @@
                 viewport.classList.add('mode-16-9');
                 document.body.classList.add('reels-cinema-mode');
                 if (aspectBtn) {
-                    aspectBtn.classList.add('text-amber-400', 'is-active');
+                    aspectBtn.classList.add('is-active');
                     aspectBtn.style.color = '#f59e0b';
                 }
                 showToast('🎬 Đã xoay ngang màn hình 16:9 (Nhấn 🔄 hoặc ESC để quay lại)', 'info', 1800);
@@ -1079,7 +1087,7 @@
                 viewport.classList.remove('mode-16-9');
                 document.body.classList.remove('reels-cinema-mode');
                 if (aspectBtn) {
-                    aspectBtn.classList.remove('text-amber-400', 'is-active');
+                    aspectBtn.classList.remove('is-active');
                     aspectBtn.style.color = '';
                 }
                 showToast('📱 Đã chuyển về chế độ dọc 9:16', 'info', 1500);
@@ -2444,16 +2452,23 @@
     };
 
     // ── 🖥️ Desktop Theater / Fullscreen Mode Engine (Zero-Jank 60FPS Morphing) ──
+    let _isFsTransitioning = false;
+
     window.toggleReelsFullscreen = function (e, forceState = null) {
         if (e && e.stopPropagation) e.stopPropagation();
+        if (_isFsTransitioning) return;
+        _isFsTransitioning = true;
+        setTimeout(() => { _isFsTransitioning = false; }, 380);
         
         const fsBtn = document.getElementById('reels-fullscreen-btn');
         const iconSvg = document.getElementById('reels-fullscreen-icon');
         if (fsBtn) {
+            fsBtn.classList.remove('is-animating');
+            void fsBtn.offsetWidth; // trigger reflow for smooth keyframe pop
             fsBtn.classList.add('is-animating');
             setTimeout(() => {
                 try { fsBtn.classList.remove('is-animating'); } catch (err) {}
-            }, 400);
+            }, 500);
         }
 
         const currentlyTheater = document.body.classList.contains('reels-theater-mode');
@@ -2471,15 +2486,6 @@
                     iconSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M9 9H4.5M9 9V4.5M9 9L3.75 3.75M9 15H4.5M9 15v4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25"/>`;
                 }
                 showToast('🎬 Rạp Chiếu Toàn Màn Hình (Nhấn F hoặc ESC để thoát)', 'info', 1800);
-
-                // Smooth Native Fullscreen trigger after UI transition starts
-                setTimeout(() => {
-                    try {
-                        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-                            document.documentElement.requestFullscreen().catch(() => {});
-                        }
-                    } catch (err) {}
-                }, 80);
             } else {
                 document.body.classList.remove('reels-theater-mode');
                 if (fsBtn) {
@@ -2491,12 +2497,6 @@
                     iconSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/>`;
                 }
                 showToast('Đã thoát toàn màn hình', 'info', 1500);
-
-                try {
-                    if (document.exitFullscreen && document.fullscreenElement) {
-                        document.exitFullscreen().catch(() => {});
-                    }
-                } catch (err) {}
             }
         });
     };

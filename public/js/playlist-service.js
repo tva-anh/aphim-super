@@ -44,26 +44,17 @@ class PlaylistService {
 
     /** Get all playlists */
     getAll() {
-        if (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function' && !authService.isLoggedIn()) {
-            return [];
-        }
         return this._load();
     }
 
     /** Get one playlist by id */
     getById(id) {
-        if (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function' && !authService.isLoggedIn()) {
-            return null;
-        }
+        if (!id) return null;
         return this._load().find(p => p.id === id) || null;
     }
 
     /** Create new playlist, returns the new playlist object */
     create(name, description = '') {
-        if (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function' && !authService.isLoggedIn()) {
-            if (typeof window.showAuthModal === 'function') window.showAuthModal('login');
-            return null;
-        }
         if (!name || !name.trim()) return null;
         const playlists = this._load();
         const pl = {
@@ -75,6 +66,9 @@ class PlaylistService {
         };
         playlists.unshift(pl);
         this._save(playlists);
+        try {
+            window.dispatchEvent(new CustomEvent('ap:playlists-updated', { detail: playlists }));
+        } catch (e) { }
         return pl;
     }
 
@@ -86,6 +80,9 @@ class PlaylistService {
         if (name !== undefined) playlists[idx].name = name.trim();
         if (description !== undefined) playlists[idx].description = description.trim();
         this._save(playlists);
+        try {
+            window.dispatchEvent(new CustomEvent('ap:playlists-updated', { detail: playlists }));
+        } catch (e) { }
         return true;
     }
 
@@ -93,6 +90,9 @@ class PlaylistService {
     delete(id) {
         const playlists = this._load().filter(p => p.id !== id);
         this._save(playlists);
+        try {
+            window.dispatchEvent(new CustomEvent('ap:playlists-updated', { detail: playlists }));
+        } catch (e) { }
     }
 
     /** Add movie to playlist. movie = {slug, name, thumb_url, year} */
@@ -103,6 +103,9 @@ class PlaylistService {
         if (pl.movies.some(m => m.slug === movie.slug)) return false; // already in
         pl.movies.push({ slug: movie.slug, name: movie.name, thumb_url: movie.thumb_url, year: movie.year, addedAt: new Date().toISOString() });
         this._save(playlists);
+        try {
+            window.dispatchEvent(new CustomEvent('ap:playlists-updated', { detail: playlists }));
+        } catch (e) { }
         return true;
     }
 
@@ -113,6 +116,9 @@ class PlaylistService {
         if (!pl) return;
         pl.movies = pl.movies.filter(m => m.slug !== slug);
         this._save(playlists);
+        try {
+            window.dispatchEvent(new CustomEvent('ap:playlists-updated', { detail: playlists }));
+        } catch (e) { }
     }
 
     /** Check if movie is in any playlist */
@@ -125,6 +131,9 @@ class PlaylistService {
     syncFromProfile(profilePlaylists) {
         if (!Array.isArray(profilePlaylists)) return;
         localStorage.setItem(this._key, JSON.stringify(profilePlaylists));
+        try {
+            window.dispatchEvent(new CustomEvent('ap:playlists-updated', { detail: profilePlaylists }));
+        } catch (e) { }
     }
 }
 

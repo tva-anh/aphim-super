@@ -539,7 +539,7 @@ function updateUserUI() {
     let user = (typeof authService !== 'undefined' && authService.getCurrentUser) ? authService.getCurrentUser() : null;
     if (!user) {
         try {
-            user = JSON.parse(localStorage.getItem('cinestream_user') || 'null');
+            user = JSON.parse(localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user') || 'null');
         } catch (e) { }
     }
 
@@ -555,13 +555,6 @@ function updateUserUI() {
 
     const authContainer = document.getElementById('authContainer');
     if (!authContainer) return;
-
-    if (!document.querySelector('script[src*="dotlottie-player.mjs"]')) {
-        const s = document.createElement('script');
-        s.src = "https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs";
-        s.type = "module";
-        document.head.appendChild(s);
-    }
 
     if (user) {
         const userId = user._id || user.id || user.email;
@@ -969,6 +962,15 @@ window.addEventListener('storage', function (e) {
     if (e.key === 'cinestream_user' || e.key === 'user_avatar' || (e.key && e.key.startsWith('avatar_'))) {
         updateUserUI();
     }
+    if (e.key === 'cinestream_notifications' || (e.key && e.key.startsWith('ap_notifs_'))) {
+        renderNotifications();
+        updateNotifBadge();
+    }
+});
+
+window.addEventListener('ap:notifications-updated', function () {
+    renderNotifications();
+    updateNotifBadge();
 });
 
 // Export để các script khác gọi sau khi login/logout
@@ -1546,61 +1548,72 @@ window.getNotifications = function () {
         }
     } catch (e) { }
 
-    // Purge any leftover mock test notifications
     if (Array.isArray(notifs)) {
-        const cleanNotifs = notifs.filter(n => {
-            if (!n) return false;
-            const id = String(n.id || n._id || '');
-            if (id.startsWith('notif_') || id === '1' || id === '2' || id === '3') return false;
-            const text = `${n.title || ''} ${n.message || ''} ${n.content || ''}`;
-            if (text.includes('50.000') || text.includes('50,000')) return false;
-            if (text.includes('Chào mừng bạn gia nhập APhim Super VIP')) return false;
-            if (text.includes('Bom tấn rạp 2026')) return false;
-            if (text.includes('Đặc quyền Thành viên VIP đã kích hoạt')) return false;
-            if (text.includes('Bảo vệ tài khoản & Trung tâm dữ liệu')) return false;
-            return true;
-        });
-        if (cleanNotifs.length !== notifs.length) {
-            try {
-                localStorage.setItem('cinestream_notifications', JSON.stringify(cleanNotifs));
-                if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(cleanNotifs));
-            } catch (e) { }
-            return cleanNotifs;
-        }
-        return notifs;
+        // Clean out legacy invalid / undefined items
+        const validNotifs = notifs.filter(n => n && (n.title || n.message || n.content));
+        return validNotifs;
     }
     return [];
 };
 
-window.addNotification = function (title, message, type = 'admin') {
+window.createUserNotification = function (opts = {}) {
     const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
     const userId = user ? (user._id || user.id) : null;
     const notifs = getNotifications();
 
+    const title = opts.title || 'Thông báo hệ thống';
+    const message = opts.message || opts.content || '';
+    const detail = opts.detail || opts.message || opts.content || '';
+    const type = opts.type || 'system'; // 'reward' | 'shop' | 'vip' | 'movie' | 'system'
+    const amount = opts.amount != null ? opts.amount : 0;
+    const link = opts.link || '/profile?tab=notifications';
+
     const newNotif = {
-        id: Date.now().toString(),
+        id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
         title,
         message,
+        detail,
         type,
+        amount,
+        link,
         createdAt: new Date().toISOString(),
-        read: false
+        read: false,
+        isRead: false
     };
 
     notifs.unshift(newNotif);
+    const trimmed = notifs.slice(0, 100);
+
     try {
-        localStorage.setItem('cinestream_notifications', JSON.stringify(notifs.slice(0, 50)));
-        if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs.slice(0, 50)));
+        localStorage.setItem('cinestream_notifications', JSON.stringify(trimmed));
+        if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(trimmed));
     } catch (e) { }
+
+    // Dispatch global event
+    window.dispatchEvent(new CustomEvent('ap:notifications-updated', { detail: { notif: newNotif, all: trimmed } }));
 
     renderNotifications();
     updateNotifBadge();
+    if (typeof updateProfileNotifBadge === 'function') {
+        updateProfileNotifBadge();
+    }
+    if (typeof renderProfileNotifications === 'function' && typeof currentTab !== 'undefined' && currentTab === 'notifications') {
+        const panel = document.getElementById('tabPanel');
+        if (panel) panel.innerHTML = renderProfileNotifications();
+    }
 
-    // Shake bell for attention
+    // Subtle bell shake animation
     const bell = document.querySelector('#navNotificationBtn .nav-bell-icon') || document.querySelector('#navNotificationBtn svg');
     if (bell) {
         bell.classList.add('notif-bell-shake');
-        setTimeout(() => bell.classList.remove('notif-bell-shake'), 3000);
+        setTimeout(() => bell.classList.remove('notif-bell-shake'), 2500);
     }
+
+    return newNotif;
+};
+
+window.addNotification = function (title, message, type = 'system') {
+    return window.createUserNotification({ title, message, detail: message, type });
 };
 
 window.handleNavNotifClick = function (id) {
@@ -1612,10 +1625,18 @@ window.handleNavNotifClick = function (id) {
         panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-3');
         panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
     }
-    if (typeof switchTab === 'function') {
-        switchTab('notifications');
+
+    if (window.location.pathname.startsWith('/profile')) {
+        if (typeof window.switchTab === 'function') {
+            window.switchTab('notifications');
+        } else if (typeof switchTab === 'function') {
+            switchTab('notifications');
+        }
+        if (typeof openNotifDetailModal === 'function') {
+            setTimeout(() => openNotifDetailModal(id), 100);
+        }
     } else {
-        window.location.href = '/profile?tab=notifications';
+        window.location.href = `/profile?tab=notifications&notifId=${encodeURIComponent(id)}`;
     }
 };
 
@@ -1640,7 +1661,7 @@ window.renderNotifications = function () {
         return;
     }
 
-    container.innerHTML = notifs.slice(0, 8).map(n => {
+    container.innerHTML = notifs.slice(0, 6).map(n => {
         const isUnread = !n.isRead && !n.read;
         const notifId = n._id || n.id || '';
 
@@ -1651,19 +1672,23 @@ window.renderNotifications = function () {
         if (n.type === 'coin' || n.type === 'reward' || n.type === 'success') {
             iconClass = 'coin';
             badgeText = 'Xu & Quà';
-            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 7v10"/></svg>`;
+            iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 6.5v11"/></svg>`;
+        } else if (n.type === 'shop' || n.type === 'purchase') {
+            iconClass = 'coin';
+            badgeText = 'Cửa Hàng';
+            iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`;
         } else if (n.type === 'vip' || n.type === 'promotion') {
             iconClass = 'vip';
             badgeText = 'Ưu đãi VIP';
-            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`;
+            iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>`;
         } else if (n.type === 'movie') {
             iconClass = 'movie';
             badgeText = 'Phim mới';
-            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>`;
+            iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.5"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>`;
         } else {
             iconClass = 'system';
             badgeText = 'Hệ thống';
-            iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+            iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
         }
 
         const msgText = n.message || n.content || '';
@@ -1696,9 +1721,11 @@ function updateNotifBadge() {
 
     if (badge) {
         if (unreadCount > 0) {
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
             badge.classList.remove('hidden');
-            badge.style.display = 'block';
+            badge.style.display = 'inline-flex';
         } else {
+            badge.textContent = '';
             badge.classList.add('hidden');
             badge.style.display = 'none';
         }
@@ -1739,6 +1766,10 @@ window.markAllNotifsRead = function () {
     updateNotifBadge();
     if (typeof updateProfileNotifBadge === 'function') {
         updateProfileNotifBadge();
+    }
+    if (typeof renderProfileNotifications === 'function' && typeof currentTab !== 'undefined' && currentTab === 'notifications') {
+        const panel = document.getElementById('tabPanel');
+        if (panel) panel.innerHTML = renderProfileNotifications();
     }
     if (typeof showToast === 'function') {
         showToast('Đã đánh dấu tất cả thông báo là đã đọc', 'success');

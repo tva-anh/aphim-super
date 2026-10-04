@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
 
 class AuthService {
     constructor() {
+        this.instanceId = 'tab_' + Math.random().toString(36).slice(2) + '_' + Date.now();
         this.backendURL = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : ((typeof window !== 'undefined' && window.location && window.location.origin ? window.location.origin : '') + '/api');
         // Always use backend for authentication
         this.useBackend = typeof API_CONFIG !== 'undefined' ? API_CONFIG.USE_BACKEND_FOR_AUTH : true;
@@ -24,11 +25,12 @@ class AuthService {
 
         this.currentUser = this.loadUser();
         this.refreshInterval = null;
+        this.isSyncing = false;
 
         // Background auto-sync to pull latest avatar/favorites/history from Cloud
         // Only sync if user is logged in
         if (this.isLoggedIn()) {
-            setTimeout(() => this.syncProfile(true), 50);
+            setTimeout(() => this.syncProfile(false), 200);
         }
 
         // Start auto token refresh ONLY if user is logged in
@@ -36,14 +38,15 @@ class AuthService {
             this.startTokenRefresh();
         }
 
-        // 📡 Real-time Multi-Tab / Multi-Window Sync Bus
+        // 📡 Real-time Multi-Tab / Multi-Window Sync Bus with sender ID deduplication
         try {
             if (typeof BroadcastChannel !== 'undefined') {
                 this.syncChannel = new BroadcastChannel('aphim_cloud_sync_bus');
                 this.syncChannel.onmessage = (event) => {
                     if (event.data && (event.data.type === 'cloud_data_synced' || event.data.type === 'profile_updated')) {
-                        console.log('📡 [Realtime Sync Bus] Received cloud update broadcast, refreshing state...');
-                        this.syncProfile(true);
+                        // Ignore broadcasts from this same tab to prevent runaway ping-pong loops
+                        if (event.data.senderId === this.instanceId) return;
+                        this.syncProfile(false);
                     }
                 };
             }
@@ -58,22 +61,22 @@ class AuthService {
             }
         });
 
-        // Instant sync when user focuses or returns to the tab/window
+        // Throttled sync when user returns/focuses the window (cooldown protected)
         window.addEventListener('focus', () => {
-            if (this.isLoggedIn()) this.syncProfile(true);
+            if (this.isLoggedIn()) this.syncProfile(false);
         });
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && this.isLoggedIn()) {
-                this.syncProfile(true);
+                this.syncProfile(false);
             }
         });
 
-        // 🔄 Active multi-device real-time sync heartbeat (every 4s)
+        // 🔄 Low-overhead background sync heartbeat (every 90s instead of aggressive 4s)
         setInterval(() => {
             if (this.isLoggedIn() && !document.hidden) {
                 this.syncProfile(false);
             }
-        }, 4000);
+        }, 90000);
     }
 
     // 🍪 SECURE COOKIE DOUBLE-LOCK MECHANISM
@@ -125,25 +128,32 @@ class AuthService {
 
     // Load user from localStorage
     loadUser() {
-        const userStr = localStorage.getItem(STORAGE_KEYS.USER);
-        return userStr ? JSON.parse(userStr) : null;
+        try {
+            const userStr = localStorage.getItem(STORAGE_KEYS.USER) || localStorage.getItem('A Phim_user') || localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        } catch (e) {
+            return null;
+        }
     }
 
     // Fetch latest user data from backend
     async syncProfile(force = false) {
         if (!this.useBackend || !this.isLoggedIn()) return;
+        if (this.isSyncing) return;
 
         const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
         if (!token || token.startsWith('demo_token_')) return;
 
-        // Throttling: avoid duplicate calls within 5 seconds unless forced
+        // Throttling: avoid duplicate calls within cooldown (3s for force, 12s for auto)
         const now = Date.now();
         const lastSync = Number(sessionStorage.getItem('ap_last_profile_sync_ts') || 0);
-        if (!force && (now - lastSync < 5000)) {
+        const minCooldown = force ? 3000 : 12000;
+        if (now - lastSync < minCooldown) {
             return;
         }
         sessionStorage.setItem('ap_last_profile_sync_ts', String(now));
 
+        this.isSyncing = true;
         try {
             const response = await fetch(`${this.backendURL}/auth/me`, {
                 headers: { 'Authorization': `Bearer ${token}` },
@@ -151,13 +161,10 @@ class AuthService {
             });
 
             if (!response.ok) {
-                // If token is expired or unauthorized, reset session cleanly without spamming
                 if (response.status === 401) {
-                    console.warn('[AuthService] Phiên đăng nhập đã hết hạn hoặc không hợp lệ (401). Đã tự động dọn dẹp token cũ.');
-                    this.logoutSilently();
+                    console.warn('[AuthService] Backend token sync 401. Giữ nguyên phiên cục bộ.');
                     return;
                 }
-                // If header was too large, clear bloated cookies immediately
                 if (response.status === 431) {
                     this.eraseCookie(STORAGE_KEYS.USER);
                 }
@@ -233,6 +240,7 @@ class AuthService {
                     serverUser.badge = localBadge;
                     needPush = true;
                 }
+
                 // Helper Merge Functions
                 const mergeHistory = (loc, srv) => {
                     const map = new Map();
@@ -255,98 +263,74 @@ class AuthService {
                     return Array.from(map.values()).slice(0, 100);
                 };
 
-                const mergeProgress = (loc, srv) => {
-                    const res = { ...(srv || {}) };
-                    Object.keys(loc || {}).forEach(k => {
-                        const lItem = loc[k];
-                        const sItem = res[k];
-                        if (!sItem || new Date(lItem?.updatedAt || 0) > new Date(sItem?.updatedAt || 0)) {
-                            res[k] = lItem;
-                        }
-                    });
-                    return res;
-                };
-
-                const mergeArrays = (a, b) => Array.from(new Set([...(a || []), ...(b || [])]));
-
-                // 6. Merged Watch History
+                // 7. Merged Watch History
                 const localHistStr = localStorage.getItem('cinestream_watch_history');
                 const localHist = localHistStr ? JSON.parse(localHistStr) : [];
+                const srvSlugs = new Set((serverUser.watchHistory || []).map(h => h && h.slug));
+                const newLocalMovies = localHist.filter(h => h && h.slug && !srvSlugs.has(h.slug));
                 const mergedHist = mergeHistory(localHist, serverUser.watchHistory);
-                if (JSON.stringify(mergedHist) !== JSON.stringify(serverUser.watchHistory || [])) {
+                if (newLocalMovies.length > 0) {
                     pushPayload.watchHistory = mergedHist;
                     needPush = true;
                 }
                 serverUser.watchHistory = mergedHist;
 
-                // 7. Merged Favorites
+                // 8. Merged Favorites
                 const localFavsStr = localStorage.getItem('cinestream_favorites');
                 const localFavs = localFavsStr ? JSON.parse(localFavsStr) : [];
+                const srvFavSlugs = new Set((serverUser.favorites || []).map(f => f && (f.slug || f.id)));
+                const newLocalFavs = localFavs.filter(f => f && (f.slug || f.id) && !srvFavSlugs.has(f.slug || f.id));
                 const mergedFavs = mergeFavs(localFavs, serverUser.favorites);
-                if (JSON.stringify(mergedFavs) !== JSON.stringify(serverUser.favorites || [])) {
+                if (newLocalFavs.length > 0) {
                     pushPayload.favorites = mergedFavs;
                     needPush = true;
                 }
                 serverUser.favorites = mergedFavs;
 
-                // 8. Merged Watch Progress
-                const localProgStr = localStorage.getItem('cinestream_watch_progress');
-                const localProg = localProgStr ? JSON.parse(localProgStr) : {};
-                const mergedProg = mergeProgress(localProg, serverUser.watchProgress);
-                if (JSON.stringify(mergedProg) !== JSON.stringify(serverUser.watchProgress || {})) {
-                    pushPayload.watchProgress = mergedProg;
-                    needPush = true;
-                }
-                serverUser.watchProgress = mergedProg;
-
-                // 9. Merged Playlists
-                const localPlaylistsStr = localStorage.getItem('cinestream_playlists');
-                const localPlaylists = localPlaylistsStr ? JSON.parse(localPlaylistsStr) : [];
-                if ((!serverUser.playlists || serverUser.playlists.length === 0) && localPlaylists.length > 0) {
-                    pushPayload.playlists = localPlaylists;
-                    needPush = true;
-                }
-
-                // 10. Merged Inventory & Owned Items
+                // 9. Merged Inventory & Owned Items
                 const localItemsStr = localStorage.getItem('ap_user_items');
                 const localItems = localItemsStr ? JSON.parse(localItemsStr) : [];
                 const serverItems = serverUser.ownedItems || (serverUser.inventory ? [...(serverUser.inventory.frames || []), ...(serverUser.inventory.banners || [])] : []);
-                const mergedItems = mergeArrays(localItems, serverItems);
-                if (mergedItems.length !== (serverItems || []).length) {
+                const missingOnServer = localItems.filter(it => !serverItems.includes(it));
+                const mergedItems = Array.from(new Set([...serverItems, ...localItems]));
+                if (missingOnServer.length > 0) {
                     pushPayload.ownedItems = mergedItems;
                     needPush = true;
                 }
                 serverUser.ownedItems = mergedItems;
 
-                // 11. Daily Streak & Missions sync
-                const localStreakStr = localStorage.getItem('ap_daily_streak');
-                const localStreak = localStreakStr ? JSON.parse(localStreakStr) : null;
-                if (localStreak && !serverUser.streakData) {
-                    pushPayload.streakData = localStreak;
-                    needPush = true;
+                // 10. Daily Streak & Missions sync (STRICT DATE CHECK)
+                const localStreakStr = localStorage.getItem('ap_daily_streak_v2') || localStorage.getItem('ap_daily_streak');
+                let localStreak = null;
+                try { localStreak = localStreakStr ? JSON.parse(localStreakStr) : null; } catch (e) { }
+
+                const serverStreak = serverUser.streakData || serverUser.streak_data || (serverUser.streak_last_claimed ? { streak: serverUser.streak_current || 0, lastDate: serverUser.streak_last_claimed } : null);
+
+                if (localStreak && localStreak.lastDate) {
+                    const localTime = new Date(localStreak.lastDate).getTime();
+                    const serverTime = serverStreak && serverStreak.lastDate ? new Date(serverStreak.lastDate).getTime() : 0;
+                    if (localTime > serverTime) {
+                        serverUser.streak_current = localStreak.streak || localStreak.current || 0;
+                        serverUser.streak_last_claimed = localStreak.lastDate;
+                        serverUser.streakData = localStreak;
+                        pushPayload.streak_current = serverUser.streak_current;
+                        pushPayload.streak_last_claimed = serverUser.streak_last_claimed;
+                        pushPayload.streakData = localStreak;
+                        needPush = true;
+                    } else if (serverStreak && serverStreak.lastDate) {
+                        try { localStorage.setItem('ap_daily_streak_v2', JSON.stringify(serverStreak)); } catch (e) { }
+                    }
                 }
 
-                // Luôn cập nhật localStorage với dữ liệu đã được hợp nhất
+                // Update local storage with merged user data
                 this.saveUser(serverUser);
 
-                if (needPush) {
-                    console.log('📤 Pushing unified multi-device data to cloud database...', pushPayload);
+                if (needPush && Object.keys(pushPayload).length > 0) {
                     this.updateProfile(pushPayload).catch(e => console.warn('[AuthService] Push error:', e));
                 }
 
                 if (serverUser.playlists && typeof playlistService !== 'undefined') {
                     playlistService.syncFromProfile(serverUser.playlists);
-                }
-
-                // Broadcast realtime sync to other open tabs / windows only when data updated
-                if (needPush) {
-                    try {
-                        if (typeof BroadcastChannel !== 'undefined') {
-                            const bc = new BroadcastChannel('aphim_cloud_sync_bus');
-                            bc.postMessage({ type: 'cloud_data_synced', userId, timestamp: Date.now() });
-                            bc.close();
-                        }
-                    } catch (e) { }
                 }
 
                 // Dispatch event and update UI across current page
@@ -367,6 +351,8 @@ class AuthService {
             }
         } catch (e) {
             console.warn('[AuthService] Auto-sync profile failed', e);
+        } finally {
+            this.isSyncing = false;
         }
     }
 
@@ -421,13 +407,40 @@ class AuthService {
         if (user.level != null) {
             localStorage.setItem('cinestream_level', String(user.level));
         }
-        if (user.streak_current != null || user.streakData || user.streak_data) {
-            const stCount = Number(user.streak_current ?? user.streakData?.streak ?? user.streakData?.current ?? 0);
-            const stLast = user.streak_last_claimed || user.streakData?.lastDate || user.streakData?.lastClaimed || '';
-            const streakObj = { streak: stCount, current: stCount, lastDate: stLast };
-            localStorage.setItem('ap_daily_streak_v2', JSON.stringify(streakObj));
-            localStorage.setItem('ap_daily_streak', JSON.stringify(streakObj));
+        // Đồng bộ Streak thông minh (không ghi đè ngày hợp lệ bằng chuỗi rỗng)
+        let existingStreak = null;
+        try {
+            existingStreak = JSON.parse(localStorage.getItem('ap_daily_streak_v2') || localStorage.getItem('ap_daily_streak') || '{}');
+        } catch (e) { }
+
+        const serverStreakCount = user.streak_current ?? user.streakData?.streak ?? user.streakData?.current;
+        const serverStreakLast = user.streak_last_claimed || user.streakData?.lastDate || user.streakData?.lastClaimed;
+
+        let stLast = serverStreakLast || existingStreak?.lastDate || existingStreak?.lastClaimed || '';
+        if (existingStreak?.lastDate && (!serverStreakLast || new Date(existingStreak.lastDate) >= new Date(serverStreakLast))) {
+            stLast = existingStreak.lastDate;
         }
+
+        let stCount = Number(serverStreakCount != null ? serverStreakCount : (existingStreak?.streak ?? existingStreak?.current ?? 0));
+        if (existingStreak?.streak && existingStreak.streak > stCount && stLast === existingStreak.lastDate) {
+            stCount = Number(existingStreak.streak);
+        }
+
+        const claimedDates = Array.isArray(existingStreak?.claimedDates) && existingStreak.claimedDates.length > 0 
+            ? existingStreak.claimedDates 
+            : (stLast ? [stLast] : []);
+
+        const streakObj = {
+            streak: stCount,
+            current: stCount,
+            lastDate: stLast,
+            claimedDates: claimedDates
+        };
+        localStorage.setItem('ap_daily_streak_v2', JSON.stringify(streakObj));
+        localStorage.setItem('ap_daily_streak', JSON.stringify(streakObj));
+        user.streak_current = stCount;
+        user.streak_last_claimed = stLast;
+        user.streakData = streakObj;
         if (user.missionsData || user.missions_data) {
             localStorage.setItem('ap_daily_missions', JSON.stringify(user.missionsData || user.missions_data));
         }
@@ -794,7 +807,7 @@ class AuthService {
     isLoggedIn() {
         const u = this.getCurrentUser();
         const t = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        return !!(u && t);
+        return !!(u && (t || u.id || u.email));
     }
 
     // Get current user

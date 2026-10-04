@@ -36,7 +36,12 @@ const RANKS_DEF = [
 ];
 
 function getTodayString() {
-    return new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+}
+
+function getYesterdayString() {
+    const d = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(d);
 }
 
 function calcLevel(xp) {
@@ -122,10 +127,7 @@ router.post('/claim-streak', requireAuth, async (req, res) => {
         }
 
         // Tính streak
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
+        const yesterdayStr = getYesterdayString();
         const isConsecutive = gamif.streak_last_claimed === yesterdayStr;
         const newStreak = isConsecutive ? Math.min(gamif.streak_current + 1, 7) : 1;
         const reward = STREAK_REWARDS[newStreak - 1];

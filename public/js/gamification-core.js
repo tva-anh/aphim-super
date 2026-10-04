@@ -237,44 +237,71 @@
     // Kiểm tra Level up
     if (newLevelInfo.level > oldLevel) {
       showGamificationToast(`🎉 <strong>CHÚC MỪNG LÊN CẤP ${newLevelInfo.level}!</strong><div style="font-size:11.5px;color:#fcd576;margin-top:2px;">Danh hiệu: ${newLevelInfo.rankIcon} ${newLevelInfo.rankTitle}</div>`, 'levelup');
+      if (typeof window.createUserNotification === 'function') {
+        window.createUserNotification({
+          title: 'Chúc Mừng Thăng Cấp Danh Hiệu',
+          message: `Tài khoản của bạn đã đạt Cấp độ Lv.${newLevelInfo.level} - ${newLevelInfo.rankTitle}`,
+          detail: `Xin chúc mừng! Bạn đã tích lũy đủ XP để thăng hạng lên Cấp độ Lv.${newLevelInfo.level} (${newLevelInfo.rankIcon} ${newLevelInfo.rankTitle}). Tiếp tục xem phim và tham gia hoạt động để mở khóa các mốc danh hiệu cao quý hơn!`,
+          type: 'system'
+        });
+      }
     }
 
     return { newXP, newXu, levelInfo: newLevelInfo };
   }
 
   // ─── 4. DAILY STREAK 7 NGÀY ───
+  let isClaimingStreak = false;
+
   function getDailyStreakData() {
     let raw = {};
     try {
-      raw = JSON.parse(localStorage.getItem('ap_daily_streak_v2') || '{}');
+      raw = JSON.parse(localStorage.getItem('ap_daily_streak_v2') || localStorage.getItem('ap_daily_streak') || '{}');
     } catch (e) { }
 
     const today = getTodayString();
     const u = getUser();
-    let currentStreak = (u && u.streak_current != null) ? Number(u.streak_current) : (Number(raw.streak || raw.current) || 0);
-    const lastDate = (u && u.streak_last_claimed) ? u.streak_last_claimed : (raw.lastDate || '');
-    const claimedDates = raw.claimedDates || [];
 
-    // Kiểm tra xem hôm nay đã điểm danh chưa
-    const isClaimedToday = (lastDate === today);
+    // Lấy ngày điểm danh gần nhất từ local hoặc profile
+    let lastDate = raw.lastDate || raw.lastClaimed || (u && (u.streak_last_claimed || u.streakData?.lastDate || u.streakData?.lastClaimed)) || '';
+    
+    // Lấy chuỗi ngày hiện tại
+    let currentStreak = 0;
+    if (raw.streak != null) currentStreak = Number(raw.streak);
+    else if (raw.current != null) currentStreak = Number(raw.current);
+    else if (u && u.streak_current != null) currentStreak = Number(u.streak_current);
+    else if (u && u.streakData && (u.streakData.streak != null || u.streakData.current != null)) currentStreak = Number(u.streakData.streak ?? u.streakData.current);
 
-    // Kiểm tra xem có bị đứt chuỗi không (nếu ngày cuối cách xa hơn 1 ngày hoặc lùi ngày)
+    const claimedDates = Array.isArray(raw.claimedDates) ? raw.claimedDates : (lastDate ? [lastDate] : []);
+
+    // Kiểm tra xem hôm nay đã điểm danh chưa (so sánh chuỗi ngày chuẩn YYYY-MM-DD)
+    const isClaimedToday = Boolean(lastDate && lastDate === today);
+
+    // Kiểm tra xem có bị đứt chuỗi không (nếu ngày cuối cách xa hơn 1 ngày)
     if (lastDate && !isClaimedToday) {
-      const last = new Date(lastDate);
-      const now = new Date(today);
-      // Ép về đúng 00:00:00 để tránh sai lệch múi giờ khi so sánh
-      const lastTime = Date.UTC(last.getFullYear(), last.getMonth(), last.getDate());
-      const nowTime = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-      const diffDays = Math.round((nowTime - lastTime) / (1000 * 60 * 60 * 24));
+      try {
+        const lastParts = lastDate.split('-').map(Number);
+        const nowParts = today.split('-').map(Number);
+        const lastTime = Date.UTC(lastParts[0], lastParts[1] - 1, lastParts[2]);
+        const nowTime = Date.UTC(nowParts[0], nowParts[1] - 1, nowParts[2]);
+        const diffDays = Math.round((nowTime - lastTime) / (1000 * 60 * 60 * 24));
 
-      // Nếu không phải đúng ngày hôm sau (diffDays = 1) thì đứt chuỗi
-      if (diffDays !== 1) {
-        currentStreak = 0; // Đứt chuỗi, bắt đầu lại
-      }
+        // Nếu nghỉ quá 1 ngày (diffDays > 1) thì đứt chuỗi, trở về 0 để bắt đầu chuỗi mới
+        if (diffDays > 1) {
+          currentStreak = 0;
+        }
+      } catch (e) { }
     }
 
-    // Ngày tiếp theo cần điểm danh (1-7)
-    let nextDayIndex = isClaimedToday ? currentStreak : (currentStreak % 7) + 1;
+    // Xác định mốc ngày hiển thị trên giao diện 7 ngày (1-7)
+    let nextDayIndex = 1;
+    if (isClaimedToday) {
+      // Đã điểm danh hôm nay: highlight ngày vừa nhận
+      nextDayIndex = currentStreak <= 0 ? 1 : ((currentStreak - 1) % 7) + 1;
+    } else {
+      // Chưa điểm danh hôm nay: highlight ngày tiếp theo cần nhận
+      nextDayIndex = (currentStreak % 7) + 1;
+    }
     if (nextDayIndex > 7) nextDayIndex = 1;
 
     return {
@@ -288,6 +315,8 @@
   }
 
   function claimDailyCheckin() {
+    if (isClaimingStreak) return false;
+
     if (!isUserLoggedIn()) {
       if (window.showAuthModal) {
         window.showAuthModal('login');
@@ -297,34 +326,101 @@
       showGamificationToast('Vui lòng đăng nhập để điểm danh nhận quà!', 'error');
       return false;
     }
+
     const data = getDailyStreakData();
     if (data.isClaimedToday) {
       showGamificationToast('⚠️ Bạn đã điểm danh hôm nay rồi! Hãy quay lại vào ngày mai nhé.', 'info');
       return false;
     }
 
-    const today = getTodayString();
-    let newStreak = (data.streak % 7) + 1;
-    const reward = STREAK_REWARDS[newStreak - 1] || STREAK_REWARDS[0];
+    isClaimingStreak = true;
+    try {
+      const today = getTodayString();
+      const newStreak = (data.streak || 0) + 1;
+      const dayIndex = ((newStreak - 1) % 7);
+      const reward = STREAK_REWARDS[dayIndex] || STREAK_REWARDS[0];
 
-    const updatedData = {
-      streak: data.streak + 1,
-      lastDate: today,
-      claimedDates: [...data.claimedDates, today].slice(-30)
-    };
+      const updatedData = {
+        streak: newStreak,
+        current: newStreak,
+        lastDate: today,
+        claimedDates: [...(data.claimedDates || []).filter(d => d !== today), today].slice(-30)
+      };
 
-    localStorage.setItem('ap_daily_streak_v2', JSON.stringify(updatedData));
+      // 1. Lưu đồng thời vào cả 2 storage keys
+      localStorage.setItem('ap_daily_streak_v2', JSON.stringify(updatedData));
+      localStorage.setItem('ap_daily_streak', JSON.stringify(updatedData));
 
-    // Thưởng điểm danh 30 ngày nếu đạt mốc
-    let extraReason = `Điểm danh Ngày ${newStreak}/7 chuỗi`;
-    if (updatedData.streak % 30 === 0) {
-      addReward(150, 50, '🎁 Thưởng mốc 30 Ngày Điểm Danh Liên Tục!');
+      // 2. Cập nhật ngay vào User Object và AuthService để tránh bị saveUser đè mất
+      const u = getUser();
+      if (u) {
+        u.streak_current = newStreak;
+        u.streak_last_claimed = today;
+        u.streakData = updatedData;
+        try { localStorage.setItem('cinestream_user', JSON.stringify(u)); } catch (e) { }
+      }
+      if (typeof authService !== 'undefined' && authService.currentUser) {
+        authService.currentUser.streak_current = newStreak;
+        authService.currentUser.streak_last_claimed = today;
+        authService.currentUser.streakData = updatedData;
+      }
+
+      // 3. Thưởng Xu & XP
+      const extraReason = `Điểm danh Ngày ${dayIndex + 1}/7 chuỗi`;
+      if (newStreak % 30 === 0) {
+        addReward(150, 50, '🎁 Thưởng mốc 30 Ngày Điểm Danh Liên Tục!');
+      }
+      addReward(reward.xp, reward.xu, extraReason);
+
+      // 3.1 Ghi thông báo hoạt động vào hệ thống Thông Báo
+      if (typeof window.createUserNotification === 'function') {
+        window.createUserNotification({
+          title: 'Điểm Danh Hàng Ngày Thành Công',
+          message: `Điểm danh Ngày ${dayIndex + 1}/7 chuỗi: +${reward.xu} Xu & +${reward.xp} XP`,
+          detail: `Bạn đã hoàn thành điểm danh Ngày ${dayIndex + 1}/7 trong chuỗi liên tục (Tổng chuỗi: ${newStreak} ngày). Phần thưởng nhận được: +${reward.xu} Xu và +${reward.xp} XP đã được cộng vào tài khoản. Hãy duy trì điểm danh mỗi ngày để nhận các mốc quà tuần & rương thần tài nhé!`,
+          type: 'reward',
+          amount: reward.xu,
+          link: '/profile?tab=notifications'
+        });
+      }
+
+      // 4. Đồng bộ lên Server Backend
+      const token = localStorage.getItem('cinestream_token');
+      if (token) {
+        fetch('/api/gamification/claim-streak', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }).then(r => r.json()).then(res => {
+          if (res && res.success) {
+            console.log('[Gamification] Cloud streak synced successfully:', res);
+          }
+        }).catch(err => {
+          if (typeof authService !== 'undefined' && typeof authService.updateProfile === 'function') {
+            authService.updateProfile({
+              streak_current: newStreak,
+              streak_last_claimed: today,
+              streakData: updatedData,
+              xu: getXu(),
+              xp: getXP()
+            }).catch(() => { });
+          }
+        });
+      }
+
+      // 5. Phát sự kiện cập nhật toàn hệ thống
+      window.dispatchEvent(new CustomEvent('dailyStreakClaimed', { detail: updatedData }));
+      window.dispatchEvent(new CustomEvent('ap:user-updated', { detail: getUser() }));
+      updateHeaderChips();
+
+      return true;
+    } finally {
+      setTimeout(() => {
+        isClaimingStreak = false;
+      }, 600);
     }
-
-    addReward(reward.xp, reward.xu, extraReason);
-
-    window.dispatchEvent(new CustomEvent('dailyStreakClaimed', { detail: updatedData }));
-    return true;
   }
 
   // ─── 5. DAILY MISSIONS (NHIỆM VỤ HÀNG NGÀY) ───
@@ -418,12 +514,33 @@
 
     addReward(def.xp, def.xu, `Nhiệm vụ: ${def.title}`);
 
+    if (typeof window.createUserNotification === 'function') {
+      window.createUserNotification({
+        title: 'Hoàn Thành Nhiệm Vụ Ngày',
+        message: `Nhiệm vụ "${def.title}": +${def.xu} Xu & +${def.xp} XP`,
+        detail: `Bạn đã xuất sắc hoàn thành nhiệm vụ ngày "${def.title}" (${def.desc || ''}). Phần thưởng: +${def.xu} Xu & +${def.xp} XP đã được chuyển vào ví tài khoản của bạn.`,
+        type: 'reward',
+        amount: def.xu,
+        link: '/profile?tab=notifications'
+      });
+    }
+
     // Kiểm tra xem đã nhận hết 5 nhiệm vụ chưa để thưởng rương ngày
     const allClaimed = DAILY_MISSIONS_DEF.every(d => saved.data[d.id] && saved.data[d.id].claimed);
     if (allClaimed && !saved.allChestClaimed) {
       saved.allChestClaimed = true;
       localStorage.setItem('ap_daily_missions_v2', JSON.stringify(saved));
       addReward(80, 5, '🏆 Rương Hoàn Hảo Ngày (Hoàn thành đủ 5 nhiệm vụ)!');
+      if (typeof window.createUserNotification === 'function') {
+        window.createUserNotification({
+          title: 'Mở Khóa Rương Hoàn Hảo Ngày',
+          message: `Đạt mốc 5/5 nhiệm vụ: +5 Xu & +80 XP thưởng rương`,
+          detail: `Tuyệt vời! Bạn đã hoàn thành trọn vẹn tất cả 5 nhiệm vụ ngày hôm nay và mở khóa Rương Hoàn Hảo Ngày. Phần thưởng đặc biệt: +5 Xu & +80 XP.`,
+          type: 'reward',
+          amount: 5,
+          link: '/profile?tab=notifications'
+        });
+      }
     }
 
     window.dispatchEvent(new CustomEvent('missionsUpdated'));
@@ -724,6 +841,17 @@
     } catch (e) { }
 
     showGamificationToast(`👑 <strong>ĐỔI VIP THÀNH CÔNG!</strong><div style="font-size:12px;color:#fcd576;margin-top:3px;">+${days} Ngày VIP kích hoạt. Hạn dùng: ${curExpires.toLocaleDateString('vi-VN')}</div>`, 'reward');
+
+    if (typeof window.createUserNotification === 'function') {
+      window.createUserNotification({
+        title: 'Đổi Gói VIP Thành Công',
+        message: `Kích hoạt thành công gói VIP ${days} Ngày (-${xuCost.toLocaleString()} Xu)`,
+        detail: `Bạn đã đổi thành công gói thành viên VIP ${days} ngày với chi phí ${xuCost.toLocaleString()} Xu. Tài khoản của bạn đã được kích hoạt đầy đủ đặc quyền VIP (Xem phim không quảng cáo, độ phân giải sắc nét 4K/Full HD, mở khóa toàn bộ kho phim rạp). Hạn sử dụng: ${curExpires.toLocaleDateString('vi-VN')}.`,
+        type: 'vip',
+        amount: -xuCost,
+        link: '/profile?tab=notifications'
+      });
+    }
 
     window.dispatchEvent(new CustomEvent('gamificationUpdated'));
     return true;

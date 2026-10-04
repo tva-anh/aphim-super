@@ -228,9 +228,13 @@ function switchTab(tab) {
           const n = JSON.parse(localStorage.getItem('cinestream_watch_history') || '[]').length;
           badgeEl.textContent = `${n} bộ phim`;
           badgeEl.style.display = '';
-        } else if (tab === 'watchlist') {
-          const n = JSON.parse(localStorage.getItem('cinestream_watchlist') || '[]').length;
-          badgeEl.textContent = `${n} phim`;
+        } else if (tab === 'watchlist' || tab === 'playlists') {
+          let n = 0;
+          try {
+            if (typeof playlistService !== 'undefined') n = playlistService.getAll().length;
+            else n = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]').length;
+          } catch (e) { }
+          badgeEl.textContent = `${n} danh sách`;
           badgeEl.style.display = '';
         } else if (cfg.badge) {
           badgeEl.textContent = cfg.badge;
@@ -254,9 +258,13 @@ function switchTab(tab) {
         const n = JSON.parse(localStorage.getItem('cinestream_watch_history') || '[]').length;
         badgeEl.textContent = `${n} bộ phim`;
         badgeEl.style.display = '';
-      } else if (tab === 'watchlist') {
-        const n = JSON.parse(localStorage.getItem('cinestream_watchlist') || '[]').length;
-        badgeEl.textContent = `${n} phim`;
+      } else if (tab === 'watchlist' || tab === 'playlists') {
+        let n = 0;
+        try {
+          if (typeof playlistService !== 'undefined') n = playlistService.getAll().length;
+          else n = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]').length;
+        } catch (e) { }
+        badgeEl.textContent = `${n} danh sách`;
         badgeEl.style.display = '';
       } else if (cfg.badge) {
         badgeEl.textContent = cfg.badge;
@@ -3743,9 +3751,23 @@ function logoutOtherDevices() {
 function renderPlaylistsTab(u) {
   let playlists = [];
   try {
-    if (typeof playlistService !== 'undefined') playlists = playlistService.getAll();
+    if (typeof playlistService !== 'undefined') playlists = playlistService.getAll() || [];
     else playlists = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]');
   } catch (e) { }
+
+  if (!Array.isArray(playlists) || playlists.length === 0) {
+    try {
+      const raw = localStorage.getItem('cinestream_playlists') || localStorage.getItem('ap_playlists');
+      if (raw) playlists = JSON.parse(raw);
+    } catch(e) {}
+  }
+
+  if ((!Array.isArray(playlists) || playlists.length === 0) && u && Array.isArray(u.playlists) && u.playlists.length > 0) {
+    playlists = u.playlists;
+    try { localStorage.setItem('cinestream_playlists', JSON.stringify(playlists)); } catch(e){}
+  }
+
+  if (!Array.isArray(playlists)) playlists = [];
 
   // Check if we are viewing a specific playlist detail
   if (window._activePlaylistId) {

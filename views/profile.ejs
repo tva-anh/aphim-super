@@ -1225,14 +1225,34 @@
         border-radius: 4px;
       }
 
+      .sidebar-notif-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+        color: #ffffff !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        line-height: 20px;
+        text-align: center;
+        box-sizing: border-box;
+        box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        letter-spacing: 0.2px;
+      }
+
       .notif-card {
         display: flex;
         align-items: flex-start;
         gap: 14px;
         padding: 14px 18px;
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-left: 4px solid #6366f1;
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 14px;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
@@ -1240,37 +1260,28 @@
 
       .notif-card:hover {
         background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.15);
         transform: translateX(3px);
       }
 
       .notif-card.unread {
-        background: linear-gradient(90deg, rgba(99, 102, 241, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
+        background: linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
         border-color: rgba(99, 102, 241, 0.25);
       }
 
-      .notif-card.type-coin {
-        border-left-color: #f59e0b;
-      }
       .notif-card.type-coin.unread {
-        background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
-        border-color: rgba(245, 158, 11, 0.3);
+        background: linear-gradient(90deg, rgba(245, 158, 11, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border-color: rgba(245, 158, 11, 0.28);
       }
 
-      .notif-card.type-vip {
-        border-left-color: #ec4899;
-      }
       .notif-card.type-vip.unread {
-        background: linear-gradient(90deg, rgba(236, 72, 153, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
-        border-color: rgba(236, 72, 153, 0.3);
+        background: linear-gradient(90deg, rgba(236, 72, 153, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border-color: rgba(236, 72, 153, 0.28);
       }
 
-      .notif-card.type-movie {
-        border-left-color: #38bdf8;
-      }
       .notif-card.type-movie.unread {
-        background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
-        border-color: rgba(56, 189, 248, 0.3);
+        background: linear-gradient(90deg, rgba(56, 189, 248, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border-color: rgba(56, 189, 248, 0.28);
       }
 
       .notif-card-icon {
@@ -1431,6 +1442,169 @@
         color: #fca5a5;
       }
 
+      /* ─── NOTIFICATION PAGINATION BAR ─── */
+      .notif-pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 22px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+        flex-shrink: 0;
+        gap: 12px;
+        flex-wrap: wrap;
+        box-sizing: border-box;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+      }
+
+      .notif-page-info {
+        font-size: 12.5px;
+        color: #94a3b8;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .notif-page-info strong {
+        color: #f1f5f9;
+        font-weight: 800;
+      }
+
+      .notif-page-btns {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .notif-page-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 9px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .notif-page-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.22);
+        transform: translateY(-1px);
+      }
+
+      .notif-page-btn.active {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        border-color: #6366f1 !important;
+        color: #ffffff !important;
+        font-weight: 800;
+        box-shadow: 0 3px 12px rgba(99, 102, 241, 0.4);
+      }
+
+      .notif-page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      /* ─── NOTIFICATION DETAIL MODAL OVERLAY ─── */
+      #apNotifDetailModal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 8, 16, 0.86);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        box-sizing: border-box;
+        animation: apGamifyFadeIn .22s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .notif-modal-box {
+        background: #0e1322;
+        background-image: radial-gradient(circle at 50% -10%, rgba(99, 102, 241, 0.22) 0%, transparent 65%), radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 22px;
+        width: 100%;
+        max-width: 540px;
+        max-height: 88vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 35px rgba(99, 102, 241, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      .notif-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        gap: 12px;
+      }
+
+      .notif-modal-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .notif-meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 14px;
+        padding: 14px;
+      }
+
+      .notif-meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .notif-meta-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .notif-meta-val {
+        font-size: 12.5px;
+        font-weight: 750;
+        color: #f1f5f9;
+        word-break: break-word;
+      }
+
+      .notif-modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.25);
+        flex-wrap: wrap;
+      }
+
       /* Light mode compatibility */
       html.light-mode .notif-panel-card {
         background: #ffffff !important;
@@ -1535,6 +1709,32 @@
       }
       html.light-mode .empty-notif-title {
         color: #0f172a !important;
+      }
+      html.light-mode .notif-pagination-bar {
+        background: #f8fafc !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+        color: #475569 !important;
+      }
+      html.light-mode .notif-page-info {
+        color: #64748b !important;
+      }
+      html.light-mode .notif-page-info strong {
+        color: #0f172a !important;
+      }
+      html.light-mode .notif-page-btn {
+        background: #ffffff !important;
+        border-color: rgba(0, 0, 0, 0.09) !important;
+        color: #334155 !important;
+      }
+      html.light-mode .notif-page-btn:hover:not(:disabled) {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border-color: rgba(0, 0, 0, 0.16) !important;
+      }
+      html.light-mode .notif-page-btn.active {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        color: #ffffff !important;
+        border-color: #6366f1 !important;
       }
 
       /* ─── COMPACT DEVICE MANAGEMENT SECTION ─── */
@@ -4935,7 +5135,7 @@
                   </svg>
                 </span>
                 <span>Thông báo</span>
-                <span id="sidebarNotifBadge" style="display:none;margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#ef4444;color:#ffffff;font-size:10px;font-weight:700;line-height:18px;text-align:center;box-sizing:border-box;"></span>
+                <span id="sidebarNotifBadge" class="sidebar-notif-pill" style="display:none;"></span>
               </button>
               <button class="sidebar-nav-item" id="snav-shop" onclick="switchTab('shop')">
                 <span class="nav-icon-badge">
@@ -5328,7 +5528,7 @@
           shop: { title: 'Cửa hàng VIP APhim', sub: 'Đổi Xu lấy gói VIP Premium, vật phẩm & quà tặng', badge: 'Cửa hàng VIP' },
           favorites: { title: 'Bộ sưu tập Yêu thích', sub: 'Danh sách các bộ phim bạn đã lưu', badge: '' },
           history: { title: 'Lịch sử xem phim', sub: 'Các bộ phim bạn đã theo dõi gần đây', badge: '' },
-          watchlist: { title: 'Danh sách phát sau', sub: 'Phim đã thêm để dành thời gian xem sau', badge: '' },
+          watchlist: { title: 'Danh sách phát', sub: 'Quản lý các danh sách phát và phim đã lưu của bạn', badge: '' },
           cinema: { title: 'Lịch chiếu rạp Quốc Gia', sub: 'Phim đang và sắp chiếu tại các cụm rạp', badge: 'Cập nhật 2026' },
           achievements: { title: 'Thành tựu & Huy hiệu', sub: 'Danh hiệu và mốc thành tích xem phim của bạn', badge: 'Bảng Vàng' },
           settings: { title: 'Cài đặt tiện ích', sub: 'Tùy chỉnh trải nghiệm xem phim', badge: '' },
@@ -5370,9 +5570,13 @@
                 const n = JSON.parse(localStorage.getItem('cinestream_watch_history') || '[]').length;
                 badgeEl.textContent = `${n} bộ phim`;
                 badgeEl.style.display = '';
-              } else if (tab === 'watchlist') {
-                const n = JSON.parse(localStorage.getItem('cinestream_watchlist') || '[]').length;
-                badgeEl.textContent = `${n} phim`;
+              } else if (tab === 'watchlist' || tab === 'playlists') {
+                let n = 0;
+                try {
+                  if (typeof playlistService !== 'undefined') n = playlistService.getAll().length;
+                  else n = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]').length;
+                } catch (e) { }
+                badgeEl.textContent = `${n} danh sách`;
                 badgeEl.style.display = '';
               } else if (cfg.badge) {
                 badgeEl.textContent = cfg.badge;
@@ -5400,9 +5604,13 @@
               const n = JSON.parse(localStorage.getItem('cinestream_watch_history') || '[]').length;
               badgeEl.textContent = `${n} bộ phim`;
               badgeEl.style.display = '';
-            } else if (tab === 'watchlist') {
-              const n = JSON.parse(localStorage.getItem('cinestream_watchlist') || '[]').length;
-              badgeEl.textContent = `${n} phim`;
+            } else if (tab === 'watchlist' || tab === 'playlists') {
+              let n = 0;
+              try {
+                if (typeof playlistService !== 'undefined') n = playlistService.getAll().length;
+                else n = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]').length;
+              } catch (e) { }
+              badgeEl.textContent = `${n} danh sách`;
               badgeEl.style.display = '';
             } else if (cfg.badge) {
               badgeEl.textContent = cfg.badge;
@@ -8892,6 +9100,18 @@
           showToast(`🎉 Mua và trang bị "${vnName}" thành công!`, 'success');
         }
 
+        if (typeof window.createUserNotification === 'function') {
+          const categoryName = cat === 'frame' ? 'Khung Avatar' : (cat === 'banner' ? 'Ảnh Bìa Profile' : 'Vật phẩm');
+          window.createUserNotification({
+            title: 'Mua Vật Phẩm Cửa Hàng Thành Công',
+            message: `Mua "${vnName}" (-${price.toLocaleString()} Xu)`,
+            detail: `Bạn đã thanh toán thành công ${price.toLocaleString()} Xu để mua "${vnName}" (${categoryName}). Vật phẩm đã được lưu trữ vĩnh viễn trong Túi đồ cá nhân và tự động trang bị hiển thị trên hồ sơ của bạn. Số dư ví còn lại: ${currentXu.toLocaleString()} Xu.`,
+            type: 'shop',
+            amount: -price,
+            link: '/profile?tab=notifications'
+          });
+        }
+
         // Auto equip after buy
         equipShopItem(cat, id);
       }
@@ -8954,6 +9174,17 @@
             bc.close();
           }
         } catch(e) {}
+
+        if (typeof window.createUserNotification === 'function') {
+          window.createUserNotification({
+            title: 'Mua Vật Phẩm Cửa Hàng Thành Công',
+            message: `Đổi thành công "${vnTitle}" (-${price.toLocaleString()} Xu)`,
+            detail: `Bạn đã thanh toán thành công ${price.toLocaleString()} Xu để mua "${vnTitle}". Vật phẩm đã được bổ sung vào Túi đồ của bạn. Số dư ví hiện tại: ${currentXu.toLocaleString()} Xu.`,
+            type: 'shop',
+            amount: -price,
+            link: '/profile?tab=notifications'
+          });
+        }
 
         if (typeof showCustomAlert === 'function') {
           showCustomAlert(`🎉 Chúc mừng! Bạn đã đổi thành công <b>"${vnTitle}"</b>.<br><span style="color:#fcd576;font-weight:700;">Số dư Xu còn lại: ${currentXu.toLocaleString()} Xu</span>`, 'success');
@@ -9927,9 +10158,23 @@
       function renderPlaylistsTab(u) {
         let playlists = [];
         try {
-          if (typeof playlistService !== 'undefined') playlists = playlistService.getAll();
+          if (typeof playlistService !== 'undefined') playlists = playlistService.getAll() || [];
           else playlists = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]');
         } catch (e) { }
+
+        if (!Array.isArray(playlists) || playlists.length === 0) {
+          try {
+            const raw = localStorage.getItem('cinestream_playlists') || localStorage.getItem('ap_playlists');
+            if (raw) playlists = JSON.parse(raw);
+          } catch(e) {}
+        }
+
+        if ((!Array.isArray(playlists) || playlists.length === 0) && u && Array.isArray(u.playlists) && u.playlists.length > 0) {
+          playlists = u.playlists;
+          try { localStorage.setItem('cinestream_playlists', JSON.stringify(playlists)); } catch(e){}
+        }
+
+        if (!Array.isArray(playlists)) playlists = [];
 
         // Check if we are viewing a specific playlist detail
         if (window._activePlaylistId) {
@@ -10874,9 +11119,11 @@
     `;
       }
 
-      // ─── NOTIFICATIONS SUITE (ENTERPRISE DESIGN) ───
+      // ─── NOTIFICATIONS SUITE (ENTERPRISE DESIGN & PAGINATION) ───
       let activeProfileNotifFilter = 'all';
       let profileNotifSearchQuery = '';
+      let profileNotifCurrentPage = 1;
+      const PROFILE_NOTIFS_PER_PAGE = 8;
 
       function getStoredProfileNotifications() {
         let notifs = [];
@@ -10891,18 +11138,14 @@
           }
         } catch (e) { }
 
-        // Purge any leftover mock test notifications
+        // Clean & validate notifications
         if (Array.isArray(notifs)) {
           const cleanNotifs = notifs.filter(n => {
             if (!n) return false;
             const id = String(n.id || n._id || '');
-            if (id.startsWith('notif_') || id === '1' || id === '2' || id === '3') return false;
+            if (id === '1' || id === '2' || id === '3') return false;
             const text = `${n.title || ''} ${n.content || ''} ${n.message || ''}`;
-            if (text.includes('50.000') || text.includes('50,000')) return false;
-            if (text.includes('Chào mừng bạn gia nhập APhim Super VIP')) return false;
-            if (text.includes('Bom tấn rạp 2026')) return false;
-            if (text.includes('Đặc quyền Thành viên VIP đã kích hoạt')) return false;
-            if (text.includes('Bảo vệ tài khoản & Trung tâm dữ liệu')) return false;
+            if (text.includes('Chào mừng bạn gia nhập APhim Super VIP') && !n.createdAt) return false;
             return true;
           });
           if (cleanNotifs.length !== notifs.length) {
@@ -10925,6 +11168,9 @@
           if (uid) localStorage.setItem(`ap_notifs_${uid}`, JSON.stringify(notifs));
         } catch (e) { }
         updateProfileNotifBadge();
+        try {
+          window.dispatchEvent(new CustomEvent('ap:notifications-updated', { detail: notifs }));
+        } catch(e) {}
       }
 
       function updateProfileNotifBadge() {
@@ -10945,6 +11191,12 @@
         if (headerBadge && typeof currentTab !== 'undefined' && currentTab === 'notifications') {
           headerBadge.textContent = unreadCount > 0 ? `${unreadCount} thông báo mới` : 'Đã đọc tất cả';
         }
+        if (typeof updateNotifBadge === 'function') {
+          updateNotifBadge();
+        }
+        if (typeof renderNotifications === 'function') {
+          renderNotifications();
+        }
       }
 
       function formatNotifTime(dateVal) {
@@ -10964,6 +11216,19 @@
         return `${hours}:${mins} ${day}/${month}/${year}`;
       }
 
+      function formatNotifFullTime(dateVal) {
+        if (!dateVal) return 'Vừa xong';
+        let d = new Date(dateVal);
+        if (isNaN(d.getTime())) return dateVal;
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        const hours = String(d.getHours()).padStart(2, '0');
+        const mins = String(d.getMinutes()).padStart(2, '0');
+        const secs = String(d.getSeconds()).padStart(2, '0');
+        return `${hours}:${mins}:${secs} - Ngày ${day}/${month}/${year}`;
+      }
+
       function getNotifMeta(type) {
         switch (type) {
           case 'coin':
@@ -10977,6 +11242,17 @@
               iconBorder: 'rgba(245, 158, 11, 0.35)',
               iconColor: '#f59e0b',
               iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 7v10"/><path d="M9.5 9.5h5"/></svg>`
+            };
+          case 'shop':
+          case 'purchase':
+            return {
+              tag: 'MUA SẮM VẬT PHẨM',
+              tagClass: 'coin',
+              cardClass: 'type-coin',
+              iconBg: 'rgba(251, 191, 36, 0.15)',
+              iconBorder: 'rgba(251, 191, 36, 0.35)',
+              iconColor: '#fbbf24',
+              iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`
             };
           case 'vip':
           case 'promotion':
@@ -11020,15 +11296,17 @@
 
         let ctaButton = '';
         if (n.type === 'coin' || n.type === 'reward') {
-          ctaButton = `<button onclick="switchTab('shop')" class="notif-btn-cta coin">🛒 Đến Cửa Hàng VIP</button>`;
+          ctaButton = `<button onclick="event.stopPropagation(); switchTab('shop');" class="notif-btn-cta coin">Đến Cửa Hàng VIP</button>`;
+        } else if (n.type === 'shop' || n.type === 'purchase') {
+          ctaButton = `<button onclick="event.stopPropagation(); switchTab('shop');" class="notif-btn-cta coin">Xem Tủ Đồ</button>`;
         } else if (n.type === 'movie') {
-          ctaButton = `<a href="/" class="notif-btn-cta movie">🎬 Khám Phá Phim Ngay</a>`;
+          ctaButton = `<a href="/" onclick="event.stopPropagation();" class="notif-btn-cta movie">Khám Phá Phim Ngay</a>`;
         } else if (n.type === 'vip') {
-          ctaButton = `<button onclick="openGamificationModal('streak')" class="notif-btn-cta vip">👑 Nhận Đặc Quyền</button>`;
+          ctaButton = `<button onclick="event.stopPropagation(); openGamificationModal('streak');" class="notif-btn-cta vip">Nhận Đặc Quyền</button>`;
         }
 
         return `
-          <div class="notif-card ${meta.cardClass} ${isUnread ? 'unread' : 'read'}" id="notif-card-${notifId}">
+          <div class="notif-card ${meta.cardClass} ${isUnread ? 'unread' : 'read'}" id="notif-card-${notifId}" onclick="openProfileNotifDetail('${notifId}')" style="cursor: pointer;" title="Bấm vào để xem chi tiết thông báo">
             <div class="notif-card-icon" style="background:${meta.iconBg}; border:1px solid ${meta.iconBorder}; color:${meta.iconColor};">
               ${meta.iconSvg}
               ${isUnread ? '<div class="notif-card-pulse"></div>' : ''}
@@ -11048,10 +11326,10 @@
               <div class="notif-card-footer">
                 <div>${ctaButton}</div>
                 <div class="notif-card-ops">
-                  <button onclick="toggleProfileNotifRead('${notifId}')" class="notif-btn-op" title="${isUnread ? 'Đánh dấu đã đọc' : 'Đánh dấu chưa đọc'}">
+                  <button onclick="event.stopPropagation(); toggleProfileNotifRead('${notifId}');" class="notif-btn-op" title="${isUnread ? 'Đánh dấu đã đọc' : 'Đánh dấu chưa đọc'}">
                     ${isUnread ? '✓ Đã đọc' : 'Chưa đọc'}
                   </button>
-                  <button onclick="deleteProfileNotif('${notifId}')" class="notif-btn-op delete" title="Xóa thông báo">
+                  <button onclick="event.stopPropagation(); deleteProfileNotif('${notifId}');" class="notif-btn-op delete" title="Xóa thông báo">
                     ✕
                   </button>
                 </div>
@@ -11068,7 +11346,7 @@
         const allNotifs = getStoredProfileNotifications();
         const total = allNotifs.length;
         const unreadCount = allNotifs.filter(n => !n.read && !n.isRead).length;
-        const coinCount = allNotifs.filter(n => n.type === 'coin' || n.type === 'reward' || n.type === 'success').length;
+        const coinCount = allNotifs.filter(n => n.type === 'coin' || n.type === 'reward' || n.type === 'success' || n.type === 'shop' || n.type === 'purchase').length;
         const movieCount = allNotifs.filter(n => n.type === 'movie').length;
         const systemCount = allNotifs.filter(n => n.type === 'vip' || n.type === 'system' || n.type === 'admin').length;
 
@@ -11076,21 +11354,30 @@
         let filtered = allNotifs.filter(n => {
           const isUnread = !n.read && !n.isRead;
           if (filter === 'unread' && !isUnread) return false;
-          if (filter === 'coin' && !(n.type === 'coin' || n.type === 'reward' || n.type === 'success')) return false;
+          if (filter === 'coin' && !(n.type === 'coin' || n.type === 'reward' || n.type === 'success' || n.type === 'shop' || n.type === 'purchase')) return false;
           if (filter === 'movie' && n.type !== 'movie') return false;
           if (filter === 'system' && !(n.type === 'vip' || n.type === 'system' || n.type === 'admin')) return false;
           
           if (search) {
             const q = search.toLowerCase();
             const titleMatch = (n.title || '').toLowerCase().includes(q);
-            const contentMatch = (n.content || n.message || '').toLowerCase().includes(q);
+            const contentMatch = (n.content || n.message || n.detail || '').toLowerCase().includes(q);
             return titleMatch || contentMatch;
           }
           return true;
         });
 
-        const listHtml = filtered.length > 0
-          ? filtered.map(n => renderNotifCard(n)).join('')
+        // Calculate pagination
+        const totalPages = Math.max(1, Math.ceil(filtered.length / PROFILE_NOTIFS_PER_PAGE));
+        if (profileNotifCurrentPage > totalPages) profileNotifCurrentPage = totalPages;
+        if (profileNotifCurrentPage < 1) profileNotifCurrentPage = 1;
+
+        const startIndex = (profileNotifCurrentPage - 1) * PROFILE_NOTIFS_PER_PAGE;
+        const endIndex = Math.min(startIndex + PROFILE_NOTIFS_PER_PAGE, filtered.length);
+        const pagedNotifs = filtered.slice(startIndex, endIndex);
+
+        const listHtml = pagedNotifs.length > 0
+          ? pagedNotifs.map(n => renderNotifCard(n)).join('')
           : `
             <div class="empty-state" style="min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;">
               <div style="width:68px;height:68px;border-radius:20px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#818cf8;">
@@ -11110,8 +11397,46 @@
             </div>
           `;
 
+        // Generate pagination buttons
+        let pageBtnsHtml = '';
+        if (totalPages > 1) {
+          pageBtnsHtml += `
+            <button class="notif-page-btn" onclick="changeProfileNotifPage(1)" ${profileNotifCurrentPage === 1 ? 'disabled' : ''} title="Trang đầu">«</button>
+            <button class="notif-page-btn" onclick="changeProfileNotifPage(${profileNotifCurrentPage - 1})" ${profileNotifCurrentPage === 1 ? 'disabled' : ''} title="Trang trước">‹</button>
+          `;
+
+          let startP = Math.max(1, profileNotifCurrentPage - 2);
+          let endP = Math.min(totalPages, profileNotifCurrentPage + 2);
+          if (endP - startP < 4) {
+            if (startP === 1) endP = Math.min(totalPages, startP + 4);
+            else if (endP === totalPages) startP = Math.max(1, endP - 4);
+          }
+
+          for (let p = startP; p <= endP; p++) {
+            pageBtnsHtml += `
+              <button class="notif-page-btn ${p === profileNotifCurrentPage ? 'active' : ''}" onclick="changeProfileNotifPage(${p})">
+                ${p}
+              </button>
+            `;
+          }
+
+          pageBtnsHtml += `
+            <button class="notif-page-btn" onclick="changeProfileNotifPage(${profileNotifCurrentPage + 1})" ${profileNotifCurrentPage === totalPages ? 'disabled' : ''} title="Trang sau">›</button>
+            <button class="notif-page-btn" onclick="changeProfileNotifPage(${totalPages})" ${profileNotifCurrentPage === totalPages ? 'disabled' : ''} title="Trang cuối">»</button>
+          `;
+        }
+
+        const paginationBarHtml = filtered.length > 0 ? `
+          <div class="notif-pagination-bar">
+            <div class="notif-page-info">
+              Hiển thị <strong>${filtered.length > 0 ? startIndex + 1 : 0}</strong> - <strong>${endIndex}</strong> trên <strong>${filtered.length}</strong> thông báo
+            </div>
+            ${totalPages > 1 ? `<div class="notif-page-btns">${pageBtnsHtml}</div>` : ''}
+          </div>
+        ` : '';
+
         return `
-          <div class="panel-card notif-panel-card">
+          <div class="panel-card notif-panel-card" style="display:flex; flex-direction:column; min-height:520px;">
             <!-- KPI Summary Header -->
             <div class="notif-kpi-bar">
               <div class="notif-kpi-item">
@@ -11148,7 +11473,7 @@
                   </svg>
                 </div>
                 <div class="notif-kpi-info">
-                  <span class="notif-kpi-label">Xu & Quà Tặng</span>
+                  <span class="notif-kpi-label">Xu & Giao dịch</span>
                   <div class="notif-kpi-val gold" id="kpiCoinNotifs">${coinCount}</div>
                 </div>
               </div>
@@ -11164,7 +11489,7 @@
                   Chưa đọc <span class="notif-tab-badge unread-badge">${unreadCount}</span>
                 </button>
                 <button class="notif-filter-tab ${filter === 'coin' ? 'active' : ''}" onclick="filterProfileNotifs('coin', this)">
-                  Xu & Quà <span class="notif-tab-badge">${coinCount}</span>
+                  Xu & Giao dịch <span class="notif-tab-badge">${coinCount}</span>
                 </button>
                 <button class="notif-filter-tab ${filter === 'movie' ? 'active' : ''}" onclick="filterProfileNotifs('movie', this)">
                   Phim mới <span class="notif-tab-badge">${movieCount}</span>
@@ -11194,15 +11519,29 @@
             </div>
 
             <!-- List Container -->
-            <div class="notif-list-container" id="profileNotifList">
+            <div class="notif-list-container" id="profileNotifList" style="flex:1;">
               ${listHtml}
             </div>
+
+            <!-- Pagination Bar -->
+            ${paginationBarHtml}
           </div>
         `;
       }
 
+      function changeProfileNotifPage(page) {
+        profileNotifCurrentPage = page;
+        const panel = document.getElementById('tabPanel');
+        if (panel) {
+          panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
+          const list = document.getElementById('profileNotifList');
+          if (list) list.scrollTop = 0;
+        }
+      }
+
       function filterProfileNotifs(category, btn) {
         activeProfileNotifFilter = category;
+        profileNotifCurrentPage = 1;
         const panel = document.getElementById('tabPanel');
         if (panel) {
           panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
@@ -11211,33 +11550,15 @@
 
       function onSearchProfileNotifs(query) {
         profileNotifSearchQuery = (query || '').trim();
-        const listContainer = document.getElementById('profileNotifList');
-        if (!listContainer) return;
-        
-        const allNotifs = getStoredProfileNotifications();
-        let filtered = allNotifs.filter(n => {
-          const isUnread = !n.read && !n.isRead;
-          if (activeProfileNotifFilter === 'unread' && !isUnread) return false;
-          if (activeProfileNotifFilter === 'coin' && !(n.type === 'coin' || n.type === 'reward' || n.type === 'success')) return false;
-          if (activeProfileNotifFilter === 'movie' && n.type !== 'movie') return false;
-          if (activeProfileNotifFilter === 'system' && !(n.type === 'vip' || n.type === 'system' || n.type === 'admin')) return false;
-          
-          if (profileNotifSearchQuery) {
-            const q = profileNotifSearchQuery.toLowerCase();
-            return (n.title || '').toLowerCase().includes(q) || (n.content || n.message || '').toLowerCase().includes(q);
+        profileNotifCurrentPage = 1;
+        const panel = document.getElementById('tabPanel');
+        if (panel) {
+          panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
+          const input = document.getElementById('notifSearchInput');
+          if (input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
           }
-          return true;
-        });
-
-        if (filtered.length > 0) {
-          listContainer.innerHTML = filtered.map(n => renderNotifCard(n)).join('');
-        } else {
-          listContainer.innerHTML = `
-            <div class="empty-state" style="min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">
-              <div style="font-size:15px;font-weight:700;color:#ffffff;margin-bottom:4px;">Không tìm thấy thông báo</div>
-              <div style="font-size:12.5px;color:#64748b;">Không có kết quả nào cho "${profileNotifSearchQuery}".</div>
-            </div>
-          `;
         }
       }
 
@@ -11289,6 +11610,7 @@
           return;
         }
         saveStoredProfileNotifications(unreadOnly);
+        profileNotifCurrentPage = 1;
         const panel = document.getElementById('tabPanel');
         if (panel) {
           panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
@@ -11297,6 +11619,141 @@
           showToast('Đã dọn dẹp các thông báo đã đọc', 'success');
         }
       }
+
+      // ─── ENTERPRISE NOTIFICATION DETAIL MODAL ───
+      function openProfileNotifDetail(id) {
+        let notifs = getStoredProfileNotifications();
+        const item = notifs.find(n => (n.id == id || n._id == id));
+        if (!item) return;
+
+        // Auto mark as read
+        if (!item.read) {
+          item.read = true;
+          item.isRead = true;
+          saveStoredProfileNotifications(notifs);
+          updateProfileNotifBadge();
+          const cardEl = document.getElementById(`notif-card-${id}`);
+          if (cardEl) {
+            cardEl.classList.remove('unread');
+            cardEl.classList.add('read');
+            const pulse = cardEl.querySelector('.notif-card-pulse');
+            if (pulse) pulse.remove();
+          }
+        }
+
+        const meta = getNotifMeta(item.type);
+        const fullTime = formatNotifFullTime(item.createdAt || item.date);
+        const notifCode = String(item.id || item._id || '').toUpperCase();
+
+        let amountHtml = '';
+        if (item.amount) {
+          const isPositive = String(item.amount).startsWith('+') || Number(item.amount) > 0;
+          const amtTxt = typeof item.amount === 'number' ? (item.amount > 0 ? `+${item.amount}` : item.amount) : item.amount;
+          amountHtml = `
+            <div class="notif-meta-item">
+              <span class="notif-meta-label">Biến động số dư</span>
+              <span class="notif-meta-val" style="color:${isPositive ? '#22c55e' : '#f59e0b'}; font-size:14px;">${amtTxt} Xu</span>
+            </div>
+          `;
+        }
+
+        let ctaBtn = '';
+        if (item.type === 'coin' || item.type === 'reward') {
+          ctaBtn = `<button onclick="closeProfileNotifDetail(); switchTab('shop');" class="btn-primary" style="padding:8px 16px; font-size:12px;">Đến Cửa Hàng VIP</button>`;
+        } else if (item.type === 'shop' || item.type === 'purchase') {
+          ctaBtn = `<button onclick="closeProfileNotifDetail(); switchTab('shop');" class="btn-primary" style="padding:8px 16px; font-size:12px;">Xem Tủ Đồ</button>`;
+        } else if (item.type === 'movie') {
+          ctaBtn = `<a href="/" onclick="closeProfileNotifDetail();" class="btn-primary" style="padding:8px 16px; font-size:12px; text-decoration:none;">Khám Phá Phim Ngay</a>`;
+        } else if (item.type === 'vip') {
+          ctaBtn = `<button onclick="closeProfileNotifDetail(); openGamificationModal('streak');" class="btn-primary" style="padding:8px 16px; font-size:12px;">Xem Gói VIP</button>`;
+        }
+
+        let modal = document.getElementById('apNotifDetailModal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'apNotifDetailModal';
+          document.body.appendChild(modal);
+        }
+
+        modal.onclick = (e) => {
+          if (e.target === modal) closeProfileNotifDetail();
+        };
+
+        modal.innerHTML = `
+          <div class="notif-modal-box">
+            <!-- Modal Header -->
+            <div class="notif-modal-header">
+              <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                <div class="notif-card-icon" style="background:${meta.iconBg}; border:1px solid ${meta.iconBorder}; color:${meta.iconColor}; width:38px; height:38px;">
+                  ${meta.iconSvg}
+                </div>
+                <div style="min-width:0;">
+                  <span class="notif-tag ${meta.tagClass}">${meta.tag}</span>
+                  <div style="font-size:15.5px; font-weight:800; color:#ffffff; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${item.title || 'Chi tiết thông báo'}
+                  </div>
+                </div>
+              </div>
+              <button onclick="closeProfileNotifDetail()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); width:32px; height:32px; border-radius:9px; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="notif-modal-body">
+              <!-- Message Details -->
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px;">
+                <div style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:8px; letter-spacing:0.5px;">Nội dung chi tiết</div>
+                <div style="font-size:14px; color:#f1f5f9; line-height:1.6; word-break:break-word;">
+                  ${item.detail || item.content || item.message || 'Không có thông tin chi tiết.'}
+                </div>
+              </div>
+
+              <!-- Metadata Grid -->
+              <div class="notif-meta-grid">
+                <div class="notif-meta-item">
+                  <span class="notif-meta-label">Thời gian giao dịch</span>
+                  <span class="notif-meta-val">${fullTime}</span>
+                </div>
+                <div class="notif-meta-item">
+                  <span class="notif-meta-label">Loại hoạt động</span>
+                  <span class="notif-meta-val" style="color:${meta.iconColor};">${meta.tag}</span>
+                </div>
+                ${amountHtml}
+                <div class="notif-meta-item">
+                  <span class="notif-meta-label">Mã giao dịch</span>
+                  <span class="notif-meta-val" style="font-family:monospace; color:#94a3b8;">#${notifCode.slice(-10)}</span>
+                </div>
+                <div class="notif-meta-item">
+                  <span class="notif-meta-label">Trạng thái</span>
+                  <span class="notif-meta-val" style="color:#22c55e;">✓ Đã ghi nhận hệ thống</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="notif-modal-footer">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button onclick="toggleProfileNotifRead('${item.id || item._id}'); closeProfileNotifDetail();" class="notif-btn-op" style="padding:7px 12px; font-size:12px;">
+                  Đánh dấu chưa đọc
+                </button>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                ${ctaBtn}
+                <button onclick="closeProfileNotifDetail()" class="btn-secondary" style="padding:8px 16px; font-size:12px;">Đóng</button>
+              </div>
+            </div>
+          </div>
+        `;
+        modal.style.display = 'flex';
+      }
+
+      function closeProfileNotifDetail() {
+        const modal = document.getElementById('apNotifDetailModal');
+        if (modal) modal.style.display = 'none';
+      }
+
+      window.openProfileNotifDetail = openProfileNotifDetail;
+      window.closeProfileNotifDetail = closeProfileNotifDetail;
+      window.changeProfileNotifPage = changeProfileNotifPage;
 
       // ─── ENTERPRISE EMPTY STATE RENDERER ───
       function renderEmpty(title, sub, type) {
@@ -11516,6 +11973,23 @@
       }
 
       function removeWl(slug) {
+        if (window._activePlaylistId) {
+          try {
+            if (typeof playlistService !== 'undefined') {
+              playlistService.removeMovie(window._activePlaylistId, slug);
+            } else {
+              let playlists = JSON.parse(localStorage.getItem('cinestream_playlists') || '[]');
+              const pl = playlists.find(p => p.id === window._activePlaylistId);
+              if (pl) {
+                pl.movies = (pl.movies || []).filter(m => (m.slug || m.id) !== slug);
+                localStorage.setItem('cinestream_playlists', JSON.stringify(playlists));
+              }
+            }
+            if (typeof showToast === 'function') showToast('Đã xóa phim khỏi danh sách phát', 'info');
+            renderTab('watchlist');
+            return;
+          } catch(e) {}
+        }
         let wl = [];
         try { wl = JSON.parse(localStorage.getItem('cinestream_watchlist') || '[]'); } catch (e) { }
         wl = wl.filter(w => (w.slug || w.id) !== slug);
@@ -12257,6 +12731,15 @@
           try { savedTab = sessionStorage.getItem('aphim_active_profile_tab'); } catch(e){}
           
           let tab = urlParams.get('tab');
+          const notifId = urlParams.get('notifId');
+          if (notifId) {
+            tab = 'notifications';
+            setTimeout(() => {
+              if (typeof openProfileNotifDetail === 'function') {
+                openProfileNotifDetail(notifId);
+              }
+            }, 300);
+          }
           const path = window.location.pathname.toLowerCase();
           if (!tab) {
             if (path.includes('lich-su')) tab = 'history';
@@ -12334,6 +12817,9 @@
       window.markAllProfileNotifsRead = markAllProfileNotifsRead;
       window.clearReadProfileNotifs = clearReadProfileNotifs;
       window.updateProfileNotifBadge = updateProfileNotifBadge;
+      window.openProfileNotifDetail = openProfileNotifDetail;
+      window.closeProfileNotifDetail = closeProfileNotifDetail;
+      window.changeProfileNotifPage = changeProfileNotifPage;
 
       // Tự động làm mới khi danh sách yêu thích được cập nhật từ bất kỳ đâu
       window.addEventListener('favoritesUpdated', function(e) {
@@ -12361,6 +12847,27 @@
           const badgeEl = document.getElementById('headerBadge');
           if (badgeEl && currentTab === 'history') badgeEl.textContent = `${count} bộ phim`;
         } catch(err) {}
+      });
+
+      // Tự động làm mới khi danh sách phát được tạo / cập nhật / thêm phim từ bất kỳ đâu
+      window.addEventListener('ap:playlists-updated', function(e) {
+        if (typeof currentTab !== 'undefined' && (currentTab === 'watchlist' || currentTab === 'playlists')) {
+          renderTab('watchlist');
+        }
+        try {
+          const playlists = (e.detail && Array.isArray(e.detail)) ? e.detail : (typeof playlistService !== 'undefined' ? playlistService.getAll() : JSON.parse(localStorage.getItem('cinestream_playlists') || '[]'));
+          const count = (playlists && Array.isArray(playlists)) ? playlists.length : 0;
+          const badgeEl = document.getElementById('headerBadge');
+          if (badgeEl && (currentTab === 'watchlist' || currentTab === 'playlists')) badgeEl.textContent = `${count} danh sách`;
+        } catch(err) {}
+      });
+
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'cinestream_playlists' || e.key === 'ap_playlists') {
+          if (typeof currentTab !== 'undefined' && (currentTab === 'watchlist' || currentTab === 'playlists')) {
+            renderTab('watchlist');
+          }
+        }
       });
 
       // Lắng nghe Cloud Sync để tự động render lại tab hiện tại & sidebar
@@ -12423,8 +12930,8 @@
       });
     </script>
 
-    <script src="/js/user.js?v=205" defer></script>
-    <script src="/js/playlist-service.js?v=210" defer></script>
-    <script src="/js/playlist-modal.js?v=210" defer></script>
+    <script src="/js/user.js?v=206" defer></script>
+    <script src="/js/playlist-service.js?v=215" defer></script>
+    <script src="/js/playlist-modal.js?v=215" defer></script>
 
     <%- include('partials/footer') %>
