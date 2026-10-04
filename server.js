@@ -488,14 +488,14 @@ app.get('/api/comments/home-showcase', async (req, res) => {
         };
 
         const DISCORD_DECORATION_PRESETS = [
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_0e839cd79500e7b68e2bbbed54790c28.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_001e956faa73bd0410c455234c62818f.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_1acbe609daec21fa5b866df9e5a42cb7.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_3c97a2d37f433a7913a1c7b7a735d000.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_777b7aa8e77a569766e4a2e2bf656f4e.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_b77d61247d4e3efdbe149a4e0a7df844.png?size=240&passthrough=true',
-            'https://cdn.discordapp.com/avatar-decoration-presets/a_8679f2fe4ceca1b239ebca2021fb4bfb.png?size=240&passthrough=true'
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0e839cd79500e7b68e2bbbed54790c28.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_001e956faa73bd0410c455234c62818f.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_1acbe609daec21fa5b866df9e5a42cb7.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_3c97a2d37f433a7913a1c7b7a735d000.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_777b7aa8e77a569766e4a2e2bf656f4e.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_b77d61247d4e3efdbe149a4e0a7df844.png',
+            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_8679f2fe4ceca1b239ebca2021fb4bfb.png'
         ];
 
         const KNOWN_MOVIE_NAMES = {

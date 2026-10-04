@@ -4,6 +4,17 @@
  * - Chưa đăng nhập: KHÔNG thay gì cả, để button gốc với onclick/auth-modal.js xử lý
  */
 
+function sanitizeFrameUrl(inputUrl) {
+    if (!inputUrl || typeof inputUrl !== 'string') return inputUrl;
+    if (inputUrl.includes('cdn.discordapp.com') || inputUrl.includes('aphim-super@cdn-frames') || inputUrl.includes('/images/frames/')) {
+        const m = inputUrl.match(/a_[a-f0-9]{32}/i);
+        if (m) {
+            return `https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/${m[0]}.png`;
+        }
+    }
+    return inputUrl;
+}
+
 function getEquippedFrameInfo(u) {
     const frameId = (u && u.equippedFrame) || localStorage.getItem('ap_frame_id') || localStorage.getItem('ap_equipped_frame') || '';
     if (!frameId || frameId === 'frame_none' || frameId === 'none') {
@@ -30,6 +41,11 @@ function getEquippedFrameInfo(u) {
     }
 
     if (url && (url.startsWith('http') || url.startsWith('data:'))) {
+        url = sanitizeFrameUrl(url);
+        try {
+            if (localStorage.getItem('ap_frame_url')) localStorage.setItem('ap_frame_url', url);
+            if (localStorage.getItem('ap_equipped_frame_url')) localStorage.setItem('ap_equipped_frame_url', url);
+        } catch(e) {}
         return { type: 'url', value: url };
     }
 

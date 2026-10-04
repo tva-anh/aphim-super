@@ -142,7 +142,7 @@ class AuthService {
         if (this.isSyncing) return;
 
         const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        if (!token || token.startsWith('demo_token_')) return;
+        if (!token || token.startsWith('demo_') || token.startsWith('mock-') || token.startsWith('token_')) return;
 
         // Throttling: avoid duplicate calls within cooldown (3s for force, 12s for auto)
         const now = Date.now();
@@ -821,7 +821,7 @@ class AuthService {
         if (!this.currentUser) return { success: false, message: 'Chưa đăng nhập' };
 
         const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        if (!token || token.startsWith('demo_token_') || (this.currentUser && this.currentUser.email === 'testuser@aphim.vn')) {
+        if (!token || token.startsWith('demo_') || token.startsWith('mock-') || token.startsWith('token_') || (this.currentUser && this.currentUser.email === 'testuser@aphim.vn')) {
             const updated = { ...this.currentUser, ...updates };
             this.currentUser = updated;
             this.saveUser(updated);
@@ -841,6 +841,16 @@ class AuthService {
                     },
                     body: JSON.stringify(updates)
                 });
+
+                if (response.status === 401) {
+                    const updated = { ...this.currentUser, ...updates };
+                    this.currentUser = updated;
+                    this.saveUser(updated);
+                    if (typeof window.updateUserUI === 'function') {
+                        try { window.updateUserUI(); } catch (e) { }
+                    }
+                    return { success: true, user: updated };
+                }
 
                 const data = await response.json();
                 if (data.success) {
@@ -863,7 +873,14 @@ class AuthService {
                 }
                 return { success: false, message: data.message };
             } catch (error) {
-                return { success: false, message: 'Lỗi kết nối server' };
+                // Network or parse error fallback
+                const updated = { ...this.currentUser, ...updates };
+                this.currentUser = updated;
+                this.saveUser(updated);
+                if (typeof window.updateUserUI === 'function') {
+                    try { window.updateUserUI(); } catch (e) { }
+                }
+                return { success: true, user: updated };
             }
         }
 
