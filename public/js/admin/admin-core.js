@@ -75,12 +75,34 @@
 
   function getAdminToken() {
     try {
-      return localStorage.getItem('aphim_admin_token') ||
-             sessionStorage.getItem('aphim_admin_token') ||
-             localStorage.getItem('cinestream_admin_token') ||
-             sessionStorage.getItem('cinestream_admin_token') ||
-             localStorage.getItem('adminToken') ||
-             (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1] || '';
+      let token = localStorage.getItem('aphim_admin_token') ||
+                  sessionStorage.getItem('aphim_admin_token') ||
+                  localStorage.getItem('cinestream_admin_token') ||
+                  sessionStorage.getItem('cinestream_admin_token') ||
+                  localStorage.getItem('adminToken') ||
+                  (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1] || '';
+      
+      if (token && typeof token === 'string') {
+        token = decodeURIComponent(token).trim();
+        // Remove quotes if token is wrapped in string quotes
+        if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+          token = token.slice(1, -1).trim();
+        }
+        // Remove Bearer prefix if already present
+        if (token.startsWith('Bearer ')) {
+          token = token.slice(7).trim();
+        }
+        // If token was stored as a JSON object, parse and extract the token field
+        if (token.startsWith('{') && token.endsWith('}')) {
+          try {
+            const parsed = JSON.parse(token);
+            token = parsed.access_token || parsed.token || parsed.adminToken || token;
+          } catch (_) {}
+        }
+        // Remove any newlines or forbidden HTTP header characters
+        token = token.replace(/[\r\n\t]/g, '').trim();
+      }
+      return token;
     } catch (e) {
       return '';
     }
