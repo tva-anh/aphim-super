@@ -1275,9 +1275,9 @@ function renderThumbnails(movies) {
             }
         }, { passive: true });
 
-        // ── Lăn chuột để cuộn ngang thumbnail (Mouse Wheel Horizontal Scroll) ──
+        // ── Cuộn ngang thumbnail khi giữ phím Shift (hoặc cuộn trang dọc tự nhiên) ──
         container.addEventListener('wheel', (e) => {
-            if (e.deltaY !== 0) {
+            if (e.shiftKey && e.deltaY !== 0) {
                 e.preventDefault();
                 container.scrollLeft += e.deltaY * 0.85;
             }

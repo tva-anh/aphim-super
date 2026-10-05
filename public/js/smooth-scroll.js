@@ -39,7 +39,7 @@
     function isScrollableNestedElement(el, deltaY) {
         if (!el || el === document.body || el === document.documentElement) return false;
 
-        if (el.closest('.horizontal-scroll, #heroThumbnails, .de-cu-slider, .interests-wrapper, #aphim-guide-overlay, [data-prevent-smooth-scroll]')) {
+        if (el.closest('#aphim-guide-overlay, [data-prevent-smooth-scroll]')) {
             return true;
         }
 

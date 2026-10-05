@@ -279,7 +279,9 @@
         }
     }, true);
 
-    // ── 5. HỖ TRỢ LĂN CON LĂN CHUỘT THÔNG MINH TRÊN THANH TRƯỢT DESKTOP ──
+    // ── 5. HỖ TRỢ CON LĂN CHUỘT CHUẨN XÁC TRÊN DESKTOP (KHÔNG CƯỚP QUYỀN CUỘN DỌC) ──
+    // Khi người dùng lăn dọc chuột, trang web cuộn dọc 100% tự nhiên không bị chặn lại hay hiểu lầm thành cuộn ngang.
+    // CHỈ cuộn ngang khi người dùng chủ động: Giữ Shift + Lăn chuột (chuẩn W3C quốc tế), hoặc vuốt ngang 2 ngón Trackpad.
     document.addEventListener('wheel', function (e) {
         if (!isDesktopDevice()) return;
         if (e.ctrlKey || e.altKey) return; // Không can thiệp nếu đang zoom trang
@@ -287,22 +289,18 @@
         const container = getScrollContainer(e.target);
         if (!container) return;
 
-        // Nếu người dùng lăn bánh xe chuột dọc trên thanh trượt ngang
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 2) {
+        // Người dùng chủ động giữ Shift + lăn chuột để cuộn ngang danh sách phim
+        if (e.shiftKey && Math.abs(e.deltaY) > 0) {
             const maxScroll = container.scrollWidth - container.clientWidth;
             if (maxScroll <= 0) return;
-
-            const isAtLeft = container.scrollLeft <= 1;
-            const isAtRight = container.scrollLeft >= maxScroll - 1;
-
-            // Nếu lăn xuống mà chưa tới cuối, hoặc lăn lên mà chưa về đầu -> Cuộn ngang mượt mà
-            if ((e.deltaY > 0 && !isAtRight) || (e.deltaY < 0 && !isAtLeft)) {
-                e.preventDefault();
-                stopMomentum();
-                const scrollSpeed = 1.15;
-                container.scrollLeft += e.deltaY * scrollSpeed;
-            }
+            e.preventDefault();
+            stopMomentum();
+            container.scrollLeft += e.deltaY * 1.1;
+            return;
         }
+
+        // Lăn chuột dọc bình thường: TUYỆT ĐỐI KHÔNG preventDefault!
+        // Để trang web cuộn dọc êm ái xuyên suốt toàn trang, không bị khựng lại hay hiểu lầm thành cuộn ngang.
     }, { passive: false });
 
     // ── 6. CSS INJECTION CHO TRẢI NGHIỆM DESKTOP ĐỈNH CAO ──
