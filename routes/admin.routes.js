@@ -1134,6 +1134,172 @@ router.get('/notifications', requireAdmin, async (req, res) => {
     }
 });
 
+// ── MOVIE CONTROLS: CHẶN DMCA, ẨN KHỎI WEB, GHIM TRANG CHỦ ───────────────────
+const moviesControl = require('../lib/moviesControl');
+
+// GET /api/admin/movies/control — Lấy toàn bộ danh sách DMCA, Ẩn, và Ghim
+router.get('/movies/control', requireAdmin, (req, res) => {
+    try {
+        const data = moviesControl.getAll();
+        return res.json({ success: true, ...data });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// POST /api/admin/movies/toggle-dmca — Bật/tắt chặn DMCA
+router.post('/movies/toggle-dmca', requireAdmin, (req, res) => {
+    try {
+        const { slug, forceState } = req.body;
+        const result = moviesControl.toggleDMCA(slug, typeof forceState === 'boolean' ? forceState : null);
+        return res.json(result);
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// Backward compat: POST /api/admin/dmca/block & /api/admin/dmca/unblock
+router.post('/dmca/block', requireAdmin, (req, res) => {
+    const { slug } = req.body;
+    const result = moviesControl.toggleDMCA(slug, true);
+    return res.json(result);
+});
+
+router.post('/dmca/unblock', requireAdmin, (req, res) => {
+    const { slug } = req.body;
+    const result = moviesControl.toggleDMCA(slug, false);
+    return res.json(result);
+});
+
+// POST /api/admin/movies/toggle-hidden — Bật/tắt ẩn khỏi web
+router.post('/movies/toggle-hidden', requireAdmin, (req, res) => {
+    try {
+        const { slug, forceState } = req.body;
+        const result = moviesControl.toggleHidden(slug, typeof forceState === 'boolean' ? forceState : null);
+        return res.json(result);
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// POST /api/admin/movies/toggle-featured — Bật/tắt ghim trang chủ
+router.post('/movies/toggle-featured', requireAdmin, (req, res) => {
+    try {
+        const { slug, forceState } = req.body;
+        const result = moviesControl.toggleFeatured(slug, typeof forceState === 'boolean' ? forceState : null);
+        return res.json(result);
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// POST /api/admin/movies/batch-action — Thao tác hàng loạt
+router.post('/movies/batch-action', requireAdmin, (req, res) => {
+    try {
+        const { slugs, action } = req.body;
+        const result = moviesControl.batchAction(slugs, action);
+        return res.json(result);
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// GET /api/admin/movies/by-status — Lấy danh sách phim theo trạng thái (dmca, hidden, featured)
+const axios = require('axios');
+router.get('/movies/by-status', requireAdmin, async (req, res) => {
+    try {
+        const status = (req.query.status || '').toLowerCase().trim();
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 24;
+        const allControls = moviesControl.getAll();
+        
+        let targetSlugs = [];
+        if (status === 'dmca') {
+            targetSlugs = allControls.dmca || [];
+        } else if (status === 'hidden') {
+            targetSlugs = allControls.hidden || [];
+        } else if (status === 'featured') {
+            targetSlugs = allControls.featured || [];
+        } else {
+            targetSlugs = Array.from(new Set([
+                ...(allControls.dmca || []),
+                ...(allControls.hidden || []),
+                ...(allControls.featured || [])
+            ]));
+        }
+
+        const totalItems = targetSlugs.length;
+        const totalPages = Math.ceil(totalItems / limit) || 1;
+        const pagedSlugs = targetSlugs.slice((page - 1) * limit, page * limit);
+
+        // Nạp thông tin tóm tắt cho từng slug
+        const items = await Promise.all(pagedSlugs.map(async (slug) => {
+            const currentStatus = moviesControl.getMovieStatus(slug);
+            try {
+                const response = await axios.get(`https://phimapi.com/phim/${encodeURIComponent(slug)}`, {
+                    timeout: 2500,
+                    headers: { 'User-Agent': 'Mozilla/5.0 APhim-Admin-Client' }
+                });
+                if (response.data?.status && response.data?.movie) {
+                    const m = response.data.movie;
+                    return {
+                        slug: m.slug || slug,
+                        name: m.name || slug,
+                        origin_name: m.origin_name || '',
+                        poster_url: m.poster_url || m.thumb_url || '',
+                        thumb_url: m.thumb_url || '',
+                        year: m.year || 2024,
+                        quality: m.quality || 'Full HD',
+                        lang: m.lang || 'Vietsub',
+                        episode_current: m.episode_current || 'Full',
+                        type: m.type || 'single',
+                        controlStatus: currentStatus,
+                        isBlockedDMCA: currentStatus === 'dmca',
+                        isHidden: currentStatus === 'hidden',
+                        isFeatured: currentStatus === 'featured'
+                    };
+                }
+            } catch (err) {}
+
+            return {
+                slug,
+                name: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                origin_name: slug,
+                poster_url: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&auto=format&fit=crop&q=80',
+                thumb_url: '',
+                year: 2024,
+                quality: 'Full HD',
+                lang: 'Vietsub',
+                episode_current: 'N/A',
+                type: 'single',
+                controlStatus: currentStatus,
+                isBlockedDMCA: currentStatus === 'dmca',
+                isHidden: currentStatus === 'hidden',
+                isFeatured: currentStatus === 'featured'
+            };
+        }));
+
+        return res.json({
+            success: true,
+            status,
+            data: {
+                items,
+                params: {
+                    pagination: {
+                        totalItems,
+                        totalItemsPerPage: limit,
+                        currentPage: page,
+                        totalPages
+                    }
+                }
+            }
+        });
+    } catch (e) {
+        console.error('[Admin] Get movies by status error:', e);
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
 router.invalidateAdminCache = invalidateAdminCache;
 module.exports = router;
 module.exports.invalidateAdminCache = invalidateAdminCache;

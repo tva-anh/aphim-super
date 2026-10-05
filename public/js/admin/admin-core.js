@@ -705,8 +705,37 @@
   }
 
   // ─── 7. MOVIE ACTIONS & INSPECTOR ───
+  let movieControlsData = { dmca: [], hidden: [], featured: [] };
+
+  async function fetchMovieControlsData(force = false) {
+    if (!force && (movieControlsData.dmca.length > 0 || movieControlsData.hidden.length > 0 || movieControlsData.featured.length > 0)) {
+      return movieControlsData;
+    }
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/control', {
+        headers: { 'Authorization': 'Bearer ' + token },
+        credentials: 'same-origin'
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          movieControlsData = {
+            dmca: Array.isArray(json.dmca) ? json.dmca : [],
+            hidden: Array.isArray(json.hidden) ? json.hidden : [],
+            featured: Array.isArray(json.featured) ? json.featured : []
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('[Admin] Fetch movie controls error:', e);
+    }
+    return movieControlsData;
+  }
+
   async function inspectMovie(slug) {
-    openDrawer('Chi Tiết Phim & Inspector Live Stream', `Slug: ${slug}`);
+    const cleanSlug = String(slug || '').toLowerCase().trim();
+    openDrawer('Chi Tiết Phim & Inspector Live Stream', `Slug: ${cleanSlug}`);
     const content = document.getElementById('drawerContent');
     if (!content) return;
 
@@ -719,7 +748,10 @@
     if (window.lucide) lucide.createIcons();
 
     try {
-      const res = await fetch(`${CONFIG.OPHIM_BASE}/phim/${slug}`);
+      // Đảm bảo dữ liệu DMCA, Hidden, Featured luôn đồng bộ mới nhất
+      await fetchMovieControlsData(true);
+
+      const res = await fetch(`${CONFIG.OPHIM_BASE}/phim/${encodeURIComponent(cleanSlug)}`);
       const data = await res.json();
       
       if (data && data.movie) {
@@ -727,7 +759,46 @@
         const episodes = data.episodes?.[0]?.server_data || [];
         const firstStreamUrl = episodes[0]?.link_embed || '';
 
+        const isDMCA = (movieControlsData.dmca || []).includes(cleanSlug);
+        const isHidden = (movieControlsData.hidden || []).includes(cleanSlug);
+        const isFeatured = (movieControlsData.featured || []).includes(cleanSlug);
+
+        let statusBannerHtml = '';
+        if (isDMCA) {
+          statusBannerHtml = `
+            <div style="margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; display: flex; align-items: flex-start; gap: 10px; font-size: 13px;">
+              <i data-lucide="shield-alert" style="width: 20px; height: 20px; color: #ef4444; flex-shrink: 0; margin-top: 1px;"></i>
+              <div>
+                <strong style="color: #f87171; text-transform: uppercase;">⚠️ Phim Đang Bị Chặn DMCA (Bản Quyền)</strong>
+                <div style="font-size: 12px; margin-top: 2px; color: rgba(254, 202, 202, 0.9);">Người dùng truy cập vào phim này trên website sẽ bị hệ thống tự động chặn và thông báo khiếu nại bản quyền.</div>
+              </div>
+            </div>
+          `;
+        } else if (isHidden) {
+          statusBannerHtml = `
+            <div style="margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fde68a; display: flex; align-items: flex-start; gap: 10px; font-size: 13px;">
+              <i data-lucide="eye-off" style="width: 20px; height: 20px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;"></i>
+              <div>
+                <strong style="color: #fbbf24; text-transform: uppercase;">👁️ Phim Đang Bị Ẩn Khỏi Website</strong>
+                <div style="font-size: 12px; margin-top: 2px; color: rgba(253, 230, 138, 0.9);">Phim này không xuất hiện trên trang chủ, danh sách, tìm kiếm và bị chặn truy cập trực tiếp.</div>
+              </div>
+            </div>
+          `;
+        } else if (isFeatured) {
+          statusBannerHtml = `
+            <div style="margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; display: flex; align-items: flex-start; gap: 10px; font-size: 13px;">
+              <i data-lucide="star" style="width: 20px; height: 20px; color: #10b981; flex-shrink: 0; margin-top: 1px;"></i>
+              <div>
+                <strong style="color: #34d399; text-transform: uppercase;">⭐ Phim Đang Ghim Nổi Bật (Hero Showcase)</strong>
+                <div style="font-size: 12px; margin-top: 2px; color: rgba(167, 243, 208, 0.9);">Phim được hiển thị ở các vị trí quảng bá ưu tiên trên trang chủ.</div>
+              </div>
+            </div>
+          `;
+        }
+
         content.innerHTML = `
+          ${statusBannerHtml}
+
           <div class="inspector-section">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <img src="${m.thumb_url || m.poster_url}" style="width: 100px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-default);">
@@ -768,14 +839,14 @@
           <div class="inspector-section" style="margin-top: 16px;">
             <label class="form-label">Tác Vụ Quản Trị:</label>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <button class="btn btn-outline" onclick="AdminCore.toggleMovieFeatured('${slug}')">
-                <i data-lucide="star"></i> Ghim Trang Chủ
+              <button class="btn ${isFeatured ? 'btn-primary' : 'btn-outline'}" onclick="AdminCore.toggleMovieFeatured('${cleanSlug}')" id="btnInspectFeatured" title="${isFeatured ? 'Bỏ ghim khỏi trang chủ' : 'Ghim phim lên trang chủ'}">
+                <i data-lucide="${isFeatured ? 'star-off' : 'star'}"></i> ${isFeatured ? 'Bỏ Ghim Trang Chủ' : 'Ghim Trang Chủ'}
               </button>
-              <button class="btn btn-outline" onclick="AdminCore.toggleMovieHidden('${slug}')">
-                <i data-lucide="eye-off"></i> Ẩn Khỏi Web
+              <button class="btn ${isHidden ? 'btn-warning' : 'btn-outline'}" onclick="AdminCore.toggleMovieHidden('${cleanSlug}')" id="btnInspectHidden" style="${isHidden ? 'background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #fde68a;' : ''}" title="${isHidden ? 'Hiện phim trở lại trên website' : 'Ẩn phim khỏi website'}">
+                <i data-lucide="${isHidden ? 'eye' : 'eye-off'}"></i> ${isHidden ? 'Hiện Lên Web' : 'Ẩn Khỏi Web'}
               </button>
-              <button class="btn btn-danger" onclick="AdminCore.blockDMCA('${slug}')" style="grid-column: span 2;">
-                <i data-lucide="shield-alert"></i> Chặn DMCA (Báo Cáo Vi Phạm)
+              <button class="btn ${isDMCA ? 'btn-success' : 'btn-danger'}" onclick="${isDMCA ? `AdminCore.unblockDMCA('${cleanSlug}')` : `AdminCore.blockDMCA('${cleanSlug}')`}" id="btnInspectDMCA" style="grid-column: span 2; ${isDMCA ? 'background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #a7f3d0;' : ''}" title="${isDMCA ? 'Mở chặn vi phạm DMCA' : 'Chặn phim vi phạm bản quyền DMCA'}">
+                <i data-lucide="${isDMCA ? 'shield-check' : 'shield-alert'}"></i> ${isDMCA ? 'Mở Chặn DMCA (Bỏ Khóa)' : 'Chặn DMCA (Báo Cáo Vi Phạm)'}
               </button>
             </div>
           </div>
@@ -1050,35 +1121,215 @@
     }
   }
 
+  function updateTableRowStatus(slug, status) {
+    const cleanSlug = String(slug || '').toLowerCase().trim();
+    const row = document.querySelector(`tr[data-slug="${cleanSlug}"]`);
+    if (!row) return;
+    const statusCell = row.cells[6];
+    if (!statusCell) return;
+
+    if (status === 'dmca') {
+      statusCell.innerHTML = '<span class="badge badge-error" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171;"><i data-lucide="shield-alert" style="width:12px;height:12px;display:inline-block;vertical-align:middle;"></i> Chặn DMCA</span>';
+    } else if (status === 'hidden') {
+      statusCell.innerHTML = '<span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24;"><i data-lucide="eye-off" style="width:12px;height:12px;display:inline-block;vertical-align:middle;"></i> Đã ẩn</span>';
+    } else if (status === 'featured') {
+      statusCell.innerHTML = '<span class="badge badge-gold" style="background: rgba(245, 158, 11, 0.15); border: 1px solid #eab308; color: #facc15;"><i data-lucide="star" style="width:12px;height:12px;display:inline-block;vertical-align:middle;"></i> Nổi bật</span>';
+    } else {
+      statusCell.innerHTML = '<span class="status-pill active"><span class="dot"></span> Hiển thị</span>';
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+
   async function blockDMCA(slug) {
-    if (!confirm(`Bạn có chắc muốn CHẶN PHIM "${slug}" do vi phạm bản quyền DMCA?`)) return;
+    const cleanSlug = String(slug || '').toLowerCase().trim();
+    if (!confirm(`Bạn có chắc muốn CHẶN PHIM "${cleanSlug}" do vi phạm bản quyền DMCA?\n\nSau khi chặn, người xem truy cập link sẽ bị chuyển hướng ngay lập tức và nhận cảnh báo vi phạm bản quyền.`)) return;
     try {
-      const res = await fetch(`${CONFIG.API_BASE}/admin/dmca/block`, {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/toggle-dmca', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ slug: cleanSlug, forceState: true })
       });
       const data = await res.json();
-      showToast(data.message || `Đã chặn phim ${slug}!`, 'warning');
-      closeDrawer();
+      if (data.success) {
+        showToast(data.message || `Đã chặn DMCA phim "${cleanSlug}" thành công!`, 'warning');
+        if (!movieControlsData.dmca.includes(cleanSlug)) movieControlsData.dmca.push(cleanSlug);
+        movieControlsData.featured = movieControlsData.featured.filter(s => s !== cleanSlug);
+        updateTableRowStatus(cleanSlug, 'dmca');
+        inspectMovie(cleanSlug);
+      } else {
+        showToast(data.message || 'Lỗi khi chặn DMCA', 'error');
+      }
     } catch (e) {
-      showToast(`Đã chặn phim ${slug} thành công!`, 'warning');
-      closeDrawer();
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
     }
   }
 
   async function unblockDMCA(slug) {
-    if (!confirm(`Mở chặn phim "${slug}"?`)) return;
+    const cleanSlug = String(slug || '').toLowerCase().trim();
+    if (!confirm(`Mở chặn phim "${cleanSlug}"? Phim sẽ có thể truy cập lại bình thường trên website.`)) return;
     try {
-      const res = await fetch(`${CONFIG.API_BASE}/admin/dmca/unblock`, {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/toggle-dmca', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ slug: cleanSlug, forceState: false })
       });
       const data = await res.json();
-      showToast(data.message || `Đã mở chặn phim ${slug}!`, 'success');
+      if (data.success) {
+        showToast(data.message || `Đã mở chặn phim "${cleanSlug}" thành công!`, 'success');
+        movieControlsData.dmca = movieControlsData.dmca.filter(s => s !== cleanSlug);
+        updateTableRowStatus(cleanSlug, 'active');
+        inspectMovie(cleanSlug);
+      } else {
+        showToast(data.message || 'Lỗi khi mở chặn DMCA', 'error');
+      }
     } catch (e) {
-      showToast(`Đã mở chặn phim ${slug}!`, 'success');
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
+    }
+  }
+
+  async function toggleMovieFeatured(slug) {
+    const cleanSlug = String(slug || '').toLowerCase().trim();
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/toggle-featured', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ slug: cleanSlug })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        if (data.isFeatured) {
+          if (!movieControlsData.featured.includes(cleanSlug)) movieControlsData.featured.push(cleanSlug);
+          movieControlsData.dmca = movieControlsData.dmca.filter(s => s !== cleanSlug);
+          movieControlsData.hidden = movieControlsData.hidden.filter(s => s !== cleanSlug);
+          updateTableRowStatus(cleanSlug, 'featured');
+        } else {
+          movieControlsData.featured = movieControlsData.featured.filter(s => s !== cleanSlug);
+          updateTableRowStatus(cleanSlug, 'active');
+        }
+        inspectMovie(cleanSlug);
+      } else {
+        showToast(data.message || 'Thao tác ghim thất bại', 'error');
+      }
+    } catch (e) {
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
+    }
+  }
+
+  async function toggleMovieHidden(slug) {
+    const cleanSlug = String(slug || '').toLowerCase().trim();
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/toggle-hidden', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ slug: cleanSlug })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, data.isHidden ? 'warning' : 'info');
+        if (data.isHidden) {
+          if (!movieControlsData.hidden.includes(cleanSlug)) movieControlsData.hidden.push(cleanSlug);
+          movieControlsData.featured = movieControlsData.featured.filter(s => s !== cleanSlug);
+          updateTableRowStatus(cleanSlug, 'hidden');
+        } else {
+          movieControlsData.hidden = movieControlsData.hidden.filter(s => s !== cleanSlug);
+          updateTableRowStatus(cleanSlug, 'active');
+        }
+        inspectMovie(cleanSlug);
+      } else {
+        showToast(data.message || 'Thao tác ẩn thất bại', 'error');
+      }
+    } catch (e) {
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
+    }
+  }
+
+  async function batchSetStatus(action) {
+    const checkedBoxes = document.querySelectorAll('.movie-checkbox:checked');
+    const slugs = Array.from(checkedBoxes).map(b => b.value.toLowerCase().trim()).filter(Boolean);
+    if (!slugs.length) {
+      showToast('Vui lòng tích chọn ít nhất 1 phim!', 'warning');
+      return;
+    }
+    const label = action === 'featured' ? 'Ghim Nổi Bật Trang Chủ' : (action === 'hidden' ? 'Ẩn Khỏi Web' : 'Hiển thị bình thường');
+    if (!confirm(`Xác nhận thực hiện "${label}" cho ${slugs.length} phim đã chọn?`)) return;
+
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/batch-action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ slugs, action })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        await fetchMovieControlsData(true);
+        if (typeof AdminCore.clearMovieSelection === 'function') AdminCore.clearMovieSelection();
+        loadAdminMovies(currentMoviesPage);
+      } else {
+        showToast(data.message || 'Thao tác hàng loạt thất bại', 'error');
+      }
+    } catch (e) {
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
+    }
+  }
+
+  async function batchBlockDMCA() {
+    const checkedBoxes = document.querySelectorAll('.movie-checkbox:checked');
+    const slugs = Array.from(checkedBoxes).map(b => b.value.toLowerCase().trim()).filter(Boolean);
+    if (!slugs.length) {
+      showToast('Vui lòng tích chọn ít nhất 1 phim để chặn DMCA!', 'warning');
+      return;
+    }
+    if (!confirm(`⚠️ CẢNH BÁO QUAN TRỌNG:\nBạn có chắc chắn muốn CHẶN DMCA (Báo cáo vi phạm) cho ${slugs.length} phim đã chọn?\nNgười xem sẽ bị cấm truy cập ngay lập tức!`)) return;
+
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/movies/batch-action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ slugs, action: 'dmca' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'warning');
+        await fetchMovieControlsData(true);
+        if (typeof AdminCore.clearMovieSelection === 'function') AdminCore.clearMovieSelection();
+        loadAdminMovies(currentMoviesPage);
+      } else {
+        showToast(data.message || 'Chặn DMCA hàng loạt thất bại', 'error');
+      }
+    } catch (e) {
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
     }
   }
 
@@ -1168,18 +1419,18 @@
     clearServerCache,
     blockDMCA,
     unblockDMCA,
+    toggleMovieFeatured,
+    toggleMovieHidden,
+    batchSetStatus,
+    batchBlockDMCA,
+    updateTableRowStatus,
+    fetchMovieControlsData,
     handleLogin,
     toggleDataMasking,
     switchPreviewEpisode: (link) => {
       const iframe = document.querySelector('.inspector-section iframe');
       if (iframe) iframe.src = link;
       showToast('Đang phát tập đã chọn...', 'info');
-    },
-    toggleMovieFeatured: (slug) => {
-      showToast(`Đã chuyển trạng thái Ghim Nổi Bật cho phim ${slug}!`, 'success');
-    },
-    toggleMovieHidden: (slug) => {
-      showToast(`Đã chuyển trạng thái Ẩn/Hiện cho phim ${slug}!`, 'info');
     },
     adjustUserCoins: (amount) => {
       const input = document.getElementById('userCoinsInput');
@@ -2503,6 +2754,19 @@
       const year = m.year || 2024;
       const typeName = (m.type === 'series' || m.type === 'hoathinh') ? 'Phim Bộ' : (m.type === 'single' ? 'Phim Lẻ' : 'Phim API');
 
+      const isDMCA = (movieControlsData.dmca || []).includes(m.slug) || m.controlStatus === 'dmca' || m.isBlockedDMCA;
+      const isHidden = (movieControlsData.hidden || []).includes(m.slug) || m.controlStatus === 'hidden' || m.isHidden;
+      const isFeatured = (movieControlsData.featured || []).includes(m.slug) || m.controlStatus === 'featured' || m.isFeatured;
+
+      let statusHtml = '<span class="status-pill active"><span class="dot"></span> Hiển thị</span>';
+      if (isDMCA) {
+        statusHtml = '<span class="badge badge-error" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; white-space: nowrap;"><i data-lucide="shield-alert" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Chặn DMCA</span>';
+      } else if (isHidden) {
+        statusHtml = '<span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24; white-space: nowrap;"><i data-lucide="eye-off" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Đã ẩn</span>';
+      } else if (isFeatured) {
+        statusHtml = '<span class="badge badge-gold" style="background: rgba(245, 158, 11, 0.15); border: 1px solid #eab308; color: #facc15; white-space: nowrap;"><i data-lucide="star" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Nổi bật</span>';
+      }
+
       return `
         <tr data-slug="${m.slug}">
           <td><input type="checkbox" class="movie-checkbox" value="${m.slug}" onchange="AdminCore.handleMovieSelect(this)"></td>
@@ -2519,7 +2783,7 @@
           <td>${year}</td>
           <td><span class="badge badge-emerald">${sanitize(episodeCurrent)}</span></td>
           <td><span class="badge badge-cyan">${sanitize(quality)} • ${sanitize(lang)}</span></td>
-          <td><span class="status-pill active"><span class="dot"></span> Hiển thị</span></td>
+          <td>${statusHtml}</td>
           <td style="text-align: right;">
             <div class="table-actions-cell">
               <button class="btn btn-xs btn-outline" onclick="AdminCore.inspectMovie('${m.slug}')">
@@ -2543,11 +2807,17 @@
         if (!posterUrl) {
           posterUrl = 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&auto=format&fit=crop&q=80';
         }
+
+        const isDMCA = (movieControlsData.dmca || []).includes(m.slug) || m.controlStatus === 'dmca' || m.isBlockedDMCA;
+        const isHidden = (movieControlsData.hidden || []).includes(m.slug) || m.controlStatus === 'hidden' || m.isHidden;
+
         return `
-          <div class="movie-poster-card" onclick="AdminCore.inspectMovie('${m.slug}')">
+          <div class="movie-poster-card" onclick="AdminCore.inspectMovie('${m.slug}')" style="${isDMCA ? 'opacity: 0.6; filter: grayscale(40%);' : (isHidden ? 'opacity: 0.7;' : '')}">
             <div class="poster-media-wrap">
               <img src="${posterUrl}" alt="${sanitize(m.name)}" class="poster-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&auto=format&fit=crop&q=80';">
-              <div class="poster-glow-badge"><span class="badge badge-emerald">${sanitize(m.episode_current || 'HD')}</span></div>
+              <div class="poster-glow-badge">
+                ${isDMCA ? '<span class="badge badge-error"><i data-lucide="shield-alert"></i> DMCA</span>' : (isHidden ? '<span class="badge badge-warning"><i data-lucide="eye-off"></i> Ẩn</span>' : `<span class="badge badge-emerald">${sanitize(m.episode_current || 'HD')}</span>`)}
+              </div>
               <div class="poster-hover-overlay">
                 <div class="poster-play-circle"><i data-lucide="play"></i></div>
                 <span class="poster-inspect-text">Soi Luồng Stream</span>
@@ -2591,11 +2861,44 @@
     const tbody = document.getElementById('moviesTableBody');
     if (!tbody) return;
 
+    // Đảm bảo movieControlsData luôn sẵn sàng để hiển thị badge chính xác
+    await fetchMovieControlsData();
+
     const search = document.getElementById('movieSearchInput')?.value?.trim() || '';
     const type = document.getElementById('movieTypeFilter')?.value || '';
     const category = document.getElementById('movieCategoryFilter')?.value || '';
+    const status = document.getElementById('movieStatusFilter')?.value || '';
 
-    const cacheKey = `movies_${page}_${search}_${type}_${category}`;
+    // Nếu chọn lọc theo trạng thái đặc biệt (DMCA, Ẩn, Ghim nổi bật)
+    if (status === 'dmca' || status === 'hidden' || status === 'featured') {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center" style="padding: 40px; color: var(--text-dim);">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px;"></i> Đang tải danh sách phim [${status.toUpperCase()}]...
+            </div>
+          </td>
+        </tr>
+      `;
+      if (window.lucide) lucide.createIcons();
+
+      try {
+        const token = getAdminToken();
+        const res = await fetch(`/api/admin/movies/by-status?status=${encodeURIComponent(status)}&page=${page}&limit=24`, {
+          headers: { 'Authorization': 'Bearer ' + token },
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (data.success) {
+          renderAdminMoviesData(data, page);
+          return;
+        }
+      } catch (err) {
+        console.error('[Admin] Load movies by status error:', err);
+      }
+    }
+
+    const cacheKey = `movies_${page}_${search}_${type}_${category}_${status}`;
     const cached = AdminCache.get(cacheKey);
 
     if (cached) {
@@ -2626,6 +2929,15 @@
     try {
       const res = await fetch(url);
       const data = await res.json();
+
+      // Nếu chọn lọc "active" (Đang hiển thị bình thường), loại bỏ các phim đang bị DMCA hoặc Hidden
+      if (status === 'active' && data && Array.isArray(data.items || data.data?.items)) {
+        const targetArr = data.items || data.data?.items;
+        const filtered = targetArr.filter(m => !(movieControlsData.dmca || []).includes(m.slug) && !(movieControlsData.hidden || []).includes(m.slug));
+        if (data.items) data.items = filtered;
+        if (data.data?.items) data.data.items = filtered;
+      }
+
       AdminCache.set(cacheKey, data);
       renderAdminMoviesData(data, page);
     } catch (e) {

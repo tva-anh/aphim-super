@@ -319,15 +319,20 @@
         window.showToast(msg, type || 'info');
     };
 
-    window.alert = function(msg) {
-        if (!msg) return;
-        const msgStr = String(msg);
-        let type = 'info';
-        if (msgStr.includes('thành công') || msgStr.includes('trang bị') || msgStr.includes('thành viên') || msgStr.includes('🎉') || msgStr.includes('✅')) {
-            type = 'success';
-        } else if (msgStr.includes('thất bại') || msgStr.includes('lỗi') || msgStr.includes('cần thêm') || msgStr.includes('không')) {
-            type = 'warning';
+    // Kiểm tra thông báo điều hướng hệ thống (Chặn DMCA / Ẩn khỏi website)
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const notice = urlParams.get('notice');
+        const slug = urlParams.get('slug') || '';
+        if (notice === 'dmca') {
+            setTimeout(() => {
+                window.showToast(`🛡️ Phim "${slug || 'này'}" tạm thời dừng phát do khiếu nại bản quyền DMCA!`, 'error', 6500);
+            }, 600);
+        } else if (notice === 'hidden') {
+            setTimeout(() => {
+                window.showToast(`👁️ Phim "${slug || 'này'}" hiện tạm ẩn khỏi website!`, 'warning', 5500);
+            }, 600);
         }
-        window.showToast(msgStr, type, 3500);
-    };
+    } catch (e) {}
 })();
+

@@ -208,6 +208,23 @@ class MovieAPI {
         throw lastError || new Error('All OPhim API mirrors failed');
     }
 
+// Dynamic movie control sync
+window._cachedControlStatus = window._cachedControlStatus || { dmca: [], hidden: [], featured: [] };
+(function syncLiveControls() {
+    fetch('/api/movies/control-status')
+        .then(res => res.json())
+        .then(data => {
+            if (data && typeof data === 'object') {
+                window._cachedControlStatus = {
+                    dmca: Array.isArray(data.dmca) ? data.dmca : [],
+                    hidden: Array.isArray(data.hidden) ? data.hidden : [],
+                    featured: Array.isArray(data.featured) ? data.featured : []
+                };
+            }
+        })
+        .catch(() => {});
+})();
+
     // Helper to filter out hidden movies from list responses and fix absolute image paths
     filterHiddenMovies(data) {
         if (!data) return data;
@@ -242,17 +259,26 @@ class MovieAPI {
             }
         } catch (e) {}
 
-        if (!data.data || !Array.isArray(data.data.items)) return data;
-        
         try {
             const hiddenMoviesList = JSON.parse(localStorage.getItem('cinestream_hidden_movies') || '[]');
-            
-            // HARDCODED BANNED MOVIES (DMCA, BÁO CÁO VI PHẠM: 489339a89ce51782)
             const hardcodedBanned = ['trai-cam', 'moi-thu-la-loi-co-ay', 'michael', 'dac-vu-xuyen-quoc-gia', 'xac-song-thanh-pho-chet-phan-2'];
-            const allBanned = [...hiddenMoviesList, ...hardcodedBanned];
+            const remoteDmca = (window._cachedControlStatus?.dmca) || [];
+            const remoteHidden = (window._cachedControlStatus?.hidden) || [];
             
-            if (allBanned.length > 0) {
-                data.data.items = data.data.items.filter(movie => !allBanned.includes(movie.slug));
+            const bannedSet = new Set([
+                ...hiddenMoviesList,
+                ...hardcodedBanned,
+                ...remoteDmca,
+                ...remoteHidden
+            ].map(s => String(s || '').toLowerCase().trim()).filter(Boolean));
+            
+            if (bannedSet.size > 0) {
+                if (data.data && Array.isArray(data.data.items)) {
+                    data.data.items = data.data.items.filter(movie => !bannedSet.has(String(movie.slug || '').toLowerCase().trim()));
+                }
+                if (Array.isArray(data.items)) {
+                    data.items = data.items.filter(movie => !bannedSet.has(String(movie.slug || '').toLowerCase().trim()));
+                }
             }
         } catch (e) {
             console.warn('Error filtering hidden movies:', e);
@@ -363,21 +389,22 @@ class MovieAPI {
 
     // Fetch movie detail by slug
     async getMovieDetail(slug) {
-        // --- BLOCK DMCA REPORTED SLUGS (Mã báo cáo: 489339a89ce51782 - trai-cam) ---
+        const cleanSlug = String(slug || '').toLowerCase().trim();
         const hardcodedBanned = ['trai-cam', 'moi-thu-la-loi-co-ay', 'michael', 'dac-vu-xuyen-quoc-gia', 'xac-song-thanh-pho-chet-phan-2'];
-        if (slug && hardcodedBanned.includes(slug.toLowerCase())) {
-            console.warn(`[API BLOCK] Phim ${slug} bị chặn theo báo cáo 489339a89ce51782`);
-            window.location.href = '/';
+        const isBannedDMCA = hardcodedBanned.includes(cleanSlug) || (window._cachedControlStatus?.dmca || []).includes(cleanSlug);
+        if (isBannedDMCA) {
+            console.warn(`[API BLOCK] Phim "${cleanSlug}" bị chặn do vi phạm bản quyền DMCA`);
+            window.location.href = '/?notice=dmca&slug=' + encodeURIComponent(cleanSlug);
             return null;
         }
         
         // --- AUTO BLOCK HIDDEN SLUGS ---
         try {
             const hiddenMoviesList = JSON.parse(localStorage.getItem('cinestream_hidden_movies') || '[]');
-            const allBanned = [...hiddenMoviesList, ...hardcodedBanned];
-            
-            if (allBanned.includes(slug)) {
-                window.location.href = '/';
+            const isHidden = hiddenMoviesList.includes(cleanSlug) || (window._cachedControlStatus?.hidden || []).includes(cleanSlug);
+            if (isHidden) {
+                console.warn(`[API BLOCK] Phim "${cleanSlug}" đã bị ẩn khỏi website`);
+                window.location.href = '/?notice=hidden&slug=' + encodeURIComponent(cleanSlug);
                 return null;
             }
         } catch (e) {}

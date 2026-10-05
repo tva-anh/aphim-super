@@ -1,0 +1,39 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="silverRim3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="25%" stop-color="#E2E8F0"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="75%" stop-color="#64748B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="silverCore3D" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#CBD5E1"/>
+      <stop offset="80%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+    <linearGradient id="silverNum3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="silverSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer Beveled Metal Ring -->
+  <circle cx="18" cy="18" r="16.5" fill="url(#silverRim3D)" stroke="#1E293B" stroke-width="1"/>
+  <!-- Specular Highlight Crest -->
+  <circle cx="18" cy="18" r="14.5" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.9"/>
+  <!-- Inner Polished Silver Core -->
+  <circle cx="18" cy="18" r="12.5" fill="url(#silverCore3D)" stroke="#475569" stroke-width="0.8"/>
+  <!-- Subtle Laurel Ring / Star Accents -->
+  <circle cx="18" cy="18" r="11" fill="none" stroke="#FFFFFF" stroke-width="0.75" stroke-dasharray="2 1.5" opacity="0.7"/>
+  <!-- Glass/Gloss Reflection Sweep -->
+  <path d="M7 14C9 8 27 8 29 14C24 16 12 16 7 14Z" fill="url(#silverSheen)"/>
+  <!-- 3D Bold Embossed Number 2 -->
+  <text x="18" y="23.5" font-size="16" font-weight="900" font-family="'Outfit', system-ui, -apple-system, sans-serif" text-anchor="middle" fill="url(#silverNum3D)" style="filter:drop-shadow(0 1px 0 rgba(255,255,255,0.85)); letter-spacing:-0.5px;">2</text>
+  <!-- Mini Diamond Sparkle -->
+  <path d="M12 7L13 9L15 10L13 11L12 13L11 11L9 10L11 9L12 7Z" fill="#FFFFFF" opacity="0.9"/>
+</svg>

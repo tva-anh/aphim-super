@@ -113,10 +113,18 @@ router.get('/me', requireAuth, async (req, res) => {
     }
 });
 
+// In-flight mutex lock chống spam request đồng thời
+const checkinLocks = new Set();
+
 // ── POST /api/gamification/claim-streak ─────────────────────────────────────
 router.post('/claim-streak', requireAuth, async (req, res) => {
+    const userId = req.user.id;
+    if (checkinLocks.has(userId)) {
+        return res.status(429).json({ success: false, message: 'Đang xử lý điểm danh, vui lòng không gửi liên tục!' });
+    }
+    checkinLocks.add(userId);
+
     try {
-        const userId = req.user.id;
         const today = getTodayString();
 
         let gamif = await Gamification.findOne({ user_id: userId });
@@ -132,39 +140,60 @@ router.post('/claim-streak', requireAuth, async (req, res) => {
         const newStreak = isConsecutive ? Math.min(gamif.streak_current + 1, 7) : 1;
         const reward = STREAK_REWARDS[newStreak - 1];
 
-        gamif.streak_current = newStreak;
-        gamif.streak_last_claimed = today;
-        gamif.streak_longest = Math.max(gamif.streak_longest, newStreak);
-        gamif.xu += reward.xu;
-        gamif.xp += reward.xp;
-        gamif.xu_lifetime += reward.xu;
+        const newLevel = calcLevel(gamif.xp + reward.xp);
+        const newRank = calcRank(newLevel);
 
-        const newLevel = calcLevel(gamif.xp);
-        gamif.level = newLevel;
-        gamif.rank = calcRank(newLevel);
+        // Atomic update: chỉ update khi streak_last_claimed CHƯA phải là today
+        const updatedGamif = await Gamification.findOneAndUpdate(
+            { user_id: userId, streak_last_claimed: { $ne: today } },
+            {
+                $set: {
+                    streak_current: newStreak,
+                    streak_last_claimed: today,
+                    streak_longest: Math.max(gamif.streak_longest || 0, newStreak),
+                    level: newLevel,
+                    rank: newRank
+                },
+                $inc: {
+                    xu: reward.xu,
+                    xp: reward.xp,
+                    xu_lifetime: reward.xu
+                }
+            },
+            { new: true }
+        );
 
-        // Unlock achievement streak_7
+        if (!updatedGamif) {
+            return res.status(400).json({ success: false, message: 'Bạn đã điểm danh hôm nay rồi!' });
+        }
+
+        // Unlock achievements nếu đạt mốc
+        let achNeedSave = false;
         if (newStreak === 7) {
-            const ach = gamif.achievements.find(a => a.id === 'streak_7');
-            if (ach && !ach.unlocked_at) ach.unlocked_at = new Date();
+            const ach = updatedGamif.achievements.find(a => a.id === 'streak_7');
+            if (ach && !ach.unlocked_at) { ach.unlocked_at = new Date(); achNeedSave = true; }
         }
         if (newStreak >= 3) {
-            const ach3 = gamif.achievements.find(a => a.id === 'streak_3');
-            if (ach3 && !ach3.unlocked_at) ach3.unlocked_at = new Date();
+            const ach3 = updatedGamif.achievements.find(a => a.id === 'streak_3');
+            if (ach3 && !ach3.unlocked_at) { ach3.unlocked_at = new Date(); achNeedSave = true; }
+        }
+        if (achNeedSave) {
+            await updatedGamif.save();
         }
 
-        await gamif.save();
-        await syncToProfile(userId, gamif.xu, gamif.xp);
+        await syncToProfile(userId, updatedGamif.xu, updatedGamif.xp);
 
         return res.json({
             success: true,
             message: `Điểm danh Ngày ${newStreak}/7 thành công! +${reward.xu} Xu, +${reward.xp} XP`,
-            streak: newStreak, reward, xu: gamif.xu, xp: gamif.xp, level: gamif.level
+            streak: newStreak, reward, xu: updatedGamif.xu, xp: updatedGamif.xp, level: updatedGamif.level
         });
 
     } catch (err) {
         console.error('[Gamification] claim-streak error:', err);
         return res.status(500).json({ success: false, message: 'Lỗi server.' });
+    } finally {
+        checkinLocks.delete(userId);
     }
 });
 

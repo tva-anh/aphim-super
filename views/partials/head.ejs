@@ -16,6 +16,15 @@
             } else {
                 document.documentElement.classList.add('light-mode');
             }
+
+            // ⚡ Chống chớp / giật nút Đăng nhập khi người dùng đã đăng nhập tài khoản
+            var rawUser = localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user');
+            var token = localStorage.getItem('cinestream_token');
+            if (rawUser && token) {
+                document.documentElement.classList.add('user-logged-in');
+            } else {
+                document.documentElement.classList.add('user-guest');
+            }
         } catch(e) {}
     })();
 </script>

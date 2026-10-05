@@ -3380,10 +3380,10 @@ function openGamificationModal(activeSubTab) {
             .ap-gamify-chip-xu { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.22); }
             .ap-gamify-chip-xp { background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.22); }
             .ap-gamify-tabs-wrap { padding:14px 22px 6px; }
-            .ap-gamify-tabs { display:flex; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:3.5px; gap:4px; }
-            .ap-gamify-tab-btn { flex:1; padding:9px 8px; border-radius:10px; font-size:11.5px; font-weight:700; cursor:pointer; border:1px solid transparent; background:transparent; color:#94a3b8; transition:all .2s ease; display:flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap; }
+            .ap-gamify-tabs { display:grid; grid-template-columns:repeat(3, 1fr); background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:3.5px; gap:4px; width:100%; box-sizing:border-box; }
+            .ap-gamify-tab-btn { min-width:0; padding:8px 4px; border-radius:10px; font-size:11.5px; font-weight:700; cursor:pointer; border:1px solid transparent; background:transparent; color:#94a3b8; transition:all .2s ease; display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap; overflow:hidden; }
             .ap-gamify-tab-btn.active { border-color:#f59e0b; background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.12)); color:#fcd576; }
-            .ap-gamify-tab-pill { font-size:10px; font-weight:800; padding:1px 5px; border-radius:999px; background:rgba(255,255,255,0.06); color:#94a3b8; }
+            .ap-gamify-tab-pill { font-size:10px; font-weight:800; padding:1px 5px; border-radius:999px; background:rgba(255,255,255,0.06); color:#94a3b8; flex-shrink:0; }
             .ap-gamify-tab-btn.active .ap-gamify-tab-pill { background:rgba(245,158,11,0.3); color:#fff; }
             .ap-gamify-content { padding:16px 22px 22px; }
             .ap-gamify-streak-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-bottom:18px; }
@@ -3395,8 +3395,11 @@ function openGamificationModal(activeSubTab) {
               .ap-gamify-header { padding:12px 14px 10px; }
               .ap-gamify-statusbar { padding:8px 12px; }
               .ap-gamify-chip { padding:5px 8px; font-size:11px; gap:4px; }
-              .ap-gamify-tabs-wrap { padding:10px 12px 4px; }
-              .ap-gamify-tab-btn { padding:7px 5px; font-size:10.5px; gap:3px; }
+              .ap-gamify-tabs-wrap { padding:8px 10px 4px !important; }
+              .ap-gamify-tabs { display:grid !important; grid-template-columns:repeat(3, 1fr) !important; gap:3px !important; padding:3px !important; border-radius:11px !important; width:100% !important; box-sizing:border-box !important; }
+              .ap-gamify-tab-btn { padding:7px 3px !important; font-size:10.5px !important; gap:3px !important; min-width:0 !important; }
+              .ap-gamify-tab-btn svg { width:12px !important; height:12px !important; flex-shrink:0 !important; }
+              .ap-gamify-tab-pill { font-size:9px !important; padding:1px 4px !important; flex-shrink:0 !important; }
               .ap-gamify-content { padding:12px 12px 18px !important; }
               .ap-gamify-streak-grid { grid-template-columns:repeat(4, 1fr) !important; gap:6px !important; margin-bottom:14px !important; }
               .ap-streak-card-day7 { grid-column:span 2 !important; flex-direction:row !important; }
@@ -3428,12 +3431,12 @@ function openGamificationModal(activeSubTab) {
               <div class="ap-gamify-chip ap-gamify-chip-xu">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fcd576" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M15 9.5a3 3 0 0 0-6 0c0 3 6 2 6 5a3 3 0 0 1-6 0"/></svg>
                 <span style="color:#cbd5e1; font-weight:600;">Ví:</span>
-                <span style="font-weight:800; color:#fcd576;">${curXu.toLocaleString()} Xu</span>
+                <span id="modalChipXuVal" style="font-weight:800; color:#fcd576;">${curXu.toLocaleString()} Xu</span>
               </div>
               <div class="ap-gamify-chip ap-gamify-chip-xp">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 <span style="color:#cbd5e1; font-weight:600;">XP:</span>
-                <span style="font-weight:800; color:#38bdf8;">${curXP.toLocaleString()} XP</span>
+                <span id="modalChipXpVal" style="font-weight:800; color:#38bdf8;">${curXP.toLocaleString()} XP</span>
               </div>
             </div>
 
@@ -3441,18 +3444,18 @@ function openGamificationModal(activeSubTab) {
             <div class="ap-gamify-tabs-wrap">
               <div class="ap-gamify-tabs">
                 <button onclick="switchGamifySubTab('streak')" id="gamifyTabStreak" class="ap-gamify-tab-btn ${activeSubTab === 'streak' ? 'active' : ''}">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-                  <span>Chuỗi</span>
-                  <span class="ap-gamify-tab-pill">${streakData.streak}N</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                  <span class="tab-text-label">Chuỗi 7N</span>
+                  <span id="gamifyStreakTabPill" class="ap-gamify-tab-pill">${streakData.streak}N</span>
                 </button>
                 <button onclick="switchGamifySubTab('missions')" id="gamifyTabMissions" class="ap-gamify-tab-btn ${activeSubTab === 'missions' ? 'active' : ''}">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                  <span>Nhiệm Vụ</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                  <span class="tab-text-label">Nhiệm Vụ</span>
                   <span class="ap-gamify-tab-pill">${missionsData.filter(m => m.isCompleted).length}/${missionsData.length}</span>
                 </button>
                 <button onclick="switchGamifySubTab('vip')" id="gamifyTabVip" class="ap-gamify-tab-btn ${activeSubTab === 'vip' ? 'active' : ''}">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <span>Đổi VIP</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span class="tab-text-label">Đổi VIP</span>
                   <span class="ap-gamify-tab-pill" style="background:rgba(245,158,11,0.25); color:#fcd576;">HOT</span>
                 </button>
               </div>
@@ -3460,8 +3463,8 @@ function openGamificationModal(activeSubTab) {
 
             <!-- Tab: Streak -->
             <div id="gamifyContentStreak" class="ap-gamify-content" style="display:${activeSubTab === 'streak' ? 'block' : 'none'};">
-              <div class="ap-gamify-streak-grid">${streakCardsHtml}</div>
-              <button onclick="handleModalClaimStreak()" class="ap-gamify-cta" style="background:${streakData.isClaimedToday ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg, #fcd576 0%, #f59e0b 50%, #d97706 100%)'}; color:${streakData.isClaimedToday ? '#64748b' : '#111827'}; border:${streakData.isClaimedToday ? '1px solid rgba(255,255,255,0.08)' : 'none'}; box-shadow:${streakData.isClaimedToday ? 'none' : '0 8px 24px rgba(245,158,11,0.35)'}; cursor:${streakData.isClaimedToday ? 'not-allowed' : 'pointer'};" ${streakData.isClaimedToday ? 'disabled' : ''}>
+              <div class="ap-gamify-streak-grid" id="gamifyStreakGrid">${streakCardsHtml}</div>
+              <button id="btnModalClaimStreak" onclick="handleModalClaimStreak(event)" class="ap-gamify-cta" style="background:${streakData.isClaimedToday ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg, #fcd576 0%, #f59e0b 50%, #d97706 100%)'}; color:${streakData.isClaimedToday ? '#64748b' : '#111827'}; border:${streakData.isClaimedToday ? '1px solid rgba(255,255,255,0.08)' : 'none'}; box-shadow:${streakData.isClaimedToday ? 'none' : '0 8px 24px rgba(245,158,11,0.35)'}; cursor:${streakData.isClaimedToday ? 'not-allowed' : 'pointer'};" ${streakData.isClaimedToday ? 'disabled' : ''}>
                 ${streakData.isClaimedToday
       ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Hôm nay bạn đã điểm danh rồi</span>`
       : `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.3"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg><span>Điểm Danh Ngay (+Xu, +XP)</span>`}
@@ -3577,15 +3580,114 @@ function openGamificationModal(activeSubTab) {
   };
 
   // ─── STREAK CLAIM ───
-  window.handleModalClaimStreak = function () {
+  window.handleModalClaimStreak = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+
+    // 1. Chống spam click liên tục (in-flight debounce lock)
+    if (window._isClaimingCheckinLock) return;
+
+    const btn = document.getElementById('btnModalClaimStreak') || (e && e.currentTarget) || document.querySelector('.ap-gamify-cta');
+
+    // Kiểm tra xem đã điểm danh hôm nay chưa
+    if (window.GamificationCore && typeof window.GamificationCore.getDailyStreakData === 'function') {
+      const dataNow = window.GamificationCore.getDailyStreakData();
+      if (dataNow.isClaimedToday) {
+        if (btn) {
+          btn.disabled = true;
+          btn.style.pointerEvents = 'none';
+          btn.style.cursor = 'not-allowed';
+          btn.style.background = 'rgba(255,255,255,0.06)';
+          btn.style.color = '#64748b';
+          btn.style.border = '1px solid rgba(255,255,255,0.08)';
+          btn.style.boxShadow = 'none';
+          btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Hôm nay bạn đã điểm danh rồi</span>`;
+        }
+        if (typeof showGamificationToast === 'function') {
+          showGamificationToast('⚠️ Bạn đã điểm danh hôm nay rồi! Hãy quay lại vào ngày mai nhé.', 'info');
+        }
+        return;
+      }
+    }
+
+    // 2. KHÓA TỨC THÌ (OPTIMISTIC LOCK 0ms) - Ngay lập tức vô hiệu hóa nút, đổi chữ & icon để user không thể bấm tiếp
+    window._isClaimingCheckinLock = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+      btn.style.cursor = 'not-allowed';
+      btn.style.background = 'rgba(255,255,255,0.06)';
+      btn.style.color = '#64748b';
+      btn.style.border = '1px solid rgba(255,255,255,0.08)';
+      btn.style.boxShadow = 'none';
+      btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="color:#cbd5e1; font-weight:700;">Hôm nay bạn đã điểm danh rồi</span>
+      `;
+    }
+
+    // 3. CẬP NHẬT Ô NGÀY ĐANG ĐIỂM DANH THÀNH ĐÃ HOÀN THÀNH REALTIME (không cần reload/F5)
+    const activeCard = document.querySelector('.ap-streak-card[data-current="true"]') || document.querySelector('.ap-streak-card-active');
+    if (activeCard) {
+      activeCard.setAttribute('data-current', 'false');
+      activeCard.classList.remove('ap-streak-card-active');
+      activeCard.style.background = 'linear-gradient(180deg, rgba(16,185,129,0.16) 0%, rgba(5,150,105,0.06) 100%)';
+      activeCard.style.border = '1px solid rgba(16,185,129,0.4)';
+      activeCard.style.boxShadow = 'none';
+
+      const dayTag = activeCard.querySelector('.ap-streak-day-num');
+      if (dayTag) dayTag.style.color = '#4ade80';
+
+      const iconWrap = activeCard.querySelector('.ap-streak-icon-wrap');
+      if (iconWrap) {
+        iconWrap.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 2px 6px rgba(16,185,129,0.4));">
+            <defs><linearGradient id="gCK_dyn2" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#34d399"/><stop offset="1" stop-color="#059669"/></linearGradient></defs>
+            <circle cx="12" cy="12" r="10" fill="url(#gCK_dyn2)" stroke="#4ade80" stroke-width="1.2"/>
+            <polyline points="7.5 12 10.5 15 16.5 9" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
+      }
+
+      const rewardXu = activeCard.querySelector('.ap-streak-reward-xu');
+      if (rewardXu) rewardXu.style.color = '#4ade80';
+    }
+
+    // 4. TIẾN HÀNH ĐIỂM DANH HỆ THỐNG
     if (window.GamificationCore && typeof window.GamificationCore.claimDailyCheckin === 'function') {
       const ok = window.GamificationCore.claimDailyCheckin();
       if (ok) {
-        openGamificationModal('streak');
+        // Cập nhật số dư Xu và XP trên thanh tiêu đề Modal realtime
+        const xuEl = document.getElementById('modalChipXuVal');
+        const xpEl = document.getElementById('modalChipXpVal');
+        if (xuEl && window.GamificationCore.getXu) {
+          const newXuVal = window.GamificationCore.getXu();
+          xuEl.textContent = `${newXuVal.toLocaleString()} Xu`;
+          xuEl.style.transition = 'color 0.3s, transform 0.3s';
+          xuEl.style.color = '#4ade80';
+          setTimeout(() => { xuEl.style.color = '#fcd576'; }, 1000);
+        }
+        if (xpEl && window.GamificationCore.getXP) {
+          const newXpVal = window.GamificationCore.getXP();
+          xpEl.textContent = `${newXpVal.toLocaleString()} XP`;
+        }
+
+        // Cập nhật nhãn pill chuỗi ngày
+        const streakPill = document.getElementById('gamifyStreakTabPill');
+        const sData = window.GamificationCore.getDailyStreakData();
+        if (streakPill && sData) {
+          streakPill.textContent = `${sData.streak}N`;
+        }
+
         if (typeof renderTab === 'function' && typeof currentTab !== 'undefined') renderTab(currentTab);
         if (typeof initSidebar === 'function') initSidebar();
       }
     }
+
+    // Khóa nút tối thiểu 3 giây
+    setTimeout(() => {
+      window._isClaimingCheckinLock = false;
+    }, 3000);
   };
 
   // ─── MISSION CLAIM ───
@@ -4157,10 +4259,6 @@ function renderAchievements(u) {
                     </svg>
                     <span>Bảng Vinh Danh APhim</span>
                   </h3>
-                  <div style="display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:8px;">
-                    <span class="lb-live-dot"></span>
-                    <span style="font-size:10.5px; font-weight:800; color:#10b981;">Thời gian thực</span>
-                  </div>
                 </div>
                 <button onclick="openGamificationModal()" class="achieve-bonus-btn" style="padding:6px 12px; border-radius:10px; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:6px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.35); color:#818cf8; cursor:pointer; transition:all 0.2s;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
@@ -4265,39 +4363,62 @@ function renderAchievements(u) {
                 
                 <!-- TOP 2 (SILVER MASTER - Á QUÂN) -->
                 <div class="lb-card-top2">
-                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-16px; width:32px; height:32px; filter:drop-shadow(0 4px 12px rgba(148,163,184,0.7)); z-index:4;">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <div class="lb-podium-medal top2-medal" style="position:absolute; top:-18px; width:36px; height:36px; filter:drop-shadow(0 4px 14px rgba(148,163,184,0.85)); z-index:4;">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
-                        <linearGradient id="silverMedalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#ffffff"/>
-                          <stop offset="35%" stop-color="#e2e8f0"/>
-                          <stop offset="70%" stop-color="#94a3b8"/>
-                          <stop offset="100%" stop-color="#475569"/>
+                        <linearGradient id="silverRim3D_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FFFFFF"/>
+                          <stop offset="25%" stop-color="#E2E8F0"/>
+                          <stop offset="50%" stop-color="#94A3B8"/>
+                          <stop offset="75%" stop-color="#64748B"/>
+                          <stop offset="100%" stop-color="#334155"/>
+                        </linearGradient>
+                        <linearGradient id="silverCore3D_js" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stop-color="#FFFFFF"/>
+                          <stop offset="40%" stop-color="#CBD5E1"/>
+                          <stop offset="80%" stop-color="#94A3B8"/>
+                          <stop offset="100%" stop-color="#64748B"/>
+                        </linearGradient>
+                        <linearGradient id="silverNum3D_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#0F172A"/>
+                          <stop offset="100%" stop-color="#1E293B"/>
+                        </linearGradient>
+                        <linearGradient id="silverSheen_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+                          <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
                         </linearGradient>
                       </defs>
-                      <circle cx="16" cy="16" r="14" fill="url(#silverMedalGrad3)" stroke="#334155" stroke-width="1.5"/>
-                      <circle cx="16" cy="16" r="11" fill="none" stroke="#cbd5e1" stroke-dasharray="2.5 1.5"/>
-                      <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#0f172a">2</text>
+                      <circle cx="18" cy="18" r="16.5" fill="url(#silverRim3D_js)" stroke="#1E293B" stroke-width="1"/>
+                      <circle cx="18" cy="18" r="14.5" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.9"/>
+                      <circle cx="18" cy="18" r="12.5" fill="url(#silverCore3D_js)" stroke="#475569" stroke-width="0.8"/>
+                      <circle cx="18" cy="18" r="11" fill="none" stroke="#FFFFFF" stroke-width="0.75" stroke-dasharray="2 1.5" opacity="0.7"/>
+                      <path d="M7 14C9 8 27 8 29 14C24 16 12 16 7 14Z" fill="url(#silverSheen_js)"/>
+                      <text x="18" y="23.5" font-size="16" font-weight="900" font-family="'Outfit', system-ui, -apple-system, sans-serif" text-anchor="middle" fill="url(#silverNum3D_js)" style="filter:drop-shadow(0 1px 0 rgba(255,255,255,0.85)); letter-spacing:-0.5px;">2</text>
+                      <path d="M12 7L13 9L15 10L13 11L12 13L11 11L9 10L11 9L12 7Z" fill="#FFFFFF" opacity="0.9"/>
                     </svg>
                   </div>
                   <!-- Khung Á Quân with Aura -->
-                  <div style="position:relative; width:80px; height:80px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <div class="lb-podium-avatar-wrap top2-avatar-wrap" style="position:relative; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <div class="lb-aura-ring aura-silver"></div>
-                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
+                    <div class="lb-podium-avatar-inner" style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(203,213,225,0.45); z-index:1;">
                       <img src="${top2.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top2'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
-                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_a44e9335ea869639fdf812f3642a56a6.png" alt="Khung Á Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(203,213,225,0.5));">
+                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_98cf94e029ac79c5b377413d1a2bd82f.png" alt="Khung Á Quân - Magic Portal Blue" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 12px rgba(56,189,248,0.7));">
                   </div>
                   <div class="lb-player-name">${top2.name || 'Thành viên'}</div>
-                  <div style="font-size:11px; font-weight:800; color:#e2e8f0; background:rgba(203,213,225,0.16); border:1px solid rgba(203,213,225,0.4); padding:3px 10px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(148,163,184,0.15);">
+                  <div class="lb-rank-badge lb-rank-badge-top2">
                     <span>🥈 Á Quân</span>
                   </div>
                   <div class="lb-xp-txt">${(top2.xp || 0).toLocaleString()} XP</div>
                   <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">⏱️ ${top2.hours || 0}h xem</span>
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700; background:rgba(249,115,22,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(249,115,22,0.25);">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
-                      ${top2.streak || 1}d
+                    <span class="lb-chip-hours">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 15 14"></polyline><path d="M10 2h4"></path><path d="M12 2v2"></path></svg>
+                      <span class="hours-txt-full">${top2.hours || 0}h xem</span>
+                      <span class="hours-txt-short">${top2.hours || 0}h</span>
+                    </span>
+                    <span class="lb-chip-streak">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                      <span>${top2.streak || 1}d</span>
                     </span>
                   </div>
                   <div class="lb-pedestal-base top2-pedestal">#2 Á QUÂN</div>
@@ -4305,45 +4426,81 @@ function renderAchievements(u) {
 
                 <!-- TOP 1 (GOLD CHAMPION - QUÁN QUÂN) -->
                 <div class="lb-card-top1">
-                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-20px; width:42px; height:34px; filter:drop-shadow(0 4px 16px rgba(245,158,11,0.95)); z-index:4;">
-                    <svg width="42" height="34" viewBox="0 0 38 30" fill="none">
+                  <div class="lb-podium-crown top1-crown" style="position:absolute; top:-22px; width:46px; height:38px; filter:drop-shadow(0 6px 18px rgba(245,158,11,0.95)); z-index:4;">
+                    <svg width="46" height="38" viewBox="0 0 46 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
-                        <linearGradient id="goldCrownGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#fff59d"/>
-                          <stop offset="35%" stop-color="#fbc02d"/>
-                          <stop offset="70%" stop-color="#f57f17"/>
-                          <stop offset="100%" stop-color="#b45309"/>
+                        <linearGradient id="crownBody3D_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FFFBEB"/>
+                          <stop offset="25%" stop-color="#FDE68A"/>
+                          <stop offset="50%" stop-color="#F59E0B"/>
+                          <stop offset="80%" stop-color="#D97706"/>
+                          <stop offset="100%" stop-color="#78350F"/>
+                        </linearGradient>
+                        <linearGradient id="crownRim3D_js" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#B45309"/>
+                          <stop offset="30%" stop-color="#FDE68A"/>
+                          <stop offset="60%" stop-color="#F59E0B"/>
+                          <stop offset="100%" stop-color="#78350F"/>
+                        </linearGradient>
+                        <linearGradient id="rubyGemGrad_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FCA5A5"/>
+                          <stop offset="35%" stop-color="#EF4444"/>
+                          <stop offset="70%" stop-color="#DC2626"/>
+                          <stop offset="100%" stop-color="#7F1D1D"/>
+                        </linearGradient>
+                        <linearGradient id="sapphireGemGrad_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#BAE6FD"/>
+                          <stop offset="35%" stop-color="#38BDF8"/>
+                          <stop offset="70%" stop-color="#0284C7"/>
+                          <stop offset="100%" stop-color="#075985"/>
+                        </linearGradient>
+                        <linearGradient id="goldSpecular_js" x1="20%" y1="0%" x2="80%" y2="100%">
+                          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+                          <stop offset="50%" stop-color="#FFFBEB" stop-opacity="0.3"/>
+                          <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
                         </linearGradient>
                       </defs>
-                      <path d="M3 24h32v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z" fill="url(#goldCrownGrad3)"/>
-                      <path d="M4 24l3.5-15 7 8L19 4l4.5 13 7-8L34 24H4z" fill="url(#goldCrownGrad3)" stroke="#78350f" stroke-width="1.2" stroke-linejoin="round"/>
-                      <circle cx="19" cy="4" r="3" fill="#ef4444" stroke="#fff" stroke-width="1.2"/>
-                      <circle cx="7.5" cy="9" r="2.2" fill="#3b82f6" stroke="#fff" stroke-width="0.9"/>
-                      <circle cx="30.5" cy="9" r="2.2" fill="#3b82f6" stroke="#fff" stroke-width="0.9"/>
-                      <circle cx="19" cy="20" r="1.5" fill="#fff" opacity="0.9"/>
+                      <path d="M7 29C15 31.5 31 31.5 39 29V32C31 34.5 15 34.5 7 32V29Z" fill="url(#crownRim3D_js)" stroke="#5A2E05" stroke-width="0.8"/>
+                      <path d="M5 29L9 11L16 20L23 5L30 20L37 11L41 29C33 32 13 32 5 29Z" fill="url(#crownBody3D_js)" stroke="#78350F" stroke-width="1.2" stroke-linejoin="round"/>
+                      <path d="M23 5L16 20L23 27L30 20L23 5Z" fill="url(#goldSpecular_js)"/>
+                      <path d="M9 11L16 20L11 28L5 29L9 11Z" fill="#B45309" fill-opacity="0.4"/>
+                      <path d="M37 11L30 20L35 28L41 29L37 11Z" fill="#B45309" fill-opacity="0.4"/>
+                      <rect x="8" y="27" width="30" height="4" rx="2" fill="url(#crownRim3D_js)" stroke="#78350F" stroke-width="0.8"/>
+                      <circle cx="14" cy="29" r="1.3" fill="url(#sapphireGemGrad_js)"/>
+                      <circle cx="23" cy="29" r="1.8" fill="url(#rubyGemGrad_js)"/>
+                      <circle cx="32" cy="29" r="1.3" fill="url(#sapphireGemGrad_js)"/>
+                      <polygon points="23,1.5 25.5,5 23,8.5 20.5,5" fill="url(#rubyGemGrad_js)" stroke="#FFF" stroke-width="0.7"/>
+                      <circle cx="22.2" cy="4" r="0.8" fill="#FFF" opacity="0.9"/>
+                      <polygon points="9,8 10.8,11 9,14 7.2,11" fill="url(#sapphireGemGrad_js)" stroke="#FFF" stroke-width="0.6"/>
+                      <polygon points="37,8 38.8,11 37,14 35.2,11" fill="url(#sapphireGemGrad_js)" stroke="#FFF" stroke-width="0.6"/>
+                      <circle cx="16" cy="19.5" r="1.3" fill="#FFFBEB" stroke="#D97706" stroke-width="0.7"/>
+                      <circle cx="30" cy="19.5" r="1.3" fill="#FFFBEB" stroke="#D97706" stroke-width="0.7"/>
+                      <path d="M28 2L29 4.5L31.5 5.5L29 6.5L28 9L27 6.5L24.5 5.5L27 4.5L28 2Z" fill="#FFF" opacity="0.85"/>
                     </svg>
                   </div>
                   <!-- Khung Quán Quân with Rotating Halo -->
-                  <div style="position:relative; width:94px; height:94px; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <div class="lb-podium-avatar-wrap top1-avatar-wrap" style="position:relative; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <div class="lb-aura-ring aura-gold"></div>
-                    <div style="width:60px; height:60px; border-radius:50%; overflow:hidden; box-shadow:0 0 24px rgba(245,158,11,0.65); z-index:1;">
+                    <div class="lb-podium-avatar-inner" style="width:60px; height:60px; border-radius:50%; overflow:hidden; box-shadow:0 0 24px rgba(245,158,11,0.65); z-index:1;">
                       <img src="${top1.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top1'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
-                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_386445551be850bb16b73a225d0d0602.png" alt="Khung Quán Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 16px rgba(245,158,11,0.7));">
+                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0e839cd79500e7b68e2bbbed54790c28.png" alt="Khung Quán Quân - Phoenix Wings" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 4px 18px rgba(245,158,11,0.95));">
                   </div>
                   <div class="lb-player-name top1-name">${top1.name || 'Quán Quân'}</div>
-                  <div style="font-size:11.5px; font-weight:900; color:#fcd576; background:linear-gradient(135deg, rgba(245,158,11,0.28) 0%, rgba(217,119,6,0.24) 100%); border:1px solid rgba(245,158,11,0.65); padding:3px 12px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 10px rgba(245,158,11,0.25);">
-                    <svg width="13" height="12" viewBox="0 0 36 28" fill="#f59e0b"><path d="M4 23l3.5-14 6.5 7.5L18 4l4 12.5 6.5-7.5L32 23H4z"/></svg>
+                  <div class="lb-rank-badge lb-rank-badge-top1">
                     <span>👑 Quán Quân</span>
                   </div>
                   <div class="lb-xp-txt top1-xp">${(top1.xp || 0).toLocaleString()} XP</div>
                   <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:5px;">
-                    <span style="display:inline-flex; align-items:center; gap:3px; color:#f97316; font-weight:800; background:rgba(249,115,22,0.14); border:1px solid rgba(249,115,22,0.35); padding:2px 8px; border-radius:6px;">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
-                      ${top1.streak || 1} ngày streak
+                    <span class="lb-chip-streak">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                      <span class="streak-txt-full">${top1.streak || 1} ngày streak</span>
+                      <span class="streak-txt-short">${top1.streak || 1}d</span>
                     </span>
-                    <span style="display:inline-flex; align-items:center; gap:3px; color:#38bdf8; font-weight:700; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:6px;">
-                      ⏱️ ${top1.hours || 0}h xem
+                    <span class="lb-chip-hours">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 15 14"></polyline><path d="M10 2h4"></path><path d="M12 2v2"></path></svg>
+                      <span class="hours-txt-full">${top1.hours || 0}h xem</span>
+                      <span class="hours-txt-short">${top1.hours || 0}h</span>
                     </span>
                   </div>
                   <div class="lb-pedestal-base top1-pedestal">#1 QUÁN QUÂN</div>
@@ -4351,39 +4508,62 @@ function renderAchievements(u) {
 
                 <!-- TOP 3 (BRONZE MASTER - QUÝ QUÂN) -->
                 <div class="lb-card-top3">
-                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-16px; width:32px; height:32px; filter:drop-shadow(0 4px 12px rgba(217,119,6,0.6)); z-index:4;">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <div class="lb-podium-medal top3-medal" style="position:absolute; top:-18px; width:36px; height:36px; filter:drop-shadow(0 4px 14px rgba(217,119,6,0.75)); z-index:4;">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
-                        <linearGradient id="bronzeMedalGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#ffedd5"/>
-                          <stop offset="35%" stop-color="#fb923c"/>
-                          <stop offset="70%" stop-color="#c2410c"/>
-                          <stop offset="100%" stop-color="#7c2d12"/>
+                        <linearGradient id="bronzeRim3D_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FFEDD5"/>
+                          <stop offset="25%" stop-color="#FB923C"/>
+                          <stop offset="50%" stop-color="#EA580C"/>
+                          <stop offset="75%" stop-color="#9A3412"/>
+                          <stop offset="100%" stop-color="#431407"/>
+                        </linearGradient>
+                        <linearGradient id="bronzeCore3D_js" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stop-color="#FED7AA"/>
+                          <stop offset="40%" stop-color="#FDBA74"/>
+                          <stop offset="80%" stop-color="#C2410C"/>
+                          <stop offset="100%" stop-color="#7C2D12"/>
+                        </linearGradient>
+                        <linearGradient id="bronzeNum3D_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#270901"/>
+                          <stop offset="100%" stop-color="#431407"/>
+                        </linearGradient>
+                        <linearGradient id="bronzeSheen_js" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FFF" stop-opacity="0.75"/>
+                          <stop offset="60%" stop-color="#FFF" stop-opacity="0"/>
                         </linearGradient>
                       </defs>
-                      <circle cx="16" cy="16" r="14" fill="url(#bronzeMedalGrad3)" stroke="#431407" stroke-width="1.5"/>
-                      <circle cx="16" cy="16" r="11" fill="none" stroke="#fed7aa" stroke-dasharray="2.5 1.5"/>
-                      <text x="16" y="21" font-size="14" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#290b02">3</text>
+                      <circle cx="18" cy="18" r="16.5" fill="url(#bronzeRim3D_js)" stroke="#270901" stroke-width="1"/>
+                      <circle cx="18" cy="18" r="14.5" fill="none" stroke="#FFEDD5" stroke-width="1.2" opacity="0.9"/>
+                      <circle cx="18" cy="18" r="12.5" fill="url(#bronzeCore3D_js)" stroke="#7C2D12" stroke-width="0.8"/>
+                      <circle cx="18" cy="18" r="11" fill="none" stroke="#FFEDD5" stroke-width="0.75" stroke-dasharray="2 1.5" opacity="0.7"/>
+                      <path d="M7 14C9 8 27 8 29 14C24 16 12 16 7 14Z" fill="url(#bronzeSheen_js)"/>
+                      <text x="18" y="23.5" font-size="16" font-weight="900" font-family="'Outfit', system-ui, -apple-system, sans-serif" text-anchor="middle" fill="url(#bronzeNum3D_js)" style="filter:drop-shadow(0 1px 0 rgba(254,215,170,0.85)); letter-spacing:-0.5px;">3</text>
+                      <path d="M12 7L13 9L15 10L13 11L12 13L11 11L9 10L11 9L12 7Z" fill="#FFF" opacity="0.85"/>
                     </svg>
                   </div>
                   <!-- Khung Quý Quân with Aura -->
-                  <div style="position:relative; width:80px; height:80px; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <div class="lb-podium-avatar-wrap top3-avatar-wrap" style="position:relative; margin:2px auto 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                     <div class="lb-aura-ring aura-bronze"></div>
-                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
+                    <div class="lb-podium-avatar-inner" style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:0 0 16px rgba(205,127,50,0.45); z-index:1;">
                       <img src="${top3.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Top3'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">
                     </div>
-                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_45f7f9975255971b197d34d77fb50ede.png" alt="Khung Quý Quân" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 10px rgba(205,127,50,0.5));">
+                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_fcb0de14da228879b455f1f1d3919749.png" alt="Khung Quý Quân - Gold Laurel Wreath" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; z-index:2; filter:drop-shadow(0 3px 12px rgba(217,119,6,0.75));">
                   </div>
                   <div class="lb-player-name">${top3.name || 'Thành viên'}</div>
-                  <div style="font-size:11px; font-weight:800; color:#fed7aa; background:rgba(205,127,50,0.2); border:1px solid rgba(205,127,50,0.4); padding:3px 10px; border-radius:8px; margin:5px 0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(217,119,6,0.15);">
+                  <div class="lb-rank-badge lb-rank-badge-top3">
                     <span>🥉 Quý Quân</span>
                   </div>
-                  <div class="lb-xp-txt" style="color:#fb923c;">${(top3.xp || 0).toLocaleString()} XP</div>
+                  <div class="lb-xp-txt top3-xp">${(top3.xp || 0).toLocaleString()} XP</div>
                   <div class="lb-sub-meta" style="display:flex; align-items:center; justify-content:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">⏱️ ${top3.hours || 0}h xem</span>
-                    <span style="display:inline-flex; align-items:center; gap:2px; color:#f97316; font-weight:700; background:rgba(249,115,22,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(249,115,22,0.25);">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#f97316"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
-                      ${top3.streak || 1}d
+                    <span class="lb-chip-hours">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 15 14"></polyline><path d="M10 2h4"></path><path d="M12 2v2"></path></svg>
+                      <span class="hours-txt-full">${top3.hours || 0}h xem</span>
+                      <span class="hours-txt-short">${top3.hours || 0}h</span>
+                    </span>
+                    <span class="lb-chip-streak">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 2c-.5 2.5-2.5 4.5-4 6-2 2-3 4.5-3 7.5a7 7 0 0014 0c0-3-1-5.5-3-7.5-1.5-1.5-3.5-3.5-4-6z"/></svg>
+                      <span>${top3.streak || 1}d</span>
                     </span>
                   </div>
                   <div class="lb-pedestal-base top3-pedestal">#3 QUÝ QUÂN</div>

@@ -547,16 +547,26 @@ function applyEquippedBanner(coverEl, u) {
 window.applyEquippedBanner = applyEquippedBanner;
 
 function updateUserUI() {
-    if (typeof authService === 'undefined') {
-        setTimeout(updateUserUI, 150);
-        return;
-    }
-
     let user = (typeof authService !== 'undefined' && authService.getCurrentUser) ? authService.getCurrentUser() : null;
     if (!user) {
         try {
             user = JSON.parse(localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user') || 'null');
         } catch (e) { }
+    }
+
+    // Đồng bộ class trạng thái trên <html> để triệt tiêu FOUC
+    if (typeof document !== 'undefined' && document.documentElement) {
+        if (user) {
+            document.documentElement.classList.add('user-logged-in');
+            document.documentElement.classList.remove('user-guest');
+        } else {
+            document.documentElement.classList.remove('user-logged-in');
+            document.documentElement.classList.add('user-guest');
+        }
+    }
+
+    if (typeof authService === 'undefined') {
+        setTimeout(updateUserUI, 150);
     }
 
     // Apply equipped banner if sidebar cover is on this page
@@ -843,6 +853,48 @@ function updateUserUI() {
             if (typeof window.updateMobileMenuUser === 'function') {
                 try { window.updateMobileMenuUser(); } catch (e) { }
             }
+
+            // Sync notification bell listener & outside click guard even on in-place update
+            const notifBtn = document.getElementById('navNotificationBtn');
+            if (notifBtn) {
+                notifBtn.onclick = function (e) {
+                    e.stopPropagation();
+                    const panel = document.getElementById('navNotifPanel');
+                    if (panel) {
+                        const isVisible = panel.classList.contains('opacity-100');
+                        if (isVisible) {
+                            panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
+                            panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                        } else {
+                            panel.classList.remove('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
+                            panel.classList.add('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                        }
+                    }
+                };
+            }
+
+            if (!document._apUserClickGuard) {
+                document._apUserClickGuard = true;
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('#navNotificationBtn')) {
+                        const panel = document.getElementById('navNotifPanel');
+                        if (panel && panel.classList.contains('opacity-100')) {
+                            panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
+                            panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                        }
+                    }
+                    if (!e.target.closest('.nav-profile-dropdown')) {
+                        document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el => el.classList.remove('is-open'));
+                    }
+                });
+            }
+
+            if (typeof updateNotifBadge === 'function') {
+                try { updateNotifBadge(); } catch(e) {}
+            }
+            if (typeof syncNotifications === 'function') {
+                syncNotifications();
+            }
             return;
         }
 
@@ -961,9 +1013,20 @@ function updateUserUI() {
     }
 }
 
-// Khởi chạy & Lắng nghe đồng bộ đa nguồn Realtime
-document.addEventListener('DOMContentLoaded', updateUserUI);
-setTimeout(updateUserUI, 300);
+// Khởi chạy ngay lập tức nếu DOM đã sẵn sàng
+if (document.readyState !== 'loading') {
+    updateUserUI();
+} else {
+    document.addEventListener('DOMContentLoaded', updateUserUI);
+}
+setTimeout(updateUserUI, 100);
+
+window.addEventListener('auth:logout', function () {
+    updateUserUI();
+});
+window.addEventListener('auth:login', function () {
+    updateUserUI();
+});
 
 window.addEventListener('ap:user-updated', function (e) {
     updateUserUI();

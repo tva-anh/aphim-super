@@ -1,0 +1,39 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bronzeRim3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFEDD5"/>
+      <stop offset="25%" stop-color="#FB923C"/>
+      <stop offset="50%" stop-color="#EA580C"/>
+      <stop offset="75%" stop-color="#9A3412"/>
+      <stop offset="100%" stop-color="#431407"/>
+    </linearGradient>
+    <linearGradient id="bronzeCore3D" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FED7AA"/>
+      <stop offset="40%" stop-color="#FDBA74"/>
+      <stop offset="80%" stop-color="#C2410C"/>
+      <stop offset="100%" stop-color="#7C2D12"/>
+    </linearGradient>
+    <linearGradient id="bronzeNum3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#270901"/>
+      <stop offset="100%" stop-color="#431407"/>
+    </linearGradient>
+    <linearGradient id="bronzeSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF" stop-opacity="0.75"/>
+      <stop offset="60%" stop-color="#FFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer Beveled Bronze Ring -->
+  <circle cx="18" cy="18" r="16.5" fill="url(#bronzeRim3D)" stroke="#270901" stroke-width="1"/>
+  <!-- Specular Highlight Crest -->
+  <circle cx="18" cy="18" r="14.5" fill="none" stroke="#FFEDD5" stroke-width="1.2" opacity="0.9"/>
+  <!-- Inner Polished Warm Bronze Core -->
+  <circle cx="18" cy="18" r="12.5" fill="url(#bronzeCore3D)" stroke="#7C2D12" stroke-width="0.8"/>
+  <!-- Subtle Laurel Ring / Star Accents -->
+  <circle cx="18" cy="18" r="11" fill="none" stroke="#FFEDD5" stroke-width="0.75" stroke-dasharray="2 1.5" opacity="0.7"/>
+  <!-- Gloss Reflection Sweep -->
+  <path d="M7 14C9 8 27 8 29 14C24 16 12 16 7 14Z" fill="url(#bronzeSheen)"/>
+  <!-- 3D Bold Embossed Number 3 -->
+  <text x="18" y="23.5" font-size="16" font-weight="900" font-family="'Outfit', system-ui, -apple-system, sans-serif" text-anchor="middle" fill="url(#bronzeNum3D)" style="filter:drop-shadow(0 1px 0 rgba(254,215,170,0.85)); letter-spacing:-0.5px;">3</text>
+  <!-- Mini Diamond Sparkle -->
+  <path d="M12 7L13 9L15 10L13 11L12 13L11 11L9 10L11 9L12 7Z" fill="#FFF" opacity="0.85"/>
+</svg>

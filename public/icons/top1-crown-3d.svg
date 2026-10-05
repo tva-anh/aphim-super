@@ -1,0 +1,57 @@
+<svg width="46" height="38" viewBox="0 0 46 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crownBody3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="25%" stop-color="#FDE68A"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="80%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+    <linearGradient id="crownRim3D" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B45309"/>
+      <stop offset="30%" stop-color="#FDE68A"/>
+      <stop offset="60%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+    <linearGradient id="rubyGemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCA5A5"/>
+      <stop offset="35%" stop-color="#EF4444"/>
+      <stop offset="70%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <linearGradient id="sapphireGemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#BAE6FD"/>
+      <stop offset="35%" stop-color="#38BDF8"/>
+      <stop offset="70%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#075985"/>
+    </linearGradient>
+    <linearGradient id="goldSpecular" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#FFFBEB" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Base Rim Shadow -->
+  <path d="M7 29C15 31.5 31 31.5 39 29V32C31 34.5 15 34.5 7 32V29Z" fill="url(#crownRim3D)" stroke="#5A2E05" stroke-width="0.8"/>
+  <!-- Main Imperial Crown Body (5-Point Imperial Faceted Silhouette) -->
+  <path d="M5 29L9 11L16 20L23 5L30 20L37 11L41 29C33 32 13 32 5 29Z" fill="url(#crownBody3D)" stroke="#78350F" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- Facet Inner Shading Planes (Gives 3D Volumetric Depth) -->
+  <path d="M23 5L16 20L23 27L30 20L23 5Z" fill="url(#goldSpecular)"/>
+  <path d="M9 11L16 20L11 28L5 29L9 11Z" fill="#B45309" fill-opacity="0.4"/>
+  <path d="M37 11L30 20L35 28L41 29L37 11Z" fill="#B45309" fill-opacity="0.4"/>
+  <!-- Lower Gem Plate -->
+  <rect x="8" y="27" width="30" height="4" rx="2" fill="url(#crownRim3D)" stroke="#78350F" stroke-width="0.8"/>
+  <!-- Crown Rim Cut Gems -->
+  <circle cx="14" cy="29" r="1.3" fill="url(#sapphireGemGrad)"/>
+  <circle cx="23" cy="29" r="1.8" fill="url(#rubyGemGrad)"/>
+  <circle cx="32" cy="29" r="1.3" fill="url(#sapphireGemGrad)"/>
+  <!-- Top Peak Brilliant Diamonds / Jewels -->
+  <polygon points="23,1.5 25.5,5 23,8.5 20.5,5" fill="url(#rubyGemGrad)" stroke="#FFF" stroke-width="0.7"/>
+  <circle cx="22.2" cy="4" r="0.8" fill="#FFF" opacity="0.9"/>
+  <polygon points="9,8 10.8,11 9,14 7.2,11" fill="url(#sapphireGemGrad)" stroke="#FFF" stroke-width="0.6"/>
+  <polygon points="37,8 38.8,11 37,14 35.2,11" fill="url(#sapphireGemGrad)" stroke="#FFF" stroke-width="0.6"/>
+  <circle cx="16" cy="19.5" r="1.3" fill="#FFFBEB" stroke="#D97706" stroke-width="0.7"/>
+  <circle cx="30" cy="19.5" r="1.3" fill="#FFFBEB" stroke="#D97706" stroke-width="0.7"/>
+  <!-- Sparkle Flare on Top -->
+  <path d="M28 2L29 4.5L31.5 5.5L29 6.5L28 9L27 6.5L24.5 5.5L27 4.5L28 2Z" fill="#FFF" opacity="0.85"/>
+</svg>

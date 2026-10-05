@@ -396,6 +396,12 @@
         }).then(r => r.json()).then(res => {
           if (res && res.success) {
             console.log('[Gamification] Cloud streak synced successfully:', res);
+
+            if (res.xu != null) setXu(res.xu);
+            if (res.xp != null) setXP(res.xp);
+            updateHeaderChips();
+          } else if (res && !res.success) {
+            console.warn('[Gamification] Cloud streak response:', res.message);
           }
         }).catch(err => {
           if (typeof authService !== 'undefined' && typeof authService.updateProfile === 'function') {
@@ -418,8 +424,12 @@
       return true;
     } finally {
       setTimeout(() => {
-        isClaimingStreak = false;
-      }, 600);
+        const check = getDailyStreakData();
+        // Nếu đã điểm danh hôm nay rồi thì giữ nguyên khóa, không mở lại để chống spam
+        if (!check.isClaimedToday) {
+          isClaimingStreak = false;
+        }
+      }, 1500);
     }
   }
 

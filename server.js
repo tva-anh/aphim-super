@@ -1397,17 +1397,32 @@ app.get('/', async (req, res) => {
 });
 
 // ==========================================
-// BLOCKED MOVIES LIST (DMCA / BÁO CÁO VI PHẠM)
-// Mã báo cáo: 489339a89ce51782 (trai-cam)
+// 🛡️ DYNAMIC MOVIE CONTROLS (DMCA / ẨN KHỎI WEB / GHIM TRANG CHỦ)
 // ==========================================
-const BLOCKED_SLUGS = ['trai-cam', 'moi-thu-la-loi-co-ay', 'michael', 'dac-vu-xuyen-quoc-gia', 'xac-song-thanh-pho-chet-phan-2'];
+const moviesControl = require('./lib/moviesControl');
+
+// Public API lấy danh sách trạng thái phim để frontend & client-side API tự động lọc
+app.get('/api/movies/control-status', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=30');
+    return res.json(moviesControl.getAll());
+});
 
 function checkBlockedSlug(req, res, next) {
-    const slug = (req.params.slug || req.query.slug || '').toLowerCase();
-    if (slug && BLOCKED_SLUGS.includes(slug)) {
-        console.warn(`[BLOCK] Đã chặn truy cập phim bị báo cáo (Mã báo cáo 489339a89ce51782): ${slug}`);
-        return res.redirect('/?notice=blocked');
+    const slug = (req.params.slug || req.query.slug || '').toLowerCase().trim();
+    if (!slug) return next();
+
+    // 1. Kiểm tra chặn DMCA (Báo cáo vi phạm)
+    if (moviesControl.isBlockedDMCA(slug)) {
+        console.warn(`[DMCA BLOCK] Chặn truy cập phim bị báo cáo DMCA: ${slug}`);
+        return res.redirect('/?notice=dmca&slug=' + encodeURIComponent(slug));
     }
+
+    // 2. Kiểm tra ẩn khỏi website
+    if (moviesControl.isHidden(slug)) {
+        console.warn(`[HIDDEN BLOCK] Chặn truy cập phim đã ẩn khỏi web: ${slug}`);
+        return res.redirect('/?notice=hidden&slug=' + encodeURIComponent(slug));
+    }
+
     next();
 }
 

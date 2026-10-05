@@ -399,6 +399,157 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
     }
 
+    /* ── Triệt tiêu hoàn toàn hiện tượng FOUC / Chớp nháy Auth khi chuyển trang ── */
+    html.user-logged-in #authContainer > .sofa-login-rect-btn,
+    html.user-logged-in #authContainer > a[href="/profile"].sofa-login-rect-btn,
+    html.user-logged-in #authContainer > .sofa-icon-circle-btn {
+        display: none !important;
+    }
+
+    #authContainer {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+        min-width: max-content !important;
+    }
+    #userNavProfile {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+        min-width: max-content !important;
+        gap: 8px !important;
+    }
+    .nav-profile-dropdown {
+        position: relative !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    .ap-user-bar-trigger {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 4px 10px 4px 6px !important;
+        border-radius: 9999px !important;
+        background: transparent !important;
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        transition: all 0.2s ease !important;
+        user-select: none !important;
+        cursor: pointer !important;
+    }
+    .ap-user-bar-trigger:hover,
+    .nav-profile-dropdown.is-open .ap-user-bar-trigger {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+    html.light-mode .ap-user-bar-trigger:hover,
+    html.light-mode .nav-profile-dropdown.is-open .ap-user-bar-trigger {
+        background: rgba(0, 0, 0, 0.06) !important;
+    }
+    .ap-user-name-text {
+        color: #ffffff !important;
+        font-size: 14.5px !important;
+        font-weight: 900 !important;
+        font-family: 'Montserrat', 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif !important;
+        letter-spacing: 0.03em !important;
+        text-transform: none !important;
+        white-space: nowrap !important;
+        max-width: 130px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+        flex-shrink: 1 !important;
+        cursor: pointer !important;
+    }
+    html.light-mode .ap-user-name-text:not(.has-custom-name-color) {
+        color: #1c1917 !important;
+        -webkit-text-fill-color: #1c1917 !important;
+    }
+    .ap-user-chevron-icon {
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0 !important;
+        color: #94a3b8 !important;
+        fill: none !important;
+        stroke: currentColor !important;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease !important;
+        display: block !important;
+    }
+    html.light-mode .ap-user-chevron-icon {
+        color: #475569 !important;
+    }
+    .ap-user-bar-trigger:hover .ap-user-chevron-icon,
+    .nav-profile-dropdown.is-open .ap-user-chevron-icon,
+    .nav-profile-dropdown:hover .ap-user-chevron-icon {
+        transform: rotate(180deg) !important;
+        color: #fcd576 !important;
+    }
+    .nav-profile-dropdown:hover .ap-user-dropdown-menu,
+    .nav-profile-dropdown.is-open .ap-user-dropdown-menu {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: scale(1) translateY(0) !important;
+        pointer-events: auto !important;
+    }
+    .ap-user-dropdown-menu {
+        pointer-events: none;
+    }
+    .ap-user-dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: -18px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        background: transparent;
+    }
+    @media (max-width: 1280px) {
+        .ap-user-name-text {
+            max-width: 100px !important;
+        }
+    }
+    @media (max-width: 1024px) {
+        .ap-user-name-text {
+            max-width: 80px !important;
+        }
+    }
+    @media (max-width: 768px) {
+        #userNavProfile {
+            gap: 8px !important;
+        }
+        .ap-user-bar-trigger .ap-user-name-text,
+        span.ap-user-name-text {
+            display: none !important;
+        }
+        .ap-user-bar-trigger .ap-user-chevron-icon,
+        .ap-user-chevron-icon {
+            display: block !important;
+            width: 14px !important;
+            height: 14px !important;
+            margin-left: 1px !important;
+            margin-right: 2px !important;
+            color: rgba(255, 255, 255, 0.75) !important;
+            flex-shrink: 0 !important;
+        }
+        html.light-mode .ap-user-bar-trigger .ap-user-chevron-icon,
+        html.light-mode .ap-user-chevron-icon {
+            color: #475569 !important;
+        }
+        .ap-user-bar-trigger {
+            display: inline-flex !important;
+            align-items: center !important;
+            padding: 2px 6px 2px 2px !important;
+            gap: 4px !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 9999px !important;
+        }
+        html.light-mode .ap-user-bar-trigger {
+            background: rgba(0, 0, 0, 0.04) !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        }
+    }
+
     /* Mobile / Desktop Search Overlay Dropdown */
     .sofa-mobile-search-overlay {
         position: fixed !important;
@@ -1201,6 +1352,139 @@
                 </a>
                 <a href="/profile" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }" class="sofa-login-rect-btn">Đăng nhập</a>
             </div>
+            <script>
+                // ⚡ ZERO-FLICKER INSTANT AUTH HYDRATION
+                // Runs synchronously before the browser paints this section of the DOM
+                (function() {
+                    try {
+                        var rawUser = localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user');
+                        var token = localStorage.getItem('cinestream_token');
+                        if (rawUser && token) {
+                            var u = JSON.parse(rawUser);
+                            if (u && (u._id || u.id || u.name || u.displayName || u.email)) {
+                                document.documentElement.classList.add('user-logged-in');
+                                document.documentElement.classList.remove('user-guest');
+                                var container = document.getElementById('authContainer');
+                                if (container) {
+                                    var userId = u._id || u.id || u.email;
+                                    var displayName = u.displayName || u.name || u.fullName || 'Người dùng';
+                                    var initial = displayName.charAt(0).toUpperCase();
+                                    var avatarKey = userId ? ('avatar_' + userId) : 'user_avatar';
+                                    var savedAvatar = (u.avatar || u.avatar_url) || localStorage.getItem(avatarKey) || localStorage.getItem('user_avatar') || '';
+
+                                    // Unread notifications count
+                                    var unreadCount = 0;
+                                    try {
+                                        var rawNotifs = localStorage.getItem('ap_notifs_' + userId) || localStorage.getItem('cinestream_notifications');
+                                        if (rawNotifs) {
+                                            var notifList = JSON.parse(rawNotifs);
+                                            if (Array.isArray(notifList)) {
+                                                unreadCount = notifList.filter(function(n) { return n && !n.isRead && !n.read; }).length;
+                                            }
+                                        }
+                                    } catch(e) {}
+
+                                    var frameUrl = (u.equippedFrameUrl) || localStorage.getItem('ap_frame_url') || localStorage.getItem('ap_equipped_frame_url') || '';
+                                    var frameClass = (u.equippedFrameClass) || localStorage.getItem('ap_frame_class') || '';
+
+                                    var innerAvatar = savedAvatar 
+                                        ? '<img src="' + savedAvatar + '" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;" onerror="this.outerHTML=\'<span style=\\\'color:#1a1100; font-weight:800; font-size:16px;\\\'>' + initial + '</span>\'"/>'
+                                        : '<span style="color:#1a1100; font-weight:800; font-size:16px;">' + initial + '</span>';
+
+                                    var avatarHtml = '';
+                                    if (frameUrl) {
+                                        avatarHtml = '<div class="user-avatar-frame-wrap" style="position:relative; display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; flex-shrink:0;">' +
+                                            '<div class="user-avatar-inner" style="width:100%; height:100%; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important; position:relative; z-index:1; font-size:16px; font-weight:900; color:#1a1000 !important; box-shadow:0 4px 14px rgba(245,158,11,0.45);">' + innerAvatar + '</div>' +
+                                            '<img src="' + frameUrl + '" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:120%; height:120%; max-width:none; max-height:none; object-fit:contain; pointer-events:none; z-index:5;" alt="frame">' +
+                                        '</div>';
+                                    } else if (frameClass && frameClass !== 'none') {
+                                        avatarHtml = '<div class="shop-frame-wrap size-xs ' + frameClass + '" style="width:38px; height:38px; flex-shrink:0; position:relative; z-index:2;">' + innerAvatar + '</div>';
+                                    } else {
+                                        avatarHtml = '<div class="ap-user-avatar-badge ap-avatar-no-frame" style="width:38px; height:38px; border-radius:50%; border:2px solid rgba(255,255,255,0.22); background:linear-gradient(135deg, #fcd576, #d97706); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; color:#1a1000; overflow:hidden; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.2); position:relative; z-index:2;">' + innerAvatar + '</div>';
+                                    }
+
+                                    var notifBadgeHtml = unreadCount > 0
+                                        ? '<span id="navNotifBadge" class="nav-bell-badge" style="display:inline-flex;">' + (unreadCount > 99 ? '99+' : unreadCount) + '</span>'
+                                        : '<span id="navNotifBadge" class="nav-bell-badge hidden" style="display:none;"></span>';
+
+                                    var notifBell = '<div class="relative flex items-center" id="navNotificationBtn" style="cursor:pointer; z-index: 60; margin-right: 0px; flex-shrink:0;">' +
+                                        '<button type="button" class="nav-bell-trigger relative" aria-label="Thông báo" title="Thông báo">' +
+                                            '<svg class="nav-bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                                                '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"></path>' +
+                                            '</svg>' +
+                                            notifBadgeHtml +
+                                        '</button>' +
+                                        '<div id="navNotifPanel" class="nav-notif-dropdown invisible opacity-0 translate-y-3 scale-95 transition-all duration-200">' +
+                                            '<div id="notifArrow" class="nav-notif-arrow"></div>' +
+                                            '<div class="nav-notif-header">' +
+                                                '<div class="nav-notif-header-title">' +
+                                                    '<div class="nav-notif-title-row">' +
+                                                        '<span class="nav-notif-title-text">Thông Báo</span>' +
+                                                        '<span id="notifCountBadge" class="nav-notif-count-pill ' + (unreadCount > 0 ? '' : 'hidden') + '">' + unreadCount + ' Mới</span>' +
+                                                    '</div>' +
+                                                    '<span class="nav-notif-sub-text">Cập nhật tin tức &amp; ưu đãi VIP</span>' +
+                                                '</div>' +
+                                                '<button type="button" onclick="event.stopPropagation(); if(window.markAllNotifsRead) markAllNotifsRead();" class="nav-notif-mark-read-btn" title="Đánh dấu tất cả là đã đọc">' +
+                                                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' +
+                                                    '<span>Đã đọc</span>' +
+                                                '</button>' +
+                                            '</div>' +
+                                            '<div id="notifListContainer" class="nav-notif-list custom-scrollbar"></div>' +
+                                            '<div class="nav-notif-footer">' +
+                                                '<a href="/profile?tab=notifications" class="nav-notif-view-all-btn">' +
+                                                    '<span>Xem tất cả thông báo</span>' +
+                                                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                                                        '<path d="M5 12h14M12 5l7 7-7 7"/>' +
+                                                    '</svg>' +
+                                                '</a>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>';
+
+                                    var profileLink = '<div id="userNavProfile" class="flex items-center" style="position: relative; z-index: 50; gap: 8px;" data-user-id="' + userId + '">' +
+                                        notifBell +
+                                        '<div class="relative group nav-profile-dropdown" style="padding: 0; overflow: visible !important;">' +
+                                            '<div class="ap-user-bar-trigger flex items-center gap-2.5 px-2 py-1 rounded-full cursor-pointer transition-all duration-200" style="user-select: none;" title="' + displayName.replace(/"/g, '&quot;') + '" onclick="this.parentElement.classList.toggle(\'is-open\')">' +
+                                                avatarHtml +
+                                                '<span class="ap-user-name-text" title="' + displayName.replace(/"/g, '&quot;') + '" style="font-size: 14.5px !important; font-weight: 900 !important; font-family: \'Montserrat\', \'Oswald\', \'Be Vietnam Pro\', system-ui, sans-serif !important; letter-spacing: 0.03em !important; text-transform: none !important; white-space: nowrap !important; max-width: 130px !important; overflow: hidden !important; text-overflow: ellipsis !important; vertical-align: middle !important;">' +
+                                                    displayName +
+                                                '</span>' +
+                                                '<svg class="ap-user-chevron-icon" style="width:14px; height:14px; flex-shrink:0; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease; display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' +
+                                                    '<path d="m6 9 6 6 6-6"/>' +
+                                                '</svg>' +
+                                            '</div>' +
+                                            '<div class="ap-user-dropdown-menu" style="position:absolute; right:0; top:calc(100% + 12px); opacity:0; visibility:hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s; z-index:999999; transform: scale(0.95) translateY(-6px); transform-origin: top right; width:280px; background:#1e2235; border:1px solid rgba(255,255,255,0.12); border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04); padding:20px 16px 16px 16px; backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);">' +
+                                                '<div style="display:flex; align-items:center; gap:8px; padding:0 4px; margin-bottom:16px;">' +
+                                                    '<span class="ap-dropdown-user-name" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:\'Montserrat\', \'Oswald\', \'Be Vietnam Pro\', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; display:inline-block;" title="' + displayName.replace(/"/g, '&quot;') + '">' + displayName + '</span>' +
+                                                    '<span class="ap-vip-modern-badge" title="Thành viên VIP" style="display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">' +
+                                                        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block; filter:drop-shadow(0 2px 8px rgba(129,140,248,0.7));"><polygon points="12,1.5 9.5,9.5 12,12" fill="#a5b4fc"/><polygon points="12,1.5 14.5,9.5 12,12" fill="#818cf8"/><polygon points="22.5,12 14.5,9.5 12,12" fill="#c084fc"/><polygon points="22.5,12 14.5,14.5 12,12" fill="#f472b6"/><polygon points="12,22.5 14.5,14.5 12,12" fill="#ec4899"/><polygon points="12,22.5 9.5,14.5 12,12" fill="#7c3aed"/><polygon points="1.5,12 9.5,14.5 12,12" fill="#38bdf8"/><polygon points="1.5,12 9.5,9.5 12,12" fill="#67e8f9"/><polygon points="12,8.5 13.8,12 12,15.5 10.2,12" fill="#ffffff" opacity="0.9"/></svg>' +
+                                                    '</span>' +
+                                                '</div>' +
+                                                '<div style="display:flex; flex-direction:column; gap:3px;">' +
+                                                    '<a href="/profile?tab=account" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#818cf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Thông tin cá nhân</span></a>' +
+                                                    '<a href="/profile?tab=shop" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#fbbf24;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Cửa hàng</span></a>' +
+                                                    '<a href="/profile?tab=favorites" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#fb7185;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Yêu thích</span></a>' +
+                                                    '<a href="/profile?tab=history" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(34,197,94,0.18); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#4ade80;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Lịch sử xem</span></a>' +
+                                                    '<a href="/profile?tab=watchlist" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#38bdf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Danh sách phát</span></a>' +
+                                                    '<a href="/profile?tab=cinema" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#c084fc;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2 7 4.41-4.41A2 2 0 017.83 2h8.34a2 2 0 011.42.59L22 7M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M15 22v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4M2 7h20"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Lịch chiếu rạp</span></a>' +
+                                                    '<a href="/profile?tab=achievements" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#f59e0b;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Thành tựu</span></a>' +
+                                                    '<a href="/profile?tab=settings" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(100,116,139,0.22); border:1px solid rgba(100,116,139,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#94a3b8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Cài đặt tiện ích</span></a>' +
+                                                '</div>' +
+                                                '<div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">' +
+                                                    '<button onclick="if(window.doLogout){window.doLogout();}else if(window.authService){window.authService.logout();}else{localStorage.clear();window.location.href=\'/\';}" style="width:100%; display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.18); cursor:pointer;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#ef4444;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg></span><span style="color:#ef4444; font-size:13.5px; font-weight:600;">Thoát</span></button>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>';
+
+                                    container.innerHTML = profileLink;
+                                    container.style.setProperty('overflow', 'visible', 'important');
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                })();
+            </script>
         </div>
     </div>
 </header>
