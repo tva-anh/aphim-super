@@ -1,0 +1,153 @@
+/* ==========================================================================
+   ⚡ APHIM SUPER — PRO MOBILE INTERACTION & GESTURE SUITE (2026 EDITION)
+   Tối ưu hóa chuyên biệt 100% cho màn hình Di động (Mobile Only)
+   - Lướt Dọc 120FPS Siêu Mượt, Tuyệt Đối Không Giật Khựng / Chớp Nháy
+   - Lướt Ngang Tự Nhiên (Fluid Kinetic Touch Momentum)
+   - Phản Hồi Ấn Chạm Nhanh 0ms Tap Latency
+   - Bottom Nav Dock & Floating Action Bar Tương Thích Hoàn Hảo
+   * TUYỆT ĐỐI KHÔNG ẢNH HƯỞNG ĐẾN DESKTOP
+   ========================================================================== */
+
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+
+    /* ─── 1. TỐI ƯU LƯỚT DỌC MÀN HÌNH (120FPS NATIVE HARDWARE ACCELERATED) ─── */
+    html {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: auto !important; /* Tuyệt đối không dùng smooth trên mobile để tránh xung đột vật lý quán tính ngón tay */
+    }
+
+    body {
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y;
+        overscroll-behavior-y: auto;
+    }
+
+    /* ─── 2. TỐI ƯU LƯỚT NGANG CÁC DANH SÁCH PHIM (FLUID HORIZONTAL RAILS) ─── */
+    .de-cu-slider,
+    .cs-scroll-container,
+    .country-scroll-container,
+    .ranking-grid-container,
+    .top10-platforms-scroll,
+    .interests-wrapper,
+    #heroThumbnails,
+    .home-comments-track,
+    .cat-tab-container,
+    .similar-movies-track,
+    .mobile-thumb-wrapper,
+    .horizontal-scroll,
+    .overflow-x-auto,
+    .scrollbar-hide {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    .de-cu-slider::-webkit-scrollbar,
+    .cs-scroll-container::-webkit-scrollbar,
+    .country-scroll-container::-webkit-scrollbar,
+    .ranking-grid-container::-webkit-scrollbar,
+    .top10-platforms-scroll::-webkit-scrollbar,
+    .interests-wrapper::-webkit-scrollbar,
+    #heroThumbnails::-webkit-scrollbar,
+    .home-comments-track::-webkit-scrollbar,
+    .cat-tab-container::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar,
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* ─── 3. TỐI ƯU HÓA THAO TÁC ẤN CHẠM (0MS DELAY & ZERO FLICKER) ─── */
+    /* Triệt tiêu độ trễ 300ms và loại bỏ khung viền xanh mặc định của trình duyệt */
+    a,
+    button,
+    [role="button"],
+    .bn-tab,
+    .movie-card,
+    .movie-item,
+    .cs-movie-card,
+    .top10-card,
+    .interests-item,
+    .home-comment-card,
+    .motchill-movie-card,
+    .az-btn,
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    .app-btn,
+    .comment-switch-btn,
+    .showcase-dot,
+    .fd-btn-top,
+    .theme-toggle-fab,
+    #episode-list button,
+    .cat-tab-btn,
+    .top10-type-btn,
+    .top10-region-capsule {
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* CHỈ áp dụng hiệu ứng nén đàn hồi cho các NÚT BẤM (Buttons), KHÔNG áp dụng lên Card phim
+       để tránh hiện tượng chớp nháy hàng loạt khi ngón tay lướt cuộn dọc qua các poster */
+    .btn:active,
+    .btn-primary:active,
+    .btn-secondary:active,
+    .app-btn:active,
+    #showcase3DBtnWatch:active,
+    #showcase3DBtnInfo:active,
+    .fd-btn-top:active,
+    .theme-toggle-fab:active,
+    #episode-list button:active,
+    .az-btn:active,
+    .cat-tab-btn:active,
+    .top10-type-btn:active,
+    .top10-region-capsule:active {
+        transform: scale(0.94) !important;
+        transition: transform 0.08s ease !important;
+    }
+
+    /* ─── 4. TỐI ƯU HÓA BOTTOM NAVIGATION DOCK TRÊN MOBILE ─── */
+    #bottom-nav-dock {
+        padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    .bn-tab {
+        transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease !important;
+    }
+
+    .bn-tab:active {
+        transform: scale(0.88) !important;
+    }
+
+    .bn-tab-center:active .bn-center-circle {
+        transform: scale(0.88) !important;
+        box-shadow: 0 0 25px rgba(252, 213, 118, 0.95) !important;
+    }
+
+    .bn-tab.active .bn-tab-icon {
+        animation: bnIconBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    @keyframes bnIconBounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.18); }
+        100% { transform: scale(1); }
+    }
+
+    /* ─── 5. TỐI ƯU HÓA NÚT NỔI (FLOATING DOCK & THEME FAB) ─── */
+    #floatingDockContainer {
+        bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+        right: 12px !important;
+        z-index: 9400 !important;
+    }
+
+    /* ─── 6. MOBILE DRAWER TRANSITIONS (MƯỢT MÀ KHÔNG GIẬT) ─── */
+    #mm-drawer {
+        touch-action: pan-y;
+        will-change: transform;
+    }
+}

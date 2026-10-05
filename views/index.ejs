@@ -2172,8 +2172,11 @@
             `;
         }
 
-        // 🎯 Tab Switching Handler for Section Filters
-        window.switchSectionTab = function(btnElement, containerId, apiUrl) {
+        // 🎯 In-Memory Cache for Section Tabs (0ms Instant Tab Switching)
+        const _sectionTabCache = new Map();
+
+        // 🎯 Tab Switching Handler for Section Filters (Zero Layout Shift + 0ms Switch)
+        window.switchSectionTab = async function(btnElement, containerId, apiUrl) {
             const tabsContainer = btnElement.closest('.section-header-tabs');
             if (tabsContainer) {
                 const tabs = tabsContainer.querySelectorAll('.section-header-tab');
@@ -2186,16 +2189,24 @@
             }
 
             const gridEl = document.getElementById(containerId);
-            if (gridEl) {
-                gridEl.innerHTML = `
-                    <div class="col-span-full py-12 flex items-center justify-center text-gray-400">
-                        <div class="inline-block w-8 h-8 border-4 border-[#ff6a00] border-t-transparent rounded-full animate-spin"></div>
-                        <span class="ml-3 text-sm font-medium">Đang tải phim...</span>
-                    </div>
-                `;
+            if (!gridEl) return;
+
+            const cacheKey = `${containerId}_${apiUrl}`;
+            if (_sectionTabCache.has(cacheKey)) {
+                gridEl.innerHTML = _sectionTabCache.get(cacheKey);
+                gridEl.style.opacity = '1';
+                return;
             }
 
-            loadUnifiedSection(apiUrl, containerId, 12);
+            // Giữ nguyên layout, chỉ làm mờ nhẹ trong lúc nạp ngầm để trang không bị giật nhảy lên xuống
+            gridEl.style.transition = 'opacity 0.15s ease';
+            gridEl.style.opacity = '0.5';
+            gridEl.style.pointerEvents = 'none';
+
+            await loadUnifiedSection(apiUrl, containerId, 12);
+
+            gridEl.style.opacity = '1';
+            gridEl.style.pointerEvents = '';
         };
 
         // 🎯 Helper to safely get APhimCore even if script finishes parsing after DOMContentLoaded
@@ -2239,6 +2250,15 @@
                 limitCount = arg4 || 12;
             }
 
+            const cacheKey = `${containerId}_${type}${paramVal ? '_' + paramVal : ''}`;
+            if (_sectionTabCache.has(cacheKey)) {
+                const gridEl = document.getElementById(containerId);
+                if (gridEl) {
+                    gridEl.innerHTML = _sectionTabCache.get(cacheKey);
+                }
+                return;
+            }
+
             try {
                 const core = await getAPhimCore();
                 const res = await core.fetchMovieGridData(type, paramVal, 1);
@@ -2250,7 +2270,9 @@
                     const featuredHTML = createFeaturedCardHTML(items[0]);
                     const normalCount = limitCount - 1; // 11 normal cards
                     const normalHTML = items.slice(1, normalCount + 1).map(m => createNormalCardHTML(m)).join('');
-                    gridEl.innerHTML = featuredHTML + normalHTML;
+                    const finalHTML = featuredHTML + normalHTML;
+                    _sectionTabCache.set(cacheKey, finalHTML);
+                    gridEl.innerHTML = finalHTML;
                 }
             } catch (err) {
                 console.warn('Lỗi API section:', type, paramVal, err);
@@ -2935,9 +2957,9 @@
             const pagination = document.getElementById('showcase3DPagination');
             if (!track || !showcase3DItems.length) return;
 
-            // Render 3D Cards
+            // Render 3D Cards with smart tap handling
             track.innerHTML = showcase3DItems.map((item, idx) => `
-                <div class="showcase-3d-card" data-index="${idx}" onclick="goTo3DShowcaseSlide(${idx})">
+                <div class="showcase-3d-card" data-index="${idx}" onclick="handle3DCardClick(${idx})" role="button" aria-label="${item.name || 'Phim'}">
                     <img src="${item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'}" alt="${item.name || 'Phim'}" loading="${idx < 3 ? 'eager' : 'lazy'}" onerror="this.src='/images/comment-mascot.webp'">
                 </div>
             `).join('');
@@ -2945,21 +2967,22 @@
             // Render Pagination Dots
             if (pagination) {
                 pagination.innerHTML = showcase3DItems.map((_, idx) => `
-                    <div class="showcase-dot ${idx === 0 ? 'active' : ''}" onclick="goTo3DShowcaseSlide(${idx})"></div>
+                    <div class="showcase-dot ${idx === 0 ? 'active' : ''}" onclick="goTo3DShowcaseSlide(${idx})" role="button" aria-label="Chuyển sang phim ${idx + 1}"></div>
                 `).join('');
             }
 
             update3DShowcasePositions();
             start3DAutoPlay();
 
-            // Touch Gestures for 3D Viewport
-            const stage = document.getElementById('showcase3DStage');
-            if (stage) {
+            // Touch & Swipe Gestures for entire 3D Showcase Section
+            const showcaseSection = document.getElementById('mobile3DShowcaseSection');
+            if (showcaseSection && !showcaseSection.dataset.touchInit) {
+                showcaseSection.dataset.touchInit = 'true';
                 let startX = 0;
                 let startY = 0;
                 let isSwiping = false;
 
-                stage.addEventListener('touchstart', (e) => {
+                showcaseSection.addEventListener('touchstart', (e) => {
                     if (!e.touches.length) return;
                     startX = e.touches[0].clientX;
                     startY = e.touches[0].clientY;
@@ -2967,21 +2990,21 @@
                     stop3DAutoPlay();
                 }, { passive: true });
 
-                stage.addEventListener('touchmove', (e) => {
+                showcaseSection.addEventListener('touchmove', (e) => {
                     if (!e.touches.length) return;
                     const dx = e.touches[0].clientX - startX;
                     const dy = e.touches[0].clientY - startY;
-                    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+                    if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.1) {
                         isSwiping = true;
                     }
                 }, { passive: true });
 
-                stage.addEventListener('touchend', (e) => {
+                showcaseSection.addEventListener('touchend', (e) => {
                     if (isSwiping && e.changedTouches.length) {
                         const dx = e.changedTouches[0].clientX - startX;
-                        if (dx < -30) {
+                        if (dx < -25) {
                             next3DShowcaseSlide();
-                        } else if (dx > 30) {
+                        } else if (dx > 25) {
                             prev3DShowcaseSlide();
                         }
                     }
@@ -3131,6 +3154,17 @@
             // Trigger Dynamic Poster Ambient Glow Effect
             updateShowcaseAmbientGlow(current, activeCardImg);
         }
+
+        window.handle3DCardClick = function(idx) {
+            if (idx === showcase3DIndex) {
+                const current = showcase3DItems[idx];
+                if (current && current.slug) {
+                    window.location.href = `/xem-phim/${current.slug}/tap-1`;
+                }
+            } else {
+                goTo3DShowcaseSlide(idx);
+            }
+        };
 
         window.goTo3DShowcaseSlide = function(idx) {
             showcase3DIndex = (idx + showcase3DItems.length) % showcase3DItems.length;
