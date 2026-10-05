@@ -1,8 +1,8 @@
 /* ==========================================================================
    ⚡ APHIM SUPER — PRO MOBILE INTERACTION & GESTURE SUITE (2026 EDITION)
    Tối ưu hóa chuyên biệt 100% cho màn hình Di động (Mobile Only)
-   - Lướt Dọc 120FPS Siêu Mượt, Tuyệt Đối Không Giật Khựng / Chớp Nháy
-   - Lướt Ngang Tự Nhiên (Fluid Kinetic Touch Momentum)
+   - Lướt Ngang 120FPS Native Hardware Glide (Chuẩn Netflix / Disney+ Web Mobile)
+   - Lướt Dọc Tự Nhiên Không Khựng / Không Giật
    - Phản Hồi Ấn Chạm Nhanh 0ms Tap Latency
    - Bottom Nav Dock & Floating Action Bar Tương Thích Hoàn Hảo
    * TUYỆT ĐỐI KHÔNG ẢNH HƯỞNG ĐẾN DESKTOP
@@ -13,7 +13,7 @@
     /* ─── 1. TỐI ƯU LƯỚT DỌC MÀN HÌNH (120FPS NATIVE HARDWARE ACCELERATED) ─── */
     html {
         -webkit-overflow-scrolling: touch !important;
-        scroll-behavior: auto !important; /* Tuyệt đối không dùng smooth trên mobile để tránh xung đột vật lý quán tính ngón tay */
+        scroll-behavior: auto !important;
     }
 
     body {
@@ -22,7 +22,8 @@
         overscroll-behavior-y: auto;
     }
 
-    /* ─── 2. TỐI ƯU LƯỚT NGANG CÁC DANH SÁCH PHIM (FLUID HORIZONTAL RAILS) ─── */
+    /* ─── 2. TỐI ƯU LƯỚT NGANG CÁC DANH SÁCH PHIM (FLUID 120FPS NATIVE GLIDE) ─── */
+    /* Trình duyệt di động sử dụng 100% C++ Compositor Thread mượt mà như Native App */
     .de-cu-slider,
     .cs-scroll-container,
     .country-scroll-container,
@@ -37,12 +38,19 @@
     .horizontal-scroll,
     .overflow-x-auto,
     .scrollbar-hide {
+        display: flex !important;
+        flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-x pan-y !important;
+        scroll-behavior: auto !important;
+        overscroll-behavior-x: contain !important;
+        overscroll-behavior-y: auto !important;
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
+        transform: none !important;
+        will-change: auto !important;
     }
 
     .de-cu-slider::-webkit-scrollbar,
@@ -61,8 +69,44 @@
         height: 0 !important;
     }
 
+    /* Layout Containment chuẩn Netflix/Disney+: Trình duyệt chỉ render thẻ hiển thị,
+       hoàn toàn giải phóng CPU/GPU khi lướt tốc độ cao */
+    .de-cu-slider > *,
+    .cs-scroll-container > *,
+    .country-scroll-container > *,
+    .ranking-grid-container > *,
+    .top10-platforms-scroll > *,
+    .interests-wrapper > *,
+    #heroThumbnails > *,
+    .home-comments-track > *,
+    .cat-tab-container > *,
+    .similar-movies-track > * {
+        flex-shrink: 0 !important;
+        contain: layout paint style;
+        content-visibility: auto;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-user-drag: none !important;
+        -webkit-touch-callout: none !important;
+    }
+
+    /* Chống ghost-drag ảnh khi ngón tay vuốt lướt ngang qua poster */
+    .de-cu-slider img,
+    .cs-scroll-container img,
+    .country-scroll-container img,
+    .ranking-grid-container img,
+    .top10-platforms-scroll img,
+    .interests-wrapper img,
+    #heroThumbnails img,
+    .home-comments-track img,
+    .similar-movies-track img {
+        pointer-events: none !important;
+        -webkit-user-drag: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+    }
+
     /* ─── 3. TỐI ƯU HÓA THAO TÁC ẤN CHẠM (0MS DELAY & ZERO FLICKER) ─── */
-    /* Triệt tiêu độ trễ 300ms và loại bỏ khung viền xanh mặc định của trình duyệt */
     a,
     button,
     [role="button"],
@@ -91,8 +135,7 @@
         -webkit-tap-highlight-color: transparent !important;
     }
 
-    /* CHỈ áp dụng hiệu ứng nén đàn hồi cho các NÚT BẤM (Buttons), KHÔNG áp dụng lên Card phim
-       để tránh hiện tượng chớp nháy hàng loạt khi ngón tay lướt cuộn dọc qua các poster */
+    /* CHỈ áp dụng hiệu ứng nén đàn hồi cho các NÚT BẤM (Buttons), KHÔNG áp dụng lên Card phim */
     .btn:active,
     .btn-primary:active,
     .btn-secondary:active,

@@ -96,8 +96,9 @@
         }
     }
 
-    // ── 1. BẢO VỆ CHỐNG CLICK NHẦM KHI KÉO LƯỚT ──
+    // ── 1. BẢO VỆ CHỐNG CLICK NHẦM KHI KÉO LƯỚT (CHỈ DESKTOP) ──
     document.addEventListener('click', function (e) {
+        if (!isDesktopDevice()) return;
         if (performance.now() < suppressClickUntil) {
             e.preventDefault();
             e.stopPropagation();
@@ -108,7 +109,9 @@
 
     // ── 2. NHẤN CHUỘT / POINTER DOWN — NHẬN DIỆN TỨC THÌ 0MS ──
     function onPointerDown(e) {
-        // Chỉ nhận chuột trái hoặc cảm ứng chạm / bút
+        // CHUYÊN BIỆT CHO DESKTOP MOUSE: Tuyệt đối không can thiệp vào cảm ứng di động (touch)
+        // để trình duyệt di động dùng 100% Native Compositor 120FPS GPU scrolling mượt mà như Netflix
+        if (e.pointerType === 'touch' || !isDesktopDevice()) return;
         if (e.pointerType === 'mouse' && e.button !== 0) return;
 
         const container = getScrollContainer(e.target);
