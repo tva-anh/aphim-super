@@ -9,8 +9,8 @@
     <% if (typeof activePage === 'undefined' || activePage !== 'login') { %>
     <script>
       (function() {
-        var token = localStorage.getItem('aphim_admin_token');
-        var cookieToken = (document.cookie.match(/(?:^|;\s*)aphim_admin_token=([^;]+)/) || [])[1];
+        var token = localStorage.getItem('aphim_admin_token') || sessionStorage.getItem('aphim_admin_token') || localStorage.getItem('cinestream_admin_token') || localStorage.getItem('adminToken');
+        var cookieToken = (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1];
         if (!token && !cookieToken) {
           window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
         }
@@ -19,8 +19,8 @@
     <% } else { %>
     <script>
       (function() {
-        var token = localStorage.getItem('aphim_admin_token');
-        var cookieToken = (document.cookie.match(/(?:^|;\s*)aphim_admin_token=([^;]+)/) || [])[1];
+        var token = localStorage.getItem('aphim_admin_token') || sessionStorage.getItem('aphim_admin_token') || localStorage.getItem('cinestream_admin_token') || localStorage.getItem('adminToken');
+        var cookieToken = (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1];
         if (token || cookieToken) {
           var params = new URLSearchParams(window.location.search);
           var dest = params.get('redirect') || '/admin';

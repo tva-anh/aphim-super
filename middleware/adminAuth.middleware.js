@@ -40,7 +40,9 @@ async function requireAdmin(req, res, next) {
             try {
                 const parts = token.split('.');
                 if (parts.length === 3) {
-                    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+                    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                    const padded = b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '=');
+                    const payload = JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
                     if (payload && (payload.sub || payload.id)) {
                         userId = payload.sub || payload.id;
                         user = { id: userId, email: payload.email || '' };
@@ -53,11 +55,23 @@ async function requireAdmin(req, res, next) {
             return res.status(401).json({ success: false, message: 'Admin token không hợp lệ hoặc phiên làm việc đã kết thúc.' });
         }
 
-        const { data: profile, error: profErr } = await supabaseAdmin
+        let { data: profile, error: profErr } = await supabaseAdmin
             .from('profiles')
             .select('id, email, role, is_blocked, name, avatar_url')
             .eq('id', userId)
             .single();
+
+        if ((profErr || !profile) && user?.email) {
+            const { data: profByEmail } = await supabaseAdmin
+                .from('profiles')
+                .select('id, email, role, is_blocked, name, avatar_url')
+                .eq('email', user.email)
+                .single();
+            if (profByEmail) {
+                profile = profByEmail;
+                profErr = null;
+            }
+        }
 
         if (profErr || !profile || profile.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Bạn không có quyền truy cập khu vực admin.' });

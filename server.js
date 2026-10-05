@@ -34,6 +34,7 @@ const reelsRoutes = require('./routes/reels.routes');
 const { requireAdmin } = require('./middleware/adminAuth.middleware');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3005;
 
 // Socket.IO Setup

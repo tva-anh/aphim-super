@@ -73,6 +73,19 @@
     }
   };
 
+  function getAdminToken() {
+    try {
+      return localStorage.getItem('aphim_admin_token') ||
+             sessionStorage.getItem('aphim_admin_token') ||
+             localStorage.getItem('cinestream_admin_token') ||
+             sessionStorage.getItem('cinestream_admin_token') ||
+             localStorage.getItem('adminToken') ||
+             (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1] || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   let progressBarEl = null;
   let progressTimer = null;
   function startTopProgressBar() {
@@ -469,10 +482,11 @@
       `;
     }
 
-    const token = localStorage.getItem('aphim_admin_token');
+    const token = getAdminToken();
     try {
       const res = await fetch('/api/admin/notifications', {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        credentials: 'same-origin'
       });
       if (res.ok) {
         const json = await res.json();
@@ -955,13 +969,14 @@
         };
         
         try {
-          const token = localStorage.getItem('cinestream_admin_token') || localStorage.getItem('aphim_admin_token') || localStorage.getItem('adminToken');
+          const token = getAdminToken();
           const res = await fetch(`/api/admin/users/${userId}/full-profile`, {
             method: 'PUT',
             headers: { 
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + token
             },
+            credentials: 'same-origin',
             body: JSON.stringify(payload)
           });
           const data = await res.json();
@@ -1157,13 +1172,14 @@
     grantVip: async (id, days) => {
       if (!confirm(`Xác nhận cấp VIP ${days} ngày?`)) return;
       try {
-        const token = localStorage.getItem('cinestream_admin_token') || localStorage.getItem('aphim_admin_token') || localStorage.getItem('adminToken');
+        const token = getAdminToken();
         const res = await fetch(`/api/admin/users/${id}/grant-vip`, {
           method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
+          credentials: 'same-origin',
           body: JSON.stringify({ days })
         });
         const data = await res.json();
@@ -1180,13 +1196,14 @@
     revokeVip: async (id) => {
       if (!confirm('Chắc chắn hủy quyền VIP?')) return;
       try {
-        const token = localStorage.getItem('cinestream_admin_token') || localStorage.getItem('aphim_admin_token') || localStorage.getItem('adminToken');
+        const token = getAdminToken();
         const res = await fetch(`/api/admin/users/${id}/revoke-vip`, {
           method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
-          }
+          },
+          credentials: 'same-origin'
         });
         const data = await res.json();
         if (data.success) {
@@ -1207,13 +1224,14 @@
         : '✅ Bạn có chắc chắn muốn MỞ KHÓA tài khoản này để người dùng hoạt động bình thường?';
       if (!confirm(confirmMsg)) return;
       try {
-        const token = localStorage.getItem('aphim_admin_token') || localStorage.getItem('cinestream_admin_token') || localStorage.getItem('adminToken');
+        const token = getAdminToken();
         const res = await fetch(`/api/admin/users/${id}/block`, {
           method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
+          credentials: 'same-origin',
           body: JSON.stringify({ blocked: willBlock })
         });
         const data = await res.json();
@@ -1309,13 +1327,14 @@
           }
 
           try {
-            const token = localStorage.getItem('cinestream_admin_token') || localStorage.getItem('aphim_admin_token') || localStorage.getItem('adminToken');
+            const token = getAdminToken();
             const res = await fetch('/api/admin/users', {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
               },
+              credentials: 'same-origin',
               body: JSON.stringify({ name, email, password, vipDays, coins })
             });
             const data = await res.json();
@@ -1595,10 +1614,10 @@
       }
     }
 
-    const token = localStorage.getItem('aphim_admin_token');
+    const token = getAdminToken();
     if (!token) {
       if (!window.location.pathname.includes('/admin/login')) {
-        window.location.href = '/admin/login';
+        window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
       }
       return;
     }
@@ -1606,7 +1625,8 @@
     try {
       const url = `/api/admin/dashboard?timeRange=${currentDashboardRange}${force ? '&force=true' : ''}`;
       const res = await fetch(url, {
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: { 'Authorization': 'Bearer ' + token },
+        credentials: 'same-origin'
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -2634,12 +2654,16 @@
       }
     }
 
-    const token = localStorage.getItem('aphim_admin_token');
+    const token = getAdminToken();
     if (!token) return;
 
     try {
       const res = await fetch('/api/admin/dashboard?timeRange=7d' + (force ? '&force=true' : ''), {
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: { 
+          'Authorization': 'Bearer ' + token,
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
       });
       if (res.ok) {
         const json = await res.json();
@@ -2678,22 +2702,41 @@
       if (window.lucide) lucide.createIcons();
     }
     
-    const token = localStorage.getItem('aphim_admin_token');
-    if (!token) return;
+    const token = getAdminToken();
+    if (!token) {
+      window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
 
     try {
       let query = `?page=${currentUsersPage}&limit=${USERS_PER_PAGE}&search=${encodeURIComponent(search)}&role=${role}`;
       if (status === 'banned') query += '&status=blocked';
       
       const res = await fetch('/api/admin/users' + query, {
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: { 
+          'Authorization': 'Bearer ' + token,
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
       });
       
       if (res.status === 401 || res.status === 403) {
          localStorage.removeItem('aphim_admin_token');
          localStorage.removeItem('aphim_admin_user');
-         window.location.href = '/admin/login';
+         window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
          return;
+      }
+
+      if (!res.ok) {
+        let msg = 'Lỗi máy chủ (' + res.status + ')';
+        try {
+          const errJson = await res.json();
+          if (errJson && errJson.message) msg = errJson.message;
+        } catch (_) {}
+        if (!cached) {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error" style="padding:30px;">Lỗi: ${sanitize(msg)}</td></tr>`;
+        }
+        return;
       }
 
       const data = await res.json();
@@ -2706,12 +2749,12 @@
           totalUsersEl.textContent = new Intl.NumberFormat('vi-VN').format(data.pagination.total);
         }
       } else if (!cached) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error">Lỗi: ${sanitize(data.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error" style="padding:30px;">Lỗi: ${sanitize(data.message || 'Không thể tải danh sách')}</td></tr>`;
       }
     } catch (e) {
-      console.error(e);
+      console.error('[Admin Users] Error:', e);
       if (!cached) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error">Không thể kết nối đến máy chủ.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error" style="padding:30px;">Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền mạng.</td></tr>`;
       }
     }
   }
@@ -2914,7 +2957,7 @@
 
     const search = document.getElementById('commentSearchInput')?.value || '';
     const status = document.getElementById('commentStatusFilter')?.value || '';
-    const token = localStorage.getItem('aphim_admin_token');
+    const token = getAdminToken();
 
     const cacheKey = `comments_${currentCommentsPage}_${search}_${status}`;
     const cached = AdminCache.get(cacheKey);
@@ -3292,12 +3335,13 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    const token = localStorage.getItem('aphim_admin_token');
+    const token = getAdminToken();
     if (!token) return;
 
     try {
       const res = await fetch('/api/admin/transactions?limit=30', {
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: { 'Authorization': 'Bearer ' + token },
+        credentials: 'same-origin'
       });
       const data = await res.json();
       if (data.success && data.data) {

@@ -466,7 +466,12 @@ router.get('/users', requireAdmin, async (req, res) => {
 
         if (role)   query = query.eq('role', role);
         if (status === 'blocked') query = query.eq('is_blocked', true);
-        if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+        if (search) {
+            const cleanSearch = String(search).replace(/[%,()]/g, '').trim();
+            if (cleanSearch) {
+                query = query.or(`name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
+            }
+        }
 
         const { data: users, count, error } = await query;
         if (error) throw error;
@@ -1058,9 +1063,10 @@ router.post('/comments/approve-all', requireAdmin, async (req, res) => {
 router.get('/notifications', requireAdmin, async (req, res) => {
     try {
         const Comment = require('../models/Comment');
+        
         const [recentUsersRes, recentTxRes, recentCommentsRes] = await Promise.all([
-            supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, created_at').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
-            supabaseAdmin.from('transactions').select('id, user_id, amount_vnd, type, status, created_at').order('created_at', { ascending: false }).limit(10).catch(() => ({ data: [] })),
+            supabaseAdmin.from('profiles').select('id, name, email, avatar_url, role, created_at').order('created_at', { ascending: false }).limit(10).then(r => r, () => ({ data: [] })),
+            supabaseAdmin.from('transactions').select('id, user_id, amount_vnd, type, status, created_at').order('created_at', { ascending: false }).limit(10).then(r => r, () => ({ data: [] })),
             Comment ? Comment.find().sort({ createdAt: -1 }).limit(10).lean().catch(() => []) : []
         ]);
 
