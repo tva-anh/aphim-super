@@ -244,17 +244,49 @@
         return host ? host.querySelector('iframe') : null;
     }
 
+    // ⚡ Instant Real-Time Duration Dispatcher (Ultra-Fast 0ms Sync)
+    function applyDurationToYtId(ytId, durSec) {
+        if (!durSec || durSec <= 0) return;
+        const durFormatted = formatReelTime(durSec, durSec);
+
+        if (ytId) {
+            const matchingItems = document.querySelectorAll(`.reel-item[data-yt="${ytId}"]`);
+            matchingItems.forEach(item => {
+                const idx = item.getAttribute('data-index');
+                if (idx !== null) {
+                    state.slideDurations[idx] = durSec;
+                    const durEl = item.querySelector(`#time-duration-${idx}`);
+                    if (durEl) {
+                        durEl.textContent = durFormatted;
+                    }
+                }
+            });
+        }
+
+        const curItem = document.getElementById(`reel-item-${state.currentIndex}`);
+        if (!ytId || (curItem && curItem.getAttribute('data-yt') === ytId)) {
+            state.activeDuration = durSec;
+            state.slideDurations[state.currentIndex] = durSec;
+            const curDurEl = document.getElementById(`time-duration-${state.currentIndex}`);
+            if (curDurEl) {
+                curDurEl.textContent = durFormatted;
+            }
+        }
+    }
+
     // ⚡ Multi-pulse autoplay trigger for mobile browsers (Eliminates YouTube center play button)
     function triggerAutoPlayWithSound(targetIfr, idx) {
         if (!targetIfr) return;
         const vol = state.volume > 0 ? state.volume : 100;
         
+        sendCmd(targetIfr, 'getDuration');
         [0, 50, 120, 250, 450, 750, 1100].forEach(delay => {
             setTimeout(() => {
                 if (state.currentIndex === idx && !state.userPaused) {
                     sendCmd(targetIfr, 'playVideo');
                     sendCmd(targetIfr, 'unMute');
                     sendCmd(targetIfr, 'setVolume', [vol]);
+                    sendCmd(targetIfr, 'getDuration');
                 }
             }, delay);
         });
@@ -274,6 +306,7 @@
                 state.players.a.ready = true;
                 state.players.a.ytId = initialYtId;
                 sendCmd(ifrA, 'setPlaybackRate', [state.playbackSpeed]);
+                sendCmd(ifrA, 'getDuration');
                 triggerAutoPlayWithSound(ifrA, 0);
             });
             hostA.appendChild(ifrA);
@@ -291,10 +324,12 @@
                 state.players.b.ready = true;
                 state.players.b.ytId = cueYt;
                 sendCmd(ifrB, 'mute');
+                sendCmd(ifrB, 'getDuration');
                 // Prime background player silently with mute
                 if (nextYtId) {
                     sendCmd(ifrB, 'loadVideoById', [nextYtId, 0]);
                     sendCmd(ifrB, 'mute');
+                    sendCmd(ifrB, 'getDuration');
                 }
             });
             hostB.appendChild(ifrB);
@@ -479,6 +514,7 @@
                     const idleIfr = state.players[idleHostKey].fr;
                     sendCmd(idleIfr, 'loadVideoById', [nextYt, 0]);
                     sendCmd(idleIfr, 'mute');
+                    sendCmd(idleIfr, 'getDuration');
                 }
             }
         }
@@ -495,7 +531,7 @@
         if (state.slideDurations[idx]) {
             state.activeDuration = state.slideDurations[idx];
             if (curDurEl) curDurEl.textContent = formatReelTime(state.activeDuration, state.activeDuration);
-        } else if (curDurEl && curDurEl.textContent && curDurEl.textContent.includes(':') && curDurEl.textContent !== '00:00' && curDurEl.textContent !== '03:45') {
+        } else if (curDurEl && curDurEl.textContent && curDurEl.textContent.includes(':') && curDurEl.textContent !== '00:00' && curDurEl.textContent !== '--:--' && curDurEl.textContent !== '03:45') {
             const parsed = parseReelTimeToSeconds(curDurEl.textContent);
             if (parsed > 0) {
                 state.activeDuration = parsed;
@@ -1722,6 +1758,28 @@
             return;
         }
 
+        // ⚡ INSTANT DURATION EXTRACTION:
+        // Extract duration from ANY incoming message (Host A or Host B, initialDelivery, infoDelivery, onReady)
+        // This ensures preloaded background videos have their duration ready BEFORE the user scrolls to them!
+        let senderYt = null;
+        if (state.players.a.fr && e.source === state.players.a.fr.contentWindow) {
+            senderYt = state.players.a.ytId;
+        } else if (state.players.b.fr && e.source === state.players.b.fr.contentWindow) {
+            senderYt = state.players.b.ytId;
+        }
+
+        const deliveredDur = (data.info && typeof data.info.duration === 'number' && data.info.duration > 0)
+            ? data.info.duration
+            : (data.info && data.info.videoData && typeof data.info.videoData.length_seconds === 'number' && data.info.videoData.length_seconds > 0)
+                ? data.info.videoData.length_seconds
+                : (data.infoDelivery && typeof data.infoDelivery.duration === 'number' && data.infoDelivery.duration > 0)
+                    ? data.infoDelivery.duration
+                    : null;
+
+        if (deliveredDur && deliveredDur > 0) {
+            applyDurationToYtId(senderYt, deliveredDur);
+        }
+
         // 🛡️ Filter postMessages: ONLY accept playback events from the CURRENT ACTIVE IFRAME
         // This prevents the idle/background iframe (which is pausing, stopping, or buffering) from polluting active state!
         const activeIfr = getActiveIframe();
@@ -1782,7 +1840,7 @@
             state.errorSkipTimer = setTimeout(() => {
                 window.scrollToNextReel();
             }, 450);
-        } else if (data.event === 'infoDelivery' && data.info) {
+        } else if ((data.event === 'infoDelivery' || data.event === 'initialDelivery') && data.info) {
             // If currentTime > 0, video is actively decoding frames
             if (typeof data.info.currentTime === 'number' && data.info.currentTime > 0) {
                 revealPlayingVideo(state.currentIndex);
@@ -3437,7 +3495,7 @@
                                 <div class="reel-progress-thumb"></div>
                             </div>
                         </div>
-                        <span class="reel-duration" id="time-duration-${index}">${item.duration || '03:45'}</span>
+                        <span class="reel-duration" id="time-duration-${index}">${item.duration || '--:--'}</span>
                     </div>
                 </div>
             `;

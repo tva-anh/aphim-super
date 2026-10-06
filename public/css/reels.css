@@ -1151,6 +1151,7 @@ body.light-mode {
 @media (min-width: 640px) {
     .reels-viewport {
         max-width: 440px;
+        aspect-ratio: 9 / 16;
         height: min(94vh, 880px);
         border-radius: 32px;
         box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95), 0 0 50px rgba(252, 213, 118, 0.15);

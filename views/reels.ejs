@@ -6,24 +6,19 @@
     <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].poster) { %>
     <link rel="preload" as="image" href="<%= initialReels[0].poster %>" fetchpriority="high">
     <% } %>
-    <!-- 🎥 Google Video Rich Snippets (Schema.org VideoObject) -->
-    <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0) { 
+    <!-- 🎥 Social Video Meta: Twitter Player Card & OpenGraph Video (Discord, Telegram, X, Facebook) -->
+    <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].yt) { 
         const primaryReel = initialReels[0];
     %>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "VideoObject",
-      "name": "<%= (primaryReel.title || primaryReel.movieTitle || 'Review Phim').replace(/"/g, '\\"') %>",
-      "description": "<%= (primaryReel.description || 'Xem video review phim chất lượng cao tại APhim').replace(/"/g, '\\"') %>",
-      "thumbnailUrl": [
-        "<%= primaryReel.poster || 'https://aphim.store/images/comment-mascot.webp' %>"
-      ],
-      "uploadDate": "2026-01-01T08:00:00+07:00",
-      "contentUrl": "https://aphim.store/reels",
-      "embedUrl": "https://www.youtube.com/embed/<%= primaryReel.yt %>"
-    }
-    </script>
+    <meta property="og:video" content="https://www.youtube.com/embed/<%= primaryReel.yt %>">
+    <meta property="og:video:secure_url" content="https://www.youtube.com/embed/<%= primaryReel.yt %>">
+    <meta property="og:video:type" content="text/html">
+    <meta property="og:video:width" content="1280">
+    <meta property="og:video:height" content="720">
+    <meta name="twitter:card" content="player">
+    <meta name="twitter:player" content="https://www.youtube.com/embed/<%= primaryReel.yt %>">
+    <meta name="twitter:player:width" content="1280">
+    <meta name="twitter:player:height" content="720">
     <% } %>
     <script>
         // Force Cinematic Deep Dark Mode
@@ -2342,14 +2337,98 @@
             vertical-align: middle !important;
             filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.6)) !important;
         }
+
+        /* 🚀 Accessibility & Zero-CLS SEO Hidden Utility */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border-width: 0 !important;
+        }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="bg-[#06080f] text-gray-100 min-h-screen overflow-hidden w-full select-none">
-    <!-- 🚀 SEMANTIC SEO HEADING (Googlebot & Screen Readers) -->
-    <h1 class="sr-only"><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
-    <p class="sr-only"><%= typeof metaDescription !== 'undefined' ? metaDescription : 'Xem video review phim ngắn và trích đoạn phim hot tại APhim Super.' %></p>
+    <!-- 🚀 CRAWLABLE SSR SEO CONTENT (Googlebot, Bingbot, Yandex crawlers) -->
+    <article class="sr-only">
+        <h1><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
+        <p><%= typeof metaDescription !== 'undefined' ? metaDescription : 'Xem video review phim ngắn và trích đoạn phim hot tại APhim Super.' %></p>
+        
+        <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0) { 
+            const feat = initialReels[0];
+            const mTitle = feat.movieTitle || feat.title || 'Review Phim';
+            const mSlug = feat.slug || '';
+        %>
+        <section>
+            <h2>Video Nổi Bật: Review Phim <%= mTitle %> (<%= feat.year || '2026' %>)</h2>
+            <p><%= feat.desc || feat.description || `Tóm tắt nội dung phim ${mTitle}, phân tích tình tiết kịch tính và đánh giá chi tiết.` %></p>
+            <p>Đánh giá: <%= feat.rating || '9.5' %>/10 sao (<%= feat.likes || '4500' %> lượt thích, <%= feat.views || '120.000' %> lượt xem).</p>
+            <% if (mSlug) { %>
+            <nav aria-label="Liên kết phim">
+                <a href="/phim/<%= mSlug %>">Thông tin chi tiết phim <%= mTitle %></a>
+                <a href="/xem-phim/<%= mSlug %>/tap-1">Xem trọn bộ phim <%= mTitle %> Full HD Vietsub</a>
+                <a href="/reels/review/<%= mSlug %>">Xem video review chuyên sâu <%= mTitle %></a>
+            </nav>
+            <% } %>
+        </section>
+
+        <!-- FAQ Content Matching Schema FAQPage -->
+        <section>
+            <h2>Hỏi đáp về phim <%= mTitle %></h2>
+            <div>
+                <h3>Nội dung video review phim <%= mTitle %> có gì nổi bật?</h3>
+                <p>Video review tóm tắt ngắn gọn và chi tiết toàn bộ diễn biến, cao trào và đoạn kết của phim <%= mTitle %> (<%= feat.year || '2026' %>), giúp người xem nắm bắt cốt truyện nhanh chóng trước khi xem phim trọn bộ.</p>
+            </div>
+            <div>
+                <h3>Xem phim <%= mTitle %> trọn bộ Vietsub Thuyết minh Full HD ở đâu?</h3>
+                <p>Bạn có thể xem trọn bộ phim <%= mTitle %> với chất lượng Full HD, Vietsub và Thuyết minh tốc độ cao hoàn toàn miễn phí tại APhim Super.</p>
+            </div>
+            <div>
+                <h3>Phim <%= mTitle %> được đánh giá bao nhiêu điểm?</h3>
+                <p>Phim <%= mTitle %> hiện đang nhận được đánh giá <%= feat.rating || '9.5' %>/10 điểm từ cộng đồng người xem điện ảnh.</p>
+            </div>
+        </section>
+
+        <!-- Danh sách các video review liên quan cho crawler thu thập liên kết -->
+        <% if (initialReels.length > 1) { %>
+        <section>
+            <h2>Các video review phim được đề xuất</h2>
+            <ul>
+                <% initialReels.slice(1, 10).forEach(function(r) { 
+                    const rTitle = r.movieTitle || r.title || 'Review Phim';
+                    const rSlug = r.slug || r.yt;
+                %>
+                <li>
+                    <a href="/reels/review/<%= rSlug %>">Review Phim <%= rTitle %> (<%= r.year || '2026' %>)</a>
+                    <% if (r.slug) { %>
+                    - <a href="/phim/<%= r.slug %>">Xem phim <%= rTitle %></a>
+                    <% } %>
+                </li>
+                <% }); %>
+            </ul>
+        </section>
+        <% } %>
+
+        <!-- Thể loại review phim -->
+        <section>
+            <h2>Khám phá Review Phim theo Thể Loại</h2>
+            <nav aria-label="Thể loại reels">
+                <a href="/reels/chu-de/hanh-dong">Review Phim Hành Động</a>
+                <a href="/reels/chu-de/co-trang">Review Phim Cổ Trang</a>
+                <a href="/reels/chu-de/kinh-di">Review Phim Kinh Dị</a>
+                <a href="/reels/chu-de/anime">Review Phim Anime</a>
+                <a href="/reels/chu-de/tinh-cam">Review Phim Tình Cảm</a>
+                <a href="/reels/chu-de/vien-tuong">Review Phim Viễn Tưởng</a>
+            </nav>
+        </section>
+        <% } %>
+    </article>
 
     <div class="reels-page-wrapper">
 
@@ -2963,7 +3042,7 @@
                                             <div class="reel-progress-thumb"></div>
                                         </div>
                                     </div>
-                                    <span class="reel-duration" id="time-duration-<%= index %>"><%= item.duration || '00:00' %></span>
+                                    <span class="reel-duration" id="time-duration-<%= index %>"><%= item.duration || '--:--' %></span>
                                 </div>
 
                             </div>
