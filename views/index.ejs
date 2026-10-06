@@ -2,6 +2,12 @@
 <html lang="vi">
 <head>
     <%- include('partials/head') %>
+    <% 
+        const _hero0Img = (typeof heroSlides !== 'undefined' && Array.isArray(heroSlides) && heroSlides[0]) ? (heroSlides[0].rawImageUrl || heroSlides[0].imageUrl) : null;
+        if (_hero0Img) { 
+    %>
+    <link rel="preload" as="image" href="<%= _hero0Img %>" fetchpriority="high">
+    <% } %>
     <link rel="stylesheet" href="/css/avatar-frames.css">
     <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=23">
     <link rel="stylesheet" href="/css/hero-banner.css?v=191">
@@ -1281,8 +1287,10 @@
          ============================================== -->
     <% 
         const ssrHeroList = (typeof heroSlides !== 'undefined' && Array.isArray(heroSlides) && heroSlides.length > 0) ? heroSlides : null;
-        const ssrHero0 = ssrHeroList ? ssrHeroList[0] : null;
-        const ssrBgImg = ssrHero0 ? (ssrHero0.imageUrl || ssrHero0.thumb_url || ssrHero0.thumbUrl || ssrHero0.poster_url || ssrHero0.posterUrl) : 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+        const ssrHero0 = (ssrHeroList && ssrHeroList.length > 0) ? ssrHeroList[0] : null;
+        let rawBgImg = ssrHero0 ? (ssrHero0.rawImageUrl || ssrHero0.imageUrl || ssrHero0.thumb_url || ssrHero0.thumbUrl || ssrHero0.poster_url || ssrHero0.posterUrl) : 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+        // ⚡ Ảnh đầu tiên (Slide 0): Ưu tiên 100% chất lượng gốc nguyên bản cao nhất
+        const ssrBgImg = rawBgImg;
         const ssrLogo = ssrHero0 ? (ssrHero0.logoUrl || '') : 'https://image.tmdb.org/t/p/w500/uyABqIMLGBYCrLkeIrt6k7WEaK2.png';
         const ssrTitle = ssrHero0 ? (ssrHero0.name || 'Nhất Âu Xuân') : 'Nhất Âu Xuân';
         const ssrSub = ssrHero0 ? (ssrHero0.originName || ssrHero0.origin_name || 'Spring Of The Blade') : 'Spring Of The Blade';
@@ -1301,7 +1309,7 @@
         <!-- Background Image & Clean Vignettes (Zero Foggy Overlay, Dual-Layer 60fps Cinema Transitions) -->
         <div class="hero-bg-holder absolute inset-0 z-0 overflow-hidden">
             <!-- Dual Layer Hero Images for Flawless Cinematic Crossfade & Slide Transitions -->
-            <img id="heroImageLayerA" class="hero-bg-layer is-active" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" />
+            <img id="heroImageLayerA" class="hero-bg-layer is-active" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" data-original-src="<%= rawBgImg %>" data-movie-slug="<%= ssrSlug %>" fetchpriority="high" decoding="sync" />
             <img id="heroImageLayerB" class="hero-bg-layer" alt="<%= ssrTitle %>" src="" style="opacity: 0;" />
             <!-- Fallback element for compatibility -->
             <img id="heroImage" class="hidden" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" />
@@ -1404,10 +1412,13 @@
                     <div id="heroThumbnails" class="flex items-center gap-2">
                         <% if (ssrHeroList && ssrHeroList.length > 0) { %>
                             <% ssrHeroList.forEach((m, idx) => { 
-                                const thumbImg = m.thumb_url || m.thumbUrl || m.imageUrl || m.poster_url || m.posterUrl || 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+                                let thumbImg = m.thumb_url || m.thumbUrl || m.imageUrl || m.poster_url || m.posterUrl || 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+                                if (thumbImg && thumbImg.includes('image.tmdb.org/t/p/original/')) {
+                                    thumbImg = thumbImg.replace('image.tmdb.org/t/p/original/', 'image.tmdb.org/t/p/w500/');
+                                }
                             %>
                                 <div class="hero-thumb-item <%= idx === 0 ? 'hero-thumb-active active' : '' %>" onclick="switchHeroSlide(<%= idx %>)" data-slide-index="<%= idx %>" title="<%= (m.name || '').replace(/"/g, '&quot;') %>">
-                                    <img src="<%= thumbImg %>" alt="<%= m.name || '' %>">
+                                    <img src="<%= thumbImg %>" alt="<%= m.name || '' %>" loading="<%= idx < 4 ? 'eager' : 'lazy' %>" decoding="async">
                                 </div>
                             <% }) %>
                         <% } else { %>
@@ -2251,10 +2262,21 @@
             }
 
             const cacheKey = `${containerId}_${type}${paramVal ? '_' + paramVal : ''}`;
-            if (_sectionTabCache.has(cacheKey)) {
+            const sessionKey = `aphim_sec_v1_${cacheKey}`;
+            let cachedHTML = _sectionTabCache.get(cacheKey);
+            if (!cachedHTML) {
+                try {
+                    const saved = sessionStorage.getItem(sessionKey);
+                    if (saved) {
+                        cachedHTML = saved;
+                        _sectionTabCache.set(cacheKey, saved);
+                    }
+                } catch(e) {}
+            }
+            if (cachedHTML) {
                 const gridEl = document.getElementById(containerId);
                 if (gridEl) {
-                    gridEl.innerHTML = _sectionTabCache.get(cacheKey);
+                    gridEl.innerHTML = cachedHTML;
                 }
                 return;
             }
@@ -2272,6 +2294,7 @@
                     const normalHTML = items.slice(1, normalCount + 1).map(m => createNormalCardHTML(m)).join('');
                     const finalHTML = featuredHTML + normalHTML;
                     _sectionTabCache.set(cacheKey, finalHTML);
+                    try { sessionStorage.setItem(sessionKey, finalHTML); } catch(e) {}
                     gridEl.innerHTML = finalHTML;
                 }
             } catch (err) {
@@ -2424,14 +2447,22 @@
             if (!gridEl) return;
 
             const cacheKey = `${currentTop10Platform}_${currentTop10Type}_${currentTop10Region}`;
+            const sessionKey = `aphim_top10_v1_${cacheKey}`;
             
-            // ⚡ 1. SIÊU TỐC: Trả kết quả ngay lập tức trong 0ms từ bộ nhớ Cache
-            if (!forceRefresh && _top10MemoryCache.has(cacheKey)) {
-                const cachedMovies = _top10MemoryCache.get(cacheKey);
-                if (cachedMovies && cachedMovies.length) {
-                    gridEl.innerHTML = cachedMovies.map((m, idx) => createTop10CardHTML(m, idx)).join('');
-                    return;
-                }
+            // ⚡ 1. SIÊU TỐC: Trả kết quả ngay lập tức trong 0ms từ bộ nhớ Cache (RAM + SessionStorage)
+            let cachedMovies = _top10MemoryCache.get(cacheKey);
+            if (!cachedMovies) {
+                try {
+                    const saved = sessionStorage.getItem(sessionKey);
+                    if (saved) {
+                        cachedMovies = JSON.parse(saved);
+                        _top10MemoryCache.set(cacheKey, cachedMovies);
+                    }
+                } catch(e) {}
+            }
+            if (!forceRefresh && cachedMovies && cachedMovies.length) {
+                gridEl.innerHTML = cachedMovies.map((m, idx) => createTop10CardHTML(m, idx)).join('');
+                return;
             }
 
             // Nếu đã có phim cũ đang hiển thị, giữ nguyên và chỉ thêm hiệu ứng nhẹ, không xoá trắng gây giật
@@ -2560,8 +2591,9 @@
                     return m;
                 });
 
-                // Lưu vào memory cache để lần bấm sau đạt 0ms
+                // Lưu vào memory cache & sessionStorage để lần bấm sau / quay lại trang đạt 0ms
                 _top10MemoryCache.set(cacheKey, top10);
+                try { sessionStorage.setItem(sessionKey, JSON.stringify(top10)); } catch(e) {}
 
                 if (gridEl && top10.length) {
                     gridEl.innerHTML = top10.map((m, idx) => createTop10CardHTML(m, idx)).join('');
@@ -2685,15 +2717,27 @@
             return palettes[Math.abs(hash) % palettes.length];
         }
 
-        // Load Phim Mới Đề Cử Slider (Vertical Cards)
+        // Load Phim Mới Đề Cử Slider (Vertical Cards with 0ms sessionStorage cache)
         async function loadDeCuSlider() {
+            const sliderEl = document.getElementById('slider-de-cu');
+            if (!sliderEl) return;
+            const sessionKey = 'aphim_de_cu_slider_v1';
+            try {
+                const cached = sessionStorage.getItem(sessionKey);
+                if (cached) {
+                    sliderEl.innerHTML = cached;
+                    return;
+                }
+            } catch(e) {}
+
             try {
                 const core = await getAPhimCore();
                 const res = await core.fetchMovieGridData('list', 'phim-moi-cap-nhat', 1);
                 const items = res.items || [];
-                const sliderEl = document.getElementById('slider-de-cu');
                 if (sliderEl && items.length) {
-                    sliderEl.innerHTML = items.slice(0, 16).map(m => createDeCuCardHTML(m)).join('');
+                    const html = items.slice(0, 16).map(m => createDeCuCardHTML(m)).join('');
+                    sliderEl.innerHTML = html;
+                    try { sessionStorage.setItem(sessionKey, html); } catch(e) {}
                 }
             } catch (err) {
                 console.warn('Lỗi Slider Đề Cử:', err);

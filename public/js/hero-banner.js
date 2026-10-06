@@ -195,7 +195,8 @@ async function loadHeroBanner() {
         currentAdminBanner = heroSlides[0];
 
         const layerA = document.getElementById('heroImageLayerA');
-        const firstBg = buildImageUrl(getHeroImageUrl(currentAdminBanner), 1400);
+        // ⚡ Ảnh đầu tiên (Slide 0): Ưu tiên 100% chất lượng gốc đầy đủ cao nhất ngay từ đầu
+        const firstBg = currentAdminBanner.rawImageUrl || currentAdminBanner.imageUrl || getHeroImageUrl(currentAdminBanner);
         if (layerA && firstBg && layerA.getAttribute('src') !== firstBg) {
             layerA.src = firstBg;
         }
@@ -625,7 +626,24 @@ function initHeroAutoSlide() {
         window.addEventListener('mouseup', onUserHoldEnd, { passive: true });
     }
 
-    // 4. Kích hoạt đếm giờ chuẩn xác
+    // 4. Tự động tạm dừng khi ẩn tab & tiếp tục khi trở lại tab / khôi phục từ bfcache
+    if (!window._hasHeroVisibilityAttached) {
+        window._hasHeroVisibilityAttached = true;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearAutoSlideTimer();
+            } else if (autoSlideConfig.enabled) {
+                startAutoSlideTimer();
+            }
+        });
+        window.addEventListener('pageshow', () => {
+            if (autoSlideConfig.enabled) {
+                startAutoSlideTimer();
+            }
+        });
+    }
+
+    // 5. Kích hoạt đếm giờ chuẩn xác
     startAutoSlideTimer();
 }
 
@@ -747,12 +765,26 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     // Chuẩn bị lớp ảnh nền tiếp theo (Lướt từ bên phải vào)
     if (nextLayer && currentLayer) {
         nextLayer.src = optUrl || rawUrl;
+        const targetSlug = movie.slug || movie.name || '';
+        nextLayer.setAttribute('data-movie-slug', targetSlug);
         nextLayer.style.transition = 'none';
         nextLayer.style.transform = `translateZ(0) translateX(${direction * 48}px) scale(1.03)`;
         nextLayer.style.opacity = '0';
         nextLayer.style.zIndex = '2';
         currentLayer.style.zIndex = '1';
         nextLayer.offsetHeight; // Trigger reflow
+
+        // ⚡ Progressive Ultra-HD: Nạp ngầm bản gốc 100% (original 4K) và nâng cấp khi sẵn sàng
+        const fullOriginalUrl = movie.rawImageUrl || (rawUrl && rawUrl.includes('tmdb.org') ? rawUrl.replace(/\/t\/p\/w\d+\//, '/t/p/original/') : null);
+        if (fullOriginalUrl && fullOriginalUrl.includes('/original/') && fullOriginalUrl !== optUrl) {
+            const origLoader = new Image();
+            origLoader.src = fullOriginalUrl;
+            origLoader.onload = () => {
+                if (nextLayer && nextLayer.getAttribute('data-movie-slug') === targetSlug) {
+                    nextLayer.src = fullOriginalUrl;
+                }
+            };
+        }
     }
 
     // Chuẩn bị khung nội dung bên trái (Lướt nhẹ nhàng đồng bộ từ bên trái vào)
@@ -796,7 +828,12 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
 // -- Build optimized image URL ------------------------------------
 function buildImageUrl(rawUrl, width) {
     if (!rawUrl) return '';
-    if (rawUrl.includes('tmdb.org')) return rawUrl;
+    if (rawUrl.includes('tmdb.org')) {
+        let size = 'w1280';
+        if (width && width <= 550) size = 'w500'; // 500px cho thumbnail 110px: siêu nét Retina!
+        else if (width && width <= 800) size = 'w780';
+        return rawUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`);
+    }
     
     if (typeof movieAPI !== 'undefined' && movieAPI.getImageURL) {
         return movieAPI.getImageURL(rawUrl, width, 90, true);
@@ -1156,19 +1193,26 @@ function convertThumbnailsFromAPI(banners) {
     }));
 }
 
-// -- Preload ảnh ngầm cho tất cả slides --------------------------
+// -- Preload ảnh ngầm cho các slide kế tiếp (tối ưu băng thông) ---------
 function preloadSlideImages(movies) {
-    setTimeout(() => {
-        movies.forEach((movie) => {
+    if (!Array.isArray(movies) || movies.length <= 1) return;
+    const doPreload = () => {
+        // Chỉ preload trước tối đa 3 slide kế tiếp để tiết kiệm băng thông khi vừa vào web
+        movies.slice(1, 4).forEach((movie) => {
             const rawUrl = getHeroImageUrl(movie);
             if (!rawUrl) return;
-            const url = buildImageUrl(rawUrl, 1200);
+            const url = buildImageUrl(rawUrl, 1280);
             if (url) {
                 const img = new Image();
                 img.src = url;
             }
         });
-    }, 300);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(doPreload, { timeout: 3000 });
+    } else {
+        setTimeout(doPreload, 2000);
+    }
 }
 
 // -- Render thumbnail DOM (Hỗ trợ không giới hạn số lượng phim do Admin chọn) -------------
@@ -1192,6 +1236,9 @@ function renderThumbnails(movies) {
         if (!imgSrc) {
             imgSrc = 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
         }
+        if (imgSrc.includes('tmdb.org')) {
+            imgSrc = imgSrc.replace(/\/t\/p\/(original|w\d+)\//, '/t/p/w500/');
+        }
 
         const slideIndex = i;
         const isActive = (currentSlideIndex === slideIndex) ? 'hero-thumb-active active' : '';
@@ -1207,7 +1254,7 @@ function renderThumbnails(movies) {
             <img
                 src="${imgSrc}"
                 alt="${(movie.name || '').replace(/"/g, '&quot;')}"
-                loading="eager"
+                loading="${i < 4 ? 'eager' : 'lazy'}"
                 decoding="async"
                 onerror="this.src='https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg'" />
         </div>`;

@@ -1312,7 +1312,21 @@ async function getDesktopHeroSlides() {
             .maybeSingle();
 
         if (row && Array.isArray(row.value) && row.value.length > 0) {
-            cachedHeroSlides = row.value;
+            const optTmdb = (u, sz = 'w1280') => {
+                if (!u || typeof u !== 'string') return u;
+                return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, `image.tmdb.org/t/p/${sz}/`);
+            };
+            cachedHeroSlides = row.value.map((s, idx) => ({
+                ...s,
+                rawImageUrl: s.imageUrl || s.thumb_url || s.thumbUrl,
+                // ⚡ Ảnh đầu tiên (Slide 0): Ưu tiên 100% chất lượng gốc đủ nét, các slide sau nạp tối ưu rồi nâng cấp
+                imageUrl: idx === 0 ? (s.imageUrl || s.thumb_url || s.thumbUrl) : optTmdb(s.imageUrl || s.thumb_url || s.thumbUrl, 'w1280'),
+                thumb_url: optTmdb(s.thumb_url || s.thumbUrl || s.imageUrl, 'w500'),
+                thumbUrl: optTmdb(s.thumbUrl || s.thumb_url || s.imageUrl, 'w500'),
+                poster_url: optTmdb(s.poster_url || s.posterUrl, 'w500'),
+                posterUrl: optTmdb(s.posterUrl || s.poster_url, 'w500'),
+                logoUrl: optTmdb(s.logoUrl, 'w500')
+            }));
             cachedHeroSlidesTime = Date.now();
             return cachedHeroSlides;
         }

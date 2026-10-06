@@ -97,6 +97,23 @@ window.getCleanMovieImageUrl = function(rawUrl) {
     return 'https://phimimg.com/uploads/movies/' + clean;
 };
 
+// Dynamic movie control sync
+window._cachedControlStatus = window._cachedControlStatus || { dmca: [], hidden: [], featured: [] };
+(function syncLiveControls() {
+    fetch('/api/movies/control-status')
+        .then(res => res.json())
+        .then(data => {
+            if (data && typeof data === 'object') {
+                window._cachedControlStatus = {
+                    dmca: Array.isArray(data.dmca) ? data.dmca : [],
+                    hidden: Array.isArray(data.hidden) ? data.hidden : [],
+                    featured: Array.isArray(data.featured) ? data.featured : []
+                };
+            }
+        })
+        .catch(() => {});
+})();
+
 // API Service for phimapi.com and Backend
 class MovieAPI {
     constructor() {
@@ -207,23 +224,6 @@ class MovieAPI {
 
         throw lastError || new Error('All OPhim API mirrors failed');
     }
-
-// Dynamic movie control sync
-window._cachedControlStatus = window._cachedControlStatus || { dmca: [], hidden: [], featured: [] };
-(function syncLiveControls() {
-    fetch('/api/movies/control-status')
-        .then(res => res.json())
-        .then(data => {
-            if (data && typeof data === 'object') {
-                window._cachedControlStatus = {
-                    dmca: Array.isArray(data.dmca) ? data.dmca : [],
-                    hidden: Array.isArray(data.hidden) ? data.hidden : [],
-                    featured: Array.isArray(data.featured) ? data.featured : []
-                };
-            }
-        })
-        .catch(() => {});
-})();
 
     // Helper to filter out hidden movies from list responses and fix absolute image paths
     filterHiddenMovies(data) {
