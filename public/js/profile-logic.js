@@ -817,12 +817,12 @@ function renderAccount(u) {
                         <div class="avatar-large">${avatarHtml}</div>
                         <div class="avatar-label ${typeof getEquippedNameColorClass === 'function' ? getEquippedNameColorClass(u) : ''}" style="${typeof getEquippedNameColorStyle === 'function' ? getEquippedNameColorStyle(u) : ''}">${u.displayName || u.name || 'Người dùng'}</div>
                         <div class="avatar-sublabel">${u.email || ''}</div>
-                        <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarFileSelected(this)">
                         <div style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:4px;">
-                            <button class="btn-avatar-compact" onclick="document.getElementById('avatarFileInput').click()" title="Tải ảnh từ máy tính hoặc điện thoại">
+                            <label class="btn-avatar-compact" style="position:relative;overflow:hidden;cursor:pointer;" title="Tải ảnh từ máy tính hoặc điện thoại">
+                                <input type="file" id="avatarFileInput" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:5;" onchange="handleAvatarFileSelected(this)">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 <span>Tải ảnh lên</span>
-                            </button>
+                            </label>
                             <button class="btn-avatar-vip" onclick="openPresetAvatarModal()" title="Chọn ảnh đại diện có sẵn từ kho APhim">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                                 <span>Ảnh có sẵn</span>
@@ -4079,8 +4079,8 @@ function renderPlaylistsTab(u) {
       return `
                 <div style="display:flex; flex-direction:column; gap:20px; width:100%;">
                     <!-- Back Button -->
-                    <div style="display:flex; align-items:center;">
-                        <button class="playlist-back-btn" onclick="window.closePlaylistDetail()" style="background:none; border:none; color:#94a3b8; font-size:13.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; padding:0; transition:color 0.2s;">
+                    <div class="playlist-detail-back-bar">
+                        <button class="playlist-back-btn" onclick="window.closePlaylistDetail()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
                             Quay lại tất cả playlist
                         </button>
@@ -4175,7 +4175,7 @@ function renderPlaylistsTab(u) {
   return `
         <div class="panel-card" style="min-height: 520px; display: flex; flex-direction: column;">
             ${headerHtml}
-            <div class="playlists-grid" style="padding: 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 260px)); gap: 20px; align-items: start; align-content: start; justify-content: start; width: 100%;">
+            <div class="playlists-grid">
                 ${playlists.map(pl => {
     const count = pl.movies ? pl.movies.length : 0;
     const firstMovie = (pl.movies && pl.movies.length > 0) ? pl.movies[0] : null;
@@ -4183,44 +4183,44 @@ function renderPlaylistsTab(u) {
     if (poster && !poster.startsWith('http')) poster = 'https://phimimg.com/' + poster.replace(/^\/+/, '');
 
     return `
-                        <div class="playlist-grid-card group" style="background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; max-width: 260px; height: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" onclick="window.openPlaylistDetail('${pl.id}')">
+                        <div class="playlist-grid-card group" onclick="window.openPlaylistDetail('${pl.id}')">
                             <!-- Thumbnail Area -->
-                            <div class="playlist-card-thumb-area" style="aspect-ratio: 16/9; width: 100%; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.06);">
+                            <div class="playlist-card-thumb-area">
                                 ${poster ? `
-                                    <img src="${poster}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" class="group-hover:scale-105" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div style="display:none; width:100%; height:100%; align-items:center; justify-content:center; flex-direction:column; gap:6px;">
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                                    <img src="${poster}" class="playlist-card-thumb-img group-hover:scale-105" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="playlist-card-thumb-fallback" style="display:none;">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                                     </div>
-                                    <div style="position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%); pointer-events:none;"></div>
+                                    <div class="playlist-card-thumb-overlay"></div>
                                 ` : `
-                                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#94a3b8;">
-                                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center; color:#818cf8;">
+                                    <div class="playlist-card-empty-thumb">
+                                        <div class="playlist-card-empty-icon">
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                                         </div>
-                                        <span style="font-size:10px; font-weight:800; letter-spacing:0.05em; color:#94a3b8; text-transform:uppercase;">Chưa có phim</span>
+                                        <span class="playlist-card-empty-label">Chưa có phim</span>
                                     </div>
                                 `}
                                 <!-- Count badge -->
-                                <div style="position:absolute; top:8px; right:8px; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:2px 8px; font-size:11px; font-weight:700; color:#e2e8f0; display:flex; align-items:center; gap:4px;">
+                                <div class="playlist-card-count-badge">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                                     ${count}
                                 </div>
                             </div>
                             
                             <!-- Info Area -->
-                            <div style="display:flex; flex-direction:column; gap:2px; padding:2px 4px 0;">
-                                <h4 style="font-size:14px; font-weight:800; color:#ffffff; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${pl.name}">${pl.name}</h4>
-                                <p style="font-size:11.5px; color:#94a3b8; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${pl.desc || pl.description || 'Danh sách phát cá nhân'}</p>
+                            <div class="playlist-card-info">
+                                <h4 class="playlist-card-title" title="${pl.name}">${pl.name}</h4>
+                                <p class="playlist-card-desc">${pl.desc || pl.description || 'Danh sách phát cá nhân'}</p>
                             </div>
                             
                             <!-- Footer Area -->
-                            <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 4px 2px; border-top:1px solid rgba(255,255,255,0.06); margin-top:2px;">
-                                <span style="font-size:11px; font-weight:600; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px;">${count} phim</span>
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <button onclick="event.stopPropagation(); window.editPlaylist('${pl.id}')" style="width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; color:#94a3b8; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.2)'; this.style.color='#818cf8';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#94a3b8';" title="Đổi tên">
+                            <div class="playlist-card-footer">
+                                <span class="playlist-card-pill">${count} phim</span>
+                                <div class="playlist-card-actions">
+                                    <button class="playlist-card-btn-edit" onclick="event.stopPropagation(); window.editPlaylist('${pl.id}')" title="Đổi tên">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                                     </button>
-                                    <button onclick="event.stopPropagation(); deletePlaylist('${pl.id}')" style="width:28px; height:28px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); display:flex; align-items:center; justify-content:center; color:#ef4444; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)';" onmouseout="this.style.background='rgba(239,68,68,0.1)';" title="Xóa playlist">
+                                    <button class="playlist-card-btn-delete" onclick="event.stopPropagation(); deletePlaylist('${pl.id}')" title="Xóa playlist">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                     </button>
                                 </div>
@@ -5574,8 +5574,9 @@ function updateAllAvatarUIs(avatarUrl) {
 async function handleAvatarFileSelected(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
-  if (!file.type.startsWith('image/')) {
-    if (typeof showToast === 'function') showToast('⚠️ Vui lòng chọn file hình ảnh hợp lệ (jpg, png, webp...)', 'warning');
+  const isImage = (file.type && file.type.startsWith('image/')) || /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(file.name || '');
+  if (!isImage) {
+    if (typeof showToast === 'function') showToast('⚠️ Vui lòng chọn file hình ảnh hợp lệ (jpg, png, webp, heic...)', 'warning');
     else alert('Vui lòng chọn file hình ảnh hợp lệ!');
     return;
   }
@@ -5603,6 +5604,14 @@ async function handleAvatarFileSelected(input) {
     };
     reader.readAsDataURL(file);
   }
+}
+
+async function handleModalAvatarUpload(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  closePresetAvatarModal();
+  await handleAvatarFileSelected({ files: [file] });
+  try { input.value = ''; } catch (e) { }
 }
 
 function openPresetAvatarModal() {
@@ -5673,10 +5682,11 @@ function openPresetAvatarModal() {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 <span style="font-weight:600;">Đồng bộ Realtime</span>
               </div>
-              <button class="preset-btn-upload-custom" onclick="document.getElementById('avatarFileInput').click();closePresetAvatarModal();" style="background:linear-gradient(135deg, #2563eb, #1d4ed8);border:none;color:#ffffff;padding:7px 13px;border-radius:9px;font-size:11.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,0.35);">
+              <label class="preset-btn-upload-custom" style="position:relative;overflow:hidden;background:linear-gradient(135deg, #2563eb, #1d4ed8);border:none;color:#ffffff;padding:7px 13px;border-radius:9px;font-size:11.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,0.35);">
+                <input type="file" id="presetAvatarFileInput" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:5;" onchange="handleModalAvatarUpload(this)">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 <span>Tải ảnh từ máy</span>
-              </button>
+              </label>
             </div>
           </div>
         `;
