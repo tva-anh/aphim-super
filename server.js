@@ -938,18 +938,7 @@ let adultPool = null;
 let adultPoolTimestamp = 0;
 const ADULT_POOL_TTL = 12 * 60 * 60 * 1000; // 12 giờ cache
 
-// Nạp tức thì từ Seed JSON ngay khi khởi động server để đạt tốc độ 0ms và không phụ thuộc API ngoài
-try {
-    const seedFilePath = path.join(__dirname, 'data', 'adult-pool-seed.json');
-    if (fs.existsSync(seedFilePath)) {
-        const rawSeed = fs.readFileSync(seedFilePath, 'utf-8');
-        adultPool = JSON.parse(rawSeed);
-        adultPoolTimestamp = Date.now();
-        console.log(`[AdultPool] Đã nạp tức thì ${adultPool.length} phim 18+ từ local seed database.`);
-    }
-} catch (err) {
-    console.warn('[AdultPool] Không thể nạp seed json:', err.message);
-}
+
 
 async function getAdultMoviePool(forceRefresh = false) {
     if (!forceRefresh && adultPool && adultPool.length >= 100 && (Date.now() - adultPoolTimestamp < ADULT_POOL_TTL)) {
@@ -1319,21 +1308,24 @@ async function getDesktopHeroSlides() {
             .maybeSingle();
 
         if (row && Array.isArray(row.value) && row.value.length > 0) {
-            const optTmdb = (u, sz = 'w1280') => {
+            const optTmdbThumb = (u, sz = 'w500') => {
                 if (!u || typeof u !== 'string') return u;
                 return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, `image.tmdb.org/t/p/${sz}/`);
             };
-            cachedHeroSlides = row.value.map((s, idx) => ({
-                ...s,
-                rawImageUrl: s.imageUrl || s.thumb_url || s.thumbUrl,
-                // ⚡ Ảnh đầu tiên (Slide 0): Ưu tiên 100% chất lượng gốc đủ nét, các slide sau nạp tối ưu rồi nâng cấp
-                imageUrl: idx === 0 ? (s.imageUrl || s.thumb_url || s.thumbUrl) : optTmdb(s.imageUrl || s.thumb_url || s.thumbUrl, 'w1280'),
-                thumb_url: optTmdb(s.thumb_url || s.thumbUrl || s.imageUrl, 'w500'),
-                thumbUrl: optTmdb(s.thumbUrl || s.thumb_url || s.imageUrl, 'w500'),
-                poster_url: optTmdb(s.poster_url || s.posterUrl, 'w500'),
-                posterUrl: optTmdb(s.posterUrl || s.poster_url, 'w500'),
-                logoUrl: optTmdb(s.logoUrl, 'w500')
-            }));
+            cachedHeroSlides = row.value.map((s) => {
+                const rawImg = s.imageUrl || s.thumb_url || s.thumbUrl || s.bannerUrl || s.backdropUrl || '';
+                return {
+                    ...s,
+                    rawImageUrl: rawImg,
+                    // ⚡ Giữ nguyên 100% chất lượng cũ gốc cho tất cả các slide desktop
+                    imageUrl: rawImg,
+                    thumb_url: optTmdbThumb(s.thumb_url || s.thumbUrl || rawImg, 'w500'),
+                    thumbUrl: optTmdbThumb(s.thumbUrl || s.thumb_url || rawImg, 'w500'),
+                    poster_url: optTmdbThumb(s.poster_url || s.posterUrl || rawImg, 'w500'),
+                    posterUrl: optTmdbThumb(s.posterUrl || s.poster_url || rawImg, 'w500'),
+                    logoUrl: s.logoUrl || ''
+                };
+            });
             cachedHeroSlidesTime = Date.now();
             return cachedHeroSlides;
         }
@@ -2395,12 +2387,7 @@ server.listen(PORT, () => {
     console.log(`🟢 Firebase: ✅ Client-side (aphim-super-new)`);
     console.log(`⚡ IndexNow: ✅ Tự động lập chỉ mục Bing & Yandex`);
 
-    // 🔞 Khởi động ngầm Cache Phim 18+ Vietsub
-    setTimeout(() => {
-        getAdultMoviePool().then(p => {
-            console.log(`🔞 [AdultPool] Đã nạp thành công ${p.length} phim 18+ Vietsub vào bộ nhớ đệm.`);
-        }).catch(() => {});
-    }, 1000);
+
 });
 
 server.on('error', (err) => {

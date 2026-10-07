@@ -201,6 +201,17 @@ async function loadHeroBanner() {
             layerA.src = firstBg;
         }
 
+        // ⚡ Nạp sẵn Layer B với slide 1 (chất lượng cũ gốc) để chuyển cảnh tiếp theo đạt 0ms
+        const layerB = document.getElementById('heroImageLayerB');
+        if (layerB && heroSlides.length > 1) {
+            const nextBg = heroSlides[1].rawImageUrl || heroSlides[1].imageUrl || getHeroImageUrl(heroSlides[1]);
+            if (nextBg && (!layerB.getAttribute('src') || layerB.getAttribute('src') !== nextBg)) {
+                layerB.src = nextBg;
+                layerB.setAttribute('data-movie-slug', heroSlides[1].slug || heroSlides[1].name || '');
+                layerB.setAttribute('data-original-src', nextBg);
+            }
+        }
+
         // Khởi tạo các tương tác thumbnail ngay lập tức (0ms)
         renderThumbnails(heroSlides);
         updateThumbnailActive(0);
@@ -364,8 +375,8 @@ function convertBannerToMovie(banner) {
 function getHeroImageUrl(movie) {
     if (!movie) return '';
     
-    // 1. Ưu tiên tuyệt đối: Ảnh Backdrop / Thumbnail do Admin hoặc hệ thống cấu hình
-    const directUrl = movie.imageUrl || movie.thumbUrl || movie.thumb_url || movie.bannerUrl || movie.backdropUrl || '';
+    // 1. Ưu tiên tuyệt đối: Ảnh Gốc / Backdrop do Admin hoặc hệ thống cấu hình (100% chất lượng cũ gốc)
+    const directUrl = movie.rawImageUrl || movie.imageUrl || movie.thumbUrl || movie.thumb_url || movie.bannerUrl || movie.backdropUrl || '';
     if (directUrl && typeof directUrl === 'string' && directUrl.trim() !== '') {
         return directUrl.trim();
     }
@@ -746,9 +757,9 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     // 1. Cập nhật ngay trạng thái active của Thumbnail (chuyển viền sáng lập tức 0ms)
     updateThumbnailActive(newIndex);
 
-    // 2. Lấy link ảnh chất lượng cao
+    // 2. Lấy link ảnh chất lượng cũ gốc cho các hero phía sau
     const rawUrl = getHeroImageUrl(movie);
-    const optUrl = buildImageUrl(rawUrl, 1400);
+    const targetUrl = movie.rawImageUrl || movie.imageUrl || rawUrl;
 
     const layerA = document.getElementById('heroImageLayerA');
     const layerB = document.getElementById('heroImageLayerB');
@@ -762,29 +773,20 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
     updateHeroButtons(movie);
     setupHeroActions(movie);
 
-    // Chuẩn bị lớp ảnh nền tiếp theo (Lướt từ bên phải vào)
+    // Chuẩn bị lớp ảnh nền tiếp theo (Lướt từ bên phải vào với 100% chất lượng gốc)
     if (nextLayer && currentLayer) {
-        nextLayer.src = optUrl || rawUrl;
         const targetSlug = movie.slug || movie.name || '';
         nextLayer.setAttribute('data-movie-slug', targetSlug);
+        nextLayer.setAttribute('data-original-src', targetUrl);
+        if (nextLayer.getAttribute('src') !== targetUrl) {
+            nextLayer.src = targetUrl;
+        }
         nextLayer.style.transition = 'none';
         nextLayer.style.transform = `translateZ(0) translateX(${direction * 48}px) scale(1.03)`;
         nextLayer.style.opacity = '0';
         nextLayer.style.zIndex = '2';
         currentLayer.style.zIndex = '1';
         nextLayer.offsetHeight; // Trigger reflow
-
-        // ⚡ Progressive Ultra-HD: Nạp ngầm bản gốc 100% (original 4K) và nâng cấp khi sẵn sàng
-        const fullOriginalUrl = movie.rawImageUrl || (rawUrl && rawUrl.includes('tmdb.org') ? rawUrl.replace(/\/t\/p\/w\d+\//, '/t/p/original/') : null);
-        if (fullOriginalUrl && fullOriginalUrl.includes('/original/') && fullOriginalUrl !== optUrl) {
-            const origLoader = new Image();
-            origLoader.src = fullOriginalUrl;
-            origLoader.onload = () => {
-                if (nextLayer && nextLayer.getAttribute('data-movie-slug') === targetSlug) {
-                    nextLayer.src = fullOriginalUrl;
-                }
-            };
-        }
     }
 
     // Chuẩn bị khung nội dung bên trái (Lướt nhẹ nhàng đồng bộ từ bên trái vào)
@@ -829,10 +831,10 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
 function buildImageUrl(rawUrl, width) {
     if (!rawUrl) return '';
     if (rawUrl.includes('tmdb.org')) {
-        let size = 'w1280';
-        if (width && width <= 550) size = 'w500'; // 500px cho thumbnail 110px: siêu nét Retina!
-        else if (width && width <= 800) size = 'w780';
-        return rawUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`);
+        if (width && width <= 550) return rawUrl.replace(/\/t\/p\/(original|w\d+)\//, '/t/p/w500/'); // thumbnail
+        if (width && width <= 800) return rawUrl.replace(/\/t\/p\/(original|w\d+)\//, '/t/p/w780/');
+        // Trên Desktop Hero: Giữ 100% chất lượng cũ gốc (original / rawUrl)
+        return rawUrl;
     }
     
     if (typeof movieAPI !== 'undefined' && movieAPI.getImageURL) {
@@ -1193,26 +1195,23 @@ function convertThumbnailsFromAPI(banners) {
     }));
 }
 
-// -- Preload ảnh ngầm cho các slide kế tiếp (tối ưu băng thông) ---------
+// -- Preload ảnh ngầm siêu tốc cho các slide phía sau (sẵn sàng 0ms chất lượng cũ trên desktop) ---------
 function preloadSlideImages(movies) {
     if (!Array.isArray(movies) || movies.length <= 1) return;
     const doPreload = () => {
-        // Chỉ preload trước tối đa 3 slide kế tiếp để tiết kiệm băng thông khi vừa vào web
-        movies.slice(1, 4).forEach((movie) => {
+        // Tải trước toàn bộ các slide phía sau với 100% chất lượng cũ gốc
+        movies.slice(1).forEach((movie, idx) => {
             const rawUrl = getHeroImageUrl(movie);
-            if (!rawUrl) return;
-            const url = buildImageUrl(rawUrl, 1280);
-            if (url) {
-                const img = new Image();
-                img.src = url;
-            }
+            const targetUrl = movie.rawImageUrl || movie.imageUrl || rawUrl;
+            if (!targetUrl) return;
+            const img = new Image();
+            if (idx === 0) img.fetchPriority = 'high';
+            img.decoding = 'async';
+            img.src = targetUrl;
         });
     };
-    if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(doPreload, { timeout: 3000 });
-    } else {
-        setTimeout(doPreload, 2000);
-    }
+    // Khởi động nạp ngầm siêu tốc ngay sau 100ms khi trang vừa sẵn sàng
+    setTimeout(doPreload, 100);
 }
 
 // -- Render thumbnail DOM (Hỗ trợ không giới hạn số lượng phim do Admin chọn) -------------
@@ -1509,13 +1508,13 @@ function renderHeroBannerContent(movie, isInstant) {
     }
 
     const rawUrl = getHeroImageUrl(movie);
-    const optUrl = buildImageUrl(rawUrl, 1200);
+    const finalUrl = movie.rawImageUrl || movie.imageUrl || rawUrl;
 
-    if (optUrl && !document.querySelector('link[data-hero-preload]')) {
+    if (finalUrl && !document.querySelector('link[data-hero-preload]')) {
         const preloadLink = document.createElement('link');
         preloadLink.rel = 'preload';
         preloadLink.as = 'image';
-        preloadLink.href = optUrl;
+        preloadLink.href = finalUrl;
         preloadLink.setAttribute('data-hero-preload', '1');
         preloadLink.fetchPriority = 'high';
         document.head.appendChild(preloadLink);
@@ -1531,11 +1530,10 @@ function renderHeroBannerContent(movie, isInstant) {
         showHeroImage();
     };
 
-    const finalUrl = optUrl || rawUrl;
     const layerA = document.getElementById('heroImageLayerA');
     const layerB = document.getElementById('heroImageLayerB');
     if (layerA) {
-        if (finalUrl) layerA.src = finalUrl;
+        if (finalUrl && layerA.getAttribute('src') !== finalUrl) layerA.src = finalUrl;
         layerA.style.opacity = '1';
         layerA.style.transform = 'translateZ(0) scale(1)';
     }
@@ -1543,9 +1541,9 @@ function renderHeroBannerContent(movie, isInstant) {
         layerB.style.opacity = '0';
     }
 
-    if (optUrl) {
-        heroImage.setAttribute('data-current-src', optUrl);
-        heroImage.src = optUrl;
+    if (finalUrl) {
+        heroImage.setAttribute('data-current-src', finalUrl);
+        heroImage.src = finalUrl;
     } else if (rawUrl) {
         const fallbackUrl = rawUrl.startsWith('http') ? rawUrl : `https://phimimg.com/${rawUrl.startsWith('uploads/') ? '' : 'uploads/movies/'}${rawUrl}`;
         heroImage.src = fallbackUrl;

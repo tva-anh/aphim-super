@@ -7,6 +7,10 @@
             (heroSlides[0].rawImageUrl || heroSlides[0].imageUrl) : null; if (_hero0Img) { %>
             <link rel="preload" as="image" href="<%= _hero0Img %>" fetchpriority="high">
             <% } %>
+        <% const _hero1Img=(typeof heroSlides !=='undefined' && Array.isArray(heroSlides) && heroSlides[1]) ?
+            (heroSlides[1].rawImageUrl || heroSlides[1].imageUrl || heroSlides[1].thumb_url) : null; if (_hero1Img) { %>
+            <link rel="prefetch" as="image" href="<%= _hero1Img %>">
+            <% } %>
                 <link rel="stylesheet" href="/css/avatar-frames.css">
                 <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=23">
                 <link rel="stylesheet" href="/css/hero-banner.css?v=191">
@@ -1520,6 +1524,13 @@
             'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
             // ⚡ Ảnh đầu tiên (Slide 0): Ưu tiên 100% chất lượng gốc nguyên bản cao nhất
             const ssrBgImg = rawBgImg;
+
+            // ⚡ Ảnh kế tiếp (Slide 1): Nạp sẵn chất lượng cũ gốc ngay vào Layer B để chuyển cảnh tức thì 0ms
+            const ssrHero1 = (ssrHeroList && ssrHeroList.length > 1) ? ssrHeroList[1] : null;
+            let rawBgImg1 = ssrHero1 ? (ssrHero1.rawImageUrl || ssrHero1.imageUrl || ssrHero1.thumb_url ||
+            ssrHero1.thumbUrl || ssrHero1.poster_url || ssrHero1.posterUrl) : '';
+            const ssrSlug1 = ssrHero1 ? (ssrHero1.movieSlug || ssrHero1.slug || '') : '';
+
             const ssrLogo = ssrHero0 ? (ssrHero0.logoUrl || '') :
             'https://image.tmdb.org/t/p/w500/uyABqIMLGBYCrLkeIrt6k7WEaK2.png';
             const ssrTitle = ssrHero0 ? (ssrHero0.name || 'Nhất Âu Xuân') : 'Nhất Âu Xuân';
@@ -1542,7 +1553,9 @@
                     <img id="heroImageLayerA" class="hero-bg-layer is-active" alt="<%= ssrTitle %>"
                         src="<%= ssrBgImg %>" data-original-src="<%= rawBgImg %>" data-movie-slug="<%= ssrSlug %>"
                         fetchpriority="high" decoding="sync" />
-                    <img id="heroImageLayerB" class="hero-bg-layer" alt="<%= ssrTitle %>" src="" style="opacity: 0;" />
+                    <img id="heroImageLayerB" class="hero-bg-layer" alt="" src="<%= rawBgImg1 %>"
+                        data-original-src="<%= rawBgImg1 %>" data-movie-slug="<%= ssrSlug1 %>"
+                        style="opacity: 0;" loading="eager" decoding="async" />
                     <!-- Fallback element for compatibility -->
                     <img id="heroImage" class="hidden" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" />
 
@@ -3692,7 +3705,7 @@
                         });
                     })();
                 </script>
-                <script src="/js/hero-banner.js?v=190" defer></script>
+                <script src="/js/hero-banner.js?v=192" defer></script>
 </body>
 
 </html>
