@@ -49,8 +49,8 @@ function applyEquippedBanner(coverEl, u) {
   let activeBgStyle = (banner && banner.bgStyle) || '';
   if (bannerId === 'banner_default' || bannerId === 'none') {
     activeBgStyle = isLight
-      ? 'background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%) !important; border-bottom: 1px solid rgba(0,0,0,0.06);'
-      : 'background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;';
+      ? 'background: linear-gradient(180deg, #f1f5f9 0%, #ffffff 100%) !important;'
+      : 'background: linear-gradient(180deg, #1e293b 0%, #0b0f19 100%) !important;';
   }
 
   targets.forEach(el => {
@@ -111,20 +111,31 @@ function initSidebar() {
     const frameInfo = typeof getEquippedFrameInfo === 'function' ? getEquippedFrameInfo(u) : { type: 'none', value: '' };
     const avatarWrap = document.getElementById('sidebarAvatarWrap') || (avatarEl ? (avatarEl.classList.contains('sidebar-avatar-wrap') ? avatarEl : avatarEl.parentElement) : null);
     if (avatarWrap) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 1023;
+      const avaSize = isMobile ? 80 : 68;
       const innerAvatarContent = u.avatar
         ? `<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-        : `<span style="font-size:26px;font-weight:900;color:#1a1000;">${letter}</span>`;
+        : `<span style="font-size:${isMobile ? '32px' : '28px'};font-weight:900;color:#1a1000;">${letter}</span>`;
       const renderedAvatarHtml = typeof renderAvatarWithFrame === 'function'
-        ? renderAvatarWithFrame(innerAvatarContent, 64, frameInfo)
+        ? renderAvatarWithFrame(innerAvatarContent, avaSize, frameInfo)
         : `<div class="sidebar-avatar">${innerAvatarContent}</div>`;
-      avatarWrap.innerHTML = `<div id="sidebarAvatarEl" style="display:inline-flex; align-items:center; justify-content:center;">${renderedAvatarHtml}</div>`;
+      avatarWrap.innerHTML = `
+        <div id="sidebarAvatarEl" style="overflow:visible; position:relative; display:inline-flex; align-items:center; justify-content:center;">${renderedAvatarHtml}</div>
+        <button type="button" class="mobile-avatar-add-btn" onclick="openPresetAvatarModal()" title="Đổi ảnh đại diện" aria-label="Đổi ảnh đại diện">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      `;
     }
 
-    const sidebarBadgeWrap = document.querySelector('.sidebar-user-info .sidebar-badge, .sidebar-user-info .user-badge');
-    if (sidebarBadgeWrap) {
-      const bText = typeof getEquippedBadge === 'function' ? getEquippedBadge(u) : 'LV.15';
-      const renderedBadge = typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(bText) : `<div class="sidebar-badge">${bText}</div>`;
-      sidebarBadgeWrap.outerHTML = renderedBadge;
+    if (typeof updateSidebarEquippedTitle === 'function') {
+      updateSidebarEquippedTitle(u);
+    }
+
+    if (typeof updateSidebarBio === 'function') {
+      updateSidebarBio(u);
     }
   }
 
@@ -153,6 +164,180 @@ function initSidebar() {
     if (fillEl) fillEl.style.width = `${progressXp}%`;
   } catch (e) { }
 }
+window.initSidebar = initSidebar;
+
+function updateSidebarBio(u) {
+  if (!u) u = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : (typeof getUser === 'function' ? getUser() : {});
+  const bioWrap = document.getElementById('sidebarBioWrap');
+  if (!bioWrap) return;
+  const bioText = (u && u.bio != null ? String(u.bio).trim() : '');
+  const hasCustomBio = bioText !== '' && bioText !== 'Thành viên VIP APhim Super';
+
+  if (hasCustomBio) {
+    bioWrap.innerHTML = `
+      <div class="sidebar-bio-text" title="${bioText.replace(/"/g, '&quot;')}">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;display:inline-block;">${bioText}</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.6;flex-shrink:0;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+    `;
+  } else {
+    bioWrap.innerHTML = `
+      <div class="sidebar-bio-pill">
+        <span style="font-weight:800;font-size:11px;">+ Thêm tiểu sử</span>
+        <span style="color:#64748b;font-size:10px;">·</span>
+        <span style="color:#ef4444;font-size:11px;display:inline-flex;align-items:center;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </span>
+        <span style="font-weight:500;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Tôi quan tâm đến...</span>
+      </div>
+    `;
+  }
+}
+window.updateSidebarBio = updateSidebarBio;
+
+function openBioModal() {
+  let modal = document.getElementById('editBioModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'editBioModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;animation:bioModalFadeIn 0.2s ease;';
+    modal.onclick = function(e) {
+      if (e.target === modal) closeBioModal();
+    };
+    document.body.appendChild(modal);
+  }
+
+  const u = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : (typeof getUser === 'function' ? getUser() : {});
+  const currentBio = (u && u.bio && u.bio !== 'Thành viên VIP APhim Super') ? u.bio : '';
+  const isLight = document.documentElement.classList.contains('light-mode');
+
+  modal.innerHTML = `
+    <div class="bio-modal-card" style="background:${isLight ? '#ffffff' : '#1a1d28'};border:1px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)'};border-radius:24px;width:100%;max-width:440px;box-shadow:${isLight ? '0 25px 60px -15px rgba(0,0,0,0.18)' : '0 30px 70px -15px rgba(0,0,0,0.75)'};overflow:hidden;padding:20px 22px 22px;box-sizing:border-box;position:relative;animation:bioCardSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+      <!-- Top Action Bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <button type="button" onclick="closeBioModal()" style="background:${isLight ? '#f1f5f9' : 'rgba(255,255,255,0.08)'};border:none;color:${isLight ? '#475569' : '#cbd5e1'};font-size:13.5px;font-weight:700;cursor:pointer;padding:6px 14px;border-radius:999px;transition:all 0.15s ease;">Hủy</button>
+        <div style="font-size:16px;font-weight:800;color:${isLight ? '#0f172a' : '#ffffff'};display:flex;align-items:center;gap:6px;">
+          <span>Tiểu sử</span>
+          <span style="font-size:10px;padding:2px 7px;border-radius:6px;background:${isLight ? '#fef3c7' : 'rgba(252,213,118,0.18)'};color:${isLight ? '#b45309' : '#fcd576'};font-weight:800;letter-spacing:0.02em;">Hồ sơ</span>
+        </div>
+        <button type="button" id="bioModalSaveBtn" onclick="saveBioFromModal()" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);border:none;color:#ffffff;font-size:13.5px;font-weight:800;cursor:pointer;padding:6px 18px;border-radius:999px;box-shadow:0 3px 12px rgba(217,119,6,0.35);transition:all 0.15s ease;">Lưu</button>
+      </div>
+
+      <!-- Subtitle -->
+      <p style="font-size:12.5px;color:${isLight ? '#64748b' : '#94a3b8'};margin:0 0 14px;line-height:1.45;font-weight:500;">
+        Viết đôi dòng giới thiệu về bản thân hoặc chia sẻ gu xem phim của bạn.
+      </p>
+
+      <!-- Textarea Box -->
+      <div style="background:${isLight ? '#f8fafc' : 'rgba(255,255,255,0.04)'};border:1.5px solid ${isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)'};border-radius:16px;padding:12px 14px 10px;position:relative;transition:border-color 0.2s ease, box-shadow 0.2s ease;" id="bioTextareaWrap">
+        <textarea id="bioModalInput" maxlength="160" placeholder="Ví dụ: Mê phim hoạt hình Ghibli & anime phép thuật ✨" style="width:100%;border:none !important;outline:none !important;box-shadow:none !important;-webkit-appearance:none;appearance:none;background:transparent !important;color:${isLight ? '#0f172a' : '#ffffff'};font-size:14px;font-family:inherit;line-height:1.5;resize:none;min-height:90px;box-sizing:border-box;display:block;padding:0;margin:0;" oninput="handleBioInput(this)">${currentBio}</textarea>
+        
+        <!-- Bottom Toolbar inside input (Char Count) -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:8px;padding-top:6px;border-top:1px solid ${isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'};">
+          <span id="bioModalCharCount" style="font-size:11.5px;color:${isLight ? '#94a3b8' : '#64748b'};font-weight:700;letter-spacing:0.3px;">${currentBio.length}/160</span>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Tags -->
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;font-weight:700;color:${isLight ? '#94a3b8' : '#64748b'};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Gợi ý nhanh</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button type="button" onclick="insertBioTag('🍿 Mê phim chiếu rạp')" style="background:${isLight ? '#f1f5f9' : 'rgba(255,255,255,0.06)'};border:1px solid ${isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)'};border-radius:999px;padding:4px 10px;font-size:11.5px;color:${isLight ? '#475569' : '#cbd5e1'};cursor:pointer;font-weight:600;transition:all 0.15s ease;">🍿 Mê phim rạp</button>
+          <button type="button" onclick="insertBioTag('🎬 Nghiện cày Phim Bộ')" style="background:${isLight ? '#f1f5f9' : 'rgba(255,255,255,0.06)'};border:1px solid ${isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)'};border-radius:999px;padding:4px 10px;font-size:11.5px;color:${isLight ? '#475569' : '#cbd5e1'};cursor:pointer;font-weight:600;transition:all 0.15s ease;">🎬 Cày phim bộ</button>
+          <button type="button" onclick="insertBioTag('✨ Fan cuồng Anime')" style="background:${isLight ? '#f1f5f9' : 'rgba(255,255,255,0.06)'};border:1px solid ${isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)'};border-radius:999px;padding:4px 10px;font-size:11.5px;color:${isLight ? '#475569' : '#cbd5e1'};cursor:pointer;font-weight:600;transition:all 0.15s ease;">✨ Fan Anime</button>
+          <button type="button" onclick="insertBioTag('💎 Thành viên VIP')" style="background:${isLight ? '#fef3c7' : 'rgba(252,213,118,0.14)'};border:1px solid ${isLight ? '#fde68a' : 'rgba(252,213,118,0.3)'};border-radius:999px;padding:4px 10px;font-size:11.5px;color:${isLight ? '#b45309' : '#fcd576'};cursor:pointer;font-weight:700;transition:all 0.15s ease;">💎 Thành viên VIP</button>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    const input = document.getElementById('bioModalInput');
+    const wrap = document.getElementById('bioTextareaWrap');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+      input.addEventListener('focus', () => {
+        if (wrap) {
+          wrap.style.borderColor = '#f59e0b';
+          wrap.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.16)';
+        }
+      });
+      input.addEventListener('blur', () => {
+        if (wrap) {
+          wrap.style.borderColor = isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)';
+          wrap.style.boxShadow = 'none';
+        }
+      });
+    }
+  }, 60);
+}
+window.openBioModal = openBioModal;
+
+function insertBioTag(text) {
+  const input = document.getElementById('bioModalInput');
+  if (!input) return;
+  const current = input.value.trim();
+  if (!current) {
+    input.value = text;
+  } else if (!current.includes(text)) {
+    input.value = (current + ' • ' + text).slice(0, 160);
+  }
+  input.focus();
+  handleBioInput(input);
+}
+window.insertBioTag = insertBioTag;
+
+function closeBioModal() {
+  const modal = document.getElementById('editBioModal');
+  if (modal) modal.style.display = 'none';
+}
+window.closeBioModal = closeBioModal;
+
+function handleBioInput(el) {
+  const countEl = document.getElementById('bioModalCharCount');
+  if (countEl) countEl.textContent = `${el.value.length}/160`;
+  const saveBtn = document.getElementById('bioModalSaveBtn');
+  if (saveBtn) {
+    saveBtn.style.opacity = '1';
+  }
+}
+window.handleBioInput = handleBioInput;
+
+function saveBioFromModal() {
+  const input = document.getElementById('bioModalInput');
+  const newBio = input ? input.value.trim() : '';
+
+  if (!currentUser) currentUser = (typeof getUser === 'function' ? getUser() : {}) || {};
+  currentUser.bio = newBio;
+
+  try {
+    localStorage.setItem('cinestream_user', JSON.stringify(currentUser));
+    localStorage.setItem('user_bio', newBio);
+  } catch(e) {}
+
+  if (typeof authService !== 'undefined') {
+    if (authService.currentUser) authService.currentUser.bio = newBio;
+    if (typeof authService.updateProfile === 'function') {
+      authService.updateProfile({ bio: newBio });
+    }
+  }
+
+  // Đồng bộ với textarea Giới thiệu bản thân ở mục Sửa hồ sơ
+  const accBio = document.getElementById('accBio');
+  if (accBio) accBio.value = newBio;
+
+  // Cập nhật giao diện thanh Bio ngay lập tức
+  updateSidebarBio(currentUser);
+  closeBioModal();
+
+  if (typeof showToast === 'function') {
+    showToast('✨ Đã cập nhật tiểu sử thành công!', 'success');
+  } else {
+    alert('✨ Đã cập nhật tiểu sử thành công!');
+  }
+}
+window.saveBioFromModal = saveBioFromModal;
 
 function switchTab(tab) {
   // Tự động đồng bộ tên mới nhất từ ô input tài khoản khi chuyển tab (ví dụ sang Shop)
@@ -787,8 +972,22 @@ function _shopFastRefresh(direction) {
   if (!newGrid) { renderTab('shop'); return; }
 
   if (newCoin && coinEl) coinEl.innerHTML = newCoin.innerHTML;
-  if (newTabs && tabsEl) tabsEl.replaceWith(newTabs);
-  if (newPills && pillsEl) pillsEl.replaceWith(newPills);
+  if (newTabs && tabsEl) {
+    const prevScroll = tabsEl.scrollLeft;
+    tabsEl.replaceWith(newTabs);
+    if (prevScroll > 0) {
+      newTabs.scrollLeft = prevScroll;
+      requestAnimationFrame(() => { newTabs.scrollLeft = prevScroll; });
+    }
+  }
+  if (newPills && pillsEl) {
+    const prevScroll = pillsEl.scrollLeft;
+    pillsEl.replaceWith(newPills);
+    if (prevScroll > 0) {
+      newPills.scrollLeft = prevScroll;
+      requestAnimationFrame(() => { newPills.scrollLeft = prevScroll; });
+    }
+  }
 
   const slideOut = direction === 'next' ? 'translateX(-28px)' :
     direction === 'prev' ? 'translateX(28px)' : 'translateX(0)';
@@ -3037,9 +3236,9 @@ function equipShopItem(cat, id) {
   // Đồng bộ Header, Mobile Drawer, Bottom Nav & Sidebar ngay tức thì (0ms)
   if (typeof updateUserUI === 'function') updateUserUI();
   if (typeof updateMobileMenuUser === 'function') updateMobileMenuUser();
-  if (typeof rebuildMobileMenu === 'function') rebuildMobileMenu();
   if (typeof rebuildBottomNav === 'function') rebuildBottomNav();
   if (typeof initSidebar === 'function') initSidebar();
+  if (typeof updateSidebarEquippedTitle === 'function') updateSidebarEquippedTitle(currentUser);
 
   const rightNameEl = document.querySelector('.avatar-panel .avatar-label');
   if (rightNameEl && typeof applyEquippedNameColor === 'function') {
@@ -3367,10 +3566,11 @@ function openGamificationModal(activeSubTab) {
             #ap-gamify-modal { position:fixed; inset:0; background:rgba(4,7,15,0.88); z-index:999999; display:flex; align-items:center; justify-content:center; padding:12px; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); animation:apGamifyFadeIn .22s ease-out; box-sizing:border-box; }
             #ap-gamify-modal * { box-sizing:border-box; }
             @keyframes apGamifyFadeIn { from { opacity:0; transform:scale(0.96) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
-            #ap-gamify-modal ::-webkit-scrollbar { width:4px; }
-            #ap-gamify-modal ::-webkit-scrollbar-track { background:rgba(0,0,0,0.25); border-radius:8px; }
-            #ap-gamify-modal ::-webkit-scrollbar-thumb { background:rgba(245,158,11,0.35); border-radius:8px; }
-            .ap-gamify-box { background:#0d111d; background-image:radial-gradient(circle at 50% -10%, rgba(245,158,11,0.18) 0%, transparent 60%), radial-gradient(circle at 100% 100%, rgba(99,102,241,0.08) 0%, transparent 50%); border:1px solid rgba(245,158,11,0.35); border-radius:22px; width:100%; max-width:590px; max-height:90vh; overflow-y:auto; box-shadow:0 25px 65px rgba(0,0,0,0.9), 0 0 40px rgba(245,158,11,0.15), inset 0 1px 0 rgba(255,255,255,0.1); display:flex; flex-direction:column; position:relative; }
+            #ap-gamify-modal .ap-gamify-content::-webkit-scrollbar { width:5px; }
+            #ap-gamify-modal .ap-gamify-content::-webkit-scrollbar-track { background:rgba(0,0,0,0.25); border-radius:8px; margin:8px 0; }
+            #ap-gamify-modal .ap-gamify-content::-webkit-scrollbar-thumb { background:linear-gradient(180deg, #fcd576 0%, #f59e0b 100%); border-radius:8px; }
+            #ap-gamify-modal .ap-gamify-content::-webkit-scrollbar-thumb:hover { background:#d97706; }
+            .ap-gamify-box { background:#0d111d; background-image:radial-gradient(circle at 50% -10%, rgba(245,158,11,0.18) 0%, transparent 60%), radial-gradient(circle at 100% 100%, rgba(99,102,241,0.08) 0%, transparent 50%); border:1px solid rgba(245,158,11,0.35); border-radius:22px; width:100%; max-width:590px; max-height:88vh; overflow:hidden !important; box-shadow:0 25px 65px rgba(0,0,0,0.9), 0 0 40px rgba(245,158,11,0.15), inset 0 1px 0 rgba(255,255,255,0.1); display:flex; flex-direction:column; position:relative; }
             .ap-gamify-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px 14px; border-bottom:1px solid rgba(255,255,255,0.08); gap:10px; }
             .ap-gamify-icon { width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg, #fcd576 0%, #f59e0b 60%, #b45309 100%); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(245,158,11,0.35); flex-shrink:0; border:1px solid rgba(255,255,255,0.4); }
             .ap-gamify-close { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); width:32px; height:32px; border-radius:9px; color:#cbd5e1; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s ease; flex-shrink:0; }
@@ -3385,7 +3585,7 @@ function openGamificationModal(activeSubTab) {
             .ap-gamify-tab-btn.active { border-color:#f59e0b; background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.12)); color:#fcd576; }
             .ap-gamify-tab-pill { font-size:10px; font-weight:800; padding:1px 5px; border-radius:999px; background:rgba(255,255,255,0.06); color:#94a3b8; flex-shrink:0; }
             .ap-gamify-tab-btn.active .ap-gamify-tab-pill { background:rgba(245,158,11,0.3); color:#fff; }
-            .ap-gamify-content { padding:16px 22px 22px; }
+            .ap-gamify-content { padding:16px 22px 22px; overflow-y:auto !important; max-height:calc(88vh - 175px) !important; box-sizing:border-box !important; }
             .ap-gamify-streak-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-bottom:18px; }
             .ap-gamify-cta { width:100%; padding:14px; border-radius:13px; font-size:14px; font-weight:900; border:none; display:flex; align-items:center; justify-content:center; gap:7px; transition:all .2s ease; cursor:pointer; }
             .ap-vip-pkg-card:hover { transform:translateY(-2px); }
@@ -3969,34 +4169,7 @@ function renderPlaylistsTab(u) {
     `;
 
   if (!playlists.length) {
-    return `
-            <div class="panel-card" style="min-height: 520px; display: flex; flex-direction: column;">
-                ${headerHtml}
-                <div class="profile-empty-card" style="flex:1; border:none; background:transparent; box-shadow:none; padding:40px 16px;">
-                    <div class="profile-empty-glow cyan"></div>
-                    <div class="profile-empty-content">
-                        <div class="profile-empty-icon-wrap cyan">
-                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-                            </svg>
-                        </div>
-                        <div class="profile-empty-pill cyan">Danh sách phát</div>
-                        <h3 class="profile-empty-title">Bạn chưa tạo danh sách phát nào</h3>
-                        <p class="profile-empty-sub">Tạo các danh sách phát riêng để lưu trữ và quản lý những bộ phim yêu thích theo phong cách của bạn.</p>
-                        <div class="profile-empty-actions">
-                            <button onclick="window.openCreatePlaylistModalStandalone()" class="profile-empty-btn-primary" style="background:linear-gradient(135deg,#06b6d4 0%,#0891b2 100%);color:#fff!important;box-shadow:0 4px 16px rgba(6,182,212,0.35);">
-                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                              Tạo playlist đầu tiên
-                            </button>
-                            <a href="/" class="profile-empty-btn-secondary">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                              Khám phá phim
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-          `;
+    return renderEmpty('Bạn chưa tạo danh sách phát nào', 'Tạo các danh sách phát riêng để lưu trữ và quản lý những bộ phim yêu thích theo phong cách của bạn.', 'playlists');
   }
 
   return `
@@ -4242,25 +4415,12 @@ function renderAchievements(u) {
             <div class="achievements-container lb-wrapper">
               
               <!-- Header Sub-Header -->
-              <div class="lb-sub-header">
-                <div class="achievements-sub-header-left" style="display:flex; align-items:center; gap:8px;">
-                  <h3 class="lb-sub-title" style="margin:0; font-size:16px; font-weight:900; letter-spacing:-0.3px; display:flex; align-items:center; gap:6px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                      <defs>
-                        <linearGradient id="lbTrophyIconGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#fff176"/>
-                          <stop offset="50%" stop-color="#f59e0b"/>
-                          <stop offset="100%" stop-color="#d97706"/>
-                        </linearGradient>
-                      </defs>
-                      <path d="M6 9V4h12v5c0 3.3-2.7 6-6 6s-6-2.7-6-6z" fill="url(#lbTrophyIconGrad3)"/>
-                      <path d="M6 5H3.5C2.7 5 2 5.7 2 6.5V7c0 2.2 1.8 4 4 4h.5M18 5h2.5c.8 0 1.5.7 1.5 1.5V7c0 2.2-1.8 4-4 4h-.5" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>
-                      <path d="M12 15v4m-4 3h8" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
-                    </svg>
-                    <span>Bảng Vinh Danh APhim</span>
-                  </h3>
+              <div class="achievements-sub-header">
+                <div class="achievements-sub-header-left">
+                  <h3 class="achievements-sub-title">Thành tựu tài khoản</h3>
+                  <span class="achievements-sub-badge">${unlockedCount}/${totalCount} đã mở khóa</span>
                 </div>
-                <button onclick="openGamificationModal()" class="achieve-bonus-btn" style="padding:6px 12px; border-radius:10px; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:6px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.35); color:#818cf8; cursor:pointer; transition:all 0.2s;">
+                <button onclick="openGamificationModal()" class="achieve-bonus-btn">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
                   <span>Điểm Danh & Nhiệm Vụ</span>
                 </button>
@@ -5461,7 +5621,7 @@ function openPresetAvatarModal() {
   const currentAvatar = u.avatar || localStorage.getItem('user_avatar') || '';
 
   let tabsHtml = PRESET_AVATAR_CATEGORIES.map(cat => `
-          <button class="preset-tab-btn ${cat.id === activePresetCategory ? 'active' : ''}" onclick="switchPresetCategory('${cat.id}')" style="padding:7px 13px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid ${cat.id === activePresetCategory ? '#f59e0b' : 'rgba(255,255,255,0.1)'};background:${cat.id === activePresetCategory ? 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(245,158,11,0.08))' : 'rgba(255,255,255,0.04)'};color:${cat.id === activePresetCategory ? '#fcd576' : '#94a3b8'};cursor:pointer;white-space:nowrap;transition:all 0.2s ease;flex-shrink:0;">
+          <button class="preset-tab-btn ${cat.id === activePresetCategory ? 'active' : ''}" onclick="switchPresetCategory('${cat.id}')" style="padding:6px 12px;border-radius:12px;font-size:12px;font-weight:700;border:1px solid ${cat.id === activePresetCategory ? '#f59e0b' : 'rgba(255,255,255,0.1)'};background:${cat.id === activePresetCategory ? 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(245,158,11,0.08))' : 'rgba(255,255,255,0.04)'};color:${cat.id === activePresetCategory ? '#fcd576' : '#94a3b8'};cursor:pointer;white-space:nowrap;transition:all 0.2s ease;flex-shrink:0;">
             ${cat.name}
           </button>
         `).join('');
@@ -5481,8 +5641,8 @@ function openPresetAvatarModal() {
   }).join('');
 
   modal.innerHTML = `
-          <div class="preset-modal-content" style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:100%;max-width:540px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.7);overflow:hidden;position:relative;">
-            <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);">
+          <div class="preset-modal-content" style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:100%;max-width:540px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.7);overflow:hidden;position:relative;box-sizing:border-box;">
+            <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);box-sizing:border-box;">
               <div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg, #f59e0b, #d97706);display:flex;align-items:center;justify-content:center;color:#111;flex-shrink:0;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
@@ -5498,12 +5658,12 @@ function openPresetAvatarModal() {
             </div>
 
             <!-- Categories Tab bar -->
-            <div style="padding:10px 14px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06);scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+            <div class="preset-modal-tabs-bar" style="padding:10px 18px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06);box-sizing:border-box;align-items:center;">
               ${tabsHtml}
             </div>
 
             <!-- Avatars Grid -->
-            <div style="padding:14px 16px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(95px, 1fr));gap:10px;max-height:48vh;-webkit-overflow-scrolling:touch;">
+            <div class="preset-modal-grid" style="padding:14px 18px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(88px, 1fr));gap:10px;max-height:48vh;-webkit-overflow-scrolling:touch;box-sizing:border-box;">
               ${itemsHtml}
             </div>
 

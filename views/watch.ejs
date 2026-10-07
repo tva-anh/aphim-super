@@ -3,15 +3,15 @@
 
 <head>
     <%- include('partials/head') %>
-    <link rel="preconnect" href="https://bf.333xbet.com" crossorigin>
-    <link rel="preload" as="video" type="video/mp4" href="https://bf.333xbet.com/18881999/video9922.mp4" crossorigin="anonymous">
-    <link rel="stylesheet" href="/css/watch-page.css?v=347" />
+        <link rel="preconnect" href="https://bf.333xbet.com" crossorigin>
+        <link rel="stylesheet" href="/css/watch-page.css?v=347" />
 </head>
 
-<body class="bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
+<body class="page-watch bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
     <!-- Cinema Dimmer Overlay & Exit Indicator -->
     <div id="cinemaOverlay" onclick="toggleCinemaMode()" title="Nhấn vào đây để bật lại đèn"></div>
-    <div id="cinemaExitHint" onclick="toggleCinemaMode()" style="visibility: hidden; opacity: 0; cursor: pointer;" title="Bấm để bật lại đèn">
+    <div id="cinemaExitHint" onclick="toggleCinemaMode()" style="visibility: hidden; opacity: 0; cursor: pointer;"
+        title="Bấm để bật lại đèn">
         <span class="material-icons-round text-sm text-amber-400">theater_comedy</span>
         <span>Chế độ Rạp phim • Chạm bất kỳ đâu hoặc bấm phím <b>ESC / T</b> để bật đèn</span>
     </div>
@@ -56,7 +56,8 @@
                         title="Xem phim tích luỹ Xu & XP mỗi ngày">
                         <span class="watch-to-earn-dot"
                             style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;animation:pulse 2s infinite;"></span>
-                        <span id="watchToEarnText" class="watch-to-earn-text font-extrabold text-xs">💎 Cày Xu: 0/15p</span>
+                        <span id="watchToEarnText" class="watch-to-earn-text font-extrabold text-xs">💎 Cày Xu:
+                            0/15p</span>
                     </div>
                 </div>
 
@@ -306,22 +307,32 @@
                         </div>
 
                         <!-- 3. Thanh điều khiển DÍNH LIỀN ngay dưới ô chiếu phim (Thiết kế hiện đại chuẩn Image 1) -->
-                        <div class="player-ctrl-bar w-full select-none" style="margin-top: 10px; margin-bottom: 8px; background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;">
-                            <div class="player-ctrl-bar-container w-full flex items-center justify-between flex-wrap gap-2 sm:gap-3 py-1.5 px-0" style="background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;">
-                                
+                        <div class="player-ctrl-bar w-full select-none"
+                            style="margin-top: 10px; margin-bottom: 8px; background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;">
+                            <div class="player-ctrl-bar-container w-full flex items-center justify-between flex-wrap gap-2 sm:gap-3 py-1.5 px-0"
+                                style="background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;">
+
                                 <!-- Nhóm bên trái: Yêu thích, Thêm vào -->
                                 <div class="player-ctrl-bar-actions-row flex items-center gap-2 sm:gap-3">
                                     <!-- Yêu thích -->
-                                    <button type="button" id="favoriteMovieBtn" class="player-ctrl-item" title="Yêu thích phim này">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    <button type="button" id="favoriteMovieBtn" class="player-ctrl-item"
+                                        title="Yêu thích phim này">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path
+                                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                            </path>
                                         </svg>
                                         <span class="whitespace-nowrap hidden sm:inline-flex">Yêu thích</span>
                                     </button>
 
                                     <!-- Thêm vào (Playlist) -->
-                                    <button type="button" id="saveMovieBtn" class="player-ctrl-item" title="Thêm vào danh sách phát">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <button type="button" id="saveMovieBtn" class="player-ctrl-item"
+                                        title="Thêm vào danh sách phát">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <line x1="12" y1="5" x2="12" y2="19"></line>
                                             <line x1="5" y1="12" x2="19" y2="12"></line>
                                         </svg>
@@ -332,8 +343,12 @@
                                 <!-- Nhóm bên phải: Tự động chuyển tập, Auto skip intro, Rạp phim, Báo lỗi -->
                                 <div class="player-ctrl-bar-toggles-row flex items-center gap-2 sm:gap-3.5 flex-wrap">
                                     <!-- Tự động chuyển tập -->
-                                    <button type="button" id="btnAutoNext" onclick="toggleAutoNextBadge()" class="player-ctrl-item is-active" title="Tự động phát tập tiếp theo khi hết phim">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <button type="button" id="btnAutoNext" onclick="toggleAutoNextBadge()"
+                                        class="player-ctrl-item is-active"
+                                        title="Tự động phát tập tiếp theo khi hết phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <polygon points="5 4 15 12 5 20 5 4"></polygon>
                                             <line x1="19" y1="5" x2="19" y2="19"></line>
                                         </svg>
@@ -343,31 +358,49 @@
                                     </button>
 
                                     <!-- Auto skip intro -->
-                                    <button type="button" id="btnAutoSkip" onclick="toggleAutoSkipBadge()" class="player-ctrl-item" title="Tự động bỏ qua đoạn giới thiệu đầu phim">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important;">
-                                            <polyline points="9 6 15 12 9 18" fill="none" style="fill: none !important;"></polyline>
-                                            <line x1="19" y1="6" x2="19" y2="18" fill="none" style="fill: none !important;"></line>
+                                    <button type="button" id="btnAutoSkip" onclick="toggleAutoSkipBadge()"
+                                        class="player-ctrl-item" title="Tự động bỏ qua đoạn giới thiệu đầu phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" style="fill: none !important;">
+                                            <polyline points="9 6 15 12 9 18" fill="none"
+                                                style="fill: none !important;"></polyline>
+                                            <line x1="19" y1="6" x2="19" y2="18" fill="none"
+                                                style="fill: none !important;"></line>
                                         </svg>
                                         <span class="whitespace-nowrap hidden sm:inline-flex">Auto skip intro</span>
-                                        <span id="badgeAutoSkip" class="badge-status-off hidden sm:inline-flex">OFF</span>
+                                        <span id="badgeAutoSkip"
+                                            class="badge-status-off hidden sm:inline-flex">OFF</span>
                                         <input type="checkbox" id="toggleAutoSkip" class="hidden">
                                     </button>
 
                                     <!-- Rạp phim -->
-                                    <button type="button" id="cinemaModeBtn" onclick="toggleBadgeCinemaMode()" class="player-ctrl-item" title="Chế độ tắt đèn rạp phim">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important;">
-                                            <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z" fill="none" style="fill: none !important;"></path>
-                                            <path d="m6.2 5.3 3.1 3.9" fill="none" style="fill: none !important; stroke: currentColor !important;"></path>
-                                            <path d="m12.4 3.4 3.1 4" fill="none" style="fill: none !important; stroke: currentColor !important;"></path>
-                                            <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" fill="none" style="fill: none !important;"></path>
+                                    <button type="button" id="cinemaModeBtn" onclick="toggleBadgeCinemaMode()"
+                                        class="player-ctrl-item" title="Chế độ tắt đèn rạp phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" style="fill: none !important;">
+                                            <path
+                                                d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"
+                                                fill="none" style="fill: none !important;"></path>
+                                            <path d="m6.2 5.3 3.1 3.9" fill="none"
+                                                style="fill: none !important; stroke: currentColor !important;"></path>
+                                            <path d="m12.4 3.4 3.1 4" fill="none"
+                                                style="fill: none !important; stroke: currentColor !important;"></path>
+                                            <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" fill="none"
+                                                style="fill: none !important;"></path>
                                         </svg>
                                         <span class="whitespace-nowrap hidden sm:inline-flex">Rạp phim</span>
                                         <span id="badgeCinema" class="badge-status-off hidden sm:inline-flex">OFF</span>
                                     </button>
 
                                     <!-- Báo lỗi -->
-                                    <button type="button" onclick="reportError()" class="player-ctrl-item player-ctrl-report-btn hover:text-red-400" title="Báo cáo sự cố hoặc lỗi phim">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <button type="button" onclick="reportError()"
+                                        class="player-ctrl-item player-ctrl-report-btn hover:text-red-400"
+                                        title="Báo cáo sự cố hoặc lỗi phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
                                             <rect width="8" height="14" x="8" y="6" rx="4"></rect>
                                             <path d="m19 7-3 2"></path>
                                             <path d="m5 7 3 2"></path>
@@ -382,11 +415,18 @@
                                     </button>
 
                                     <!-- Trợ giúp / Phím tắt (?) (hiện trên Mobile theo Ảnh 2, ẩn Desktop) -->
-                                    <button type="button" onclick="openShortcutsGuideModal()" class="player-ctrl-item player-ctrl-help-btn" title="Phím tắt & Hướng dẫn xem phim">
-                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="fill: none !important;">
-                                            <circle cx="12" cy="12" r="10" fill="none" style="fill: none !important;"></circle>
-                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" style="fill: none !important; stroke: currentColor !important;"></path>
-                                            <line x1="12" y1="17" x2="12.01" y2="17" fill="none" style="fill: none !important; stroke: currentColor !important;"></line>
+                                    <button type="button" onclick="openShortcutsGuideModal()"
+                                        class="player-ctrl-item player-ctrl-help-btn"
+                                        title="Phím tắt & Hướng dẫn xem phim">
+                                        <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" style="fill: none !important;">
+                                            <circle cx="12" cy="12" r="10" fill="none" style="fill: none !important;">
+                                            </circle>
+                                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none"
+                                                style="fill: none !important; stroke: currentColor !important;"></path>
+                                            <line x1="12" y1="17" x2="12.01" y2="17" fill="none"
+                                                style="fill: none !important; stroke: currentColor !important;"></line>
                                         </svg>
                                     </button>
                                 </div>
@@ -500,8 +540,11 @@
 
                                     <!-- Attached GIF Live Preview -->
                                     <div class="ap-attached-gif-wrap" id="ap-gif-preview-main" style="display: none;">
-                                        <img id="ap-gif-preview-img-main" src="" style="width: 100%; max-height: 150px; display: block; object-fit: cover; border-radius: 10px;" alt="GIF đã chọn">
-                                        <button type="button" class="ap-gif-remove-btn" onclick="window.removeAttachedGif('main', event)" title="Gỡ GIF">✕</button>
+                                        <img id="ap-gif-preview-img-main" src=""
+                                            style="width: 100%; max-height: 150px; display: block; object-fit: cover; border-radius: 10px;"
+                                            alt="GIF đã chọn">
+                                        <button type="button" class="ap-gif-remove-btn"
+                                            onclick="window.removeAttachedGif('main', event)" title="Gỡ GIF">✕</button>
                                     </div>
 
                                     <div
@@ -522,9 +565,10 @@
                                                 <span class="ap-spoiler-label"
                                                     style="font-size: 13px; color: #94a3b8;">Tiết lộ?</span>
                                             </label>
-                                            
+
                                             <!-- Modern Emoji & Reaction Picker (Exact match to User Reference) -->
-                                            <div class="ap-emoji-select" id="ap-emoji-select-main" style="position: relative; display: inline-flex; align-items: center;">
+                                            <div class="ap-emoji-select" id="ap-emoji-select-main"
+                                                style="position: relative; display: inline-flex; align-items: center;">
                                                 <button type="button" class="ap-btn-emoji-trigger"
                                                     style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; color: #fcd576; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
                                                     onclick="window.toggleEmojiPopover && window.toggleEmojiPopover('main', event)">
@@ -567,185 +611,200 @@
                     <div id="desktop-movie-info-slot" class="w-full">
                         <!-- Sleek Movie Info Summary Card (Auto-Aligned Height with Left Player Box) -->
                         <div id="main-movie-info-card"
-                        style="background-color: #151722; border: none; box-sizing: border-box;"
-                        class="rounded-2xl p-5 md:p-6 pb-6 md:pb-7 flex flex-col justify-between space-y-5 shadow-xl">
-                        <div class="flex gap-4 items-start">
-                            <!-- Poster with top-left Badge -->
-                            <div style="border: 1px solid rgba(255, 255, 255, 0.1);"
-                                class="relative w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden flex-shrink-0 bg-gray-800 shadow-md">
-                                <img id="sidebar-poster" src="" alt="Poster" class="w-full h-full object-cover" />
-                                <span id="sidebar-poster-badge" style="background-color: #38bdf8; color: #ffffff;"
-                                    class="absolute top-1.5 left-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md shadow">Song
-                                    ngữ</span>
-                            </div>
+                            style="background-color: #151722; border: none; box-sizing: border-box;"
+                            class="rounded-2xl p-5 md:p-6 pb-6 md:pb-7 flex flex-col justify-between space-y-5 shadow-xl">
+                            <div class="flex gap-4 items-start">
+                                <!-- Poster with top-left Badge -->
+                                <div style="border: 1px solid rgba(255, 255, 255, 0.1);"
+                                    class="relative w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden flex-shrink-0 bg-gray-800 shadow-md">
+                                    <img id="sidebar-poster" src="" alt="Poster" class="w-full h-full object-cover" />
+                                    <span id="sidebar-poster-badge" style="background-color: #38bdf8; color: #ffffff;"
+                                        class="absolute top-1.5 left-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md shadow">Song
+                                        ngữ</span>
+                                </div>
 
-                            <!-- Main Info Column -->
-                            <div class="space-y-3.5 md:space-y-4 min-w-0 flex-1">
-                                <h3 id="sidebar-movie-name"
-                                    class="text-white font-extrabold text-base sm:text-lg leading-snug line-clamp-2">
-                                    Đang tải...</h3>
-                                <p id="sidebar-movie-origin" style="color: #f59e0b; display: none;"
-                                    class="text-xs sm:text-sm font-medium truncate mt-1"></p>
+                                <!-- Main Info Column -->
+                                <div class="space-y-3.5 md:space-y-4 min-w-0 flex-1">
+                                    <h3 id="sidebar-movie-name"
+                                        class="text-white font-extrabold text-base sm:text-lg leading-snug line-clamp-2">
+                                        Đang tải...</h3>
+                                    <p id="sidebar-movie-origin" style="color: #f59e0b; display: none;"
+                                        class="text-xs sm:text-sm font-medium truncate mt-1"></p>
 
-                                <!-- Connected Badges Row (Image 2 exact style) -->
-                                <div class="flex flex-wrap items-center gap-2 pt-1.5">
-                                    <!-- IMDb Score (Amber Gold Outline Pill) -->
-                                    <span
-                                        style="background-color: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #f59e0b;"
-                                        class="px-2.5 py-0.5 rounded-md text-xs font-extrabold inline-flex items-center gap-1 shadow-sm">
-                                        <span>IMDb</span> <span id="sidebar-imdb-score">9.2</span>
-                                    </span>
-
-                                    <!-- Connected Pill Group: FHD | [CC] VS.1 | 1 Tập | 2026 -->
-                                    <div
-                                        class="inline-flex items-center rounded-lg overflow-hidden text-xs font-bold shadow-md">
-                                        <span id="sidebar-quality-badge"
-                                            style="background-color: #a5b4fc; color: #0f172a;"
-                                            class="px-2.5 py-1 font-extrabold">FHD</span>
-                                        <span id="sidebar-lang-badge" style="background-color: #a7f3d0; color: #064e3b;"
-                                            class="px-2.5 py-1 font-extrabold inline-flex items-center gap-1">
-                                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                                                <path
-                                                    d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" />
-                                            </svg>
-                                            <span id="sidebar-lang-text">VS.1</span>
+                                    <!-- Connected Badges Row (Image 2 exact style) -->
+                                    <div class="flex flex-wrap items-center gap-2 pt-1.5">
+                                        <!-- IMDb Score (Amber Gold Outline Pill) -->
+                                        <span
+                                            style="background-color: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #f59e0b;"
+                                            class="px-2.5 py-0.5 rounded-md text-xs font-extrabold inline-flex items-center gap-1 shadow-sm">
+                                            <span>IMDb</span> <span id="sidebar-imdb-score">9.2</span>
                                         </span>
-                                        <span id="sidebar-ep-badge" style="background-color: #374151; color: #ffffff;"
-                                            class="px-2.5 py-1 font-bold">1 Tập</span>
-                                        <span id="sidebar-year-badge" style="background-color: #ffffff; color: #000000;"
-                                            class="px-2.5 py-1 font-extrabold">2026</span>
-                                    </div>
-                                </div>
 
-                                <!-- Genres Row (Vibrant Colored Badges) -->
-                                <div id="sidebar-genres-row" class="flex flex-wrap gap-2 pt-1.5">
-                                    <span
-                                        style="background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;"
-                                        class="px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">Đang tải thể
-                                        loại...</span>
-                                </div>
-
-                                <!-- Aired Status Pill (Amber Highlight) -->
-                                <div class="pt-1.5">
-                                    <span id="sidebar-aired-status-pill"
-                                        style="background-color: #2a1d12; border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;"
-                                        class="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 shadow-sm">
-                                        <span style="color: #f59e0b;">⭐</span>
-                                        <span id="sidebar-aired-status-text"> chiếu: Full tập</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Description & Information Link Row (Divider removed) -->
-                        <div style="border-top: none;"
-                            class="pt-1.5 space-y-2 flex-1 flex flex-col justify-between min-h-0">
-                            <p id="sidebar-description-text"
-                                style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;"
-                                class="line-clamp-3">
-                                Tóm tắt nội dung phim đang được tải...
-                            </p>
-                            <div class="flex items-center justify-between pt-0.5">
-                                <a id="sidebar-info-link" href="/phim/<%= movie ? movie.slug : '' %>"
-                                    style="color: #f59e0b !important; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;"
-                                    class="font-bold text-xs sm:text-sm transition-colors cursor-pointer hover:opacity-80">
-                                    <span style="color: #f59e0b !important;">Thông tin phim</span>
-                                    <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; color: #f59e0b !important; fill: none; stroke: #f59e0b; stroke-width: 2.5; display: inline-block;"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </a>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" id="sidebarFavoriteMovieBtn"
-                                        style="background-color: #202332; border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8;"
-                                        class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-white transition-colors"
-                                        title="Yêu thích">
-                                        <span class="material-icons-round text-sm">favorite_border</span>
-                                    </button>
-                                    <button type="button" id="sidebarSaveMovieBtn"
-                                        style="background-color: #202332; border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8;"
-                                        class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-white transition-colors"
-                                        title="Thêm vào danh sách">
-                                        <span class="material-icons-round text-sm">playlist_add</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- 🔥 SEO Power Loop: Nút xem Video Review & Tóm tắt 3 phút tại APhim Reels (Enterprise UI Redesign) -->
-                            <div class="pt-1.5">
-                                <a id="sidebar-reels-review-link" href="/reels/review/<%= movie ? movie.slug : '' %>?return=<%= encodeURIComponent('/xem-phim/' + (movie ? movie.slug : '') + '/tap-1') %>"
-                                   class="reels-cta-banner group"
-                                   title="Xem video tóm tắt & phân tích phim <%= movie ? movie.name : '' %>">
-                                    <div class="reels-cta-left">
-                                        <!-- Modern Animated Clapper/Play 3D Gradient Icon -->
-                                        <div class="reels-cta-icon-box">
-                                            <div class="reels-cta-icon-inner">
-                                                <svg class="reels-cta-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M4.5 7.5C4.5 5.84315 5.84315 4.5 7.5 4.5H16.5C18.1569 4.5 19.5 5.84315 19.5 7.5V16.5C19.5 18.1569 18.1569 19.5 16.5 19.5H7.5C5.84315 19.5 4.5 18.1569 4.5 16.5V7.5Z" fill="url(#reelsIconGrad)" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-                                                    <!-- Film Reel / Clapper stripes -->
-                                                    <path d="M4.5 8.5H19.5" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round"/>
-                                                    <path d="M8.5 4.5L6.5 8.5M13.5 4.5L11.5 8.5M18.5 4.5L16.5 8.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" stroke-linecap="round"/>
-                                                    <!-- Play Arrow inside -->
-                                                    <polygon points="10.5,11.2 15.5,14 10.5,16.8" fill="#ffffff" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.3))"/>
-                                                    <defs>
-                                                        <linearGradient id="reelsIconGrad" x1="4.5" y1="4.5" x2="19.5" y2="19.5" gradientUnits="userSpaceOnUse">
-                                                            <stop stop-color="#ff1e56"/>
-                                                            <stop offset="0.5" stop-color="#ff007f"/>
-                                                            <stop offset="1" stop-color="#ff9900"/>
-                                                        </linearGradient>
-                                                    </defs>
+                                        <!-- Connected Pill Group: FHD | [CC] VS.1 | 1 Tập | 2026 -->
+                                        <div
+                                            class="inline-flex items-center rounded-lg overflow-hidden text-xs font-bold shadow-md">
+                                            <span id="sidebar-quality-badge"
+                                                style="background-color: #a5b4fc; color: #0f172a;"
+                                                class="px-2.5 py-1 font-extrabold">FHD</span>
+                                            <span id="sidebar-lang-badge"
+                                                style="background-color: #a7f3d0; color: #064e3b;"
+                                                class="px-2.5 py-1 font-extrabold inline-flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" />
                                                 </svg>
-                                                <span class="reels-cta-pulse-ring"></span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Content Block -->
-                                        <div class="reels-cta-content">
-                                            <div class="reels-cta-tags-row">
-                                                <span class="reels-cta-badge-live">
-                                                    <span class="reels-cta-live-dot"></span>
-                                                    <span>REELS & REVIEW</span>
-                                                </span>
-                                                <span id="sidebar-reels-duration-chip" class="reels-cta-time-chip">TÓM TẮT FULL</span>
-                                            </div>
-                                            <div class="reels-cta-headline">
-                                                Xem video tóm tắt & phân tích phim
-                                            </div>
-                                            <div class="reels-cta-subtext">
-                                                ⚡ Nhanh gọn • Không spoil • Siêu cuốn
-                                            </div>
+                                                <span id="sidebar-lang-text">VS.1</span>
+                                            </span>
+                                            <span id="sidebar-ep-badge"
+                                                style="background-color: #374151; color: #ffffff;"
+                                                class="px-2.5 py-1 font-bold">1 Tập</span>
+                                            <span id="sidebar-year-badge"
+                                                style="background-color: #ffffff; color: #000000;"
+                                                class="px-2.5 py-1 font-extrabold">2026</span>
                                         </div>
                                     </div>
 
-                                    <!-- Right Action Circle Button -->
-                                    <div class="reels-cta-action-btn">
-                                        <svg class="w-4 h-4 reels-cta-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                                    <!-- Genres Row (Vibrant Colored Badges) -->
+                                    <div id="sidebar-genres-row" class="flex flex-wrap gap-2 pt-1.5">
+                                        <span
+                                            style="background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;"
+                                            class="px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">Đang tải thể
+                                            loại...</span>
+                                    </div>
+
+                                    <!-- Aired Status Pill (Amber Highlight) -->
+                                    <div class="pt-1.5">
+                                        <span id="sidebar-aired-status-pill"
+                                            style="background-color: #2a1d12; border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;"
+                                            class="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 shadow-sm">
+                                            <span style="color: #f59e0b;">⭐</span>
+                                            <span id="sidebar-aired-status-text"> chiếu: Full tập</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Description & Information Link Row (Divider removed) -->
+                            <div style="border-top: none;"
+                                class="pt-1.5 space-y-2 flex-1 flex flex-col justify-between min-h-0">
+                                <p id="sidebar-description-text"
+                                    style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;"
+                                    class="line-clamp-3">
+                                    Tóm tắt nội dung phim đang được tải...
+                                </p>
+                                <div class="flex items-center justify-between pt-0.5">
+                                    <a id="sidebar-info-link" href="/phim/<%= movie ? movie.slug : '' %>"
+                                        style="color: #f59e0b !important; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;"
+                                        class="font-bold text-xs sm:text-sm transition-colors cursor-pointer hover:opacity-80">
+                                        <span style="color: #f59e0b !important;">Thông tin phim</span>
+                                        <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; color: #f59e0b !important; fill: none; stroke: #f59e0b; stroke-width: 2.5; display: inline-block;"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                                         </svg>
+                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" id="sidebarFavoriteMovieBtn"
+                                            style="background-color: #202332; border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8;"
+                                            class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-white transition-colors"
+                                            title="Yêu thích">
+                                            <span class="material-icons-round text-sm">favorite_border</span>
+                                        </button>
+                                        <button type="button" id="sidebarSaveMovieBtn"
+                                            style="background-color: #202332; border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8;"
+                                            class="w-8 h-8 rounded-xl flex items-center justify-center hover:text-white transition-colors"
+                                            title="Thêm vào danh sách">
+                                            <span class="material-icons-round text-sm">playlist_add</span>
+                                        </button>
                                     </div>
-                                </a>
-                            </div>
-                        </div>
+                                </div>
 
-                        <!-- Integrated Cast Block (Diễn viên) directly inside Movie Info Card (Divider line removed, full avatar visible) -->
-                        <div id="sidebar-cast-section"
-                            style="border-top: none !important;"
-                            class="pt-2 mt-1 space-y-2 pb-1 overflow-visible">
-                            <div class="flex items-center justify-between">
-                                <h3
-                                    class="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
-                                    DIỄN VIÊN
-                                </h3>
-                                <span
-                                    class="text-[11px] text-gray-400 font-medium select-none pointer-events-none opacity-80">Vuốt
-                                    ngang &rsaquo;</span>
+                                <!-- 🔥 SEO Power Loop: Nút xem Video Review & Tóm tắt 3 phút tại APhim Reels (Enterprise UI Redesign) -->
+                                <div class="pt-1.5">
+                                    <a id="sidebar-reels-review-link"
+                                        href="/reels/review/<%= movie ? movie.slug : '' %>?return=<%= encodeURIComponent('/xem-phim/' + (movie ? movie.slug : '') + '/tap-1') %>"
+                                        class="reels-cta-banner group"
+                                        title="Xem video tóm tắt & phân tích phim <%= movie ? movie.name : '' %>">
+                                        <div class="reels-cta-left">
+                                            <!-- Modern Animated Clapper/Play 3D Gradient Icon -->
+                                            <div class="reels-cta-icon-box">
+                                                <div class="reels-cta-icon-inner">
+                                                    <svg class="reels-cta-svg" viewBox="0 0 24 24" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path
+                                                            d="M4.5 7.5C4.5 5.84315 5.84315 4.5 7.5 4.5H16.5C18.1569 4.5 19.5 5.84315 19.5 7.5V16.5C19.5 18.1569 18.1569 19.5 16.5 19.5H7.5C5.84315 19.5 4.5 18.1569 4.5 16.5V7.5Z"
+                                                            fill="url(#reelsIconGrad)" stroke="rgba(255,255,255,0.4)"
+                                                            stroke-width="1.2" />
+                                                        <!-- Film Reel / Clapper stripes -->
+                                                        <path d="M4.5 8.5H19.5" stroke="rgba(255,255,255,0.6)"
+                                                            stroke-width="1.2" stroke-linecap="round" />
+                                                        <path d="M8.5 4.5L6.5 8.5M13.5 4.5L11.5 8.5M18.5 4.5L16.5 8.5"
+                                                            stroke="rgba(255,255,255,0.7)" stroke-width="1.2"
+                                                            stroke-linecap="round" />
+                                                        <!-- Play Arrow inside -->
+                                                        <polygon points="10.5,11.2 15.5,14 10.5,16.8" fill="#ffffff"
+                                                            filter="drop-shadow(0 1px 2px rgba(0,0,0,0.3))" />
+                                                        <defs>
+                                                            <linearGradient id="reelsIconGrad" x1="4.5" y1="4.5"
+                                                                x2="19.5" y2="19.5" gradientUnits="userSpaceOnUse">
+                                                                <stop stop-color="#ff1e56" />
+                                                                <stop offset="0.5" stop-color="#ff007f" />
+                                                                <stop offset="1" stop-color="#ff9900" />
+                                                            </linearGradient>
+                                                        </defs>
+                                                    </svg>
+                                                    <span class="reels-cta-pulse-ring"></span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Content Block -->
+                                            <div class="reels-cta-content">
+                                                <div class="reels-cta-tags-row">
+                                                    <span class="reels-cta-badge-live">
+                                                        <span class="reels-cta-live-dot"></span>
+                                                        <span>REELS & REVIEW</span>
+                                                    </span>
+                                                    <span id="sidebar-reels-duration-chip"
+                                                        class="reels-cta-time-chip">TÓM TẮT FULL</span>
+                                                </div>
+                                                <div class="reels-cta-headline">
+                                                    Xem video tóm tắt & phân tích phim
+                                                </div>
+                                                <div class="reels-cta-subtext">
+                                                    ⚡ Nhanh gọn • Không spoil • Siêu cuốn
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Action Circle Button -->
+                                        <div class="reels-cta-action-btn">
+                                            <svg class="w-4 h-4 reels-cta-arrow" fill="none" stroke="currentColor"
+                                                stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
                             </div>
-                            <div id="sidebar-cast" data-drag-scroll="true"
-                                class="flex flex-nowrap gap-3 items-center justify-start text-center overflow-x-auto scrollbar-none pt-1 pb-1 select-none scroll-smooth">
-                                <!-- Dynamic Circular Cast Avatars -->
+
+                            <!-- Integrated Cast Block (Diễn viên) directly inside Movie Info Card (Divider line removed, full avatar visible) -->
+                            <div id="sidebar-cast-section" style="border-top: none !important;"
+                                class="pt-2 mt-1 space-y-2 pb-1 overflow-visible">
+                                <div class="flex items-center justify-between">
+                                    <h3
+                                        class="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+                                        DIỄN VIÊN
+                                    </h3>
+                                    <span
+                                        class="text-[11px] text-gray-400 font-medium select-none pointer-events-none opacity-80">Vuốt
+                                        ngang &rsaquo;</span>
+                                </div>
+                                <div id="sidebar-cast" data-drag-scroll="true"
+                                    class="flex flex-nowrap gap-3 items-center justify-start text-center overflow-x-auto scrollbar-none pt-1 pb-1 select-none scroll-smooth">
+                                    <!-- Dynamic Circular Cast Avatars -->
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </div>
 
                     <!-- Bảng Xếp Hạng Top Phim Tuần -->
@@ -768,14 +827,14 @@
 
             <!-- Page Scripts & Setup -->
             <script>
-                (function() {
+                (function () {
                     try {
                         if (window.innerWidth < 1024) {
                             var info = document.getElementById('main-movie-info-card');
                             var slot = document.getElementById('mobile-movie-info-slot');
                             if (info && slot) slot.appendChild(info);
                         }
-                    } catch(e) {}
+                    } catch (e) { }
                 })();
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
@@ -801,88 +860,125 @@
             <script src="/js/watch.js?v=10106" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
             <script src="/js/watch-ui-init.js?v=218" defer></script>
-    <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
-    <div id="reportMovieModal" style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;" class="opacity-0 transition-opacity duration-300" onclick="if(event.target===this)closeReportModal()">
-        <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300" id="reportMovieModalCard" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between border-b border-white/10 pb-3" id="reportModalHeader">
-                <div class="flex items-center gap-2 text-[#fcd576] font-bold text-base">
-                    <span class="material-icons-round text-xl text-[#f59e0b]">report_problem</span>
-                    <span id="reportModalTitle">Báo Lỗi Phim Cho Admin</span>
-                </div>
-                <button type="button" onclick="closeReportModal()" class="text-gray-400 hover:text-white p-1 transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center" aria-label="Đóng">
-                    <span class="material-icons-round text-lg">close</span>
-                </button>
-            </div>
+            <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
+            <div id="reportMovieModal"
+                style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;"
+                class="opacity-0 transition-opacity duration-300" onclick="if(event.target===this)closeReportModal()">
+                <div class="relative w-full max-w-md bg-[#161822] border border-white/15 rounded-2xl p-6 shadow-2xl space-y-4 transform scale-95 transition-transform duration-300"
+                    id="reportMovieModalCard" onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3" id="reportModalHeader">
+                        <div class="flex items-center gap-2 text-[#fcd576] font-bold text-base">
+                            <span class="material-icons-round text-xl text-[#f59e0b]">report_problem</span>
+                            <span id="reportModalTitle">Báo Lỗi Phim Cho Admin</span>
+                        </div>
+                        <button type="button" onclick="closeReportModal()"
+                            class="text-gray-400 hover:text-white p-1 transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center"
+                            aria-label="Đóng">
+                            <span class="material-icons-round text-lg">close</span>
+                        </button>
+                    </div>
 
-            <form id="reportMovieForm" onsubmit="submitMovieReport(event)" class="space-y-3.5 text-left">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Tên phim & Tập</label>
-                    <input type="text" id="reportMovieTitleDisplay" readonly class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-medium text-[#fcd576] outline-none cursor-not-allowed">
-                </div>
+                    <form id="reportMovieForm" onsubmit="submitMovieReport(event)" class="space-y-3.5 text-left">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Tên phim &
+                                Tập</label>
+                            <input type="text" id="reportMovieTitleDisplay" readonly
+                                class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-medium text-[#fcd576] outline-none cursor-not-allowed">
+                        </div>
 
-                <div class="relative" id="reportIssueDropdownWrapper">
-                    <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Vấn đề gặp phải <span class="text-red-400">*</span></label>
-                    <input type="hidden" id="reportIssueType" value="Server không phát / Video bị lỗi đen màn hình" />
-                    
-                    <!-- Custom Trigger Button -->
-                    <button type="button" id="reportIssueDropdownBtn" onclick="toggleReportIssueDropdown(event)" class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer select-none">
-                        <span id="reportIssueSelectedLabel" class="truncate flex items-center gap-1.5 font-medium">🔴 Video lỗi / Không phát / Màn hình đen</span>
-                        <svg id="reportIssueArrow" class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
+                        <div class="relative" id="reportIssueDropdownWrapper">
+                            <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Vấn đề gặp
+                                phải <span class="text-red-400">*</span></label>
+                            <input type="hidden" id="reportIssueType"
+                                value="Server không phát / Video bị lỗi đen màn hình" />
 
-                    <!-- Custom Dropdown Menu List -->
-                    <div id="reportIssueDropdownMenu" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-[#1a1d2b] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden py-1 transition-all">
-                        <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors active-issue-option bg-[#fcd576]/15 text-[#fcd576]" data-value="Server không phát / Video bị lỗi đen màn hình" onclick="selectReportIssue(this)">
-                            <span>🔴</span>
-                            <span class="truncate">Video lỗi / Không phát / Màn hình đen</span>
+                            <!-- Custom Trigger Button -->
+                            <button type="button" id="reportIssueDropdownBtn" onclick="toggleReportIssueDropdown(event)"
+                                class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer select-none">
+                                <span id="reportIssueSelectedLabel"
+                                    class="truncate flex items-center gap-1.5 font-medium">🔴 Video lỗi / Không phát /
+                                    Màn hình đen</span>
+                                <svg id="reportIssueArrow"
+                                    class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Custom Dropdown Menu List -->
+                            <div id="reportIssueDropdownMenu"
+                                class="hidden absolute left-0 right-0 top-full mt-1.5 bg-[#1a1d2b] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden py-1 transition-all">
+                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors active-issue-option bg-[#fcd576]/15 text-[#fcd576]"
+                                    data-value="Server không phát / Video bị lỗi đen màn hình"
+                                    onclick="selectReportIssue(this)">
+                                    <span>🔴</span>
+                                    <span class="truncate">Video lỗi / Không phát / Màn hình đen</span>
+                                </div>
+                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                    data-value="Sai tập phim / Bị đảo thứ tự / Thiếu tập"
+                                    onclick="selectReportIssue(this)">
+                                    <span>⚠️</span>
+                                    <span class="truncate">Sai tập / Bị đảo / Thiếu tập phim</span>
+                                </div>
+                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                    data-value="Lỗi âm thanh / Mất tiếng / Lệch tiếng"
+                                    onclick="selectReportIssue(this)">
+                                    <span>🔇</span>
+                                    <span class="truncate">Mất tiếng / Lệch âm thanh</span>
+                                </div>
+                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                    data-value="Lỗi phụ đề Vietsub / Phụ đề không khớp"
+                                    onclick="selectReportIssue(this)">
+                                    <span>📝</span>
+                                    <span class="truncate">Lỗi phụ đề / Lệch Vietsub</span>
+                                </div>
+                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                    data-value="Video bị giật lag / Tải chậm liên tục"
+                                    onclick="selectReportIssue(this)">
+                                    <span>🐌</span>
+                                    <span class="truncate">Giật lag / Tải phim chậm</span>
+                                </div>
+                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                    data-value="Vấn đề khác" onclick="selectReportIssue(this)">
+                                    <span>💡</span>
+                                    <span class="truncate">Vấn đề khác</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors" data-value="Sai tập phim / Bị đảo thứ tự / Thiếu tập" onclick="selectReportIssue(this)">
-                            <span>⚠️</span>
-                            <span class="truncate">Sai tập / Bị đảo / Thiếu tập phim</span>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Mô tả thêm
+                                (nếu có)</label>
+                            <textarea id="reportIssueDesc" rows="2.5"
+                                placeholder="Chi tiết thời điểm bị lỗi hoặc mô tả chi tiết..."
+                                class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#fcd576] resize-none"></textarea>
                         </div>
-                        <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors" data-value="Lỗi âm thanh / Mất tiếng / Lệch tiếng" onclick="selectReportIssue(this)">
-                            <span>🔇</span>
-                            <span class="truncate">Mất tiếng / Lệch âm thanh</span>
+
+                        <div class="pt-2 flex items-center justify-end gap-2">
+                            <button type="button" onclick="closeReportModal()"
+                                class="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold rounded-lg transition-colors report-btn-cancel">Hủy</button>
+                            <button type="submit" id="btnSubmitReport"
+                                class="px-5 py-2 bg-[#ff9900] hover:bg-[#ffaa22] text-black text-xs font-extrabold rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                                <span class="material-icons-round text-base">send</span>
+                                <span>Gửi Báo Lỗi</span>
+                            </button>
                         </div>
-                        <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors" data-value="Lỗi phụ đề Vietsub / Phụ đề không khớp" onclick="selectReportIssue(this)">
-                            <span>📝</span>
-                            <span class="truncate">Lỗi phụ đề / Lệch Vietsub</span>
+                    </form>
+
+                    <div id="reportSuccessState" class="hidden text-center py-4 space-y-2">
+                        <div
+                            class="w-12 h-12 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center text-emerald-400 mx-auto">
+                            <span class="material-icons-round text-2xl">check</span>
                         </div>
-                        <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors" data-value="Video bị giật lag / Tải chậm liên tục" onclick="selectReportIssue(this)">
-                            <span>🐌</span>
-                            <span class="truncate">Giật lag / Tải phim chậm</span>
-                        </div>
-                        <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors" data-value="Vấn đề khác" onclick="selectReportIssue(this)">
-                            <span>💡</span>
-                            <span class="truncate">Vấn đề khác</span>
-                        </div>
+                        <h4 class="text-white font-bold text-sm" id="reportSuccessTitle">Gửi Báo Lỗi Thành Công!</h4>
+                        <p class="text-gray-300 text-xs" id="reportSuccessDesc">Cảm ơn bạn. Đội ngũ Kỹ thuật A Phim
+                            Super sẽ kiểm tra và khắc phục sự cố ngay.</p>
+                        <button type="button" onclick="closeReportModal()"
+                            class="mt-3 px-4 py-1.5 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold rounded-lg report-btn-close">Đóng</button>
                     </div>
                 </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Mô tả thêm (nếu có)</label>
-                    <textarea id="reportIssueDesc" rows="2.5" placeholder="Chi tiết thời điểm bị lỗi hoặc mô tả chi tiết..." class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#fcd576] resize-none"></textarea>
-                </div>
-
-                <div class="pt-2 flex items-center justify-end gap-2">
-                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold rounded-lg transition-colors report-btn-cancel">Hủy</button>
-                    <button type="submit" id="btnSubmitReport" class="px-5 py-2 bg-[#ff9900] hover:bg-[#ffaa22] text-black text-xs font-extrabold rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-icons-round text-base">send</span>
-                        <span>Gửi Báo Lỗi</span>
-                    </button>
-                </div>
-            </form>
-
-            <div id="reportSuccessState" class="hidden text-center py-4 space-y-2">
-                <div class="w-12 h-12 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center text-emerald-400 mx-auto">
-                    <span class="material-icons-round text-2xl">check</span>
-                </div>
-                <h4 class="text-white font-bold text-sm" id="reportSuccessTitle">Gửi Báo Lỗi Thành Công!</h4>
-                <p class="text-gray-300 text-xs" id="reportSuccessDesc">Cảm ơn bạn. Đội ngũ Kỹ thuật A Phim Super sẽ kiểm tra và khắc phục sự cố ngay.</p>
-                <button type="button" onclick="closeReportModal()" class="mt-3 px-4 py-1.5 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold rounded-lg report-btn-close">Đóng</button>
             </div>
-        </div>
-    </div>
 
 </body>
 

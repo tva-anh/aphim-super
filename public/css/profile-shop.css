@@ -60,7 +60,7 @@
     background: linear-gradient(135deg, #a78bfa, #8b5cf6);
     border-color: #8b5cf6;
     color: #fff;
-    box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+    box-shadow: none !important;
 }
 .shop-cat-btn .count {
     font-size: 11px;

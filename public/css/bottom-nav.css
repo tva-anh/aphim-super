@@ -279,3 +279,22 @@
     .bn-tab { gap: 2px; }
     .bn-tabs-container { padding: 0 4px !important; }
 }
+
+/* ── Light Mode Adaptations ── */
+html.light-mode #bottom-nav-dock .bn-tab {
+    color: #475569 !important;
+    text-shadow: none !important;
+}
+
+html.light-mode #bottom-nav-dock .bn-tab.active {
+    color: #d97706 !important;
+}
+
+html.light-mode #bottom-nav-dock .bn-bg-svg path {
+    fill: rgba(255, 255, 255, 0.95) !important;
+    stroke: rgba(203, 213, 225, 0.8) !important;
+}
+
+html.light-mode #bottom-nav-dock .bn-bg-svg {
+    filter: drop-shadow(0 -4px 14px rgba(0, 0, 0, 0.08)) drop-shadow(0 0 8px rgba(245, 158, 11, 0.15)) !important;
+}

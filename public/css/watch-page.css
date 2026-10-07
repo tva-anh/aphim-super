@@ -1,4 +1,18 @@
             /* Modern Watch Page High-End Styling */
+            body.page-watch,
+            html body.page-watch,
+            html.light-mode body.page-watch {
+                padding-top: 64px !important;
+            }
+
+            @media (max-width: 1023px) {
+                body.page-watch,
+                html body.page-watch,
+                html.light-mode body.page-watch {
+                    padding-top: 60px !important;
+                }
+            }
+
             .action-control-btn {
                 display: inline-flex;
                 align-items: center;
@@ -1377,11 +1391,11 @@
             #aphim-timeline-container {
                 position: relative !important;
                 width: 100% !important;
-                height: 22px !important;
+                height: 24px !important;
                 display: flex !important;
                 align-items: center !important;
                 cursor: pointer !important;
-                margin-bottom: 10px !important;
+                margin-bottom: 8px !important;
                 user-select: none !important;
                 -webkit-user-select: none !important;
                 touch-action: none !important;
@@ -1390,16 +1404,17 @@
             #aphim-timeline-rail {
                 position: relative !important;
                 width: 100% !important;
-                height: 4px !important;
-                background: rgba(255, 255, 255, 0.28) !important;
+                height: 4.5px !important;
+                background: rgba(255, 255, 255, 0.25) !important;
                 border-radius: 9999px !important;
                 overflow: hidden !important;
-                transition: height 0.15s ease !important;
+                transition: height 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+                will-change: height;
             }
 
             #aphim-timeline-container:hover #aphim-timeline-rail,
             #aphim-timeline-container.is-scrubbing #aphim-timeline-rail {
-                height: 6px !important;
+                height: 7px !important;
             }
 
             #aphim-buffer-bar {
@@ -1411,6 +1426,7 @@
                 border-radius: 9999px !important;
                 width: 0%;
                 pointer-events: none !important;
+                transition: width 0.2s linear !important;
             }
 
             #aphim-progress-bar {
@@ -1418,50 +1434,68 @@
                 top: 0 !important;
                 bottom: 0 !important;
                 left: 0 !important;
-                background: #fcd576 !important;
-                background: linear-gradient(90deg, #f59e0b 0%, #fcd576 100%) !important;
+                background: linear-gradient(90deg, #f59e0b 0%, #fcd576 60%, #ffe484 100%) !important;
                 border-radius: 9999px !important;
                 width: 0%;
-                box-shadow: 0 0 10px rgba(252, 213, 118, 0.85) !important;
+                box-shadow: 0 0 12px rgba(252, 213, 118, 0.95), 0 0 24px rgba(245, 158, 11, 0.4) !important;
                 pointer-events: none !important;
+                will-change: width;
             }
 
             #aphim-scrubber-dot {
                 position: absolute !important;
                 top: 50% !important;
-                transform: translate(-50%, -50%) scale(0.9) !important;
-                width: 15px !important;
-                height: 15px !important;
+                transform: translate(-50%, -50%) scale(0.85) !important;
+                width: 16px !important;
+                height: 16px !important;
                 background: #ffffff !important;
+                border: 2px solid #fcd576 !important;
                 border-radius: 9999px !important;
-                box-shadow: 0 0 8px rgba(0, 0, 0, 0.9), 0 0 6px rgba(252, 213, 118, 0.85) !important;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 14px rgba(252, 213, 118, 0.95) !important;
                 pointer-events: none !important;
-                transition: transform 0.1s ease !important;
+                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
                 z-index: 5 !important;
+                will-change: transform, left;
             }
 
             #aphim-timeline-container:hover #aphim-scrubber-dot,
             #aphim-timeline-container.is-scrubbing #aphim-scrubber-dot {
-                transform: translate(-50%, -50%) scale(1.25) !important;
+                transform: translate(-50%, -50%) scale(1.35) !important;
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 20px rgba(252, 213, 118, 1) !important;
             }
 
             #aphim-hover-time {
                 position: absolute !important;
-                bottom: 24px !important;
+                bottom: 26px !important;
                 transform: translateX(-50%) !important;
-                padding: 2px 8px !important;
-                border-radius: 6px !important;
-                background: rgba(10, 12, 18, 0.95) !important;
+                padding: 3px 9px !important;
+                border-radius: 8px !important;
+                background: rgba(15, 18, 28, 0.92) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
                 color: #ffffff !important;
-                font-size: 11px !important;
-                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-                font-weight: 700 !important;
+                font-size: 11.5px !important;
+                font-family: 'Inter', ui-monospace, monospace !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.03em !important;
                 pointer-events: none !important;
-                border: 1px solid rgba(255, 255, 255, 0.25) !important;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9) !important;
+                border: 1px solid rgba(252, 213, 118, 0.35) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), 0 0 10px rgba(252, 213, 118, 0.2) !important;
                 z-index: 10 !important;
                 opacity: 0;
-                transition: opacity 0.15s ease !important;
+                transition: opacity 0.18s ease, transform 0.18s ease !important;
+                will-change: left, opacity;
+            }
+
+            #aphim-hover-time::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border-width: 4px;
+                border-style: solid;
+                border-color: rgba(15, 18, 28, 0.92) transparent transparent transparent;
             }
 
             /* ─── BUTTONS & UNIFORM SIZING (COMFORTABLE & CLEAR) ─── */
@@ -1470,12 +1504,12 @@
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                width: 44px !important;
-                height: 44px !important;
-                min-width: 44px !important;
-                min-height: 44px !important;
-                max-width: 44px !important;
-                max-height: 44px !important;
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+                min-height: 42px !important;
+                max-width: 42px !important;
+                max-height: 42px !important;
                 border-radius: 9999px !important;
                 background: transparent !important;
                 border: none !important;
@@ -1483,27 +1517,35 @@
                 margin: 0 !important;
                 cursor: pointer !important;
                 color: #ffffff !important;
-                transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+                transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease !important;
                 flex-shrink: 0 !important;
+                will-change: transform;
             }
 
             @media (max-width: 640px) {
                 #aphim-controls button,
                 .aphim-ctrl-btn {
-                    width: 32px !important;
-                    height: 32px !important;
-                    min-width: 32px !important;
-                    min-height: 32px !important;
-                    max-width: 32px !important;
-                    max-height: 32px !important;
+                    width: 34px !important;
+                    height: 34px !important;
+                    min-width: 34px !important;
+                    min-height: 34px !important;
+                    max-width: 34px !important;
+                    max-height: 34px !important;
                 }
             }
 
             #aphim-controls button:hover,
             .aphim-ctrl-btn:hover {
-                background-color: rgba(255, 255, 255, 0.2) !important;
+                background-color: rgba(255, 255, 255, 0.16) !important;
                 color: #fcd576 !important;
-                transform: scale(1.08) !important;
+                transform: scale(1.12) translateZ(0) !important;
+                box-shadow: 0 0 14px rgba(252, 213, 118, 0.3) !important;
+            }
+
+            #aphim-controls button:active,
+            .aphim-ctrl-btn:active {
+                transform: scale(0.9) translateZ(0) !important;
+                transition-duration: 0.08s !important;
             }
 
             #aphim-controls .aphim-btn-icon,

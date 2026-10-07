@@ -533,88 +533,94 @@ function renderMovieDetail(movie) {
 
     // ✅ Update breadcrumb — hiện tên phim thực thay vì hardcode và thêm danh mục
     const breadcrumb = document.getElementById('breadcrumb-movie-name');
-    if (breadcrumb) {
-        breadcrumb.textContent = movie.name;
+    if (breadcrumb && movie) {
+        if (movie.name) breadcrumb.textContent = movie.name;
 
-        if (!document.getElementById('breadcrumb-category')) {
-            let categoryName = '';
-            let categoryLink = '';
+        let categoryName = '';
+        let categoryLink = '';
 
-            // Xử lý breadcrumb thông minh: nhớ trang trước đó (referrer)
-            const referrer = document.referrer;
-            let refMatched = false;
+        // Xử lý breadcrumb thông minh: nhớ trang trước đó (referrer)
+        const referrer = document.referrer;
+        let refMatched = false;
 
-            try {
-                if (referrer && referrer.includes(window.location.host)) {
-                    const refUrl = new URL(referrer);
+        try {
+            if (referrer && referrer.includes(window.location.host)) {
+                const refUrl = new URL(referrer);
 
-                    if (referrer.includes('phim-theo-quoc-gia.html')) {
-                        categoryName = (movie.country && movie.country.length > 0) ? movie.country[0].name : 'Quốc Gia';
+                if (referrer.includes('phim-theo-quoc-gia.html')) {
+                    categoryName = (movie.country && movie.country.length > 0) ? movie.country[0].name : 'Quốc Gia';
+                    categoryLink = referrer;
+                    refMatched = true;
+                } else if (referrer.includes('phim-theo-the-loai.html')) {
+                    categoryName = (movie.category && movie.category.length > 0) ? movie.category[0].name : 'Thể Loại';
+                    categoryLink = referrer;
+                    refMatched = true;
+                } else if (referrer.includes('search.html')) {
+                    categoryName = 'Tìm Kiếm';
+                    categoryLink = referrer;
+                    refMatched = true;
+                } else if (referrer.includes('danh-sach.html')) {
+                    const listParam = refUrl.searchParams.get('list');
+                    const listMap = {
+                        'phim-moi': 'Phim Mới',
+                        'phim-bo': 'Phim Bộ',
+                        'phim-le': 'Phim Lẻ',
+                        'tv-shows': 'TV Shows',
+                        'hoat-hinh': 'Hoạt Hình',
+                        'phim-vietsub': 'Phim Vietsub',
+                        'phim-thuyet-minh': 'Thuyết Minh',
+                        'phim-long-tien': 'Lồng Tiếng',
+                        'phim-bo-dang-chieu': 'Đang Chiếu',
+                        'phim-bo-hoan-thanh': 'Đã Hoàn Thành',
+                        'phim-sap-chieu': 'Sắp Chiếu'
+                    };
+                    if (listParam && listMap[listParam]) {
+                        categoryName = listMap[listParam];
                         categoryLink = referrer;
                         refMatched = true;
-                    } else if (referrer.includes('phim-theo-the-loai.html')) {
-                        categoryName = (movie.category && movie.category.length > 0) ? movie.category[0].name : 'Thể Loại';
-                        categoryLink = referrer;
-                        refMatched = true;
-                    } else if (referrer.includes('search.html')) {
-                        categoryName = 'Tìm Kiếm';
-                        categoryLink = referrer;
-                        refMatched = true;
-                    } else if (referrer.includes('danh-sach.html')) {
-                        const listParam = refUrl.searchParams.get('list');
-                        const listMap = {
-                            'phim-moi': 'Phim Mới',
-                            'phim-bo': 'Phim Bộ',
-                            'phim-le': 'Phim Lẻ',
-                            'tv-shows': 'TV Shows',
-                            'hoat-hinh': 'Hoạt Hình',
-                            'phim-vietsub': 'Phim Vietsub',
-                            'phim-thuyet-minh': 'Thuyết Minh',
-                            'phim-long-tien': 'Lồng Tiếng',
-                            'phim-bo-dang-chieu': 'Đang Chiếu',
-                            'phim-bo-hoan-thanh': 'Đã Hoàn Thành',
-                            'phim-sap-chieu': 'Sắp Chiếu'
-                        };
-                        if (listParam && listMap[listParam]) {
-                            categoryName = listMap[listParam];
-                            categoryLink = referrer;
-                            refMatched = true;
-                        }
                     }
                 }
-            } catch (e) {
-                console.warn('Could not parse referrer URL for breadcrumb', e);
             }
+        } catch (e) {
+            console.warn('Could not parse referrer URL for breadcrumb', e);
+        }
 
-            // Fallback nếu không có referrer (vào thẳng link)
-            if (!refMatched) {
-                if (movie.type === 'series') {
-                    categoryName = 'Phim Bộ';
-                    categoryLink = '/danh-sach?list=phim-bo';
-                } else if (movie.type === 'single') {
-                    categoryName = 'Phim Lẻ';
-                    categoryLink = '/danh-sach?list=phim-le';
-                } else if (movie.type === 'hoathinh') {
-                    categoryName = 'Hoạt Hình';
-                    categoryLink = '/danh-sach?list=hoat-hinh';
-                } else if (movie.type === 'tvshows') {
-                    categoryName = 'TV Shows';
-                    categoryLink = '/danh-sach?list=tv-shows';
-                }
+        // Fallback nếu không có referrer (vào thẳng link)
+        if (!refMatched) {
+            if (movie.type === 'series') {
+                categoryName = 'Phim Bộ';
+                categoryLink = '/danh-sach?list=phim-bo';
+            } else if (movie.type === 'single') {
+                categoryName = 'Phim Lẻ';
+                categoryLink = '/danh-sach?list=phim-le';
+            } else if (movie.type === 'hoathinh') {
+                categoryName = 'Hoạt Hình';
+                categoryLink = '/danh-sach?list=hoat-hinh';
+            } else if (movie.type === 'tvshows') {
+                categoryName = 'TV Shows';
+                categoryLink = '/danh-sach?list=tv-shows';
             }
+        }
 
-            if (categoryName) {
-                // Lưu lại state cho trang watch.html dùng
-                sessionStorage.setItem('breadcrumbName', categoryName);
-                sessionStorage.setItem('breadcrumbLink', categoryLink);
+        if (categoryName) {
+            // Lưu lại state cho trang watch.html dùng
+            sessionStorage.setItem('breadcrumbName', categoryName);
+            sessionStorage.setItem('breadcrumbLink', categoryLink);
 
+            const catElement = document.getElementById('breadcrumb-category');
+            const catSep = document.getElementById('breadcrumb-category-sep');
+            if (catElement) {
+                catElement.textContent = categoryName;
+                catElement.href = categoryLink;
+                catElement.style.display = 'inline-block';
+                if (catSep) catSep.style.setProperty('display', 'inline-block', 'important');
+            } else {
                 const separator = document.createElement('span');
-                separator.className = 'material-icons-round text-base text-gray-300 flex-shrink-0';
-                separator.textContent = 'chevron_right';
+                separator.innerHTML = `<svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; display: inline-block !important;" class="text-gray-200 mx-0.5 flex-shrink-0 drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`;
 
                 const categoryElement = document.createElement('a');
                 categoryElement.id = 'breadcrumb-category';
-                categoryElement.className = 'hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap';
+                categoryElement.className = 'hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]';
                 categoryElement.href = categoryLink;
                 categoryElement.textContent = categoryName;
 

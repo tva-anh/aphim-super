@@ -15,8 +15,16 @@
     let ticking = false;
     let lastWidth = window.innerWidth;
 
-    function isDesktopHeroPresent() {
-        return !!document.getElementById('desktopHeroShowcase') && window.innerWidth >= 1024;
+    function hasHeroOrBackdrop() {
+        return !!(
+            document.getElementById('desktopHeroShowcase') ||
+            document.querySelector('.movie-hero-backdrop-wrap') ||
+            document.getElementById('movieHeroBackdrop') ||
+            document.querySelector('.has-desktop-hero') ||
+            document.body.classList.contains('page-phim-detail') ||
+            document.body.classList.contains('page-watch') ||
+            document.body.classList.contains('has-desktop-hero')
+        );
     }
 
     function updateNavOnScroll() {
@@ -27,7 +35,7 @@
 
         if (scrollTop > 50) {
             header.classList.add('scrolled');
-            if (isDesktopHeroPresent()) {
+            if (hasHeroOrBackdrop()) {
                 header.style.removeProperty('background');
                 header.style.removeProperty('background-color');
                 header.style.removeProperty('border');
@@ -38,7 +46,7 @@
             }
         } else {
             header.classList.remove('scrolled', 'sofa-header-scrolled');
-            if (isDesktopHeroPresent()) {
+            if (hasHeroOrBackdrop()) {
                 header.style.setProperty('background', 'transparent', 'important');
                 header.style.setProperty('background-color', 'transparent', 'important');
                 header.style.setProperty('border', 'none', 'important');
@@ -64,10 +72,10 @@
     }
 
     // Ghi nhớ vị trí cuộn trước khi rời trang sang trang khác
-    window.addEventListener('pagehide', function() {
+    window.addEventListener('pagehide', function () {
         try {
             sessionStorage.setItem(scrollStorageKey, String(window.scrollY || window.pageYOffset || 0));
-        } catch(e) {}
+        } catch (e) { }
     });
 
     // Khôi phục vị trí cuộn thông minh khi quay trở lại (Back / Forward)
@@ -83,7 +91,7 @@
 
         if (isReload) {
             // Khi người dùng bấm F5 cố ý làm mới trang: Cuộn về đỉnh đầu
-            try { sessionStorage.removeItem(scrollStorageKey); } catch(e) {}
+            try { sessionStorage.removeItem(scrollStorageKey); } catch (e) { }
             window.scrollTo(0, 0);
             updateNavOnScroll();
             return;
@@ -102,7 +110,7 @@
                     return;
                 }
             }
-        } catch(e) {}
+        } catch (e) { }
 
         updateNavOnScroll();
     }
@@ -116,7 +124,7 @@
         }
     }, { passive: true });
 
-    window.addEventListener('pageshow', function(e) {
+    window.addEventListener('pageshow', function (e) {
         restoreScrollIfReturning(e.persisted);
     });
 

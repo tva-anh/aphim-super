@@ -2762,18 +2762,38 @@ function initializePlayer(episode) {
         };
     }
 
-    // Seek 10s
-    if (btnRewind) btnRewind.onclick = () => {
-        player.currentTime = Math.max(0, player.currentTime - 10);
-        showSeekOverlay('-10s', false);
-    };
-    if (btnForward) btnForward.onclick = () => {
-        player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
-        showSeekOverlay('+10s', true);
-    };
-    if (btnNext) btnNext.onclick = () => {
-        playNextEpisode();
-    };
+    // Seek 10s with spring rotation feedback
+    if (btnRewind) {
+        btnRewind.onclick = () => {
+            const icon = btnRewind.querySelector('.material-icons-round') || btnRewind;
+            icon.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'rotate(-40deg) scale(1.15)';
+            setTimeout(() => { icon.style.transform = 'none'; }, 240);
+            
+            player.currentTime = Math.max(0, player.currentTime - 10);
+            showSeekOverlay('-10s', false);
+        };
+    }
+    if (btnForward) {
+        btnForward.onclick = () => {
+            const icon = btnForward.querySelector('.material-icons-round') || btnForward;
+            icon.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'rotate(40deg) scale(1.15)';
+            setTimeout(() => { icon.style.transform = 'none'; }, 240);
+
+            player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+            showSeekOverlay('+10s', true);
+        };
+    }
+    if (btnNext) {
+        btnNext.onclick = () => {
+            const icon = btnNext.querySelector('.material-icons-round') || btnNext;
+            icon.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'translateX(4px) scale(1.15)';
+            setTimeout(() => { icon.style.transform = 'none'; }, 220);
+            playNextEpisode();
+        };
+    }
 
     // Volume Slider & Mute
     let lastVolume = 0.9;
@@ -2781,7 +2801,7 @@ function initializePlayer(episode) {
         if (!volumeSlider) return;
         const pct = Math.max(0, Math.min(100, (vol * 100))).toFixed(1);
         volumeSlider.style.setProperty('--vol-pct', `${pct}%`);
-        volumeSlider.style.background = `linear-gradient(to right, #ffffff 0%, #ffffff ${pct}%, rgba(255, 255, 255, 0.28) ${pct}%, rgba(255, 255, 255, 0.28) 100%)`;
+        volumeSlider.style.background = `linear-gradient(to right, #fcd576 0%, #fcd576 ${pct}%, rgba(255, 255, 255, 0.28) ${pct}%, rgba(255, 255, 255, 0.28) 100%)`;
     }
 
     function updateVolumeIcon(vol, muted) {
@@ -2868,12 +2888,19 @@ function initializePlayer(episode) {
         if (!player || !player.duration || !timelineContainer) return;
         isDraggingTimeline = true;
         wasPlayingBeforeDrag = !player.paused;
-        if (wasPlayingBeforeDrag) {
-            player.pause();
-        }
         timelineContainer.classList.add('is-scrubbing');
+        
         const pct = getTimelinePercentage(e);
         renderScrubUI(pct);
+        
+        // Instant snappy jump on click
+        const targetTime = pct * player.duration;
+        if (player.fastSeek) {
+            player.fastSeek(targetTime);
+        } else {
+            player.currentTime = targetTime;
+        }
+        
         showControls();
     }
 
@@ -2891,13 +2918,14 @@ function initializePlayer(episode) {
             throttledSeekTimer = setTimeout(() => {
                 throttledSeekTimer = null;
                 if (isDraggingTimeline && player && player.duration) {
+                    const targetTime = pct * player.duration;
                     if (player.fastSeek) {
-                        player.fastSeek(pct * player.duration);
+                        player.fastSeek(targetTime);
                     } else {
-                        player.currentTime = pct * player.duration;
+                        player.currentTime = targetTime;
                     }
                 }
-            }, 60);
+            }, 35); // 35ms ultra-smooth fluid live scrub
         }
         showControls();
     }
@@ -2919,7 +2947,7 @@ function initializePlayer(episode) {
         if (hoverTime) {
             hoverTime.style.opacity = '0';
         }
-        if (wasPlayingBeforeDrag && player) {
+        if (wasPlayingBeforeDrag && player && player.paused) {
             player.play().catch(err => console.log('Resume playback error:', err));
         }
         showControls(3800);

@@ -1985,6 +1985,7 @@
     let drawerCommentsStore = {};
 
     function generateDefaultComments(movieTitle) {
+        const title = movieTitle || 'bộ phim này';
         return [
             {
                 id: 'cm-admin',
@@ -1993,19 +1994,19 @@
                 avatarBg: 'admin',
                 avatarText: 'AP',
                 time: 'Ghim • Vừa xong',
-                text: `Bấm nút "XEM PHIM" màu vàng ở góc phải để xem trọn bộ phim "${movieTitle || 'này'}" Full HD Vietsub miễn phí nhé mọi người! 🔥`,
-                likes: 128,
+                text: `Bấm nút "XEM PHIM" màu vàng ở góc phải để xem trọn bộ phim "${title}" Full HD Vietsub miễn phí nhé mọi người! 🔥`,
+                likes: 248,
                 isLiked: false
             },
             {
                 id: 'cm-1',
-                author: 'Hoàng Nam',
+                author: 'Hoàng Nam Cinema',
                 isAdmin: false,
                 avatarBg: 'linear-gradient(135deg, #6366f1, #a855f7)',
                 avatarText: 'HN',
-                time: '25 phút trước',
-                text: 'Video review cuốn thật sự, lướt mượt không giật lag tí nào 10/10 ⭐ cốt truyện bánh cuốn ghê!',
-                likes: 42,
+                time: '15 phút trước',
+                text: `Video review cuốn thật sự, xem đoạn cao trào phim "${title}" sởn da gà 10/10 ⭐!`,
+                likes: 68,
                 isLiked: false
             },
             {
@@ -2014,20 +2015,64 @@
                 isAdmin: false,
                 avatarBg: 'linear-gradient(135deg, #ec4899, #f43f5e)',
                 avatarText: 'MT',
-                time: '1 giờ trước',
-                text: 'Đoạn cao trào xem nổi hết cả da gà! Diễn viên đóng đạt dã man 😍',
-                likes: 19,
+                time: '45 phút trước',
+                text: 'Diễn viên chính đóng đạt dã man, nhạc phim cũng đỉnh chóp nữa 😍👏',
+                likes: 42,
                 isLiked: false
             },
             {
                 id: 'cm-3',
-                author: 'Tuấn Cường',
+                author: 'Tuấn Cường Review',
                 isAdmin: false,
                 avatarBg: 'linear-gradient(135deg, #10b981, #06b6d4)',
                 avatarText: 'TC',
+                time: '2 giờ trước',
+                text: 'Tóm tắt súc tích, không dài dòng lan man. Vừa bấm xem full bộ trên web xong, quá đã!',
+                likes: 35,
+                isLiked: false
+            },
+            {
+                id: 'cm-4',
+                author: 'Ngọc Ánh',
+                isAdmin: false,
+                avatarBg: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+                avatarText: 'NA',
                 time: '3 giờ trước',
-                text: 'Ai xem full bộ này rồi cho xin review tập cuối có hậu không ạ? 🔥👏',
-                likes: 8,
+                text: 'Ai chưa xem thì bấm xem ngay nha, cái kết khóc hết nước mắt luôn á 😭🍿',
+                likes: 27,
+                isLiked: false
+            },
+            {
+                id: 'cm-5',
+                author: 'Văn Duy TV',
+                isAdmin: false,
+                avatarBg: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                avatarText: 'VD',
+                time: '5 giờ trước',
+                text: 'Giọng đọc truyền cảm cuốn hút, hình ảnh nét căng mượt mà không bị giật lag 👍',
+                likes: 21,
+                isLiked: false
+            },
+            {
+                id: 'cm-6',
+                author: 'Bảo Trâm',
+                isAdmin: false,
+                avatarBg: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                avatarText: 'BT',
+                time: 'Hôm qua',
+                text: 'Cảm ơn admin đã tổng hợp phim hay thế này, xin thêm nhiều bộ cùng thể loại với ạ ❤️',
+                likes: 18,
+                isLiked: false
+            },
+            {
+                id: 'cm-7',
+                author: 'Quốc Huy',
+                isAdmin: false,
+                avatarBg: 'linear-gradient(135deg, #14b8a6, #059669)',
+                avatarText: 'QH',
+                time: 'Hôm qua',
+                text: 'Phim này xứng đáng lọt top phim hay nhất năm, cốt truyện bánh cuốn thật sự 💯🔥',
+                likes: 14,
                 isLiked: false
             }
         ];
@@ -2041,6 +2086,23 @@
         const badgeEl = document.getElementById('drawer-comments-badge');
         const popover = document.getElementById('comments-emoji-popover');
         const list = document.getElementById('drawer-comments-list');
+        const userAvaEl = document.querySelector('.comments-user-avatar');
+
+        // Update user avatar in input area if logged in
+        try {
+            const rawUser = localStorage.getItem('cinestream_user');
+            if (rawUser) {
+                const u = JSON.parse(rawUser);
+                const uName = (u.displayName || u.name || u.email || 'BẠN').trim();
+                if (userAvaEl) {
+                    if (u.avatar) {
+                        userAvaEl.innerHTML = `<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    } else {
+                        userAvaEl.textContent = uName.substring(0, 2).toUpperCase();
+                    }
+                }
+            }
+        } catch(e) {}
 
         if (popover) popover.classList.add('hidden');
         if (movieSubEl) {
@@ -2050,7 +2112,10 @@
             `;
         }
 
-        if (drawer) drawer.classList.add('active');
+        if (drawer) {
+            drawer.classList.add('active');
+            drawer.classList.add('open');
+        }
         if (backdrop) backdrop.classList.add('active');
 
         // Tìm YouTube ID nếu có
@@ -2071,10 +2136,10 @@
             // Hiển thị hiệu ứng Loading Shimmer mượt mà
             if (list) {
                 list.innerHTML = `
-                    <div class="comments-loading-box flex flex-col items-center justify-center py-12 gap-3">
-                        <div class="w-8 h-8 rounded-full border-2 border-amber-400/20 border-t-amber-400 animate-spin"></div>
+                    <div class="comments-loading-box flex flex-col items-center justify-center py-14 gap-3">
+                        <div class="w-9 h-9 rounded-full border-2 border-amber-400/20 border-t-amber-400 animate-spin"></div>
                         <div class="text-xs text-gray-300 font-semibold flex items-center gap-2">
-                            <span>Đang tải bình luận từ người xem...</span>
+                            <span>Đang tải bình luận từ khán giả...</span>
                         </div>
                     </div>
                 `;
@@ -2098,6 +2163,9 @@
             renderDrawerCommentsList();
         }
 
+        // Setup scroll & drag protection on comments drawer
+        initCommentsDrawerInteractions();
+
         // Focus input
         setTimeout(() => {
             const input = document.getElementById('drawer-comment-input');
@@ -2109,7 +2177,11 @@
         const drawer = document.getElementById('reels-comments-drawer');
         const backdrop = document.getElementById('reels-comments-backdrop');
         const popover = document.getElementById('comments-emoji-popover');
-        if (drawer) drawer.classList.remove('active');
+        if (drawer) {
+            drawer.classList.remove('active');
+            drawer.classList.remove('open');
+            drawer.style.transform = '';
+        }
         if (backdrop) backdrop.classList.remove('active');
         if (popover) popover.classList.add('hidden');
     };
@@ -2119,6 +2191,19 @@
         if (!list || !currentDrawerReelId) return;
 
         const comments = drawerCommentsStore[currentDrawerReelId] || [];
+        if (comments.length === 0) {
+            list.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-16 text-center text-gray-400">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.4;margin-bottom:10px;">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <p class="text-sm font-semibold text-gray-300">Chưa có bình luận nào</p>
+                    <p class="text-xs text-gray-500 mt-1">Hãy là người đầu tiên để lại cảm nghĩ về video này!</p>
+                </div>
+            `;
+            return;
+        }
+
         list.innerHTML = comments.map(c => `
             <div class="comment-card-item ${c.isAdmin ? 'is-admin-card' : ''}" id="${c.id}">
                 <div class="comment-avatar ${c.isAdmin ? 'admin-avatar' : ''}" style="${c.avatarBg !== 'admin' ? `background: ${c.avatarBg}` : ''}">
@@ -2162,6 +2247,87 @@
         `).join('');
     }
 
+    let isCommentsInteractionsInited = false;
+    function initCommentsDrawerInteractions() {
+        if (isCommentsInteractionsInited) return;
+        isCommentsInteractionsInited = true;
+
+        const drawer = document.getElementById('reels-comments-drawer');
+        const list = document.getElementById('drawer-comments-list');
+        const handle = document.querySelector('.comments-drag-handle');
+        const header = document.querySelector('.comments-drawer-header');
+        const backdrop = document.getElementById('reels-comments-backdrop');
+
+        // 🛡️ ISOLATE ALL TOUCH / POINTER / WHEEL EVENTS INSIDE THE DRAWER CONTAINER
+        if (drawer) {
+            ['touchstart', 'touchmove', 'touchend', 'wheel', 'pointerdown'].forEach(evtType => {
+                drawer.addEventListener(evtType, function (e) {
+                    // Stop bubbling to feedContainer so swipe navigation is never accidentally triggered
+                    e.stopPropagation();
+                }, { passive: evtType !== 'wheel' });
+            });
+        }
+
+        if (backdrop) {
+            ['touchstart', 'touchmove', 'touchend', 'wheel'].forEach(evtType => {
+                backdrop.addEventListener(evtType, function (e) {
+                    e.stopPropagation();
+                }, { passive: true });
+            });
+        }
+
+        if (list) {
+            list.addEventListener('touchstart', function (e) {
+                e.stopPropagation();
+            }, { passive: true });
+            list.addEventListener('touchmove', function (e) {
+                e.stopPropagation();
+            }, { passive: true });
+            list.addEventListener('wheel', function (e) {
+                e.stopPropagation();
+            }, { passive: true });
+        }
+
+        // Pull-to-close on Mobile Drag Handle or Header
+        [handle, header].forEach(targetEl => {
+            if (!targetEl) return;
+            let dragStartY = 0;
+            let currentTranslateY = 0;
+            let isDragging = false;
+
+            targetEl.addEventListener('touchstart', function (e) {
+                if (window.innerWidth >= 768 || !e.touches || e.touches.length === 0) return;
+                e.stopPropagation();
+                dragStartY = e.touches[0].clientY;
+                isDragging = true;
+                if (drawer) drawer.style.transition = 'none';
+            }, { passive: true });
+
+            targetEl.addEventListener('touchmove', function (e) {
+                if (!isDragging || !e.touches || e.touches.length === 0) return;
+                e.stopPropagation();
+                const deltaY = e.touches[0].clientY - dragStartY;
+                if (deltaY > 0 && drawer) {
+                    currentTranslateY = deltaY;
+                    drawer.style.transform = `translateY(${deltaY}px)`;
+                }
+            }, { passive: true });
+
+            targetEl.addEventListener('touchend', function () {
+                if (!isDragging) return;
+                isDragging = false;
+                if (!drawer) return;
+                drawer.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                if (currentTranslateY > 80) {
+                    window.closeReelsCommentsDrawer();
+                } else {
+                    drawer.style.transform = 'translate(0, 0)';
+                }
+                currentTranslateY = 0;
+            }, { passive: true });
+        });
+    }
+
     window.toggleCommentLike = function (btn, commentId) {
         if (!currentDrawerReelId || !drawerCommentsStore[currentDrawerReelId]) return;
         const comment = drawerCommentsStore[currentDrawerReelId].find(c => c.id === commentId);
@@ -2183,8 +2349,10 @@
     window.replyToCommentAuthor = function (author) {
         const input = document.getElementById('drawer-comment-input');
         if (input) {
-            input.value = `@${author} `;
+            const cleanAuthor = author.replace(/^@/, '');
+            input.value = `@${cleanAuthor} `;
             input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
         }
     };
 
@@ -2196,7 +2364,11 @@
         const comments = drawerCommentsStore[currentDrawerReelId];
 
         if (type === 'top') {
-            comments.sort((a, b) => b.likes - a.likes);
+            comments.sort((a, b) => {
+                if (a.isAdmin) return -1;
+                if (b.isAdmin) return 1;
+                return b.likes - a.likes;
+            });
         } else if (type === 'newest') {
             comments.sort((a, b) => {
                 if (a.isAdmin) return -1;
@@ -2257,12 +2429,25 @@
             drawerCommentsStore[currentDrawerReelId] = generateDefaultComments('Phim');
         }
 
+        let uName = 'Bạn (Khán giả)';
+        let uAvatarText = 'BẠN';
+        let uAvatarBg = 'linear-gradient(135deg, #f59e0b, #ef4444)';
+
+        try {
+            const rawUser = localStorage.getItem('cinestream_user');
+            if (rawUser) {
+                const u = JSON.parse(rawUser);
+                if (u.displayName || u.name) uName = u.displayName || u.name;
+                uAvatarText = uName.substring(0, 2).toUpperCase();
+            }
+        } catch(e) {}
+
         const newComment = {
             id: 'cm-user-' + Date.now(),
-            author: 'Bạn (Người xem)',
+            author: uName,
             isAdmin: false,
-            avatarBg: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-            avatarText: 'BẠN',
+            avatarBg: uAvatarBg,
+            avatarText: uAvatarText,
             time: 'Vừa xong',
             text: text,
             likes: 1,
@@ -2283,6 +2468,11 @@
         const badgeEl = document.getElementById('drawer-comments-badge');
         if (badgeEl) badgeEl.textContent = `${comments.length + 38}`;
 
+        const list = document.getElementById('drawer-comments-list');
+        if (list) {
+            list.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         showToast('💬 Đã gửi bình luận của bạn thành công!');
     };
 
@@ -2296,7 +2486,7 @@
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             const drawer = document.getElementById('reels-comments-drawer');
-            if (drawer && drawer.classList.contains('active')) {
+            if (drawer && (drawer.classList.contains('active') || drawer.classList.contains('open'))) {
                 window.closeReelsCommentsDrawer();
             }
         }
@@ -2602,16 +2792,23 @@
     function initSmoothSwipePhysics() {
         if (!feedContainer) return;
 
+        function isAnyOverlayOpen(e) {
+            if (e && e.target && e.target.closest('#reels-comments-drawer, #reels-comments-backdrop, #reels-search-modal, #reels-history-modal')) {
+                return true;
+            }
+            const commentsDrawer = document.getElementById('reels-comments-drawer');
+            if (commentsDrawer && (commentsDrawer.classList.contains('open') || commentsDrawer.classList.contains('active'))) return true;
+            const searchModal = document.getElementById('reels-search-modal');
+            if (searchModal && searchModal.classList.contains('active')) return true;
+            const historyModal = document.getElementById('reels-history-modal');
+            if (historyModal && historyModal.classList.contains('active')) return true;
+            return false;
+        }
+
         // 1. Desktop Wheel Controller: One distinct wheel roll = exactly one slide snap
         let wheelLocked = false;
         feedContainer.addEventListener('wheel', (e) => {
-            if (isScrubbing) return;
-            const commentsDrawer = document.getElementById('reels-comments-drawer');
-            if (commentsDrawer && commentsDrawer.classList.contains('open')) return;
-            const searchModal = document.getElementById('reels-search-modal');
-            if (searchModal && searchModal.classList.contains('active')) return;
-            const historyModal = document.getElementById('reels-history-modal');
-            if (historyModal && historyModal.classList.contains('active')) return;
+            if (isScrubbing || isAnyOverlayOpen(e)) return;
 
             if (Math.abs(e.deltaY) < 25) return;
             e.preventDefault();
@@ -2638,11 +2835,10 @@
         let swipeDebounceLocked = false;
 
         feedContainer.addEventListener('touchstart', (e) => {
-            if (isScrubbing || swipeDebounceLocked || !e.touches || e.touches.length === 0) return;
-            const commentsDrawer = document.getElementById('reels-comments-drawer');
-            if (commentsDrawer && commentsDrawer.classList.contains('open')) return;
-            const searchModal = document.getElementById('reels-search-modal');
-            if (searchModal && searchModal.classList.contains('active')) return;
+            if (isScrubbing || swipeDebounceLocked || !e.touches || e.touches.length === 0 || isAnyOverlayOpen(e)) {
+                isTouchActive = false;
+                return;
+            }
 
             const touch = e.touches[0];
             touchStartY = touch.clientY;
@@ -2652,7 +2848,10 @@
         }, { passive: true });
 
         feedContainer.addEventListener('touchmove', (e) => {
-            if (!isTouchActive || isScrubbing || !e.touches || e.touches.length === 0) return;
+            if (!isTouchActive || isScrubbing || !e.touches || e.touches.length === 0 || isAnyOverlayOpen(e)) {
+                isTouchActive = false;
+                return;
+            }
             const touch = e.touches[0];
             const deltaX = Math.abs(touch.clientX - touchStartX);
             const deltaY = Math.abs(touch.clientY - touchStartY);
@@ -2664,7 +2863,7 @@
         }, { passive: true });
 
         feedContainer.addEventListener('touchend', (e) => {
-            if (!isTouchActive || isScrubbing || swipeDebounceLocked || !e.changedTouches || e.changedTouches.length === 0) {
+            if (!isTouchActive || isScrubbing || swipeDebounceLocked || !e.changedTouches || e.changedTouches.length === 0 || isAnyOverlayOpen(e)) {
                 isTouchActive = false;
                 return;
             }

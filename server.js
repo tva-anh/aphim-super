@@ -59,10 +59,17 @@ io.on('connection', (socket) => {
 });
 
 // Middleware
-// 0. Ghi Log mọi Request
+// 0. Ghi Log mọi Request (Bỏ qua static files, assets và các endpoint polling nhẹ để không spam log)
 app.use((req, res, next) => {
-    // Không log các file tĩnh để đỡ rác file log
-    if (!req.url.startsWith('/css/') && !req.url.startsWith('/js/') && !req.url.startsWith('/images/')) {
+    const url = req.url;
+    const isStaticAsset = /\.(css|js|woff2|woff|ttf|png|jpg|jpeg|webp|svg|ico|json|map)$/i.test(url) ||
+        url.startsWith('/css/') ||
+        url.startsWith('/js/') ||
+        url.startsWith('/images/') ||
+        url.startsWith('/api/notifications') ||
+        url.startsWith('/api/health');
+
+    if (!isStaticAsset) {
         logger.info(`${req.method} ${req.url}`, { ip: req.ip });
     }
     next();

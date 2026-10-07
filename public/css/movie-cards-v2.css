@@ -2,6 +2,12 @@
    EXACT PHOTO 1 BRIGHT VIBRANT POSTERS & 5-COLUMN GRID STYLESHEET
    ====================================================== */
 
+/* Fix: Stable scrollbar gutter to prevent layout shift between pages */
+html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+}
+
 /* Fix: Body padding-top for fixed navbar */
 body {
     padding-top: 64px !important;

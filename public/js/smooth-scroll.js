@@ -86,62 +86,7 @@
         }
     }
 
-    function onWheel(e) {
-        // Ignore zoom shortcuts (Ctrl+Wheel) or horizontal dominant gestures
-        if (e.ctrlKey || e.shiftKey) return;
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-
-        // Pass-through native trackpad gestures (high-frequency sub-pixel float deltas)
-        const isTrackpad = (e.deltaMode === 0 && Math.abs(e.deltaY) < 32 && (Math.abs(e.deltaY) % 1 !== 0 || Math.abs(e.deltaY) < 16));
-        if (isTrackpad) {
-            const actualScroll = window.pageYOffset || document.documentElement.scrollTop || 0;
-            currentY = actualScroll;
-            targetY = actualScroll;
-            return;
-        }
-
-        // Check if user is scrolling inside a nested modal / scrollable box
-        if (isScrollableNestedElement(e.target, e.deltaY)) {
-            return;
-        }
-
-        e.preventDefault();
-
-        let delta = e.deltaY;
-        if (e.deltaMode === 1) delta *= 38; // Lines mode
-        else if (e.deltaMode === 2) delta *= window.innerHeight * 0.85; // Pages mode
-
-        const clampedDelta = Math.max(-MAX_ACCEL, Math.min(MAX_ACCEL, delta * STEP_MULTIPLIER));
-
-        // Resync if page was moved externally (e.g. scrollbar dragged by user)
-        const actualScroll = window.pageYOffset || document.documentElement.scrollTop || 0;
-        if (!isRunning || Math.abs(actualScroll - currentY) > 25) {
-            currentY = actualScroll;
-            targetY = actualScroll;
-        }
-
-        targetY += clampedDelta;
-        const maxScroll = Math.max(0, getMaxScrollY());
-        targetY = Math.max(0, Math.min(targetY, maxScroll));
-
-        if (!isRunning) {
-            isRunning = true;
-            if (animId) cancelAnimationFrame(animId);
-            animId = requestAnimationFrame(renderSmoothScroll);
-        }
-    }
-
-    function onNativeScrollSync() {
-        if (!isRunning) {
-            const actualScroll = window.pageYOffset || document.documentElement.scrollTop || 0;
-            currentY = actualScroll;
-            targetY = actualScroll;
-        }
-    }
-
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('scroll', onNativeScrollSync, { passive: true });
-
+    // Native high-performance hardware-accelerated scroll (Wheel hijacking disabled to avoid scroll jank)
     // Smooth Anchor Scroll handler
     document.addEventListener('click', (e) => {
         const anchor = e.target.closest('a[href^="#"]');
@@ -153,23 +98,19 @@
             if (targetEl) {
                 e.preventDefault();
                 const topPos = targetEl.getBoundingClientRect().top + window.pageYOffset - 80;
-                targetY = Math.max(0, Math.min(topPos, getMaxScrollY()));
-                if (!isRunning) {
-                    isRunning = true;
-                    if (animId) cancelAnimationFrame(animId);
-                    animId = requestAnimationFrame(renderSmoothScroll);
-                }
+                window.scrollTo({
+                    top: topPos,
+                    behavior: 'smooth'
+                });
             }
         } catch(err) {}
     });
 
     // Global programmatic smooth scroll utility
     window.aphimSmoothScrollTo = function(y) {
-        targetY = Math.max(0, Math.min(y, getMaxScrollY()));
-        if (!isRunning) {
-            isRunning = true;
-            if (animId) cancelAnimationFrame(animId);
-            animId = requestAnimationFrame(renderSmoothScroll);
-        }
+        window.scrollTo({
+            top: y,
+            behavior: 'smooth'
+        });
     };
 })();

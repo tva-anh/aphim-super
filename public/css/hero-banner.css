@@ -6,6 +6,7 @@
 
 /* ── Hidden on Mobile & Tablet (< 1024px) ── */
 @media (max-width: 1023px) {
+
     #desktopHeroShowcase,
     .desktop-hero-showcase,
     .hero-section {
@@ -22,6 +23,7 @@
 
 /* ── Desktop Show & Full-Bleed Cinema Layout ── */
 @media (min-width: 1024px) {
+
     /* 1. Header Transparent on Top (Ảnh tràn lên trên thanh Header, chữ luôn sáng rõ) */
     body {
         padding-top: 0 !important;
@@ -123,21 +125,36 @@
         color: #ffffff !important;
     }
 
-    #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
-    html.light-mode #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
-    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
-    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn {
-        background-color: rgba(255, 255, 255, 0.16) !important;
-        border-color: rgba(255, 255, 255, 0.28) !important;
-        color: #ffffff !important;
-    }
+    @media (min-width: 1024px) {
+        body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+        body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-trigger,
+        body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+        body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-trigger,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-trigger,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-trigger {
+            background-color: rgba(255, 255, 255, 0.16) !important;
+            border-color: rgba(255, 255, 255, 0.28) !important;
+            color: #ffffff !important;
+        }
 
-    #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
-    html.light-mode #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
-    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
-    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg {
-        stroke: #ffffff !important;
-        color: #ffffff !important;
+        body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+        body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+        body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-icon,
+        body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+        body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+        body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-icon,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-icon,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-icon {
+            stroke: #ffffff !important;
+            color: #ffffff !important;
+            fill: none !important;
+        }
     }
 
     /* Khi cuộn trang xuống (> 50px): Header đổi sang kính mờ sang trọng */
@@ -171,6 +188,7 @@
         margin: 0 auto !important;
         pointer-events: none !important;
     }
+
     body.has-desktop-hero .aphim-ad-top-wrapper .aphim-ad-top-box,
     body:has(#desktopHeroShowcase) .aphim-ad-top-wrapper .aphim-ad-top-box {
         pointer-events: auto !important;
@@ -263,13 +281,11 @@
     #desktopHeroShowcase .hero-left-blend {
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-            90deg, 
-            rgba(8, 10, 18, 0.88) 0%, 
-            rgba(8, 10, 18, 0.65) 28%, 
-            rgba(8, 10, 18, 0.20) 48%, 
-            transparent 70%
-        ) !important;
+        background: linear-gradient(90deg,
+                rgba(8, 10, 18, 0.88) 0%,
+                rgba(8, 10, 18, 0.65) 28%,
+                rgba(8, 10, 18, 0.20) 48%,
+                transparent 70%) !important;
         z-index: 2;
         pointer-events: none;
     }
@@ -294,14 +310,13 @@
         right: 0;
         width: 100%;
         height: 360px !important;
-        background: linear-gradient(180deg, 
-            transparent 0%, 
-            rgba(31, 35, 49, 0.12) 20%, 
-            rgba(31, 35, 49, 0.45) 45%, 
-            rgba(31, 35, 49, 0.85) 75%, 
-            #1f2331 92%, 
-            #1f2331 100%
-        ) !important;
+        background: linear-gradient(180deg,
+                transparent 0%,
+                rgba(31, 35, 49, 0.12) 20%,
+                rgba(31, 35, 49, 0.45) 45%,
+                rgba(31, 35, 49, 0.85) 75%,
+                #1f2331 92%,
+                #1f2331 100%) !important;
         z-index: 2;
         pointer-events: none;
     }
@@ -315,7 +330,8 @@
         margin: 0 auto !important;
         padding-left: 24px !important;
         padding-right: 24px !important;
-        padding-top: 76px !important; /* Dưới header 64px + 12px thở */
+        padding-top: 76px !important;
+        /* Dưới header 64px + 12px thở */
         padding-bottom: 8px !important;
         flex: 1 1 auto;
         display: flex;
@@ -371,7 +387,7 @@
         font-weight: 700 !important;
         font-size: clamp(38px, 4vw, 56px) !important;
         color: #ffffff !important;
-        text-shadow: 0 4px 18px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0,0,0,0.9) !important;
+        text-shadow: 0 4px 18px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.9) !important;
         letter-spacing: 0.01em;
         line-height: 1.15;
         margin-bottom: 3px;
@@ -421,6 +437,7 @@
         letter-spacing: 0.1px !important;
         user-select: none !important;
     }
+
     .hero-badge-ep svg,
     .hero-badge-year svg {
         flex-shrink: 0 !important;
@@ -448,12 +465,14 @@
         line-height: 1 !important;
         user-select: none !important;
     }
+
     .hero-badge-imdb .hero-badge-imdb-label {
         color: #facc15 !important;
         font-weight: 800 !important;
         font-size: 11px !important;
         letter-spacing: 0.2px !important;
     }
+
     .hero-badge-imdb .hero-badge-imdb-val {
         color: #ffffff !important;
         font-weight: 700 !important;
@@ -485,6 +504,7 @@
         user-select: none !important;
         border: none !important;
     }
+
     .hero-ribbon-seg svg {
         flex-shrink: 0 !important;
         width: 12px !important;
@@ -679,7 +699,8 @@
         align-self: flex-end !important;
         margin-bottom: 0px !important;
         width: 100% !important;
-        max-width: 604px !important; /* Cố định chuẩn xác 8 thumbnails (8 x 68px + 7 x 8px + 4px = 604px) */
+        max-width: 604px !important;
+        /* Cố định chuẩn xác 8 thumbnails (8 x 68px + 7 x 8px + 4px = 604px) */
         position: relative !important;
         overflow: hidden !important;
     }
@@ -702,9 +723,11 @@
         touch-action: pan-x;
         scroll-snap-type: x proximity;
     }
+
     #heroThumbnails:active {
         cursor: grabbing;
     }
+
     #heroThumbnails::-webkit-scrollbar {
         display: none !important;
     }
@@ -727,12 +750,14 @@
         z-index: 10;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
+
     .hero-thumb-nav-btn:hover {
         background: rgba(245, 158, 11, 0.25) !important;
         border-color: #f59e0b !important;
         color: #f59e0b !important;
         transform: scale(1.06) !important;
     }
+
     .hero-thumb-nav-btn:active {
         transform: scale(0.95) !important;
     }
@@ -745,11 +770,13 @@
         border-radius: 7px !important;
         overflow: hidden !important;
         position: relative !important;
-        border: 1.5px solid rgba(255, 255, 255, 0.32) !important; /* Viền trong suốt mờ tinh tế */
+        border: 1.5px solid rgba(255, 255, 255, 0.32) !important;
+        /* Viền trong suốt mờ tinh tế */
         transition: border-color 0.2s ease, opacity 0.2s ease !important;
         cursor: pointer !important;
         flex-shrink: 0 !important;
-        box-shadow: none !important; /* Loại bỏ hoàn toàn ánh xạ / bóng xám đổ xuống dưới */
+        box-shadow: none !important;
+        /* Loại bỏ hoàn toàn ánh xạ / bóng xám đổ xuống dưới */
         filter: none !important;
         -webkit-box-reflect: none !important;
         opacity: 0.9 !important;
@@ -777,7 +804,8 @@
     .hero-thumb-item.active {
         opacity: 1 !important;
         border-color: #fcd576 !important;
-        box-shadow: 0 0 6px rgba(252, 213, 118, 0.5) !important; /* Chỉ giữ ánh sáng vàng dịu bám sát viền */
+        box-shadow: 0 0 6px rgba(252, 213, 118, 0.5) !important;
+        /* Chỉ giữ ánh sáng vàng dịu bám sát viền */
         transform: none !important;
     }
 
@@ -787,7 +815,8 @@
         width: 100% !important;
         z-index: 20 !important;
         padding-top: 0px !important;
-        padding-bottom: 6px !important; /* Sát xuống dưới cạnh đáy mượt mà thanh thoát */
+        padding-bottom: 6px !important;
+        /* Sát xuống dưới cạnh đáy mượt mà thanh thoát */
         background: transparent !important;
         flex-shrink: 0;
         box-sizing: border-box;
@@ -816,7 +845,7 @@
         font-size: 17.5px !important;
         font-weight: 800 !important;
         color: #ffffff !important;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,0.9) !important;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9) !important;
         margin-bottom: 8px !important;
         letter-spacing: -0.01em !important;
         display: block !important;
@@ -834,7 +863,8 @@
     }
 
     #desktopHeroShowcase .interest-card {
-        height: 140px !important; /* Dẹp xuống 1 tý xíu thanh thoát theo yêu cầu */
+        height: 140px !important;
+        /* Dẹp xuống 1 tý xíu thanh thoát theo yêu cầu */
         border-radius: 14px !important;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.38), 0 1px 4px rgba(0, 0, 0, 0.18) !important;
         position: relative !important;
@@ -984,25 +1014,22 @@
     }
 
     html.light-mode #desktopHeroShowcase .hero-left-blend {
-        background: linear-gradient(
-            90deg, 
-            rgba(15, 18, 28, 0.78) 0%, 
-            rgba(15, 18, 28, 0.50) 28%, 
-            rgba(15, 18, 28, 0.15) 48%, 
-            transparent 68%
-        ) !important;
+        background: linear-gradient(90deg,
+                rgba(15, 18, 28, 0.78) 0%,
+                rgba(15, 18, 28, 0.50) 28%,
+                rgba(15, 18, 28, 0.15) 48%,
+                transparent 68%) !important;
     }
 
     /* Gradient đáy nền sáng: Nâng cao nhẹ vừa vặn bao trọn cụm thẻ, chuyển màu siêu mượt */
     html.light-mode #desktopHeroShowcase .hero-bottom-blend {
-        background: linear-gradient(180deg, 
-            transparent 0%, 
-            rgba(245, 240, 230, 0.08) 25%, 
-            rgba(245, 240, 230, 0.35) 50%, 
-            rgba(245, 240, 230, 0.75) 75%, 
-            #f5f0e6 92%, 
-            #f5f0e6 100%
-        ) !important;
+        background: linear-gradient(180deg,
+                transparent 0%,
+                rgba(245, 240, 230, 0.08) 25%,
+                rgba(245, 240, 230, 0.35) 50%,
+                rgba(245, 240, 230, 0.75) 75%,
+                #f5f0e6 92%,
+                #f5f0e6 100%) !important;
         height: 220px !important;
     }
 
@@ -1027,7 +1054,7 @@
     /* Chữ tiêu đề trên nền sáng: Sắc nét nổi bật */
     html.light-mode #desktopHeroShowcase #heroTitle {
         color: #ffffff !important;
-        text-shadow: 0 3px 12px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0,0,0,0.9) !important;
+        text-shadow: 0 3px 12px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9) !important;
     }
 
     html.light-mode #desktopHeroShowcase #heroSubtitle {

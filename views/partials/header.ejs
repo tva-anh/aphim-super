@@ -20,6 +20,24 @@
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
     }
+
+    /* Transparent Header on Movie Detail Page (with full-bleed backdrop) */
+    body.page-phim-detail #sofa-header:not(.scrolled),
+    body.page-phim-detail header#sofa-header:not(.scrolled),
+    body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled),
+    body:has(.movie-hero-backdrop-wrap) header#sofa-header:not(.scrolled),
+    body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled),
+    body:has(#movieHeroBackdrop) header#sofa-header:not(.scrolled) {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Transparent Header on Homepage (Desktop Hero Only) */
     @media (min-width: 1024px) {
         body.has-desktop-hero #sofa-header:not(.scrolled),
         body.has-desktop-hero header#sofa-header:not(.scrolled),
@@ -34,6 +52,150 @@
             -webkit-backdrop-filter: none !important;
         }
     }
+
+    /* 🔔 DARK MODE: Translucent white circular buttons */
+    html:not(.light-mode) #sofa-header .nav-bell-trigger,
+    html:not(.light-mode) #sofa-header .sofa-icon-circle-btn,
+    html:not(.light-mode) header#sofa-header .nav-bell-trigger,
+    html:not(.light-mode) header#sofa-header .sofa-icon-circle-btn {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.22) !important;
+        color: #ffffff !important;
+    }
+
+    html:not(.light-mode) #sofa-header .nav-bell-icon,
+    html:not(.light-mode) #sofa-header .nav-bell-trigger svg,
+    html:not(.light-mode) #sofa-header .sofa-icon-circle-btn svg,
+    html:not(.light-mode) header#sofa-header .nav-bell-icon,
+    html:not(.light-mode) header#sofa-header .nav-bell-trigger svg,
+    html:not(.light-mode) header#sofa-header .sofa-icon-circle-btn svg {
+        stroke: #ffffff !important;
+        color: #ffffff !important;
+        fill: none !important;
+    }
+
+    /* 🔔 LIGHT MODE DEFAULT (Solid Light Header: Watch page, Mobile, Search, Categories, Scrolled): Crisp dark icons */
+    html.light-mode #sofa-header .nav-bell-trigger,
+    html.light-mode #sofa-header .sofa-icon-circle-btn,
+    html.light-mode #sofa-header .sofa-mobile-search-btn,
+    html.light-mode header#sofa-header .nav-bell-trigger,
+    html.light-mode header#sofa-header .sofa-icon-circle-btn,
+    html.light-mode header#sofa-header .sofa-mobile-search-btn,
+    html.light-mode #sofa-header.scrolled .nav-bell-trigger,
+    html.light-mode #sofa-header.scrolled .sofa-icon-circle-btn {
+        background: #ece6da !important;
+        border: 1px solid #d6cebf !important;
+        color: #1c1917 !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html.light-mode #sofa-header .nav-bell-icon,
+    html.light-mode #sofa-header .nav-bell-trigger svg,
+    html.light-mode #sofa-header .sofa-icon-circle-btn svg,
+    html.light-mode #sofa-header .sofa-mobile-search-btn svg,
+    html.light-mode header#sofa-header .nav-bell-icon,
+    html.light-mode header#sofa-header .nav-bell-trigger svg,
+    html.light-mode header#sofa-header .sofa-icon-circle-btn svg,
+    html.light-mode header#sofa-header .sofa-mobile-search-btn svg,
+    html.light-mode #sofa-header.scrolled .nav-bell-icon,
+    html.light-mode #sofa-header.scrolled .nav-bell-trigger svg,
+    html.light-mode #sofa-header.scrolled .sofa-icon-circle-btn svg,
+    html.light-mode #sofa-header.scrolled .sofa-mobile-search-btn svg {
+        stroke: #1c1917 !important;
+        color: #1c1917 !important;
+        fill: none !important;
+    }
+
+    html.light-mode #sofa-header .sofa-menu-btn,
+    html.light-mode #sofa-header .sofa-menu-btn svg,
+    html.light-mode header#sofa-header .sofa-menu-btn,
+    html.light-mode header#sofa-header .sofa-menu-btn svg {
+        color: #1c1917 !important;
+        stroke: #1c1917 !important;
+    }
+
+    /* 🌟 LIGHT MODE: OVER TRANSPARENT BACKDROP ONLY (Desktop Hero & Movie Detail Backdrop) */
+    @media (min-width: 1024px) {
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-trigger,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-trigger,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn {
+            background: rgba(255, 255, 255, 0.22) !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-icon,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-icon,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg {
+            stroke: #ffffff !important;
+            color: #ffffff !important;
+            fill: none !important;
+        }
+
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-menu-btn,
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-nav-item,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item {
+            color: #ffffff !important;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-dropdown-arrow {
+            fill: #ffffff !important;
+            opacity: 0.95 !important;
+        }
+    }
+
+    /* Movie Detail Backdrop Header in Light Mode */
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger,
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn {
+        background: rgba(255, 255, 255, 0.22) !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-icon,
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg {
+        stroke: #ffffff !important;
+        color: #ffffff !important;
+        fill: none !important;
+    }
+
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn,
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+    }
+
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-nav-item {
+        color: #ffffff !important;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-dropdown-arrow {
+        fill: #ffffff !important;
+        opacity: 0.95 !important;
+    }
+
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .ap-user-chevron-icon,
+    html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .ap-user-chevron-icon,
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .ap-user-chevron-icon,
+    html:not(.light-mode) .ap-user-chevron-icon {
+        stroke: #ffffff !important;
+        color: #ffffff !important;
+    }
+
     body.is-scrolling iframe {
         pointer-events: none !important;
     }
@@ -42,14 +204,17 @@
         max-width: 1540px !important;
         margin: 0 auto !important;
         height: 100% !important;
-        padding: 0 24px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: 16px !important;
+        gap: 20px !important;
         box-sizing: border-box !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
     }
+
     @media (min-width: 1024px) {
+
         body.has-desktop-hero .sofa-header-container,
         body:has(#desktopHeroShowcase) .sofa-header-container {
             max-width: 1540px !important;
@@ -58,11 +223,13 @@
             padding-right: 24px !important;
         }
     }
+
     @media (max-width: 1023px) {
         .sofa-header-container {
             padding: 0 16px !important;
         }
     }
+
     @media (max-width: 480px) {
         .sofa-header-container {
             padding: 0 12px !important;
@@ -73,7 +240,7 @@
     .sofa-header-left-group {
         display: flex !important;
         align-items: center !important;
-        gap: 18px !important;
+        gap: 12px !important;
         flex-shrink: 0 !important;
         overflow: visible !important;
     }
@@ -81,7 +248,7 @@
     .sofa-left-section {
         display: flex !important;
         align-items: center !important;
-        gap: 12px !important;
+        gap: 10px !important;
         flex-shrink: 0 !important;
     }
 
@@ -116,7 +283,7 @@
     }
 
     .sofa-logo-img {
-        height: 40px !important;
+        height: 38px !important;
         width: auto !important;
         object-fit: contain !important;
     }
@@ -125,20 +292,21 @@
     .sofa-nav-links {
         display: flex !important;
         align-items: center !important;
-        gap: 12px !important;
-        margin-left: 4px !important;
+        gap: 8px !important;
+        margin-left: 2px !important;
         flex-shrink: 0 !important;
     }
 
     .sofa-nav-item {
         color: #ffffff !important;
         font-family: 'Inter', system-ui, sans-serif !important;
-        font-size: 14px !important;
+        font-size: 13.5px !important;
         font-weight: 500 !important;
         text-decoration: none !important;
         display: flex !important;
         align-items: center !important;
-        gap: 4px !important;
+        gap: 3px !important;
+        padding: 0 3px !important;
         white-space: nowrap !important;
         height: 64px !important;
         line-height: 64px !important;
@@ -152,10 +320,10 @@
     }
 
     .sofa-dropdown-arrow {
-        width: 22px !important;
-        height: 22px !important;
+        width: 18px !important;
+        height: 18px !important;
         fill: #ffffff !important;
-        opacity: 0.9 !important;
+        opacity: 0.85 !important;
         filter: none !important;
         transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), fill 0.18s ease, opacity 0.18s ease !important;
         transform-origin: center !important;
@@ -269,17 +437,21 @@
         border-radius: 20px !important;
         padding: 0 4px 0 14px !important;
         height: 40px !important;
-        width: 360px !important;
-        max-width: 360px !important;
+        width: 280px !important;
+        max-width: 300px !important;
         min-width: 180px !important;
         flex-shrink: 1 !important;
-        transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important;
+        transition: width 0.25s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important;
         box-sizing: border-box !important;
         position: relative !important;
         overflow: hidden !important;
         cursor: text !important;
+        outline: none !important;
     }
+
     .sofa-desktop-search-form:focus-within {
+        width: 320px !important;
+        max-width: 340px !important;
         background: rgba(255, 255, 255, 0.12) !important;
         border-color: #fcd576 !important;
         box-shadow: 0 0 14px rgba(252, 213, 118, 0.25) !important;
@@ -311,6 +483,8 @@
         border-right: none !important;
         outline: none !important;
         outline-offset: 0 !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
         color: #ffffff !important;
         font-size: 13.5px !important;
         font-family: inherit !important;
@@ -400,9 +574,9 @@
     }
 
     /* ── Triệt tiêu hoàn toàn hiện tượng FOUC / Chớp nháy Auth khi chuyển trang ── */
-    html.user-logged-in #authContainer > .sofa-login-rect-btn,
-    html.user-logged-in #authContainer > a[href="/profile"].sofa-login-rect-btn,
-    html.user-logged-in #authContainer > .sofa-icon-circle-btn {
+    html.user-logged-in #authContainer>.sofa-login-rect-btn,
+    html.user-logged-in #authContainer>a[href="/profile"].sofa-login-rect-btn,
+    html.user-logged-in #authContainer>.sofa-icon-circle-btn {
         display: none !important;
     }
 
@@ -412,6 +586,7 @@
         flex-shrink: 0 !important;
         min-width: max-content !important;
     }
+
     #userNavProfile {
         display: inline-flex !important;
         align-items: center !important;
@@ -419,32 +594,48 @@
         min-width: max-content !important;
         gap: 8px !important;
     }
+
     .nav-profile-dropdown {
         position: relative !important;
         padding: 0 !important;
         overflow: visible !important;
     }
+
     .ap-user-bar-trigger {
         display: inline-flex !important;
         align-items: center !important;
+        justify-content: center !important;
         gap: 8px !important;
-        padding: 4px 10px 4px 6px !important;
+        padding: 3px 10px 3px 4px !important;
         border-radius: 9999px !important;
-        background: transparent !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
         flex-shrink: 0 !important;
         white-space: nowrap !important;
         transition: all 0.2s ease !important;
         user-select: none !important;
         cursor: pointer !important;
     }
+
+    html.light-mode .ap-user-bar-trigger {
+        background: transparent !important;
+        border: 1px solid #d6cebf !important;
+        box-shadow: none !important;
+    }
+
     .ap-user-bar-trigger:hover,
     .nav-profile-dropdown.is-open .ap-user-bar-trigger {
-        background: rgba(255, 255, 255, 0.08) !important;
+        background: rgba(255, 255, 255, 0.14) !important;
+        border-color: rgba(255, 255, 255, 0.25) !important;
     }
+
     html.light-mode .ap-user-bar-trigger:hover,
     html.light-mode .nav-profile-dropdown.is-open .ap-user-bar-trigger {
-        background: rgba(0, 0, 0, 0.06) !important;
+        background: rgba(0, 0, 0, 0.04) !important;
+        border-color: #c4bba9 !important;
     }
+
     .ap-user-name-text {
         color: #ffffff !important;
         font-size: 14.5px !important;
@@ -456,34 +647,60 @@
         max-width: 130px !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        display: inline-block !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 1 !important;
         vertical-align: middle !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
         flex-shrink: 1 !important;
         cursor: pointer !important;
     }
+
+    html.light-mode .ap-user-name-text {
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 1 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
     html.light-mode .ap-user-name-text:not(.has-custom-name-color) {
         color: #1c1917 !important;
         -webkit-text-fill-color: #1c1917 !important;
     }
+
     .ap-user-chevron-icon {
         width: 14px !important;
         height: 14px !important;
         flex-shrink: 0 !important;
-        color: #94a3b8 !important;
+        color: #ffffff !important;
+        stroke: #ffffff !important;
         fill: none !important;
-        stroke: currentColor !important;
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease !important;
-        display: block !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        vertical-align: middle !important;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease, stroke 0.2s ease !important;
     }
+
     html.light-mode .ap-user-chevron-icon {
-        color: #475569 !important;
+        color: #ffffff !important;
+        stroke: #ffffff !important;
     }
+
     .ap-user-bar-trigger:hover .ap-user-chevron-icon,
     .nav-profile-dropdown.is-open .ap-user-chevron-icon,
     .nav-profile-dropdown:hover .ap-user-chevron-icon {
         transform: rotate(180deg) !important;
         color: #fcd576 !important;
+        stroke: #fcd576 !important;
     }
+
     .nav-profile-dropdown:hover .ap-user-dropdown-menu,
     .nav-profile-dropdown.is-open .ap-user-dropdown-menu {
         opacity: 1 !important;
@@ -491,9 +708,11 @@
         transform: scale(1) translateY(0) !important;
         pointer-events: auto !important;
     }
+
     .ap-user-dropdown-menu {
         pointer-events: none;
     }
+
     .ap-user-dropdown-menu::before {
         content: '';
         position: absolute;
@@ -503,24 +722,29 @@
         height: 20px;
         background: transparent;
     }
+
     @media (max-width: 1280px) {
         .ap-user-name-text {
             max-width: 100px !important;
         }
     }
+
     @media (max-width: 1024px) {
         .ap-user-name-text {
             max-width: 80px !important;
         }
     }
+
     @media (max-width: 768px) {
         #userNavProfile {
             gap: 8px !important;
         }
+
         .ap-user-bar-trigger .ap-user-name-text,
         span.ap-user-name-text {
             display: none !important;
         }
+
         .ap-user-bar-trigger .ap-user-chevron-icon,
         .ap-user-chevron-icon {
             display: block !important;
@@ -528,13 +752,17 @@
             height: 14px !important;
             margin-left: 1px !important;
             margin-right: 2px !important;
-            color: rgba(255, 255, 255, 0.75) !important;
+            color: #ffffff !important;
+            stroke: #ffffff !important;
             flex-shrink: 0 !important;
         }
+
         html.light-mode .ap-user-bar-trigger .ap-user-chevron-icon,
         html.light-mode .ap-user-chevron-icon {
-            color: #475569 !important;
+            color: #ffffff !important;
+            stroke: #ffffff !important;
         }
+
         .ap-user-bar-trigger {
             display: inline-flex !important;
             align-items: center !important;
@@ -544,6 +772,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             border-radius: 9999px !important;
         }
+
         html.light-mode .ap-user-bar-trigger {
             background: rgba(0, 0, 0, 0.04) !important;
             border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -587,6 +816,7 @@
         margin: 0 auto !important;
         width: 100% !important;
         box-sizing: border-box !important;
+        outline: none !important;
     }
 
     .sofa-mobile-search-inner-form:focus-within {
@@ -609,6 +839,9 @@
         background: transparent !important;
         border: none !important;
         outline: none !important;
+        outline-offset: 0 !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
         color: #ffffff !important;
         font-size: 14px !important;
         font-family: inherit !important;
@@ -785,6 +1018,7 @@
         overflow: hidden !important;
         gap: 5px !important;
     }
+
     /* ========================================================
        🎬 PREMIUM REELS NAVBAR PILL & SILKY 60FPS GPU WAVE
        ======================================================== */
@@ -907,14 +1141,18 @@
     }
 
     @keyframes reelsSilkyWave {
-        0%, 100% {
+
+        0%,
+        100% {
             color: #ff2b54;
             transform: translateY(0) translateZ(0);
         }
+
         25% {
             color: #ff6b8b;
             transform: translateY(-1.5px) translateZ(0);
         }
+
         50% {
             color: #ff2b54;
             transform: translateY(0) translateZ(0);
@@ -940,6 +1178,7 @@
         0% {
             transform: scale(0.95) rotate(-3deg) translateZ(0);
         }
+
         100% {
             transform: scale(1.08) rotate(3deg) translateZ(0);
         }
@@ -1003,6 +1242,7 @@
         -webkit-text-fill-color: #e11d48 !important;
         font-weight: 800 !important;
     }
+
     html.light-mode #sofa-header.scrolled .reels-nav-pill:hover,
     html.light-mode header.scrolled .reels-nav-pill:hover,
     .light-mode #sofa-header.scrolled .reels-nav-pill:hover,
@@ -1013,24 +1253,31 @@
         border-color: #d97706 !important;
         box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
     }
+
     html.light-mode .reels-char,
     .light-mode .reels-char {
         color: #e11d48 !important;
         text-shadow: none !important;
     }
+
     html.light-mode .reels-shimmer-text .reels-char {
         animation: reelsSilkyWaveLight 2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
         animation-delay: calc(var(--char-index) * 0.12s) !important;
     }
+
     @keyframes reelsSilkyWaveLight {
-        0%, 100% {
+
+        0%,
+        100% {
             color: #e11d48;
             transform: translateY(0) translateZ(0);
         }
+
         25% {
             color: #ff3b65;
             transform: translateY(-1.5px) translateZ(0);
         }
+
         50% {
             color: #e11d48;
             transform: translateY(0) translateZ(0);
@@ -1070,8 +1317,15 @@
     }
 
     @keyframes flameSpinPulse {
-        0% { transform: scale(1) rotate(0deg); opacity: 0.9; }
-        100% { transform: scale(1.2) rotate(-8deg); opacity: 1; }
+        0% {
+            transform: scale(1) rotate(0deg);
+            opacity: 0.9;
+        }
+
+        100% {
+            transform: scale(1.2) rotate(-8deg);
+            opacity: 1;
+        }
     }
 
     /* 🚀 YouTube-style Global Top Progress Bar */
@@ -1093,40 +1347,50 @@
     /* ── RESPONSIVE COMPACT MEDIA QUERIES FOR 110% ZOOM & MEDIUM SCREENS (1380px - 1536px) ── */
     @media (max-width: 1536px) {
         .sofa-header-left-group {
-            gap: 14px !important;
-        }
-        .sofa-nav-links {
             gap: 10px !important;
+        }
+
+        .sofa-nav-links {
+            gap: 6px !important;
             margin-left: 0 !important;
         }
+
         .sofa-nav-item {
             font-size: 13px !important;
+            padding: 0 2px !important;
         }
+
         .sofa-desktop-search-form {
-            width: 250px !important;
-            max-width: 250px !important;
+            width: 240px !important;
+            max-width: 260px !important;
             padding: 0 3px 0 10px !important;
         }
     }
 
     @media (max-width: 1440px) {
         .sofa-header-left-group {
-            gap: 10px !important;
+            gap: 8px !important;
         }
+
         .sofa-nav-links {
-            gap: 6px !important;
+            gap: 4px !important;
         }
+
         .sofa-nav-item {
             font-size: 12.5px !important;
+            padding: 0 1px !important;
         }
+
         .sofa-desktop-search-form {
-            width: 210px !important;
-            max-width: 210px !important;
+            width: 200px !important;
+            max-width: 220px !important;
             padding: 0 3px 0 10px !important;
         }
+
         .sofa-desktop-search-input {
             font-size: 12px !important;
         }
+
         .sofa-inner-filter-btn {
             padding: 0 5px !important;
             font-size: 10.5px !important;
@@ -1153,7 +1417,7 @@
         }
 
         .sofa-logo-img {
-            height: 32px !important;
+            height: 38px !important;
         }
 
         .sofa-right-section {
@@ -1194,8 +1458,6 @@
             padding-right: 12px !important;
         }
     }
-
-
 </style>
 
 <header id="sofa-header">
@@ -1203,7 +1465,8 @@
         <!-- Left Section: Hamburger Icon + Logo Image + Desktop Nav Links -->
         <div class="sofa-header-left-group">
             <div class="sofa-left-section">
-                <button type="button" onclick="toggleMobileHeaderMenu()" class="sofa-menu-btn" title="Danh mục" aria-label="Menu">
+                <button type="button" onclick="toggleMobileHeaderMenu()" class="sofa-menu-btn" title="Danh mục"
+                    aria-label="Menu">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
@@ -1212,7 +1475,8 @@
                 <a href="/" class="sofa-logo-link">
                     <picture>
                         <source srcset="/logo-aphim1.webp" type="image/webp" />
-                        <img src="/logo-aphim1.png" alt="APhim Logo" class="sofa-logo-img" width="240" height="100" fetchpriority="high" decoding="async" />
+                        <img src="/logo-aphim1.png" alt="APhim Logo" class="sofa-logo-img" width="240" height="100"
+                            fetchpriority="high" decoding="async" />
                     </picture>
                 </a>
             </div>
@@ -1223,7 +1487,9 @@
                 <div class="sofa-dropdown">
                     <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">
                         Loại Phim
-                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z" /></svg>
+                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24">
+                            <path d="M6 9l6 6 6-6z" />
+                        </svg>
                     </a>
                     <div class="sofa-dropdown-menu grid-3">
                         <a href="/danh-sach?list=phim-moi-cap-nhat" class="sofa-dropdown-link">Phim Mới</a>
@@ -1238,7 +1504,8 @@
                         <a href="/danh-sach?list=phim-bo-da-xong" class="sofa-dropdown-link">Bộ Đã Xong</a>
                         <a href="/danh-sach?list=phim-sap-chieu" class="sofa-dropdown-link">Sắp Chiếu</a>
                         <a href="/danh-sach?list=subteam" class="sofa-dropdown-link">Subteam</a>
-                        <a href="/danh-sach?list=phim-chieu-rap" class="sofa-dropdown-link col-span-full">Phim Chiếu Rạp</a>
+                        <a href="/danh-sach?list=phim-chieu-rap" class="sofa-dropdown-link col-span-full">Phim Chiếu
+                            Rạp</a>
                     </div>
                 </div>
 
@@ -1246,7 +1513,9 @@
                 <div class="sofa-dropdown">
                     <a href="/categories" class="sofa-nav-item">
                         Thể Loại
-                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z" /></svg>
+                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24">
+                            <path d="M6 9l6 6 6-6z" />
+                        </svg>
                     </a>
                     <div class="sofa-dropdown-menu grid-4">
                         <a href="/categories?category=hanh-dong" class="sofa-dropdown-link">Hành Động</a>
@@ -1276,7 +1545,9 @@
                 <div class="sofa-dropdown">
                     <a href="/phim-theo-quoc-gia" class="sofa-nav-item">
                         Quốc Gia
-                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z" /></svg>
+                        <svg class="sofa-dropdown-arrow" viewBox="0 0 24 24">
+                            <path d="M6 9l6 6 6-6z" />
+                        </svg>
                     </a>
                     <div class="sofa-dropdown-menu grid-4">
                         <a href="/phim-theo-quoc-gia?country=viet-nam" class="sofa-dropdown-link">Việt Nam</a>
@@ -1302,7 +1573,10 @@
                 <a href="/reels" class="sofa-nav-item reels-nav-pill" title="Xem video ngắn Reels & Review phim">
                     <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥">
                     <span class="reels-shimmer-text">
-                        <span class="reels-char" style="--char-index:0">R</span><span class="reels-char" style="--char-index:1">e</span><span class="reels-char" style="--char-index:2">e</span><span class="reels-char" style="--char-index:3">l</span><span class="reels-char" style="--char-index:4">s</span>
+                        <span class="reels-char" style="--char-index:0">R</span><span class="reels-char"
+                            style="--char-index:1">e</span><span class="reels-char" style="--char-index:2">e</span><span
+                            class="reels-char" style="--char-index:3">l</span><span class="reels-char"
+                            style="--char-index:4">s</span>
                     </span>
                 </a>
 
@@ -1324,38 +1598,50 @@
         <div class="sofa-right-section">
             <!-- 1. Desktop Search Form (Single Container with Embedded Inner Filter Button) -->
             <form action="/search" method="GET" class="sofa-desktop-search-form">
-                <svg class="sofa-desktop-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <svg class="sofa-desktop-search-icon" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <input type="text" name="keyword" placeholder="Tìm kiếm phim, diễn viên..." class="sofa-desktop-search-input" autocomplete="off" />
+                <input type="text" name="keyword" placeholder="Tìm kiếm phim, diễn viên..."
+                    class="sofa-desktop-search-input" autocomplete="off" />
                 <a href="/danh-sach" class="sofa-inner-filter-btn" title="Bộ lọc phim">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                        </path>
                     </svg>
                     <span>Bộ lọc</span>
                 </a>
             </form>
 
             <!-- 2. Mobile Circular Search Button (Visible on Mobile) -->
-            <button type="button" id="sofa-mobile-search-btn" onclick="toggleMobileSearchOverlay()" class="sofa-icon-circle-btn sofa-mobile-search-btn" title="Tìm kiếm" aria-label="Tìm kiếm">
+            <button type="button" id="sofa-mobile-search-btn" onclick="toggleMobileSearchOverlay()"
+                class="sofa-icon-circle-btn sofa-mobile-search-btn" title="Tìm kiếm" aria-label="Tìm kiếm">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </button>
 
             <!-- Auth / Profile Container (Dynamically updated by user-ui.js when logged in) -->
             <div id="authContainer" style="display: inline-flex; align-items: center; gap: 10px;">
-                <a href="#" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }" class="sofa-icon-circle-btn" title="Thông báo" aria-label="Thông báo">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                <a href="#" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }"
+                    class="sofa-icon-circle-btn" title="Thông báo" aria-label="Thông báo">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.8"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                        </path>
                     </svg>
                 </a>
-                <a href="/profile" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }" class="sofa-login-rect-btn">Đăng nhập</a>
+                <a href="/profile" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }"
+                    class="sofa-login-rect-btn">Đăng nhập</a>
             </div>
             <script>
                 // ⚡ ZERO-FLICKER INSTANT AUTH HYDRATION
                 // Runs synchronously before the browser paints this section of the DOM
-                (function() {
+                (function () {
                     try {
                         var rawUser = localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user');
                         var token = localStorage.getItem('cinestream_token');
@@ -1379,15 +1665,15 @@
                                         if (rawNotifs) {
                                             var notifList = JSON.parse(rawNotifs);
                                             if (Array.isArray(notifList)) {
-                                                unreadCount = notifList.filter(function(n) { return n && !n.isRead && !n.read; }).length;
+                                                unreadCount = notifList.filter(function (n) { return n && !n.isRead && !n.read; }).length;
                                             }
                                         }
-                                    } catch(e) {}
+                                    } catch (e) { }
 
                                     var frameUrl = (u.equippedFrameUrl) || localStorage.getItem('ap_frame_url') || localStorage.getItem('ap_equipped_frame_url') || '';
                                     var frameClass = (u.equippedFrameClass) || localStorage.getItem('ap_frame_class') || '';
 
-                                    var innerAvatar = savedAvatar 
+                                    var innerAvatar = savedAvatar
                                         ? '<img src="' + savedAvatar + '" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;" onerror="this.outerHTML=\'<span style=\\\'color:#1a1100; font-weight:800; font-size:16px;\\\'>' + initial + '</span>\'"/>'
                                         : '<span style="color:#1a1100; font-weight:800; font-size:16px;">' + initial + '</span>';
 
@@ -1396,7 +1682,7 @@
                                         avatarHtml = '<div class="user-avatar-frame-wrap" style="position:relative; display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; flex-shrink:0;">' +
                                             '<div class="user-avatar-inner" style="width:100%; height:100%; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important; position:relative; z-index:1; font-size:16px; font-weight:900; color:#1a1000 !important; box-shadow:0 4px 14px rgba(245,158,11,0.45);">' + innerAvatar + '</div>' +
                                             '<img src="' + frameUrl + '" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:120%; height:120%; max-width:none; max-height:none; object-fit:contain; pointer-events:none; z-index:5;" alt="frame">' +
-                                        '</div>';
+                                            '</div>';
                                     } else if (frameClass && frameClass !== 'none') {
                                         avatarHtml = '<div class="shop-frame-wrap size-xs ' + frameClass + '" style="width:38px; height:38px; flex-shrink:0; position:relative; z-index:2;">' + innerAvatar + '</div>';
                                     } else {
@@ -1409,80 +1695,80 @@
 
                                     var notifBell = '<div class="relative flex items-center" id="navNotificationBtn" style="cursor:pointer; z-index: 60; margin-right: 0px; flex-shrink:0;">' +
                                         '<button type="button" class="nav-bell-trigger relative" aria-label="Thông báo" title="Thông báo">' +
-                                            '<svg class="nav-bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                                                '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"></path>' +
-                                            '</svg>' +
-                                            notifBadgeHtml +
+                                        '<svg class="nav-bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                                        '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"></path>' +
+                                        '</svg>' +
+                                        notifBadgeHtml +
                                         '</button>' +
                                         '<div id="navNotifPanel" class="nav-notif-dropdown invisible opacity-0 translate-y-3 scale-95 transition-all duration-200">' +
-                                            '<div id="notifArrow" class="nav-notif-arrow"></div>' +
-                                            '<div class="nav-notif-header">' +
-                                                '<div class="nav-notif-header-title">' +
-                                                    '<div class="nav-notif-title-row">' +
-                                                        '<span class="nav-notif-title-text">Thông Báo</span>' +
-                                                        '<span id="notifCountBadge" class="nav-notif-count-pill ' + (unreadCount > 0 ? '' : 'hidden') + '">' + unreadCount + ' Mới</span>' +
-                                                    '</div>' +
-                                                    '<span class="nav-notif-sub-text">Cập nhật tin tức &amp; ưu đãi VIP</span>' +
-                                                '</div>' +
-                                                '<button type="button" onclick="event.stopPropagation(); if(window.markAllNotifsRead) markAllNotifsRead();" class="nav-notif-mark-read-btn" title="Đánh dấu tất cả là đã đọc">' +
-                                                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' +
-                                                    '<span>Đã đọc</span>' +
-                                                '</button>' +
-                                            '</div>' +
-                                            '<div id="notifListContainer" class="nav-notif-list custom-scrollbar"></div>' +
-                                            '<div class="nav-notif-footer">' +
-                                                '<a href="/profile?tab=notifications" class="nav-notif-view-all-btn">' +
-                                                    '<span>Xem tất cả thông báo</span>' +
-                                                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
-                                                        '<path d="M5 12h14M12 5l7 7-7 7"/>' +
-                                                    '</svg>' +
-                                                '</a>' +
-                                            '</div>' +
+                                        '<div id="notifArrow" class="nav-notif-arrow"></div>' +
+                                        '<div class="nav-notif-header">' +
+                                        '<div class="nav-notif-header-title">' +
+                                        '<div class="nav-notif-title-row">' +
+                                        '<span class="nav-notif-title-text">Thông Báo</span>' +
+                                        '<span id="notifCountBadge" class="nav-notif-count-pill ' + (unreadCount > 0 ? '' : 'hidden') + '">' + unreadCount + ' Mới</span>' +
                                         '</div>' +
-                                    '</div>';
+                                        '<span class="nav-notif-sub-text">Cập nhật tin tức &amp; ưu đãi VIP</span>' +
+                                        '</div>' +
+                                        '<button type="button" onclick="event.stopPropagation(); if(window.markAllNotifsRead) markAllNotifsRead();" class="nav-notif-mark-read-btn" title="Đánh dấu tất cả là đã đọc">' +
+                                        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' +
+                                        '<span>Đã đọc</span>' +
+                                        '</button>' +
+                                        '</div>' +
+                                        '<div id="notifListContainer" class="nav-notif-list custom-scrollbar"></div>' +
+                                        '<div class="nav-notif-footer">' +
+                                        '<a href="/profile?tab=notifications" class="nav-notif-view-all-btn">' +
+                                        '<span>Xem tất cả thông báo</span>' +
+                                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                                        '<path d="M5 12h14M12 5l7 7-7 7"/>' +
+                                        '</svg>' +
+                                        '</a>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
 
                                     var profileLink = '<div id="userNavProfile" class="flex items-center" style="position: relative; z-index: 50; gap: 8px;" data-user-id="' + userId + '">' +
                                         notifBell +
                                         '<div class="relative group nav-profile-dropdown" style="padding: 0; overflow: visible !important;">' +
-                                            '<div class="ap-user-bar-trigger flex items-center gap-2.5 px-2 py-1 rounded-full cursor-pointer transition-all duration-200" style="user-select: none;" title="' + displayName.replace(/"/g, '&quot;') + '" onclick="this.parentElement.classList.toggle(\'is-open\')">' +
-                                                avatarHtml +
-                                                '<span class="ap-user-name-text" title="' + displayName.replace(/"/g, '&quot;') + '" style="font-size: 14.5px !important; font-weight: 900 !important; font-family: \'Montserrat\', \'Oswald\', \'Be Vietnam Pro\', system-ui, sans-serif !important; letter-spacing: 0.03em !important; text-transform: none !important; white-space: nowrap !important; max-width: 130px !important; overflow: hidden !important; text-overflow: ellipsis !important; vertical-align: middle !important;">' +
-                                                    displayName +
-                                                '</span>' +
-                                                '<svg class="ap-user-chevron-icon" style="width:14px; height:14px; flex-shrink:0; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease; display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' +
-                                                    '<path d="m6 9 6 6 6-6"/>' +
-                                                '</svg>' +
-                                            '</div>' +
-                                            '<div class="ap-user-dropdown-menu" style="position:absolute; right:0; top:calc(100% + 12px); opacity:0; visibility:hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s; z-index:999999; transform: scale(0.95) translateY(-6px); transform-origin: top right; width:280px; background:#1e2235; border:1px solid rgba(255,255,255,0.12); border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04); padding:20px 16px 16px 16px; backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);">' +
-                                                '<div style="display:flex; align-items:center; gap:8px; padding:0 4px; margin-bottom:16px;">' +
-                                                    '<span class="ap-dropdown-user-name" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:\'Montserrat\', \'Oswald\', \'Be Vietnam Pro\', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; display:inline-block;" title="' + displayName.replace(/"/g, '&quot;') + '">' + displayName + '</span>' +
-                                                    '<span class="ap-vip-modern-badge" title="Thành viên VIP" style="display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">' +
-                                                        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block; filter:drop-shadow(0 2px 8px rgba(129,140,248,0.7));"><polygon points="12,1.5 9.5,9.5 12,12" fill="#a5b4fc"/><polygon points="12,1.5 14.5,9.5 12,12" fill="#818cf8"/><polygon points="22.5,12 14.5,9.5 12,12" fill="#c084fc"/><polygon points="22.5,12 14.5,14.5 12,12" fill="#f472b6"/><polygon points="12,22.5 14.5,14.5 12,12" fill="#ec4899"/><polygon points="12,22.5 9.5,14.5 12,12" fill="#7c3aed"/><polygon points="1.5,12 9.5,14.5 12,12" fill="#38bdf8"/><polygon points="1.5,12 9.5,9.5 12,12" fill="#67e8f9"/><polygon points="12,8.5 13.8,12 12,15.5 10.2,12" fill="#ffffff" opacity="0.9"/></svg>' +
-                                                    '</span>' +
-                                                '</div>' +
-                                                '<div style="display:flex; flex-direction:column; gap:3px;">' +
-                                                    '<a href="/profile?tab=account" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#818cf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Thông tin cá nhân</span></a>' +
-                                                    '<a href="/profile?tab=shop" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#fbbf24;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Cửa hàng</span></a>' +
-                                                    '<a href="/profile?tab=favorites" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#fb7185;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Yêu thích</span></a>' +
-                                                    '<a href="/profile?tab=history" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(34,197,94,0.18); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#4ade80;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Lịch sử xem</span></a>' +
-                                                    '<a href="/profile?tab=watchlist" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#38bdf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Danh sách phát</span></a>' +
-                                                    '<a href="/profile?tab=cinema" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#c084fc;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2 7 4.41-4.41A2 2 0 017.83 2h8.34a2 2 0 011.42.59L22 7M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M15 22v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4M2 7h20"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Lịch chiếu rạp</span></a>' +
-                                                    '<a href="/profile?tab=achievements" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#f59e0b;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Thành tựu</span></a>' +
-                                                    '<a href="/profile?tab=settings" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(100,116,139,0.22); border:1px solid rgba(100,116,139,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#94a3b8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Cài đặt tiện ích</span></a>' +
-                                                '</div>' +
-                                                '<div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">' +
-                                                    '<button onclick="if(window.doLogout){window.doLogout();}else if(window.authService){window.authService.logout();}else{localStorage.clear();window.location.href=\'/\';}" style="width:100%; display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.18); cursor:pointer;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#ef4444;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg></span><span style="color:#ef4444; font-size:13.5px; font-weight:600;">Thoát</span></button>' +
-                                                '</div>' +
-                                            '</div>' +
+                                        '<div class="ap-user-bar-trigger flex items-center gap-2.5 px-2 py-1 rounded-full cursor-pointer transition-all duration-200" style="user-select: none;" title="' + displayName.replace(/"/g, '&quot;') + '" onclick="this.parentElement.classList.toggle(\'is-open\')">' +
+                                        avatarHtml +
+                                        '<span class="ap-user-name-text" title="' + displayName.replace(/"/g, '&quot;') + '" style="font-size: 14.5px !important; font-weight: 900 !important; font-family: \'Montserrat\', \'Oswald\', \'Be Vietnam Pro\', system-ui, sans-serif !important; letter-spacing: 0.03em !important; text-transform: none !important; white-space: nowrap !important; max-width: 130px !important; overflow: hidden !important; text-overflow: ellipsis !important; vertical-align: middle !important;">' +
+                                        displayName +
+                                        '</span>' +
+                                        '<svg class="ap-user-chevron-icon" style="width:14px; height:14px; flex-shrink:0; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease; display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' +
+                                        '<path d="m6 9 6 6 6-6"/>' +
+                                        '</svg>' +
                                         '</div>' +
-                                    '</div>';
+                                        '<div class="ap-user-dropdown-menu" style="position:absolute; right:0; top:calc(100% + 12px); opacity:0; visibility:hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s; z-index:999999; transform: scale(0.95) translateY(-6px); transform-origin: top right; width:280px; background:#1e2235; border:1px solid rgba(255,255,255,0.12); border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04); padding:20px 16px 16px 16px; backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);">' +
+                                        '<div style="display:flex; align-items:center; gap:8px; padding:0 4px; margin-bottom:16px;">' +
+                                        '<span class="ap-dropdown-user-name" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:\'Montserrat\', \'Oswald\', \'Be Vietnam Pro\', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; display:inline-block;" title="' + displayName.replace(/"/g, '&quot;') + '">' + displayName + '</span>' +
+                                        '<span class="ap-vip-modern-badge" title="Thành viên VIP" style="display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">' +
+                                        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block; filter:drop-shadow(0 2px 8px rgba(129,140,248,0.7));"><polygon points="12,1.5 9.5,9.5 12,12" fill="#a5b4fc"/><polygon points="12,1.5 14.5,9.5 12,12" fill="#818cf8"/><polygon points="22.5,12 14.5,9.5 12,12" fill="#c084fc"/><polygon points="22.5,12 14.5,14.5 12,12" fill="#f472b6"/><polygon points="12,22.5 14.5,14.5 12,12" fill="#ec4899"/><polygon points="12,22.5 9.5,14.5 12,12" fill="#7c3aed"/><polygon points="1.5,12 9.5,14.5 12,12" fill="#38bdf8"/><polygon points="1.5,12 9.5,9.5 12,12" fill="#67e8f9"/><polygon points="12,8.5 13.8,12 12,15.5 10.2,12" fill="#ffffff" opacity="0.9"/></svg>' +
+                                        '</span>' +
+                                        '</div>' +
+                                        '<div style="display:flex; flex-direction:column; gap:3px;">' +
+                                        '<a href="/profile?tab=account" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#818cf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Thông tin cá nhân</span></a>' +
+                                        '<a href="/profile?tab=shop" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#fbbf24;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Cửa hàng</span></a>' +
+                                        '<a href="/profile?tab=favorites" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#fb7185;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Yêu thích</span></a>' +
+                                        '<a href="/profile?tab=history" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(34,197,94,0.18); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#4ade80;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Lịch sử xem</span></a>' +
+                                        '<a href="/profile?tab=watchlist" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#38bdf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Danh sách phát</span></a>' +
+                                        '<a href="/profile?tab=cinema" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#c084fc;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2 7 4.41-4.41A2 2 0 017.83 2h8.34a2 2 0 011.42.59L22 7M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M15 22v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4M2 7h20"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Lịch chiếu rạp</span></a>' +
+                                        '<a href="/profile?tab=achievements" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#f59e0b;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Thành tựu</span></a>' +
+                                        '<a href="/profile?tab=settings" style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(100,116,139,0.22); border:1px solid rgba(100,116,139,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#94a3b8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span><span style="color:#e2e8f0; font-size:13.5px; font-weight:500;">Cài đặt tiện ích</span></a>' +
+                                        '</div>' +
+                                        '<div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.07);">' +
+                                        '<button onclick="if(window.doLogout){window.doLogout();}else if(window.authService){window.authService.logout();}else{localStorage.clear();window.location.href=\'/\';}" style="width:100%; display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.18); cursor:pointer;"><span style="width:30px; height:30px; border-radius:9px; background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg style="width:14px; height:14px; color:#ef4444;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg></span><span style="color:#ef4444; font-size:13.5px; font-weight:600;">Thoát</span></button>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>';
 
                                     container.innerHTML = profileLink;
                                     container.style.setProperty('overflow', 'visible', 'important');
                                 }
                             }
                         }
-                    } catch(e) {}
+                    } catch (e) { }
                 })();
             </script>
         </div>
@@ -1492,11 +1778,14 @@
 <!-- Mobile / Desktop Search Overlay Dropdown -->
 <div id="sofa-mobile-search-overlay" class="sofa-mobile-search-overlay">
     <form action="/search" method="GET" class="sofa-mobile-search-inner-form">
-        <svg class="sofa-mobile-search-input-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg class="sofa-mobile-search-input-icon" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-        <input type="text" name="keyword" placeholder="Tìm kiếm phim, diễn viên..." class="sofa-mobile-search-input-field" autocomplete="off" />
-        <button type="button" onclick="closeMobileSearchOverlay()" class="sofa-mobile-search-close-btn" aria-label="Đóng tìm kiếm">
+        <input type="text" name="keyword" placeholder="Tìm kiếm phim, diễn viên..."
+            class="sofa-mobile-search-input-field" autocomplete="off" />
+        <button type="button" onclick="closeMobileSearchOverlay()" class="sofa-mobile-search-close-btn"
+            aria-label="Đóng tìm kiếm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -1519,78 +1808,129 @@
         <div class="drawer-accordion-group">
             <!-- 1. Loại Phim Accordion -->
             <div class="drawer-accordion-item" id="drawer-acc-loai">
-                <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-loai')">
+                <button type="button" class="drawer-accordion-header"
+                    onclick="toggleDrawerAccordion('drawer-acc-loai')">
                     <span>Loại Phim</span>
-                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
+                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6z" />
+                    </svg>
                 </button>
                 <div class="drawer-accordion-body">
                     <div class="drawer-grid-2">
-                        <a href="/danh-sach?list=phim-moi-cap-nhat" class="drawer-sub-link" style="color: #818cf8 !important;">Phim Mới Cập Nhật</a>
-                        <a href="/danh-sach?list=phim-le" class="drawer-sub-link" style="color: #60a5fa !important;">Phim Lẻ</a>
-                        <a href="/danh-sach?list=phim-bo" class="drawer-sub-link" style="color: #60a5fa !important;">Phim Bộ</a>
-                        <a href="/danh-sach?list=hoat-hinh" class="drawer-sub-link" style="color: #34d399 !important;">Hoạt Hình</a>
-                        <a href="/danh-sach?list=tv-shows" class="drawer-sub-link" style="color: #c084fc !important;">TV Shows</a>
-                        <a href="/danh-sach?list=phim-chieu-rap" class="drawer-sub-link" style="color: #818cf8 !important;">Phim Chiếu Rạp</a>
+                        <a href="/danh-sach?list=phim-moi-cap-nhat" class="drawer-sub-link"
+                            style="color: #818cf8 !important;">Phim Mới Cập Nhật</a>
+                        <a href="/danh-sach?list=phim-le" class="drawer-sub-link"
+                            style="color: #60a5fa !important;">Phim Lẻ</a>
+                        <a href="/danh-sach?list=phim-bo" class="drawer-sub-link"
+                            style="color: #60a5fa !important;">Phim Bộ</a>
+                        <a href="/danh-sach?list=hoat-hinh" class="drawer-sub-link"
+                            style="color: #34d399 !important;">Hoạt Hình</a>
+                        <a href="/danh-sach?list=tv-shows" class="drawer-sub-link" style="color: #c084fc !important;">TV
+                            Shows</a>
+                        <a href="/danh-sach?list=phim-chieu-rap" class="drawer-sub-link"
+                            style="color: #818cf8 !important;">Phim Chiếu Rạp</a>
                     </div>
                 </div>
             </div>
 
             <!-- 2. Thể Loại Accordion -->
             <div class="drawer-accordion-item" id="drawer-acc-theloai">
-                <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-theloai')">
+                <button type="button" class="drawer-accordion-header"
+                    onclick="toggleDrawerAccordion('drawer-acc-theloai')">
                     <span>Thể Loại</span>
-                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
+                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6z" />
+                    </svg>
                 </button>
                 <div class="drawer-accordion-body">
                     <div class="drawer-grid-2">
-                        <a href="/categories?category=chinh-kich" class="drawer-sub-link" style="color: #818cf8 !important;">Chính Kịch</a>
-                        <a href="/categories?category=bi-an" class="drawer-sub-link" style="color: #60a5fa !important;">Bí Ẩn</a>
-                        <a href="/categories?category=tinh-cam" class="drawer-sub-link" style="color: #f472b6 !important;">Tình Cảm</a>
-                        <a href="/categories?category=tam-ly" class="drawer-sub-link" style="color: #38bdf8 !important;">Tâm Lý</a>
-                        <a href="/categories?category=hanh-dong" class="drawer-sub-link" style="color: #818cf8 !important;">Hành Động</a>
-                        <a href="/categories?category=phieu-luu" class="drawer-sub-link" style="color: #38bdf8 !important;">Phiêu Lưu</a>
-                        <a href="/categories?category=hai-huoc" class="drawer-sub-link" style="color: #f472b6 !important;">Hài Hước</a>
-                        <a href="/categories?category=khoa-hoc" class="drawer-sub-link" style="color: #c084fc !important;">Khoa Học</a>
-                        <a href="/categories?category=vien-tuong" class="drawer-sub-link" style="color: #c084fc !important;">Viễn Tưởng</a>
-                        <a href="/categories?category=gia-dinh" class="drawer-sub-link" style="color: #fbbf24 !important;">Gia Đình</a>
-                        <a href="/categories?category=co-trang" class="drawer-sub-link" style="color: #4ade80 !important;">Cổ Trang</a>
-                        <a href="/categories?category=hinh-su" class="drawer-sub-link" style="color: #f87171 !important;">Hình Sự</a>
-                        <a href="/categories?category=vo-thuat" class="drawer-sub-link" style="color: #fbbf24 !important;">Võ Thuật</a>
-                        <a href="/categories?category=than-thoai" class="drawer-sub-link" style="color: #34d399 !important;">Thần Thoại</a>
-                        <a href="/categories?category=tai-lieu" class="drawer-sub-link" style="color: #fbbf24 !important;">Tài Liệu</a>
-                        <a href="/categories?category=the-thao" class="drawer-sub-link" style="color: #a3e635 !important;">Thể Thao</a>
-                        <a href="/categories?category=chien-tranh" class="drawer-sub-link" style="color: #38bdf8 !important;">Chiến Tranh</a>
-                        <a href="/categories?category=hoc-duong" class="drawer-sub-link" style="color: #38bdf8 !important;">Trẻ Em</a>
+                        <a href="/categories?category=chinh-kich" class="drawer-sub-link"
+                            style="color: #818cf8 !important;">Chính Kịch</a>
+                        <a href="/categories?category=bi-an" class="drawer-sub-link"
+                            style="color: #60a5fa !important;">Bí Ẩn</a>
+                        <a href="/categories?category=tinh-cam" class="drawer-sub-link"
+                            style="color: #f472b6 !important;">Tình Cảm</a>
+                        <a href="/categories?category=tam-ly" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Tâm Lý</a>
+                        <a href="/categories?category=hanh-dong" class="drawer-sub-link"
+                            style="color: #818cf8 !important;">Hành Động</a>
+                        <a href="/categories?category=phieu-luu" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Phiêu Lưu</a>
+                        <a href="/categories?category=hai-huoc" class="drawer-sub-link"
+                            style="color: #f472b6 !important;">Hài Hước</a>
+                        <a href="/categories?category=khoa-hoc" class="drawer-sub-link"
+                            style="color: #c084fc !important;">Khoa Học</a>
+                        <a href="/categories?category=vien-tuong" class="drawer-sub-link"
+                            style="color: #c084fc !important;">Viễn Tưởng</a>
+                        <a href="/categories?category=gia-dinh" class="drawer-sub-link"
+                            style="color: #fbbf24 !important;">Gia Đình</a>
+                        <a href="/categories?category=co-trang" class="drawer-sub-link"
+                            style="color: #4ade80 !important;">Cổ Trang</a>
+                        <a href="/categories?category=hinh-su" class="drawer-sub-link"
+                            style="color: #f87171 !important;">Hình Sự</a>
+                        <a href="/categories?category=vo-thuat" class="drawer-sub-link"
+                            style="color: #fbbf24 !important;">Võ Thuật</a>
+                        <a href="/categories?category=than-thoai" class="drawer-sub-link"
+                            style="color: #34d399 !important;">Thần Thoại</a>
+                        <a href="/categories?category=tai-lieu" class="drawer-sub-link"
+                            style="color: #fbbf24 !important;">Tài Liệu</a>
+                        <a href="/categories?category=the-thao" class="drawer-sub-link"
+                            style="color: #a3e635 !important;">Thể Thao</a>
+                        <a href="/categories?category=chien-tranh" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Chiến Tranh</a>
+                        <a href="/categories?category=hoc-duong" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Trẻ Em</a>
                     </div>
                 </div>
             </div>
 
             <!-- 3. Quốc Gia Accordion -->
             <div class="drawer-accordion-item" id="drawer-acc-quocgia">
-                <button type="button" class="drawer-accordion-header" onclick="toggleDrawerAccordion('drawer-acc-quocgia')">
+                <button type="button" class="drawer-accordion-header"
+                    onclick="toggleDrawerAccordion('drawer-acc-quocgia')">
                     <span>Quốc Gia</span>
-                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6z"/></svg>
+                    <svg class="drawer-accordion-icon" viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6z" />
+                    </svg>
                 </button>
                 <div class="drawer-accordion-body">
                     <div class="drawer-grid-2">
-                        <a href="/phim-theo-quoc-gia?country=thai-lan" class="drawer-sub-link" style="color: #38bdf8 !important;">Thái Lan</a>
-                        <a href="/phim-theo-quoc-gia?country=nhat-ban" class="drawer-sub-link" style="color: #34d399 !important;">Nhật Bản</a>
-                        <a href="/phim-theo-quoc-gia?country=viet-nam" class="drawer-sub-link" style="color: #f472b6 !important;">Việt Nam</a>
-                        <a href="/phim-theo-quoc-gia?country=au-my" class="drawer-sub-link" style="color: #818cf8 !important;">Âu Mỹ</a>
-                        <a href="/phim-theo-quoc-gia?country=trung-quoc" class="drawer-sub-link" style="color: #a5b4fc !important;">Trung Quốc</a>
-                        <a href="/phim-theo-quoc-gia?country=ba-lan" class="drawer-sub-link" style="color: #60a5fa !important;">Ba Lan</a>
-                        <a href="/phim-theo-quoc-gia?country=han-quoc" class="drawer-sub-link" style="color: #f472b6 !important;">Hàn Quốc</a>
-                        <a href="/phim-theo-quoc-gia?country=anh" class="drawer-sub-link" style="color: #c084fc !important;">Anh</a>
-                        <a href="/phim-theo-quoc-gia?country=dai-loan" class="drawer-sub-link" style="color: #a5b4fc !important;">Đài Loan</a>
-                        <a href="/phim-theo-quoc-gia?country=tay-ban-nha" class="drawer-sub-link" style="color: #c084fc !important;">Tây Ban Nha</a>
-                        <a href="/phim-theo-quoc-gia?country=thuy-si" class="drawer-sub-link" style="color: #4ade80 !important;">Thụy Sĩ</a>
-                        <a href="/phim-theo-quoc-gia?country=hong-kong" class="drawer-sub-link" style="color: #f87171 !important;">Hồng Kông</a>
-                        <a href="/phim-theo-quoc-gia?country=estonia" class="drawer-sub-link" style="color: #fbbf24 !important;">Estonia</a>
-                        <a href="/phim-theo-quoc-gia?country=uc" class="drawer-sub-link" style="color: #38bdf8 !important;">Úc</a>
-                        <a href="/phim-theo-quoc-gia?country=indonesia" class="drawer-sub-link" style="color: #fbbf24 !important;">Malaysia</a>
-                        <a href="/phim-theo-quoc-gia?country=canada" class="drawer-sub-link" style="color: #a3e635 !important;">Canada</a>
-                        <a href="/phim-theo-quoc-gia?country=an-do" class="drawer-sub-link" style="color: #38bdf8 !important;">Ấn Độ</a>
-                        <a href="/phim-theo-quoc-gia?country=nga" class="drawer-sub-link" style="color: #818cf8 !important;">Nga</a>
+                        <a href="/phim-theo-quoc-gia?country=thai-lan" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Thái Lan</a>
+                        <a href="/phim-theo-quoc-gia?country=nhat-ban" class="drawer-sub-link"
+                            style="color: #34d399 !important;">Nhật Bản</a>
+                        <a href="/phim-theo-quoc-gia?country=viet-nam" class="drawer-sub-link"
+                            style="color: #f472b6 !important;">Việt Nam</a>
+                        <a href="/phim-theo-quoc-gia?country=au-my" class="drawer-sub-link"
+                            style="color: #818cf8 !important;">Âu Mỹ</a>
+                        <a href="/phim-theo-quoc-gia?country=trung-quoc" class="drawer-sub-link"
+                            style="color: #a5b4fc !important;">Trung Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=ba-lan" class="drawer-sub-link"
+                            style="color: #60a5fa !important;">Ba Lan</a>
+                        <a href="/phim-theo-quoc-gia?country=han-quoc" class="drawer-sub-link"
+                            style="color: #f472b6 !important;">Hàn Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=anh" class="drawer-sub-link"
+                            style="color: #c084fc !important;">Anh</a>
+                        <a href="/phim-theo-quoc-gia?country=dai-loan" class="drawer-sub-link"
+                            style="color: #a5b4fc !important;">Đài Loan</a>
+                        <a href="/phim-theo-quoc-gia?country=tay-ban-nha" class="drawer-sub-link"
+                            style="color: #c084fc !important;">Tây Ban Nha</a>
+                        <a href="/phim-theo-quoc-gia?country=thuy-si" class="drawer-sub-link"
+                            style="color: #4ade80 !important;">Thụy Sĩ</a>
+                        <a href="/phim-theo-quoc-gia?country=hong-kong" class="drawer-sub-link"
+                            style="color: #f87171 !important;">Hồng Kông</a>
+                        <a href="/phim-theo-quoc-gia?country=estonia" class="drawer-sub-link"
+                            style="color: #fbbf24 !important;">Estonia</a>
+                        <a href="/phim-theo-quoc-gia?country=uc" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Úc</a>
+                        <a href="/phim-theo-quoc-gia?country=indonesia" class="drawer-sub-link"
+                            style="color: #fbbf24 !important;">Malaysia</a>
+                        <a href="/phim-theo-quoc-gia?country=canada" class="drawer-sub-link"
+                            style="color: #a3e635 !important;">Canada</a>
+                        <a href="/phim-theo-quoc-gia?country=an-do" class="drawer-sub-link"
+                            style="color: #38bdf8 !important;">Ấn Độ</a>
+                        <a href="/phim-theo-quoc-gia?country=nga" class="drawer-sub-link"
+                            style="color: #818cf8 !important;">Nga</a>
                     </div>
                 </div>
             </div>
@@ -1599,9 +1939,13 @@
         <!-- Quick Action Pills Grid at Bottom -->
         <div class="drawer-quick-pills">
             <a href="/reels" class="drawer-pill-btn reels-pill" title="Xem video ngắn Reels & Review phim">
-                <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥" style="flex-shrink:0;">
+                <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥"
+                    style="flex-shrink:0;">
                 <span class="reels-shimmer-text">
-                    <span class="reels-char" style="--char-index:0">R</span><span class="reels-char" style="--char-index:1">e</span><span class="reels-char" style="--char-index:2">e</span><span class="reels-char" style="--char-index:3">l</span><span class="reels-char" style="--char-index:4">s</span>
+                    <span class="reels-char" style="--char-index:0">R</span><span class="reels-char"
+                        style="--char-index:1">e</span><span class="reels-char" style="--char-index:2">e</span><span
+                        class="reels-char" style="--char-index:3">l</span><span class="reels-char"
+                        style="--char-index:4">s</span>
                 </span>
             </a>
             <a href="/danh-sach?list=phim-moi-cap-nhat" class="drawer-pill-btn">Ngẫu Nhiên</a>
@@ -1648,13 +1992,26 @@
         }
     }
 
-    (function() {
+    (function () {
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
 
         let ticking = false;
         let scrollTimer = null;
+
+        function hasHeroOrBackdrop() {
+            const isDesktop = window.innerWidth >= 1024;
+            const desktopHero = document.getElementById('desktopHeroShowcase');
+            const isDesktopHeroActive = isDesktop && !!desktopHero;
+            return !!(
+                isDesktopHeroActive ||
+                document.querySelector('.movie-hero-backdrop-wrap') ||
+                document.getElementById('movieHeroBackdrop') ||
+                (isDesktop && document.querySelector('.has-desktop-hero')) ||
+                document.body.classList.contains('page-phim-detail')
+            );
+        }
 
         function updateSofaHeaderScroll() {
             const header = document.getElementById('sofa-header') || document.querySelector('header');
@@ -1663,21 +2020,52 @@
             const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
             if (scrollY > 50) {
                 header.classList.add('scrolled');
+                if (hasHeroOrBackdrop()) {
+                    header.style.removeProperty('background');
+                    header.style.removeProperty('background-color');
+                    header.style.removeProperty('border');
+                    header.style.removeProperty('border-bottom');
+                    header.style.removeProperty('box-shadow');
+                    header.style.removeProperty('backdrop-filter');
+                    header.style.removeProperty('-webkit-backdrop-filter');
+                }
             } else {
                 header.classList.remove('scrolled', 'sofa-header-scrolled');
-                header.style.backgroundColor = '';
-                header.style.background = '';
+                if (hasHeroOrBackdrop()) {
+                    header.style.setProperty('background', 'transparent', 'important');
+                    header.style.setProperty('background-color', 'transparent', 'important');
+                    header.style.setProperty('border', 'none', 'important');
+                    header.style.setProperty('border-bottom', 'none', 'important');
+                    header.style.setProperty('box-shadow', 'none', 'important');
+                    header.style.setProperty('backdrop-filter', 'none', 'important');
+                    header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+                } else {
+                    header.style.backgroundColor = '';
+                    header.style.background = '';
+                }
             }
             ticking = false;
         }
 
         function forceHeaderTopState() {
-            try { window.scrollTo(0, 0); } catch(e) {}
             const header = document.getElementById('sofa-header') || document.querySelector('header');
             if (header) {
-                header.classList.remove('scrolled', 'sofa-header-scrolled');
-                header.style.backgroundColor = '';
-                header.style.background = '';
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+                if (scrollY <= 50) {
+                    header.classList.remove('scrolled', 'sofa-header-scrolled');
+                    if (hasHeroOrBackdrop()) {
+                        header.style.setProperty('background', 'transparent', 'important');
+                        header.style.setProperty('background-color', 'transparent', 'important');
+                        header.style.setProperty('border', 'none', 'important');
+                        header.style.setProperty('border-bottom', 'none', 'important');
+                        header.style.setProperty('box-shadow', 'none', 'important');
+                        header.style.setProperty('backdrop-filter', 'none', 'important');
+                        header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+                    } else {
+                        header.style.backgroundColor = '';
+                        header.style.background = '';
+                    }
+                }
             }
         }
 
@@ -1690,7 +2078,7 @@
                 document.body.classList.add('is-scrolling');
             }
             clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(function() {
+            scrollTimer = setTimeout(function () {
                 document.body.classList.remove('is-scrolling');
             }, 150);
         }
@@ -1714,7 +2102,7 @@
 
 <script>
     /* ⚡ INSTANT RECOGNITION & SMART PREFETCH FOR REELS */
-    (function() {
+    (function () {
         var reelsPrefetched = false;
 
         function prefetchReelsNow() {
@@ -1727,9 +2115,9 @@
                 link.as = 'document';
                 document.head.appendChild(link);
                 if (window.fetch) {
-                    fetch('/reels', { priority: 'low' }).catch(function(){});
+                    fetch('/reels', { priority: 'low' }).catch(function () { });
                 }
-            } catch(e) {}
+            } catch (e) { }
         }
 
         function triggerNavProgress() {
@@ -1737,34 +2125,34 @@
             if (!bar) return;
             bar.style.display = 'block';
             bar.style.width = '30%';
-            setTimeout(function() {
+            setTimeout(function () {
                 if (bar) bar.style.width = '88%';
             }, 50);
         }
 
         function setupInstantReelsInteraction() {
             var btns = document.querySelectorAll('.reels-nav-pill, .drawer-pill-btn.reels-pill, a[href="/reels"]');
-            btns.forEach(function(btn) {
+            btns.forEach(function (btn) {
                 // 1. Prefetch instantly upon mouse hover or initial touch
                 btn.addEventListener('pointerenter', prefetchReelsNow, { passive: true, once: true });
                 btn.addEventListener('touchstart', prefetchReelsNow, { passive: true, once: true });
 
                 // 2. Immediate tactile feedback on press down (0ms latency recognition)
-                btn.addEventListener('pointerdown', function() {
+                btn.addEventListener('pointerdown', function () {
                     btn.classList.add('is-pressed');
                     triggerNavProgress();
                 }, { passive: true });
 
                 // Clear press state on release
-                btn.addEventListener('pointerup', function() {
+                btn.addEventListener('pointerup', function () {
                     btn.classList.remove('is-pressed');
                 }, { passive: true });
-                btn.addEventListener('pointercancel', function() {
+                btn.addEventListener('pointercancel', function () {
                     btn.classList.remove('is-pressed');
                 }, { passive: true });
 
                 // 3. Mark navigating on click/tap
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     btn.classList.add('is-navigating');
                     triggerNavProgress();
                 });
@@ -1781,6 +2169,4 @@
 
 <!-- 🌟 APHIM ADS SYSTEM (CAT BANNERS + TOP BANNER) -->
 <%- include('ads-cat') %>
-<%- include('ads-top') %>
-
-
+    <%- include('ads-top') %>

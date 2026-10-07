@@ -159,14 +159,12 @@
         }
         if (window.location.pathname.startsWith('/profile')) {
             if (e) e.preventDefault();
-            if (window.innerWidth < 1024 && typeof window.showMobileProfileHub === 'function') {
-                window.showMobileProfileHub();
-            } else if (typeof switchTab === 'function') {
+            if (typeof switchTab === 'function') {
                 switchTab('account');
             }
             return false;
         }
-        window.location.href = '/profile';
+        window.location.href = '/profile?tab=account';
         return true;
     };
 

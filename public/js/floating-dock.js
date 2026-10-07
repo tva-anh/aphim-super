@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } catch (err) { }
-                
+
                 if (typeof updateUserUI === 'function') updateUserUI();
                 window.dispatchEvent(new CustomEvent('aphim:theme-changed', { detail: { theme: themeVal, isLight } }));
 
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             dockGroup.classList.remove('expanded');
         });
-        
+
         // Bấm ra ngoài để đóng dock
         document.addEventListener('click', (e) => {
             if (dockGroup.classList.contains('expanded') && !dockGroup.contains(e.target)) {
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnChat.addEventListener('click', (e) => {
             e.stopPropagation();
             dockGroup.classList.remove('expanded');
-            
+
             // Tìm nút chat gốc để trigger click (dùng logic có sẵn của chat-room.js)
             const oldChatFab = document.getElementById('chatFab');
             if (oldChatFab) {

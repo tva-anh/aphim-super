@@ -94,7 +94,7 @@ function renderAvatarWithFrame(innerHtml, sizePx, frameInfo) {
         `;
     }
     if (frameInfo.type === 'class') {
-        const sizeClass = sizePx <= 40 ? 'size-xs' : (sizePx <= 64 ? 'size-sm' : 'size-lg');
+        const sizeClass = sizePx <= 40 ? 'size-xs' : (sizePx <= 64 ? 'size-sm' : (sizePx <= 95 ? 'size-md' : 'size-lg'));
         return `
             <div class="shop-frame-wrap ${sizeClass} ${frameInfo.value}" style="width:${sizePx}px; height:${sizePx}px; flex-shrink:0; position:relative; z-index:2;">
                 ${innerHtml}
@@ -1301,7 +1301,8 @@ var TOAST_ICONS = window.TOAST_ICONS || {
                 height: 14px !important;
                 margin-left: 1px !important;
                 margin-right: 2px !important;
-                color: rgba(255, 255, 255, 0.75) !important;
+                color: #ffffff !important;
+                stroke: #ffffff !important;
                 flex-shrink: 0 !important;
             }
             .ap-user-bar-trigger {
@@ -1315,16 +1316,17 @@ var TOAST_ICONS = window.TOAST_ICONS || {
             }
         }
         .ap-user-chevron-icon {
-            color: #94a3b8 !important;
+            color: #ffffff !important;
+            stroke: #ffffff !important;
             fill: none !important;
-            stroke: currentColor !important;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease !important;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease, stroke 0.2s ease !important;
         }
         .ap-user-bar-trigger:hover .ap-user-chevron-icon,
         .nav-profile-dropdown.is-open .ap-user-chevron-icon,
         .nav-profile-dropdown:hover .ap-user-chevron-icon {
             transform: rotate(180deg) !important;
             color: #fcd576 !important;
+            stroke: #fcd576 !important;
         }
 
         .nav-profile-dropdown.is-open .ap-user-dropdown-menu {
@@ -1509,15 +1511,22 @@ window.showConfirm = function (title, message) {
 
 // ── NOTIFICATION SERVICE ──────────────────────────────────────────
 window.syncNotifications = async function () {
+    // ⏱️ Throttle: chặn spam GET /api/notifications — chỉ fetch tối đa 1 lần/60 giây
+    const NOTIF_COOLDOWN = 60000; // 60 giây
+    const now = Date.now();
+    const lastFetch = window._lastNotifFetchTs || 0;
+    if (now - lastFetch < NOTIF_COOLDOWN) {
+        return; // Bỏ qua, chưa đến lượt fetch lại
+    }
+    window._lastNotifFetchTs = now;
+
     const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
     if (!user) {
-        console.log('⏭️ Skip syncNotifications - not logged in');
         return;
     }
 
     const token = localStorage.getItem('cinestream_token');
     if (!token) {
-        console.log('⏭️ Skip syncNotifications - no token');
         return;
     }
 

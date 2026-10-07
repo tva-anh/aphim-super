@@ -820,6 +820,16 @@ class AuthService {
     async updateProfile(updates) {
         if (!this.currentUser) return { success: false, message: 'Chưa đăng nhập' };
 
+        if (this._tokenExpired) {
+            const updated = { ...this.currentUser, ...updates };
+            this.currentUser = updated;
+            this.saveUser(updated);
+            if (typeof window.updateUserUI === 'function') {
+                try { window.updateUserUI(); } catch (e) { }
+            }
+            return { success: true, user: updated };
+        }
+
         const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
         if (!token || token.startsWith('demo_') || token.startsWith('mock-') || token.startsWith('token_') || (this.currentUser && this.currentUser.email === 'testuser@aphim.vn')) {
             const updated = { ...this.currentUser, ...updates };
@@ -843,6 +853,7 @@ class AuthService {
                 });
 
                 if (response.status === 401) {
+                    this._tokenExpired = true;
                     const updated = { ...this.currentUser, ...updates };
                     this.currentUser = updated;
                     this.saveUser(updated);

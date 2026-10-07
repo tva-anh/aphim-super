@@ -143,7 +143,11 @@ class UserService {
 
         const auth = this.getAuth();
         if (auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn()) {
-            auth.updateProfile({ watchHistory: limited }).catch(()=>{});
+            const now = Date.now();
+            if (!this._lastHistorySyncTime || (now - this._lastHistorySyncTime > 10000)) {
+                this._lastHistorySyncTime = now;
+                auth.updateProfile({ watchHistory: limited }).catch(()=>{});
+            }
         }
     }
 

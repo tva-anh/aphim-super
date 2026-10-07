@@ -23,15 +23,150 @@
                 color: #1c1917 !important;
             }
 
-            main.movie-content-zone {
+            main.movie-content-zone,
+            html.light-mode main.movie-content-zone,
+            html:not(.light-mode) main.movie-content-zone {
                 background: transparent !important;
-                padding-top: 84px !important;
+                padding-top: 16px !important;
             }
 
-            /* ─── TRANSPARENT HEADER ON /phim (CINEMATIC BACKDROP PASSTHROUGH) ─── */
+            @media (min-width: 640px) {
+                main.movie-content-zone,
+                html.light-mode main.movie-content-zone,
+                html:not(.light-mode) main.movie-content-zone {
+                    padding-top: 72px !important;
+                }
+            }
+
+            @media (min-width: 1024px) {
+                main.movie-content-zone,
+                html.light-mode main.movie-content-zone,
+                html:not(.light-mode) main.movie-content-zone {
+                    padding-top: 88px !important;
+                }
+            }
+
+            .movie-breadcrumb-bar,
+            html.light-mode .movie-breadcrumb-bar,
+            html:not(.light-mode) .movie-breadcrumb-bar {
+                margin-top: 0 !important;
+                margin-bottom: 12px !important;
+            }
+
+            @media (min-width: 640px) {
+                .movie-breadcrumb-bar,
+                html.light-mode .movie-breadcrumb-bar,
+                html:not(.light-mode) .movie-breadcrumb-bar {
+                    margin-top: 0 !important;
+                    margin-bottom: 16px !important;
+                }
+            }
+
+            @media (min-width: 1024px) {
+                .movie-main-grid {
+                    margin-top: 32px !important;
+                }
+            }
+
+            /* Light Mode on /phim (Backdrop Passthrough: Tabs, Server Label & Headings in White) */
+            html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn,
+            html.light-mode body.page-phim-detail #tab-btn-gallery,
+            html.light-mode body.page-phim-detail #tab-btn-ost,
+            html.light-mode body.page-phim-detail #tab-btn-cast,
+            html.light-mode body.page-phim-detail #tab-btn-recommend {
+                color: rgba(255, 255, 255, 0.9) !important;
+                -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+                border-bottom: 2.5px solid transparent !important;
+                opacity: 1 !important;
+            }
+
+            html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn:hover,
+            html.light-mode body.page-phim-detail #tab-btn-gallery:hover,
+            html.light-mode body.page-phim-detail #tab-btn-ost:hover,
+            html.light-mode body.page-phim-detail #tab-btn-cast:hover,
+            html.light-mode body.page-phim-detail #tab-btn-recommend:hover {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+
+            html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn.active,
+            html.light-mode body.page-phim-detail #tab-btn-episodes.active {
+                color: #fcd576 !important;
+                -webkit-text-fill-color: #fcd576 !important;
+                border-bottom: 2.5px solid #fcd576 !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85) !important;
+            }
+
+            /* "MÁY CHỦ :" label */
+            html.light-mode body.page-phim-detail .server-label-title,
+            html.light-mode body.page-phim-detail span[style*="MÁY CHỦ"],
+            html.light-mode body.page-phim-detail div.flex.items-center.mr-2 span {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+                font-weight: 800 !important;
+            }
+
+            /* Chữ bên trong nút Server (Vietsub N1 | 12 tập) trên nền kem: MÀU ĐEN RÕ NÉT */
+            html.light-mode body.page-phim-detail #desktop-server-wrapper button,
+            html.light-mode body.page-phim-detail #server-list-desktop button,
+            html.light-mode body.page-phim-detail #server-list-mobile button,
+            html.light-mode body.page-phim-detail #server-list button,
+            html.light-mode body.page-phim-detail #desktop-server-wrapper button span,
+            html.light-mode body.page-phim-detail #server-list-desktop button span,
+            html.light-mode body.page-phim-detail #server-list-mobile button span,
+            html.light-mode body.page-phim-detail #server-list button span {
+                color: #1c1917 !important;
+                -webkit-text-fill-color: #1c1917 !important;
+                text-shadow: none !important;
+            }
+
+            html.light-mode body.page-phim-detail #desktop-server-wrapper button span[class*="text-yellow"],
+            html.light-mode body.page-phim-detail #desktop-server-wrapper button span[class*="text-blue"],
+            html.light-mode body.page-phim-detail #desktop-server-wrapper button span[class*="text-green"],
+            html.light-mode body.page-phim-detail #server-list-desktop button span[class*="text-yellow"],
+            html.light-mode body.page-phim-detail #server-list-desktop button span[class*="text-blue"],
+            html.light-mode body.page-phim-detail #server-list-desktop button span[class*="text-green"],
+            html.light-mode body.page-phim-detail #server-list-mobile button span[class*="text-yellow"],
+            html.light-mode body.page-phim-detail #server-list-mobile button span[class*="text-blue"],
+            html.light-mode body.page-phim-detail #server-list-mobile button span[class*="text-green"] {
+                color: #d97706 !important;
+                -webkit-text-fill-color: #d97706 !important;
+            }
+
+            /* "Các bản chiếu" & "Danh sách tập phim" heading */
+            html.light-mode body.page-phim-detail .movie-section-heading,
+            html.light-mode body.page-phim-detail #movie-server-variants h3,
+            html.light-mode body.page-phim-detail #movie-server-variants h2,
+            html.light-mode body.page-phim-detail #tab-panel-episodes h2,
+            html.light-mode body.page-phim-detail .ap-tab-panel h2,
+            html.light-mode body.page-phim-detail .ap-tab-panel h3 {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+                font-weight: 800 !important;
+            }
+
+            html.light-mode body.page-phim-detail .movie-section-heading svg,
+            html.light-mode body.page-phim-detail #movie-server-variants svg,
+            html.light-mode body.page-phim-detail #tab-panel-episodes h2 svg,
+            html.light-mode body.page-phim-detail .ap-tab-panel h2 svg,
+            html.light-mode body.page-phim-detail .ap-tab-panel h3 svg {
+                fill: #ffffff !important;
+                color: #ffffff !important;
+                filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)) !important;
+            }
+
+            /* ─── 100% TRANSPARENT HEADER ON /phim (CINEMATIC BACKDROP PASSTHROUGH ON MOBILE & DESKTOP) ─── */
             body.page-phim-detail #sofa-header:not(.scrolled),
             body.page-phim-detail header#sofa-header:not(.scrolled),
-            body.page-phim-detail header:not(.scrolled) {
+            body.page-phim-detail header:not(.scrolled),
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled),
+            html.light-mode body.page-phim-detail header#sofa-header:not(.scrolled),
+            html.light-mode body.page-phim-detail header:not(.scrolled),
+            html.light-mode #sofa-header:not(.scrolled),
+            html.light-mode header:not(.scrolled) {
                 background: transparent !important;
                 background-color: transparent !important;
                 backdrop-filter: none !important;
@@ -45,6 +180,32 @@
                     -webkit-backdrop-filter 0.35s ease,
                     border-color 0.35s ease,
                     box-shadow 0.35s ease !important;
+            }
+
+            /* Icon colors at top on backdrop image (White and crisp on both mobile & desktop) */
+            body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn,
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn {
+                color: #ffffff !important;
+            }
+
+            body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+            body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger,
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger {
+                background-color: rgba(255, 255, 255, 0.18) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+                color: #ffffff !important;
+            }
+
+            body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+            body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+            body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-icon,
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-icon {
+                stroke: #ffffff !important;
+                color: #ffffff !important;
+                fill: none !important;
             }
 
             /* Scrolled state */
@@ -111,9 +272,16 @@
             /* 📱 Mobile Movie Detail Backdrop: Extend long down across poster, title and buttons */
             @media (max-width: 768px) {
                 .movie-hero-backdrop-wrap {
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
                     height: 980px !important;
                     -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%) !important;
                     mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%) !important;
+                }
+
+                #movieHeroBackdrop {
+                    object-position: top center !important;
                 }
 
                 html.light-mode .backdrop-gradient {
@@ -218,6 +386,18 @@
         <div class="ambient-noise"></div>
         <div class="ambient-grain"></div>
     </div>
+    <!-- Full-Bleed Movie Backdrop Hero Image Behind Header (Top 0 Pinned to Viewport Top) -->
+    <div class="movie-hero-backdrop-wrap absolute top-0 left-0 right-0 w-full h-[620px] sm:h-[680px] lg:h-[750px] z-0 overflow-hidden pointer-events-none"
+        style="-webkit-mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%); mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);">
+        <div class="relative w-full h-full bg-transparent">
+            <img id="movieHeroBackdrop" alt="Background"
+                class="w-full h-full object-cover object-top transition-opacity duration-700 opacity-70 lg:opacity-40 blur-xl lg:blur-2xl"
+                src="<%= typeof movie !== 'undefined' && movie && (movie.thumb_url || movie.poster_url) ? ((movie.thumb_url || movie.poster_url).startsWith('http') ? (movie.thumb_url || movie.poster_url) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url).replace(/^\//, '')) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' %>"
+                fetchpriority="high" />
+            <div class="absolute inset-0 backdrop-gradient"></div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <%- include('partials/header') %>
 
@@ -232,40 +412,58 @@
         </script>
 
         <main
-            class="relative pt-[78px] sm:pt-[86px] min-h-screen pb-20 movie-content-zone overflow-x-hidden w-full max-w-[100vw] m-0">
-            <!-- Full-Bleed Movie Backdrop Hero Image Behind Header (Top 0 to Hero Bottom) -->
-            <div class="movie-hero-backdrop-wrap absolute top-0 left-0 right-0 w-full h-[620px] sm:h-[680px] lg:h-[750px] z-0 overflow-hidden pointer-events-none"
-                style="-webkit-mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%); mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);">
-                <div class="relative w-full h-full bg-transparent">
-                    <img id="movieHeroBackdrop" alt="Background"
-                        class="w-full h-full object-cover object-center transition-opacity duration-700 opacity-70 lg:opacity-40 blur-xl lg:blur-2xl"
-                        src="<%= typeof movie !== 'undefined' && movie && (movie.thumb_url || movie.poster_url) ? ((movie.thumb_url || movie.poster_url).startsWith('http') ? (movie.thumb_url || movie.poster_url) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url).replace(/^\//, '')) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' %>"
-                        fetchpriority="high" />
-                    <div class="absolute inset-0 backdrop-gradient"></div>
-                </div>
-            </div>
+            class="relative pt-0 sm:pt-12 lg:pt-20 min-h-screen pb-20 movie-content-zone overflow-x-hidden w-full max-w-[100vw] m-0 z-10">
 
             <div class="app-container relative z-10">
+                <%
+                    let initialCatName = 'Phim Bộ';
+                    let initialCatLink = '/danh-sach?list=phim-bo';
+                    if (typeof movie !== 'undefined' && movie) {
+                        if (movie.type === 'single') {
+                            initialCatName = 'Phim Lẻ';
+                            initialCatLink = '/danh-sach?list=phim-le';
+                        } else if (movie.type === 'hoathinh') {
+                            initialCatName = 'Hoạt Hình';
+                            initialCatLink = '/danh-sach?list=hoat-hinh';
+                        } else if (movie.type === 'tvshows') {
+                            initialCatName = 'TV Shows';
+                            initialCatLink = '/danh-sach?list=tv-shows';
+                        }
+                    }
+                %>
                 <div
-                    class="movie-breadcrumb-bar flex items-center flex-nowrap gap-1.5 sm:gap-2 text-xs sm:text-sm mb-3 sm:mb-6 font-bold overflow-hidden whitespace-nowrap w-full max-w-full [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
-                    <a class="text-white/80 hover:text-[#fcd576] transition-colors flex-shrink-0 font-bold whitespace-nowrap"
+                    class="movie-breadcrumb-bar flex items-center flex-nowrap gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold select-none overflow-hidden whitespace-nowrap max-w-full flex-1 min-w-0 [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
+                    <a class="hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap"
                         href="/">Trang chủ</a>
-                    <span class="material-icons-round text-base text-white/60 flex-shrink-0">chevron_right</span>
-                    <span id="breadcrumb-movie-name" class="text-white font-bold truncate flex-1 min-w-0"></span>
+                    <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; display: inline-block !important; stroke: rgba(255,255,255,0.55) !important; opacity: 1 !important;"
+                        class="mx-0.5 flex-shrink-0" fill="none" stroke="rgba(255,255,255,0.55)"
+                        stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <a id="breadcrumb-category"
+                        class="hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap"
+                        href="<%= initialCatLink %>"><%= initialCatName %></a>
+                    <svg id="breadcrumb-category-sep" style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; display: inline-block !important; stroke: rgba(255,255,255,0.55) !important; opacity: 1 !important;"
+                        class="mx-0.5 flex-shrink-0" fill="none" stroke="rgba(255,255,255,0.55)"
+                        stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span id="breadcrumb-movie-name" class="text-white font-extrabold truncate flex-1 min-w-0"><%= typeof movie !== 'undefined' && movie ? (movie.name || movie.origin_name || '') : '' %></span>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 xl:gap-10 mt-0 relative z-10">
+                <div class="movie-main-grid grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 xl:gap-10 mt-0 lg:mt-8 relative z-10">
                     <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 lg:gap-6">
                         <style>
                             .custom-mobile-poster {
                                 width: 100%;
                                 max-width: 240px;
-                                margin: 0 auto;
+                                margin: 16px auto 0;
                             }
 
                             @media (min-width: 640px) {
                                 .custom-mobile-poster {
                                     max-width: 260px;
+                                    margin: 0 auto;
                                 }
                             }
 
@@ -344,9 +542,9 @@
                             }
 
                             html.light-mode .cinematic-gold-title {
-                                color: #1c1917 !important;
-                                -webkit-text-fill-color: #1c1917 !important;
-                                text-shadow: none !important;
+                                color: #ffffff !important;
+                                -webkit-text-fill-color: #ffffff !important;
+                                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9) !important;
                             }
 
                             .cinematic-sub-title {
@@ -363,9 +561,22 @@
                             }
 
                             html.light-mode .cinematic-sub-title {
-                                color: #d97706 !important;
-                                -webkit-text-fill-color: #d97706 !important;
-                                text-shadow: none !important;
+                                color: #fcd576 !important;
+                                -webkit-text-fill-color: #fcd576 !important;
+                                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+                            }
+
+                            .ap-tab-btn,
+                            html.light-mode .ap-tab-btn {
+                                color: rgba(255, 255, 255, 0.9) !important;
+                                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+                            }
+
+                            .ap-tab-btn.active,
+                            html.light-mode .ap-tab-btn.active {
+                                color: #fcd576 !important;
+                                border-color: #fcd576 !important;
+                                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9) !important;
                             }
 
                             .cinematic-gold-btn {
@@ -494,118 +705,101 @@
                             </div>
 
                             <!-- Review phim: opens the movie review (Reels) page - RED button at right -->
-                            <%
-                                var reviewSlug = (typeof movie !== 'undefined' && movie && movie.slug) ? movie.slug : (typeof slug !== 'undefined' ? slug : '');
-                                var reviewUrl = '/reels/review/' + reviewSlug + '?return=' + encodeURIComponent('/phim/' + reviewSlug);
-                            %>
-                            <style>
-                                /* -- Review phim button: SOFT RED, flat & clean (NO glow halo) -- */
-                                .movie-actions-container #headerRatingBtn {
-                                    background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
-                                    border: none !important;
-                                    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42) !important;
-                                    color: #ffffff !important;
-                                }
+                            <% var reviewSlug=(typeof movie !=='undefined' && movie && movie.slug) ? movie.slug :
+                                (typeof slug !=='undefined' ? slug : '' ); var reviewUrl='/reels/review/' + reviewSlug
+                                + '?return=' + encodeURIComponent('/phim/' + reviewSlug); %>
+                                <style>
+                                    /* -- Review phim button: GORGEOUS RED GRADIENT ON BOTH LIGHT & DARK MODE -- */
+                                    .movie-actions-container #headerRatingBtn,
+                                    html.light-mode .movie-actions-container #headerRatingBtn,
+                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn,
+                                    #headerRatingBtn {
+                                        background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
+                                        border: none !important;
+                                        box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45) !important;
+                                        color: #ffffff !important;
+                                        -webkit-text-fill-color: #ffffff !important;
+                                        text-decoration: none !important;
+                                    }
 
-                                .movie-actions-container #headerRatingBtn:hover {
-                                    background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
-                                    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5) !important;
-                                }
+                                    .movie-actions-container #headerRatingBtn:hover,
+                                    html.light-mode .movie-actions-container #headerRatingBtn:hover,
+                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn:hover,
+                                    #headerRatingBtn:hover {
+                                        background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
+                                        box-shadow: 0 8px 24px rgba(225, 29, 72, 0.6) !important;
+                                        transform: scale(1.05) translateY(-1px) !important;
+                                    }
 
-                                /* Label: WHITE on dark mode (black on light mode, see below) */
-                                .movie-actions-container #headerRatingBtn span {
-                                    color: #ffffff !important;
-                                    font-weight: 700 !important;
-                                    text-shadow: 0 1px 3px rgba(136, 19, 55, 0.45) !important;
-                                }
+                                    /* Label: WHITE on both dark mode and light mode */
+                                    .movie-actions-container #headerRatingBtn span,
+                                    html.light-mode .movie-actions-container #headerRatingBtn span,
+                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn span,
+                                    #headerRatingBtn span {
+                                        color: #ffffff !important;
+                                        -webkit-text-fill-color: #ffffff !important;
+                                        font-weight: 700 !important;
+                                        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+                                    }
 
-                                /* Icon: soft white plate + rose play triangle */
-                                .movie-actions-container #headerRatingBtn rect {
-                                    fill: rgba(255, 255, 255, 0.95) !important;
-                                }
+                                    /* Icon: soft white plate + rose play triangle */
+                                    .movie-actions-container #headerRatingBtn rect,
+                                    html.light-mode .movie-actions-container #headerRatingBtn rect,
+                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn rect,
+                                    #headerRatingBtn rect {
+                                        fill: #ffffff !important;
+                                    }
 
-                                .movie-actions-container #headerRatingBtn path {
-                                    fill: #f43f5e !important;
-                                }
+                                    .movie-actions-container #headerRatingBtn path,
+                                    html.light-mode .movie-actions-container #headerRatingBtn path,
+                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn path,
+                                    #headerRatingBtn path {
+                                        fill: #f43f5e !important;
+                                    }
 
-                                /* Light mode: same clean soft red (no halo, no wash-out) */
-                                html.light-mode .movie-actions-container #headerRatingBtn {
-                                    background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
-                                    border: none !important;
-                                    box-shadow: 0 6px 18px rgba(159, 18, 57, 0.24) !important;
-                                    color: #ffffff !important;
-                                }
+                                    /* -- Dark mode: hero action buttons (Luu phim / Them vao / Chia se / Binh luan) readable over bright backdrops -- */
+                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn),
+                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) {
+                                        background: rgba(13, 18, 30, 0.58) !important;
+                                        border: 1px solid rgba(255, 255, 255, 0.22) !important;
+                                        color: #ffffff !important;
+                                        -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+                                        backdrop-filter: blur(14px) saturate(150%) !important;
+                                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+                                    }
 
-                                html.light-mode .movie-actions-container #headerRatingBtn:hover {
-                                    background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
-                                    box-shadow: 0 8px 22px rgba(159, 18, 57, 0.3) !important;
-                                }
+                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn):hover,
+                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn):hover {
+                                        background: rgba(13, 18, 30, 0.8) !important;
+                                        border-color: rgba(255, 255, 255, 0.45) !important;
+                                    }
 
-                                /* Light mode: keep the label WHITE too (same as dark mode) */
-                                html.light-mode .movie-actions-container #headerRatingBtn span {
-                                    color: #ffffff !important;
-                                    font-weight: 700 !important;
-                                    text-shadow: 0 1px 3px rgba(136, 19, 55, 0.45) !important;
-                                }
+                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) span,
+                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) span {
+                                        color: #ffffff !important;
+                                        font-weight: 600 !important;
+                                        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65) !important;
+                                    }
 
-                                /* Light mode: keep the icon WHITE PLATE + rose play triangle (same as dark mode) */
-                                html.light-mode .movie-actions-container #headerRatingBtn rect {
-                                    fill: rgba(255, 255, 255, 0.95) !important;
-                                }
-
-                                html.light-mode .movie-actions-container #headerRatingBtn path {
-                                    fill: #f43f5e !important;
-                                }
-
-                                /* Safety net: any other descendant icon/glyph inside the button stays white */
-                                html.light-mode .movie-actions-container #headerRatingBtn svg,
-                                html.light-mode .movie-actions-container #headerRatingBtn .material-icons-round,
-                                html.light-mode .movie-actions-container #headerRatingBtn .material-symbols-rounded {
-                                    color: #ffffff !important;
-                                }
-
-                                /* -- Dark mode: hero action buttons (Luu phim / Them vao / Chia se / Binh luan) readable over bright backdrops -- */
-                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn),
-                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) {
-                                    background: rgba(13, 18, 30, 0.58) !important;
-                                    border: 1px solid rgba(255, 255, 255, 0.22) !important;
-                                    color: #ffffff !important;
-                                    -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
-                                    backdrop-filter: blur(14px) saturate(150%) !important;
-                                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
-                                }
-
-                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn):hover,
-                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):hover {
-                                    background: rgba(13, 18, 30, 0.8) !important;
-                                    border-color: rgba(255, 255, 255, 0.45) !important;
-                                }
-
-                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) span,
-                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) span {
-                                    color: #ffffff !important;
-                                    font-weight: 600 !important;
-                                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65) !important;
-                                }
-
-                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg,
-                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) svg,
-                                html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg path,
-                                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn) svg path {
-                                    fill: #ffffff !important;
-                                    color: #ffffff !important;
-                                }
-                            </style>
-                            <div class="ml-auto flex-shrink-0">
-                                <a id="headerRatingBtn" href="<%= reviewUrl %>"
-                                    class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer no-underline">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                                        <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
-                                        <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
-                                    </svg>
-                                    <span class="text-xs sm:text-sm font-bold tracking-wide">Review phim</span>
-                                </a>
-                            </div>
+                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg,
+                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg,
+                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg path,
+                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg path {
+                                        fill: #ffffff !important;
+                                        color: #ffffff !important;
+                                    }
+                                </style>
+                                <div class="ml-auto flex-shrink-0">
+                                    <a id="headerRatingBtn" href="<%= reviewUrl %>"
+                                        class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer no-underline">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24"
+                                            aria-hidden="true">
+                                            <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
+                                            <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
+                                        </svg>
+                                        <span class="text-xs sm:text-sm font-bold tracking-wide">Review phim</span>
+                                    </a>
+                                </div>
                         </div>
 
                         <!-- HỆ THỐNG TAB THÔNG TIN PHIM (Match Hình 1 - 5) -->

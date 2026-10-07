@@ -163,12 +163,6 @@ async function trySearchActorsDirectly(movie) {
     return foundCount > 0;
 }
 
-// Update actor avatars with TMDB images
-function updateActorAvatars(localActors, tmdbCast) {
-    if (!localActors || localActors.length === 0) {
-        return;
-    }
-
 // Global Client-Side Actor Avatar Cache
 window.__actorAvatarClientCache = window.__actorAvatarClientCache || new Map();
 
@@ -209,6 +203,16 @@ async function getActorAvatarClient(actorName) {
 
 // Attach to window so movie-detail.js can also access
 window.getActorAvatarClient = getActorAvatarClient;
+
+// Update actor avatars with TMDB images
+function updateActorAvatars(localActors, tmdbCast) {
+    if (!localActors || localActors.length === 0) {
+        return;
+    }
+    const actorElements = document.querySelectorAll('[data-actor-name], .actor-card');
+    if (!actorElements || actorElements.length === 0) {
+        return;
+    }
 
     actorElements.forEach(async (element) => {
         const actorName = element.getAttribute('data-actor-name');
