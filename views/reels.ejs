@@ -55,7 +55,7 @@
     <link rel="preconnect" href="https://phimimg.com">
     <link rel="dns-prefetch" href="https://www.youtube.com">
     <link rel="dns-prefetch" href="https://i.ytimg.com">
-    <link rel="stylesheet" href="/css/reels.css?v=443" />
+    <link rel="stylesheet" href="/css/reels.css?v=444" />
     <style>
         /* 🚀 CLIPPED IFRAME GEOMETRY: Đẩy tiêu đề (top -65px) & logo YouTube/Shorts (bottom clip 90px) ra ngoài cho dọc 9:16 */
         .reels-global-player-host iframe,
@@ -1629,7 +1629,7 @@
             touch-action: pan-y !important;
         }
         .reel-thumb-cover {
-            transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.15s ease-out !important;
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease-out !important;
             will-change: opacity, visibility !important;
         }
         .reel-thumb-cover.hidden,
@@ -1651,14 +1651,26 @@
             opacity: 0 !important;
             visibility: hidden !important;
             z-index: 1 !important;
+            will-change: transform !important;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden !important;
+            -webkit-backface-visibility: hidden !important;
+            transition: opacity 0.22s ease-out !important;
         }
         .reels-global-player-host.active {
             opacity: 1 !important;
             visibility: visible !important;
-            z-index: 2 !important;
-            transition: opacity 0.18s ease !important;
+            z-index: 3 !important;
+            pointer-events: auto !important;
         }
-        .reels-global-player-host:not(.active) {
+        .reels-global-player-host.is-prebuffering {
+            opacity: 0.001 !important;
+            visibility: visible !important;
+            z-index: 1 !important;
+            pointer-events: none !important;
+            transition: none !important;
+        }
+        .reels-global-player-host:not(.active):not(.is-prebuffering) {
             opacity: 0 !important;
             visibility: hidden !important;
             z-index: 0 !important;
@@ -2350,11 +2362,25 @@
             white-space: nowrap !important;
             border-width: 0 !important;
         }
+
+        /* 🚀 MOBILE FULLSCREEN ZERO HEADER PADDING: Xóa bỏ hoàn toàn khoảng chừa header 60px trên mobile */
+        @media (max-width: 1023px) {
+            html,
+            body,
+            body.is-reels-page,
+            body.page-reels,
+            body:has(.reels-page-wrapper),
+            body:has(.reels-viewport) {
+                padding: 0 !important;
+                padding-top: 0 !important;
+                margin: 0 !important;
+            }
+        }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="bg-[#06080f] text-gray-100 min-h-screen overflow-hidden w-full select-none">
+<body class="page-reels is-reels-page bg-[#06080f] text-gray-100 min-h-screen overflow-hidden w-full select-none">
     <!-- 🚀 CRAWLABLE SSR SEO CONTENT (Googlebot, Bingbot, Yandex crawlers) -->
     <article class="sr-only">
         <h1><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
@@ -2882,7 +2908,7 @@
 
                 <!-- 🚀 DUAL GLOBAL PLAYER HOSTS (Zero-Lag Switch) -->
                 <div class="reels-global-player-host active" id="reels-player-host-a" data-player="a"></div>
-                <div class="reels-global-player-host" id="reels-player-host-b" data-player="b"></div>
+                <div class="reels-global-player-host is-prebuffering" id="reels-player-host-b" data-player="b"></div>
 
                 <!-- 🚀 DUAL NATIVE HTML5 MSE VIDEO HOSTS (Facebook / Meta Ultra-Low Latency Engine) -->
                 <div class="reels-native-player-host" id="reels-native-host-a" data-player="native-a">
@@ -3626,7 +3652,7 @@
     <!-- =========================================================
          🚀 CLIENT CONTROLLER
          ========================================================= -->
-    <script src="/js/reels.js?v=443"></script>
+    <script src="/js/reels.js?v=444"></script>
 </body>
 
 </html>

@@ -25,7 +25,7 @@ html.light-mode body {
 }
 
 @media (max-width: 1280px) {
-    html.light-mode body:not(.has-desktop-hero):not(:has(#desktopHeroShowcase)) {
+    html.light-mode body:not(.has-desktop-hero):not(:has(#desktopHeroShowcase)):not(.is-reels-page):not(.page-reels):not(:has(.reels-page-wrapper)) {
         padding-top: 60px !important;
     }
 }

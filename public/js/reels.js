@@ -202,7 +202,6 @@
     function createReelIframe(ytId, autoplay = true, mute = true) {
         const iframe = document.createElement('iframe');
         iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope; fullscreen');
-        iframe.setAttribute('allowfullscreen', '');
         iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
         iframe.setAttribute('playsinline', '1');
         iframe.setAttribute('webkit-playsinline', '1');
@@ -274,22 +273,46 @@
         }
     }
 
-    // ⚡ Multi-pulse autoplay trigger for mobile browsers (Eliminates YouTube center play button)
+    // ── 🔇 Immediate Playback Stop (Zero Audio Leak on Swipe) ───────────────────
+    function stopCurrentPlaybackImmediately() {
+        if (state.players.a && state.players.a.fr) {
+            sendCmd(state.players.a.fr, 'mute');
+            sendCmd(state.players.a.fr, 'setVolume', [0]);
+            sendCmd(state.players.a.fr, 'pauseVideo');
+        }
+        if (state.players.b && state.players.b.fr) {
+            sendCmd(state.players.b.fr, 'mute');
+            sendCmd(state.players.b.fr, 'setVolume', [0]);
+            sendCmd(state.players.b.fr, 'pauseVideo');
+        }
+        document.querySelectorAll('.reels-native-player-host video').forEach(v => {
+            try {
+                v.muted = true;
+                v.pause();
+            } catch (e) {}
+        });
+        state.isPlaying = false;
+    }
+    window.stopCurrentPlaybackImmediately = stopCurrentPlaybackImmediately;
+
+    // ⚡ Fast autoplay trigger without message flooding
     function triggerAutoPlayWithSound(targetIfr, idx) {
         if (!targetIfr) return;
         const vol = state.volume > 0 ? state.volume : 100;
         
+        sendCmd(targetIfr, 'unMute');
+        sendCmd(targetIfr, 'setVolume', [vol]);
+        sendCmd(targetIfr, 'playVideo');
         sendCmd(targetIfr, 'getDuration');
-        [0, 50, 120, 250, 450, 750, 1100].forEach(delay => {
-            setTimeout(() => {
-                if (state.currentIndex === idx && !state.userPaused) {
-                    sendCmd(targetIfr, 'playVideo');
-                    sendCmd(targetIfr, 'unMute');
-                    sendCmd(targetIfr, 'setVolume', [vol]);
-                    sendCmd(targetIfr, 'getDuration');
-                }
-            }, delay);
-        });
+
+        // Single fallback verification pulse at 220ms
+        setTimeout(() => {
+            if (state.currentIndex === idx && !state.userPaused && !state.videoStartedPlaying) {
+                sendCmd(targetIfr, 'unMute');
+                sendCmd(targetIfr, 'setVolume', [vol]);
+                sendCmd(targetIfr, 'playVideo');
+            }
+        }, 220);
     }
 
     // ── Setup & Boot Dual Players (TikTok Low-Latency Engine) ───────────────────
@@ -324,17 +347,22 @@
                 state.players.b.ready = true;
                 state.players.b.ytId = cueYt;
                 sendCmd(ifrB, 'mute');
+                sendCmd(ifrB, 'setVolume', [0]);
                 sendCmd(ifrB, 'getDuration');
                 // Prime background player silently with mute
                 if (nextYtId) {
                     sendCmd(ifrB, 'loadVideoById', [nextYtId, 0]);
                     sendCmd(ifrB, 'mute');
+                    sendCmd(ifrB, 'setVolume', [0]);
                     sendCmd(ifrB, 'getDuration');
                 }
             });
             hostB.appendChild(ifrB);
             state.players.b.fr = ifrB;
             state.players.b.ytId = cueYt;
+            if (nextYtId) {
+                hostB.classList.add('is-prebuffering');
+            }
         }
     }
 
@@ -458,33 +486,56 @@
                 if (state.players[otherHostKey].ytId === currentYt && state.players[otherHostKey].fr) {
                     // ⚡ Instant 0ms Swap!
                     state.activeHostKey = otherHostKey;
-                    document.getElementById(state.players[otherHostKey].hostId).classList.add('active');
-                    document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
+                    const actHostEl = document.getElementById(state.players[otherHostKey].hostId);
+                    const idleHostEl = document.getElementById(state.players[currentHostKey].hostId);
+                    if (actHostEl) {
+                        actHostEl.classList.remove('is-prebuffering');
+                        actHostEl.classList.add('active');
+                    }
+                    if (idleHostEl) {
+                        idleHostEl.classList.remove('active', 'is-prebuffering');
+                    }
 
+                    sendCmd(state.players[otherHostKey].fr, 'seekTo', [0, true]);
                     sendCmd(state.players[otherHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
                     triggerAutoPlayWithSound(state.players[otherHostKey].fr, idx);
 
                     if (state.players[currentHostKey].fr) {
                         sendCmd(state.players[currentHostKey].fr, 'mute');
+                        sendCmd(state.players[currentHostKey].fr, 'setVolume', [0]);
                         sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
                     }
 
-                    // 🚀 INSTANT ZERO-LAG REVEAL: Preloaded video is already decoded in background!
-                    revealPlayingVideo(idx);
+                    // Safety fallback only if genuine frame playback event fails to trigger
+                    state.revealFallbackTimer = setTimeout(() => {
+                        if (state.currentIndex === idx && !state.videoStartedPlaying) {
+                            revealPlayingVideo(idx);
+                        }
+                    }, 1200);
                 } 
                 // Current host already has this video
                 else if (state.players[currentHostKey].ytId === currentYt && state.players[currentHostKey].fr) {
                     sendCmd(state.players[currentHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
                     triggerAutoPlayWithSound(state.players[currentHostKey].fr, idx);
 
-                    // 🚀 INSTANT REVEAL
-                    revealPlayingVideo(idx);
+                    state.revealFallbackTimer = setTimeout(() => {
+                        if (state.currentIndex === idx && !state.videoStartedPlaying) {
+                            revealPlayingVideo(idx);
+                        }
+                    }, 1200);
                 } 
                 // Load new video into the other host and swap
                 else {
                     state.activeHostKey = otherHostKey;
-                    document.getElementById(state.players[otherHostKey].hostId).classList.add('active');
-                    document.getElementById(state.players[currentHostKey].hostId).classList.remove('active');
+                    const actHostEl = document.getElementById(state.players[otherHostKey].hostId);
+                    const idleHostEl = document.getElementById(state.players[currentHostKey].hostId);
+                    if (actHostEl) {
+                        actHostEl.classList.remove('is-prebuffering');
+                        actHostEl.classList.add('active');
+                    }
+                    if (idleHostEl) {
+                        idleHostEl.classList.remove('active', 'is-prebuffering');
+                    }
 
                     state.players[otherHostKey].ytId = currentYt;
                     const targetIfr = state.players[otherHostKey].fr;
@@ -496,24 +547,31 @@
 
                     if (state.players[currentHostKey].fr) {
                         sendCmd(state.players[currentHostKey].fr, 'mute');
+                        sendCmd(state.players[currentHostKey].fr, 'setVolume', [0]);
                         sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
                     }
 
-                    // ⚡ Fast fallback reveal (180ms) so static poster never freezes/lingers
+                    // 🛡️ Poster holds naturally while YouTube decodes the stream.
                     state.revealFallbackTimer = setTimeout(() => {
                         if (state.currentIndex === idx && !state.videoStartedPlaying) {
                             revealPlayingVideo(idx);
                         }
-                    }, 180);
+                    }, 1200);
                 }
 
-                // 🚀 Active Pre-buffering in the idle host silently without cueVideoById
+                // 🚀 Active Pre-buffering in the idle host silently without blocking CPU/GPU
                 const idleHostKey = state.activeHostKey === 'a' ? 'b' : 'a';
                 if (nextYt && state.players[idleHostKey].ytId !== nextYt && state.players[idleHostKey].fr) {
                     state.players[idleHostKey].ytId = nextYt;
                     const idleIfr = state.players[idleHostKey].fr;
+                    const idleHostEl = document.getElementById(state.players[idleHostKey].hostId);
+                    if (idleHostEl) {
+                        idleHostEl.classList.remove('active');
+                        idleHostEl.classList.add('is-prebuffering');
+                    }
                     sendCmd(idleIfr, 'loadVideoById', [nextYt, 0]);
                     sendCmd(idleIfr, 'mute');
+                    sendCmd(idleIfr, 'setVolume', [0]);
                     sendCmd(idleIfr, 'getDuration');
                 }
             }
@@ -735,8 +793,12 @@
                             if (prevCover) prevCover.classList.remove('hidden');
                         }
 
+                        // 🔇 Mute and pause previous video immediately
+                        stopCurrentPlaybackImmediately();
+
                         state.currentIndex = newIndex;
                         playReelAtIndex(newIndex);
+                        if (typeof syncPlayerHostsPosition === 'function') syncPlayerHostsPosition();
                     }
 
                     // Infinite Scroll Pre-fetch (Pre-load next batch 5 slides before end for 0ms wait)
@@ -2756,6 +2818,73 @@
         }
     });
 
+    // ── 📱 Synchronize Video Player Host with Mobile Touch Scroll (1:1 Unified Fluidity) ──
+    let isSyncingTransform = false;
+    function syncPlayerHostsPosition() {
+        if (!feedContainer) return;
+
+        // Desktop (width >= 1024px) uses mouse clicks & discrete snapping, keep fixed
+        if (window.innerWidth >= 1024) {
+            const hostA = document.getElementById('reels-player-host-a');
+            const hostB = document.getElementById('reels-player-host-b');
+            const natA = document.getElementById('reels-native-host-a');
+            const natB = document.getElementById('reels-native-host-b');
+            if (hostA && hostA.style.transform) hostA.style.transform = '';
+            if (hostB && hostB.style.transform) hostB.style.transform = '';
+            if (natA && natA.style.transform) natA.style.transform = '';
+            if (natB && natB.style.transform) natB.style.transform = '';
+            return;
+        }
+
+        const currentItem = document.getElementById(`reel-item-${state.currentIndex}`);
+        if (!currentItem) return;
+
+        const viewportRect = feedContainer.getBoundingClientRect();
+        const currentRect = currentItem.getBoundingClientRect();
+        const currentOffsetY = Math.round(currentRect.top - viewportRect.top);
+
+        const hostA = document.getElementById('reels-player-host-a');
+        const hostB = document.getElementById('reels-player-host-b');
+        const natA = document.getElementById('reels-native-host-a');
+        const natB = document.getElementById('reels-native-host-b');
+
+        const activeHost = (state.activeHostKey === 'a') ? hostA : hostB;
+        const inactiveHost = (state.activeHostKey === 'a') ? hostB : hostA;
+        const activeNat = (state.activeHostKey === 'a') ? natA : natB;
+        const inactiveNat = (state.activeHostKey === 'a') ? natB : natA;
+
+        // Active video player moves in 100% lockstep with the current reel item
+        if (activeHost) {
+            activeHost.style.transform = `translate3d(0, ${currentOffsetY}px, 0)`;
+        }
+        if (activeNat) {
+            activeNat.style.transform = `translate3d(0, ${currentOffsetY}px, 0)`;
+        }
+
+        // Inactive player host moves in lockstep with the adjacent item
+        if (currentOffsetY < 0) {
+            const nextItem = document.getElementById(`reel-item-${state.currentIndex + 1}`);
+            if (nextItem) {
+                const nextRect = nextItem.getBoundingClientRect();
+                const nextOffsetY = Math.round(nextRect.top - viewportRect.top);
+                if (inactiveHost) inactiveHost.style.transform = `translate3d(0, ${nextOffsetY}px, 0)`;
+                if (inactiveNat) inactiveNat.style.transform = `translate3d(0, ${nextOffsetY}px, 0)`;
+            }
+        } else if (currentOffsetY > 0) {
+            const prevItem = document.getElementById(`reel-item-${state.currentIndex - 1}`);
+            if (prevItem) {
+                const prevRect = prevItem.getBoundingClientRect();
+                const prevOffsetY = Math.round(prevRect.top - viewportRect.top);
+                if (inactiveHost) inactiveHost.style.transform = `translate3d(0, ${prevOffsetY}px, 0)`;
+                if (inactiveNat) inactiveNat.style.transform = `translate3d(0, ${prevOffsetY}px, 0)`;
+            }
+        } else {
+            if (inactiveHost && inactiveHost.style.transform) inactiveHost.style.transform = '';
+            if (inactiveNat && inactiveNat.style.transform) inactiveNat.style.transform = '';
+        }
+    }
+    window.syncPlayerHostsPosition = syncPlayerHostsPosition;
+
     window.scrollToReelIndex = function (index) {
         if (!feedContainer) return;
         const totalItems = feedContainer.querySelectorAll('.reel-item').length;
@@ -2766,16 +2895,25 @@
                 top: item.offsetTop,
                 behavior: 'smooth'
             });
+
             if (targetIdx !== state.currentIndex) {
+                // 🔇 Zero audio leak: Instantly silence and pause outgoing video on frame 0
+                stopCurrentPlaybackImmediately();
+
+                // Restore poster on outgoing slide so background stays clean
                 const prevIndex = state.currentIndex;
                 const prevItem = feedContainer.querySelector(`.reel-item[data-index="${prevIndex}"]`);
                 if (prevItem) {
                     const prevCover = prevItem.querySelector('.reel-thumb-cover');
                     if (prevCover) prevCover.classList.remove('hidden');
                 }
+
                 state.currentIndex = targetIdx;
                 state.slideEnterTime = Date.now();
+
+                // ⚡ Boot & pre-warm incoming video immediately so it buffers during the 300ms smooth glide
                 playReelAtIndex(targetIdx);
+                syncPlayerHostsPosition();
             }
         }
     };
@@ -2816,6 +2954,9 @@
             if (wheelLocked) return;
             wheelLocked = true;
 
+            // 🔇 Immediate audio cutoff on wheel
+            stopCurrentPlaybackImmediately();
+
             if (e.deltaY > 0) {
                 window.scrollToNextReel();
             } else {
@@ -2827,7 +2968,18 @@
             }, 180);
         }, { passive: false });
 
-        // 2. 📱 Mobile Touch Gesture Engine (Ultra-Smooth Fluid Swipe Snap like TikTok App)
+        // 2. 📱 Continuous Real-Time Scroll Synchronizer for 120Hz Hardware Motion
+        feedContainer.addEventListener('scroll', () => {
+            if (!isSyncingTransform) {
+                isSyncingTransform = true;
+                requestAnimationFrame(() => {
+                    syncPlayerHostsPosition();
+                    isSyncingTransform = false;
+                });
+            }
+        }, { passive: true });
+
+        // 3. 📱 Mobile Touch Gesture Engine (Ultra-Smooth Fluid Swipe Snap like TikTok App)
         let touchStartY = 0;
         let touchStartX = 0;
         let touchStartTime = 0;
@@ -2859,7 +3011,15 @@
             // If user gesture is clearly horizontal, disengage vertical swipe assist
             if (deltaX > deltaY && deltaX > 25) {
                 isTouchActive = false;
+            } else if (deltaY > 18 && deltaY > deltaX) {
+                // 🔇 Instant mute active video when deliberate vertical swipe begins
+                const curIfr = getActiveIframe();
+                if (curIfr) {
+                    sendCmd(curIfr, 'mute');
+                    sendCmd(curIfr, 'setVolume', [0]);
+                }
             }
+            syncPlayerHostsPosition();
         }, { passive: true });
 
         feedContainer.addEventListener('touchend', (e) => {
@@ -2885,6 +3045,8 @@
 
             if (isFlick || isDrag) {
                 swipeDebounceLocked = true;
+                // 🔇 Immediate full audio cutoff
+                stopCurrentPlaybackImmediately();
                 if (deltaY < 0) {
                     window.scrollToNextReel();
                 } else {
@@ -2893,8 +3055,9 @@
 
                 setTimeout(() => {
                     swipeDebounceLocked = false;
-                }, 300);
+                }, 350);
             }
+            syncPlayerHostsPosition();
         }, { passive: true });
     }
 

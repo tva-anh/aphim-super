@@ -23,18 +23,32 @@
 html,
 html.light-mode,
 body,
-body.light-mode {
+body.light-mode,
+body.is-reels-page,
+body.page-reels {
     background-color: var(--reels-bg) !important;
     background: var(--reels-bg) !important;
     color: var(--reels-text) !important;
     margin: 0 !important;
     padding: 0 !important;
+    padding-top: 0 !important;
     overflow: hidden !important;
     height: 100% !important;
     width: 100% !important;
     font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     user-select: none;
     -webkit-user-select: none;
+}
+
+@media (max-width: 1023px) {
+    html body,
+    html body.is-reels-page,
+    html body.page-reels,
+    body:has(.reels-page-wrapper) {
+        padding: 0 !important;
+        padding-top: 0 !important;
+        margin: 0 !important;
+    }
 }
 
 /* ===================================================
@@ -1205,16 +1219,25 @@ body.light-mode {
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
+    transition: opacity 0.22s ease-out;
 }
 
 .reels-global-player-host.active {
     opacity: 1;
     visibility: visible;
-    z-index: 2;
-    transition: opacity 0.18s ease;
+    z-index: 3;
+    pointer-events: auto;
 }
 
-.reels-global-player-host:not(.active) {
+.reels-global-player-host.is-prebuffering {
+    opacity: 0.001 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    transition: none !important;
+}
+
+.reels-global-player-host:not(.active):not(.is-prebuffering) {
     opacity: 0 !important;
     visibility: hidden !important;
     z-index: 0 !important;
@@ -1994,7 +2017,7 @@ body.light-mode {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.15s ease-out;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease-out !important;
     z-index: 6;
     will-change: opacity, visibility;
 }
@@ -5391,6 +5414,10 @@ body.reels-cinema-mode .reels-yt-logo-shield {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    will-change: transform !important;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
 }
 .reels-native-player-host.active {
     z-index: 2 !important;
