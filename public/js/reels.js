@@ -355,6 +355,11 @@
                     sendCmd(ifrB, 'mute');
                     sendCmd(ifrB, 'setVolume', [0]);
                     sendCmd(ifrB, 'getDuration');
+                    setTimeout(() => {
+                        if (state.activeHostKey !== 'b') {
+                            sendCmd(ifrB, 'pauseVideo');
+                        }
+                    }, 400);
                 }
             });
             hostB.appendChild(ifrB);
@@ -496,7 +501,11 @@
                         idleHostEl.classList.remove('active', 'is-prebuffering');
                     }
 
-                    sendCmd(state.players[otherHostKey].fr, 'seekTo', [0, true]);
+                    // ⚡ ZERO-DELAY REVEAL:
+                    // Target video was ALREADY preloaded and primed in otherHostKey!
+                    // Reveal immediately (0ms) so user sees the VIDEO directly, NEVER a static photo!
+                    revealPlayingVideo(idx);
+
                     sendCmd(state.players[otherHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
                     triggerAutoPlayWithSound(state.players[otherHostKey].fr, idx);
 
@@ -505,24 +514,12 @@
                         sendCmd(state.players[currentHostKey].fr, 'setVolume', [0]);
                         sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
                     }
-
-                    // Safety fallback only if genuine frame playback event fails to trigger
-                    state.revealFallbackTimer = setTimeout(() => {
-                        if (state.currentIndex === idx && !state.videoStartedPlaying) {
-                            revealPlayingVideo(idx);
-                        }
-                    }, 1200);
                 } 
                 // Current host already has this video
                 else if (state.players[currentHostKey].ytId === currentYt && state.players[currentHostKey].fr) {
+                    revealPlayingVideo(idx);
                     sendCmd(state.players[currentHostKey].fr, 'setPlaybackRate', [state.playbackSpeed]);
                     triggerAutoPlayWithSound(state.players[currentHostKey].fr, idx);
-
-                    state.revealFallbackTimer = setTimeout(() => {
-                        if (state.currentIndex === idx && !state.videoStartedPlaying) {
-                            revealPlayingVideo(idx);
-                        }
-                    }, 1200);
                 } 
                 // Load new video into the other host and swap
                 else {
@@ -551,12 +548,12 @@
                         sendCmd(state.players[currentHostKey].fr, 'pauseVideo');
                     }
 
-                    // 🛡️ Poster holds naturally while YouTube decodes the stream.
+                    // ⚡ Ultra-fast reveal for cold starts (180ms)
                     state.revealFallbackTimer = setTimeout(() => {
-                        if (state.currentIndex === idx && !state.videoStartedPlaying) {
+                        if (state.currentIndex === idx) {
                             revealPlayingVideo(idx);
                         }
-                    }, 1200);
+                    }, 180);
                 }
 
                 // 🚀 Active Pre-buffering in the idle host silently without blocking CPU/GPU
@@ -573,6 +570,13 @@
                     sendCmd(idleIfr, 'mute');
                     sendCmd(idleIfr, 'setVolume', [0]);
                     sendCmd(idleIfr, 'getDuration');
+
+                    // Pre-warm initial frame then pause at 0s so it is ready to play instantly in 0ms
+                    setTimeout(() => {
+                        if (state.players[idleHostKey].ytId === nextYt && state.activeHostKey !== idleHostKey) {
+                            sendCmd(idleIfr, 'pauseVideo');
+                        }
+                    }, 400);
                 }
             }
         }
@@ -1078,7 +1082,7 @@
                 if (state.currentIndex === 0) {
                     revealPlayingVideo(0);
                 }
-            }, 250);
+            }, 120);
 
             const backdropUrl = firstItem.getAttribute('data-backdrop') || firstItem.getAttribute('data-poster');
             const ambientEl = document.getElementById('reels-ambient-backdrop');
