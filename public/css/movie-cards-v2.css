@@ -254,33 +254,35 @@ main > section:first-child .section-header {
     width: 100% !important;
     height: 0 !important;
     padding-bottom: 148% !important; /* Increased vertical height proportion */
-    border-radius: 12px !important;
+    border-radius: 13px !important;
     overflow: hidden !important;
     background: #151821 !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
     transform-origin: center center !important;
-    transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1), filter 0.28s cubic-bezier(0.25, 1, 0.5, 1) !important;
-    will-change: transform, filter !important;
+    transform: translateZ(0) !important;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
 }
 
-/* Thẻ lẻ (1, 3, 5...): Bên trái nhô cao, bên phải hạ thấp, mép dưới phẳng tuyệt đối 100% */
-.de-cu-card:nth-child(odd) .de-cu-poster-wrap {
-    clip-path: url(#wave-decu-odd);
-}
-
-/* Thẻ chẵn (2, 4, 6...): Bên trái hạ thấp (nối tiếp điểm của thẻ lẻ), bên phải nhô cao, mép dưới phẳng tuyệt đối 100% */
+/* Đồng bộ bo góc GPU siêu mượt, loại bỏ clip-path phần mềm gây nghẽn CPU */
+.de-cu-card:nth-child(odd) .de-cu-poster-wrap,
 .de-cu-card:nth-child(even) .de-cu-poster-wrap {
-    clip-path: url(#wave-decu-even);
+    clip-path: none !important;
+    border-radius: 13px !important;
 }
 
 .de-cu-card:hover .de-cu-poster-wrap {
-    transform: scale(0.965) !important;
-    filter: drop-shadow(0 0 1.5px #f59e0b) drop-shadow(0 0 6px rgba(245, 158, 11, 0.85)) !important;
+    transform: translateY(-4px) translateZ(0) !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.7), 0 8px 24px rgba(245, 158, 11, 0.35) !important;
+    filter: none !important;
 }
 
 .de-cu-card:active .de-cu-poster-wrap {
-    transform: scale(0.935) !important;
-    transition-duration: 0.12s !important;
+    transform: translateY(-1px) scale(0.98) translateZ(0) !important;
+    transition-duration: 0.1s !important;
 }
 
 .de-cu-card .de-cu-poster-wrap img {

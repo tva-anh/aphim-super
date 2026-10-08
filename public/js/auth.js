@@ -481,6 +481,13 @@ class AuthService {
         const cover = user.profileCover || user.profile_cover;
         if (cover) localStorage.setItem('ap_profile_cover', cover);
 
+        // ĐỒNG BỘ THÔNG BÁO TỪ BACKEND CLOUD
+        if (user.notifications && Array.isArray(user.notifications) && user.notifications.length > 0) {
+            if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(user.notifications));
+            localStorage.setItem('cinestream_notifications', JSON.stringify(user.notifications));
+            try { window.dispatchEvent(new CustomEvent('ap:notifications-updated', { detail: user.notifications })); } catch (e) { }
+        }
+
         // ĐỒNG BỘ SỐ DƯ XU VÀ TIỀN TỆ (20 Xu mặc định cho tài khoản mới)
         if (user.xu != null || user.coins != null) {
             const userXu = Number(user.xu != null ? user.xu : user.coins);

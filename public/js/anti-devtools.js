@@ -17,7 +17,6 @@
                     (window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443');
 
     if (isLocal) {
-        console.log('🛠️ [Local Mode] F12, Chuột phải, DevTools Redirect Trap đã được tắt để phát triển và kiểm tra log.');
         return;
     }
 

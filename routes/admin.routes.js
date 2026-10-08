@@ -904,6 +904,31 @@ router.put('/users/:id/grant-vip', requireAdmin, async (req, res) => {
             note: reason || `Admin cấp ${plan} ${days} ngày`, ip: req.ip
         });
 
+        // 🔔 Tạo thông báo Cloud lưu vĩnh viễn cho User
+        try {
+            const UserNotification = require('../models/UserNotification');
+            const newNotif = {
+                id: 'admin_vip_' + Date.now(),
+                title: 'Nâng Cấp VIP Thành Công',
+                message: `Bạn vừa được Ban Quản Trị kích hoạt gói VIP ${plan} (${days} ngày). Tận hưởng thế giới phim 4K UltraHD đỉnh cao!`,
+                detail: `Gói VIP: ${plan} - Thời hạn: ${days} ngày. Kích hoạt lúc: ${new Date().toLocaleString('vi-VN')}`,
+                type: 'vip',
+                link: '/profile?tab=notifications',
+                createdAt: new Date().toISOString(),
+                read: false,
+                isRead: false
+            };
+            await UserNotification.findOneAndUpdate(
+                { user_id: id },
+                { $push: { notifications: { $each: [newNotif], $position: 0, $slice: 100 } } },
+                { upsert: true }
+            );
+            const io = req.app.get('io');
+            if (io) io.to(`user_${id}`).emit('NEW_NOTIFICATION', newNotif);
+        } catch (nErr) {
+            console.warn('[Admin] UserNotification grant_vip save error:', nErr.message);
+        }
+
         invalidateAdminCache('dashboard');
         invalidateAdminCache('users');
 
@@ -979,6 +1004,36 @@ router.put('/users/:id/full-profile', requireAdmin, async (req, res) => {
             io.to(`user_${id}`).emit('USER_UPDATE', payload);
         }
 
+        // 🔔 Tạo thông báo Cloud khi thay đổi Xu từ Admin
+        if (xu !== undefined && parseInt(xu) !== profile.xu) {
+            const diff = parseInt(xu) - profile.xu;
+            try {
+                const UserNotification = require('../models/UserNotification');
+                const notifTitle = diff > 0 ? 'Cộng Xu Từ Quản Trị Viên' : 'Điều Chỉnh Số Dư Xu';
+                const notifMsg = `Tài khoản của bạn vừa được ${diff > 0 ? 'cộng +' : 'trừ -'}${Math.abs(diff).toLocaleString()} Xu bởi Ban Quản Trị. Số dư mới: ${parseInt(xu).toLocaleString()} Xu.`;
+                const newNotif = {
+                    id: 'admin_xu_' + Date.now(),
+                    title: notifTitle,
+                    message: notifMsg,
+                    detail: notifMsg,
+                    type: 'coin',
+                    amount: diff,
+                    link: '/profile?tab=notifications',
+                    createdAt: new Date().toISOString(),
+                    read: false,
+                    isRead: false
+                };
+                await UserNotification.findOneAndUpdate(
+                    { user_id: id },
+                    { $push: { notifications: { $each: [newNotif], $position: 0, $slice: 100 } } },
+                    { upsert: true }
+                );
+                if (io) io.to(`user_${id}`).emit('NEW_NOTIFICATION', newNotif);
+            } catch (nErr) {
+                console.warn('[Admin] UserNotification xu update error:', nErr.message);
+            }
+        }
+
         invalidateAdminCache('dashboard');
         invalidateAdminCache('users');
 
@@ -1030,6 +1085,36 @@ router.put('/users/:id/gamification', requireAdmin, async (req, res) => {
             const numXu = xu !== undefined ? parseInt(xu) : profile.xu;
             io.emit(`USER_UPDATE_${id}`, { userId: id, xu: numXu, coins: numXu, level, streak_current });
             io.to(`user_${id}`).emit('USER_UPDATE', { userId: id, xu: numXu, coins: numXu, level, streak_current });
+        }
+
+        // 🔔 Tạo thông báo Cloud khi thay đổi Xu từ Admin Gamification
+        if (xu !== undefined && parseInt(xu) !== profile.xu) {
+            const diff = parseInt(xu) - profile.xu;
+            try {
+                const UserNotification = require('../models/UserNotification');
+                const notifTitle = diff > 0 ? 'Cộng Xu Từ Quản Trị Viên' : 'Điều Chỉnh Số Dư Xu';
+                const notifMsg = `Tài khoản của bạn vừa được ${diff > 0 ? 'cộng +' : 'trừ -'}${Math.abs(diff).toLocaleString()} Xu bởi Ban Quản Trị. Số dư mới: ${parseInt(xu).toLocaleString()} Xu.`;
+                const newNotif = {
+                    id: 'admin_xu_' + Date.now(),
+                    title: notifTitle,
+                    message: notifMsg,
+                    detail: notifMsg,
+                    type: 'coin',
+                    amount: diff,
+                    link: '/profile?tab=notifications',
+                    createdAt: new Date().toISOString(),
+                    read: false,
+                    isRead: false
+                };
+                await UserNotification.findOneAndUpdate(
+                    { user_id: id },
+                    { $push: { notifications: { $each: [newNotif], $position: 0, $slice: 100 } } },
+                    { upsert: true }
+                );
+                if (io) io.to(`user_${id}`).emit('NEW_NOTIFICATION', newNotif);
+            } catch (nErr) {
+                console.warn('[Admin] UserNotification gamif xu error:', nErr.message);
+            }
         }
 
         invalidateAdminCache('dashboard');

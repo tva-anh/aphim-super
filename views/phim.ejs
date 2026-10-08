@@ -1015,13 +1015,14 @@
                                 </style>
                                 <div class="ml-auto flex-shrink-0">
                                     <a id="headerRatingBtn" href="<%= reviewUrl %>"
+                                        title="Xem video review tóm tắt phim <%= (typeof movie !=='undefined' && movie && movie.name) ? movie.name : '' %>"
                                         class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer no-underline">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24"
                                             aria-hidden="true">
                                             <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
                                             <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
                                         </svg>
-                                        <span class="text-xs sm:text-sm font-bold tracking-wide">Review phim</span>
+                                        <span class="text-xs sm:text-sm font-bold tracking-wide">🎬 Xem Review (1p)</span>
                                     </a>
                                 </div>
                         </div>
@@ -1035,6 +1036,11 @@
                                     class="ap-tab-btn active font-bold text-sm sm:text-base cursor-pointer py-2.5 text-[#fcd576] border-b-2 border-[#fcd576] whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
                                     Tập phim
                                 </button>
+                                <a href="<%= reviewUrl %>" id="tab-btn-review"
+                                    title="Xem video review tóm tắt phim <%= (typeof movie !=='undefined' && movie && movie.name) ? movie.name : '' %>"
+                                    class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-rose-400 hover:text-rose-300 border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)] flex items-center gap-1.5 no-underline">
+                                    <span>🎬</span> Review Phim
+                                </a>
                                 <button type="button" onclick="switchMovieTab('gallery')" id="tab-btn-gallery"
                                     class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-white/85 hover:text-white border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
                                     Gallery

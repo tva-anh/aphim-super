@@ -1660,10 +1660,11 @@
 
                                     // Unread notifications count
                                     var unreadCount = 0;
+                                    var notifList = [];
                                     try {
                                         var rawNotifs = localStorage.getItem('ap_notifs_' + userId) || localStorage.getItem('cinestream_notifications');
                                         if (rawNotifs) {
-                                            var notifList = JSON.parse(rawNotifs);
+                                            notifList = JSON.parse(rawNotifs);
                                             if (Array.isArray(notifList)) {
                                                 unreadCount = notifList.filter(function (n) { return n && !n.isRead && !n.read; }).length;
                                             }
@@ -1693,7 +1694,56 @@
                                         ? '<span id="navNotifBadge" class="nav-bell-badge" style="display:inline-flex;">' + (unreadCount > 99 ? '99+' : unreadCount) + '</span>'
                                         : '<span id="navNotifBadge" class="nav-bell-badge hidden" style="display:none;"></span>';
 
-                                    var notifBell = '<div class="relative flex items-center" id="navNotificationBtn" style="cursor:pointer; z-index: 60; margin-right: 0px; flex-shrink:0;">' +
+                                    var notifItemsHtml = '';
+                                    if (Array.isArray(notifList) && notifList.length > 0) {
+                                        notifItemsHtml = notifList.slice(0, 6).map(function(n) {
+                                            if (!n || (!n.title && !n.message && !n.content)) return '';
+                                            var isUnread = !n.isRead && !n.read;
+                                            var notifId = n._id || n.id || '';
+                                            var iconClass = 'system';
+                                            var badgeText = 'Hệ thống';
+                                            var iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+                                            
+                                            if (n.type === 'coin' || n.type === 'reward' || n.type === 'success') {
+                                                iconClass = 'coin';
+                                                badgeText = 'Xu & Quà';
+                                                iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 6.5v11"/></svg>';
+                                            } else if (n.type === 'shop' || n.type === 'purchase') {
+                                                iconClass = 'coin';
+                                                badgeText = 'Cửa Hàng';
+                                                iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+                                            } else if (n.type === 'vip' || n.type === 'promotion') {
+                                                iconClass = 'vip';
+                                                badgeText = 'Ưu đãi VIP';
+                                                iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>';
+                                            } else if (n.type === 'movie') {
+                                                iconClass = 'movie';
+                                                badgeText = 'Phim mới';
+                                                iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.5"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>';
+                                            }
+                                            var msgText = n.message || n.content || '';
+                                            return '<div class="nav-notif-item ' + (isUnread ? 'unread' : 'read') + ' type-' + iconClass + '" onclick="event.stopPropagation(); if(window.handleNavNotifClick) window.handleNavNotifClick(\'' + notifId + '\');">' +
+                                                '<div class="nav-notif-item-icon">' + iconSvg + '</div>' +
+                                                '<div class="nav-notif-item-content">' +
+                                                '<div class="nav-notif-item-top">' +
+                                                '<span class="nav-notif-item-badge badge-' + iconClass + '">' + badgeText + '</span>' +
+                                                '</div>' +
+                                                '<div class="nav-notif-item-title">' + (n.title || 'Thông báo') + '</div>' +
+                                                '<div class="nav-notif-item-msg">' + msgText + '</div>' +
+                                                '</div>' +
+                                                '</div>';
+                                        }).join('');
+                                    } else {
+                                        notifItemsHtml = '<div class="nav-notif-empty">' +
+                                            '<div class="nav-notif-empty-icon">' +
+                                            '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>' +
+                                            '</div>' +
+                                            '<div class="nav-notif-empty-title">Hộp thư thông báo trống</div>' +
+                                            '<div class="nav-notif-empty-desc">Bạn đã xem hết các thông báo mới</div>' +
+                                            '</div>';
+                                    }
+
+                                    var notifBell = '<div class="relative flex items-center" id="navNotificationBtn" onclick="if(window.toggleNavNotifPanel){window.toggleNavNotifPanel(event);}" style="cursor:pointer; z-index: 60; margin-right: 0px; flex-shrink:0;">' +
                                         '<button type="button" class="nav-bell-trigger relative" aria-label="Thông báo" title="Thông báo">' +
                                         '<svg class="nav-bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
                                         '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"></path>' +
@@ -1715,7 +1765,7 @@
                                         '<span>Đã đọc</span>' +
                                         '</button>' +
                                         '</div>' +
-                                        '<div id="notifListContainer" class="nav-notif-list custom-scrollbar"></div>' +
+                                        '<div id="notifListContainer" class="nav-notif-list custom-scrollbar">' + notifItemsHtml + '</div>' +
                                         '<div class="nav-notif-footer">' +
                                         '<a href="/profile?tab=notifications" class="nav-notif-view-all-btn">' +
                                         '<span>Xem tất cả thông báo</span>' +
@@ -1765,6 +1815,40 @@
 
                                     container.innerHTML = profileLink;
                                     container.style.setProperty('overflow', 'visible', 'important');
+
+                                    // Global dropdown toggle
+                                    window.toggleNavNotifPanel = function(e) {
+                                        if (e && e.stopPropagation) e.stopPropagation();
+                                        var panel = document.getElementById('navNotifPanel');
+                                        if (!panel) return;
+                                        var isVisible = panel.classList.contains('opacity-100') && !panel.classList.contains('invisible');
+                                        if (isVisible) {
+                                            panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-3');
+                                            panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                                        } else {
+                                            panel.classList.remove('invisible', 'opacity-0', 'scale-95', 'translate-y-3');
+                                            panel.classList.add('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                                            if (typeof window.renderNotifications === 'function') {
+                                                try { window.renderNotifications(); } catch (err) { }
+                                            }
+                                            if (typeof window.syncNotifications === 'function') {
+                                                try { window.syncNotifications(true); } catch (err) { }
+                                            }
+                                        }
+                                    };
+
+                                    if (!document._apNotifClickGuard) {
+                                        document._apNotifClickGuard = true;
+                                        document.addEventListener('click', function(e) {
+                                            if (!e.target.closest('#navNotificationBtn')) {
+                                                var panel = document.getElementById('navNotifPanel');
+                                                if (panel && panel.classList.contains('opacity-100')) {
+                                                    panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-3');
+                                                    panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                                                }
+                                            }
+                                        });
+                                    }
                                 }
                             }
                         }

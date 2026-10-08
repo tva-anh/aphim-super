@@ -6,19 +6,24 @@
     <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].poster) { %>
     <link rel="preload" as="image" href="<%= initialReels[0].poster %>" fetchpriority="high">
     <% } %>
-    <!-- 🎥 Social Video Meta: Twitter Player Card & OpenGraph Video (Discord, Telegram, X, Facebook) -->
+    <!-- 🎥 Social Video Meta: Twitter Player Card & OpenGraph Video (Discord, Telegram, X, Facebook, Google Video) -->
     <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].yt) { 
         const primaryReel = initialReels[0];
+        const primaryThumb = primaryReel.poster || primaryReel.thumb || `https://i.ytimg.com/vi/${primaryReel.yt}/hqdefault.jpg`;
     %>
     <meta property="og:video" content="https://www.youtube.com/embed/<%= primaryReel.yt %>">
     <meta property="og:video:secure_url" content="https://www.youtube.com/embed/<%= primaryReel.yt %>">
     <meta property="og:video:type" content="text/html">
     <meta property="og:video:width" content="1280">
     <meta property="og:video:height" content="720">
+    <meta property="video:duration" content="<%= primaryReel.durationSeconds || 1200 %>">
+    <meta property="video:release_date" content="<%= primaryReel.publishedAt || new Date().toISOString() %>">
     <meta name="twitter:card" content="player">
     <meta name="twitter:player" content="https://www.youtube.com/embed/<%= primaryReel.yt %>">
     <meta name="twitter:player:width" content="1280">
     <meta name="twitter:player:height" content="720">
+    <meta name="twitter:image" content="<%= primaryThumb %>">
+    <link rel="alternate" type="application/json+oembed" href="https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=<%= primaryReel.yt %>&format=json" title="Video Review <%= primaryReel.movieTitle || primaryReel.title %>">
     <% } %>
     <script>
         // Force Cinematic Deep Dark Mode
@@ -2383,16 +2388,42 @@
 </head>
 
 <body class="page-reels is-reels-page bg-[#06080f] text-gray-100 min-h-screen overflow-hidden w-full select-none">
-    <!-- 🚀 CRAWLABLE SSR SEO CONTENT (Googlebot, Bingbot, Yandex crawlers) -->
-    <article class="sr-only">
-        <h1><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
-        <p><%= typeof metaDescription !== 'undefined' ? metaDescription : 'Xem video review phim ngắn và trích đoạn phim hot tại APhim Super.' %></p>
+    <!-- 🚀 CRAWLABLE SSR SEO CONTENT (Googlebot Video, Bingbot, Yandex crawlers) -->
+    <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].yt) { 
+        const primaryFeat = initialReels[0];
+        const primaryTitle = primaryFeat.movieTitle || primaryFeat.title || 'Review Phim';
+    %>
+    <noscript>
+        <div style="background:#0b0f19;color:#e2e8f0;padding:20px;border-radius:12px;margin:15px;max-width:850px;border:1px solid rgba(255,255,255,0.1);font-family:sans-serif;">
+            <h2 style="font-size:20px;color:#fff;margin-bottom:10px;">Xem Video Review Phim <%= primaryTitle %> (<%= primaryFeat.year || '2026' %>) - Tóm Tắt Trọn Bộ</h2>
+            <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:12px;">
+                <iframe src="https://www.youtube-nocookie.com/embed/<%= primaryFeat.yt %>" title="Review Phim <%= primaryTitle %>" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
+            </div>
+            <p style="font-size:14px;color:#94a3b8;line-height:1.6;"><%= primaryFeat.desc || `Tóm tắt nội dung phim ${primaryTitle}, phân tích tình tiết kịch tính và đánh giá chi tiết.` %></p>
+            <div style="margin-top:14px;">
+                <a href="/phim/<%= primaryFeat.slug || '' %>" style="display:inline-block;padding:8px 16px;background:#ff2b54;color:#fff;border-radius:6px;text-decoration:none;font-weight:700;">Xem Phim <%= primaryTitle %> Full HD Vietsub &rarr;</a>
+            </div>
+        </div>
+    </noscript>
+    <% } %>
+
+    <article class="sr-only" itemscope itemtype="https://schema.org/VideoObject">
+        <h1 itemprop="name"><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
+        <p itemprop="description"><%= typeof metaDescription !== 'undefined' ? metaDescription : 'Xem video review phim ngắn và trích đoạn phim hot tại APhim Super.' %></p>
         
         <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0) { 
             const feat = initialReels[0];
             const mTitle = feat.movieTitle || feat.title || 'Review Phim';
             const mSlug = feat.slug || '';
+            const mThumb = feat.poster || feat.thumb || (feat.yt ? `https://i.ytimg.com/vi/${feat.yt}/hqdefault.jpg` : 'https://aphim.store/android-chrome-512x512.png');
         %>
+        <meta itemprop="thumbnailUrl" content="<%= mThumb %>">
+        <meta itemprop="uploadDate" content="<%= feat.publishedAt || new Date().toISOString() %>">
+        <% if (feat.yt) { %>
+        <meta itemprop="embedUrl" content="https://www.youtube-nocookie.com/embed/<%= feat.yt %>">
+        <% } %>
+        <meta itemprop="duration" content="PT20M">
+
         <section>
             <h2>Video Nổi Bật: Review Phim <%= mTitle %> (<%= feat.year || '2026' %>)</h2>
             <p><%= feat.desc || feat.description || `Tóm tắt nội dung phim ${mTitle}, phân tích tình tiết kịch tính và đánh giá chi tiết.` %></p>

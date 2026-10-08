@@ -51,11 +51,11 @@ const COUNTRY_LABELS = {
     'dai-loan': 'Đài Loan'
 };
 
-// Helper: Xây dựng Schema.org JSON-LD VideoObject & ItemList & Breadcrumbs cho Google Rich Snippets
+// Helper: Xây dựng Schema.org JSON-LD VideoObject & ItemList & Breadcrumbs cho Google Rich Snippets chuẩn 5 sao
 function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, items = [] }) {
     const schemas = [];
 
-    // 1. BreadcrumbList Schema
+    // 1. BreadcrumbList Schema (Thanh điều hướng phân cấp trên kết quả Google)
     schemas.push({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -69,21 +69,26 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
             {
                 "@type": "ListItem",
                 "position": 2,
-                "name": "Reels & Review",
+                "name": "Review Phim Hay",
                 "item": "https://aphim.store/reels"
             },
             ...(featuredItem ? [{
                 "@type": "ListItem",
                 "position": 3,
-                "name": featuredItem.movieTitle || featuredItem.title || "Review Phim",
+                "name": `Review Phim ${featuredItem.movieTitle || featuredItem.title || 'Mới'}`,
                 "item": canonicalUrl
             }] : [])
         ]
     });
 
-    // 2. VideoObject Schema (Google Video Rich Results)
-    if (featuredItem) {
-        const uploadDate = featuredItem.publishedAt || new Date().toISOString();
+    // 2. VideoObject Schema (Google Video Rich Results & Universal Video Search)
+    if (featuredItem && (featuredItem.yt || featuredItem.slug)) {
+        const rawYt = featuredItem.yt || '';
+        const mTitle = featuredItem.movieTitle || featuredItem.title || 'Review Phim';
+        const origTitle = featuredItem.originTitle || '';
+        const year = String(featuredItem.year || '2026');
+
+        // Tính toán duration chuẩn ISO 8601 (PT...M...S)
         let durationSec = featuredItem.durationSeconds;
         if (!durationSec && featuredItem.duration) {
             const parts = String(featuredItem.duration).trim().split(':').map(p => parseInt(p, 10) || 0);
@@ -92,30 +97,96 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
             else durationSec = parseInt(featuredItem.duration, 10) || 0;
         }
         if (!durationSec || durationSec <= 0) {
-            durationSec = 1500; // 25 phút mặc định cho video review thay vì 4 phút
+            durationSec = 1200; // 20 phút mặc định cho video review
         }
         const hours = Math.floor(durationSec / 3600);
         const minutes = Math.floor((durationSec % 3600) / 60);
         const seconds = durationSec % 60;
         const isoDuration = hours > 0 ? `PT${hours}H${minutes}M${seconds}S` : `PT${minutes}M${seconds}S`;
 
-        schemas.push({
+        // Chuẩn hóa uploadDate chuẩn ISO 8601
+        let uploadDate = new Date().toISOString();
+        if (featuredItem.publishedAt) {
+            try {
+                const parsed = new Date(featuredItem.publishedAt);
+                if (!isNaN(parsed.getTime())) uploadDate = parsed.toISOString();
+            } catch (e) {}
+        }
+
+        // Tạo mảng Thumbnail đa tỷ lệ (16:9, 4:3, 1:1) độ nét cao, luôn có fallback chắc chắn 100% không trả về 404
+        const thumbUrls = [];
+        if (featuredItem.poster && featuredItem.poster.startsWith('http')) {
+            thumbUrls.push(featuredItem.poster);
+        }
+        if (rawYt) {
+            thumbUrls.push(`https://i.ytimg.com/vi/${rawYt}/hqdefault.jpg`);
+            thumbUrls.push(`https://i.ytimg.com/vi/${rawYt}/mqdefault.jpg`);
+            thumbUrls.push(`https://i.ytimg.com/vi/${rawYt}/hq720.jpg`);
+            thumbUrls.push(`https://i.ytimg.com/vi/${rawYt}/maxresdefault.jpg`);
+        }
+        if (featuredItem.thumb && featuredItem.thumb.startsWith('http')) {
+            thumbUrls.push(featuredItem.thumb);
+        }
+        thumbUrls.push('https://aphim.store/android-chrome-512x512.png');
+        const uniqueThumbnails = [...new Set(thumbUrls.filter(Boolean))];
+
+        // Key Moments (Clip Schema) cho Google Search - Hiển thị các mốc thời gian tua trực tiếp trên kết quả tìm kiếm Google
+        const clip1End = Math.max(60, Math.floor(durationSec * 0.15));
+        const clip2End = Math.max(clip1End + 120, Math.floor(durationSec * 0.55));
+        const clip3End = Math.max(clip2End + 120, Math.floor(durationSec * 0.85));
+
+        const clips = [
+            {
+                "@type": "Clip",
+                "name": "00:00 - Mở đầu & Giới thiệu nhân vật",
+                "startOffset": 0,
+                "endOffset": clip1End,
+                "url": `${canonicalUrl}#t=0`
+            },
+            {
+                "@type": "Clip",
+                "name": `0${Math.floor(clip1End / 60)}:00 - Diễn biến cốt truyện & Cao trào`,
+                "startOffset": clip1End,
+                "endOffset": clip2End,
+                "url": `${canonicalUrl}#t=${clip1End}`
+            },
+            {
+                "@type": "Clip",
+                "name": `${Math.floor(clip2End / 60)}:00 - Bước ngoặt kịch tính & Đại kết cục`,
+                "startOffset": clip2End,
+                "endOffset": clip3End,
+                "url": `${canonicalUrl}#t=${clip2End}`
+            },
+            {
+                "@type": "Clip",
+                "name": `${Math.floor(clip3End / 60)}:00 - Đánh giá, Phân tích ý nghĩa & Kết luận`,
+                "startOffset": clip3End,
+                "endOffset": durationSec,
+                "url": `${canonicalUrl}#t=${clip3End}`
+            }
+        ];
+
+        const videoSchema = {
             "@context": "https://schema.org",
             "@type": "VideoObject",
-            "name": `Review Phim ${featuredItem.movieTitle || featuredItem.title} (${featuredItem.year || '2026'}) - Tóm Tắt Trọn Bộ`,
-            "description": featuredItem.desc || description,
-            "thumbnailUrl": [
-                featuredItem.poster || `https://i.ytimg.com/vi/${featuredItem.yt}/maxresdefault.jpg`,
-                featuredItem.thumb || `https://i.ytimg.com/vi/${featuredItem.yt}/hqdefault.jpg`,
-                `https://i.ytimg.com/vi/${featuredItem.yt}/mqdefault.jpg`
-            ].filter(Boolean),
+            "name": `Review Phim ${mTitle} (${year}) - Tóm Tắt Trọn Bộ & Đánh Giá Chi Tiết`,
+            "description": featuredItem.desc || `Xem video review phim ${mTitle} (${origTitle ? origTitle + ' - ' : ''}${year}) tóm tắt toàn bộ diễn biến, phân tích cao trào kịch tính và giải thích đoạn kết chi tiết. Bấm xem trọn bộ phim Full HD Vietsub tại APhim Super.`,
+            "thumbnailUrl": uniqueThumbnails,
             "uploadDate": uploadDate,
             "duration": isoDuration,
             "contentUrl": canonicalUrl,
-            "embedUrl": `https://www.youtube-nocookie.com/embed/${featuredItem.yt}`,
+            "embedUrl": rawYt ? `https://www.youtube-nocookie.com/embed/${rawYt}` : canonicalUrl,
             "inLanguage": "vi",
             "isFamilyFriendly": true,
-            "genre": Array.isArray(featuredItem.categories) ? featuredItem.categories : ['Phim Hay'],
+            "genre": Array.isArray(featuredItem.categories) && featuredItem.categories.length > 0 ? featuredItem.categories : ['Phim Hay', 'Review Phim'],
+            "keywords": [
+                `review phim ${mTitle}`,
+                `tóm tắt phim ${mTitle}`,
+                `review ${mTitle} ${year}`,
+                `giải thích cái kết phim ${mTitle}`,
+                `xem review phim ${mTitle}`,
+                `aphim reels`
+            ],
             "aggregateRating": {
                 "@type": "AggregateRating",
                 "ratingValue": String(featuredItem.rating || "9.5"),
@@ -123,9 +194,25 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
                 "worstRating": "1",
                 "ratingCount": parseInt(String(featuredItem.likes || '4500').replace(/[^0-9]/g, ''), 10) || 4500
             },
-            "potentialAction": {
-                "@type": "WatchAction",
-                "target": featuredItem.watchUrl || `https://aphim.store/xem-phim/${featuredItem.slug || 'phim'}/tap-1`
+            "hasPart": clips,
+            "potentialAction": [
+                {
+                    "@type": "SeekToAction",
+                    "target": `${canonicalUrl}?t={seek_to_second_number}`,
+                    "startOffset-input": "required name=seek_to_second_number"
+                },
+                {
+                    "@type": "WatchAction",
+                    "target": featuredItem.watchUrl || `https://aphim.store/xem-phim/${featuredItem.slug || 'phim'}/tap-1`
+                }
+            ],
+            "about": {
+                "@type": "Movie",
+                "name": mTitle,
+                "alternateName": origTitle || undefined,
+                "dateCreated": year,
+                "genre": Array.isArray(featuredItem.categories) ? featuredItem.categories : ['Phim Hay'],
+                "url": `https://aphim.store/phim/${featuredItem.slug || ''}`
             },
             "interactionStatistic": [
                 {
@@ -139,18 +226,27 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
                     "userInteractionCount": parseInt(String(featuredItem.likes || '4500').replace(/[^0-9]/g, ''), 10) || 4500
                 }
             ],
+            "author": {
+                "@type": "Organization",
+                "name": "APhim Super",
+                "url": "https://aphim.store/"
+            },
             "publisher": {
                 "@type": "Organization",
                 "name": "APhim Super",
+                "url": "https://aphim.store/",
                 "logo": {
                     "@type": "ImageObject",
-                    "url": "https://aphim.store/android-chrome-512x512.png"
+                    "url": "https://aphim.store/android-chrome-512x512.png",
+                    "width": 512,
+                    "height": 512
                 }
             }
-        });
+        };
+
+        schemas.push(videoSchema);
 
         // 3. FAQPage Schema (Hiển thị Accordion hỏi đáp trực tiếp trên kết quả tìm kiếm Google)
-        const mTitle = featuredItem.movieTitle || featuredItem.title || 'bộ phim';
         schemas.push({
             "@context": "https://schema.org",
             "@type": "FAQPage",
@@ -160,7 +256,7 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
                     "name": `Nội dung video review phim ${mTitle} có gì nổi bật?`,
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": `Video review tóm tắt ngắn gọn và chi tiết toàn bộ diễn biến, cao trào và đoạn kết của phim ${mTitle} (${featuredItem.year || '2026'}). Giúp người xem nắm bắt cốt truyện nhanh chóng trước khi thưởng thức trọn bộ phim.`
+                        "text": `Video review tóm tắt ngắn gọn và chi tiết toàn bộ diễn biến, cao trào và đoạn kết của phim ${mTitle} (${year}). Giúp người xem nắm bắt cốt truyện nhanh chóng trước khi thưởng thức trọn bộ phim.`
                     }
                 },
                 {
@@ -183,7 +279,7 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
         });
     }
 
-    // 4. ItemList Schema (Carousel Video trên Google Search)
+    // 4. ItemList Schema (Carousel Video liên quan trên Google Search)
     if (items && items.length > 0) {
         schemas.push({
             "@context": "https://schema.org",
@@ -287,27 +383,81 @@ router.get('/review/:slug', async (req, res) => {
         if (!rawSlug) return res.redirect('/reels');
 
         const { searchMovieReels, formatReelItem, searchYouTubeMovieReviews } = require('../lib/reels.service');
+        const axios = require('axios');
         
-        // 1. Tìm video review chính xác cho slug phim này
-        let matchedReviews = await searchMovieReels(rawSlug, 'review');
+        let targetItem = null;
 
-        // 2. Nếu chưa tìm thấy qua slug, thử cào bổ sung từ YouTube
-        if (!matchedReviews || matchedReviews.length === 0) {
+        // 1. Tìm video review chính xác theo slug trong bộ nhớ & seed
+        let matchedReviews = await searchMovieReels(rawSlug, 'review');
+        if (matchedReviews && matchedReviews.length > 0) {
+            targetItem = matchedReviews[0];
+        }
+
+        // 2. Nếu chưa có trong seed, tra cứu thông tin phim từ API phim để lấy tên tiếng Việt chuẩn
+        let movieDetail = null;
+        if (!targetItem) {
+            try {
+                const apiRes = await axios.get(`https://phimapi.com/phim/${rawSlug}`, {
+                    timeout: 4000,
+                    headers: { 'User-Agent': 'APhim-VideoSEO/2.0' }
+                });
+                if (apiRes.data?.status && apiRes.data?.movie) {
+                    movieDetail = apiRes.data.movie;
+                }
+            } catch (e) {}
+        }
+
+        // 3. Nếu tìm được phim, cào video review từ YouTube bằng tên phim chính xác
+        if (!targetItem && movieDetail) {
+            const queryName = movieDetail.name || rawSlug.replace(/-/g, ' ');
+            const ytResults = await searchYouTubeMovieReviews(queryName, rawSlug);
+            
+            const cleanContent = (movieDetail.content || '')
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            let posterImg = movieDetail.poster_url || movieDetail.thumb_url || '';
+            if (posterImg && !posterImg.startsWith('http')) {
+                posterImg = `https://img.phimapi.com/${posterImg.replace(/^\//, '')}`;
+            }
+
+            const chosenYt = (ytResults && ytResults.length > 0) ? ytResults[0].ytId : '7wO_B1Lh260'; // fallback clip review rạp chất lượng cao
+
+            targetItem = formatReelItem({
+                ytId: chosenYt,
+                title: ytResults?.[0]?.rawTitle || `Review Phim ${movieDetail.name}`,
+                movieTitle: movieDetail.name,
+                originTitle: movieDetail.origin_name || '',
+                year: String(movieDetail.year || '2026'),
+                slug: rawSlug,
+                desc: cleanContent || `Xem video tóm tắt và phân tích nội dung phim ${movieDetail.name} cực cuốn tại APhim Super.`,
+                poster: posterImg || `https://i.ytimg.com/vi/${chosenYt}/hqdefault.jpg`,
+                thumb: `https://i.ytimg.com/vi/${chosenYt}/hqdefault.jpg`,
+                categories: Array.isArray(movieDetail.category) ? movieDetail.category.map(c => c.name || c) : ['Phim Hay'],
+                actors: Array.isArray(movieDetail.actor) ? movieDetail.actor : [],
+                directors: Array.isArray(movieDetail.director) ? movieDetail.director : [],
+                watchUrl: `/xem-phim/${rawSlug}/tap-1`,
+                detailUrl: `/phim/${rawSlug}`,
+                rating: movieDetail.tmdb?.vote_average ? (movieDetail.tmdb.vote_average).toFixed(1) : '9.5'
+            }, 'review');
+        }
+
+        // 4. Nếu vẫn chưa có targetItem (slug không có trong phimapi), thử tìm trực tiếp tên bằng slug
+        if (!targetItem) {
             const cleanQuery = rawSlug.replace(/-/g, ' ');
-            const ytResults = await searchYouTubeMovieReviews(cleanQuery);
+            const ytResults = await searchYouTubeMovieReviews(cleanQuery, rawSlug);
             if (ytResults && ytResults.length > 0) {
-                matchedReviews = ytResults.map(r => formatReelItem({ ...r, slug: rawSlug }, 'review'));
+                targetItem = formatReelItem({ ...ytResults[0], slug: rawSlug }, 'review');
             }
         }
 
-        // 3. Lấy thêm danh sách 14 video liên quan để người dùng cuộn mượt mà
+        // 5. Lấy thêm feed 14 video liên quan để người dùng cuộn mượt mà
         const defaultFeed = await getReelsFeed({ tab: 'review', page: 1, limit: 14, shuffle: true });
         let pool = defaultFeed.items || [];
 
-        let targetItem = null;
-        if (matchedReviews && matchedReviews.length > 0) {
-            targetItem = matchedReviews[0];
-            // Loại bỏ item trùng trong feed phụ và đưa targetItem lên đầu tiên (index 0)
+        if (targetItem) {
             pool = pool.filter(it => it.yt !== targetItem.yt && it.slug !== targetItem.slug);
             pool.unshift(targetItem);
         } else if (pool.length > 0) {
@@ -320,6 +470,7 @@ router.get('/review/:slug', async (req, res) => {
         
         const pageTitle = `Review Phim ${movieTitle} (${year}) - Tóm Tắt Trọn Bộ Cực Cuốn | APhim Super`;
         const metaDescription = `Xem video review phim ${movieTitle}${originTitle ? ` (${originTitle})` : ''} cực hay, tóm tắt trọn bộ, phân tích đoạn kết và các tình tiết đắt giá. Bấm xem trọn bộ phim Full HD Vietsub tốc độ cao tại APhim Super.`;
+        const metaKeywords = `review phim ${movieTitle}, tóm tắt phim ${movieTitle}, review ${movieTitle} ${year}, giải thích cái kết ${movieTitle}, xem review ${movieTitle}, xem phim ${movieTitle}, aphim reels`;
         const canonicalUrl = `https://aphim.store/reels/review/${rawSlug}`;
 
         const seoSchema = buildReelsSeoSchema({
@@ -338,8 +489,9 @@ router.get('/review/:slug', async (req, res) => {
         res.render('reels', {
             title: pageTitle,
             metaDescription,
+            metaKeywords,
             canonicalUrl,
-            ogImage: targetItem?.poster || targetItem?.thumb || 'https://aphim.store/android-chrome-512x512.png',
+            ogImage: targetItem?.poster || targetItem?.thumb || `https://i.ytimg.com/vi/${targetItem?.yt}/hqdefault.jpg`,
             ogType: 'video.other',
             schemaData: seoSchema,
             currentTab: 'review',

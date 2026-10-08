@@ -9374,6 +9374,9 @@
             initToggles();
           } else if (tab === 'notifications') {
             panel.innerHTML = renderProfileNotifications();
+            if (typeof fetchProfileNotificationsFromServer === 'function') {
+              fetchProfileNotificationsFromServer();
+            }
           }
         } catch (err) {
           console.error('[Profile] renderTab critical error:', err);
@@ -9623,7 +9626,7 @@
                             </div>
                         </div>
 
-                        <div class="password-card-container" style="
+                        <form class="password-card-container" id="profilePasswordForm" onsubmit="event.preventDefault(); submitChangePassword();" style="
                             background: rgba(255, 255, 255, 0.025);
                             border: 1px solid rgba(255, 255, 255, 0.08);
                             border-radius: 16px;
@@ -9668,11 +9671,11 @@
                             <div id="pwErrorMsg" style="display:none; font-size:12px; color:#ef4444; font-weight:700; margin-top:-2px;"></div>
 
                             <div style="margin-top: 4px;">
-                                <button type="button" id="btnDoSetPassword" class="btn-primary" onclick="submitChangePassword()" style="padding: 10px 24px; font-size: 13.5px; font-weight: 800; border-radius: 10px; cursor: pointer;">
+                                <button type="submit" id="btnDoSetPassword" class="btn-primary" style="padding: 10px 24px; font-size: 13.5px; font-weight: 800; border-radius: 10px; cursor: pointer;">
                                     Đặt mật khẩu
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
 
@@ -14752,11 +14755,14 @@
         const u = currentUser || getUser() || {};
         const uid = u._id || u.id;
 
-        // Load real notifications from storage
+        // Load real notifications from storage or user object
         try {
           if (uid) notifs = JSON.parse(localStorage.getItem(`ap_notifs_${uid}`) || '[]');
           if (!notifs || !notifs.length) {
             notifs = JSON.parse(localStorage.getItem('cinestream_notifications') || '[]');
+          }
+          if ((!notifs || !notifs.length) && u && Array.isArray(u.notifications) && u.notifications.length) {
+            notifs = u.notifications;
           }
         } catch (e) { }
 
@@ -14781,6 +14787,56 @@
         }
         return [];
       }
+
+      let _profileNotifFetching = false;
+      async function fetchProfileNotificationsFromServer(force = false) {
+        if (_profileNotifFetching && !force) return;
+        _profileNotifFetching = true;
+
+        const u = currentUser || getUser() || {};
+        const uid = u._id || u.id;
+        const token = localStorage.getItem('cinestream_token');
+        if (!token) {
+          _profileNotifFetching = false;
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/notifications', {
+            headers: {
+              'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && Array.isArray(data.data)) {
+              const serverNotifs = data.data;
+              if (uid) {
+                localStorage.setItem(`ap_notifs_${uid}`, JSON.stringify(serverNotifs));
+              }
+              localStorage.setItem('cinestream_notifications', JSON.stringify(serverNotifs));
+
+              updateProfileNotifBadge();
+              if (typeof currentTab !== 'undefined' && currentTab === 'notifications') {
+                const panel = document.getElementById('tabPanel');
+                if (panel) {
+                  panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
+                }
+              }
+              if (typeof renderNotifications === 'function') {
+                try { renderNotifications(); } catch (e) { }
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('[Profile] Fetch notifications from server failed:', err);
+        } finally {
+          _profileNotifFetching = false;
+        }
+      }
+      window.fetchProfileNotificationsFromServer = fetchProfileNotificationsFromServer;
 
       function saveStoredProfileNotifications(notifs) {
         const u = currentUser || getUser() || {};
@@ -15202,6 +15258,13 @@
           if (panel) {
             panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
           }
+          const token = localStorage.getItem('cinestream_token');
+          if (token && item.read) {
+            fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
+              method: 'PUT',
+              headers: { 'Authorization': 'Bearer ' + token }
+            }).catch(() => { });
+          }
         }
       }
 
@@ -15216,6 +15279,13 @@
         if (typeof showToast === 'function') {
           showToast('Đã xóa thông báo thành công', 'info');
         }
+        const token = localStorage.getItem('cinestream_token');
+        if (token) {
+          fetch(`/api/notifications/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+          }).catch(() => { });
+        }
       }
 
       function markAllProfileNotifsRead() {
@@ -15229,10 +15299,18 @@
         if (typeof showToast === 'function') {
           showToast('Đã đánh dấu tất cả thông báo là đã đọc', 'success');
         }
+        const token = localStorage.getItem('cinestream_token');
+        if (token) {
+          fetch('/api/notifications/read-all', {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + token }
+          }).catch(() => { });
+        }
       }
 
       function clearReadProfileNotifs() {
         let notifs = getStoredProfileNotifications();
+        const readNotifs = notifs.filter(n => n.read || n.isRead);
         const unreadOnly = notifs.filter(n => !n.read && !n.isRead);
         if (unreadOnly.length === notifs.length) {
           if (typeof showToast === 'function') showToast('Không có thông báo đã đọc nào để xóa', 'info');
@@ -15246,6 +15324,15 @@
         }
         if (typeof showToast === 'function') {
           showToast('Đã dọn dẹp các thông báo đã đọc', 'success');
+        }
+        const token = localStorage.getItem('cinestream_token');
+        if (token && readNotifs.length) {
+          readNotifs.forEach(n => {
+            fetch(`/api/notifications/${encodeURIComponent(n.id || n._id)}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': 'Bearer ' + token }
+            }).catch(() => { });
+          });
         }
       }
 
@@ -15267,6 +15354,13 @@
             cardEl.classList.add('read');
             const pulse = cardEl.querySelector('.notif-card-pulse');
             if (pulse) pulse.remove();
+          }
+          const token = localStorage.getItem('cinestream_token');
+          if (token) {
+            fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
+              method: 'PUT',
+              headers: { 'Authorization': 'Bearer ' + token }
+            }).catch(() => { });
           }
         }
 
@@ -16418,6 +16512,11 @@
         setTimeout(alignAvatarPanel, 50);
         setTimeout(alignAvatarPanel, 250);
         try { updateProfileNotifBadge(); } catch (e) { }
+        try {
+          if (typeof fetchProfileNotificationsFromServer === 'function') {
+            fetchProfileNotificationsFromServer();
+          }
+        } catch (e) { }
       }
 
       if (document.readyState === 'loading') {

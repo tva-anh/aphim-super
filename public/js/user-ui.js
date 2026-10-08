@@ -858,17 +858,8 @@ function updateUserUI() {
             const notifBtn = document.getElementById('navNotificationBtn');
             if (notifBtn) {
                 notifBtn.onclick = function (e) {
-                    e.stopPropagation();
-                    const panel = document.getElementById('navNotifPanel');
-                    if (panel) {
-                        const isVisible = panel.classList.contains('opacity-100');
-                        if (isVisible) {
-                            panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
-                            panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
-                        } else {
-                            panel.classList.remove('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
-                            panel.classList.add('opacity-100', 'visible', 'scale-100', 'translate-y-0');
-                        }
+                    if (typeof window.toggleNavNotifPanel === 'function') {
+                        window.toggleNavNotifPanel(e);
                     }
                 };
             }
@@ -889,11 +880,14 @@ function updateUserUI() {
                 });
             }
 
+            if (typeof window.renderNotifications === 'function') {
+                try { window.renderNotifications(); } catch(e) {}
+            }
             if (typeof updateNotifBadge === 'function') {
                 try { updateNotifBadge(); } catch(e) {}
             }
             if (typeof syncNotifications === 'function') {
-                syncNotifications();
+                try { syncNotifications(); } catch(e) {}
             }
             return;
         }
@@ -953,17 +947,8 @@ function updateUserUI() {
         const notifBtn = document.getElementById('navNotificationBtn');
         if (notifBtn) {
             notifBtn.onclick = function (e) {
-                e.stopPropagation();
-                const panel = document.getElementById('navNotifPanel');
-                if (panel) {
-                    const isVisible = panel.classList.contains('opacity-100');
-                    if (isVisible) {
-                        panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
-                        panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
-                    } else {
-                        panel.classList.remove('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
-                        panel.classList.add('opacity-100', 'visible', 'scale-100', 'translate-y-0');
-                    }
+                if (typeof window.toggleNavNotifPanel === 'function') {
+                    window.toggleNavNotifPanel(e);
                 }
             };
         }
@@ -985,9 +970,15 @@ function updateUserUI() {
             });
         }
 
-        // 7. Sync notifications from backend
+        // 8. Render & sync notifications
+        if (typeof window.renderNotifications === 'function') {
+            try { window.renderNotifications(); } catch(e) {}
+        }
+        if (typeof updateNotifBadge === 'function') {
+            try { updateNotifBadge(); } catch(e) {}
+        }
         if (typeof syncNotifications === 'function') {
-            syncNotifications();
+            try { syncNotifications(); } catch(e) {}
         }
     } else {
         // CHƯA ĐĂNG NHẬP: Render Notification Bell + Login Button
@@ -1520,7 +1511,12 @@ window.syncNotifications = async function (force = false) {
     }
     window._lastNotifFetchTs = now;
 
-    const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
+    let user = (typeof authService !== 'undefined' && authService.getCurrentUser) ? authService.getCurrentUser() : null;
+    if (!user) {
+        try {
+            user = JSON.parse(localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user') || 'null');
+        } catch (e) { }
+    }
     if (!user) {
         return;
     }
@@ -1533,8 +1529,7 @@ window.syncNotifications = async function (force = false) {
     const userId = user._id || user.id;
 
     try {
-        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
-        if (!backendUrl) return;
+        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
         const response = await fetch(`${backendUrl}/notifications`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1575,6 +1570,7 @@ window.syncNotifications = async function (force = false) {
             try {
                 localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(merged));
                 localStorage.setItem('cinestream_notifications', JSON.stringify(merged));
+                window.dispatchEvent(new CustomEvent('ap:notifications-updated', { detail: merged }));
             } catch (e) { }
 
             renderNotifications();
@@ -1656,7 +1652,12 @@ function formatRelativeNotifTime(dateVal) {
 }
 
 window.getNotifications = function () {
-    const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
+    let user = (typeof authService !== 'undefined' && authService.getCurrentUser) ? authService.getCurrentUser() : null;
+    if (!user) {
+        try {
+            user = JSON.parse(localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user') || 'null');
+        } catch (e) { }
+    }
     const userId = user ? (user._id || user.id) : null;
     let notifs = [];
     try {
@@ -1746,6 +1747,26 @@ window.createUserNotification = function (opts = {}) {
 
 window.addNotification = function (title, message, type = 'system') {
     return window.createUserNotification({ title, message, detail: message, type });
+};
+
+window.toggleNavNotifPanel = function (e) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    const panel = document.getElementById('navNotifPanel');
+    if (!panel) return;
+    const isVisible = panel.classList.contains('opacity-100') && !panel.classList.contains('invisible');
+    if (isVisible) {
+        panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
+        panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+    } else {
+        panel.classList.remove('invisible', 'opacity-0', 'scale-95', 'translate-y-4');
+        panel.classList.add('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+        if (typeof window.renderNotifications === 'function') {
+            try { window.renderNotifications(); } catch (err) { }
+        }
+        if (typeof window.syncNotifications === 'function') {
+            try { window.syncNotifications(true); } catch (err) { }
+        }
+    }
 };
 
 window.handleNavNotifClick = function (id) {
@@ -1886,7 +1907,12 @@ function updateNotifBadge() {
 }
 
 window.markAllNotifsRead = async function () {
-    const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
+    let user = (typeof authService !== 'undefined' && authService.getCurrentUser) ? authService.getCurrentUser() : null;
+    if (!user) {
+        try {
+            user = JSON.parse(localStorage.getItem('cinestream_user') || localStorage.getItem('A Phim_user') || localStorage.getItem('user') || 'null');
+        } catch (e) { }
+    }
     const userId = user ? (user._id || user.id) : null;
     const notifs = getNotifications();
     notifs.forEach(n => { n.read = true; n.isRead = true; });
@@ -1998,32 +2024,35 @@ window.toggleNotif = async function (id, element) {
     }
 };
 
-// Toggle panel logic
+// Toggle panel outside click logic
 document.addEventListener('click', (e) => {
     const btn = document.getElementById('navNotificationBtn');
     const panel = document.getElementById('navNotifPanel');
-    if (!btn || !panel) return;
+    if (!panel) return;
 
-    if (btn.contains(e.target)) {
-        const isVisible = !panel.classList.contains('invisible');
-        if (isVisible) {
-            panel.classList.add('invisible', 'opacity-0', 'translate-y-4', 'scale-95');
-            panel.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
-        } else {
-            panel.classList.remove('invisible', 'opacity-0', 'translate-y-4', 'scale-95');
-            panel.classList.add('opacity-100', 'translate-y-0', 'scale-100');
-            renderNotifications();
-            if (typeof syncNotifications === 'function') {
-                syncNotifications(true);
-            }
-        }
-    } else if (!panel.contains(e.target)) {
+    if (btn && btn.contains(e.target)) {
+        // Handled by window.toggleNavNotifPanel directly
+        return;
+    }
+    if (!panel.contains(e.target)) {
         panel.classList.add('invisible', 'opacity-0', 'translate-y-4', 'scale-95');
-        panel.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+        panel.classList.remove('opacity-100', 'visible', 'translate-y-0', 'scale-100');
     }
 });
 
-// Initial badge update
-setTimeout(updateNotifBadge, 1500);
+// Initial notifications render and sync across all pages (home, search, movie, profile...)
+try {
+    if (typeof window.renderNotifications === 'function') window.renderNotifications();
+    if (typeof updateNotifBadge === 'function') updateNotifBadge();
+    if (typeof syncNotifications === 'function') syncNotifications(false);
+} catch (e) { }
+
+setTimeout(() => {
+    try {
+        if (typeof window.renderNotifications === 'function') window.renderNotifications();
+        if (typeof updateNotifBadge === 'function') updateNotifBadge();
+        if (typeof syncNotifications === 'function') syncNotifications(false);
+    } catch (e) { }
+}, 800);
 
 

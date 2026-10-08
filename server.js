@@ -160,13 +160,6 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Notifications endpoint fallback
-app.get('/api/notifications', (req, res) => {
-    res.json({
-        success: true,
-        data: []
-    });
-});
 
 // ==========================================
 // 🎯 HERO BANNERS API (Curated Real Data + TMDB Logos)
@@ -1401,13 +1394,16 @@ app.get('/', async (req, res) => {
         getDesktopHeroAutoSlide(),
         getDesktopInterests()
     ]);
+    const { CURATED_REVIEWS } = require('./lib/reels.seeds');
+    const homeReels = (CURATED_REVIEWS || []).slice(0, 10);
     res.render('index', {
         title: formatSeoTitle('APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026', 65),
         metaDescription: 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.',
         canonicalUrl: 'https://aphim.store/',
         heroSlides: heroSlides || null,
         heroAutoSlide: heroAutoSlide || null,
-        desktopInterests: desktopInterests || null
+        desktopInterests: desktopInterests || null,
+        homeReels: homeReels || []
     });
 });
 

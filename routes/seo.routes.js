@@ -288,10 +288,15 @@ async function generateAllSitemaps() {
         const slug = seed.slug || seed.yt;
         if (slug && !seenReelSlugs.has(slug)) {
             seenReelSlugs.add(slug);
-            const title = escapeXml(seed.title || 'Review Phim');
-            const desc = escapeXml(seed.desc || `Xem video review phim ${seed.title} tóm tắt trọn bộ Full HD Vietsub tại APhim Super.`);
-            const thumb = escapeXml(seed.poster || seed.thumb || `https://i.ytimg.com/vi/${seed.yt}/hqdefault.jpg`);
-            const duration = seed.tab === 'reel' ? '60' : '270';
+            const title = escapeXml(seed.title || seed.movieTitle || 'Review Phim');
+            const desc = escapeXml(seed.desc || `Xem video review phim ${title} tóm tắt trọn bộ Full HD Vietsub tại APhim Super.`);
+            let thumb = seed.poster || seed.thumb || (seed.yt ? `https://i.ytimg.com/vi/${seed.yt}/hqdefault.jpg` : `${BASE_URL}/android-chrome-512x512.png`);
+            if (thumb && !thumb.startsWith('http')) {
+                thumb = `${BASE_URL}${thumb.startsWith('/') ? '' : '/'}${thumb}`;
+            }
+            thumb = escapeXml(thumb);
+            const duration = seed.tab === 'reel' ? '60' : '900';
+            const viewCount = parseInt(String(seed.views || '120000').replace(/[^0-9]/g, ''), 10) || 120000;
 
             reelsXml += `  <url>\n`;
             reelsXml += `    <loc>${BASE_URL}/reels/review/${escapeXml(slug)}</loc>\n`;
@@ -301,11 +306,12 @@ async function generateAllSitemaps() {
             if (seed.yt) {
                 reelsXml += `    <video:video>\n`;
                 reelsXml += `      <video:thumbnail_loc>${thumb}</video:thumbnail_loc>\n`;
-                reelsXml += `      <video:title>${title} - Review Phim APhim</video:title>\n`;
+                reelsXml += `      <video:title>Review Phim ${title} (${seed.year || '2026'}) - Tóm Tắt Trọn Bộ</video:title>\n`;
                 reelsXml += `      <video:description>${desc}</video:description>\n`;
-                reelsXml += `      <video:player_loc>https://www.youtube-nocookie.com/embed/${seed.yt}</video:player_loc>\n`;
+                reelsXml += `      <video:player_loc allow_embed="yes" autoplay="ap=1">https://www.youtube-nocookie.com/embed/${seed.yt}</video:player_loc>\n`;
                 reelsXml += `      <video:duration>${duration}</video:duration>\n`;
                 reelsXml += `      <video:publication_date>${todayStr}</video:publication_date>\n`;
+                reelsXml += `      <video:view_count>${viewCount}</video:view_count>\n`;
                 reelsXml += `      <video:family_friendly>yes</video:family_friendly>\n`;
                 reelsXml += `      <video:live>no</video:live>\n`;
                 reelsXml += `      <video:uploader info="${BASE_URL}/">APhim Super</video:uploader>\n`;
@@ -320,7 +326,11 @@ async function generateAllSitemaps() {
         if (m.slug && !seenReelSlugs.has(m.slug)) {
             seenReelSlugs.add(m.slug);
             const name = escapeXml(m.name);
-            const poster = escapeXml(m.poster_url || m.thumb_url || '');
+            let poster = m.poster_url || m.thumb_url || '';
+            if (poster && !poster.startsWith('http')) {
+                poster = `${BASE_URL}${poster.startsWith('/') ? '' : '/'}${poster}`;
+            }
+            poster = escapeXml(poster);
 
             reelsXml += `  <url>\n`;
             reelsXml += `    <loc>${BASE_URL}/reels/review/${escapeXml(m.slug)}</loc>\n`;
@@ -330,10 +340,10 @@ async function generateAllSitemaps() {
             if (poster) {
                 reelsXml += `    <video:video>\n`;
                 reelsXml += `      <video:thumbnail_loc>${poster}</video:thumbnail_loc>\n`;
-                reelsXml += `      <video:title>Review Phim ${name} (${m.year}) - Tóm Tắt Trọn Bộ</video:title>\n`;
-                reelsXml += `      <video:description>Xem video tóm tắt review phim ${name} (${m.origin_name}) Full HD Vietsub tại APhim Reels</video:description>\n`;
-                reelsXml += `      <video:player_loc>${BASE_URL}/xem-phim/${escapeXml(m.slug)}</video:player_loc>\n`;
-                reelsXml += `      <video:duration>240</video:duration>\n`;
+                reelsXml += `      <video:title>Review Phim ${name} (${m.year || '2026'}) - Tóm Tắt &amp; Đánh Giá</video:title>\n`;
+                reelsXml += `      <video:description>Xem video tóm tắt review phim ${name} (${escapeXml(m.origin_name || '')}) Full HD Vietsub tại APhim Reels</video:description>\n`;
+                reelsXml += `      <video:player_loc allow_embed="yes" autoplay="ap=1">${BASE_URL}/reels/review/${escapeXml(m.slug)}</video:player_loc>\n`;
+                reelsXml += `      <video:duration>720</video:duration>\n`;
                 reelsXml += `      <video:publication_date>${m.modified || todayStr}</video:publication_date>\n`;
                 reelsXml += `      <video:family_friendly>yes</video:family_friendly>\n`;
                 reelsXml += `      <video:uploader info="${BASE_URL}/">APhim Super</video:uploader>\n`;

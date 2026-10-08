@@ -294,9 +294,6 @@
                             position: relative !important;
                             margin: 0 !important;
                             transform: translateZ(0) !important;
-                            contain: layout style;
-                            content-visibility: auto !important;
-                            contain-intrinsic-size: 192px 340px !important;
                             backface-visibility: hidden;
                             -webkit-backface-visibility: hidden;
                         }
@@ -424,15 +421,11 @@
                             overflow: visible !important;
                             transform-origin: left center !important;
                         }
-                        /* Thẻ lẻ (1, 3, 5...): Mép trên dốc xéo xuống -> Hàng nhãn nghiêng xéo xuống theo khung hình */
-                        .de-cu-card:nth-child(odd) .de-cu-top-badges {
-                            top: 6px !important;
-                            transform: rotate(4deg) !important;
-                        }
-                        /* Thẻ chẵn (2, 4, 6...): Mép trên dốc xéo lên -> Hàng nhãn nghiêng xéo lên theo khung hình */
+                        /* Đồng bộ vị trí hàng nhãn thẳng thớm trên các thẻ */
+                        .de-cu-card:nth-child(odd) .de-cu-top-badges,
                         .de-cu-card:nth-child(even) .de-cu-top-badges {
-                            top: 15px !important;
-                            transform: rotate(-4deg) !important;
+                            top: 8px !important;
+                            transform: none !important;
                         }
                         /* Thu nhỏ gọn gàng các ô nhãn (TRENDS, P.Đề, T.Minh, FHD) trên Mobile tránh dính 2 bên mép */
                         .de-cu-card .de-cu-top-badges .badge-trend {
@@ -477,11 +470,10 @@
                                 right: 8px !important;
                                 gap: 3px !important;
                             }
-                            .de-cu-card:nth-child(odd) .de-cu-top-badges {
-                                top: 7px !important;
-                            }
+                            .de-cu-card:nth-child(odd) .de-cu-top-badges,
                             .de-cu-card:nth-child(even) .de-cu-top-badges {
-                                top: 18px !important;
+                                top: 8px !important;
+                                transform: none !important;
                             }
                             .de-cu-card .de-cu-top-badges .badge-trend {
                                 height: 18px !important;
@@ -518,29 +510,28 @@
                             position: relative !important;
                             z-index: 5 !important;
                         }
-                        /* Thẻ lẻ (1, 3, 5...): Bên trái nhô cao, bên phải hạ thấp, mép dưới phẳng tuyệt đối 100% */
-                        .de-cu-card:nth-child(odd) .de-cu-poster-wrap {
-                            clip-path: url(#wave-decu-odd);
-                        }
-                        /* Thẻ chẵn (2, 4, 6...): Bên trái hạ thấp (nối tiếp điểm của thẻ lẻ), bên phải nhô cao, mép dưới phẳng tuyệt đối 100% */
+                        /* Đồng bộ bo góc GPU siêu mượt, loại bỏ hoàn toàn clip-path và filter drop-shadow gây lag CPU */
+                        .de-cu-card:nth-child(odd) .de-cu-poster-wrap,
                         .de-cu-card:nth-child(even) .de-cu-poster-wrap {
-                            clip-path: url(#wave-decu-even);
+                            clip-path: none !important;
+                            border-radius: 13px !important;
                         }
                         .de-cu-card:hover {
                             z-index: 30 !important;
                         }
-                        /* Di chuột vào / bấm chạm: Ảnh phim thu lại tí xíu (scale 0.965) tạo cảm giác ấn vào hiện đại (press-in tactile) + Viền vàng gold contour sắc nét */
+                        /* Di chuột vào / bấm chạm: Nổi nhẹ 4px + Viền vàng Gold bằng GPU Box-shadow (120 FPS tức thì 0ms lag) */
                         .de-cu-card:hover .de-cu-poster-wrap,
                         html.light-mode .de-cu-card:hover .de-cu-poster-wrap {
-                            transform: scale(0.965) !important;
-                            filter: drop-shadow(0 0 1.5px #f59e0b) drop-shadow(0 0 6px rgba(245, 158, 11, 0.85)) !important;
-                            box-shadow: none !important;
+                            transform: translateY(-4px) translateZ(0) !important;
+                            border-color: #f59e0b !important;
+                            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.7), 0 8px 24px rgba(245, 158, 11, 0.35) !important;
+                            filter: none !important;
                             -webkit-box-reflect: none !important;
                             z-index: 30 !important;
                         }
                         .de-cu-card:active .de-cu-poster-wrap {
-                            transform: scale(0.935) !important;
-                            transition-duration: 0.12s !important;
+                            transform: translateY(-1px) scale(0.98) translateZ(0) !important;
+                            transition-duration: 0.1s !important;
                         }
                         .de-cu-card:hover .de-cu-poster-wrap img {
                             transform: none !important;
@@ -1033,7 +1024,8 @@
                                 margin-top: 1px !important;
                             }
                             #cinemaHotSection .section-header-nav {
-                                display: none !important;
+                                display: flex !important;
+                                align-items: center !important;
                             }
                             .home-comments-section {
                                 margin-top: 16px !important;
@@ -1058,6 +1050,9 @@
                         #cinemaHotSection .section-header,
                         .cinema-hot-section .section-header,
                         html.light-mode #cinemaHotSection .section-header {
+                            display: flex !important;
+                            justify-content: space-between !important;
+                            align-items: center !important;
                             background: transparent !important;
                             background-color: transparent !important;
                             border: none !important;
@@ -1135,32 +1130,39 @@
                         .cinema-hot-header-link:hover .cinema-hot-cam-icon {
                             transform: scale(1.08) rotate(-3deg) !important;
                         }
-                        .cinema-hot-arrow-circle {
+                        .cinema-hot-nav-btn {
+                            width: 28px !important;
+                            height: 28px !important;
+                            border-radius: 9999px !important;
                             display: inline-flex !important;
                             align-items: center !important;
                             justify-content: center !important;
-                            width: 24px !important;
-                            height: 24px !important;
-                            border-radius: 9999px !important;
-                            background: #e5e5ea !important;
-                            color: #374151 !important;
-                            margin-left: 2px !important;
+                            border: none !important;
+                            outline: none !important;
+                            cursor: pointer !important;
+                            background: rgba(255, 255, 255, 0.12) !important;
+                            color: #ffffff !important;
                             transition: all 0.2s ease !important;
+                            padding: 0 !important;
                             flex-shrink: 0 !important;
                         }
-                        html:not(.light-mode) .cinema-hot-arrow-circle,
-                        html.dark .cinema-hot-arrow-circle {
-                            background: rgba(255, 255, 255, 0.14) !important;
-                            color: #f3f4f6 !important;
-                        }
-                        html.light-mode .cinema-hot-arrow-circle {
-                            background: #e5e5ea !important;
-                            color: #1f2937 !important;
-                        }
-                        .cinema-hot-header-link:hover .cinema-hot-arrow-circle {
+                        .cinema-hot-nav-btn:hover {
                             background: #ff6a00 !important;
                             color: #ffffff !important;
-                            transform: translateX(2px) !important;
+                            transform: scale(1.08) !important;
+                        }
+                        .cinema-hot-nav-btn svg {
+                            display: block !important;
+                            width: 14px !important;
+                            height: 14px !important;
+                        }
+                        html.light-mode .cinema-hot-nav-btn {
+                            background: rgba(0, 0, 0, 0.07) !important;
+                            color: #18181b !important;
+                        }
+                        html.light-mode .cinema-hot-nav-btn:hover {
+                            background: #ff6a00 !important;
+                            color: #ffffff !important;
                         }
 
                         /* ── SECTION TOP #10 (STREAMING PLATFORMS & REGIONAL RANKING - LANDSCAPE COMPACT STYLE) ── */
@@ -3135,26 +3137,27 @@
                                     </svg>
                                 </span>
                                 <h2 class="cinema-hot-header-title">
-                                    <span>Phim rạp sắp chiếu</span>
+                                    <span>Phim rạp đang chiếu</span>
                                     <span class="cinema-hot-fire-icon text-xl leading-none">🔥</span>
-                                    <span class="cinema-hot-arrow-circle" aria-hidden="true">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M9 18l6-6-6-6"></path>
-                                        </svg>
-                                    </span>
                                 </h2>
                             </a>
                         </div>
-                        <div class="flex items-center gap-2 section-header-nav">
-                            <button onclick="scrollCinemaHotSlider(-350)"
-                                class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#f97316] hover:text-black flex items-center justify-center text-white transition-colors"
+                        <div class="flex items-center gap-1.5 section-header-nav">
+                            <button type="button" onclick="scrollCinemaHotSlider(-350)"
+                                class="cinema-hot-nav-btn"
+                                aria-label="Phim trước"
                                 title="Trước">
-                                <span class="material-icons-round text-sm">chevron_left</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
                             </button>
-                            <button onclick="scrollCinemaHotSlider(350)"
-                                class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#f97316] hover:text-black flex items-center justify-center text-white transition-colors"
+                            <button type="button" onclick="scrollCinemaHotSlider(350)"
+                                class="cinema-hot-nav-btn"
+                                aria-label="Phim kế tiếp"
                                 title="Kế tiếp">
-                                <span class="material-icons-round text-sm">chevron_right</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -3173,8 +3176,9 @@
                             </div>
                         </div>
                         <% } %>
-                    </div>
                 </section>
+
+
 
                 <!-- ⚡ INLINE 0MS INSTANT SWR RESTORE: Hiển thị phim ngay lập tức khi vừa tải trang -->
                 <script>
@@ -3714,6 +3718,23 @@
                             }
                             const slider = document.getElementById('slider-cinema-hot');
                             if (!slider) return;
+
+                            if (slider.classList.contains('cinema-hot-stage-mobile') && typeof window.updateCinemaHot3DStage === 'function') {
+                                const total = (slider.querySelectorAll('.cinema-hot-card') || []).length;
+                                if (total > 0) {
+                                    if (amount > 0) {
+                                        cinemaHotActiveIndex = (cinemaHotActiveIndex + 1) % total;
+                                    } else {
+                                        cinemaHotActiveIndex = (cinemaHotActiveIndex - 1 + total) % total;
+                                    }
+                                    window.updateCinemaHot3DStage(slider);
+                                    if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
+                                        window.resumeCinemaHotAfterUserAction();
+                                    }
+                                    return;
+                                }
+                            }
+
                             const cardWidth = window.innerWidth < 640 ? 162 : 208;
                             const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
                             const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
@@ -3792,7 +3813,7 @@
 
                             return `
                 <div class="de-cu-card">
-                    <a href="${watchUrl}" title="${movie.name}${movie.trend_keyword ? ' - Google Trends 24h: ' + movie.trend_keyword : ''}" style="text-decoration:none;" class="block">
+                    <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block">
                         <div class="de-cu-poster-wrap">
                             <div class="de-cu-top-badges">
                                 ${trendBadge}
