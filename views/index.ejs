@@ -261,9 +261,9 @@
                             align-items: flex-end !important; /* Mép dưới các thẻ ngang bằng tuyệt đối trên cùng 1 đường thẳng */
                         }
                         .de-cu-card {
-                            flex: 0 0 176px !important; /* To hơn, rõ nét và ấn tượng trên Mobile */
-                            width: 176px !important;
-                            max-width: 176px !important;
+                            flex: 0 0 192px !important; /* To hơn, cân đối và nổi bật trên Mobile */
+                            width: 192px !important;
+                            max-width: 192px !important;
                             display: flex !important;
                             flex-direction: column !important;
                             justify-content: flex-end !important;
@@ -277,9 +277,9 @@
                                 padding-bottom: 16px !important;
                             }
                             .de-cu-card {
-                                flex: 0 0 198px !important; /* To rộng rãi, hiển thị ấn tượng trên Desktop */
-                                width: 198px !important;
-                                max-width: 198px !important;
+                                flex: 0 0 205px !important; /* To rộng rãi, hiển thị ấn tượng trên Desktop */
+                                width: 205px !important;
+                                max-width: 205px !important;
                             }
                         }
                         .de-cu-poster-wrap {
@@ -738,8 +738,8 @@
                                 max-width: 184px !important;
                                 transform-origin: center center !important;
                                 -webkit-transform-origin: center center !important;
-                                transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), 
-                                            opacity 0.38s ease !important;
+                                transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), 
+                                            opacity 0.45s ease !important;
                                 will-change: transform, opacity !important;
                                 cursor: pointer !important;
                                 text-decoration: none !important;
@@ -3525,7 +3525,7 @@
                         window.scrollSlider = function (amount) {
                             const slider = document.getElementById('slider-de-cu');
                             if (slider) {
-                                const cardWidth = 208;
+                                const cardWidth = window.innerWidth < 640 ? 202 : 215;
                                 const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
                                 const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
                                 slider.scrollBy({ left: step || amount, behavior: 'smooth' });
@@ -3533,12 +3533,18 @@
                         };
 
                         window.scrollCinemaHotSlider = function (amount) {
+                            if (typeof window.pauseCinemaHotOnUserAction === 'function') {
+                                window.pauseCinemaHotOnUserAction();
+                            }
                             const slider = document.getElementById('slider-cinema-hot');
                             if (slider) {
                                 const cardWidth = 190;
                                 const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
                                 const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
                                 slider.scrollBy({ left: step || amount, behavior: 'smooth' });
+                            }
+                            if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
+                                window.resumeCinemaHotAfterUserAction();
                             }
                         };
 
@@ -4335,6 +4341,70 @@
                             `;
                         }
 
+                        // 🎬 TỰ ĐỘNG CHUYỂN PHIM RẠP (AUTO-SLIDE 3D COVERFLOW) KHÔNG CHẠY NỀN, MƯỢT MÀ 60FPS
+                        let _cinemaHotAutoTimer = null;
+                        let _cinemaHotResumeTimer = null;
+                        let _cinemaHotIsVisible = false;
+                        let _cinemaHotIsUserInteracting = false;
+                        const CINEMA_HOT_AUTO_INTERVAL = 3800; // 3.8 giây tự động chuyển phim tiếp theo
+                        const CINEMA_HOT_RESUME_DELAY = 4200;  // 4.2 giây nghỉ sau khi user lướt/chạm xong
+
+                        function stopCinemaHotAuto() {
+                            if (_cinemaHotAutoTimer) {
+                                clearTimeout(_cinemaHotAutoTimer);
+                                _cinemaHotAutoTimer = null;
+                            }
+                            if (_cinemaHotResumeTimer) {
+                                clearTimeout(_cinemaHotResumeTimer);
+                                _cinemaHotResumeTimer = null;
+                            }
+                        }
+
+                        function advanceCinemaHot() {
+                            const sliderEl = document.getElementById('slider-cinema-hot');
+                            if (!sliderEl) return;
+                            const isMobile = window.innerWidth < 640;
+                            const total = Math.min(cinemaHotStoredItems ? cinemaHotStoredItems.length : 20, CINEMA_HOT_MAX_DISPLAY);
+                            if (total <= 1) return;
+
+                            if (isMobile) {
+                                cinemaHotActiveIndex = (cinemaHotActiveIndex + 1) % total;
+                                updateCinemaHot3DStage(sliderEl);
+                            } else {
+                                if (sliderEl.scrollLeft + sliderEl.clientWidth >= sliderEl.scrollWidth - 15) {
+                                    sliderEl.scrollTo({ left: 0, behavior: 'smooth' });
+                                } else {
+                                    sliderEl.scrollBy({ left: 200, behavior: 'smooth' });
+                                }
+                            }
+                        }
+
+                        function scheduleCinemaHotAuto(delay = CINEMA_HOT_AUTO_INTERVAL) {
+                            stopCinemaHotAuto();
+                            if (!_cinemaHotIsVisible || document.hidden || _cinemaHotIsUserInteracting) return;
+                            _cinemaHotAutoTimer = setTimeout(() => {
+                                if (!_cinemaHotIsVisible || document.hidden || _cinemaHotIsUserInteracting) return;
+                                advanceCinemaHot();
+                                scheduleCinemaHotAuto(CINEMA_HOT_AUTO_INTERVAL);
+                            }, delay);
+                        }
+
+                        function pauseCinemaHotOnUserAction() {
+                            _cinemaHotIsUserInteracting = true;
+                            stopCinemaHotAuto();
+                        }
+                        window.pauseCinemaHotOnUserAction = pauseCinemaHotOnUserAction;
+
+                        function resumeCinemaHotAfterUserAction() {
+                            _cinemaHotIsUserInteracting = false;
+                            stopCinemaHotAuto();
+                            _cinemaHotResumeTimer = setTimeout(() => {
+                                _cinemaHotResumeTimer = null;
+                                scheduleCinemaHotAuto(CINEMA_HOT_AUTO_INTERVAL);
+                            }, CINEMA_HOT_RESUME_DELAY);
+                        }
+                        window.resumeCinemaHotAfterUserAction = resumeCinemaHotAfterUserAction;
+
                         function updateCinemaHot3DStage(sliderEl) {
                             if (!sliderEl) return;
                             const cards = sliderEl.querySelectorAll('.cinema-hot-card');
@@ -4374,6 +4444,8 @@
                                 }
                                 cinemaHotActiveIndex = idx;
                                 updateCinemaHot3DStage(sliderEl);
+                                pauseCinemaHotOnUserAction();
+                                resumeCinemaHotAfterUserAction();
                             }
                         };
 
@@ -4389,7 +4461,7 @@
                                 return `
                                     <div class="cinema-hot-card cinema-hot-more-card">
                                         <a href="/danh-sach?list=phim-chieu-rap" class="block w-full text-center" style="text-decoration:none;" title="Xem tất cả ${items.length} phim chiếu rạp">
-                                            <div class="cinema-hot-more-inner">
+                                             <div class="cinema-hot-more-inner">
                                                 <div class="cinema-hot-more-body">
                                                     <div class="cinema-hot-more-icon-circle">
                                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -4416,22 +4488,59 @@
                                 html += buildMoreCard();
                                 sliderEl.innerHTML = html;
                                 sliderEl.scrollLeft = 0;
-                                return;
+                            } else {
+                                // --- MOBILE: 3D COVERFLOW STAGE CHUẨN HERO ẢNH SỐ 1 (0ms Lag, Căn giữa tuyệt đối 100%, Bỏ ô Xem tất cả) ---
+                                sliderEl.classList.add('cinema-hot-stage-mobile');
+                                sliderEl.scrollLeft = 0;
+
+                                let html = topItems.map((m, idx) => {
+                                    return createCinemaHotCardHTML(m, idx + 1, `data-index="${idx}" onclick="handleCinemaHotCardClick(${idx}, event)"`);
+                                }).join('');
+                                sliderEl.innerHTML = html;
+
+                                // Giữ nguyên vị trí thẻ hiện tại nếu đang tương tác, hoặc đưa về 0
+                                if (typeof cinemaHotActiveIndex !== 'number' || cinemaHotActiveIndex >= topItems.length) {
+                                    cinemaHotActiveIndex = 0;
+                                }
+                                updateCinemaHot3DStage(sliderEl);
                             }
 
-                            // --- MOBILE: 3D COVERFLOW STAGE CHUẨN HERO ẢNH SỐ 1 (0ms Lag, Căn giữa tuyệt đối 100%, Bỏ ô Xem tất cả) ---
-                            sliderEl.classList.add('cinema-hot-stage-mobile');
-                            sliderEl.scrollLeft = 0;
+                            // 🎯 Khởi tạo một lần: Bộ theo dõi hiển thị (IntersectionObserver) để KHÔNG BAO GIỜ CHẠY NỀN
+                            if (!sliderEl._observerInit) {
+                                sliderEl._observerInit = true;
+                                const targetSec = document.getElementById('cinemaHotSection') || sliderEl;
+                                if ('IntersectionObserver' in window && targetSec) {
+                                    const secObserver = new IntersectionObserver((entries) => {
+                                        entries.forEach(entry => {
+                                            _cinemaHotIsVisible = entry.isIntersecting;
+                                            if (_cinemaHotIsVisible && !document.hidden && !_cinemaHotIsUserInteracting) {
+                                                scheduleCinemaHotAuto(2800); // Khi cuộn vào khung nhìn, chờ 2.8s rồi bắt đầu tự động chuyển
+                                            } else {
+                                                stopCinemaHotAuto(); // Lập tức dừng khi cuộn ra khỏi màn hình
+                                            }
+                                        });
+                                    }, { threshold: 0.15 });
+                                    secObserver.observe(targetSec);
+                                } else {
+                                    _cinemaHotIsVisible = true;
+                                    scheduleCinemaHotAuto(3000);
+                                }
 
-                            // Trên mobile: Chỉ nạp danh sách 20 phim rạp, KHÔNG chèn ô "Xem tất cả"
-                            let html = topItems.map((m, idx) => {
-                                return createCinemaHotCardHTML(m, idx + 1, `data-index="${idx}" onclick="handleCinemaHotCardClick(${idx}, event)"`);
-                            }).join('');
-                            sliderEl.innerHTML = html;
+                                // Dừng khi tab bị ẩn hoặc điện thoại khoá màn hình, bật lại khi mở trang
+                                document.addEventListener('visibilitychange', () => {
+                                    if (document.hidden) {
+                                        stopCinemaHotAuto();
+                                    } else if (_cinemaHotIsVisible && !_cinemaHotIsUserInteracting) {
+                                        scheduleCinemaHotAuto(2500);
+                                    }
+                                });
 
-                            // Top 1 luôn ở chính giữa tâm 100%
-                            cinemaHotActiveIndex = 0;
-                            updateCinemaHot3DStage(sliderEl);
+                                // Dừng khi hover chuột trên desktop, chạy lại khi rê chuột ra
+                                sliderEl.addEventListener('mouseenter', () => pauseCinemaHotOnUserAction());
+                                sliderEl.addEventListener('mouseleave', () => resumeCinemaHotAfterUserAction());
+                            } else if (_cinemaHotIsVisible && !_cinemaHotIsUserInteracting) {
+                                scheduleCinemaHotAuto(CINEMA_HOT_AUTO_INTERVAL);
+                            }
 
                             // Gắn bộ điều khiển cử chỉ vuốt chạm cảm ứng 60-120fps siêu mượt
                             if (!sliderEl._touchInit) {
@@ -4441,6 +4550,7 @@
                                 let isSwiping = false;
 
                                 sliderEl.addEventListener('touchstart', (e) => {
+                                    pauseCinemaHotOnUserAction(); // Ngay khi user chạm tay vào, dừng tự động chạy
                                     if (!e.touches.length) return;
                                     startX = e.touches[0].clientX;
                                     startY = e.touches[0].clientY;
@@ -4470,6 +4580,8 @@
                                             updateCinemaHot3DStage(sliderEl);
                                         }
                                     }
+                                    // Khi user kết thúc lướt, chờ 4.2 giây rồi mới bắt đầu tự động chuyển tiếp từ thẻ hiện tại
+                                    resumeCinemaHotAfterUserAction();
                                 }, { passive: true });
 
                                 // Khi xoay màn hình điện thoại hoặc resize, cập nhật lại trạng thái

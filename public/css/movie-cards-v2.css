@@ -233,9 +233,9 @@ main > section:first-child .section-header {
    SECTION 0: PHIM MỚI ĐỀ CỬ (VERTICAL 2:3 CARDS FOR CAROUSEL)
    ====================================================== */
 .de-cu-card {
-    flex: 0 0 176px !important;
-    width: 176px !important;
-    max-width: 176px !important;
+    flex: 0 0 192px !important;
+    width: 192px !important;
+    max-width: 192px !important;
     align-self: flex-start !important;
     background: transparent !important;
     border: none !important;
@@ -243,9 +243,9 @@ main > section:first-child .section-header {
 
 @media (min-width: 640px) {
     .de-cu-card {
-        flex: 0 0 198px !important;
-        width: 198px !important;
-        max-width: 198px !important;
+        flex: 0 0 205px !important;
+        width: 205px !important;
+        max-width: 205px !important;
     }
 }
 
@@ -1021,24 +1021,12 @@ input#pageInput::-webkit-inner-spin-button {
     .section-header-tab { font-size: 11px !important; padding: 4px 10px !important; }
     .section-header-link { font-size: 11px !important; padding: 3px 8px !important; }
     .section-header { margin-top: 12px !important; margin-bottom: 8px !important; }
-    
-    .de-cu-card {
-        flex: 0 0 150px !important;
-        width: 150px !important;
-        max-width: 150px !important;
-    }
 }
 
 @media (max-width: 360px) {
     .section-header-title { font-size: 13.5px !important; }
     .section-header-tab { font-size: 10px !important; padding: 3px 8px !important; }
     .section-header-link { font-size: 10px !important; padding: 3px 6px !important; }
-    
-    .de-cu-card {
-        flex: 0 0 140px !important;
-        width: 140px !important;
-        max-width: 140px !important;
-    }
 }
 
 /* 🎯 Remove orange hover border on movie cards */
