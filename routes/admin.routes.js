@@ -8,6 +8,7 @@ const { requireAdmin } = require('../middleware/adminAuth.middleware');
 const { supabase, supabaseAdmin } = require('../lib/supabase');
 const Gamification = require('../models/Gamification');
 const AdminLog     = require('../models/AdminLog');
+const framesMap    = require('../public/js/admin/frames-map.json');
 
 // Fast server-side in-memory cache for admin API queries
 const adminServerCache = new Map();
@@ -455,23 +456,78 @@ router.get('/dashboard', requireAdmin, async (req, res) => {
 // ── GET /api/admin/users ──────────────────────────────────────────────────────
 router.get('/users', requireAdmin, async (req, res) => {
     try {
-        const { search = '', role = '', status = '', page = 1, limit = 50 } = req.query;
-        const offset = (parseInt(page) - 1) * parseInt(limit);
+        const { 
+            search = '', 
+            role = '', 
+            status = '', 
+            vip = '',
+            xu_tier = '',
+            frame = '',
+            streak = '',
+            sort = 'newest',
+            page = 1, 
+            limit = 50 
+        } = req.query;
+        const pageNum = Math.max(1, parseInt(page) || 1);
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 50));
+        const offset = (pageNum - 1) * limitNum;
 
         let query = supabaseAdmin
             .from('profiles')
-            .select('*', { count: 'exact' })
-            .order('created_at', { ascending: false })
-            .range(offset, offset + parseInt(limit) - 1);
+            .select('*', { count: 'exact' });
 
-        if (role)   query = query.eq('role', role);
-        if (status === 'blocked') query = query.eq('is_blocked', true);
+        // Sorting
+        if (sort === 'xu_desc') {
+            query = query.order('xu', { ascending: false, nullsFirst: false });
+        } else if (sort === 'level_desc') {
+            query = query.order('level', { ascending: false, nullsFirst: false });
+        } else if (sort === 'oldest') {
+            query = query.order('created_at', { ascending: true });
+        } else if (sort === 'name_asc') {
+            query = query.order('name', { ascending: true });
+        } else {
+            query = query.order('created_at', { ascending: false });
+        }
+
+        if (role) {
+            query = query.eq('role', role);
+        }
+        if (status === 'blocked') {
+            query = query.eq('is_blocked', true);
+        } else if (status === 'active') {
+            query = query.eq('is_blocked', false);
+        }
+
+        if (vip === 'active') {
+            query = query.eq('role', 'vip');
+        } else if (vip === 'none') {
+            query = query.neq('role', 'vip');
+        }
+
+        if (frame === 'equipped') {
+            query = query.not('equipped_frame', 'is', null).neq('equipped_frame', 'frame_none').neq('equipped_frame', 'none');
+        } else if (frame === 'none') {
+            query = query.or('equipped_frame.is.null,equipped_frame.eq.frame_none,equipped_frame.eq.none');
+        }
+
+        if (xu_tier === 'high') {
+            query = query.gte('xu', 500);
+        } else if (xu_tier === 'mid') {
+            query = query.gte('xu', 100).lt('xu', 500);
+        } else if (xu_tier === 'low') {
+            query = query.gt('xu', 0).lt('xu', 100);
+        } else if (xu_tier === 'zero') {
+            query = query.eq('xu', 0);
+        }
+
         if (search) {
             const cleanSearch = String(search).replace(/[%,()]/g, '').trim();
             if (cleanSearch) {
-                query = query.or(`name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%`);
+                query = query.or(`name.ilike.%${cleanSearch}%,email.ilike.%${cleanSearch}%,phone.ilike.%${cleanSearch}%,id.eq.${cleanSearch}`);
             }
         }
+
+        query = query.range(offset, offset + limitNum - 1);
 
         const { data: users, count, error } = await query;
         if (error) throw error;
@@ -491,10 +547,10 @@ router.get('/users', requireAdmin, async (req, res) => {
                 for (const u of users) {
                     const g = gamifMap[u.id];
                     if (g) {
-                        u.xu = g.xu;
-                        u.xp = g.xp;
-                        u.level = g.level;
-                        u.streak_current = g.streak_current;
+                        u.xu = (typeof g.xu === 'number') ? g.xu : (u.xu || 0);
+                        u.xp = (typeof g.xp === 'number') ? g.xp : (u.xp || 0);
+                        u.level = (typeof g.level === 'number') ? g.level : (u.level || 1);
+                        u.streak_current = (typeof g.streak_current === 'number') ? g.streak_current : (u.streak_current || 0);
                     }
                 }
             } catch (mongoErr) {
@@ -502,15 +558,201 @@ router.get('/users', requireAdmin, async (req, res) => {
             }
         }
 
+        // Streak in-memory filter if specified
+        let finalUsers = users || [];
+        if (streak === '7') {
+            finalUsers = finalUsers.filter(u => (u.streak_current || 0) >= 7);
+        } else if (streak === '3') {
+            finalUsers = finalUsers.filter(u => (u.streak_current || 0) >= 3 && (u.streak_current || 0) < 7);
+        } else if (streak === '0') {
+            finalUsers = finalUsers.filter(u => (u.streak_current || 0) === 0);
+        }
+
+        // Bổ sung tên tiếng Việt chuẩn của khung avatar đang mang cho từng user
+        for (const u of finalUsers) {
+            const fId = u.equipped_frame;
+            if (fId && fId !== 'none' && fId !== 'frame_none') {
+                u.equipped_frame_name = framesMap[fId] || (fId.startsWith('disc_frame_') ? 'Khung VIP' : fId);
+            } else {
+                u.equipped_frame_name = 'Mặc định';
+            }
+        }
+
         return res.json({
             success: true,
-            data: users || [],
-            pagination: { total: count || 0, page: parseInt(page), limit: parseInt(limit) }
+            data: finalUsers,
+            pagination: { total: count || 0, page: pageNum, limit: limitNum }
         });
 
     } catch (err) {
         console.error('[Admin] Get users error:', err);
         return res.status(500).json({ success: false, message: 'Lỗi server.' });
+    }
+});
+
+// ── GET /api/admin/users/:id/details — Chi tiết đầy đủ của 1 user ──────────────
+const KNOWN_SHOP_ITEMS = {
+    'disc_frame_1352691512143777956': { name: 'Cân Bằng Thái Cực (Balance)', img: 'https://cdn.discordapp.com/avatar-decoration-presets/a_82e4df4028396ad5ccaaafb397fa6248.png?size=240&passthrough=true', price: 1500 },
+    'disc_frame_1352696607715360902': { name: 'Hồ Ly (Kitsune)', img: 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_be111e4303d634c55500202a61656e0b.png', price: 1500 },
+    'disc_frame_1352687476317093888': { name: 'Pháo Hoa Rực Rỡ', img: 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0f4f1b40921ce680b60007e94427d1f2.png', price: 150 },
+    'disc_frame_1352687418418921532': { name: 'Cầu Vồng Hugh', img: 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png', price: 150 },
+    'disc_frame_1352687609780113562': { name: 'Tô Mì Ramen', img: 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_001e956faa73bd0410c455234c62818f.png', price: 150 },
+    'color_divine_light': { name: 'Màu Tên: Divine Light (Hào Quang)', price: 500 },
+    'banner_cinema': { name: 'Banner: Bom Tấn Rạp Phim', price: 500 }
+};
+
+router.get('/users/:id/details', requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Supabase Profile
+        const { data: profile, error: pErr } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (pErr || !profile) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy hồ sơ người dùng.' });
+        }
+
+        const fId = profile.equipped_frame;
+        profile.equipped_frame_name = framesMap[fId] || (fId && fId !== 'none' && fId !== 'frame_none' ? (fId.startsWith('disc_frame_') ? 'Khung VIP' : fId) : 'Mặc định');
+
+        // 2. Metadata từ Supabase Auth (chứa equipped_frame_url, ownedItems, v.v.)
+        try {
+            const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(id);
+            const meta = authUser?.user?.user_metadata || {};
+            const itemDef = KNOWN_SHOP_ITEMS[profile.equipped_frame];
+            profile.equipped_frame_url = profile.equipped_frame_url || meta.equipped_frame_url || meta.equippedFrameUrl || (itemDef ? itemDef.img : '');
+            profile.equipped_frame_class = profile.equipped_frame_class || meta.equipped_frame_class || meta.equippedFrameClass || '';
+            profile.owned_items = meta.ownedItems || meta.owned_items || [];
+            profile.inventory = meta.inventory || {};
+
+            // Tự động đồng bộ các vật phẩm đã mua vào bảng transactions nếu chưa có
+            if (profile.owned_items && profile.owned_items.length > 0) {
+                for (const itemId of profile.owned_items) {
+                    const info = KNOWN_SHOP_ITEMS[itemId] || { name: itemId, price: 500 };
+                    const { data: ex } = await supabaseAdmin.from('transactions')
+                        .select('id')
+                        .eq('user_id', id)
+                        .ilike('transfer_content', `%${info.name.split(':')[0]}%`);
+                    if (!ex || ex.length === 0) {
+                        await supabaseAdmin.from('transactions').insert({
+                            user_id: id,
+                            type: 'admin_adjust',
+                            amount_vnd: 0,
+                            xu_amount: -info.price,
+                            status: 'confirmed',
+                            transfer_content: `Mua vật phẩm: ${info.name}`,
+                            created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+                        });
+                    }
+                }
+            }
+        } catch (metaErr) {
+            console.warn('[Admin Details] Auth meta sync error:', metaErr.message);
+        }
+
+        // 3. MongoDB Gamification
+        let gamif = null;
+        try {
+            const Gamification = require('../models/Gamification');
+            gamif = await Gamification.findOne({ user_id: id }).lean();
+            if (gamif) {
+                profile.xu = (typeof gamif.xu === 'number') ? gamif.xu : profile.xu;
+                profile.xp = (typeof gamif.xp === 'number') ? gamif.xp : profile.xp;
+                profile.level = (typeof gamif.level === 'number') ? gamif.level : profile.level;
+                profile.streak_current = (typeof gamif.streak_current === 'number') ? gamif.streak_current : 0;
+                profile.streak_max = (typeof gamif.streak_max === 'number') ? gamif.streak_max : 0;
+            }
+        } catch (mErr) {
+            console.warn('[Admin] Fetch Gamification failed for user:', id, mErr.message);
+        }
+
+        // 4. Active VIP Subscription
+        const { data: vipSubs } = await supabaseAdmin
+            .from('vip_subscriptions')
+            .select('*')
+            .eq('user_id', id)
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        const now = new Date();
+        const activeVip = (vipSubs || []).find(v => v.status === 'active' && new Date(v.expires_at) > now) || null;
+
+        // 5. Financial & Xu Statistics
+        const { data: txs } = await supabaseAdmin
+            .from('transactions')
+            .select('amount_vnd, xu_amount, type, status')
+            .eq('user_id', id);
+
+        let totalVndSpent = 0;
+        let totalXuSpent = 0;
+        let totalXuEarned = 0;
+        let countConfirmed = 0;
+
+        (txs || []).forEach(tx => {
+            if (tx.status === 'confirmed') {
+                countConfirmed++;
+                if (tx.amount_vnd && tx.amount_vnd > 0) {
+                    totalVndSpent += Number(tx.amount_vnd);
+                }
+                if (tx.xu_amount && tx.xu_amount < 0) {
+                    totalXuSpent += Math.abs(Number(tx.xu_amount));
+                } else if (tx.xu_amount && tx.xu_amount > 0) {
+                    totalXuEarned += Number(tx.xu_amount);
+                }
+            }
+        });
+
+        return res.json({
+            success: true,
+            user: profile,
+            gamification: gamif || {},
+            vip: {
+                active: !!activeVip,
+                current: activeVip,
+                history: vipSubs || []
+            },
+            stats: {
+                total_spent_vnd: totalVndSpent,
+                total_xu_spent: totalXuSpent,
+                total_xu_earned: totalXuEarned,
+                transactions_count: (txs || []).length,
+                confirmed_count: countConfirmed
+            }
+        });
+
+    } catch (err) {
+        console.error('[Admin] Get user details error:', err);
+        return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy chi tiết thành viên.' });
+    }
+});
+
+// ── GET /api/admin/users/:id/transactions — Lịch sử giao dịch & tiêu xu của user ─
+router.get('/users/:id/transactions', requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const limit = Math.min(100, parseInt(req.query.limit) || 50);
+
+        const { data: txs, error } = await supabaseAdmin
+            .from('transactions')
+            .select('*')
+            .eq('user_id', id)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (error) throw error;
+
+        return res.json({
+            success: true,
+            transactions: txs || []
+        });
+
+    } catch (err) {
+        console.error('[Admin] Get user transactions error:', err);
+        return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy lịch sử giao dịch.' });
     }
 });
 

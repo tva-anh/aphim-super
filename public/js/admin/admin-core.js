@@ -864,186 +864,436 @@
     }
   }
 
-  // ─── 8. USER GAMIFICATION & FULL PROFILE INSPECTOR ───
-  function inspectUser(userOrId, nameArg, emailArg, roleArg, xuArg, levelArg, streakArg) {
+  // ─── 8. USER GAMIFICATION & FULL PROFILE INSPECTOR (ENTERPRISE 4-TABS) ───
+  const FRAME_LABEL_MAP = Object.assign({
+    'none': 'Mặc định (Không viền)',
+    'frame_none': 'Mặc định (Không viền)',
+    'vien_don': 'Neon Hồng',
+    'dut_doan': 'Loading Blue',
+    'vien_kep': 'Double Glow',
+    'hao_quang': 'Hào Quang',
+    'neon': 'Đèn Neon',
+    'film': 'Film Cổ Điển',
+    'canh_than': 'Cánh Thiên Thần',
+    'sung_quy': 'Sừng Quỷ',
+    'hoang_gia': 'Hoàng Gia Gold',
+    'vang_oscar': 'Vàng Oscar',
+    'rong_bay': 'Rồng Bay',
+    'fire': 'Ngọn Lửa Thiêng',
+    'sakura': 'Hoa Anh Đào',
+    'cyber': 'Cyberpunk 2077',
+    'disc_frame_1352691512143777956': 'Cân Bằng Thái Cực (Balance)',
+    'disc_frame_1352696607715360902': 'Hồ Ly (Kitsune)',
+    'disc_frame_1352687476317093888': 'Pháo Hoa Rực Rỡ',
+    'disc_frame_1352687418418921532': 'Cầu Vồng Hugh',
+    'disc_frame_1352687609780113562': 'Tô Mì Ramen',
+    'color_divine_light': 'Màu Tên: Divine Light (Hào Quang)',
+    'banner_cinema': 'Banner: Bom Tấn Rạp Phim'
+  }, (typeof window !== 'undefined' && window.ADMIN_FRAMES_MAP) ? window.ADMIN_FRAMES_MAP : {});
+
+  const FRAME_IMG_MAP = {
+    'disc_frame_1352691512143777956': 'https://cdn.discordapp.com/avatar-decoration-presets/a_82e4df4028396ad5ccaaafb397fa6248.png?size=240&passthrough=true',
+    'disc_frame_1352696607715360902': 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_be111e4303d634c55500202a61656e0b.png',
+    'disc_frame_1352687476317093888': 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0f4f1b40921ce680b60007e94427d1f2.png',
+    'disc_frame_1352687418418921532': 'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png'
+  };
+
+  const FRAME_PRESETS = [
+    { id: 'none', name: 'Mặc định (Không viền)' },
+    { id: 'disc_frame_1352691512143777956', name: 'Balance (Âm Dương Rồng VIP)' },
+    { id: 'disc_frame_1352696607715360902', name: 'Kitsune (Hồ Ly VIP)' },
+    { id: 'disc_frame_1352687476317093888', name: 'Đĩa Nhạc Phim VIP' },
+    { id: 'vien_don', name: 'Neon Hồng' },
+    { id: 'dut_doan', name: 'Loading Blue' },
+    { id: 'vien_kep', name: 'Double Glow' },
+    { id: 'hao_quang', name: 'Hào Quang Vàng' },
+    { id: 'neon', name: 'Đèn Neon Tím' },
+    { id: 'film', name: 'Film Cổ Điển' },
+    { id: 'canh_than', name: 'Cánh Thiên Thần' },
+    { id: 'sung_quy', name: 'Sừng Quỷ Satan' },
+    { id: 'hoang_gia', name: 'Hoàng Gia Gold' },
+    { id: 'vang_oscar', name: 'Vàng Oscar' },
+    { id: 'rong_bay', name: 'Rồng Bay Thần Thoại' },
+    { id: 'fire', name: 'Ngọn Lửa Thiêng' },
+    { id: 'sakura', name: 'Hoa Anh Đào Sakura' },
+    { id: 'cyber', name: 'Cyberpunk 2077' }
+  ];
+
+  const BANNER_PRESETS = [
+    { id: 'banner_cinema', name: 'Bom Tấn Rạp Phim (VIP)' },
+    { id: 'banner_default', name: 'Mặc Định (Nightfall)' },
+    { id: 'banner_gold', name: 'Hoàng Gia Gold' },
+    { id: 'banner_cyber', name: 'Cyberpunk Neon 2026' },
+    { id: 'banner_sakura', name: 'Hoa Anh Đào Sakura' },
+    { id: 'b1', name: 'Rạp Chiếu Phim Cổ Điển' }
+  ];
+
+  window.AdminCore.switchUserInspectorTab = function(tabId) {
+    document.querySelectorAll('.insp-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.insp-tab-pane').forEach(p => p.style.display = 'none');
+    
+    const targetBtn = document.getElementById('inspTabBtn_' + tabId);
+    const targetPane = document.getElementById('inspTabPane_' + tabId);
+    if (targetBtn) targetBtn.classList.add('active');
+    if (targetPane) targetPane.style.display = 'block';
+  };
+
+  async function inspectUser(userOrId, nameArg, emailArg, roleArg, xuArg, levelArg, streakArg) {
     let user = null;
     if (typeof userOrId === 'object' && userOrId !== null) {
       user = userOrId;
     } else if (typeof userOrId === 'string') {
       user = window._loadedUsersMap ? window._loadedUsersMap[userOrId] : null;
     }
-    if (!user) {
-      user = {
-        id: userOrId,
-        name: nameArg || 'Người dùng',
-        email: emailArg || '',
-        role: roleArg || 'user',
-        xu: xuArg || 0,
-        level: levelArg || 1,
-        streak_current: streakArg || 0
-      };
-    }
+    const userId = user?.id || userOrId;
 
-    const userId = user.id;
-    openDrawer(`Hồ Sơ & Cấu Hình: ${sanitize(user.name || 'User')}`, `Mã ID: ${userId}`);
+    openDrawer(`Quản Trị Thành Viên`, `ID: ${userId}`);
     const content = document.getElementById('drawerContent');
     if (!content) return;
 
-    const avatarUrl = user.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80';
+    // Loading Skeleton
+    content.innerHTML = `
+      <div style="padding: 40px 20px; text-align: center; color: var(--text-dim);">
+        <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">Đang tải hồ sơ & lịch sử giao dịch...</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">Truy vấn thông tin tài khoản, ví Xu, gói VIP và túi đồ.</div>
+      </div>
+    `;
+
+    const token = getAdminToken();
+    let detailsData = null;
+    let txsData = null;
+
+    try {
+      const [resDetails, resTxs] = await Promise.all([
+        fetch(`/api/admin/users/${userId}/details`, {
+          headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+        }),
+        fetch(`/api/admin/users/${userId}/transactions?limit=50`, {
+          headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+        })
+      ]);
+
+      if (resDetails.ok) {
+        const jsonD = await resDetails.json();
+        if (jsonD.success) detailsData = jsonD;
+      }
+      if (resTxs.ok) {
+        const jsonT = await resTxs.json();
+        if (jsonT.success) txsData = jsonT.transactions;
+      }
+    } catch (err) {
+      console.warn('[Admin Inspector] Fetch details error:', err);
+    }
+
+    const liveUser = detailsData?.user || user || {};
+    const vipInfo = detailsData?.vip || {};
+    const stats = detailsData?.stats || {};
+    const transactions = txsData || [];
+
+    const avatarUrl = liveUser.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80';
+    const equippedFrame = liveUser.equipped_frame || 'none';
+    const equippedBanner = liveUser.equipped_banner || 'banner_cinema';
+    const ownedItems = liveUser.owned_items || [];
+
+    // Lấy URL hình khung trang trí thực tế
+    const frameImgUrl = liveUser.equipped_frame_url || FRAME_IMG_MAP[equippedFrame] || '';
+    const frameDisplayName = liveUser.equipped_frame_name || FRAME_LABEL_MAP[equippedFrame] || ('Khung: ' + equippedFrame);
+
+    // Format currency
+    const formatVnd = (num) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num || 0);
+    const formatXu = (num) => new Intl.NumberFormat('vi-VN').format(num || 0);
+
+    const vipStatusText = vipInfo.active 
+      ? `VIP Active (${vipInfo.current?.plan || 'PREMIUM'})` 
+      : (liveUser.role === 'vip' ? 'VIP Hoạt Động' : 'Chưa có VIP');
+
+    // Dynamic select options
+    const isFrameInPresets = FRAME_PRESETS.some(f => f.id === equippedFrame);
+    let frameOptionsHtml = '';
+    if (!isFrameInPresets && equippedFrame && equippedFrame !== 'none' && equippedFrame !== 'frame_none') {
+      frameOptionsHtml += `<option value="${equippedFrame}" selected>✨ ${frameDisplayName} (Đang dùng)</option>`;
+    }
+    frameOptionsHtml += FRAME_PRESETS.map(f => `
+      <option value="${f.id}" ${equippedFrame === f.id ? 'selected' : ''}>${f.name}</option>
+    `).join('');
 
     content.innerHTML = `
-      <div class="inspector-section" style="padding-bottom: 12px; border-bottom: 1px solid var(--border);">
-        <div style="display: flex; gap: 16px; align-items: center;">
-          <img id="drawerAvatarPreview" src="${sanitize(avatarUrl)}" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; flex-shrink: 0;">
+      <!-- HEADER USER BADGE (LIVE AVATAR + REAL FRAME DECORATION) -->
+      <div style="background: #faf7f2; border: 1px solid #e7e0d3; border-radius: 12px; padding: 16px; margin-bottom: 14px;">
+        <div style="display: flex; gap: 14px; align-items: center;">
+          <div style="position: relative; width: 68px; height: 68px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <img id="drawerAvatarPreview" src="${sanitize(avatarUrl)}" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover;">
+            ${frameImgUrl ? `<img id="drawerFramePreview" src="${sanitize(frameImgUrl)}" style="position: absolute; inset: -4px; width: 76px; height: 76px; pointer-events: none; object-fit: contain;">` : ''}
+          </div>
           <div style="flex: 1; min-width: 0;">
-            <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 2px 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${sanitize(user.name || 'Người dùng')}</h3>
-            <div style="font-size: 12px; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${sanitize(user.email || '')}</div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h3 style="font-size: 16px; font-weight: 800; color: #1c1917; margin: 0;">${sanitize(liveUser.name || 'Người dùng')}</h3>
+              <span class="tag-block ${liveUser.role === 'admin' ? 'tag-admin' : (liveUser.role === 'vip' ? 'tag-vip' : 'tag-user')}">
+                ${(liveUser.role || 'USER').toUpperCase()}
+              </span>
+              ${liveUser.is_blocked ? '<span class="tag-block tag-admin">BỊ KHÓA</span>' : '<span class="status-pill active" style="font-size: 11px;"><span class="dot"></span> Hoạt Động</span>'}
+            </div>
+            <div style="font-size: 12px; color: #78716c; margin-top: 3px; word-break: break-all;">
+              ${sanitize(liveUser.email || '')} ${liveUser.phone ? '• ' + sanitize(liveUser.phone) : ''}
+            </div>
             <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
-              <span class="badge ${user.role === 'admin' ? 'badge-error' : user.role === 'vip' ? 'badge-gold' : 'badge-subtle'}"><i data-lucide="shield"></i> ${user.role?.toUpperCase() || 'USER'}</span>
-              ${user.is_blocked ? '<span class="badge badge-error"><i data-lucide="lock"></i> BỊ KHÓA</span>' : '<span class="badge badge-emerald"><i data-lucide="check-circle"></i> HOẠT ĐỘNG</span>'}
+              <span class="tag-xu-block">${formatXu(liveUser.xu)} Xu</span>
+              <span class="tag-level-block">Lv.${liveUser.level || 1} (${liveUser.xp || 0} XP)</span>
+              <span class="tag-frame-block">${frameDisplayName}</span>
+              <span class="tag-streak-block ${liveUser.streak_current > 0 ? 'tag-streak-active' : 'tag-streak-zero'}">Streak: ${liveUser.streak_current || 0}/7 Ngày</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SECTION 1: THÔNG TIN CÁ NHÂN -->
-      <div class="inspector-section" style="margin-top: 14px;">
-        <h4 style="font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-          <i data-lucide="user"></i> Thông Tin Cá Nhân (Supabase Profile)
-        </h4>
-        
-        <div style="margin-bottom: 10px;">
-          <label class="form-label" style="font-size: 11px;">Tên Hiển Thị (Name):</label>
-          <input type="text" id="userNameInput" class="form-control" value="${sanitize(user.name || '')}">
+      <!-- 4 MODERN TABS NAVIGATION -->
+      <div class="inspector-nav-tabs">
+        <button type="button" class="insp-tab-btn active" id="inspTabBtn_profile" onclick="AdminCore.switchUserInspectorTab('profile')">
+          Hồ Sơ
+        </button>
+        <button type="button" class="insp-tab-btn" id="inspTabBtn_ledger" onclick="AdminCore.switchUserInspectorTab('ledger')">
+          Tiêu Xu (${transactions.length})
+        </button>
+        <button type="button" class="insp-tab-btn" id="inspTabBtn_inventory" onclick="AdminCore.switchUserInspectorTab('inventory')">
+          Túi Đồ & Khung (${ownedItems.length})
+        </button>
+        <button type="button" class="insp-tab-btn" id="inspTabBtn_actions" onclick="AdminCore.switchUserInspectorTab('actions')">
+          Thao Tác
+        </button>
+      </div>
+
+      <!-- TAB 1: HỒ SƠ & TỔNG QUAN -->
+      <div class="insp-tab-pane" id="inspTabPane_profile">
+        <!-- 4 STAT TILES (MODERN COLORED BLOCKS) -->
+        <div class="stat-tile-grid">
+          <div class="stat-tile-card">
+            <div class="stat-tile-title">TỔNG NẠP (VND)</div>
+            <div class="stat-tile-val" style="color: #059669;">${formatVnd(stats.total_spent_vnd)}</div>
+          </div>
+          <div class="stat-tile-card">
+            <div class="stat-tile-title">SỐ DƯ XU HIỆN CÓ</div>
+            <div class="stat-tile-val" style="color: #d97706;">${formatXu(liveUser.xu)} Xu</div>
+          </div>
+          <div class="stat-tile-card">
+            <div class="stat-tile-title">TỔNG XU ĐÃ TIÊU</div>
+            <div class="stat-tile-val" style="color: #e11d48;">${formatXu(stats.total_xu_spent)} Xu</div>
+          </div>
+          <div class="stat-tile-card">
+            <div class="stat-tile-title">GÓI VIP HIỆN TẠI</div>
+            <div class="stat-tile-val" style="color: #7c3aed; font-size: 14px;">${vipStatusText}</div>
+          </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-          <div>
-            <label class="form-label" style="font-size: 11px;">Số Điện Thoại:</label>
-            <input type="text" id="userPhoneInput" class="form-control" value="${sanitize(user.phone || '')}" placeholder="09xxxx">
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px; margin-bottom: 12px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #1c1917; margin-bottom: 12px;">Thông Tin Cá Nhân</h4>
+          
+          <div style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 11px; font-weight: 600;">Tên Người Dùng:</label>
+            <input type="text" id="userNameInput" class="form-control" value="${sanitize(liveUser.name || '')}">
           </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+              <label class="form-label" style="font-size: 11px; font-weight: 600;">Số Điện Thoại:</label>
+              <input type="text" id="userPhoneInput" class="form-control" value="${sanitize(liveUser.phone || '')}" placeholder="09xxxx">
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 11px; font-weight: 600;">Phân Quyền:</label>
+              <select id="userRoleSelect" class="form-control">
+                <option value="user" ${liveUser.role === 'user' ? 'selected' : ''}>Thành Viên Thường</option>
+                <option value="vip" ${liveUser.role === 'vip' ? 'selected' : ''}>Thành Viên VIP</option>
+                <option value="mod" ${liveUser.role === 'mod' ? 'selected' : ''}>Kiểm Duyệt Viên</option>
+                <option value="admin" ${liveUser.role === 'admin' ? 'selected' : ''}>Quản Trị Viên (Admin)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 11px; font-weight: 600;">Avatar URL:</label>
+            <input type="text" id="userAvatarInput" class="form-control" value="${sanitize(liveUser.avatar_url || '')}" placeholder="https://..." oninput="document.getElementById('drawerAvatarPreview').src = this.value || ''">
+          </div>
+
           <div>
-            <label class="form-label" style="font-size: 11px;">Vai Trò (Role):</label>
-            <select id="userRoleSelect" class="form-control">
-              <option value="user" ${user.role === 'user' ? 'selected' : ''}>Thành Viên (user)</option>
-              <option value="vip" ${user.role === 'vip' ? 'selected' : ''}>Thành Viên VIP (vip)</option>
-              <option value="mod" ${user.role === 'mod' ? 'selected' : ''}>Kiểm Duyệt Viên (mod)</option>
-              <option value="editor" ${user.role === 'editor' ? 'selected' : ''}>Biên Tập Viên (editor)</option>
-              <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Quản Trị Viên (admin)</option>
+            <label class="form-label" style="font-size: 11px; font-weight: 600;">Profile Cover URL:</label>
+            <input type="text" id="userCoverInput" class="form-control" value="${sanitize(liveUser.profile_cover || '')}" placeholder="https://...">
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LỊCH SỬ GIAO DỊCH & TIÊU XU -->
+      <div class="insp-tab-pane" id="inspTabPane_ledger" style="display: none;">
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; overflow: hidden; margin-bottom: 14px;">
+          <div style="padding: 12px 14px; background: #faf7f2; border-bottom: 1px solid #e7e0d3; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700; color: #1c1917;">Sổ Cái Giao Dịch & Biến Động Xu</span>
+            <span style="font-size: 12px; color: #78716c;">${transactions.length} bản ghi</span>
+          </div>
+
+          <div style="max-height: 400px; overflow-y: auto;">
+            <table class="ledger-history-table">
+              <thead>
+                <tr>
+                  <th>Thời Gian</th>
+                  <th>Loại</th>
+                  <th>Biến Động</th>
+                  <th>Nội Dung</th>
+                  <th>Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${transactions.length === 0 ? `
+                  <tr><td colspan="5" style="text-align: center; padding: 24px; color: #a8a29e;">Chưa có giao dịch hay lịch sử tiêu xu nào.</td></tr>
+                ` : transactions.map(tx => {
+                  const dateStr = new Date(tx.created_at).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' });
+                  let typePill = '<span class="tx-type-pill tx-pill-spend">Mua Đồ</span>';
+                  if (tx.type === 'xu_topup' || (tx.amount_vnd > 0)) typePill = '<span class="tx-type-pill tx-pill-topup">Nạp Tiền</span>';
+                  else if (tx.type === 'xu_redeem_vip') typePill = '<span class="tx-type-pill tx-pill-vip">Đổi VIP</span>';
+                  else if (tx.type === 'admin_adjust' && !tx.transfer_content?.startsWith('Mua')) typePill = '<span class="tx-type-pill tx-pill-admin">Admin Xu</span>';
+
+                  let changeStr = '';
+                  if (tx.amount_vnd && tx.amount_vnd > 0) {
+                    changeStr += `<div class="ledger-change-pos">+${new Intl.NumberFormat('vi-VN').format(tx.amount_vnd)}đ</div>`;
+                  }
+                  if (tx.xu_amount) {
+                    const isPos = tx.xu_amount > 0;
+                    changeStr += `<div class="${isPos ? 'ledger-change-pos' : 'ledger-change-neg'}">${isPos ? '+' : ''}${tx.xu_amount} Xu</div>`;
+                  }
+                  if (!changeStr) changeStr = '<span style="color:#78716c;">0đ</span>';
+
+                  let statusText = '<span style="color:#059669; font-weight:600;">Thành công</span>';
+                  if (tx.status === 'pending') statusText = '<span style="color:#d97706; font-weight:600;">Chờ duyệt</span>';
+                  else if (tx.status === 'rejected') statusText = '<span style="color:#e11d48; font-weight:600;">Từ chối</span>';
+
+                  return `
+                    <tr>
+                      <td style="white-space: nowrap; font-size: 11px;">${dateStr}</td>
+                      <td>${typePill}</td>
+                      <td style="white-space: nowrap;">${changeStr}</td>
+                      <td style="max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${sanitize(tx.transfer_content || '')}">${sanitize(tx.transfer_content || 'Giao dịch hệ thống')}</td>
+                      <td>${statusText}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: TÚI ĐỒ & KHUNG AVATAR -->
+      <div class="insp-tab-pane" id="inspTabPane_inventory" style="display: none;">
+        <!-- VẬT PHẨM ĐÃ SỞ HỮU TRONG TÚI ĐỒ -->
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: #1c1917; margin-bottom: 8px;">
+            Vật Phẩm Trong Túi Đồ (${ownedItems.length} món đã mua)
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            ${ownedItems.length === 0 ? '<span style="font-size: 12px; color: #78716c;">Chưa có vật phẩm nào</span>' : ownedItems.map(it => `
+              <span class="tag-block ${it === equippedFrame ? 'tag-vip' : 'tag-mod'}" style="font-size: 12px; padding: 6px 12px;">
+                ${FRAME_LABEL_MAP[it] || it} ${it === equippedFrame ? '• Đang Dùng' : ''}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: #1c1917; margin-bottom: 10px;">Khung Avatar Đang Đeo</div>
+          
+          <div style="margin-bottom: 14px;">
+            <select id="userFrameSelect" class="form-control" style="font-weight: 600;">
+              ${frameOptionsHtml}
+            </select>
+          </div>
+
+          <div style="font-size: 13px; font-weight: 700; color: #1c1917; margin-bottom: 10px;">Banner Hồ Sơ Đang Đeo</div>
+          <div>
+            <select id="userBannerSelect" class="form-control" style="font-weight: 600;">
+              ${BANNER_PRESETS.map(b => `
+                <option value="${b.id}" ${equippedBanner === b.id ? 'selected' : ''}>${b.name}</option>
+              `).join('')}
             </select>
           </div>
         </div>
 
-        <div style="margin-bottom: 10px;">
-          <label class="form-label" style="font-size: 11px;">URL Ảnh Đại Diện (Avatar URL):</label>
-          <input type="text" id="userAvatarInput" class="form-control" value="${sanitize(user.avatar_url || '')}" placeholder="https://..." oninput="document.getElementById('drawerAvatarPreview').src = this.value || ''">
-        </div>
-
-        <div style="margin-bottom: 10px;">
-          <label class="form-label" style="font-size: 11px;">URL Ảnh Bìa (Profile Cover URL):</label>
-          <input type="text" id="userCoverInput" class="form-control" value="${sanitize(user.profile_cover || '')}" placeholder="https://...">
+        <div style="background: #faf7f2; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px;">
+          <div style="font-size: 12.5px; font-weight: 700; color: #44403c; margin-bottom: 6px;">Kho Khung Avatar Hệ Thống (Gợi ý cấp nhanh):</div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            ${FRAME_PRESETS.slice(0, 8).map(f => `
+              <button type="button" class="btn btn-xs btn-outline" onclick="document.getElementById('userFrameSelect').value = '${f.id}'; showToast('Đã chọn khung: ${f.name}', 'info');">
+                ${f.name}
+              </button>
+            `).join('')}
+          </div>
         </div>
       </div>
 
-      <!-- SECTION 2: GAMIFICATION & TIỀN TỆ -->
-      <div class="inspector-section" style="margin-top: 14px;">
-        <h4 style="font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-          <i data-lucide="coins"></i> Điểm Thưởng & Gamification
-        </h4>
-
-        <label class="form-label" style="font-size: 11px;"><i data-lucide="coins" class="text-gold"></i> Số Dư Xu:</label>
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-          <input type="number" id="userCoinsInput" class="form-control" value="${user.xu || 0}" style="font-size: 16px; font-weight: 700; color: var(--gold);">
-          <button type="button" class="btn btn-outline" onclick="AdminCore.adjustUserCoins(100)">+100</button>
-          <button type="button" class="btn btn-outline" onclick="AdminCore.adjustUserCoins(500)">+500</button>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-          <div>
-            <label class="form-label" style="font-size: 11px;"><i data-lucide="award" class="text-cyan"></i> Cấp Độ (Level):</label>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <input type="number" id="userLevelInput" class="form-control" value="${user.level || 1}">
-              <button type="button" class="btn btn-outline" onclick="AdminCore.adjustUserLevel(1)">+1</button>
+      <!-- TAB 4: THAO TÁC QUẢN TRỊ -->
+      <div class="insp-tab-pane" id="inspTabPane_actions" style="display: none;">
+        <!-- ĐIỀU CHỈNH XU & GAMIFICATION -->
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: #b45309; margin-bottom: 8px;">Điều Chỉnh Xu & Cấp Độ</div>
+          
+          <div style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 11px;">Số Dư Xu Trực Tiếp:</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="number" id="userCoinsInput" class="form-control" value="${liveUser.xu || 0}" style="font-size: 16px; font-weight: 800; color: #b45309;">
+              <button type="button" class="btn btn-outline" onclick="AdminCore.adjustUserCoins(100)">+100</button>
+              <button type="button" class="btn btn-outline" onclick="AdminCore.adjustUserCoins(500)">+500</button>
             </div>
           </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+              <label class="form-label" style="font-size: 11px;">Cấp Độ (Level):</label>
+              <input type="number" id="userLevelInput" class="form-control" value="${liveUser.level || 1}">
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 11px;">Điểm XP:</label>
+              <input type="number" id="userXpInput" class="form-control" value="${liveUser.xp || 0}">
+            </div>
+          </div>
+
           <div>
-            <label class="form-label" style="font-size: 11px;"><i data-lucide="zap" class="text-indigo"></i> Điểm XP:</label>
-            <input type="number" id="userXpInput" class="form-control" value="${user.xp || 0}">
+            <label class="form-label" style="font-size: 11px;">Streak 7 Ngày:</label>
+            <select id="userStreakSelect" class="form-control">
+              <option value="0" ${liveUser.streak_current == 0 ? 'selected' : ''}>0 Ngày (Chưa bắt đầu)</option>
+              <option value="1" ${liveUser.streak_current == 1 ? 'selected' : ''}>1 Ngày</option>
+              <option value="2" ${liveUser.streak_current == 2 ? 'selected' : ''}>2 Ngày</option>
+              <option value="3" ${liveUser.streak_current == 3 ? 'selected' : ''}>3 Ngày</option>
+              <option value="4" ${liveUser.streak_current == 4 ? 'selected' : ''}>4 Ngày</option>
+              <option value="5" ${liveUser.streak_current == 5 ? 'selected' : ''}>5 Ngày</option>
+              <option value="6" ${liveUser.streak_current == 6 ? 'selected' : ''}>6 Ngày</option>
+              <option value="7" ${liveUser.streak_current == 7 ? 'selected' : ''}>7 Ngày (Max Streak)</option>
+            </select>
           </div>
         </div>
 
-        <label class="form-label" style="font-size: 11px;"><i data-lucide="flame" class="text-emerald"></i> Chuỗi Điểm Danh 7 Ngày (Streak):</label>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <select id="userStreakSelect" class="form-control">
-            <option value="0" ${user.streak_current == 0 ? 'selected' : ''}>0 Ngày (Chưa bắt đầu)</option>
-            <option value="1" ${user.streak_current == 1 ? 'selected' : ''}>1 Ngày</option>
-            <option value="2" ${user.streak_current == 2 ? 'selected' : ''}>2 Ngày</option>
-            <option value="3" ${user.streak_current == 3 ? 'selected' : ''}>3 Ngày (Huy hiệu Đồng)</option>
-            <option value="4" ${user.streak_current == 4 ? 'selected' : ''}>4 Ngày</option>
-            <option value="5" ${user.streak_current == 5 ? 'selected' : ''}>5 Ngày</option>
-            <option value="6" ${user.streak_current == 6 ? 'selected' : ''}>6 Ngày</option>
-            <option value="7" ${user.streak_current == 7 ? 'selected' : ''}>7 Ngày (Max Streak)</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- SECTION 3: TRANG TRÍ HỒ SƠ -->
-      <div class="inspector-section" style="margin-top: 14px;">
-        <h4 style="font-size: 13px; font-weight: 700; color: #a855f7; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-          <i data-lucide="sparkles"></i> Trang Bị & Vật Phẩm Đeo
-        </h4>
-
-        <div style="margin-bottom: 10px;">
-          <label class="form-label" style="font-size: 11px;">Khung Avatar Đang Đeo (Equipped Frame):</label>
-          <select id="userFrameSelect" class="form-control">
-            <option value="frame_none" ${(!user.equipped_frame || user.equipped_frame === 'frame_none') ? 'selected' : ''}>Không Đeo (Mặc Định)</option>
-            <option value="disc_frame_1352687476317093888" ${user.equipped_frame === 'disc_frame_1352687476317093888' ? 'selected' : ''}>🎵 Khung Đĩa Nhạc Phim VIP</option>
-            <option value="frame_gold_dragon" ${user.equipped_frame === 'frame_gold_dragon' ? 'selected' : ''}>🐉 Khung Rồng Vàng Hoàng Gia</option>
-            <option value="frame_cyber_neon" ${user.equipped_frame === 'frame_cyber_neon' ? 'selected' : ''}>⚡ Khung Cyberpunk Neon</option>
-            <option value="frame_sakura_bloom" ${user.equipped_frame === 'frame_sakura_bloom' ? 'selected' : ''}>🌸 Khung Hoa Anh Đào</option>
-            <option value="frame_vip_diamond" ${user.equipped_frame === 'frame_vip_diamond' ? 'selected' : ''}>💎 Khung Kim Cương Hạng Sang</option>
-          </select>
+        <!-- CẤP VIP -->
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: #7c3aed; margin-bottom: 8px;">Quản Trị Gói VIP</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+            <button type="button" class="btn btn-outline" onclick="AdminCore.grantVip('${userId}', 30)">Cấp VIP 30 Ngày</button>
+            <button type="button" class="btn btn-outline" onclick="AdminCore.grantVip('${userId}', 90)">Cấp VIP 90 Ngày</button>
+          </div>
+          <button type="button" class="btn btn-danger btn-block" onclick="AdminCore.revokeVip('${userId}')">Hủy Quyền VIP Của User</button>
         </div>
 
-        <div style="margin-bottom: 10px;">
-          <label class="form-label" style="font-size: 11px;">Banner Bìa Hồ Sơ (Equipped Banner):</label>
-          <select id="userBannerSelect" class="form-control">
-            <option value="banner_default" ${(!user.equipped_banner || user.equipped_banner === 'banner_default') ? 'selected' : ''}>Mặc Định (Nightfall)</option>
-            <option value="banner_gold" ${user.equipped_banner === 'banner_gold' ? 'selected' : ''}>👑 Hoàng Gia Gold</option>
-            <option value="banner_forest" ${user.equipped_banner === 'banner_forest' ? 'selected' : ''}>🌿 Rừng Đêm Dạ Quang</option>
-            <option value="banner_cyber" ${user.equipped_banner === 'banner_cyber' ? 'selected' : ''}>⚡ Cyberpunk Neon 2026</option>
-            <option value="banner_sakura" ${user.equipped_banner === 'banner_sakura' ? 'selected' : ''}>🌸 Hoa Anh Đào Sakura</option>
-            <option value="banner_sunset" ${user.equipped_banner === 'banner_sunset' ? 'selected' : ''}>🌅 Sóng Biển Hoàng Hôn</option>
-            <option value="banner_space" ${user.equipped_banner === 'banner_space' ? 'selected' : ''}>🌌 Vũ Trụ Starry Night</option>
-            <option value="banner_cinema" ${user.equipped_banner === 'banner_cinema' ? 'selected' : ''}>🎬 Bom Tấn Rạp Phim</option>
-          </select>
+        <!-- KHÓA / MỞ KHÓA -->
+        <div style="background: #ffffff; border: 1px solid #e7e0d3; border-radius: 10px; padding: 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: #be123c; margin-bottom: 8px;">Trạng Thái Hoạt Động</div>
+          ${liveUser.is_blocked ? `
+            <button type="button" class="btn btn-account-blocked btn-block" onclick="AdminCore.toggleBanUser('${userId}', true)">
+              TÀI KHOẢN ĐANG BỊ KHÓA (Bấm Để Mở Khóa)
+            </button>
+          ` : `
+            <button type="button" class="btn btn-account-active btn-block" onclick="AdminCore.toggleBanUser('${userId}', false)">
+              TÀI KHOẢN HOẠT ĐỘNG (Bấm Để Khóa)
+            </button>
+          `}
         </div>
-      </div>
-
-      <!-- SECTION 4: GÓI VIP & QUYỀN HẠN -->
-      <div class="inspector-section" style="margin-top: 14px;">
-        <h4 style="font-size: 13px; font-weight: 700; color: #ec4899; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-          <i data-lucide="crown"></i> Quyền VIP & Trạng Thái Tài Khoản
-        </h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-          <button type="button" class="btn btn-outline" onclick="AdminCore.grantVip('${userId}', 30)">Cấp VIP 30 Ngày</button>
-          <button type="button" class="btn btn-outline" onclick="AdminCore.grantVip('${userId}', 90)">Cấp VIP 90 Ngày</button>
-          <button type="button" class="btn btn-danger" onclick="AdminCore.revokeVip('${userId}')" style="grid-column: span 2;">Hủy Quyền VIP</button>
-        </div>
-
-        <label class="form-label" style="font-size: 11px; margin-bottom: 6px; display: block;">Khóa / Mở Khóa Tài Khoản:</label>
-        ${user.is_blocked ? `
-          <button type="button" class="btn btn-account-blocked btn-block" onclick="AdminCore.toggleBanUser('${userId}', true)">
-            <i data-lucide="lock"></i> TÀI KHOẢN ĐANG BỊ KHÓA (Bấm Để Mở Khóa)
-          </button>
-        ` : `
-          <button type="button" class="btn btn-account-active btn-block" onclick="AdminCore.toggleBanUser('${userId}', false)">
-            <i data-lucide="shield-check"></i> ĐANG HOẠT ĐỘNG BÌNH THƯỜNG (Bấm Để Khóa)
-          </button>
-        `}
       </div>
     `;
 
+    // Save Profile Primary Button Action
     const primaryBtn = document.getElementById('drawerPrimaryBtn');
     if (primaryBtn) {
       primaryBtn.onclick = async () => {
@@ -1062,7 +1312,6 @@
         };
         
         try {
-          const token = getAdminToken();
           const res = await fetch(`/api/admin/users/${userId}/full-profile`, {
             method: 'PUT',
             headers: { 
@@ -1074,18 +1323,9 @@
           });
           const data = await res.json();
           if (data.success) {
-            showToast(`Đã lưu toàn bộ thay đổi cho ${payload.name || user.name}!`, 'success');
-            try {
-              if (typeof BroadcastChannel !== 'undefined') {
-                const bc = new BroadcastChannel('aphim_cloud_sync_bus');
-                bc.postMessage({ type: 'profile_updated', userId: userId, xu: parseInt(payload.xu), timestamp: Date.now() });
-                bc.close();
-              }
-            } catch(e) {}
+            showToast(`Đã lưu thay đổi cho ${payload.name || liveUser.name}!`, 'success');
             closeDrawer();
-            if (typeof fetchAllUsers === 'function') fetchAllUsers();
-            else if (typeof window.loadUsers === 'function') window.loadUsers();
-            else if (typeof window.renderTable === 'function') window.renderTable();
+            if (typeof loadUsers === 'function') loadUsers();
           } else {
             showToast(data.message || 'Lỗi lưu thay đổi', 'error');
           }
@@ -1094,8 +1334,6 @@
         }
       };
     }
-
-    if (window.lucide) lucide.createIcons();
   }
 
   // ─── 9. API SYNC & SYSTEM OPS ───
@@ -3023,8 +3261,11 @@
     const search = document.getElementById('userSearchInput')?.value || '';
     const role = document.getElementById('userRoleFilter')?.value || '';
     const status = document.getElementById('userStatusFilter')?.value || '';
+    const xuTier = document.getElementById('userXuTierFilter')?.value || '';
+    const frame = document.getElementById('userFrameFilter')?.value || '';
+    const sort = document.getElementById('userSortFilter')?.value || 'newest';
 
-    const cacheKey = `users_${currentUsersPage}_${search}_${role}_${status}`;
+    const cacheKey = `users_${currentUsersPage}_${search}_${role}_${status}_${xuTier}_${frame}_${sort}`;
     const cached = AdminCache.get(cacheKey);
 
     if (cached) {
@@ -3032,7 +3273,7 @@
       renderUsers(cached.data);
       renderUsersPagination(cached.pagination);
     } else {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:30px;"><div style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-dim);"><i data-lucide="loader-2" class="spin"></i> Đang tải dữ liệu thành viên...</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding:30px;"><div style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-dim);"><i data-lucide="loader-2" class="spin"></i> Đang tải dữ liệu thành viên...</div></td></tr>';
       if (window.lucide) lucide.createIcons();
     }
     
@@ -3043,8 +3284,9 @@
     }
 
     try {
-      let query = `?page=${currentUsersPage}&limit=${USERS_PER_PAGE}&search=${encodeURIComponent(search)}&role=${role}`;
+      let query = `?page=${currentUsersPage}&limit=${USERS_PER_PAGE}&search=${encodeURIComponent(search)}&role=${role}&xu_tier=${xuTier}&frame=${frame}&sort=${sort}`;
       if (status === 'banned') query += '&status=blocked';
+      else if (status === 'active') query += '&status=active';
       
       const res = await fetch('/api/admin/users' + query, {
         headers: { 
@@ -3068,7 +3310,7 @@
           if (errJson && errJson.message) msg = errJson.message;
         } catch (_) {}
         if (!cached) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error" style="padding:30px;">Lỗi: ${sanitize(msg)}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="9" class="text-center text-error" style="padding:30px;">Lỗi: ${sanitize(msg)}</td></tr>`;
         }
         return;
       }
@@ -3079,16 +3321,16 @@
         renderUsers(data.data);
         renderUsersPagination(data.pagination);
         const totalUsersEl = document.getElementById('kpiTotalUsers');
-        if (totalUsersEl && data.pagination && data.pagination.total && !search && !role && !status) {
+        if (totalUsersEl && data.pagination && data.pagination.total && !search && !role && !status && !xuTier && !frame) {
           totalUsersEl.textContent = new Intl.NumberFormat('vi-VN').format(data.pagination.total);
         }
       } else if (!cached) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error" style="padding:30px;">Lỗi: ${sanitize(data.message || 'Không thể tải danh sách')}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-error" style="padding:30px;">Lỗi: ${sanitize(data.message || 'Không thể tải danh sách')}</td></tr>`;
       }
     } catch (e) {
       console.error('[Admin Users] Error:', e);
       if (!cached) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-error" style="padding:30px;">Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền mạng.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-error" style="padding:30px;">Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền mạng.</td></tr>`;
       }
     }
   }
@@ -3201,6 +3443,30 @@
     }
   };
 
+  const TABLE_FRAME_LABEL_MAP = Object.assign({
+    'none': 'Mặc định (Không viền)',
+    'frame_none': 'Mặc định (Không viền)',
+    'vien_don': 'Neon Hồng',
+    'dut_doan': 'Loading Blue',
+    'vien_kep': 'Double Glow',
+    'hao_quang': 'Hào Quang',
+    'neon': 'Đèn Neon',
+    'film': 'Film Cổ Điển',
+    'canh_than': 'Cánh Thiên Thần',
+    'sung_quy': 'Sừng Quỷ',
+    'hoang_gia': 'Hoàng Gia Gold',
+    'vang_oscar': 'Vàng Oscar',
+    'rong_bay': 'Rồng Bay',
+    'fire': 'Ngọn Lửa Thiêng',
+    'sakura': 'Hoa Anh Đào',
+    'cyber': 'Cyberpunk 2077',
+    'disc_frame_1352691512143777956': 'Cân Bằng Thái Cực (Balance)',
+    'disc_frame_1352696607715360902': 'Hồ Ly (Kitsune)',
+    'disc_frame_1352687476317093888': 'Pháo Hoa Rực Rỡ',
+    'disc_frame_1352687418418921532': 'Cầu Vồng Hugh',
+    'disc_frame_1352687609780113562': 'Tô Mì Ramen'
+  }, (typeof window !== 'undefined' && window.ADMIN_FRAMES_MAP) ? window.ADMIN_FRAMES_MAP : {});
+
   function renderUsers(users) {
     const tbody = document.getElementById('usersTableBody');
     if (!tbody) return;
@@ -3209,14 +3475,15 @@
     (users || []).forEach(u => { if (u && u.id) window._loadedUsersMap[u.id] = u; });
     
     if (!users || users.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:30px; color:var(--text-dim);">Không tìm thấy tài khoản nào.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding:30px; color:var(--text-dim);">Không tìm thấy tài khoản nào phù hợp bộ lọc.</td></tr>';
       return;
     }
 
     tbody.innerHTML = users.map(user => {
-      let roleBadge = '<span class="badge badge-subtle">Thành Viên</span>';
-      if (user.role === 'admin') roleBadge = '<span class="badge badge-error"><i data-lucide="shield-alert"></i> ADMIN</span>';
-      else if (user.role === 'vip') roleBadge = '<span class="badge badge-gold"><i data-lucide="crown"></i> VIP</span>';
+      let roleTag = '<span class="tag-block tag-user">THÀNH VIÊN</span>';
+      if (user.role === 'admin') roleTag = '<span class="tag-block tag-admin">ADMIN</span>';
+      else if (user.role === 'vip') roleTag = '<span class="tag-block tag-vip">VIP</span>';
+      else if (user.role === 'mod') roleTag = '<span class="tag-block tag-mod">MOD</span>';
       
       let statusPill = user.is_blocked 
         ? '<span class="status-pill offline"><span class="dot"></span> Bị Khóa</span>'
@@ -3230,55 +3497,103 @@
       }
       const createdDate = new Date(user.created_at).toLocaleDateString('vi-VN');
       
+      // Frame display
+      const fId = user.equipped_frame;
+      let frameDisplay = '<span class="tag-frame-none">Mặc định</span>';
+      if (fId && fId !== 'none' && fId !== 'frame_none') {
+        const frameName = user.equipped_frame_name || TABLE_FRAME_LABEL_MAP[fId] || (fId.startsWith('disc_frame_') ? 'Khung VIP' : fId);
+        frameDisplay = `<span class="tag-frame-block">${sanitize(frameName)}</span>`;
+      }
+
+      const streakVal = user.streak_current || 0;
+      const streakDisplay = streakVal > 0 
+        ? `<span class="tag-streak-block tag-streak-active">${streakVal}/7 Ngày</span>`
+        : `<span class="tag-streak-block tag-streak-zero">0/7 Ngày</span>`;
+
       return `
         <tr>
           <td>
             <div class="table-user-cell">
-              <img src="${user.avatar_url || 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80'}" class="table-user-avatar" alt="Avatar">
-              <div>
-                <div class="user-cell-name">${sanitize(user.name || 'Người dùng')}</div>
-                <div class="user-cell-email masked-data" data-full="${sanitize(user.email || '')}">${sanitize(emailDisplay)}</div>
+              <div style="position: relative; width: 38px; height: 38px; flex-shrink: 0;">
+                <img src="${user.avatar_url || 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80'}" class="table-user-avatar" alt="Avatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #ded6c8;">
+              </div>
+              <div style="min-width: 0;">
+                <div class="user-cell-name" style="font-weight: 700; color: #1c1917;">${sanitize(user.name || 'Người dùng')}</div>
+                <div class="user-cell-email masked-data" data-full="${sanitize(user.email || '')}" style="font-size: 11.5px; color: #78716c;">${sanitize(emailDisplay)}</div>
               </div>
             </div>
           </td>
-          <td>${roleBadge}</td>
-          <td><span class="coin-badge"><i data-lucide="coins"></i> ${new Intl.NumberFormat('vi-VN').format(user.xu || 0)} Xu</span></td>
-          <td>
-            <div class="xp-level-wrap">
-              <span class="level-tag">Lv.${user.level || 1}</span>
-              <div class="xp-mini-track"><div class="xp-mini-fill" style="width: ${Math.min(100, (user.xp || 0) % 100)}%;"></div></div>
-            </div>
-          </td>
-          <td>
-            <span class="streak-badge ${(user.streak_current > 0) ? 'active' : 'inactive'}">
-              <i data-lucide="flame"></i> ${user.streak_current || 0}/7 Ngày
-            </span>
-          </td>
+          <td>${roleTag}</td>
+          <td><span class="tag-xu-block">${new Intl.NumberFormat('vi-VN').format(user.xu || 0)} Xu</span></td>
+          <td><span class="tag-level-block">Lv.${user.level || 1}</span></td>
+          <td>${frameDisplay}</td>
+          <td>${streakDisplay}</td>
           <td>${statusPill}</td>
-          <td class="text-dim">${createdDate}</td>
+          <td class="text-dim" style="font-size: 12px;">${createdDate}</td>
           <td style="text-align: right;">
-            <div class="table-actions-cell">
-              <button class="btn btn-xs btn-outline" onclick="AdminCore.inspectUser('${user.id}')">
-                <i data-lucide="sliders"></i> Quản Lý
-              </button>
-            </div>
+            <button class="btn btn-xs btn-outline" onclick="AdminCore.inspectUser('${user.id}')" style="font-weight: 600; padding: 4px 10px; border-radius: 6px;">
+              Quản Lý
+            </button>
           </td>
         </tr>
       `;
     }).join('');
-    
-    if (window.lucide) lucide.createIcons();
   }
 
-  window.AdminCore.resetUserFilters = function() {
+  window.AdminCore.applyUserQuickChip = function(chipType, btn) {
+    document.querySelectorAll('#userQuickChips .q-chip').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
     const si = document.getElementById('userSearchInput');
     const sr = document.getElementById('userRoleFilter');
     const ss = document.getElementById('userStatusFilter');
-    const sk = document.getElementById('userStreakFilter');
+    const sx = document.getElementById('userXuTierFilter');
+    const sf = document.getElementById('userFrameFilter');
+    const so = document.getElementById('userSortFilter');
+
     if (si) si.value = '';
     if (sr) sr.value = '';
     if (ss) ss.value = '';
-    if (sk) sk.value = '';
+    if (sx) sx.value = '';
+    if (sf) sf.value = '';
+    if (so) so.value = 'newest';
+
+    if (chipType === 'vip_active') {
+      if (sr) sr.value = 'vip';
+    } else if (chipType === 'xu_rich') {
+      if (sx) sx.value = 'high';
+      if (so) so.value = 'xu_desc';
+    } else if (chipType === 'has_frame') {
+      if (sf) sf.value = 'equipped';
+    } else if (chipType === 'streak_high') {
+      //handled via search/sort
+    } else if (chipType === 'blocked') {
+      if (ss) ss.value = 'banned';
+    }
+
+    currentUsersPage = 1;
+    loadUsers();
+  };
+
+  window.AdminCore.resetUserFilters = function() {
+    document.querySelectorAll('#userQuickChips .q-chip').forEach(c => c.classList.remove('active'));
+    const firstChip = document.querySelector('#userQuickChips .q-chip[data-chip="all"]');
+    if (firstChip) firstChip.classList.add('active');
+
+    const si = document.getElementById('userSearchInput');
+    const sr = document.getElementById('userRoleFilter');
+    const ss = document.getElementById('userStatusFilter');
+    const sx = document.getElementById('userXuTierFilter');
+    const sf = document.getElementById('userFrameFilter');
+    const so = document.getElementById('userSortFilter');
+
+    if (si) si.value = '';
+    if (sr) sr.value = '';
+    if (ss) ss.value = '';
+    if (sx) sx.value = '';
+    if (sf) sf.value = '';
+    if (so) so.value = 'newest';
+
     currentUsersPage = 1;
     loadUsers();
   };
@@ -3728,6 +4043,12 @@
       if (uRole) uRole.onchange = () => { currentUsersPage = 1; loadUsers(); };
       const uStatus = document.getElementById('userStatusFilter');
       if (uStatus) uStatus.onchange = () => { currentUsersPage = 1; loadUsers(); };
+      const uXuTier = document.getElementById('userXuTierFilter');
+      if (uXuTier) uXuTier.onchange = () => { currentUsersPage = 1; loadUsers(); };
+      const uFrame = document.getElementById('userFrameFilter');
+      if (uFrame) uFrame.onchange = () => { currentUsersPage = 1; loadUsers(); };
+      const uSort = document.getElementById('userSortFilter');
+      if (uSort) uSort.onchange = () => { currentUsersPage = 1; loadUsers(); };
       const uStreak = document.getElementById('userStreakFilter');
       if (uStreak) uStreak.onchange = () => { currentUsersPage = 1; loadUsers(); };
     }

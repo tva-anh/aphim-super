@@ -27,55 +27,76 @@
         </div>
       </div>
 
-      <!-- Quick KPI Strip for Gamification & Users -->
+      <!-- Quick KPI Strip with Modern Color Block Accents -->
       <div class="kpi-mini-grid">
-        <div class="kpi-mini-card">
-          <div class="mini-icon text-primary"><i data-lucide="users"></i></div>
+        <div class="kpi-mini-card color-tile-primary">
+          <div class="color-indicator-bar bar-indigo"></div>
           <div class="mini-content">
             <div class="mini-label">TỔNG THÀNH VIÊN</div>
             <div class="mini-val-row">
               <div class="mini-value" id="kpiTotalUsers">Đang tải...</div>
-              <span class="mini-trend-chip"><i data-lucide="shield-check"></i> Profiles</span>
+              <span class="color-badge badge-indigo">PROFILES</span>
             </div>
           </div>
         </div>
-        <div class="kpi-mini-card">
-          <div class="mini-icon text-gold"><i data-lucide="coins"></i></div>
+        <div class="kpi-mini-card color-tile-gold">
+          <div class="color-indicator-bar bar-amber"></div>
           <div class="mini-content">
             <div class="mini-label">TỔNG XU LƯU THÔNG</div>
             <div class="mini-val-row">
               <div class="mini-value" id="kpiTotalXu">Đang tải...</div>
-              <span class="mini-trend-chip"><i data-lucide="sparkles"></i> Gamification</span>
+              <span class="color-badge badge-amber">GAMIFICATION</span>
             </div>
           </div>
         </div>
-        <div class="kpi-mini-card">
-          <div class="mini-icon text-emerald"><i data-lucide="flame"></i></div>
+        <div class="kpi-mini-card color-tile-emerald">
+          <div class="color-indicator-bar bar-emerald"></div>
           <div class="mini-content">
             <div class="mini-label">USER MỚI HÔM NAY</div>
             <div class="mini-val-row">
               <div class="mini-value" id="kpiNewUsers">Đang tải...</div>
-              <span class="mini-trend-chip"><i data-lucide="calendar"></i> 24h qua</span>
+              <span class="color-badge badge-emerald">24H QUA</span>
             </div>
           </div>
         </div>
-        <div class="kpi-mini-card">
-          <div class="mini-icon text-pink"><i data-lucide="crown"></i></div>
+        <div class="kpi-mini-card color-tile-pink">
+          <div class="color-indicator-bar bar-rose"></div>
           <div class="mini-content">
             <div class="mini-label">GÓI VIP ĐANG HOẠT ĐỘNG</div>
             <div class="mini-val-row">
               <div class="mini-value" id="kpiVipActive">Đang tải...</div>
-              <span class="mini-trend-chip"><i data-lucide="zap"></i> Active</span>
+              <span class="color-badge badge-rose">ACTIVE</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Search & Filters -->
+      <!-- Quick Filter Chips Ribbon (Modern Colored Blocks) -->
+      <div class="quick-filter-ribbon" id="userQuickChips">
+        <button type="button" class="q-chip active" data-chip="all" onclick="AdminCore.applyUserQuickChip('all', this)">
+          <span class="chip-dot dot-slate"></span> Tất cả
+        </button>
+        <button type="button" class="q-chip" data-chip="vip_active" onclick="AdminCore.applyUserQuickChip('vip_active', this)">
+          <span class="chip-dot dot-purple"></span> VIP Đang Hoạt Động
+        </button>
+        <button type="button" class="q-chip" data-chip="xu_rich" onclick="AdminCore.applyUserQuickChip('xu_rich', this)">
+          <span class="chip-dot dot-amber"></span> Đại Gia Xu (≥500 Xu)
+        </button>
+        <button type="button" class="q-chip" data-chip="has_frame" onclick="AdminCore.applyUserQuickChip('has_frame', this)">
+          <span class="chip-dot dot-cyan"></span> Đang Đeo Khung Avatar
+        </button>
+        <button type="button" class="q-chip" data-chip="streak_high" onclick="AdminCore.applyUserQuickChip('streak_high', this)">
+          <span class="chip-dot dot-emerald"></span> Streak 7 Ngày Max
+        </button>
+        <button type="button" class="q-chip" data-chip="blocked" onclick="AdminCore.applyUserQuickChip('blocked', this)">
+          <span class="chip-dot dot-rose"></span> Tài Khoản Bị Khóa
+        </button>
+      </div>
+
+      <!-- Search & Advanced Filters (Clean Modern Controls) -->
       <div class="glass-card filter-ribbon-card">
-        <div class="filter-row">
-          <div class="search-input-wrap">
-            <i data-lucide="search" class="search-icon"></i>
+        <div class="filter-row filter-row-multi">
+          <div class="search-input-wrap" style="flex: 1.6; min-width: 220px;">
             <input type="text" id="userSearchInput" class="form-control filter-input" placeholder="Tìm theo tên, email, ID hoặc số điện thoại...">
           </div>
 
@@ -87,21 +108,35 @@
             <option value="member">Thành Viên Thường</option>
           </select>
 
-          <select id="userStreakFilter" class="form-control filter-select">
-            <option value="">Chuỗi Điểm Danh (Streak)</option>
-            <option value="7">Streak 7 Ngày (Max)</option>
-            <option value="3">Streak 3-6 Ngày</option>
-            <option value="0">Chưa Điểm Danh</option>
+          <select id="userXuTierFilter" class="form-control filter-select">
+            <option value="">Mức Xu (Tất cả)</option>
+            <option value="high">Đại Gia (≥ 500 Xu)</option>
+            <option value="mid">Tầm Trung (100 - 499 Xu)</option>
+            <option value="low">Tân Thủ (< 100 Xu)</option>
+            <option value="zero">Hết Xu (0 Xu)</option>
+          </select>
+
+          <select id="userFrameFilter" class="form-control filter-select">
+            <option value="">Khung Avatar (Tất cả)</option>
+            <option value="equipped">Đang Mang Khung Đẹp</option>
+            <option value="none">Khung Mặc Định / Trống</option>
+          </select>
+
+          <select id="userSortFilter" class="form-control filter-select">
+            <option value="newest">Sắp xếp: Mới nhất</option>
+            <option value="xu_desc">Xu nhiều nhất</option>
+            <option value="level_desc">Level cao nhất</option>
+            <option value="oldest">Cũ nhất (Đầu tiên)</option>
           </select>
 
           <select id="userStatusFilter" class="form-control filter-select">
-            <option value="">Tất cả trạng thái</option>
+            <option value="">Trạng thái: Tất cả</option>
             <option value="active">Đang Hoạt Động</option>
             <option value="banned">Bị Khóa / Cấm</option>
           </select>
 
-          <button class="btn btn-secondary" onclick="AdminCore.resetUserFilters()">
-            <i data-lucide="rotate-ccw"></i> Đặt Lại
+          <button class="btn btn-secondary btn-reset-filter" onclick="AdminCore.resetUserFilters()">
+            Đặt Lại
           </button>
         </div>
       </div>
@@ -116,6 +151,7 @@
                 <th>Phân Quyền / VIP</th>
                 <th>Số Dư Xu</th>
                 <th>Cấp Độ / XP</th>
+                <th>Khung Avatar</th>
                 <th>Streak 7 Ngày</th>
                 <th>Trạng Thái</th>
                 <th>Ngày Tham Gia</th>
@@ -123,7 +159,7 @@
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <tr><td colspan="8" class="text-center">Đang tải dữ liệu...</td></tr>
+              <tr><td colspan="9" class="text-center">Đang tải dữ liệu...</td></tr>
             </tbody>
           </table>
         </div>
@@ -313,6 +349,296 @@
     font-weight: 700;
     font-size: 14px;
     user-select: none;
+  }
+
+  /* 🌟 MODERN COLORED BLOCKS (HẠN CHẾ ICON, ƯU TIÊN Ô MÀU TINH TẾ) 🌟 */
+  .color-indicator-bar {
+    width: 4px;
+    height: 36px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .bar-indigo { background: #6366f1; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
+  .bar-amber { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+  .bar-emerald { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+  .bar-rose { background: #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.4); }
+
+  .color-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .badge-indigo { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+  .badge-amber { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .badge-emerald { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+  .badge-rose { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
+  .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .badge-cyan { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; }
+  .badge-slate { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+  /* Quick Filter Ribbon */
+  .quick-filter-ribbon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .quick-filter-ribbon::-webkit-scrollbar { display: none; }
+
+  .q-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    background: #ffffff;
+    border: 1px solid #e7e0d3;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #44403c;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    user-select: none;
+  }
+  .q-chip:hover {
+    background: #faf7f2;
+    border-color: #d6ccbe;
+    color: #1c1917;
+    transform: translateY(-1px);
+  }
+  .q-chip.active {
+    background: #1c1917;
+    border-color: #1c1917;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  }
+  .chip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-slate { background: #94a3b8; }
+  .dot-purple { background: #a855f7; box-shadow: 0 0 6px #c084fc; }
+  .dot-amber { background: #f59e0b; box-shadow: 0 0 6px #fcd34d; }
+  .dot-cyan { background: #06b6d4; box-shadow: 0 0 6px #67e8f9; }
+  .dot-emerald { background: #10b981; box-shadow: 0 0 6px #6ee7b7; }
+  .dot-rose { background: #f43f5e; box-shadow: 0 0 6px #fda4af; }
+
+  .filter-row-multi {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-reset-filter {
+    padding: 0 16px;
+    height: 38px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+
+  /* Table Custom Badges (Modern Colored Blocks) */
+  .tag-block {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .tag-admin { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .tag-vip { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .tag-mod { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+  .tag-user { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+  .tag-xu-block {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fef08a;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .tag-level-block {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #ecfeff;
+    color: #0e7490;
+    border: 1px solid #a5f3fc;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .tag-frame-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #faf5ff;
+    color: #7e22ce;
+    border: 1px solid #f3e8ff;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tag-frame-none {
+    color: #94a3b8;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .tag-streak-block {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tag-streak-active {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+  }
+  .tag-streak-zero {
+    background: #f8fafc;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* 🌟 MODERN INSPECTOR DRAWER TABS & PANELS 🌟 */
+  .inspector-nav-tabs {
+    display: flex;
+    background: #f5f0e6;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    gap: 4px;
+  }
+  .insp-tab-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #57534e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+  .insp-tab-btn.active {
+    background: #ffffff;
+    color: #1c1917;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .stat-tile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat-tile-card {
+    background: #faf7f2;
+    border: 1px solid #e7e0d3;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .stat-tile-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #78716c;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .stat-tile-val {
+    font-size: 17px;
+    font-weight: 800;
+    color: #1c1917;
+  }
+
+  .ledger-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .ledger-history-table th {
+    background: #f5f0e6;
+    padding: 8px 10px;
+    font-weight: 700;
+    color: #44403c;
+    text-align: left;
+    border-bottom: 1px solid #ded6c8;
+  }
+  .ledger-history-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #f0eae0;
+    color: #292524;
+  }
+  .ledger-change-pos {
+    color: #059669;
+    font-weight: 700;
+  }
+  .ledger-change-neg {
+    color: #e11d48;
+    font-weight: 700;
+  }
+  .tx-type-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tx-pill-topup { background: #d1fae5; color: #065f46; }
+  .tx-pill-vip { background: #ede9fe; color: #5b21b6; }
+  .tx-pill-admin { background: #fef3c7; color: #92400e; }
+  .tx-pill-spend { background: #ffe4e6; color: #9f1239; }
+
+  /* Frame visual display */
+  .frame-preview-card {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px auto;
+  }
+  .frame-preview-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .frame-preview-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 </style>
 

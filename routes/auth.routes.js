@@ -477,6 +477,23 @@ const handleUpdateProfile = async (req, res) => {
             }
         }
 
+        // 4. Ghi nhận giao dịch vào bảng transactions nếu có transactionLog (mua vật phẩm, trừ xu)
+        if (body.transactionLog && body.transactionLog.amount) {
+            try {
+                await supabaseAdmin.from('transactions').insert({
+                    user_id: userId,
+                    type: 'admin_adjust',
+                    amount_vnd: 0,
+                    xu_amount: body.transactionLog.amount,
+                    status: 'confirmed',
+                    transfer_content: body.transactionLog.title || 'Mua vật phẩm Cửa Hàng',
+                    created_at: new Date().toISOString()
+                });
+            } catch (tErr) {
+                console.warn('[Auth] Record shop transaction error:', tErr.message);
+            }
+        }
+
         // Lấy gói VIP hiện tại
         const { data: subscription } = await supabaseAdmin
             .from('vip_subscriptions')
@@ -709,6 +726,7 @@ function buildUserResponse(authUser, profile, subscription = null) {
         },
         missionsData: missionsData,
         settings: meta.settings || {},
+        notifications: meta.notifications || [],
         subscription: subscription ? {
             plan: subscription.plan,
             status: subscription.status,

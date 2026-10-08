@@ -1509,14 +1509,14 @@ window.showConfirm = function (title, message) {
     });
 };
 
-// ── NOTIFICATION SERVICE ──────────────────────────────────────────
-window.syncNotifications = async function () {
-    // ⏱️ Throttle: chặn spam GET /api/notifications — chỉ fetch tối đa 1 lần/60 giây
-    const NOTIF_COOLDOWN = 60000; // 60 giây
+// ── NOTIFICATION SERVICE (PERSISTENT & CLOUD-SYNCED) ──────────────
+window.syncNotifications = async function (force = false) {
+    // Throttle: chỉ fetch lại sau 15 giây trừ khi có cờ force
+    const NOTIF_COOLDOWN = 15000;
     const now = Date.now();
     const lastFetch = window._lastNotifFetchTs || 0;
-    if (now - lastFetch < NOTIF_COOLDOWN) {
-        return; // Bỏ qua, chưa đến lượt fetch lại
+    if (!force && (now - lastFetch < NOTIF_COOLDOWN)) {
+        return;
     }
     window._lastNotifFetchTs = now;
 
@@ -1539,7 +1539,6 @@ window.syncNotifications = async function () {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        // Handle non-ok status (401, 404, 500, etc.)
         if (!response.ok) {
             if (response.status === 401) {
                 console.warn('⚠️ Notifications 401 - token expired');
@@ -1548,10 +1547,41 @@ window.syncNotifications = async function () {
         }
 
         const data = await response.json();
-        if (data.success) {
-            localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(data.data));
+        if (data.success && Array.isArray(data.data)) {
+            // MERGE thông minh: không bao giờ xóa mất thông báo cũ của user
+            const localNotifs = getNotifications();
+            const serverNotifs = data.data;
+            const notifMap = new Map();
+
+            // 1. Đưa server notifs vào map (nguồn chuẩn từ cloud)
+            serverNotifs.forEach(n => {
+                const k = String(n.id || n._id || '');
+                if (k) notifMap.set(k, n);
+            });
+
+            // 2. Gộp thêm các thông báo local (ví dụ điểm danh vừa tạo offline)
+            localNotifs.forEach(n => {
+                const k = String(n.id || n._id || '');
+                if (k && !notifMap.has(k)) {
+                    notifMap.set(k, n);
+                }
+            });
+
+            const merged = Array.from(notifMap.values())
+                .filter(n => n && (n.title || n.message || n.detail))
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+                .slice(0, 80);
+
+            try {
+                localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(merged));
+                localStorage.setItem('cinestream_notifications', JSON.stringify(merged));
+            } catch (e) { }
+
             renderNotifications();
             updateNotifBadge();
+            if (typeof updateProfileNotifBadge === 'function') {
+                try { updateProfileNotifBadge(); } catch (e) { }
+            }
 
             // 🚀 DELIVER PENDING UNREAD TOASTS (User returned to site)
             // Filter unread, sort oldest-to-newest to queue properly
@@ -1676,6 +1706,20 @@ window.createUserNotification = function (opts = {}) {
         localStorage.setItem('cinestream_notifications', JSON.stringify(trimmed));
         if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(trimmed));
     } catch (e) { }
+
+    // Đồng bộ lên Cloud để không bao giờ bị mất khi đổi thiết bị hoặc reset
+    const token = localStorage.getItem('cinestream_token');
+    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
+    if (token && backendUrl) {
+        fetch(`${backendUrl}/notifications`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newNotif)
+        }).catch(() => { });
+    }
 
     // Dispatch global event
     window.dispatchEvent(new CustomEvent('ap:notifications-updated', { detail: { notif: newNotif, all: trimmed } }));
@@ -1841,7 +1885,7 @@ function updateNotifBadge() {
     }
 }
 
-window.markAllNotifsRead = function () {
+window.markAllNotifsRead = async function () {
     const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
     const userId = user ? (user._id || user.id) : null;
     const notifs = getNotifications();
@@ -1850,10 +1894,11 @@ window.markAllNotifsRead = function () {
         localStorage.setItem('cinestream_notifications', JSON.stringify(notifs));
         if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs));
     } catch (e) { }
+
     renderNotifications();
     updateNotifBadge();
     if (typeof updateProfileNotifBadge === 'function') {
-        updateProfileNotifBadge();
+        try { updateProfileNotifBadge(); } catch (e) { }
     }
     if (typeof renderProfileNotifications === 'function' && typeof currentTab !== 'undefined' && currentTab === 'notifications') {
         const panel = document.getElementById('tabPanel');
@@ -1862,13 +1907,23 @@ window.markAllNotifsRead = function () {
     if (typeof showToast === 'function') {
         showToast('Đã đánh dấu tất cả thông báo là đã đọc', 'success');
     }
+
+    // Sync to backend
+    const token = localStorage.getItem('cinestream_token');
+    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
+    if (token && backendUrl) {
+        fetch(`${backendUrl}/notifications/read-all`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => { });
+    }
 };
 
 window.markNotifRead = function (id) {
     const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
     const userId = user ? (user._id || user.id) : null;
     const notifs = getNotifications();
-    const idx = notifs.findIndex(n => (n.id == id || n._id == id));
+    const idx = notifs.findIndex(n => (String(n.id) === String(id) || String(n._id) === String(id)));
     if (idx !== -1) {
         notifs[idx].read = true;
         notifs[idx].isRead = true;
@@ -1879,7 +1934,16 @@ window.markNotifRead = function (id) {
         renderNotifications();
         updateNotifBadge();
         if (typeof updateProfileNotifBadge === 'function') {
-            updateProfileNotifBadge();
+            try { updateProfileNotifBadge(); } catch (e) { }
+        }
+
+        const token = localStorage.getItem('cinestream_token');
+        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
+        if (token && backendUrl) {
+            fetch(`${backendUrl}/notifications/${encodeURIComponent(id)}/read`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).catch(() => { });
         }
     }
 };
@@ -1934,41 +1998,6 @@ window.toggleNotif = async function (id, element) {
     }
 };
 
-window.markAllNotifsRead = async function () {
-    const user = (typeof authService !== 'undefined') ? authService.getCurrentUser() : null;
-    if (!user) return;
-    const userId = user._id || user.id;
-    const notifs = getNotifications();
-    notifs.forEach(n => {
-        n.isRead = true;
-        n.read = true;
-    });
-    localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs));
-    renderNotifications();
-    updateNotifBadge();
-
-    // Sync to backend
-    const token = localStorage.getItem('cinestream_token');
-    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
-    if (token && backendUrl) {
-        fetch(`${backendUrl}/notifications/read-all`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${token}` }
-        }).catch(() => { });
-    }
-};
-
-function formatRelativeNotifTime(dateStr) {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
-
-    if (diff < 60) return 'Vừa xong';
-    if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-    return date.toLocaleDateString('vi-VN');
-}
-
 // Toggle panel logic
 document.addEventListener('click', (e) => {
     const btn = document.getElementById('navNotificationBtn');
@@ -1984,6 +2013,9 @@ document.addEventListener('click', (e) => {
             panel.classList.remove('invisible', 'opacity-0', 'translate-y-4', 'scale-95');
             panel.classList.add('opacity-100', 'translate-y-0', 'scale-100');
             renderNotifications();
+            if (typeof syncNotifications === 'function') {
+                syncNotifications(true);
+            }
         }
     } else if (!panel.contains(e.target)) {
         panel.classList.add('invisible', 'opacity-0', 'translate-y-4', 'scale-95');

@@ -575,6 +575,9 @@ class AuthService {
 
                     // Force background sync profile from server to guarantee fresh cloud metadata (frames, banners, xu, xp)
                     this.syncProfile(true);
+                    if (typeof window.syncNotifications === 'function') {
+                        try { window.syncNotifications(true); } catch (e) { }
+                    }
                     if (typeof window.updateUserUI === 'function') {
                         try { window.updateUserUI(); } catch (e) { }
                     }

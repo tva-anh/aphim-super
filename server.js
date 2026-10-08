@@ -31,6 +31,7 @@ const adminRoutes = require('./routes/admin.routes');
 const feedbackRoutes = require('./routes/feedback.routes');
 const seoRoutes = require('./routes/seo.routes');
 const reelsRoutes = require('./routes/reels.routes');
+const notificationRoutes = require('./routes/notification.routes');
 const { requireAdmin } = require('./middleware/adminAuth.middleware');
 
 const app = express();
@@ -144,6 +145,7 @@ app.use('/api/transactions', paymentRoutes); // alias
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/reels', reelsRoutes);
 app.use('/api/reels', reelsRoutes);
 app.use('/', seoRoutes); // Sitemap đa tầng, robots.txt, dynamic seo cache

@@ -18,6 +18,8 @@
     const SLIDER_SELECTORS = [
         '#slider-de-cu',
         '.de-cu-slider',
+        '#slider-cinema-hot',
+        '.cinema-hot-slider',
         '#homeCommentsTrack',
         '.home-comments-track',
         '#heroThumbnails',
@@ -56,7 +58,10 @@
 
         const matched = target.closest(SLIDER_SELECTORS);
         if (matched) {
-            if (matched.scrollWidth > matched.clientWidth || matched.id === 'slider-de-cu' || matched.classList.contains('de-cu-slider') || matched.id === 'homeCommentsTrack') {
+            if (matched.scrollWidth > matched.clientWidth || 
+                matched.id === 'slider-de-cu' || matched.classList.contains('de-cu-slider') || 
+                matched.id === 'slider-cinema-hot' || matched.classList.contains('cinema-hot-slider') ||
+                matched.id === 'homeCommentsTrack') {
                 return matched;
             }
         }
@@ -116,6 +121,13 @@
 
         const container = getScrollContainer(e.target);
         if (!container) return;
+
+        // Tạm dừng auto-advance phim rạp nếu đang tương tác
+        if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
+            if (typeof window.pauseCinemaHotOnUserAction === 'function') {
+                window.pauseCinemaHotOnUserAction();
+            }
+        }
 
         stopMomentum();
 
@@ -200,6 +212,12 @@
                         container.releasePointerCapture(activePointerId);
                     }
                 } catch (err) {}
+            }
+
+            if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
+                if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
+                    window.resumeCinemaHotAfterUserAction();
+                }
             }
         }
         activePointerId = null;
@@ -309,6 +327,8 @@
         @media (min-width: 768px) {
             #slider-de-cu,
             .de-cu-slider,
+            #slider-cinema-hot,
+            .cinema-hot-slider,
             #homeCommentsTrack,
             .home-comments-track,
             #heroThumbnails,
@@ -335,6 +355,8 @@
 
             #slider-de-cu:active,
             .de-cu-slider:active,
+            #slider-cinema-hot:active,
+            .cinema-hot-slider:active,
             #homeCommentsTrack:active,
             .home-comments-track:active,
             #heroThumbnails:active,
@@ -360,6 +382,10 @@
 
             .de-cu-slider img,
             #slider-de-cu img,
+            .cinema-hot-slider img,
+            #slider-cinema-hot img,
+            .cinema-hot-card img,
+            .cinema-hot-card a,
             .home-comments-track img,
             .interests-wrapper img,
             #heroThumbnails img,
@@ -371,6 +397,8 @@
 
             .de-cu-slider a,
             #slider-de-cu a,
+            .cinema-hot-slider a,
+            #slider-cinema-hot a,
             .home-comment-card,
             .interests-wrapper a {
                 -webkit-user-drag: none !important;

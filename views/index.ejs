@@ -76,18 +76,21 @@
                         /* Horizontal Carousel Slider for PHIM MỚI ĐỀ CỬ (Scrollbar Completely Hidden) */
                         .de-cu-slider {
                             display: flex !important;
-                            align-items: flex-start !important;
-                            gap: 12px !important;
                             overflow-x: auto !important;
+                            overflow-y: hidden !important;
                             scroll-behavior: auto !important;
-                            padding-bottom: 5px !important;
+                            padding-top: 24px !important;
+                            padding-bottom: 6px !important;
+                            gap: 10px !important;
+                            align-items: flex-end !important;
                             scrollbar-width: none !important;
-                            /* Firefox */
                             -ms-overflow-style: none !important;
-                            /* IE/Edge */
                             -webkit-overflow-scrolling: touch !important;
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
+                            contain: layout paint;
+                            will-change: scroll-position;
+                            transform: translateZ(0);
                         }
 
                         .de-cu-slider::-webkit-scrollbar {
@@ -145,6 +148,7 @@
                             align-items: flex-start !important;
                             gap: 14px !important;
                             overflow-x: auto !important;
+                            overflow-y: hidden !important;
                             scroll-behavior: auto !important;
                             padding-top: 6px !important;
                             padding-bottom: 8px !important;
@@ -153,6 +157,9 @@
                             -webkit-overflow-scrolling: touch !important;
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
+                            contain: layout paint;
+                            will-change: scroll-position;
+                            transform: translateZ(0);
                         }
                         .cinema-hot-slider::-webkit-scrollbar {
                             display: none !important;
@@ -168,16 +175,19 @@
                             border: none !important;
                             text-decoration: none !important;
                             display: block !important;
-                            transition: transform 0.25s ease !important;
+                            transform: translateZ(0) !important;
+                            contain: layout style;
                             content-visibility: auto !important;
                             contain-intrinsic-size: 162px 280px !important;
+                            backface-visibility: hidden;
+                            -webkit-backface-visibility: hidden;
                         }
                         /* 🌊 GIAO DIỆN GỢN SÓNG (WAVE CAROUSEL) TRÊN DESKTOP CHUẨN ẢNH SỐ 2 (NẰM TRÊN CÙNG 1 HÀNG) */
                         @media (min-width: 640px) {
                             .cinema-hot-slider {
                                 padding-top: 26px !important;
                                 padding-bottom: 20px !important;
-                                overflow-y: visible !important;
+                                overflow-y: hidden !important;
                                 gap: 10px !important; /* Đồng bộ khoảng cách 10px như slider Phim Mới Đề Cử */
                                 align-items: flex-start !important;
                             }
@@ -194,15 +204,15 @@
                                 justify-content: flex-start !important;
                                 position: relative !important;
                                 margin: 0 !important;
-                                transform: none !important; /* Toàn bộ thẻ nằm trên cùng 1 hàng phẳng */
+                                transform: translateZ(0) !important;
                             }
                             .cinema-hot-poster-wrap {
                                 border-radius: 12px !important;
                                 overflow: hidden !important;
-                                transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), 
-                                            box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important;
-                                will-change: transform !important;
+                                transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
                                 transform-origin: center center !important;
+                                backface-visibility: hidden;
+                                -webkit-backface-visibility: hidden;
                             }
                             .cinema-hot-info-wrap {
                                 margin-top: 14px !important;
@@ -213,11 +223,11 @@
                             /* 🌊 Nhịp sóng trên cùng 1 hàng: Chuẩn 100% hướng sóng theo hình số 1 mẫu */
                             /* Thẻ lẻ (1, 3, 5, 7...): Bên trái nhô lên cao, bên phải hạ xuống thấp */
                             .cinema-hot-card:nth-child(odd) .cinema-hot-poster-wrap {
-                                transform: skewY(3.4deg);
+                                transform: skewY(3.4deg) translateZ(0);
                             }
                             /* Thẻ chẵn (2, 4, 6, 8...): Bên trái hạ xuống thấp (nối tiếp điểm thấp của thẻ 1), bên phải nhô lên cao */
                             .cinema-hot-card:nth-child(even) .cinema-hot-poster-wrap {
-                                transform: skewY(-3.4deg);
+                                transform: skewY(-3.4deg) translateZ(0);
                             }
 
                             /* Hiệu ứng Hover: Đứng thẳng hoàn chỉnh, trồi lên mượt mà - TRIỆT TIÊU 100% ÁNH XẠ / BÓNG ĐEN */
@@ -226,7 +236,7 @@
                             }
                             .cinema-hot-card:hover .cinema-hot-poster-wrap,
                             html.light-mode .cinema-hot-card:hover .cinema-hot-poster-wrap {
-                                transform: skewY(0deg) translateY(-8px) scale(1.04) !important;
+                                transform: skewY(0deg) translateY(-8px) scale(1.04) translateZ(0) !important;
                                 box-shadow: none !important;
                                 -webkit-box-reflect: none !important;
                                 filter: none !important;
@@ -236,14 +246,14 @@
                             /* Thẻ Xem Tất Cả cuối slider */
                             .cinema-hot-card.cinema-hot-more-card .cinema-hot-more-inner {
                                 border-radius: 12px !important;
-                                transform: skewY(3.4deg);
+                                transform: skewY(3.4deg) translateZ(0);
                                 box-shadow: none !important;
                                 -webkit-box-reflect: none !important;
                                 filter: none !important;
-                                transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important;
+                                transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
                             }
                             .cinema-hot-card.cinema-hot-more-card:hover .cinema-hot-more-inner {
-                                transform: skewY(0deg) translateY(-8px) scale(1.04) !important;
+                                transform: skewY(0deg) translateY(-8px) scale(1.04) translateZ(0) !important;
                                 box-shadow: none !important;
                                 -webkit-box-reflect: none !important;
                                 filter: none !important;
@@ -254,11 +264,25 @@
                         .de-cu-slider {
                             display: flex !important;
                             overflow-x: auto !important;
-                            overflow-y: visible !important;
+                            overflow-y: hidden !important;
+                            scroll-behavior: auto !important;
                             padding-top: 24px !important;
                             padding-bottom: 6px !important; /* Thu gọn khoảng cách đệm dưới đáy trên Mobile */
                             gap: 10px !important; /* Khoảng cách sát nhau hài hoà */
                             align-items: flex-end !important; /* Mép dưới các thẻ ngang bằng tuyệt đối trên cùng 1 đường thẳng */
+                            scrollbar-width: none !important;
+                            -ms-overflow-style: none !important;
+                            -webkit-overflow-scrolling: touch !important;
+                            touch-action: pan-x pan-y !important;
+                            overscroll-behavior-x: contain !important;
+                            contain: layout paint;
+                            will-change: scroll-position;
+                            transform: translateZ(0);
+                        }
+                        .de-cu-slider::-webkit-scrollbar {
+                            display: none !important;
+                            width: 0 !important;
+                            height: 0 !important;
                         }
                         .de-cu-card {
                             flex: 0 0 192px !important; /* To hơn, cân đối và nổi bật trên Mobile */
@@ -269,17 +293,24 @@
                             justify-content: flex-end !important;
                             position: relative !important;
                             margin: 0 !important;
-                            transform: none !important;
+                            transform: translateZ(0) !important;
+                            contain: layout style;
+                            content-visibility: auto !important;
+                            contain-intrinsic-size: 192px 340px !important;
+                            backface-visibility: hidden;
+                            -webkit-backface-visibility: hidden;
                         }
                         @media (min-width: 640px) {
                             .de-cu-slider {
                                 padding-top: 26px !important;
                                 padding-bottom: 16px !important;
+                                overflow-y: hidden !important;
                             }
                             .de-cu-card {
                                 flex: 0 0 205px !important; /* To rộng rãi, hiển thị ấn tượng trên Desktop */
                                 width: 205px !important;
                                 max-width: 205px !important;
+                                contain-intrinsic-size: 205px 360px !important;
                             }
                         }
                         .de-cu-poster-wrap {
@@ -289,8 +320,95 @@
                             -webkit-box-reflect: none !important;
                             filter: none !important;
                             transform-origin: center center !important;
-                            transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1), filter 0.28s cubic-bezier(0.25, 1, 0.5, 1) !important;
-                            will-change: transform, filter !important;
+                            transition: transform 0.24s cubic-bezier(0.25, 1, 0.5, 1) !important;
+                            backface-visibility: hidden;
+                            -webkit-backface-visibility: hidden;
+                            transform: translateZ(0);
+                        }
+
+                        /* 🚀 TRIỆT TIÊU DỰT LAG TRONG KHI CUỘN HOẶC KÉO CHUỘT: TẠM KHÓA HOVER TRÁNH REPAINT */
+                        .is-slider-scrolling,
+                        .is-smooth-dragging {
+                            scroll-snap-type: none !important;
+                        }
+                        .is-slider-scrolling *,
+                        .is-smooth-dragging * {
+                            pointer-events: none !important;
+                        }
+
+                        /* ✨ HIỆU ỨNG SKELETON SHIMMER 0MS XUẤT HIỆN TỨC THÌ TRANG CHỦ */
+                        @keyframes shimmerWave {
+                            0% { transform: translateX(-100%); }
+                            100% { transform: translateX(100%); }
+                        }
+                        .de-cu-skeleton-card,
+                        .cinema-hot-skeleton-card {
+                            pointer-events: none !important;
+                            user-select: none !important;
+                        }
+                        .de-cu-skeleton-poster {
+                            background: rgba(255, 255, 255, 0.05) !important;
+                            position: relative !important;
+                            width: 100% !important;
+                            padding-bottom: 148% !important;
+                            border-radius: 12px !important;
+                            overflow: hidden !important;
+                        }
+                        .cinema-hot-skeleton-poster {
+                            background: rgba(255, 255, 255, 0.05) !important;
+                            position: relative !important;
+                            width: 100% !important;
+                            padding-bottom: 148% !important;
+                            border-radius: 12px !important;
+                            overflow: hidden !important;
+                        }
+                        html.light-mode .de-cu-skeleton-poster,
+                        html.light-mode .cinema-hot-skeleton-poster {
+                            background: rgba(0, 0, 0, 0.05) !important;
+                        }
+                        .skeleton-shimmer-bar {
+                            position: absolute !important;
+                            inset: 0 !important;
+                            transform: translateX(-100%);
+                            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%) !important;
+                            animation: shimmerWave 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+                        }
+                        html.light-mode .skeleton-shimmer-bar {
+                            background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.07) 50%, transparent 100%) !important;
+                        }
+                        .de-cu-skeleton-line,
+                        .cinema-hot-skeleton-line {
+                            background: rgba(255, 255, 255, 0.06) !important;
+                            border-radius: 4px !important;
+                            position: relative !important;
+                            overflow: hidden !important;
+                        }
+                        html.light-mode .de-cu-skeleton-line,
+                        html.light-mode .cinema-hot-skeleton-line {
+                            background: rgba(0, 0, 0, 0.06) !important;
+                        }
+                        .de-cu-skeleton-line.line-title {
+                            height: 14px !important;
+                            width: 82% !important;
+                            margin-bottom: 6px !important;
+                        }
+                        .de-cu-skeleton-line.line-sub {
+                            height: 11px !important;
+                            width: 58% !important;
+                        }
+                        .cinema-hot-skeleton-line.line-rate {
+                            height: 12px !important;
+                            width: 44% !important;
+                            margin-bottom: 6px !important;
+                        }
+                        .cinema-hot-skeleton-line.line-title {
+                            height: 14px !important;
+                            width: 88% !important;
+                            margin-bottom: 5px !important;
+                        }
+                        .cinema-hot-skeleton-line.line-meta {
+                            height: 11px !important;
+                            width: 62% !important;
                         }
                         .de-cu-card .de-cu-top-badges {
                             position: absolute !important;
@@ -2979,7 +3097,17 @@
 
                     <!-- Horizontal Scroll Slider (Vertical 2:3 Cards) -->
                     <div id="slider-de-cu" class="de-cu-slider">
-                        <!-- Loaded via JS -->
+                        <% for(let i = 0; i < 8; i++) { %>
+                        <div class="de-cu-card de-cu-skeleton-card" aria-hidden="true">
+                            <div class="de-cu-poster-wrap de-cu-skeleton-poster">
+                                <div class="skeleton-shimmer-bar"></div>
+                            </div>
+                            <div class="de-cu-title-wrap">
+                                <div class="de-cu-skeleton-line line-title"><div class="skeleton-shimmer-bar"></div></div>
+                                <div class="de-cu-skeleton-line line-sub"><div class="skeleton-shimmer-bar"></div></div>
+                            </div>
+                        </div>
+                        <% } %>
                     </div>
                 </section>
 
@@ -3033,9 +3161,43 @@
 
                     <!-- Horizontal Scroll Slider (MoMo Style Cinema Cards) -->
                     <div id="slider-cinema-hot" class="cinema-hot-slider">
-                        <!-- Loaded via JS with instant 0ms data -->
+                        <% for(let i = 0; i < 8; i++) { %>
+                        <div class="cinema-hot-card cinema-hot-skeleton-card" aria-hidden="true">
+                            <div class="cinema-hot-poster-wrap cinema-hot-skeleton-poster">
+                                <div class="skeleton-shimmer-bar"></div>
+                            </div>
+                            <div class="cinema-hot-info-wrap">
+                                <div class="cinema-hot-skeleton-line line-rate"><div class="skeleton-shimmer-bar"></div></div>
+                                <div class="cinema-hot-skeleton-line line-title"><div class="skeleton-shimmer-bar"></div></div>
+                                <div class="cinema-hot-skeleton-line line-meta"><div class="skeleton-shimmer-bar"></div></div>
+                            </div>
+                        </div>
+                        <% } %>
                     </div>
                 </section>
+
+                <!-- ⚡ INLINE 0MS INSTANT SWR RESTORE: Hiển thị phim ngay lập tức khi vừa tải trang -->
+                <script>
+                    (function () {
+                        try {
+                            var deCuEl = document.getElementById('slider-de-cu');
+                            var cachedDeCu = localStorage.getItem('aphim_de_cu_slider_trends_v10') || sessionStorage.getItem('aphim_de_cu_slider_trends_v8');
+                            if (deCuEl && cachedDeCu) {
+                                deCuEl.innerHTML = cachedDeCu;
+                            }
+                        } catch (e) { }
+                        try {
+                            var cinemaEl = document.getElementById('slider-cinema-hot');
+                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v10');
+                            if (cinemaEl && cachedCinemaHtml) {
+                                cinemaEl.innerHTML = cachedCinemaHtml;
+                                if (window.innerWidth < 640) {
+                                    cinemaEl.classList.add('cinema-hot-stage-mobile');
+                                }
+                            }
+                        } catch (e) { }
+                    })();
+                </script>
 
                 <!-- ==============================================
              SECTION 0.5: COMMUNITY COMMENTS SHOWCASE (MATCHING PHOTO EXACTLY)
@@ -3522,30 +3684,54 @@
                             imgEl.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225' viewBox='0 0 400 225'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23181b24'/%3E%3Cstop offset='100%25' stop-color='%230f1218'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='225' fill='url(%23bg)'/%3E%3Ccircle cx='200' cy='95' r='32' fill='rgba(255,255,255,0.06)'/%3E%3Cpath d='M192 82 L214 95 L192 108 Z' fill='%23f59e0b'/%3E%3Ctext x='200' y='160' text-anchor='middle' fill='%23e2e8f0' font-family='sans-serif' font-size='14' font-weight='700'%3E" + encodeURIComponent(cleanTitle.slice(0, 32)) + "%3C/text%3E%3C/svg%3E";
                         };
 
+                        let _deCuScrollTarget = null;
+                        let _deCuScrollDebounce = null;
                         window.scrollSlider = function (amount) {
                             const slider = document.getElementById('slider-de-cu');
-                            if (slider) {
-                                const cardWidth = window.innerWidth < 640 ? 202 : 215;
-                                const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
-                                const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
-                                slider.scrollBy({ left: step || amount, behavior: 'smooth' });
+                            if (!slider) return;
+                            const cardWidth = window.innerWidth < 640 ? 192 : 215;
+                            const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
+                            const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
+                            const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+                            if (_deCuScrollTarget === null || Math.abs(_deCuScrollTarget - slider.scrollLeft) > slider.clientWidth * 1.5) {
+                                _deCuScrollTarget = slider.scrollLeft;
                             }
+                            _deCuScrollTarget = Math.max(0, Math.min(maxScroll, _deCuScrollTarget + (step || amount)));
+                            slider.scrollTo({ left: _deCuScrollTarget, behavior: 'smooth' });
+
+                            clearTimeout(_deCuScrollDebounce);
+                            _deCuScrollDebounce = setTimeout(() => {
+                                _deCuScrollTarget = null;
+                            }, 500);
                         };
 
+                        let _cinemaHotScrollTarget = null;
+                        let _cinemaHotScrollDebounce = null;
                         window.scrollCinemaHotSlider = function (amount) {
                             if (typeof window.pauseCinemaHotOnUserAction === 'function') {
                                 window.pauseCinemaHotOnUserAction();
                             }
                             const slider = document.getElementById('slider-cinema-hot');
-                            if (slider) {
-                                const cardWidth = 190;
-                                const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
-                                const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
-                                slider.scrollBy({ left: step || amount, behavior: 'smooth' });
+                            if (!slider) return;
+                            const cardWidth = window.innerWidth < 640 ? 162 : 208;
+                            const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
+                            const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
+                            const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+                            if (_cinemaHotScrollTarget === null || Math.abs(_cinemaHotScrollTarget - slider.scrollLeft) > slider.clientWidth * 1.5) {
+                                _cinemaHotScrollTarget = slider.scrollLeft;
                             }
-                            if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
-                                window.resumeCinemaHotAfterUserAction();
-                            }
+                            _cinemaHotScrollTarget = Math.max(0, Math.min(maxScroll, _cinemaHotScrollTarget + (step || amount)));
+                            slider.scrollTo({ left: _cinemaHotScrollTarget, behavior: 'smooth' });
+
+                            clearTimeout(_cinemaHotScrollDebounce);
+                            _cinemaHotScrollDebounce = setTimeout(() => {
+                                _cinemaHotScrollTarget = null;
+                                if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
+                                    window.resumeCinemaHotAfterUserAction();
+                                }
+                            }, 600);
                         };
 
                         // 🎯 ICONIC PHIMMOI HOLLOW STROKE PLAY TRIANGLE
@@ -3592,7 +3778,7 @@
                         }
 
                         // 1. Render Vertical 2:3 Movie Card (For PHIM MỚI ĐỀ CỬ Slider Only)
-                        function createDeCuCardHTML(movie) {
+                        function createDeCuCardHTML(movie, idx = 0) {
                             const watchUrl = '/phim/' + movie.slug;
                             const primaryImg = getImgUrl(movie.poster_url || movie.thumb_url);
                             const fallbackImg = getImgUrl(movie.thumb_url || movie.poster_url);
@@ -3614,7 +3800,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 8 ? 'eager' : 'lazy'}" decoding="async" ${idx < 8 ? 'fetchpriority="high"' : ''} onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -4244,10 +4430,10 @@
                         async function loadDeCuSlider() {
                             const sliderEl = document.getElementById('slider-de-cu');
                             if (!sliderEl) return;
-                            const sessionKey = 'aphim_de_cu_slider_trends_v8';
+                            const cacheKey = 'aphim_de_cu_slider_trends_v10';
                             try {
-                                const cached = sessionStorage.getItem(sessionKey);
-                                if (cached) {
+                                const cached = localStorage.getItem(cacheKey) || sessionStorage.getItem('aphim_de_cu_slider_trends_v8');
+                                if (cached && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
                                     sliderEl.innerHTML = cached;
                                 }
                             } catch (e) { }
@@ -4266,9 +4452,13 @@
                                 }
 
                                 if (sliderEl && items.length) {
-                                    const html = items.slice(0, 24).map(m => createDeCuCardHTML(m)).join('');
-                                    sliderEl.innerHTML = html;
-                                    try { sessionStorage.setItem(sessionKey, html); } catch (e) { }
+                                    const html = items.slice(0, 24).map((m, idx) => createDeCuCardHTML(m, idx)).join('');
+                                    if (sliderEl.innerHTML !== html || sliderEl.querySelector('.de-cu-skeleton-card')) {
+                                        const prevScroll = sliderEl.scrollLeft;
+                                        sliderEl.innerHTML = html;
+                                        if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
+                                    }
+                                    try { localStorage.setItem(cacheKey, html); } catch (e) { }
                                 }
                             } catch (err) {
                                 console.warn('Lỗi Slider Đề Cử Trends 24h:', err);
@@ -4283,7 +4473,7 @@
                         let cinemaHotStoredItems = null;
                         let cinemaHotActiveIndex = 0;
 
-                        function createCinemaHotCardHTML(movie, rank, extraAttr = '') {
+                        function createCinemaHotCardHTML(movie, rank, extraAttr = '', idx = 0) {
                             const watchUrl = movie.slug ? '/phim/' + movie.slug : `/search?q=${encodeURIComponent(movie.name)}`;
                             const age = (movie.age || '16+').toUpperCase();
                             let ageClass = 'cinema-hot-badge-18';
@@ -4323,7 +4513,7 @@
                                     <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block group">
                                         <div class="cinema-hot-poster-wrap">
                                             <span class="cinema-hot-badge-age ${ageClass}">${age}</span>
-                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
+                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 8 ? 'eager' : 'lazy'}" decoding="async" ${idx < 8 ? 'fetchpriority="high"' : ''} onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
                                             ${rankHTML}
                                             <div class="phimmoi-play-overlay">
                                                 <div class="phimmoi-play-btn">
@@ -4346,8 +4536,8 @@
                         let _cinemaHotResumeTimer = null;
                         let _cinemaHotIsVisible = false;
                         let _cinemaHotIsUserInteracting = false;
-                        const CINEMA_HOT_AUTO_INTERVAL = 3800; // 3.8 giây tự động chuyển phim tiếp theo
-                        const CINEMA_HOT_RESUME_DELAY = 4200;  // 4.2 giây nghỉ sau khi user lướt/chạm xong
+                        const CINEMA_HOT_AUTO_INTERVAL = 6000; // 6.0 giây tự động chuyển phim tiếp theo
+                        const CINEMA_HOT_RESUME_DELAY = 8000;  // 8.0 giây nghỉ hoàn toàn sau khi user lướt/chạm/click
 
                         function stopCinemaHotAuto() {
                             if (_cinemaHotAutoTimer) {
@@ -4371,6 +4561,10 @@
                                 cinemaHotActiveIndex = (cinemaHotActiveIndex + 1) % total;
                                 updateCinemaHot3DStage(sliderEl);
                             } else {
+                                // Trên desktop: Tuyệt đối không can thiệp nếu user đang hover chuột hoặc đang cuộn/kéo
+                                if (_cinemaHotIsUserInteracting || sliderEl.matches(':hover') || sliderEl.classList.contains('is-smooth-dragging') || sliderEl.classList.contains('is-slider-scrolling')) {
+                                    return;
+                                }
                                 if (sliderEl.scrollLeft + sliderEl.clientWidth >= sliderEl.scrollWidth - 15) {
                                     sliderEl.scrollTo({ left: 0, behavior: 'smooth' });
                                 } else {
@@ -4484,19 +4678,26 @@
                             // --- DESKTOP: Hiển thị 1 chu kỳ chuẩn từ trái sang phải với nút điều hướng ---
                             if (!isMobile) {
                                 sliderEl.classList.remove('cinema-hot-stage-mobile');
-                                let html = topItems.map((m, idx) => createCinemaHotCardHTML(m, idx + 1)).join('');
+                                let html = topItems.map((m, idx) => createCinemaHotCardHTML(m, idx + 1, '', idx)).join('');
                                 html += buildMoreCard();
-                                sliderEl.innerHTML = html;
-                                sliderEl.scrollLeft = 0;
+                                if (sliderEl.innerHTML !== html || sliderEl.querySelector('.cinema-hot-skeleton-card')) {
+                                    const prevScroll = sliderEl.scrollLeft;
+                                    sliderEl.innerHTML = html;
+                                    if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
+                                }
+                                try { localStorage.setItem('aphim_cinema_hot_html_v10', html); } catch (e) { }
                             } else {
                                 // --- MOBILE: 3D COVERFLOW STAGE CHUẨN HERO ẢNH SỐ 1 (0ms Lag, Căn giữa tuyệt đối 100%, Bỏ ô Xem tất cả) ---
                                 sliderEl.classList.add('cinema-hot-stage-mobile');
                                 sliderEl.scrollLeft = 0;
 
                                 let html = topItems.map((m, idx) => {
-                                    return createCinemaHotCardHTML(m, idx + 1, `data-index="${idx}" onclick="handleCinemaHotCardClick(${idx}, event)"`);
+                                    return createCinemaHotCardHTML(m, idx + 1, `data-index="${idx}" onclick="handleCinemaHotCardClick(${idx}, event)"`, idx);
                                 }).join('');
-                                sliderEl.innerHTML = html;
+                                if (sliderEl.innerHTML !== html || sliderEl.querySelector('.cinema-hot-skeleton-card')) {
+                                    sliderEl.innerHTML = html;
+                                }
+                                try { localStorage.setItem('aphim_cinema_hot_html_v10', html); } catch (e) { }
 
                                 // Giữ nguyên vị trí thẻ hiện tại nếu đang tương tác, hoặc đưa về 0
                                 if (typeof cinemaHotActiveIndex !== 'number' || cinemaHotActiveIndex >= topItems.length) {
@@ -4514,7 +4715,7 @@
                                         entries.forEach(entry => {
                                             _cinemaHotIsVisible = entry.isIntersecting;
                                             if (_cinemaHotIsVisible && !document.hidden && !_cinemaHotIsUserInteracting) {
-                                                scheduleCinemaHotAuto(2800); // Khi cuộn vào khung nhìn, chờ 2.8s rồi bắt đầu tự động chuyển
+                                                scheduleCinemaHotAuto(3500); // Khi cuộn vào khung nhìn, chờ 3.5s rồi bắt đầu tự động chuyển
                                             } else {
                                                 stopCinemaHotAuto(); // Lập tức dừng khi cuộn ra khỏi màn hình
                                             }
@@ -4523,7 +4724,7 @@
                                     secObserver.observe(targetSec);
                                 } else {
                                     _cinemaHotIsVisible = true;
-                                    scheduleCinemaHotAuto(3000);
+                                    scheduleCinemaHotAuto(3500);
                                 }
 
                                 // Dừng khi tab bị ẩn hoặc điện thoại khoá màn hình, bật lại khi mở trang
@@ -4531,13 +4732,13 @@
                                     if (document.hidden) {
                                         stopCinemaHotAuto();
                                     } else if (_cinemaHotIsVisible && !_cinemaHotIsUserInteracting) {
-                                        scheduleCinemaHotAuto(2500);
+                                        scheduleCinemaHotAuto(3000);
                                     }
                                 });
 
-                                // Dừng khi hover chuột trên desktop, chạy lại khi rê chuột ra
-                                sliderEl.addEventListener('mouseenter', () => pauseCinemaHotOnUserAction());
-                                sliderEl.addEventListener('mouseleave', () => resumeCinemaHotAfterUserAction());
+                                // Dừng khi hover chuột vào toàn bộ khu vực Section trên desktop, chạy lại khi rê chuột ra
+                                targetSec.addEventListener('mouseenter', () => pauseCinemaHotOnUserAction());
+                                targetSec.addEventListener('mouseleave', () => resumeCinemaHotAfterUserAction());
                             } else if (_cinemaHotIsVisible && !_cinemaHotIsUserInteracting) {
                                 scheduleCinemaHotAuto(CINEMA_HOT_AUTO_INTERVAL);
                             }
@@ -4580,7 +4781,6 @@
                                             updateCinemaHot3DStage(sliderEl);
                                         }
                                     }
-                                    // Khi user kết thúc lướt, chờ 4.2 giây rồi mới bắt đầu tự động chuyển tiếp từ thẻ hiện tại
                                     resumeCinemaHotAfterUserAction();
                                 }, { passive: true });
 
@@ -4603,11 +4803,20 @@
 
                             // ⚡ 1. SWR: Nạp tức thì 0ms từ bộ nhớ đệm để không bị trễ hay giật giao diện
                             try {
-                                const cached = localStorage.getItem(CINEMA_HOT_CACHE_KEY);
-                                if (cached) {
-                                    const parsed = JSON.parse(cached);
-                                    if (Array.isArray(parsed) && parsed.length > 0) {
-                                        renderCinemaHotCards(sliderEl, parsed);
+                                const cachedHtml = localStorage.getItem('aphim_cinema_hot_html_v10');
+                                if (cachedHtml && (!sliderEl.children.length || sliderEl.querySelector('.cinema-hot-skeleton-card'))) {
+                                    sliderEl.innerHTML = cachedHtml;
+                                    if (window.innerWidth < 640) {
+                                        sliderEl.classList.add('cinema-hot-stage-mobile');
+                                        updateCinemaHot3DStage(sliderEl);
+                                    }
+                                } else {
+                                    const cached = localStorage.getItem(CINEMA_HOT_CACHE_KEY);
+                                    if (cached) {
+                                        const parsed = JSON.parse(cached);
+                                        if (Array.isArray(parsed) && parsed.length > 0) {
+                                            renderCinemaHotCards(sliderEl, parsed);
+                                        }
                                     }
                                 }
                             } catch (e) { }
@@ -4618,8 +4827,7 @@
                                 if (res.ok) {
                                     const data = await res.json();
                                     if (data && data.success && Array.isArray(data.items) && data.items.length > 0) {
-                                        // Nếu user đang chủ động chạm lướt, không giật lại đầu danh sách
-                                        if (!sliderEl._userInteracted || !sliderEl.children.length) {
+                                        if (!sliderEl._userInteracted || !sliderEl.children.length || sliderEl.querySelector('.cinema-hot-skeleton-card')) {
                                             renderCinemaHotCards(sliderEl, data.items);
                                         }
                                         try {
@@ -4637,7 +4845,7 @@
                                 const core = await getAPhimCore();
                                 const res = await core.fetchMovieGridData('list', 'phim-chieu-rap', 1);
                                 const apiItems = (res && res.items) ? res.items : [];
-                                if (apiItems.length && !sliderEl.children.length) {
+                                if (apiItems.length && (!sliderEl.children.length || sliderEl.querySelector('.cinema-hot-skeleton-card'))) {
                                     const fallbackList = apiItems.map(m => ({
                                         name: m.name,
                                         slug: m.slug,
@@ -4654,6 +4862,32 @@
                                 }
                             } catch (err) { }
                         }
+
+                        // ⚡ NẠP NGAY LẬP TỨC 0MS KHÔNG CHỜ DOMCONTENTLOADED
+                        loadDeCuSlider();
+                        loadCinemaHotSlider();
+
+                        // 🚀 TỐI ƯU HÓA CUỘN KHÔNG BỊ GIẬT LAG: KHÓA POINTER-EVENTS KHI ĐANG CUỘN
+                        (function() {
+                            const deCuEl = document.getElementById('slider-de-cu');
+                            if (deCuEl) {
+                                let t;
+                                deCuEl.addEventListener('scroll', () => {
+                                    deCuEl.classList.add('is-slider-scrolling');
+                                    clearTimeout(t);
+                                    t = setTimeout(() => deCuEl.classList.remove('is-slider-scrolling'), 120);
+                                }, { passive: true });
+                            }
+                            const cinEl = document.getElementById('slider-cinema-hot');
+                            if (cinEl) {
+                                let t;
+                                cinEl.addEventListener('scroll', () => {
+                                    cinEl.classList.add('is-slider-scrolling');
+                                    clearTimeout(t);
+                                    t = setTimeout(() => cinEl.classList.remove('is-slider-scrolling'), 120);
+                                }, { passive: true });
+                            }
+                        })();
 
                         // ==========================================
                         // 💬 HOMEPAGE COMMUNITY COMMENTS SHOWCASE (0ms Instant Cache + SWR)
