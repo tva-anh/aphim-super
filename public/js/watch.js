@@ -4317,15 +4317,67 @@ function showError(message) {
     } else {
         const main = document.querySelector('main');
         if (main) {
-            main.innerHTML = `
-                <div class="container mx-auto px-6 py-20 text-center flex flex-col items-center justify-center">
-                    <dotlottie-wc src="/icons/404-cat.lottie" style="width: 240px; height: 240px; max-width: 100%; margin-bottom: -10px;" autoplay loop></dotlottie-wc>
-                    <h2 class="text-2xl font-bold text-red-400 mb-4 mt-2">${message || 'Rất tiếc, đã xảy ra lỗi!'}</h2>
-                    <a href="/" class="inline-block px-6 py-3 bg-[#fcd576] text-black font-bold rounded-xl hover:bg-yellow-500 transition-all shadow-[0_4px_12px_rgba(252,213,118,0.3)] hover:-translate-y-1">
-                        Về trang chủ
+            const currentSlug = (typeof slug !== 'undefined' && slug) ? slug : (window.location.pathname.split('/').filter(Boolean).pop() || '');
+            const movieTitle = (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.name ? currentMovie.name : '') ||
+                document.getElementById('breadcrumb-movie-name')?.textContent?.trim() ||
+                document.querySelector('h1')?.textContent?.trim() ||
+                (currentSlug ? currentSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Phim');
+
+            // Hiển thị popup modal thông báo trên nền trang xem phim (chuẩn Ảnh số 3)
+            const existing = document.getElementById('cinemaNoticeModal');
+            if (existing) existing.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'cinemaNoticeModal';
+            modal.className = 'cinema-notice-modal-backdrop';
+            modal.innerHTML = `
+                <div class="cinema-notice-card" onclick="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+                    <button onpointerdown="window.closeCinemaWatchNotice(event)" onclick="window.closeCinemaWatchNotice(event)" class="cinema-notice-close-btn" title="Đóng thông báo">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="cinema-notice-mascot">
+                        <dotlottie-wc src="/icons/panda-popcorn.lottie" autoplay loop></dotlottie-wc>
+                    </div>
+                    <div class="cinema-notice-content">
+                        <div class="cinema-notice-title">
+                            Phim đang chiếu Rạp • Sớm có bản đẹp! 🎉
+                        </div>
+                        <div class="cinema-notice-desc">
+                            <strong style="color: #fef08a;">${movieTitle}</strong> hiện đang công chiếu tại rạp. Trang sẽ sớm cập nhật bản đẹp, bạn vui lòng quay lại sau nhé!
+                        </div>
+                    </div>
+                    <a href="/danh-sach?list=phim-chieu-rap" class="cinema-notice-btn" title="Khám phá các phim chiếu rạp khác">
+                        Phim khác
                     </a>
                 </div>
             `;
+            window.closeCinemaWatchNotice = function(e) {
+                if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+                const m = document.getElementById('cinemaNoticeModal');
+                if (m) {
+                    if (m._closing) return;
+                    m._closing = true;
+                    const c = m.querySelector('.cinema-notice-card');
+                    if (c) {
+                        c.style.transition = 'transform 0.12s cubic-bezier(0.4, 0, 1, 1), opacity 0.12s ease';
+                        c.style.transform = 'scale(0.88)';
+                        c.style.opacity = '0';
+                    }
+                    m.style.transition = 'opacity 0.12s ease';
+                    m.style.opacity = '0';
+                    setTimeout(() => m.remove(), 120);
+                }
+            };
+            modal.addEventListener('pointerdown', (e) => {
+                if (e.target === modal) window.closeCinemaWatchNotice(e);
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) window.closeCinemaWatchNotice(e);
+            });
+            document.body.appendChild(modal);
         }
     }
 }

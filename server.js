@@ -1564,6 +1564,55 @@ async function fetchMovieMetadata(slug) {
         }
     } catch (err2) {}
 
+    // 3. 🎬 Dynamic TMDB fallback: Tự động tra cứu phim đang chiếu rạp hoặc chưa có bản lậu từ TMDB
+    try {
+        const queryText = cleanSlug.replace(/-/g, ' ');
+        const tmdbRes = await axios.get(`${TMDB_BASE_URL}/search/multi`, {
+            params: {
+                api_key: TMDB_API_KEY,
+                query: queryText,
+                language: 'vi-VN'
+            },
+            timeout: 3500
+        });
+
+        if (tmdbRes.data?.results && tmdbRes.data.results.length > 0) {
+            const hit = tmdbRes.data.results.find(r => r.poster_path) || tmdbRes.data.results[0];
+            const title = hit.title || hit.name || cleanSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            const originalTitle = hit.original_title || hit.original_name || '';
+            const year = (hit.release_date || hit.first_air_date || '').split('-')[0] || new Date().getFullYear();
+            const posterUrl = hit.poster_path ? `https://image.tmdb.org/t/p/w500${hit.poster_path}` : '';
+            const thumbUrl = hit.backdrop_path ? `https://image.tmdb.org/t/p/w1280${hit.backdrop_path}` : posterUrl;
+
+            const result = {
+                slug: cleanSlug,
+                name: title,
+                origin_name: originalTitle,
+                year: Number(year) || new Date().getFullYear(),
+                quality: 'Chiếu Rạp',
+                lang: 'Vietsub',
+                episode_current: 'Chiếu Rạp',
+                episode_total: '1',
+                status: 'trailer',
+                time: 'Đang chiếu rạp',
+                content: hit.overview || `Phim điện ảnh ${title} hiện đang được công chiếu tại các cụm rạp trên toàn quốc. Trang sẽ sớm cập nhật bản đẹp cho bạn thưởng thức.`,
+                thumb_url: thumbUrl,
+                poster_url: posterUrl,
+                actor: [],
+                director: [],
+                category: ['Phim Chiếu Rạp'],
+                country: [hit.original_language === 'vi' ? 'Việt Nam' : 'Quốc tế'],
+                type: hit.media_type === 'tv' ? 'series' : 'single',
+                trailer_url: '',
+                tmdb: hit,
+                episodes: [] // Phim chiếu rạp chưa có tập phim stream
+            };
+
+            movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
+            return result;
+        }
+    } catch (err3) {}
+
     return null;
 }
 

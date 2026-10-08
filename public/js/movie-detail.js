@@ -166,11 +166,96 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
+// 🎬 Helper: Tự động tra cứu phim từ TMDB nếu OPhim/NguonC chưa có (tự động 100% cho phim đang chiếu rạp mới)
+async function fetchDynamicMovieFromTMDB(slug) {
+    // 1. Kiểm tra trước từ danh sách phim rạp trực tiếp của MoMo Cinema
+    try {
+        const cinemaRes = await fetch('/api/movies/cinema-hot');
+        if (cinemaRes.ok) {
+            const cinemaData = await cinemaRes.json();
+            if (cinemaData && cinemaData.items && Array.isArray(cinemaData.items)) {
+                const found = cinemaData.items.find(m => m.slug === slug || m.slug.includes(slug) || slug.includes(m.slug));
+                if (found) {
+                    const releaseYear = (found.release_date || '').split('-')[0] || new Date().getFullYear();
+                    return {
+                        slug: found.slug || slug,
+                        name: found.name,
+                        origin_name: found.origin_name || found.name,
+                        year: Number(releaseYear) || new Date().getFullYear(),
+                        quality: 'Chiếu Rạp',
+                        lang: 'Vietsub',
+                        episode_current: 'Chiếu Rạp',
+                        episode_total: '1',
+                        status: 'trailer',
+                        time: found.duration || 'Chiếu Rạp',
+                        content: found.synopsis || `Phim điện ảnh ${found.name} hiện đang được công chiếu tại các cụm rạp trên toàn quốc (CGV, Lotte, BHD, Galaxy, Beta). Trang sẽ sớm cập nhật bản đẹp cho bạn thưởng thức.`,
+                        thumb_url: found.fallback_poster || found.poster,
+                        poster_url: found.poster,
+                        actor: [],
+                        director: [],
+                        category: [{ name: found.genres || 'Phim Chiếu Rạp', slug: 'phim-chieu-rap' }],
+                        country: [{ name: 'Chiếu Rạp', slug: 'chieu-rap' }],
+                        type: 'single',
+                        trailer_url: found.trailer || '',
+                        tmdb: null,
+                        episodes: []
+                    };
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('⚠️ Lỗi đối chiếu MoMo Cinema:', e.message);
+    }
+
+    // 2. Tra cứu TMDB nếu không có trong danh sách MoMo
+    try {
+        const queryText = (slug || '').replace(/-/g, ' ');
+        const res = await fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(queryText)}&language=vi-VN`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data && data.results && data.results.length > 0) {
+            const hit = data.results.find(r => r.poster_path) || data.results[0];
+            const title = hit.title || hit.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            const originalTitle = hit.original_title || hit.original_name || '';
+            const year = (hit.release_date || hit.first_air_date || '').split('-')[0] || new Date().getFullYear();
+            const posterUrl = hit.poster_path ? `https://image.tmdb.org/t/p/w500${hit.poster_path}` : '';
+            const thumbUrl = hit.backdrop_path ? `https://image.tmdb.org/t/p/w1280${hit.backdrop_path}` : posterUrl;
+
+            return {
+                slug: slug,
+                name: title,
+                origin_name: originalTitle,
+                year: Number(year) || new Date().getFullYear(),
+                quality: 'Chiếu Rạp',
+                lang: 'Vietsub',
+                episode_current: 'Chiếu Rạp',
+                episode_total: '1',
+                status: 'trailer',
+                time: 'Đang chiếu rạp',
+                content: hit.overview || `Phim điện ảnh ${title} hiện đang được công chiếu tại các cụm rạp trên toàn quốc. Trang sẽ sớm cập nhật bản đẹp cho bạn thưởng thức.`,
+                thumb_url: thumbUrl,
+                poster_url: posterUrl,
+                actor: [],
+                director: [],
+                category: [{ name: 'Phim Chiếu Rạp', slug: 'phim-chieu-rap' }],
+                country: [{ name: hit.original_language === 'vi' ? 'Việt Nam' : 'Quốc tế', slug: hit.original_language === 'vi' ? 'viet-nam' : 'quoc-te' }],
+                type: hit.media_type === 'tv' ? 'series' : 'single',
+                trailer_url: '',
+                tmdb: hit,
+                episodes: []
+            };
+        }
+    } catch (e) {
+        console.warn('⚠️ Lỗi tra cứu tự động TMDB:', e.message);
+    }
+    return null;
+}
+
 // Load movie detail from API
 async function loadMovieDetail(slug) {
     let ophimOk = false;
 
-    // Check if initialMovie from SSR is available
+    // 1. Kiểm tra nếu có dữ liệu SSR từ server
     if (window.initialMovie && (window.initialMovie.slug === slug || !slug)) {
         currentMovie = window.initialMovie;
         if (window.initialEpisodes && window.initialEpisodes.length > 0) {
@@ -190,59 +275,110 @@ async function loadMovieDetail(slug) {
 
         ophimOk = true;
 
+        // Nếu phim chiếu rạp chưa có luồng phát stream -> Tự động nổi popup
+        const hasStreams = currentMovie.episodes && currentMovie.episodes.length > 0 &&
+            currentMovie.episodes.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
+        if (!hasStreams) {
+            showCinemaNoticePopup(currentMovie.name);
+        }
+
         // Fetch secondary servers in background to append to SSR data
         movieAPI.getMovieDetail(slug).then(fullData => {
             if (fullData && fullData.data && fullData.data.item && fullData.data.item.episodes) {
-                // Check if we got more servers than we currently have
-                if (fullData.data.item.episodes.length > currentMovie.episodes.length) {
+                if (fullData.data.item.episodes.length > (currentMovie.episodes || []).length) {
                     currentMovie.episodes = fullData.data.item.episodes;
                     renderEpisodes(currentMovie.episodes);
                     savePreloadedMovieData(currentMovie);
                 }
-            } else if (fullData && fullData.episodes) {
-                if (fullData.episodes.length > currentMovie.episodes.length) {
-                    currentMovie.episodes = fullData.episodes;
-                    renderEpisodes(currentMovie.episodes);
-                    savePreloadedMovieData(currentMovie);
-                }
             }
-        }).catch(e => console.warn('Background secondary fetch failed:', e));
+        }).catch(() => {});
+        return;
+    }
 
-    } else {
-        try {
-            const response = await movieAPI.getMovieDetail(slug);
-            const movieItem = response?.data?.item || response?.movie || response?.data?.movie;
+    // 2. Thử fetch từ API OPhim
+    try {
+        const response = await movieAPI.getMovieDetail(slug);
+        const movieItem = response?.data?.item || response?.movie || response?.data?.movie;
 
-            if (response && (response.status === 'success' || response.status === true || response.status) && movieItem) {
-                currentMovie = movieItem;
-                if (!currentMovie.episodes && response.episodes) {
-                    currentMovie.episodes = response.episodes;
-                }
-                renderMovieDetail(currentMovie);
-                renderEpisodes(currentMovie.episodes || []);
-                savePreloadedMovieData(currentMovie);
-                setupFavoriteButton();
-                setupRatingSystem();
-                loadRatingsAndComments(slug);
-                if (typeof window._apInitComment === 'function') window._apInitComment();
-
-                // Fade in content smoothly on mobile after render
-                setTimeout(() => {
-                    document.querySelector('.movie-content-zone')?.classList.add('loaded');
-                }, 50);
-
-                ophimOk = true;
-            } else {
-                console.warn('⚠️ [Detail] API không trả về phim này, thử proxy fallback...');
+        if (response && (response.status === 'success' || response.status === true || response.status) && movieItem) {
+            currentMovie = movieItem;
+            if (!currentMovie.episodes && response.episodes) {
+                currentMovie.episodes = response.episodes;
             }
-        } catch (error) {
-            console.warn('⚠️ [Detail] API lỗi:', error.message, '→ thử proxy fallback...');
+            renderMovieDetail(currentMovie);
+            renderEpisodes(currentMovie.episodes || []);
+            savePreloadedMovieData(currentMovie);
+            setupFavoriteButton();
+            setupRatingSystem();
+            loadRatingsAndComments(slug);
+            if (typeof window._apInitComment === 'function') window._apInitComment();
+
+            setTimeout(() => {
+                document.querySelector('.movie-content-zone')?.classList.add('loaded');
+            }, 50);
+
+            ophimOk = true;
+
+            const hasStreams = currentMovie.episodes && currentMovie.episodes.length > 0 &&
+                currentMovie.episodes.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
+            if (!hasStreams) {
+                showCinemaNoticePopup(currentMovie.name);
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ [Detail] OPhim không có, thử nguồn phụ...');
+    }
+
+    // 3. Nếu OPhim không có, tự động tra cứu nguồn phụ (PhimAPI / NguonC)
+    if (!ophimOk) {
+        const secondary = await getSecondaryEpisodes(slug);
+        if (secondary && secondary.status && secondary.movie) {
+            currentMovie = {
+                ...secondary.movie,
+                slug: slug,
+                episodes: secondary.episodes || []
+            };
+            renderMovieDetail(currentMovie);
+            renderEpisodes(currentMovie.episodes || []);
+            savePreloadedMovieData(currentMovie);
+            setupFavoriteButton();
+            setupRatingSystem();
+            loadRatingsAndComments(slug);
+            ophimOk = true;
+
+            setTimeout(() => {
+                document.querySelector('.movie-content-zone')?.classList.add('loaded');
+            }, 50);
+
+            const hasStreams = currentMovie.episodes && currentMovie.episodes.length > 0 &&
+                currentMovie.episodes.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
+            if (!hasStreams) {
+                showCinemaNoticePopup(currentMovie.name);
+            }
         }
     }
 
-    // Nếu fetch chính qua API thất bại hoàn toàn, thử qua getSecondaryEpisodes làm fallback cuối
+    // 4. Nếu cả OPhim và nguồn phụ đều chưa có (Phim mới đang chiếu rạp) -> Tự động kéo TMDB
     if (!ophimOk) {
-        await fetchAndMergeSecondaryServersDetail(slug, true);
+        const tmdbMovie = await fetchDynamicMovieFromTMDB(slug);
+        if (tmdbMovie) {
+            currentMovie = tmdbMovie;
+            renderMovieDetail(currentMovie);
+            savePreloadedMovieData(currentMovie);
+            setupFavoriteButton();
+            setupRatingSystem();
+            loadRatingsAndComments(slug);
+            ophimOk = true;
+
+            setTimeout(() => {
+                document.querySelector('.movie-content-zone')?.classList.add('loaded');
+            }, 50);
+
+            // Tự động bật popup thông báo phim đang chiếu rạp
+            showCinemaNoticePopup(currentMovie.name);
+        } else {
+            showError('Phim này chưa có nguồn phát — vui lòng thử lại sau');
+        }
     }
 }
 
@@ -720,11 +856,10 @@ function renderMovieDetail(movie) {
             watchBtn.addEventListener('mouseenter', syncPreload, { passive: true });
             watchBtn.addEventListener('touchstart', syncPreload, { passive: true });
         } else {
-            // Không có link
-            watchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            // Không có link stream (Phim chiếu rạp)
             watchBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('Phim chưa có link xem. Vui lòng quay lại sau!');
+                showCinemaNoticePopup(currentMovie?.name || movie.name);
             });
         }
     }
@@ -1797,21 +1932,98 @@ function loadRatingsAndComments(slug) {
     `).join('');
 }
 
-// Show error
+// Show error / Cinema Notice dạng Popup nổi giữa màn hình (Giữ nguyên trang phim phía sau)
 function showError(message) {
     const main = document.querySelector('main');
     if (main) {
-        main.innerHTML = `
-            <div class="container mx-auto px-6 py-20 text-center flex flex-col items-center justify-center">
-                <span class="material-icons-round text-6xl text-amber-400 mb-3">error_outline</span>
-                <h2 class="text-2xl font-bold text-red-400 mb-4 mt-2">${message || 'Rất tiếc, không tìm thấy phim này!'}</h2>
-                <a href="/" class="inline-block px-6 py-3 bg-[#fcd576] text-black font-bold rounded-xl hover:bg-yellow-500 transition-all shadow-[0_4px_12px_rgba(252,213,118,0.3)] hover:-translate-y-1">
-                    Về trang chủ
-                </a>
-            </div>
-        `;
+        main.classList.add('loaded');
+        main.style.opacity = '1';
+        main.style.visibility = 'visible';
     }
+
+    // Xác định tên phim tự động (từ dữ liệu phim, DOM hoặc slug)
+    const currentSlug = (typeof slug !== 'undefined' && slug) ? slug : (window.location.pathname.split('/').filter(Boolean).pop() || '');
+    const movieTitle = (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.name ? currentMovie.name : '') ||
+        document.getElementById('breadcrumb-movie-name')?.textContent?.trim() ||
+        document.querySelector('h1.movie-title')?.textContent?.trim() ||
+        (currentSlug ? currentSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Phim');
+
+    // Nổi popup thông báo lên giữa màn hình trên nền trang phim
+    showCinemaNoticePopup(movieTitle);
 }
+
+// 🍿 Popup thông báo phim chiếu rạp nổi lên giữa màn hình (chuẩn Ảnh số 3)
+function showCinemaNoticePopup(movieTitle) {
+    const existing = document.getElementById('cinemaNoticeModal');
+    if (existing) existing.remove();
+
+    const title = movieTitle || 'Phim';
+    const modal = document.createElement('div');
+    modal.id = 'cinemaNoticeModal';
+    modal.className = 'cinema-notice-modal-backdrop';
+    modal.innerHTML = `
+        <div class="cinema-notice-card" onclick="event.stopPropagation();" onpointerdown="event.stopPropagation();">
+            <!-- Nút đóng (X) ở góc phải - phản hồi chạm 0ms -->
+            <button onpointerdown="closeCinemaNoticePopup(event)" onclick="closeCinemaNoticePopup(event)" class="cinema-notice-close-btn" title="Đóng thông báo">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Bên trái: Mascot gấu ăn bắp rang bơ to rõ không viền bọc -->
+            <div class="cinema-notice-mascot">
+                <dotlottie-wc src="/icons/panda-popcorn.lottie" autoplay loop></dotlottie-wc>
+            </div>
+
+            <!-- Ở giữa: Nội dung rõ ràng, đầy đủ không bị cắt chữ -->
+            <div class="cinema-notice-content">
+                <div class="cinema-notice-title">
+                    Phim đang chiếu Rạp • Sớm có bản đẹp! 🎉
+                </div>
+                <div class="cinema-notice-desc">
+                    <strong style="color: #fef08a;">${title}</strong> hiện đang công chiếu tại rạp. Trang sẽ sớm cập nhật bản đẹp, bạn vui lòng quay lại sau nhé!
+                </div>
+            </div>
+
+            <!-- Bên phải: Nút "Phim khác" dạng viên thuốc chuẩn Ảnh số 3 -->
+            <a href="/danh-sach?list=phim-chieu-rap" class="cinema-notice-btn" title="Khám phá các phim chiếu rạp khác">
+                Phim khác
+            </a>
+        </div>
+    `;
+
+    // Chạm/bấm ra ngoài khoảng tối để đóng popup tức thì 0ms
+    modal.addEventListener('pointerdown', (e) => {
+        if (e.target === modal) closeCinemaNoticePopup(e);
+    });
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeCinemaNoticePopup(e);
+    });
+
+    document.body.appendChild(modal);
+}
+window.showCinemaNoticePopup = showCinemaNoticePopup;
+
+window.closeCinemaNoticePopup = function(e) {
+    if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+    }
+    const el = document.getElementById('cinemaNoticeModal');
+    if (el) {
+        if (el._isClosing) return;
+        el._isClosing = true;
+        const card = el.querySelector('.cinema-notice-card');
+        if (card) {
+            card.style.transition = 'transform 0.12s cubic-bezier(0.4, 0, 1, 1), opacity 0.12s ease';
+            card.style.transform = 'scale(0.88)';
+            card.style.opacity = '0';
+        }
+        el.style.transition = 'opacity 0.12s ease';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 120);
+    }
+};
 
 // Show trailer modal
 function showTrailerModal(trailerUrl, movieName) {

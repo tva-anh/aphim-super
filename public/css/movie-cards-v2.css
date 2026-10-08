@@ -233,9 +233,9 @@ main > section:first-child .section-header {
    SECTION 0: PHIM MỚI ĐỀ CỬ (VERTICAL 2:3 CARDS FOR CAROUSEL)
    ====================================================== */
 .de-cu-card {
-    flex: 0 0 165px !important;
-    width: 165px !important;
-    max-width: 165px !important;
+    flex: 0 0 176px !important;
+    width: 176px !important;
+    max-width: 176px !important;
     align-self: flex-start !important;
     background: transparent !important;
     border: none !important;
@@ -243,9 +243,9 @@ main > section:first-child .section-header {
 
 @media (min-width: 640px) {
     .de-cu-card {
-        flex: 0 0 178px !important;
-        width: 178px !important;
-        max-width: 178px !important;
+        flex: 0 0 198px !important;
+        width: 198px !important;
+        max-width: 198px !important;
     }
 }
 
@@ -258,6 +258,29 @@ main > section:first-child .section-header {
     overflow: hidden !important;
     background: #151821 !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transform-origin: center center !important;
+    transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1), filter 0.28s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    will-change: transform, filter !important;
+}
+
+/* Thẻ lẻ (1, 3, 5...): Bên trái nhô cao, bên phải hạ thấp, mép dưới phẳng tuyệt đối 100% */
+.de-cu-card:nth-child(odd) .de-cu-poster-wrap {
+    clip-path: url(#wave-decu-odd);
+}
+
+/* Thẻ chẵn (2, 4, 6...): Bên trái hạ thấp (nối tiếp điểm của thẻ lẻ), bên phải nhô cao, mép dưới phẳng tuyệt đối 100% */
+.de-cu-card:nth-child(even) .de-cu-poster-wrap {
+    clip-path: url(#wave-decu-even);
+}
+
+.de-cu-card:hover .de-cu-poster-wrap {
+    transform: scale(0.965) !important;
+    filter: drop-shadow(0 0 1.5px #f59e0b) drop-shadow(0 0 6px rgba(245, 158, 11, 0.85)) !important;
+}
+
+.de-cu-card:active .de-cu-poster-wrap {
+    transform: scale(0.935) !important;
+    transition-duration: 0.12s !important;
 }
 
 .de-cu-card .de-cu-poster-wrap img {
@@ -271,22 +294,81 @@ main > section:first-child .section-header {
 }
 
 .de-cu-card:hover .de-cu-poster-wrap img {
-    transform: scale(1.05) !important;
+    transform: none !important;
 }
 
 .de-cu-card .de-cu-top-badges {
     position: absolute !important;
-    top: 6px !important;
-    left: 6px !important;
-    right: 6px !important;
+    left: 8px !important;
+    right: 8px !important;
     display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 3px !important;
     z-index: 10 !important;
     pointer-events: none !important;
+    overflow: visible !important;
+    transform-origin: left center !important;
 }
 
-/* 🎯 PHOTO 2 EXACT SOFT PASTEL BADGE STYLING — STRICT UNIFIED EQUAL SIZE (20px HEIGHT) */
+/* Thẻ lẻ (1, 3, 5...): Mép trên dốc xéo xuống -> Hàng nhãn nghiêng xéo xuống theo khung hình */
+.de-cu-card:nth-child(odd) .de-cu-top-badges {
+    top: 7px !important;
+    transform: rotate(4deg) !important;
+}
+
+/* Thẻ chẵn (2, 4, 6...): Mép trên dốc xéo lên -> Hàng nhãn nghiêng xéo lên theo khung hình */
+.de-cu-card:nth-child(even) .de-cu-top-badges {
+    top: 18px !important;
+    transform: rotate(-4deg) !important;
+}
+
+/* Thu nhỏ gọn gàng các ô nhãn (TRENDS, P.Đề, T.Minh, FHD) trên Mobile tránh dính 2 bên mép */
+@media (max-width: 639.98px) {
+    .de-cu-card .de-cu-top-badges {
+        left: 7px !important;
+        right: 7px !important;
+        gap: 2px !important;
+    }
+    .de-cu-card .de-cu-top-badges .badge-trend {
+        height: 15px !important;
+        min-height: 15px !important;
+        max-height: 15px !important;
+        line-height: 15px !important;
+        font-size: 7px !important;
+        font-weight: 800 !important;
+        padding: 0 3px !important;
+        border-radius: 3px !important;
+        letter-spacing: 0 !important;
+        flex-shrink: 0 !important;
+    }
+    .de-cu-card .de-cu-top-badges .badge-tag,
+    .de-cu-card .de-cu-top-badges .badge-fhd {
+        height: 15px !important;
+        min-height: 15px !important;
+        max-height: 15px !important;
+        line-height: 15px !important;
+        font-size: 7.5px !important;
+        font-weight: 800 !important;
+        padding: 0 3.5px !important;
+        border-radius: 3px !important;
+        letter-spacing: 0 !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+    }
+    .de-cu-card .de-cu-bottom-badge {
+        height: 15px !important;
+        min-height: 15px !important;
+        max-height: 15px !important;
+        line-height: 15px !important;
+        font-size: 7.5px !important;
+        font-weight: 800 !important;
+        padding: 0 4px !important;
+        border-radius: 3px !important;
+    }
+}
+
 .badge-tag,
 .badge-tag-pd, .badge-sub, .badge-sub-dark, .badge-pd,
 .badge-tag-tm, .badge-tm,

@@ -256,9 +256,7 @@
             urlsToTry.push(endpointPath);
         } else {
             urlsToTry.push('https://phimapi.com' + endpointPath);
-            if (endpointPath && endpointPath.startsWith('/v1/api/')) {
-                urlsToTry.push('https://ophim1.com' + endpointPath);
-            }
+            urlsToTry.push('/api/movies/phimapi-proxy?path=' + encodeURIComponent(endpointPath));
         }
 
         let lastError = null;
@@ -266,7 +264,7 @@
         for (const url of urlsToTry) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const timeoutId = setTimeout(() => controller.abort(), 7500);
 
                 const response = await fetch(url, { signal: controller.signal });
                 clearTimeout(timeoutId);
@@ -306,7 +304,8 @@
             }
         }
 
-        throw lastError || new Error('Tất cả nguồn API phim đều không phản hồi.');
+        console.warn('[APhimCore] Không thể tải dữ liệu:', endpointPath, lastError?.message || lastError);
+        return { items: [], totalPages: 1, titlePage: '' };
     };
 })();
 

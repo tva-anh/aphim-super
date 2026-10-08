@@ -1212,6 +1212,14 @@ html.light-mode .motchill-section-title span.highlight {
     color: #d97706 !important;
 }
 
+html.light-mode .trends-24h-badge {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #ea580c !important;
+    background: rgba(249, 115, 22, 0.12) !important;
+}
+
 /* Filter & Listing Page Titles in Light Mode (Phim Hành Động, Phim Bộ, Thể Loại Phim) */
 html.light-mode #pageTitle,
 html.light-mode h1#pageTitle,
@@ -1229,7 +1237,7 @@ html.light-mode .view-all-btn,
 html.light-mode .btn-see-all,
 html.light-mode .motchill-see-all,
 html.light-mode .danh-sach-btn,
-html.light-mode main .section-header a[href*="/danh-sach"] {
+html.light-mode main .section-header a[href*="/danh-sach"]:not(.cinema-hot-header-link) {
     background: #e8e0d0 !important;
     color: #1c1917 !important;
     border: 1px solid #d6cebf !important;
@@ -1241,10 +1249,32 @@ html.light-mode .view-all-btn:hover,
 html.light-mode .btn-see-all:hover,
 html.light-mode .motchill-see-all:hover,
 html.light-mode .danh-sach-btn:hover,
-html.light-mode main .section-header a[href*="/danh-sach"]:hover {
+html.light-mode main .section-header a[href*="/danh-sach"]:not(.cinema-hot-header-link):hover {
     background: #d9d0bc !important;
     color: #000000 !important;
     border-color: #b8ad99 !important;
+}
+
+/* Section 0.2: Phim Rạp Sắp Chiếu - Chữ màu đen #18181b, hover chuyển màu cam #ff6a00 */
+html.light-mode #cinemaHotSection .cinema-hot-header-title,
+html.light-mode #cinemaHotSection .cinema-hot-header-title span,
+html.light-mode .cinema-hot-header-title,
+html.light-mode .cinema-hot-header-title span {
+    color: #18181b !important;
+}
+html.light-mode #cinemaHotSection .cinema-hot-header-link:hover .cinema-hot-header-title,
+html.light-mode #cinemaHotSection .cinema-hot-header-link:hover .cinema-hot-header-title span,
+html.light-mode .cinema-hot-header-link:hover .cinema-hot-header-title,
+html.light-mode .cinema-hot-header-link:hover .cinema-hot-header-title span {
+    color: #ff6a00 !important;
+}
+html.light-mode .cinema-hot-arrow-circle {
+    background: #e5e5ea !important;
+    color: #1f2937 !important;
+}
+html.light-mode .cinema-hot-header-link:hover .cinema-hot-arrow-circle {
+    background: #ff6a00 !important;
+    color: #ffffff !important;
 }
 
 /* Section Header Filter Tabs */
