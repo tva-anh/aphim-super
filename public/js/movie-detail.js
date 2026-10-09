@@ -912,12 +912,12 @@ function renderVersions(movie) {
     }
 
     const versionsHTML = `
-        <div class="w-full mt-0 mb-4 pl-0 ml-0">
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 pl-0 ml-0 movie-section-heading">
+        <div class="w-full mt-0 mb-0 pl-0 ml-0">
+            <h3 class="text-base sm:text-lg font-bold text-white mb-3 flex items-center gap-2 pl-0 ml-0 movie-section-heading">
                 <svg class="w-5 h-5 fill-current text-white flex-shrink-0" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l7 4.5-7 4.5z"/></svg>
                 Các bản chiếu
             </h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;" class="w-full pl-0 ml-0">
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch;" class="w-full pl-0 ml-0">
                 <!-- SVAP1 -->
                 <button onclick="changeVersion('aphim.top')" style="flex: 1; min-width: 260px; background-color: #5a5d6a; ${isSvap1 ? 'border: 1px solid #fcd576;' : 'border: 1px solid transparent;'}" class="relative overflow-hidden rounded-xl p-4 text-left shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3 group cursor-pointer">
                     <div id="svap-bg-1" style="position: absolute; top: 0; right: 0; bottom: 0; width: 65%; background-image: url('${imgUrl}'); background-size: cover; background-position: center; pointer-events: none; z-index: 0; opacity: 0.6; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70%); mask-image: linear-gradient(to right, transparent 0%, black 70%); transition: transform 0.5s ease, background-image 0.5s ease;" class="group-hover:scale-110"></div>
@@ -1515,7 +1515,7 @@ function renderEpisodes(episodes) {
         }
         if (mobileServerContainer) {
             mobileServerContainer.innerHTML = serverHtml;
-            mobileServerContainer.className = "flex flex-wrap items-center gap-2 mb-4 w-full";
+            mobileServerContainer.className = "flex flex-wrap items-center gap-2 mb-3 w-full";
             mobileServerContainer.style.scrollbarWidth = ''; // Đã bỏ ẩn thanh cuộn
         }
     }

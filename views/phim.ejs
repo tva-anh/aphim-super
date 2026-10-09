@@ -68,34 +68,210 @@
                 }
             }
 
-            /* Light Mode on /phim (Backdrop Passthrough: Tabs, Server Label & Headings in White) */
+            /* ─── ĐỒNG BỘ 100% GIAO DIỆN & KHOẢNG CÁCH TAB / TẬP / SERVER GIỮA LIGHT VÀ DARK MODE ─── */
+            .ap-movie-tab-system {
+                width: 100% !important;
+                margin-bottom: 24px !important;
+            }
+
+            .ap-movie-tab-nav {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 12px !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+                padding-bottom: 2px !important;
+                margin-bottom: 16px !important;
+                overflow-x: auto !important;
+                width: 100% !important;
+                scrollbar-width: none !important;
+            }
+            .ap-movie-tab-nav::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            @media (min-width: 480px) {
+                .ap-movie-tab-nav {
+                    gap: 18px !important;
+                }
+            }
+
+            @media (min-width: 640px) {
+                .ap-movie-tab-nav {
+                    gap: 24px !important;
+                    margin-bottom: 20px !important;
+                }
+            }
+
+            /* Trên Desktop (>= 1024px): Căn bên trái */
+            @media (min-width: 1024px) {
+                .ap-movie-tab-nav {
+                    justify-content: flex-start !important;
+                    gap: 28px !important;
+                }
+            }
+
+            .ap-movie-tab-system .ap-tab-btn,
             html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn,
-            html.light-mode body.page-phim-detail #tab-btn-gallery,
-            html.light-mode body.page-phim-detail #tab-btn-ost,
-            html.light-mode body.page-phim-detail #tab-btn-cast,
-            html.light-mode body.page-phim-detail #tab-btn-recommend {
+            html:not(.light-mode) body.page-phim-detail .ap-movie-tab-system .ap-tab-btn {
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
+                border-bottom: 2.5px solid transparent !important;
+                border-radius: 0 !important;
+                padding: 8px 4px !important;
+                font-weight: 700 !important;
+                font-size: 14px !important;
+                line-height: 1.25 !important;
+                white-space: nowrap !important;
+                box-sizing: border-box !important;
                 color: rgba(255, 255, 255, 0.9) !important;
                 -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
                 text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
-                border-bottom: 2.5px solid transparent !important;
+                box-shadow: none !important;
                 opacity: 1 !important;
+                cursor: pointer !important;
+                transition: color 0.2s ease, border-color 0.2s ease !important;
             }
 
+            @media (min-width: 640px) {
+                .ap-movie-tab-system .ap-tab-btn,
+                html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn,
+                html:not(.light-mode) body.page-phim-detail .ap-movie-tab-system .ap-tab-btn {
+                    padding: 8px 8px !important;
+                    font-size: 15px !important;
+                }
+            }
+
+            .ap-movie-tab-system .ap-tab-btn:hover,
             html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn:hover,
-            html.light-mode body.page-phim-detail #tab-btn-gallery:hover,
-            html.light-mode body.page-phim-detail #tab-btn-ost:hover,
-            html.light-mode body.page-phim-detail #tab-btn-cast:hover,
-            html.light-mode body.page-phim-detail #tab-btn-recommend:hover {
+            html:not(.light-mode) body.page-phim-detail .ap-movie-tab-system .ap-tab-btn:hover {
                 color: #ffffff !important;
                 -webkit-text-fill-color: #ffffff !important;
             }
 
+            .ap-movie-tab-system .ap-tab-btn.active,
             html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn.active,
-            html.light-mode body.page-phim-detail #tab-btn-episodes.active {
+            html:not(.light-mode) body.page-phim-detail .ap-movie-tab-system .ap-tab-btn.active {
                 color: #fcd576 !important;
                 -webkit-text-fill-color: #fcd576 !important;
                 border-bottom: 2.5px solid #fcd576 !important;
+                font-weight: 800 !important;
                 text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85) !important;
+            }
+
+            /* Tiêu đề mục: Danh sách tập phim & Các bản chiếu */
+            .movie-section-heading,
+            .movie-content-zone .movie-section-heading,
+            html.light-mode .movie-content-zone .movie-section-heading,
+            html:not(.light-mode) .movie-content-zone .movie-section-heading {
+                margin-top: 0 !important;
+                margin-bottom: 12px !important;
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            /* Server list mobile */
+            #server-list-mobile,
+            html.light-mode #server-list-mobile,
+            html:not(.light-mode) #server-list-mobile {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                align-items: center !important;
+                gap: 8px !important;
+                margin-top: 0 !important;
+                margin-bottom: 12px !important;
+                width: 100% !important;
+            }
+
+            #server-list-mobile button,
+            html.light-mode #server-list-mobile button,
+            html:not(.light-mode) #server-list-mobile button {
+                height: 34px !important;
+                padding: 0 12px !important;
+                border-width: 1.5px !important;
+                box-sizing: border-box !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                font-size: 12px !important;
+                border-radius: 8px !important;
+            }
+
+            /* Tìm kiếm tập phim mobile */
+            #episode-search-mobile,
+            html.light-mode #episode-search-mobile,
+            html:not(.light-mode) #episode-search-mobile {
+                gap: 8px !important;
+                margin-top: 0 !important;
+                margin-bottom: 12px !important;
+                width: 100% !important;
+            }
+
+            #search-episode-input-mobile,
+            html.light-mode #search-episode-input-mobile,
+            html:not(.light-mode) #search-episode-input-mobile {
+                height: 38px !important;
+                box-sizing: border-box !important;
+                font-size: 13px !important;
+            }
+
+            #sort-episodes-btn-mobile,
+            html.light-mode #sort-episodes-btn-mobile,
+            html:not(.light-mode) #sort-episodes-btn-mobile {
+                width: 38px !important;
+                height: 38px !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Grid danh sách tập mobile */
+            #episodes-mobile,
+            html.light-mode #episodes-mobile,
+            html:not(.light-mode) #episodes-mobile {
+                gap: 8px !important;
+                width: 100% !important;
+            }
+
+            #episodes-mobile a,
+            html.light-mode #episodes-mobile a,
+            html:not(.light-mode) #episodes-mobile a {
+                height: 38px !important;
+                box-sizing: border-box !important;
+                border-width: 1.5px !important;
+                font-size: 13px !important;
+                padding: 0 8px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 6px !important;
+            }
+
+            /* Mục Các bản chiếu */
+            #versions-container,
+            html.light-mode #versions-container,
+            html:not(.light-mode) #versions-container {
+                margin-top: 14px !important;
+                margin-bottom: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            #versions-container > div,
+            html.light-mode #versions-container > div,
+            html:not(.light-mode) #versions-container > div {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                width: 100% !important;
+            }
+
+            #versions-container h3.movie-section-heading,
+            html.light-mode #versions-container h3.movie-section-heading,
+            html:not(.light-mode) #versions-container h3.movie-section-heading {
+                margin-top: 0 !important;
+                margin-bottom: 12px !important;
             }
 
             /* "MÁY CHỦ :" label */
@@ -985,7 +1161,7 @@
                                     html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn),
                                     html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) {
                                         background: rgba(13, 18, 30, 0.58) !important;
-                                        border: 1px solid rgba(255, 255, 255, 0.22) !important;
+                                        border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
                                         color: #ffffff !important;
                                         -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
                                         backdrop-filter: blur(14px) saturate(150%) !important;
@@ -1022,7 +1198,7 @@
                                             <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
                                             <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
                                         </svg>
-                                        <span class="text-xs sm:text-sm font-bold tracking-wide">🎬 Xem Review (1p)</span>
+                                        <span class="text-xs sm:text-sm font-bold tracking-wide">Xem Review</span>
                                     </a>
                                 </div>
                         </div>
@@ -1031,16 +1207,11 @@
                         <div class="ap-movie-tab-system w-full mb-8">
                             <!-- Thanh chuyển Tab Navigation -->
                             <div
-                                class="flex items-center gap-6 sm:gap-8 border-b border-white/10 pb-1 mb-6 overflow-x-auto custom-scrollbar">
+                                class="ap-movie-tab-nav flex items-center justify-center lg:justify-start gap-3 sm:gap-6 lg:gap-7 border-b border-white/10 pb-1 mb-4 overflow-x-auto custom-scrollbar">
                                 <button type="button" onclick="switchMovieTab('episodes')" id="tab-btn-episodes"
                                     class="ap-tab-btn active font-bold text-sm sm:text-base cursor-pointer py-2.5 text-[#fcd576] border-b-2 border-[#fcd576] whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
                                     Tập phim
                                 </button>
-                                <a href="<%= reviewUrl %>" id="tab-btn-review"
-                                    title="Xem video review tóm tắt phim <%= (typeof movie !=='undefined' && movie && movie.name) ? movie.name : '' %>"
-                                    class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-rose-400 hover:text-rose-300 border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)] flex items-center gap-1.5 no-underline">
-                                    <span>🎬</span> Review Phim
-                                </a>
                                 <button type="button" onclick="switchMovieTab('gallery')" id="tab-btn-gallery"
                                     class="ap-tab-btn font-bold text-sm sm:text-base cursor-pointer py-2.5 text-white/85 hover:text-white border-b-2 border-transparent whitespace-nowrap transition-all [text-shadow:_0_2px_8px_rgba(0,0,0,0.9)]">
                                     Gallery
@@ -1105,7 +1276,7 @@
                                         </button>
                                     </div>
 
-                                    <div class="overflow-y-auto custom-scrollbar pr-1.5 pb-2"
+                                    <div class="overflow-y-auto custom-scrollbar pr-0 pb-1 w-full"
                                         style="max-height: 260px;">
                                         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2"
                                             id="episodes-mobile">
