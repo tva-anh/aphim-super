@@ -82,8 +82,8 @@
     .cat-tab-container > *,
     .similar-movies-track > * {
         flex-shrink: 0 !important;
-        contain: layout paint style;
-        content-visibility: auto;
+        contain: layout style;
+        content-visibility: visible !important;
         user-select: none !important;
         -webkit-user-select: none !important;
         -webkit-user-drag: none !important;

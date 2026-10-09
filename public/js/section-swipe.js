@@ -1,13 +1,15 @@
 /**
- * A PHIM SUPER — Ultra-Smooth 120FPS Desktop Mouse Drag, Horizontal Scroll & Kinetic Momentum Engine (v13.0)
- * Nâng cấp toàn diện nhận diện chuột và cử chỉ kéo lướt siêu nhạy, mượt mà trên toàn bộ các danh sách ngang Desktop.
+ * A PHIM SUPER — Ultra-Smooth 120FPS Desktop Mouse Drag & Kinetic Momentum Engine (v14.0)
+ * Tối ưu hóa toàn diện: Triệt tiêu hoàn toàn hiện tượng giật lag khi kéo lướt trên Desktop.
  *
- * TÍNH NĂNG ĐỘT PHÁ:
- * 1. Nhận diện rê chuột tức thì (0ms latency, 1:1 direct tracking, 120fps fluid).
- * 2. Phân rã quán tính vật lý (Kinetic Inertia Glide): Khi thả chuột, thanh trượt tiếp tục lướt mượt với gia tốc tự nhiên.
- * 3. Hỗ trợ con lăn chuột thông minh (Smart Mouse Wheel): Lăn chuột dọc tự động cuộn ngang mượt mà khi hover vào thanh trượt.
- * 4. Chống click nhầm tuyệt đối (Zero accidental clicks khi đang kéo lướt; mở phim ngay lập tức khi click thật).
- * 5. Tự động áp dụng cho tất cả thanh trượt trên trang chủ, trang chi tiết và toàn bộ website.
+ * TÍNH NĂNG ĐỘT PHÁ V14.0:
+ * 1. RequestAnimationFrame (rAF) Drag Coalescing: Đồng bộ hoàn toàn với tần số quét màn hình (60Hz / 120Hz / 144Hz / 240Hz),
+ *    không bao giờ ghi đè DOM quá 1 lần/frame, giải phóng 100% CPU/GPU.
+ * 2. Triệt tiêu layout thrashing: Loại bỏ hoàn toàn selector con '*', không kích hoạt style recalculation khi kéo.
+ * 3. Bỏ setPointerCapture: Lắng nghe trực tiếp trên window, tracking mượt mà không khựng giật.
+ * 4. Physics Inertia Glide: Gia tốc quán tính tự nhiên, giảm tốc mượt như macOS/iOS.
+ * 5. Chống click nhầm tuyệt đối: Kéo lướt không mở phim, click nhẹ mở phim tức thì 0ms.
+ * 6. Tuyệt đối không can thiệp vào cảm ứng di động (Mobile touch dùng 100% Native Compositor 120FPS).
  */
 (function () {
     'use strict';
@@ -45,7 +47,7 @@
     ].join(', ');
 
     function isDesktopDevice() {
-        return window.innerWidth >= 768 || (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+        return window.innerWidth >= 768 && (!window.matchMedia || window.matchMedia('(hover: hover) and (pointer: fine)').matches);
     }
 
     function getScrollContainer(target) {
@@ -87,17 +89,24 @@
     let startX = 0;
     let startY = 0;
     let scrollStart = 0;
-    let lastX = 0;
-    let lastTime = 0;
-    let velocity = 0;
+    let targetScroll = 0;
+    let maxScroll = 0;
+    let dragRafId = null;
     let momentumAnimId = null;
     let suppressClickUntil = 0;
-    let activePointerId = null;
+    let moveHistory = [];
 
     function stopMomentum() {
         if (momentumAnimId) {
             cancelAnimationFrame(momentumAnimId);
             momentumAnimId = null;
+        }
+    }
+
+    function stopDragRaf() {
+        if (dragRafId) {
+            cancelAnimationFrame(dragRafId);
+            dragRafId = null;
         }
     }
 
@@ -114,8 +123,7 @@
 
     // ── 2. NHẤN CHUỘT / POINTER DOWN — NHẬN DIỆN TỨC THÌ 0MS ──
     function onPointerDown(e) {
-        // CHUYÊN BIỆT CHO DESKTOP MOUSE: Tuyệt đối không can thiệp vào cảm ứng di động (touch)
-        // để trình duyệt di động dùng 100% Native Compositor 120FPS GPU scrolling mượt mà như Netflix
+        // CHUYÊN BIỆT CHO DESKTOP MOUSE: Tuyệt đối không can thiệp vào touch di động
         if (e.pointerType === 'touch' || !isDesktopDevice()) return;
         if (e.pointerType === 'mouse' && e.button !== 0) return;
 
@@ -130,59 +138,57 @@
         }
 
         stopMomentum();
+        stopDragRaf();
+
+        // Ngắt ngay lập tức smooth-scroll và scroll-snap để tránh xung đột khi kéo
+        container.style.scrollBehavior = 'auto';
+        container.style.scrollSnapType = 'none';
 
         activeContainer = container;
         isPointerDown = true;
         isDragging = false;
         startX = e.clientX;
         startY = e.clientY;
-        lastX = e.clientX;
         scrollStart = container.scrollLeft;
-        lastTime = performance.now();
-        velocity = 0;
-        activePointerId = e.pointerId;
+        targetScroll = scrollStart;
+        maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+
+        const now = performance.now();
+        moveHistory = [{ x: e.clientX, t: now }];
     }
 
-    // ── 3. RÊ CHUỘT / POINTER MOVE — ĐI THEO TAY 100% MƯỢT MÀ ──
+    // ── 3. RÊ CHUỘT / POINTER MOVE — 120FPS BATCHED WITH RAF (ZERO JANK) ──
     function onPointerMove(e) {
         if (!isPointerDown || !activeContainer) return;
 
         const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
+        const now = performance.now();
+
+        moveHistory.push({ x: e.clientX, t: now });
+        if (moveHistory.length > 5) moveHistory.shift();
 
         if (!isDragging) {
-            // Nếu người dùng cuộn dọc rõ rệt (vertical scrolling), nhả kéo ngang để trang cuộn tự nhiên
-            if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX) * 1.4) {
-                isPointerDown = false;
-                activeContainer = null;
-                return;
-            }
-
-            // Ngưỡng kích hoạt kéo mượt: 4px
-            if (Math.abs(deltaX) >= 4) {
+            // Ngưỡng kích hoạt kéo mượt: 3px (Không hủy kéo vì rê chéo trên Desktop mouse)
+            if (Math.abs(deltaX) >= 3) {
                 isDragging = true;
                 activeContainer.classList.add('is-smooth-dragging');
                 activeContainer.style.scrollBehavior = 'auto';
                 activeContainer.style.scrollSnapType = 'none';
-
-                if (activePointerId !== null && activeContainer.setPointerCapture) {
-                    try { activeContainer.setPointerCapture(activePointerId); } catch(err) {}
-                }
             }
         }
 
         if (isDragging) {
-            // Cập nhật vị trí cuộn trực tiếp 1:1 siêu nhạy
-            activeContainer.scrollLeft = scrollStart - deltaX;
+            // Tính toán vị trí đích (clamped)
+            targetScroll = Math.max(0, Math.min(maxScroll, scrollStart - deltaX));
 
-            const now = performance.now();
-            const dt = now - lastTime;
-            if (dt > 2) {
-                const instantV = (e.clientX - lastX) / dt;
-                // Bộ lọc gia tốc trơn mượt
-                velocity = velocity * 0.25 + instantV * 0.75;
-                lastX = e.clientX;
-                lastTime = now;
+            // Gom cụm DOM write vào requestAnimationFrame duy nhất theo chu kỳ VSYNC màn hình
+            if (!dragRafId) {
+                dragRafId = requestAnimationFrame(function () {
+                    dragRafId = null;
+                    if (activeContainer && isDragging) {
+                        activeContainer.scrollLeft = targetScroll;
+                    }
+                });
             }
 
             if (e.cancelable) {
@@ -195,24 +201,16 @@
     function onPointerUp(e) {
         if (!isPointerDown) return;
 
+        stopDragRaf();
+
         const container = activeContainer;
         const wasDragging = isDragging;
         const totalMoved = Math.abs(e.clientX - startX);
-        const finalVelocity = velocity;
 
-        isPointerDown = false;
-        isDragging = false;
-        activeContainer = null;
-
-        if (container) {
+        if (container && wasDragging) {
+            // Áp dụng vị trí cuộn cuối cùng ngay lập tức
+            container.scrollLeft = targetScroll;
             container.classList.remove('is-smooth-dragging');
-            if (activePointerId !== null && container.releasePointerCapture) {
-                try {
-                    if (container.hasPointerCapture && container.hasPointerCapture(activePointerId)) {
-                        container.releasePointerCapture(activePointerId);
-                    }
-                } catch (err) {}
-            }
 
             if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
                 if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
@@ -220,26 +218,40 @@
                 }
             }
         }
-        activePointerId = null;
 
-        // Xử lý chặn click nhầm
-        if (wasDragging && totalMoved > 6) {
+        isPointerDown = false;
+        isDragging = false;
+        activeContainer = null;
+
+        // Xử lý chặn click nhầm: Nếu đã kéo hơn 5px, chặn click vào link phim
+        if (wasDragging && totalMoved > 5) {
             suppressClickUntil = performance.now() + 250;
         } else {
             suppressClickUntil = 0;
         }
 
-        // Khởi chạy quán tính vật lý (Kinetic Momentum Glide) khi thả tay có vận tốc
-        if (wasDragging && container && Math.abs(finalVelocity) > 0.12) {
-            let currentV = finalVelocity * 15; // Hệ số chuyển đổi mượt
-            const maxScroll = container.scrollWidth - container.clientWidth;
-            let lastGlideTime = performance.now();
+        // Tính toán vận tốc thả tay dựa trên các điểm gần nhất (trong 100ms)
+        const now = performance.now();
+        const recentPoints = moveHistory.filter(p => (now - p.t) <= 100);
+        let velocity = 0;
+        if (recentPoints.length >= 2) {
+            const first = recentPoints[0];
+            const last = recentPoints[recentPoints.length - 1];
+            const dt = last.t - first.t;
+            if (dt > 8) {
+                velocity = (last.x - first.x) / dt; // px/ms
+            }
+        }
 
-            function glideStep(now) {
-                const stepDt = Math.min(now - lastGlideTime, 32);
-                lastGlideTime = now;
+        // Khởi chạy quán tính vật lý (Kinetic Momentum Glide) mượt mà
+        if (wasDragging && container && Math.abs(velocity) > 0.15) {
+            let v = -velocity * 16; // Chuyển đổi px/ms sang px/frame (nghịch đảo)
+            v = Math.max(-45, Math.min(45, v)); // Giới hạn tốc độ tối đa tránh văng quá đà
+            const friction = 0.925; // Hệ số ma sát mũ trơn tự nhiên
+            const maxS = Math.max(0, container.scrollWidth - container.clientWidth);
 
-                if (Math.abs(currentV) < 0.15 || !container) {
+            function glideStep() {
+                if (!container || Math.abs(v) < 0.25) {
                     if (container) {
                         container.style.scrollBehavior = '';
                         container.style.scrollSnapType = '';
@@ -248,18 +260,17 @@
                     return;
                 }
 
-                container.scrollLeft -= currentV * (stepDt / 16);
+                container.scrollLeft += v;
+                v *= friction;
 
-                // Giảm tốc theo hàm số mũ tự nhiên (Decay factor)
-                currentV *= 0.935;
-
-                // Dừng nếu chạm rìa danh sách
-                if (container.scrollLeft <= 0 || container.scrollLeft >= maxScroll) {
-                    currentV *= 0.5; // Giảm xóc khi chạm mép
-                    if (Math.abs(currentV) < 0.3) {
-                        momentumAnimId = null;
-                        return;
+                // Dừng nếu chạm biên
+                if (container.scrollLeft <= 0 || container.scrollLeft >= maxS) {
+                    if (container) {
+                        container.style.scrollBehavior = '';
+                        container.style.scrollSnapType = '';
                     }
+                    momentumAnimId = null;
+                    return;
                 }
 
                 momentumAnimId = requestAnimationFrame(glideStep);
@@ -273,55 +284,47 @@
         }
     }
 
-    // ── GẮN LISTENER TOÀN CỤC CHUẨN XÁC VỚI CAPTURE ──
-    document.addEventListener('pointerdown', onPointerDown, { capture: true, passive: true });
-    window.addEventListener('pointermove', onPointerMove, { capture: false, passive: false });
-    window.addEventListener('pointerup', onPointerUp, { capture: true, passive: true });
-    window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: true });
+    // ── GẮN LISTENER TOÀN CỤC CHUẨN XÁC VỚI PASSIVE TỐI ƯU ──
+    document.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerUp, { passive: true });
 
-    // Fallback cho trình duyệt cũ hơn
+    // Fallback cho trình duyệt cũ
     document.addEventListener('mousedown', (e) => {
         if (!window.PointerEvent) onPointerDown(e);
-    }, { capture: true, passive: true });
+    }, { passive: true });
     window.addEventListener('mousemove', (e) => {
         if (!window.PointerEvent) onPointerMove(e);
-    }, { capture: false, passive: false });
+    }, { passive: false });
     window.addEventListener('mouseup', (e) => {
         if (!window.PointerEvent) onPointerUp(e);
-    }, { capture: true, passive: true });
+    }, { passive: true });
 
-    // Ngăn chặn kéo ảnh / văn bản mặc định của trình duyệt gây kẹt giao diện
+    // Ngăn chặn hành vi kéo ảnh / kéo link mặc định của trình duyệt
     document.addEventListener('dragstart', function (e) {
         if (getScrollContainer(e.target)) {
             e.preventDefault();
         }
     }, true);
 
-    // ── 5. HỖ TRỢ CON LĂN CHUỘT CHUẨN XÁC TRÊN DESKTOP (KHÔNG CƯỚP QUYỀN CUỘN DỌC) ──
-    // Khi người dùng lăn dọc chuột, trang web cuộn dọc 100% tự nhiên không bị chặn lại hay hiểu lầm thành cuộn ngang.
-    // CHỈ cuộn ngang khi người dùng chủ động: Giữ Shift + Lăn chuột (chuẩn W3C quốc tế), hoặc vuốt ngang 2 ngón Trackpad.
+    // ── 5. HỖ TRỢ CON LĂN CHUỘT THÔNG MINH TRÊN DESKTOP ──
+    // Shift + Lăn chuột để cuộn ngang mượt mà, lăn dọc bình thường giữ nguyên để cuộn trang êm ái
     document.addEventListener('wheel', function (e) {
-        if (!isDesktopDevice()) return;
-        if (e.ctrlKey || e.altKey) return; // Không can thiệp nếu đang zoom trang
+        // Fast-exit tức thì 0ms cho cuộn dọc thông thường, tuyệt đối không chạm vào DOM để tránh reflow
+        if (!e.shiftKey || !isDesktopDevice() || e.ctrlKey || e.altKey || Math.abs(e.deltaY) <= 0) return;
 
         const container = getScrollContainer(e.target);
         if (!container) return;
 
-        // Người dùng chủ động giữ Shift + lăn chuột để cuộn ngang danh sách phim
-        if (e.shiftKey && Math.abs(e.deltaY) > 0) {
-            const maxScroll = container.scrollWidth - container.clientWidth;
-            if (maxScroll <= 0) return;
-            e.preventDefault();
-            stopMomentum();
-            container.scrollLeft += e.deltaY * 1.1;
-            return;
-        }
-
-        // Lăn chuột dọc bình thường: TUYỆT ĐỐI KHÔNG preventDefault!
-        // Để trang web cuộn dọc êm ái xuyên suốt toàn trang, không bị khựng lại hay hiểu lầm thành cuộn ngang.
+        const maxS = container.scrollWidth - container.clientWidth;
+        if (maxS <= 0) return;
+        e.preventDefault();
+        stopMomentum();
+        container.scrollLeft += e.deltaY * 1.0;
     }, { passive: false });
 
-    // ── 6. CSS INJECTION CHO TRẢI NGHIỆM DESKTOP ĐỈNH CAO ──
+    // ── 6. CSS INJECTION CHO TRẢI NGHIỆM DESKTOP MƯỢT NHƯ BƠ ──
     const style = document.createElement('style');
     style.textContent = `
         @media (min-width: 768px) {
@@ -347,10 +350,7 @@
                 cursor: grab;
                 user-select: none !important;
                 -webkit-user-select: none !important;
-                will-change: scroll-position;
-                transform: translateZ(0);
                 scrollbar-width: none !important;
-                -webkit-overflow-scrolling: touch;
             }
 
             #slider-de-cu:active,
@@ -370,13 +370,20 @@
 
             .is-smooth-dragging {
                 cursor: grabbing !important;
-                scroll-behavior: auto !important;
-                scroll-snap-type: none !important;
-            }
-
-            .is-smooth-dragging * {
                 user-select: none !important;
                 -webkit-user-select: none !important;
+            }
+
+            /* Khóa click link và tắt transition hover trong khi kéo để đạt 120fps bơ mượt */
+            .is-smooth-dragging a {
+                pointer-events: none !important;
+            }
+
+            .is-smooth-dragging .de-cu-card,
+            .is-smooth-dragging .cinema-hot-card,
+            .is-smooth-dragging .de-cu-poster-wrap,
+            .is-smooth-dragging .cinema-hot-poster-wrap {
+                transition: none !important;
                 pointer-events: none !important;
             }
 
@@ -408,5 +415,5 @@
     `;
     document.head.appendChild(style);
 
-    console.log('⚡ [APhim Slider Engine] Desktop Ultra-Smooth Drag & Kinetic Momentum v13.0 Active.');
+    console.log('⚡ [APhim Slider Engine] Desktop Ultra-Smooth Drag & Kinetic Momentum v14.0 Active.');
 })();

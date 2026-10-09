@@ -233,9 +233,9 @@ main > section:first-child .section-header {
    SECTION 0: PHIM MỚI ĐỀ CỬ (VERTICAL 2:3 CARDS FOR CAROUSEL)
    ====================================================== */
 .de-cu-card {
-    flex: 0 0 192px !important;
-    width: 192px !important;
-    max-width: 192px !important;
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    max-width: 160px !important;
     align-self: flex-start !important;
     background: transparent !important;
     border: none !important;

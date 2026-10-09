@@ -88,8 +88,6 @@
                             -webkit-overflow-scrolling: touch !important;
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
-                            contain: layout paint;
-                            will-change: scroll-position;
                             transform: translateZ(0);
                         }
 
@@ -157,8 +155,6 @@
                             -webkit-overflow-scrolling: touch !important;
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
-                            contain: layout paint;
-                            will-change: scroll-position;
                             transform: translateZ(0);
                         }
                         .cinema-hot-slider::-webkit-scrollbar {
@@ -177,8 +173,7 @@
                             display: block !important;
                             transform: translateZ(0) !important;
                             contain: layout style;
-                            content-visibility: auto !important;
-                            contain-intrinsic-size: 162px 280px !important;
+                            content-visibility: visible !important;
                             backface-visibility: hidden;
                             -webkit-backface-visibility: hidden;
                         }
@@ -198,7 +193,6 @@
                                 flex: 0 0 198px !important; /* To bằng mục Phim Mới Đề Cử (198px) */
                                 width: 198px !important;
                                 max-width: 198px !important;
-                                contain-intrinsic-size: 198px 360px !important;
                                 display: flex !important;
                                 flex-direction: column !important;
                                 justify-content: flex-start !important;
@@ -275,8 +269,6 @@
                             -webkit-overflow-scrolling: touch !important;
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
-                            contain: layout paint;
-                            will-change: scroll-position;
                             transform: translateZ(0);
                         }
                         .de-cu-slider::-webkit-scrollbar {
@@ -285,9 +277,9 @@
                             height: 0 !important;
                         }
                         .de-cu-card {
-                            flex: 0 0 192px !important; /* To hơn, cân đối và nổi bật trên Mobile */
-                            width: 192px !important;
-                            max-width: 192px !important;
+                            flex: 0 0 160px !important; /* Tăng kích thước vừa vặn, rõ nét và nổi bật trên Mobile */
+                            width: 160px !important;
+                            max-width: 160px !important;
                             display: flex !important;
                             flex-direction: column !important;
                             justify-content: flex-end !important;
@@ -323,13 +315,12 @@
                             transform: translateZ(0);
                         }
 
-                        /* 🚀 TRIỆT TIÊU DỰT LAG TRONG KHI CUỘN HOẶC KÉO CHUỘT: TẠM KHÓA HOVER TRÁNH REPAINT */
-                        .is-slider-scrolling,
+                        /* 🚀 CHỐNG CLICK NHẦM KHI KÉO CHUỘT TRÊN DESKTOP */
                         .is-smooth-dragging {
                             scroll-snap-type: none !important;
+                            cursor: grabbing !important;
                         }
-                        .is-slider-scrolling *,
-                        .is-smooth-dragging * {
+                        .is-smooth-dragging a {
                             pointer-events: none !important;
                         }
 
@@ -569,8 +560,6 @@
                             line-height: 1 !important;
                             padding: 3.5px 7px !important;
                             border-radius: 6px !important;
-                            backdrop-filter: blur(8px) !important;
-                            -webkit-backdrop-filter: blur(8px) !important;
                             letter-spacing: 0.3px !important;
                         }
                         .cinema-hot-badge-18 {
@@ -813,26 +802,27 @@
                         /* 📱 GIAO DIỆN 3D COVERFLOW STAGE TRÊN MOBILE (CHUẨN HERO ẢNH SỐ 1 - 0MS LAG, CĂN GIỮA TUYỆT ĐỐI) */
                         @media (max-width: 639px) {
                             #cinemaHotSection {
-                                overflow: hidden !important;
+                                overflow: visible !important;
                                 margin-top: 6px !important;
                                 margin-bottom: 10px !important;
                             }
                             #cinemaHotSection .cinema-hot-header-bar {
                                 margin-top: 0 !important;
-                                margin-bottom: 20px !important;
+                                margin-bottom: 14px !important;
                                 padding-top: 0 !important;
                                 padding-bottom: 0 !important;
                             }
                             .cinema-hot-slider.cinema-hot-stage-mobile {
                                 position: relative !important;
                                 width: 100% !important;
-                                height: 392px !important;
-                                perspective: 950px !important;
-                                -webkit-perspective: 950px !important;
+                                height: 362px !important;
+                                perspective: 900px !important;
+                                -webkit-perspective: 900px !important;
                                 perspective-origin: 50% 48% !important;
                                 -webkit-perspective-origin: 50% 48% !important;
                                 display: block !important;
                                 overflow: visible !important;
+                                contain: none !important;
                                 padding: 0 !important;
                                 margin: 0 auto !important;
                                 touch-action: pan-y pinch-zoom !important;
@@ -841,10 +831,10 @@
                             }
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card {
                                 position: absolute !important;
-                                top: 18px !important;
+                                top: 22px !important;
                                 left: 50% !important;
-                                width: 184px !important;
-                                max-width: 184px !important;
+                                width: 156px !important;
+                                max-width: 156px !important;
                                 transform-origin: center center !important;
                                 -webkit-transform-origin: center center !important;
                                 transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), 
@@ -875,31 +865,31 @@
                                 pointer-events: auto !important;
                             }
 
-                            /* 🌟 THẺ TÂM CHÍNH GIỮA (ACTIVE / CENTER) - CĂN TÂM 100% TUYỆT ĐỐI, TO BẰNG KHUNG ẢNH LỚN MỤC ĐỀ CỬ */
+                            /* 🌟 THẺ TÂM CHÍNH GIỮA (ACTIVE / CENTER) - CĂN TÂM 100% TUYỆT ĐỐI */
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-center {
-                                transform: translate3d(-50%, 0, 60px) scale(1.06) rotateY(0deg) !important;
+                                transform: translate3d(-50%, 0, 48px) scale(1.05) rotateY(0deg) !important;
                                 opacity: 1 !important;
                                 visibility: visible !important;
                                 z-index: 30 !important;
                                 pointer-events: auto !important;
                             }
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-center .cinema-hot-poster-wrap {
-                                border: 2.2px solid #ffffff !important;
-                                box-shadow: none !important;
+                                border: 2px solid #ffffff !important;
+                                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
                                 filter: none !important;
                                 -webkit-box-reflect: none !important;
                             }
                             html.light-mode .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-center .cinema-hot-poster-wrap {
-                                border: 2.2px solid #ffffff !important;
-                                box-shadow: none !important;
+                                border: 2px solid #ffffff !important;
+                                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
                                 filter: none !important;
                                 -webkit-box-reflect: none !important;
                             }
 
-                            /* 🌟 THẺ BÊN TRÁI (LEFT CARD) - THU NHỎ LẠI VỪA ĐỦ ĐỂ CANH LỀ 2 BÊN RỘNG RÃI */
+                            /* 🌟 THẺ BÊN TRÁI (LEFT CARD) - CĂN RỘNG RA 2 BÊN CÂN ĐỐI, KHÔNG BỊ DÍNH SÁT VÀO GIỮA */
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-left {
-                                transform: translate3d(calc(-50% - clamp(116px, 29vw, 136px)), 0, -30px) scale(0.72) rotateY(18deg) !important;
-                                opacity: 0.85 !important;
+                                transform: translate3d(calc(-50% - clamp(124px, 32vw, 142px)), 0, -25px) scale(0.76) rotateY(18deg) !important;
+                                opacity: 0.88 !important;
                                 visibility: visible !important;
                                 z-index: 20 !important;
                                 pointer-events: auto !important;
@@ -917,10 +907,10 @@
                                 -webkit-box-reflect: none !important;
                             }
 
-                            /* 🌟 THẺ BÊN PHẢI (RIGHT CARD) - THU NHỎ LẠI VỪA ĐỦ ĐỂ CANH LỀ 2 BÊN RỘNG RÃI */
+                            /* 🌟 THẺ BÊN PHẢI (RIGHT CARD) - CĂN RỘNG RA 2 BÊN CÂN ĐỐI, KHÔNG BỊ DÍNH SÁT VÀO GIỮA */
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-right {
-                                transform: translate3d(calc(-50% + clamp(116px, 29vw, 136px)), 0, -30px) scale(0.72) rotateY(-18deg) !important;
-                                opacity: 0.85 !important;
+                                transform: translate3d(calc(-50% + clamp(124px, 32vw, 142px)), 0, -25px) scale(0.76) rotateY(-18deg) !important;
+                                opacity: 0.88 !important;
                                 visibility: visible !important;
                                 z-index: 20 !important;
                                 pointer-events: auto !important;
@@ -940,14 +930,14 @@
 
                             /* Các thẻ ở xa hơn (chuyển động êm ái khi vuốt lướt) */
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-far-left {
-                                transform: translate3d(calc(-50% - 240px), 0, -70px) scale(0.55) rotateY(28deg) !important;
+                                transform: translate3d(calc(-50% - 225px), 0, -65px) scale(0.52) rotateY(26deg) !important;
                                 opacity: 0 !important;
                                 visibility: hidden !important;
                                 z-index: 10 !important;
                                 pointer-events: none !important;
                             }
                             .cinema-hot-slider.cinema-hot-stage-mobile .cinema-hot-card.is-far-right {
-                                transform: translate3d(calc(-50% + 240px), 0, -70px) scale(0.55) rotateY(-28deg) !important;
+                                transform: translate3d(calc(-50% + 225px), 0, -65px) scale(0.52) rotateY(-26deg) !important;
                                 opacity: 0 !important;
                                 visibility: hidden !important;
                                 z-index: 10 !important;
@@ -961,19 +951,19 @@
                             }
 
                             .cinema-hot-poster-wrap {
-                                border-radius: 16px !important;
+                                border-radius: 13px !important;
                             }
                             .cinema-hot-rank-num {
-                                font-size: 46px !important;
+                                font-size: 38px !important;
                                 bottom: 3px !important;
-                                left: 7px !important;
-                                -webkit-text-stroke: 2px #ffffff !important;
+                                left: 6px !important;
+                                -webkit-text-stroke: 1.8px #ffffff !important;
                             }
                             .cinema-hot-badge-age {
                                 top: 6px !important;
                                 left: 6px !important;
-                                padding: 2.5px 7px !important;
-                                font-size: 10.5px !important;
+                                padding: 2.5px 6.5px !important;
+                                font-size: 10px !important;
                                 border-radius: 9999px !important;
                                 border: 1.2px solid rgba(255, 255, 255, 0.8) !important;
                             }
@@ -3693,7 +3683,7 @@
                         window.scrollSlider = function (amount) {
                             const slider = document.getElementById('slider-de-cu');
                             if (!slider) return;
-                            const cardWidth = window.innerWidth < 640 ? 192 : 215;
+                            const cardWidth = window.innerWidth < 640 ? 160 : 215;
                             const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
                             const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
                             const maxScroll = slider.scrollWidth - slider.clientWidth;
@@ -3735,7 +3725,7 @@
                                 }
                             }
 
-                            const cardWidth = window.innerWidth < 640 ? 162 : 208;
+                            const cardWidth = window.innerWidth < 640 ? 156 : 208;
                             const visibleCount = Math.max(1, Math.floor(slider.clientWidth / cardWidth));
                             const step = Math.sign(amount) * Math.max(cardWidth, (visibleCount - 1) * cardWidth);
                             const maxScroll = slider.scrollWidth - slider.clientWidth;
@@ -4575,30 +4565,23 @@
                             const sliderEl = document.getElementById('slider-cinema-hot');
                             if (!sliderEl) return;
                             const isMobile = window.innerWidth < 640;
+                            // Tuyệt đối không can thiệp tự động trượt trên Desktop để đảm bảo 120fps và triệt tiêu reflow
+                            if (!isMobile) return;
+
                             const total = Math.min(cinemaHotStoredItems ? cinemaHotStoredItems.length : 20, CINEMA_HOT_MAX_DISPLAY);
                             if (total <= 1) return;
 
-                            if (isMobile) {
-                                cinemaHotActiveIndex = (cinemaHotActiveIndex + 1) % total;
-                                updateCinemaHot3DStage(sliderEl);
-                            } else {
-                                // Trên desktop: Tuyệt đối không can thiệp nếu user đang hover chuột hoặc đang cuộn/kéo
-                                if (_cinemaHotIsUserInteracting || sliderEl.matches(':hover') || sliderEl.classList.contains('is-smooth-dragging') || sliderEl.classList.contains('is-slider-scrolling')) {
-                                    return;
-                                }
-                                if (sliderEl.scrollLeft + sliderEl.clientWidth >= sliderEl.scrollWidth - 15) {
-                                    sliderEl.scrollTo({ left: 0, behavior: 'smooth' });
-                                } else {
-                                    sliderEl.scrollBy({ left: 200, behavior: 'smooth' });
-                                }
-                            }
+                            cinemaHotActiveIndex = (cinemaHotActiveIndex + 1) % total;
+                            updateCinemaHot3DStage(sliderEl);
                         }
 
                         function scheduleCinemaHotAuto(delay = CINEMA_HOT_AUTO_INTERVAL) {
                             stopCinemaHotAuto();
+                            // Chỉ chạy auto-slide trên màn hình Mobile cho hiệu ứng 3D Coverflow
+                            if (window.innerWidth >= 640) return;
                             if (!_cinemaHotIsVisible || document.hidden || _cinemaHotIsUserInteracting) return;
                             _cinemaHotAutoTimer = setTimeout(() => {
-                                if (!_cinemaHotIsVisible || document.hidden || _cinemaHotIsUserInteracting) return;
+                                if (window.innerWidth >= 640 || !_cinemaHotIsVisible || document.hidden || _cinemaHotIsUserInteracting) return;
                                 advanceCinemaHot();
                                 scheduleCinemaHotAuto(CINEMA_HOT_AUTO_INTERVAL);
                             }, delay);
@@ -4735,15 +4718,15 @@
                                     const secObserver = new IntersectionObserver((entries) => {
                                         entries.forEach(entry => {
                                             _cinemaHotIsVisible = entry.isIntersecting;
-                                            if (_cinemaHotIsVisible && !document.hidden && !_cinemaHotIsUserInteracting) {
-                                                scheduleCinemaHotAuto(3500); // Khi cuộn vào khung nhìn, chờ 3.5s rồi bắt đầu tự động chuyển
+                                            if (window.innerWidth < 640 && _cinemaHotIsVisible && !document.hidden && !_cinemaHotIsUserInteracting) {
+                                                scheduleCinemaHotAuto(3500); // Khi cuộn vào khung nhìn trên Mobile, chờ 3.5s rồi tự động chuyển
                                             } else {
                                                 stopCinemaHotAuto(); // Lập tức dừng khi cuộn ra khỏi màn hình
                                             }
                                         });
                                     }, { threshold: 0.15 });
                                     secObserver.observe(targetSec);
-                                } else {
+                                } else if (window.innerWidth < 640) {
                                     _cinemaHotIsVisible = true;
                                     scheduleCinemaHotAuto(3500);
                                 }
@@ -4752,7 +4735,7 @@
                                 document.addEventListener('visibilitychange', () => {
                                     if (document.hidden) {
                                         stopCinemaHotAuto();
-                                    } else if (_cinemaHotIsVisible && !_cinemaHotIsUserInteracting) {
+                                    } else if (window.innerWidth < 640 && _cinemaHotIsVisible && !_cinemaHotIsUserInteracting) {
                                         scheduleCinemaHotAuto(3000);
                                     }
                                 });
@@ -4888,27 +4871,6 @@
                         loadDeCuSlider();
                         loadCinemaHotSlider();
 
-                        // 🚀 TỐI ƯU HÓA CUỘN KHÔNG BỊ GIẬT LAG: KHÓA POINTER-EVENTS KHI ĐANG CUỘN
-                        (function() {
-                            const deCuEl = document.getElementById('slider-de-cu');
-                            if (deCuEl) {
-                                let t;
-                                deCuEl.addEventListener('scroll', () => {
-                                    deCuEl.classList.add('is-slider-scrolling');
-                                    clearTimeout(t);
-                                    t = setTimeout(() => deCuEl.classList.remove('is-slider-scrolling'), 120);
-                                }, { passive: true });
-                            }
-                            const cinEl = document.getElementById('slider-cinema-hot');
-                            if (cinEl) {
-                                let t;
-                                cinEl.addEventListener('scroll', () => {
-                                    cinEl.classList.add('is-slider-scrolling');
-                                    clearTimeout(t);
-                                    t = setTimeout(() => cinEl.classList.remove('is-slider-scrolling'), 120);
-                                }, { passive: true });
-                            }
-                        })();
 
                         // ==========================================
                         // 💬 HOMEPAGE COMMUNITY COMMENTS SHOWCASE (0ms Instant Cache + SWR)
