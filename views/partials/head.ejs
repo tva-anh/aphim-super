@@ -1,6 +1,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
 <script>
     (function () {
         try {
@@ -25,6 +26,11 @@
                 document.documentElement.classList.add('user-logged-in');
             } else {
                 document.documentElement.classList.add('user-guest');
+            }
+
+            // ⚡ Chống co nhỏ / biến dạng toàn trang khi vô tình chạm đa điểm trên Mobile
+            if (typeof window !== 'undefined') {
+                window.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
             }
         } catch (e) { }
     })();
@@ -160,10 +166,17 @@
                 scroll-behavior: auto !important;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
+                overflow-x: hidden !important;
+                width: 100% !important;
+                max-width: 100vw !important;
             }
 
             body {
                 padding-top: 64px !important;
+                overflow-x: hidden !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                position: relative !important;
             }
 
             /* Only pages with full-bleed top banner have 0px body padding */

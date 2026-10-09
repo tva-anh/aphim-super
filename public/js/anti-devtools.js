@@ -86,13 +86,4 @@
         e.stopPropagation();
         return false;
     }, true);
-
-    // 4. BẪY ĐÓNG BĂNG DEBUGGER NẾU CỐ TÌNH MỞ DEVTOOLS BẰNG MENU TRÌNH DUYỆT
-    setInterval(() => {
-        try {
-            (function() {
-                return false;
-            }['constructor']('debugger')['call']());
-        } catch (e) {}
-    }, 2000);
 })();

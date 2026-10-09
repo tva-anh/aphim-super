@@ -19,7 +19,8 @@
         margin-right: 0 !important;
         margin-top: 2px;
         margin-bottom: 24px;
-        overflow-x: clip;
+        overflow: hidden !important;
+        max-width: 100vw !important;
         user-select: none;
         -webkit-user-select: none;
         padding-bottom: 6px;
@@ -79,9 +80,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        touch-action: pan-y pinch-zoom;
+        touch-action: pan-y !important;
         z-index: 2;
-        overflow: visible;
+        overflow: hidden !important;
+        max-width: 100% !important;
         margin: 0 auto 16px auto;
     }
 
@@ -90,17 +92,17 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
-        width: 340px;
-        height: 340px;
-        max-height: 340px;
+        transform: translate(-50%, -50%) translateZ(0);
+        width: 320px;
+        height: 320px;
+        max-height: 320px;
         background: radial-gradient(circle, var(--showcase-ambient-color, rgba(245, 158, 11, 0.45)) 0%, var(--showcase-ambient-sub, rgba(217, 119, 6, 0.15)) 45%, transparent 72%);
-        filter: blur(48px);
+        filter: blur(28px);
         pointer-events: none;
         z-index: 0;
         transition: background 0.75s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: background;
         opacity: 0.95;
+        contain: strict;
     }
 
     .showcase-3d-card-track {
@@ -193,6 +195,7 @@
         opacity: 0;
         z-index: 10;
         pointer-events: none;
+        visibility: hidden !important;
     }
 
     /* State +2: Far Right */
@@ -201,6 +204,7 @@
         opacity: 0;
         z-index: 10;
         pointer-events: none;
+        visibility: hidden !important;
     }
 
     /* Responsive fine-tuning for standard mobile (390px - 430px: iPhone 13/14/15/16 Pro Max, Plus, Standard) */
@@ -262,6 +266,7 @@
         transform: translate3d(-50%, -50%, -220px) scale(0.5);
         z-index: 0;
         pointer-events: none;
+        visibility: hidden !important;
     }
 
     /* ─── MOVIE INFORMATION PANEL (KHÔNG ÁNH XẠ, GIỮ BỐ CỤC SẠCH ĐẸP) ─── */

@@ -46,7 +46,7 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
     .aphim-catfish-close {
         position: absolute !important;
         top: -11px !important;
-        right: -8px !important;
+        right: 0px !important;
         width: 26px !important;
         height: 26px !important;
         border-radius: 50% !important;
@@ -85,9 +85,9 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
     }
     .aphim-catfish-mobile {
         display: none !important;
-        width: 380px !important;
+        width: min(380px, calc(100vw - 20px)) !important;
         height: 56px !important;
-        max-width: 95vw !important;
+        max-width: calc(100vw - 20px) !important;
         object-fit: fill !important;
         border-radius: 6px !important;
         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45) !important;

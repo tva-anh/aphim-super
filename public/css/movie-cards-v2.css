@@ -256,7 +256,9 @@ main > section:first-child .section-header {
     padding-bottom: 148% !important; /* Increased vertical height proportion */
     border-radius: 13px !important;
     overflow: hidden !important;
-    background: #151821 !important;
+    background: linear-gradient(110deg, #181c26 8%, #252c3c 18%, #181c26 33%) !important;
+    background-size: 200% 100% !important;
+    animation: deCuCardShimmer 1.8s infinite linear !important;
     border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
     transform-origin: center center !important;
     transform: translateZ(0) !important;
@@ -264,6 +266,17 @@ main > section:first-child .section-header {
     will-change: transform !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
+}
+
+html.light-mode .de-cu-card .de-cu-poster-wrap {
+    background: linear-gradient(110deg, #e2e8f0 8%, #edf2f7 18%, #e2e8f0 33%) !important;
+    background-size: 200% 100% !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+@keyframes deCuCardShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 /* Đồng bộ bo góc GPU siêu mượt, loại bỏ clip-path phần mềm gây nghẽn CPU */

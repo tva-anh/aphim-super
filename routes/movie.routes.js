@@ -2,6 +2,8 @@
  * routes/movie.routes.js
  * Quản lý danh sách phim ẩn — MongoDB (thay thế BLOCKED_SLUGS trong RAM)
  */
+const dns = require('dns');
+try { dns.setDefaultResultOrder('ipv4first'); } catch (e) {}
 const express = require('express');
 const router  = express.Router();
 const { requireAdmin } = require('../middleware/adminAuth.middleware');
@@ -400,6 +402,7 @@ router.get('/cinema-hot', async (req, res) => {
 // ── GET /api/movies/trending-24h — Lấy phim xu hướng 24h chuẩn Google Trends (Khám phá "xem phim" 24h qua) ───
 let trending24hCache = null;
 let trending24hCacheTime = 0;
+let isRefreshingTrending = false;
 const TRENDING_24H_TTL = 20 * 60 * 1000; // 20 phút RAM cache
 
 function extractMovieTitle(rawQuery) {
@@ -426,7 +429,7 @@ async function fetchGoogleTrendsExploreVN() {
                 'Accept-Language': 'vi,en;q=0.9',
                 'Referer': 'https://trends.google.com.vn/trends/explore?date=now%201-d&geo=VN&q=xem%20phim'
             },
-            timeout: 6000
+            timeout: 5000
         });
 
         const initRes = await jar.get('https://trends.google.com.vn/');
@@ -463,30 +466,31 @@ async function fetchGoogleTrendsExploreVN() {
         const top = wData.default?.rankedList?.[0]?.rankedKeyword || [];
         const rising = wData.default?.rankedList?.[1]?.rankedKeyword || [];
 
-        // Ưu tiên danh sách cụm từ tìm kiếm tăng (Rising) lên đầu, tiếp đến là hàng đầu (Top)
         const combined = [...rising, ...top];
         return combined.map(item => ({
             query: item.query,
             traffic: item.formattedValue || 'Thịnh hành'
         }));
     } catch (err) {
-        console.warn('⚠️ Lỗi Google Trends Explore:', err.message);
         return [];
     }
 }
 
-// 2. Dự phòng & Bổ sung từ khóa gợi ý Google Search thời gian thực (đặc vụ kim tái khởi động, dấu xuân tươi sáng, thiên đường máu...)
+// 2. Dự phòng & Bổ sung từ khóa gợi ý Google Search thời gian thực
 async function fetchGoogleSuggestionsVN() {
     try {
         const queries = ['xem phim ', 'phim '];
         const list = [];
-        for (const q of queries) {
-            const res = await axios.get('https://suggestqueries.google.com/complete/search', {
+        const results = await Promise.allSettled(queries.map(q => 
+            axios.get('https://suggestqueries.google.com/complete/search', {
                 params: { client: 'chrome', q, hl: 'vi', gl: 'vn', ie: 'utf-8', oe: 'utf-8' },
-                timeout: 3000
-            });
-            if (res.data && Array.isArray(res.data[1])) {
-                res.data[1].forEach(text => {
+                timeout: 2500
+            })
+        ));
+
+        for (const res of results) {
+            if (res.status === 'fulfilled' && res.value?.data && Array.isArray(res.value.data[1])) {
+                res.value.data[1].forEach(text => {
                     list.push({ query: text, traffic: 'Tìm kiếm nhiều' });
                 });
             }
@@ -497,76 +501,147 @@ async function fetchGoogleSuggestionsVN() {
     }
 }
 
-router.get('/trending-24h', async (req, res) => {
+// Nạp nhanh danh sách phim mới cập nhật (dưới 200ms) để phản hồi tức thì
+async function fetchFastLatestMovies() {
     try {
-        if (trending24hCache && (Date.now() - trending24hCacheTime < TRENDING_24H_TTL)) {
-            res.setHeader('X-Trends-Cache', 'HIT');
-            return res.json({ success: true, source: 'cached', items: trending24hCache });
+        const hotRes = await axios.get('https://phimapi.com/v1/api/danh-sach/phim-moi-cap-nhat?page=1', { timeout: 3000 });
+        const items = hotRes.data?.data?.items || hotRes.data?.items || [];
+        return items.filter(m => m && m.slug).map(m => ({ ...m, is_google_trend: false }));
+    } catch {
+        return [];
+    }
+}
+
+// Hàm làm mới Google Trends ngầm trong background (không chặn người dùng)
+async function refreshTrending24hInBackground() {
+    if (isRefreshingTrending) return;
+    isRefreshingTrending = true;
+
+    try {
+        const [trendItemsRes, suggestsRes] = await Promise.allSettled([
+            fetchGoogleTrendsExploreVN(),
+            fetchGoogleSuggestionsVN()
+        ]);
+
+        const trendItems = [
+            ...(trendItemsRes.status === 'fulfilled' ? trendItemsRes.value : []),
+            ...(suggestsRes.status === 'fulfilled' ? suggestsRes.value : [])
+        ];
+
+        // Lọc các từ khóa tiềm năng duy nhất, tối đa 14 từ khóa chất lượng
+        const candidateMap = new Map();
+        for (const item of trendItems) {
+            const title = extractMovieTitle(item.query);
+            if (title && !candidateMap.has(title)) {
+                candidateMap.set(title, item);
+            }
+            if (candidateMap.size >= 14) break;
         }
 
-        // Lấy từ khóa xu hướng từ Google Trends Explore + Google Suggestions
-        let trendItems = await fetchGoogleTrendsExploreVN();
-        const suggests = await fetchGoogleSuggestionsVN();
-        trendItems = [...trendItems, ...suggests];
-
+        const candidates = Array.from(candidateMap.entries());
         const matchedMovies = [];
         const seenSlugs = new Set();
 
-        for (const item of trendItems) {
-            const title = extractMovieTitle(item.query);
-            if (!title) continue;
-
-            try {
-                const searchRes = await axios.get(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=5`, {
-                    timeout: 2800
-                });
-                const items = searchRes.data?.data?.items || [];
-                const titleSlug = toSlug(title);
-                const found = items.find(m => {
-                    const mSlug = toSlug(m.name || '');
-                    const oSlug = toSlug(m.origin_name || '');
-                    const slug = m.slug || '';
-                    return mSlug.includes(titleSlug) || titleSlug.includes(mSlug) ||
-                           oSlug.includes(titleSlug) || titleSlug.includes(oSlug) ||
-                           slug.includes(titleSlug);
-                });
-
-                if (found && !seenSlugs.has(found.slug)) {
-                    seenSlugs.add(found.slug);
-                    matchedMovies.push({
-                        ...found,
-                        is_google_trend: true,
-                        trend_keyword: item.query,
-                        trend_traffic: item.traffic
+        // Chạy song song theo từng batch 4 requests để không quá tải và siêu nhanh (< 1.5s tổng)
+        const batchSize = 4;
+        for (let i = 0; i < candidates.length; i += batchSize) {
+            const batch = candidates.slice(i, i + batchSize);
+            const batchPromises = batch.map(async ([title, item]) => {
+                try {
+                    const searchRes = await axios.get(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=4`, {
+                        timeout: 2500
                     });
+                    const items = searchRes.data?.data?.items || [];
+                    const titleSlug = toSlug(title);
+                    const found = items.find(m => {
+                        const mSlug = toSlug(m.name || '');
+                        const oSlug = toSlug(m.origin_name || '');
+                        const slug = m.slug || '';
+                        return mSlug.includes(titleSlug) || titleSlug.includes(mSlug) ||
+                               oSlug.includes(titleSlug) || titleSlug.includes(oSlug) ||
+                               slug.includes(titleSlug);
+                    });
+                    if (found) {
+                        return { movie: found, item };
+                    }
+                } catch (_) {}
+                return null;
+            });
+
+            const batchResults = await Promise.allSettled(batchPromises);
+            for (const r of batchResults) {
+                if (r.status === 'fulfilled' && r.value && r.value.movie) {
+                    const { movie, item } = r.value;
+                    if (!seenSlugs.has(movie.slug)) {
+                        seenSlugs.add(movie.slug);
+                        matchedMovies.push({
+                            ...movie,
+                            is_google_trend: true,
+                            trend_keyword: item.query,
+                            trend_traffic: item.traffic
+                        });
+                    }
                 }
-            } catch (_) {}
+            }
 
             if (matchedMovies.length >= 18) break;
         }
 
-        // Bổ sung phim mới cập nhật để slider luôn đủ 24 phim đẹp mắt
-        try {
-            const hotRes = await axios.get('https://phimapi.com/v1/api/danh-sach/phim-moi-cap-nhat?page=1', { timeout: 4000 });
-            const hotItems = hotRes.data?.data?.items || hotRes.data?.items || [];
-            for (const m of hotItems) {
-                if (m && m.slug && !seenSlugs.has(m.slug) && matchedMovies.length < 24) {
-                    seenSlugs.add(m.slug);
-                    matchedMovies.push({
-                        ...m,
-                        is_google_trend: false
-                    });
-                }
+        // Bổ sung phim mới cập nhật để slider đủ 24 phim
+        const latest = await fetchFastLatestMovies();
+        for (const m of latest) {
+            if (!seenSlugs.has(m.slug) && matchedMovies.length < 24) {
+                seenSlugs.add(m.slug);
+                matchedMovies.push(m);
             }
-        } catch (_) {}
+        }
 
         if (matchedMovies.length > 0) {
             trending24hCache = matchedMovies;
             trending24hCacheTime = Date.now();
         }
+    } catch (err) {
+        console.warn('⚠️ Lỗi nền refresh Google Trends 24h:', err.message);
+    } finally {
+        isRefreshingTrending = false;
+    }
+}
 
-        res.setHeader('Cache-Control', 'public, max-age=1200');
-        return res.json({ success: true, source: 'live', items: matchedMovies });
+// Khởi động làm mới cache Google Trends ngay khi server chạy
+setTimeout(() => { refreshTrending24hInBackground(); }, 2000);
+
+router.get('/trending-24h', async (req, res) => {
+    try {
+        const isFresh = trending24hCache && (Date.now() - trending24hCacheTime < TRENDING_24H_TTL);
+
+        // 1. Nếu cache còn hạn: Phản hồi tức thì < 5ms
+        if (isFresh) {
+            res.setHeader('X-Trends-Cache', 'HIT');
+            res.setHeader('Cache-Control', 'public, max-age=1200');
+            return res.json({ success: true, source: 'cached', items: trending24hCache });
+        }
+
+        // 2. Nếu cache đã hết hạn nhưng từng có dữ liệu (Stale-While-Revalidate):
+        // Phản hồi stale cache ngay lập tức cho người dùng, kích hoạt refresh ngầm!
+        if (trending24hCache && trending24hCache.length > 0) {
+            refreshTrending24hInBackground(); // Kích hoạt chạy ngầm
+            res.setHeader('X-Trends-Cache', 'STALE');
+            res.setHeader('Cache-Control', 'public, max-age=300');
+            return res.json({ success: true, source: 'stale_cached', items: trending24hCache });
+        }
+
+        // 3. Nếu server vừa khởi động chưa có cache:
+        // Kéo nhanh phim mới cập nhật (< 200ms) trả ngay để mobile không bị trắng/đen, đồng thời chạy Trends ngầm!
+        refreshTrending24hInBackground();
+        const fastMovies = await fetchFastLatestMovies();
+        if (fastMovies && fastMovies.length > 0) {
+            trending24hCache = fastMovies; // tạm thời làm cache
+            trending24hCacheTime = Date.now();
+            res.setHeader('Cache-Control', 'public, max-age=180');
+            return res.json({ success: true, source: 'fast_fallback', items: fastMovies });
+        }
+
+        return res.status(200).json({ success: true, source: 'empty', items: [] });
     } catch (err) {
         if (trending24hCache) {
             return res.json({ success: true, source: 'cached_fallback', items: trending24hCache });

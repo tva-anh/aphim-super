@@ -169,7 +169,7 @@
             <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
                 <div class="grid-poster-wrap">
                     ${topBadgesHTML ? `<div class="grid-top-badges">${topBadgesHTML}</div>` : ''}
-                    <img src="${imgUrl}" alt="${movie.name}" loading="lazy" decoding="async" fetchpriority="high" onerror="window.APhimCore.handleImgError(this)" />
+                    <img src="${imgUrl}" alt="${movie.name}" loading="lazy" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />
                     <div class="phimmoi-play-overlay">
                         <div class="phimmoi-play-btn">
                             <svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>
