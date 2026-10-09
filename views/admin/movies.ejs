@@ -18,6 +18,9 @@
           <p class="page-sub-title">Đồng bộ tự động từ nguồn Ophim / KKPhim, quản lý ẩn/hiện, ghim nổi bật và kiểm duyệt DMCA</p>
         </div>
         <div class="page-action-buttons">
+          <a href="/admin/trends" class="btn btn-outline" style="border-color: rgba(249,115,22,0.4); color: #f97316; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="flame"></i> Trends 24h (Google)
+          </a>
           <button class="btn btn-outline" onclick="AdminCore.syncMoviesNow()">
             <i data-lucide="refresh-cw"></i> Đồng Bộ API Ngay
           </button>
@@ -155,6 +158,47 @@
             Đang tải dữ liệu phim...
           </div>
           <div class="pagination-controls" id="moviesPaginationControls">
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Quản Lý Google Trends 24h -->
+      <div class="admin-modal-backdrop" id="googleTrendsModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-card" style="width: 100%; max-width: 680px; background: #12141a; border: 1px solid rgba(249,115,22,0.35); border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(249,115,22,0.08);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🔥</span>
+              <div>
+                <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #fff;">Quản Lý Google Trends 24h (Trang Chủ)</h3>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: #9ca3af;">Hiển thị trực tiếp trên mục "Phim Mới Đề Cử (Trends 24h)"</p>
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs" onclick="AdminCore.closeGoogleTrendsModal()" style="color: #9ca3af; font-size: 20px; line-height: 1; padding: 4px 8px; cursor: pointer;">✕</button>
+          </div>
+          
+          <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+            <p style="margin: 0 0 16px 0; font-size: 13px; color: #9ca3af; line-height: 1.5;">
+              Nhập hoặc dán danh sách cụm từ tìm kiếm bứt phá từ Google Trends. Hệ thống sẽ tự động tìm phim trong kho, gán huy hiệu <strong>% Tăng Trưởng</strong> thật và đưa lên đầu slider trang chủ ngay lập tức.
+            </p>
+
+            <div style="margin-bottom: 16px;">
+              <label style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: #e5e7eb; margin-bottom: 6px;">
+                <span>Cụm từ tìm kiếm &amp; Tỷ lệ tăng (Định dạng: <code>Từ khóa | % Tăng</code>):</span>
+                <span id="trendsCountTag" style="color: #f97316; font-size: 11px;">0 từ khóa</span>
+              </label>
+              <textarea id="trendsKeywordsInput" rows="9" class="form-control" style="width: 100%; font-family: monospace; font-size: 13px; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; resize: vertical; line-height: 1.6;" placeholder="xem phim phá đám sinh nhật mẹ | +550%&#10;xem phim thần thám bao thanh thiên | +130%&#10;xem phim lan hương như cố tập 1 | +110%&#10;xem phim không thể thay thế tập 1 | +80%&#10;xem phim merry berry love tập 1 | +60%"></textarea>
+            </div>
+
+            <div style="background: rgba(249,115,22,0.08); border-left: 3px solid #f97316; padding: 10px 14px; border-radius: 6px; font-size: 12px; color: #fed7aa;">
+              💡 <strong>Tự động xử lý:</strong> Hệ thống tự động bỏ các tiền tố như <em>"xem phim"</em>, <em>"tập 1"</em> để tìm phim tương ứng, đồng thời bổ sung phim mới cập nhật để thanh cuộn luôn đủ 24 phim!
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.25);">
+            <button type="button" class="btn btn-secondary" onclick="AdminCore.closeGoogleTrendsModal()">Đóng</button>
+            <button type="button" class="btn btn-primary" id="btnSaveGoogleTrends" onclick="AdminCore.saveGoogleTrends()" style="background: #f97316; border-color: #ea580c; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="check"></i> Lưu &amp; Đồng Bộ Trang Chủ Ngay
+            </button>
           </div>
         </div>
       </div>

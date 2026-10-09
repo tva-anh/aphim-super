@@ -8,6 +8,7 @@
   'use strict';
 
   window.AdminCore = window.AdminCore || {};
+  const AdminCore = window.AdminCore;
 
   const CONFIG = {
     API_BASE: '/api',
@@ -1570,6 +1571,165 @@
       showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
     }
   }
+
+  // ─── GOOGLE TRENDS 24H CONTROLLER ───
+  function ensureGoogleTrendsModalDOM() {
+    let modal = document.getElementById('googleTrendsModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'googleTrendsModal';
+      modal.className = 'admin-modal-backdrop';
+      modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:999999;align-items:center;justify-content:center;padding:20px;';
+      modal.innerHTML = `
+        <div class="glass-card" style="width: 100%; max-width: 680px; background: #12141a; border: 1px solid rgba(249,115,22,0.35); border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(249,115,22,0.08);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🔥</span>
+              <div>
+                <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #fff;">Quản Lý Google Trends 24h (Trang Chủ)</h3>
+                <p style="margin: 2px 0 0 0; font-size: 12px; color: #9ca3af;">Hiển thị trực tiếp trên mục "Phim Mới Đề Cử (Trends 24h)"</p>
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs" onclick="AdminCore.closeGoogleTrendsModal()" style="color: #9ca3af; font-size: 20px; line-height: 1; padding: 4px 8px; cursor: pointer;">✕</button>
+          </div>
+          
+          <div style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+            <p style="margin: 0 0 16px 0; font-size: 13px; color: #9ca3af; line-height: 1.5;">
+              Nhập hoặc dán danh sách cụm từ tìm kiếm bứt phá từ Google Trends. Hệ thống sẽ tự động tìm phim trong kho, gán huy hiệu <strong>% Tăng Trưởng</strong> thật và đưa lên đầu slider trang chủ ngay lập tức.
+            </p>
+
+            <div style="margin-bottom: 16px;">
+              <label style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: #e5e7eb; margin-bottom: 6px;">
+                <span>Cụm từ tìm kiếm &amp; Tỷ lệ tăng (Định dạng: <code>Từ khóa | % Tăng</code>):</span>
+                <span id="trendsCountTag" style="color: #f97316; font-size: 11px;">0 từ khóa</span>
+              </label>
+              <textarea id="trendsKeywordsInput" rows="9" class="form-control" style="width: 100%; font-family: monospace; font-size: 13px; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; resize: vertical; line-height: 1.6;" placeholder="xem phim phá đám sinh nhật mẹ | +550%&#10;xem phim thần thám bao thanh thiên | +130%&#10;xem phim lan hương như cố tập 1 | +110%&#10;xem phim không thể thay thế tập 1 | +80%&#10;xem phim merry berry love tập 1 | +60%"></textarea>
+            </div>
+
+            <div style="background: rgba(249,115,22,0.08); border-left: 3px solid #f97316; padding: 10px 14px; border-radius: 6px; font-size: 12px; color: #fed7aa;">
+              💡 <strong>Tự động xử lý:</strong> Hệ thống tự động bỏ các tiền tố như <em>"xem phim"</em>, <em>"tập 1"</em> để tìm phim tương ứng, đồng thời bổ sung phim mới cập nhật để thanh cuộn luôn đủ 24 phim!
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.25);">
+            <button type="button" class="btn btn-secondary" onclick="AdminCore.closeGoogleTrendsModal()">Đóng</button>
+            <button type="button" class="btn btn-primary" id="btnSaveGoogleTrends" onclick="AdminCore.saveGoogleTrends()" style="background: #f97316; border-color: #ea580c; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="check"></i> Lưu &amp; Đồng Bộ Trang Chủ Ngay
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+    return modal;
+  }
+
+  async function openGoogleTrendsModal() {
+    const modal = ensureGoogleTrendsModalDOM();
+    const textarea = document.getElementById('trendsKeywordsInput');
+    const countTag = document.getElementById('trendsCountTag');
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    if (textarea) {
+      textarea.value = 'Đang tải dữ liệu từ máy chủ...';
+      textarea.disabled = true;
+    }
+
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/trends', {
+        headers: { 'Authorization': 'Bearer ' + token },
+        credentials: 'same-origin'
+      });
+      const data = await res.json();
+      if (data && data.success && Array.isArray(data.items)) {
+        const lines = data.items.map(it => {
+          const q = it.query || it.title || '';
+          const t = it.traffic ? ` | ${it.traffic}` : '';
+          return `${q}${t}`;
+        });
+        if (textarea) {
+          textarea.value = lines.join('\n');
+          textarea.disabled = false;
+        }
+        if (countTag) countTag.textContent = `${data.items.length} từ khóa`;
+      }
+    } catch (e) {
+      showToast('Lỗi tải dữ liệu Trends: ' + e.message, 'error');
+      if (textarea) textarea.disabled = false;
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function closeGoogleTrendsModal() {
+    const modal = document.getElementById('googleTrendsModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async function saveGoogleTrends() {
+    const textarea = document.getElementById('trendsKeywordsInput');
+    const saveBtn = document.getElementById('btnSaveGoogleTrends');
+    if (!textarea) return;
+
+    const raw = textarea.value.trim();
+    if (!raw) {
+      showToast('Vui lòng nhập ít nhất 1 từ khóa Google Trends!', 'warning');
+      return;
+    }
+
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    const items = lines.map(line => {
+      const parts = line.split('|').map(p => p.trim());
+      const query = parts[0] || '';
+      const traffic = parts[1] || 'Thịnh hành';
+      return { query, traffic };
+    }).filter(it => it.query.length > 0);
+
+    if (!items.length) {
+      showToast('Danh sách từ khóa không hợp lệ!', 'warning');
+      return;
+    }
+
+    const originalText = saveBtn ? saveBtn.innerHTML : '';
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i data-lucide="loader" class="spin"></i> Đang đồng bộ...';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    try {
+      const token = getAdminToken();
+      const res = await fetch('/api/admin/trends', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ items })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        showToast(data.message || 'Đã lưu và đồng bộ Google Trends thành công!', 'success');
+        closeGoogleTrendsModal();
+      } else {
+        showToast(data.message || 'Lỗi khi lưu Google Trends', 'error');
+      }
+    } catch (e) {
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+  }
+
+  window.AdminCore.openGoogleTrendsModal = openGoogleTrendsModal;
+  window.AdminCore.closeGoogleTrendsModal = closeGoogleTrendsModal;
+  window.AdminCore.saveGoogleTrends = saveGoogleTrends;
 
   // ─── 10. LOGIN HANDLER (REAL SUPABASE AUTH) ───
   async function handleLogin() {
@@ -4144,7 +4304,23 @@
       }
     }
 
-    // 7. Header Actions & Logout
+    // 7. Google Trends 24h Page
+    if (document.getElementById('trendsTableBody')) {
+      if (window.TrendsAdmin && typeof window.TrendsAdmin.loadData === 'function') {
+        window.TrendsAdmin.loadData();
+      } else {
+        const s = document.createElement('script');
+        s.src = '/js/admin/trends.js?v=' + Date.now();
+        s.onload = () => {
+          if (window.TrendsAdmin && typeof window.TrendsAdmin.loadData === 'function') {
+            window.TrendsAdmin.loadData();
+          }
+        };
+        document.body.appendChild(s);
+      }
+    }
+
+    // 8. Header Actions & Logout
     const btnToggleMasking = document.getElementById('btnToggleMasking');
     if (btnToggleMasking) btnToggleMasking.onclick = toggleDataMasking;
     initDataMasking();

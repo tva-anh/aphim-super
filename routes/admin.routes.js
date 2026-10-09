@@ -9,6 +9,7 @@ const { supabase, supabaseAdmin } = require('../lib/supabase');
 const Gamification = require('../models/Gamification');
 const AdminLog     = require('../models/AdminLog');
 const framesMap    = require('../public/js/admin/frames-map.json');
+const trendsControl = require('../lib/trendsControl');
 
 // Fast server-side in-memory cache for admin API queries
 const adminServerCache = new Map();
@@ -1623,6 +1624,44 @@ router.get('/movies/by-status', requireAdmin, async (req, res) => {
         });
     } catch (e) {
         console.error('[Admin] Get movies by status error:', e);
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ── GET /api/admin/trends — Lấy danh sách từ khóa Google Trends 24h đang cấu hình ─────
+router.get('/trends', requireAdmin, (req, res) => {
+    try {
+        const items = trendsControl.getStoredTrends();
+        return res.json({ success: true, items });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ── POST /api/admin/trends — Lưu và đồng bộ danh sách Google Trends 24h ─────────────
+router.post('/trends', requireAdmin, async (req, res) => {
+    try {
+        const { items } = req.body;
+        if (!Array.isArray(items)) {
+            return res.status(400).json({ success: false, message: 'Dữ liệu items phải là danh sách mảng' });
+        }
+        const saveRes = trendsControl.saveStoredTrends(items);
+        if (!saveRes.success) {
+            return res.status(500).json(saveRes);
+        }
+
+        // Kích hoạt làm mới cache tức thì
+        const movieRoutes = require('./movie.routes');
+        if (typeof movieRoutes.refreshTrending24hInBackground === 'function') {
+            await movieRoutes.refreshTrending24hInBackground(true);
+        }
+
+        return res.json({
+            success: true,
+            message: `Đã lưu thành công ${saveRes.count} từ khóa Google Trends và đồng bộ ra trang chủ!`,
+            items: saveRes.items
+        });
+    } catch (e) {
         return res.status(500).json({ success: false, message: e.message });
     }
 });

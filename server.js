@@ -2403,6 +2403,15 @@ app.get('/admin/settings', (req, res) => {
     });
 });
 
+// 8. Admin Google Trends 24h Management
+app.get('/admin/trends', (req, res) => {
+    res.render('admin/trends', {
+        title: 'Quản Lý Google Trends 24h & Đề Cử',
+        activePage: 'trends',
+        pageTitle: 'Google Trends 24h'
+    });
+});
+
 // 8. Admin Login Portal
 app.get('/admin/login', (req, res) => {
     res.render('admin/login', {

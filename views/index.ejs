@@ -4408,9 +4408,9 @@
                         async function loadDeCuSlider() {
                             const sliderEl = document.getElementById('slider-de-cu');
                             if (!sliderEl) return;
-                            const cacheKey = 'aphim_de_cu_slider_trends_v10';
+                            const cacheKey = 'aphim_de_cu_slider_trends_v12';
                             try {
-                                const cached = localStorage.getItem(cacheKey) || sessionStorage.getItem('aphim_de_cu_slider_trends_v8');
+                                const cached = localStorage.getItem(cacheKey);
                                 if (cached && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
                                     sliderEl.innerHTML = cached;
                                 }

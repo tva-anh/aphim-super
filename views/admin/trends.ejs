@@ -1,0 +1,194 @@
+<%- include('partials/head', { title: 'Quản Lý Google Trends 24h & Đề Cử', activePage: 'trends' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'trends' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Google Trends 24h & Đề Cử' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row" style="margin-bottom: 24px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(249,115,22,0.15); color: #f97316;">
+              <i data-lucide="flame"></i>
+            </span>
+            <h1 class="page-main-title" style="margin: 0;">Quản Lý Google Trends 24h</h1>
+          </div>
+          <p class="page-sub-title">Đồng bộ chuẩn xác 100% các phim bứt phá từ Google Trends vào slider "Phim Mới Đề Cử" trên trang chủ với huy hiệu % tăng trưởng thật.</p>
+        </div>
+        <div class="page-action-buttons" style="display: flex; gap: 10px; align-items: center;">
+          <a href="https://trends.google.com.vn/trends/explore?date=now%201-d&geo=VN&q=xem%20phim" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="external-link"></i> Mở Google Trends
+          </a>
+          <button type="button" class="btn btn-outline" onclick="window.TrendsAdmin.loadData()" title="Tải lại dữ liệu">
+            <i data-lucide="rotate-ccw"></i> Tải Lại
+          </button>
+          <button type="button" class="btn btn-primary" id="btnSaveTopTrends" onclick="window.TrendsAdmin.saveAll()" style="background: #f97316; border-color: #ea580c; display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="save"></i> Lưu &amp; Đồng Bộ Trang Chủ
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Stat Cards Ribbon -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="glass-card" style="padding: 18px 20px; border-radius: 14px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Từ Khóa Đang Chạy</span>
+            <span style="color: #f97316;"><i data-lucide="hash"></i></span>
+          </div>
+          <div style="font-size: 26px; font-weight: 800; color: #fff;" id="kpiTotalKeywords">0</div>
+          <div style="font-size: 12px; color: #10b981; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Đang áp dụng trên Slider 24h
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 18px 20px; border-radius: 14px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Tăng Trưởng Cao Nhất</span>
+            <span style="color: #ec4899;"><i data-lucide="trending-up"></i></span>
+          </div>
+          <div style="font-size: 26px; font-weight: 800; color: #f97316;" id="kpiMaxGrowth">+550%</div>
+          <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="kpiMaxMovie">Phá Đám: Sinh Nhật Mẹ</div>
+        </div>
+
+        <div class="glass-card" style="padding: 18px 20px; border-radius: 14px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Khớp Kho Phim (API)</span>
+            <span style="color: #38bdf8;"><i data-lucide="film"></i></span>
+          </div>
+          <div style="font-size: 26px; font-weight: 800; color: #38bdf8;" id="kpiMatchedCount">9 / 9</div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Tự động map theo tên tiếng Việt/Anh</div>
+        </div>
+
+        <div class="glass-card" style="padding: 18px 20px; border-radius: 14px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Trạng Thái Slider</span>
+            <span style="color: #10b981;"><i data-lucide="radio"></i></span>
+          </div>
+          <div style="font-size: 26px; font-weight: 800; color: #10b981;">ONLINE</div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Trends + Phim mới = 24 phim</div>
+        </div>
+      </div>
+
+      <!-- Main Two-Column Workspace -->
+      <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
+        
+        <!-- Left Column: Data Grid of Trends Keywords -->
+        <div class="glass-card" style="border-radius: 16px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(255,255,255,0.08); overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div>
+              <h2 style="font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Danh Sách Từ Khóa Trends 24h</h2>
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">Thứ tự từ trên xuống dưới tương ứng với vị trí hiển thị trên slider trang chủ</p>
+            </div>
+            <button type="button" class="btn btn-xs btn-outline" onclick="window.TrendsAdmin.addNewRow()" style="display: inline-flex; align-items: center; gap: 4px;">
+              <i data-lucide="plus"></i> Thêm Dòng
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: rgba(0,0,0,0.2); text-align: left;">
+                  <th style="width: 50px; text-align: center; padding: 12px 14px;">#</th>
+                  <th style="padding: 12px 14px;">Cụm Từ Google Trends</th>
+                  <th style="width: 130px; padding: 12px 14px;">Tăng Trưởng</th>
+                  <th style="padding: 12px 14px;">Phim Tương Ứng (Kho Phim)</th>
+                  <th style="width: 80px; text-align: right; padding: 12px 14px;">Xóa</th>
+                </tr>
+              </thead>
+              <tbody id="trendsTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px; margin-bottom: 8px;"></i>
+                    <div>Đang tải danh sách Google Trends...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Column: Quick Import / Bulk Paste & Live Simulator -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <!-- Bulk Import Tool -->
+          <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <span style="color: #f97316;"><i data-lucide="copy"></i></span>
+              <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin: 0;">Nhập Nhanh Hàng Loạt (Bulk Paste)</h3>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 12px;">
+              Dán danh sách từ khóa copy từ Google Trends. Định dạng mỗi dòng: <code>Từ khóa | % Tăng</code> hoặc chỉ tên phim.
+            </p>
+            
+            <textarea id="bulkPasteTextarea" rows="8" class="form-control" style="width: 100%; font-family: monospace; font-size: 12px; line-height: 1.5; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; margin-bottom: 12px; resize: vertical;" placeholder="xem phim phá đám sinh nhật mẹ | +550%&#10;xem phim thần thám bao thanh thiên | +130%&#10;xem phim lan hương như cố tập 1 | +110%&#10;xem phim không thể thay thế tập 1 | +80%&#10;xem phim merry berry love tập 1 | +60%"></textarea>
+
+            <button type="button" class="btn btn-secondary btn-block" onclick="window.TrendsAdmin.applyBulkPaste()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <i data-lucide="arrow-down-circle"></i> Đưa Vào Bảng &amp; Kiểm Tra
+            </button>
+          </div>
+
+          <!-- Live Card Preview Simulator -->
+          <div class="glass-card" style="padding: 20px; border-radius: 16px; background: rgba(18, 20, 29, 0.7); border: 1px solid rgba(249,115,22,0.25);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+              <span style="color: #f97316;"><i data-lucide="sparkles"></i></span>
+              <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin: 0;">Mô Phỏng Thẻ Phim Trang Chủ</h3>
+            </div>
+            
+            <!-- Mock Card Container -->
+            <div style="display: flex; justify-content: center;">
+              <div style="width: 190px; background: #0c0e14; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                <div style="position: relative; width: 100%; aspect-ratio: 2/3; background: #1a1e29;">
+                  <img id="previewCardPoster" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300'" />
+                  
+                  <div style="position: absolute; top: 6px; left: 6px; display: flex; gap: 4px;">
+                    <span style="background: #e50914; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px;">TRENDS</span>
+                    <span style="background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;">Vietsub</span>
+                    <span style="background: rgba(234,179,8,0.9); color: #000; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px;">FHD</span>
+                  </div>
+
+                  <div style="position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #facc15; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">
+                    Full
+                  </div>
+                </div>
+
+                <div style="padding: 10px 10px 12px 10px;">
+                  <div id="previewCardTitleVi" style="font-size: 13px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px;">
+                    Phá Đám: Sinh Nhật Mẹ
+                  </div>
+                  <div id="previewCardTitleEn" style="font-size: 11px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span style="color: #ff6a00; font-weight: 700;">🔥 +550%</span> Spoiled: Mom's Birthday Party
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 12px 0 0 0;">
+              ✨ Huy hiệu <strong>🔥 +550%</strong> hiển thị trực tiếp dưới tên phim trên cả PC &amp; Mobile!
+            </p>
+          </div>
+
+        </div>
+
+      <!-- Dedicated Script -->
+      <script src="/js/admin/trends.js?v=7"></script>
+      <script>
+        if (window.TrendsAdmin && typeof window.TrendsAdmin.loadData === 'function') {
+          window.TrendsAdmin.loadData();
+        }
+      </script>
+    </main>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

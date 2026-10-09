@@ -9,6 +9,7 @@ const router  = express.Router();
 const { requireAdmin } = require('../middleware/adminAuth.middleware');
 const MovieOverride = require('../models/MovieOverride');
 const AdminLog      = require('../models/AdminLog');
+const trendsControl = require('../lib/trendsControl');
 
 // ── GET /api/movies/hidden/list — Public, dùng cho client filter ─────────────
 router.get('/hidden/list', async (req, res) => {
@@ -512,45 +513,49 @@ async function fetchFastLatestMovies() {
     }
 }
 
-// Hàm làm mới Google Trends ngầm trong background (không chặn người dùng)
-async function refreshTrending24hInBackground() {
-    if (isRefreshingTrending) return;
+// Hàm làm mới Google Trends ngầm trong background (sử dụng trendsControl làm chuẩn xác)
+async function refreshTrending24hInBackground(force = false) {
+    if (isRefreshingTrending && !force) return;
     isRefreshingTrending = true;
 
     try {
-        const [trendItemsRes, suggestsRes] = await Promise.allSettled([
-            fetchGoogleTrendsExploreVN(),
-            fetchGoogleSuggestionsVN()
-        ]);
-
-        const trendItems = [
-            ...(trendItemsRes.status === 'fulfilled' ? trendItemsRes.value : []),
-            ...(suggestsRes.status === 'fulfilled' ? suggestsRes.value : [])
-        ];
-
-        // Lọc các từ khóa tiềm năng duy nhất, tối đa 14 từ khóa chất lượng
-        const candidateMap = new Map();
-        for (const item of trendItems) {
-            const title = extractMovieTitle(item.query);
-            if (title && !candidateMap.has(title)) {
-                candidateMap.set(title, item);
+        let matchedMovies = [];
+        // 1. Nguồn ưu tiên cao nhất: Dữ liệu Google Trends chuẩn xác từ data/google_trends.json
+        try {
+            const storedTrends = trendsControl.getStoredTrends();
+            if (storedTrends && storedTrends.length > 0) {
+                matchedMovies = await trendsControl.matchTrendsWithMovies(storedTrends);
             }
-            if (candidateMap.size >= 14) break;
+        } catch (e) {
+            console.warn('⚠️ Lỗi matchTrendsWithMovies:', e.message);
         }
 
-        const candidates = Array.from(candidateMap.entries());
-        const matchedMovies = [];
-        const seenSlugs = new Set();
+        // 2. Dự phòng: Nếu trendsControl chưa có phim, mới thử các nguồn trực tuyến
+        if (!matchedMovies.length) {
+            const [trendItemsRes, suggestsRes] = await Promise.allSettled([
+                fetchGoogleTrendsExploreVN(),
+                fetchGoogleSuggestionsVN()
+            ]);
 
-        // Chạy song song theo từng batch 4 requests để không quá tải và siêu nhanh (< 1.5s tổng)
-        const batchSize = 4;
-        for (let i = 0; i < candidates.length; i += batchSize) {
-            const batch = candidates.slice(i, i + batchSize);
-            const batchPromises = batch.map(async ([title, item]) => {
+            const trendItems = [
+                ...(trendItemsRes.status === 'fulfilled' ? trendItemsRes.value : []),
+                ...(suggestsRes.status === 'fulfilled' ? suggestsRes.value : [])
+            ];
+
+            const candidateMap = new Map();
+            for (const item of trendItems) {
+                const title = extractMovieTitle(item.query);
+                if (title && !candidateMap.has(title)) {
+                    candidateMap.set(title, item);
+                }
+                if (candidateMap.size >= 14) break;
+            }
+
+            const candidates = Array.from(candidateMap.entries());
+            const seen = new Set();
+            for (const [title, item] of candidates) {
                 try {
-                    const searchRes = await axios.get(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=4`, {
-                        timeout: 2500
-                    });
+                    const searchRes = await axios.get(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(title)}&limit=4`, { timeout: 2500 });
                     const items = searchRes.data?.data?.items || [];
                     const titleSlug = toSlug(title);
                     const found = items.find(m => {
@@ -561,33 +566,21 @@ async function refreshTrending24hInBackground() {
                                oSlug.includes(titleSlug) || titleSlug.includes(oSlug) ||
                                slug.includes(titleSlug);
                     });
-                    if (found) {
-                        return { movie: found, item };
-                    }
-                } catch (_) {}
-                return null;
-            });
-
-            const batchResults = await Promise.allSettled(batchPromises);
-            for (const r of batchResults) {
-                if (r.status === 'fulfilled' && r.value && r.value.movie) {
-                    const { movie, item } = r.value;
-                    if (!seenSlugs.has(movie.slug)) {
-                        seenSlugs.add(movie.slug);
+                    if (found && !seen.has(found.slug)) {
+                        seen.add(found.slug);
                         matchedMovies.push({
-                            ...movie,
+                            ...found,
                             is_google_trend: true,
                             trend_keyword: item.query,
                             trend_traffic: item.traffic
                         });
                     }
-                }
+                } catch (_) {}
             }
-
-            if (matchedMovies.length >= 18) break;
         }
 
-        // Bổ sung phim mới cập nhật để slider đủ 24 phim
+        // 3. Bổ sung phim mới cập nhật để slider đủ 24 phim
+        const seenSlugs = new Set(matchedMovies.map(m => m.slug));
         const latest = await fetchFastLatestMovies();
         for (const m of latest) {
             if (!seenSlugs.has(m.slug) && matchedMovies.length < 24) {
@@ -608,10 +601,17 @@ async function refreshTrending24hInBackground() {
 }
 
 // Khởi động làm mới cache Google Trends ngay khi server chạy
-setTimeout(() => { refreshTrending24hInBackground(); }, 2000);
+setTimeout(() => { refreshTrending24hInBackground(); }, 1500);
 
 router.get('/trending-24h', async (req, res) => {
     try {
+        const force = req.query.force === '1' || req.query.refresh === '1';
+        if (force) {
+            await refreshTrending24hInBackground(true);
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            return res.json({ success: true, source: 'forced_refreshed', items: trending24hCache || [] });
+        }
+
         const isFresh = trending24hCache && (Date.now() - trending24hCacheTime < TRENDING_24H_TTL);
 
         // 1. Nếu cache còn hạn: Phản hồi tức thì < 5ms
@@ -622,7 +622,6 @@ router.get('/trending-24h', async (req, res) => {
         }
 
         // 2. Nếu cache đã hết hạn nhưng từng có dữ liệu (Stale-While-Revalidate):
-        // Phản hồi stale cache ngay lập tức cho người dùng, kích hoạt refresh ngầm!
         if (trending24hCache && trending24hCache.length > 0) {
             refreshTrending24hInBackground(); // Kích hoạt chạy ngầm
             res.setHeader('X-Trends-Cache', 'STALE');
@@ -631,17 +630,14 @@ router.get('/trending-24h', async (req, res) => {
         }
 
         // 3. Nếu server vừa khởi động chưa có cache:
-        // Kéo nhanh phim mới cập nhật (< 200ms) trả ngay để mobile không bị trắng/đen, đồng thời chạy Trends ngầm!
-        refreshTrending24hInBackground();
-        const fastMovies = await fetchFastLatestMovies();
-        if (fastMovies && fastMovies.length > 0) {
-            trending24hCache = fastMovies; // tạm thời làm cache
-            trending24hCacheTime = Date.now();
+        await refreshTrending24hInBackground();
+        if (trending24hCache && trending24hCache.length > 0) {
             res.setHeader('Cache-Control', 'public, max-age=180');
-            return res.json({ success: true, source: 'fast_fallback', items: fastMovies });
+            return res.json({ success: true, source: 'live', items: trending24hCache });
         }
 
-        return res.status(200).json({ success: true, source: 'empty', items: [] });
+        const fastMovies = await fetchFastLatestMovies();
+        return res.json({ success: true, source: 'fast_fallback', items: fastMovies || [] });
     } catch (err) {
         if (trending24hCache) {
             return res.json({ success: true, source: 'cached_fallback', items: trending24hCache });
@@ -650,5 +646,6 @@ router.get('/trending-24h', async (req, res) => {
     }
 });
 
+router.refreshTrending24hInBackground = refreshTrending24hInBackground;
 module.exports = router;
 
