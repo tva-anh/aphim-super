@@ -1,14 +1,4 @@
 <!-- 🐱 APHIM BOTTOM STICKY CATFISH BANNER (2x2 Desktop, Stacked Mobile) -->
-<% 
-// Ẩn hoàn toàn trên trang Thông tin phim (/phim/), Trang xem phim (/xem-phim/), và Trang Profile (/profile, /tai-khoan)
-const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMovie) || 
-                              (typeof movie !== 'undefined' && movie) || 
-                              (typeof pageType !== 'undefined' && (pageType === 'phim' || pageType === 'watch' || pageType === 'profile' || pageType === 'account')) ||
-                              (typeof activePage !== 'undefined' && (activePage === 'profile' || activePage === 'account')) ||
-                              (typeof isProfilePage !== 'undefined' && isProfilePage) ||
-                              (typeof isWatchPage !== 'undefined' && isWatchPage);
-%>
-<% if (!isHiddenCatOnThisPage) { %>
 <style>
     .aphim-catfish-wrapper {
         position: fixed !important;
@@ -122,6 +112,15 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
             width: 24px !important;
             height: 24px !important;
         }
+        /* Mobile: Ẩn trên các trang thông tin phim (/phim/), xem phim (/xem-phim/), tài khoản (/profile) */
+        body.page-phim-detail .aphim-catfish-wrapper,
+        body.is-watch-page .aphim-catfish-wrapper,
+        body.page-profile .aphim-catfish-wrapper,
+        body:has(#watchLayout) .aphim-catfish-wrapper,
+        body:has(.watch-container) .aphim-catfish-wrapper,
+        body:has(.profile-layout) .aphim-catfish-wrapper {
+            display: none !important;
+        }
     }
 </style>
 
@@ -189,35 +188,68 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
 
 <script>
     (function() {
-        // Client-side safety check: Hide on /phim/, /xem-phim/, /profile, /tai-khoan
-        if (window.location.pathname.startsWith('/phim') || 
-            window.location.pathname.startsWith('/xem-phim') ||
-            window.location.pathname.startsWith('/profile') ||
-            window.location.pathname.startsWith('/tai-khoan') ||
-            document.querySelector('.profile-layout') ||
-            document.getElementById('profileSidebar')) {
-            var el = document.getElementById('aphimAdCatfish');
-            if (el) {
-                el.style.setProperty('display', 'none', 'important');
-                if (el.parentNode) el.parentNode.removeChild(el);
-            }
-            return;
-        }
+        var catEl = document.getElementById('aphimAdCatfish');
+        if (!catEl) return;
 
         var isMobile = window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        var catEl = document.getElementById('aphimAdCatfish');
-        
-        // Tự động xóa cờ cũ localStorage nếu có để đảm bảo khi vào web mới luôn hiển thị banner
-        try {
-            localStorage.removeItem('aphim_catfish_ad_closed_mobile');
-        } catch (e) {}
+        var path = window.location.pathname || '';
 
-        // Kiểm tra trong phiên truy cập hiện tại (sessionStorage)
-        if (isMobile && sessionStorage.getItem('aphim_catfish_ad_closed_mobile') === 'true') {
-            if (catEl) {
+        // 📱 TRÊN MOBILE: Ẩn trên các trang /phim/, /xem-phim/, /profile, /tai-khoan
+        if (isMobile) {
+            if (path.startsWith('/phim') || 
+                path.startsWith('/xem-phim') ||
+                path.startsWith('/profile') ||
+                path.startsWith('/tai-khoan') ||
+                document.querySelector('.profile-layout') ||
+                document.getElementById('profileSidebar')) {
+                catEl.style.setProperty('display', 'none', 'important');
+                if (catEl.parentNode) catEl.parentNode.removeChild(catEl);
+                return;
+            }
+
+            // Mobile: Nếu đã từng bấm đóng trong phiên hiện tại thì ẩn
+            if (sessionStorage.getItem('aphim_catfish_ad_closed_mobile') === 'true') {
                 catEl.classList.add('is-hidden');
                 catEl.style.setProperty('display', 'none', 'important');
+                return;
             }
+        }
+
+        // 🖥️ TRÊN DESKTOP:
+        // Banner xuất hiện tại TẤT CẢ các trang khi user đi vào
+        if (!isMobile) {
+            // Kiểm tra xem user có vừa F5 / reload lại trang hay không
+            var isReload = false;
+            try {
+                var navEntries = performance.getEntriesByType('navigation');
+                if (navEntries && navEntries.length > 0) {
+                    isReload = (navEntries[0].type === 'reload');
+                } else if (window.performance && window.performance.navigation) {
+                    isReload = (window.performance.navigation.type === 1);
+                }
+            } catch (e) {}
+
+            // Nếu user F5 hoặc tải lại trang: Reset số lần bấm đóng để banner hiện lại bình thường
+            if (isReload) {
+                try {
+                    sessionStorage.removeItem('aphim_catfish_desktop_close_count');
+                    sessionStorage.removeItem('aphim_catfish_desktop_hidden_session');
+                } catch (e) {}
+            }
+
+            // Kiểm tra số lần user đã bấm đóng trên Desktop trong phiên hiện tại
+            var isHiddenSession = sessionStorage.getItem('aphim_catfish_desktop_hidden_session') === 'true';
+            var closeCount = parseInt(sessionStorage.getItem('aphim_catfish_desktop_close_count') || '0', 10);
+
+            // Nếu user đã ấn đóng hơn 5 lần (> 5 lần) ở bất kỳ trang nào trong phiên này -> ẩn trong suốt phiên
+            if (isHiddenSession || closeCount > 5) {
+                catEl.classList.add('is-hidden');
+                catEl.style.setProperty('display', 'none', 'important');
+                return;
+            }
+
+            // Ngược lại, nếu chưa ấn đóng quá 5 lần hoặc user không ấn tắt mà chuyển trang:
+            // Banner luôn luôn xuất hiện lại ở trang mới!
         }
 
         window.closeAphimCatfishAd = function(e) {
@@ -230,13 +262,25 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
                 el.classList.add('is-hidden');
                 el.style.setProperty('display', 'none', 'important');
             }
+
             if (isMobile) {
-                // Ghi nhớ trạng thái đóng trong phiên truy cập hiện tại (sessionStorage)
+                // Mobile: Ghi nhớ đã đóng trong phiên
                 try {
                     sessionStorage.setItem('aphim_catfish_ad_closed_mobile', 'true');
+                } catch (err) {}
+            } else {
+                // Desktop: Tăng số lần ấn đóng trong phiên
+                try {
+                    var current = parseInt(sessionStorage.getItem('aphim_catfish_desktop_close_count') || '0', 10);
+                    current += 1;
+                    sessionStorage.setItem('aphim_catfish_desktop_close_count', current.toString());
+
+                    // Khi user ấn đóng hơn 5 lần (> 5 lần): ghi nhận ẩn trong suốt phiên đó
+                    if (current > 5) {
+                        sessionStorage.setItem('aphim_catfish_desktop_hidden_session', 'true');
+                    }
                 } catch (err) {}
             }
         };
     })();
 </script>
-<% } %>
