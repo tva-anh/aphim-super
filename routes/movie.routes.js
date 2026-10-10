@@ -404,7 +404,7 @@ router.get('/cinema-hot', async (req, res) => {
 let trending24hCache = null;
 let trending24hCacheTime = 0;
 let isRefreshingTrending = false;
-const TRENDING_24H_TTL = 20 * 60 * 1000; // 20 phút RAM cache
+const TRENDING_24H_TTL = 15 * 1000; // 15 giây RAM cache để đồng bộ tức thì với thay đổi từ Admin
 
 function extractMovieTitle(rawQuery) {
     let q = (rawQuery || '').toLowerCase().trim();
@@ -617,7 +617,7 @@ router.get('/trending-24h', async (req, res) => {
         // 1. Nếu cache còn hạn: Phản hồi tức thì < 5ms
         if (isFresh) {
             res.setHeader('X-Trends-Cache', 'HIT');
-            res.setHeader('Cache-Control', 'public, max-age=1200');
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             return res.json({ success: true, source: 'cached', items: trending24hCache });
         }
 
@@ -625,14 +625,14 @@ router.get('/trending-24h', async (req, res) => {
         if (trending24hCache && trending24hCache.length > 0) {
             refreshTrending24hInBackground(); // Kích hoạt chạy ngầm
             res.setHeader('X-Trends-Cache', 'STALE');
-            res.setHeader('Cache-Control', 'public, max-age=300');
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             return res.json({ success: true, source: 'stale_cached', items: trending24hCache });
         }
 
         // 3. Nếu server vừa khởi động chưa có cache:
         await refreshTrending24hInBackground();
         if (trending24hCache && trending24hCache.length > 0) {
-            res.setHeader('Cache-Control', 'public, max-age=180');
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             return res.json({ success: true, source: 'live', items: trending24hCache });
         }
 
@@ -646,6 +646,12 @@ router.get('/trending-24h', async (req, res) => {
     }
 });
 
+function invalidateTrendingCache() {
+    trending24hCache = null;
+    trending24hCacheTime = 0;
+}
+
+router.invalidateTrendingCache = invalidateTrendingCache;
 router.refreshTrending24hInBackground = refreshTrending24hInBackground;
 module.exports = router;
 

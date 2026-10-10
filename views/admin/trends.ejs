@@ -124,14 +124,20 @@
               <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin: 0;">Nhập Nhanh Hàng Loạt (Bulk Paste)</h3>
             </div>
             <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 12px;">
-              Dán danh sách từ khóa copy từ Google Trends. Định dạng mỗi dòng: <code>Từ khóa | % Tăng</code> hoặc chỉ tên phim.
+              Dán 10 - 20 từ khóa copy từ Google Trends. Hệ thống <strong>tự động bóc tách lấy tên phim thật</strong>, loại bỏ các từ khóa chung chung (<em>lịch xem phim, hoạt hình 3d, phim hot...</em>) và <strong>khử trùng phim</strong> 100%.
             </p>
             
             <textarea id="bulkPasteTextarea" rows="8" class="form-control" style="width: 100%; font-family: monospace; font-size: 12px; line-height: 1.5; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; margin-bottom: 12px; resize: vertical;" placeholder="xem phim phá đám sinh nhật mẹ | +550%&#10;xem phim thần thám bao thanh thiên | +130%&#10;xem phim lan hương như cố tập 1 | +110%&#10;xem phim không thể thay thế tập 1 | +80%&#10;xem phim merry berry love tập 1 | +60%"></textarea>
 
-            <button type="button" class="btn btn-secondary btn-block" onclick="window.TrendsAdmin.applyBulkPaste()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <i data-lucide="arrow-down-circle"></i> Đưa Vào Bảng &amp; Kiểm Tra
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button type="button" class="btn btn-secondary btn-block" id="btnBulkCheck" onclick="window.TrendsAdmin.applyBulkPaste()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <i data-lucide="arrow-down-circle"></i> Đưa Vào Bảng &amp; Kiểm Tra
+              </button>
+
+              <button type="button" class="btn btn-primary btn-block" id="btnBulkSyncNow" onclick="window.TrendsAdmin.applyAndSaveBulk()" style="width: 100%; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none; font-weight: 700; font-size: 13px; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4); border-radius: 8px;">
+                <i data-lucide="zap"></i> 1-Click: Đưa Vào Bảng &amp; Lưu Đồng Bộ Ngay
+              </button>
+            </div>
           </div>
 
           <!-- Live Card Preview Simulator -->
@@ -176,8 +182,8 @@
 
         </div>
 
-      <!-- Dedicated Script -->
-      <script src="/js/admin/trends.js?v=7"></script>
+      <!-- Dedicated Script with Dynamic Timestamp Cache Buster -->
+      <script src="/js/admin/trends.js?v=<%= Date.now() %>"></script>
       <script>
         if (window.TrendsAdmin && typeof window.TrendsAdmin.loadData === 'function') {
           window.TrendsAdmin.loadData();

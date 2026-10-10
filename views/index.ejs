@@ -4408,7 +4408,7 @@
                         async function loadDeCuSlider() {
                             const sliderEl = document.getElementById('slider-de-cu');
                             if (!sliderEl) return;
-                            const cacheKey = 'aphim_de_cu_slider_trends_v12';
+                            const cacheKey = 'aphim_de_cu_slider_trends_v28';
                             try {
                                 const cached = localStorage.getItem(cacheKey);
                                 if (cached && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
@@ -4417,10 +4417,24 @@
                             } catch (e) { }
 
                             try {
-                                // 1. Ưu tiên nạp danh sách từ Google Trends 24h
-                                const resp = await fetch('/api/movies/trending-24h');
-                                const data = await resp.json();
-                                let items = (data && data.success && Array.isArray(data.items) && data.items.length) ? data.items : [];
+                                // 1. Ưu tiên nạp danh sách từ Google Trends 24h (tự động cập nhật tức thì, chống cache trình duyệt)
+                                let resp = null;
+                                for (let attempt = 0; attempt < 3; attempt++) {
+                                    try {
+                                        resp = await fetch('/api/movies/trending-24h?_t=' + Date.now(), { cache: 'no-store' });
+                                        if (resp && resp.ok) break;
+                                    } catch (fetchErr) {
+                                        if (attempt < 2) await new Promise(r => setTimeout(r, 600));
+                                    }
+                                }
+                                
+                                let items = [];
+                                if (resp && resp.ok) {
+                                    const data = await resp.json();
+                                    if (data && data.success && Array.isArray(data.items) && data.items.length) {
+                                        items = data.items;
+                                    }
+                                }
 
                                 // 2. Dự phòng nạp phim mới cập nhật nếu API trends gặp sự cố
                                 if (!items.length) {
@@ -4436,7 +4450,9 @@
                                         sliderEl.innerHTML = html;
                                         if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
                                     }
-                                    try { localStorage.setItem(cacheKey, html); } catch (e) { }
+                                    if (items.some(m => m.is_google_trend)) {
+                                        try { localStorage.setItem(cacheKey, html); } catch (e) { }
+                                    }
                                 }
                             } catch (err) {
                                 console.warn('Lỗi Slider Đề Cử Trends 24h:', err);

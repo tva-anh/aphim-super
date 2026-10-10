@@ -1,0 +1,19 @@
+{
+  "watch": [
+    "server.js",
+    "routes/",
+    "lib/",
+    "middleware/",
+    "models/"
+  ],
+  "ignore": [
+    "data/*",
+    "data/google_trends.json",
+    "public/*",
+    "views/*",
+    "*.log",
+    "scratch/*",
+    "node_modules/*"
+  ],
+  "ext": "js,json"
+}

@@ -1650,10 +1650,13 @@ router.post('/trends', requireAdmin, async (req, res) => {
             return res.status(500).json(saveRes);
         }
 
-        // Kích hoạt làm mới cache tức thì
+        // Kích hoạt làm mới cache tức thì trong background (không block HTTP response để tránh timeout)
         const movieRoutes = require('./movie.routes');
+        if (typeof movieRoutes.invalidateTrendingCache === 'function') {
+            movieRoutes.invalidateTrendingCache();
+        }
         if (typeof movieRoutes.refreshTrending24hInBackground === 'function') {
-            await movieRoutes.refreshTrending24hInBackground(true);
+            movieRoutes.refreshTrending24hInBackground(true).catch(e => console.warn('Background refresh error:', e.message));
         }
 
         return res.json({
