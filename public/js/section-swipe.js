@@ -155,6 +155,43 @@
 
         const now = performance.now();
         moveHistory = [{ x: e.clientX, t: now }];
+
+        // 🚀 TỐI ƯU HÓA CAO CẤP: Chỉ gắn sự kiện move/up khi thực sự bắt đầu nhấn chuột
+        attachDragListeners();
+    }
+
+    function attachDragListeners() {
+        window.addEventListener('pointermove', onPointerMove, { passive: false });
+        window.addEventListener('pointerup', onPointerUp, { passive: true });
+        window.addEventListener('pointercancel', onPointerUp, { passive: true });
+        if (!window.PointerEvent) {
+            window.addEventListener('mousemove', onPointerMove, { passive: false });
+            window.addEventListener('mouseup', onPointerUp, { passive: true });
+        }
+    }
+
+    function detachDragListeners() {
+        window.removeEventListener('pointermove', onPointerMove, { passive: false });
+        window.removeEventListener('pointerup', onPointerUp, { passive: true });
+        window.removeEventListener('pointercancel', onPointerUp, { passive: true });
+        if (!window.PointerEvent) {
+            window.removeEventListener('mousemove', onPointerMove, { passive: false });
+            window.removeEventListener('mouseup', onPointerUp, { passive: true });
+        }
+    }
+
+    function resetDragState() {
+        stopDragRaf();
+        stopMomentum();
+        if (activeContainer) {
+            activeContainer.classList.remove('is-smooth-dragging');
+            activeContainer.style.scrollBehavior = '';
+            activeContainer.style.scrollSnapType = '';
+            activeContainer = null;
+        }
+        isPointerDown = false;
+        isDragging = false;
+        detachDragListeners();
     }
 
     // ── 3. RÊ CHUỘT / POINTER MOVE — 120FPS BATCHED WITH RAF (ZERO JANK) ──
@@ -201,6 +238,7 @@
     function onPointerUp(e) {
         if (!isPointerDown) return;
 
+        detachDragListeners();
         stopDragRaf();
 
         const container = activeContainer;
@@ -284,22 +322,19 @@
         }
     }
 
-    // ── GẮN LISTENER TOÀN CỤC CHUẨN XÁC VỚI PASSIVE TỐI ƯU ──
+    // ── GẮN LISTENER BẮT ĐẦU CHUẨN XÁC — KHÔNG BAO GIỜ POINTERMOVE THỪA KHI RẢNH RỖI ──
     document.addEventListener('pointerdown', onPointerDown, { passive: true });
-    window.addEventListener('pointermove', onPointerMove, { passive: false });
-    window.addEventListener('pointerup', onPointerUp, { passive: true });
-    window.addEventListener('pointercancel', onPointerUp, { passive: true });
+    if (!window.PointerEvent) {
+        document.addEventListener('mousedown', onPointerDown, { passive: true });
+    }
 
-    // Fallback cho trình duyệt cũ
-    document.addEventListener('mousedown', (e) => {
-        if (!window.PointerEvent) onPointerDown(e);
-    }, { passive: true });
-    window.addEventListener('mousemove', (e) => {
-        if (!window.PointerEvent) onPointerMove(e);
-    }, { passive: false });
-    window.addEventListener('mouseup', (e) => {
-        if (!window.PointerEvent) onPointerUp(e);
-    }, { passive: true });
+    // ⚡ CHỐNG LAG KHI ĐỔI TAB HOẶC RỜI KHỎI TRANG: Reset sạch sẽ trạng thái
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            resetDragState();
+        }
+    });
+    window.addEventListener('blur', resetDragState);
 
     // Ngăn chặn hành vi kéo ảnh / kéo link mặc định của trình duyệt
     document.addEventListener('dragstart', function (e) {

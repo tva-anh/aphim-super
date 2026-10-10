@@ -214,13 +214,13 @@
             @media (min-width: 769px) {
 
                 .de-cu-slider,
+                .cinema-hot-slider,
                 .ranking-grid-container,
                 .country-scroll-container,
                 .cs-scroll-container,
                 .home-comments-track {
-                    will-change: scroll-position;
-                    transform: translateZ(0);
                     -webkit-overflow-scrolling: touch;
+                    contain: layout paint;
                 }
             }
 

@@ -1,4 +1,4 @@
-<!-- 🐱 APHIM BOTTOM STICKY CATFISH BANNER -->
+<!-- 🐱 APHIM BOTTOM STICKY CATFISH BANNER (2x2 Desktop, Stacked Mobile) -->
 <% 
 // Ẩn hoàn toàn trên trang Thông tin phim (/phim/), Trang xem phim (/xem-phim/), và Trang Profile (/profile, /tai-khoan)
 const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMovie) || 
@@ -40,19 +40,19 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
         margin: 0 !important;
         padding: 0 !important;
         line-height: 0 !important;
-        filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
+        filter: drop-shadow(0 4px 14px rgba(0,0,0,0.6));
     }
-    /* 🔴 White Circle with Red X Close Button */
+    /* 🔴 Nút đóng hình tròn trắng có icon X đỏ */
     .aphim-catfish-close {
         position: absolute !important;
-        top: -11px !important;
+        top: -12px !important;
         right: 0px !important;
         width: 26px !important;
         height: 26px !important;
         border-radius: 50% !important;
         background: #ffffff !important;
         border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
@@ -65,44 +65,62 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
     .aphim-catfish-close:hover {
         transform: scale(1.15) !important;
         background: #fff5f5 !important;
-        box-shadow: 0 3px 14px rgba(239, 68, 68, 0.45) !important;
+        box-shadow: 0 3px 14px rgba(239, 68, 68, 0.5) !important;
+    }
+
+    /* 📺 Desktop Grid: 2 hàng x 2 cột khớp chuẩn 100% hình mẫu */
+    .aphim-catfish-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 2px !important;
+        width: min(940px, 96vw) !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        padding: 2px !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    }
+    .aphim-catfish-link {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 0 !important;
+        overflow: hidden !important;
+        background: #000000 !important;
+        transition: opacity 0.18s ease !important;
+    }
+    .aphim-catfish-link:hover {
+        opacity: 0.92 !important;
     }
     .aphim-catfish-img {
         display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 728 / 90 !important;
+        object-fit: fill !important;
         margin: 0 !important;
         padding: 0 !important;
         border: none !important;
-        vertical-align: bottom !important;
-        line-height: 0 !important;
-    }
-    .aphim-catfish-pc {
-        display: block !important;
-        width: 640px !important;
-        height: 70px !important;
-        max-width: 90vw !important;
-        object-fit: fill !important;
-        border-radius: 6px !important;
-    }
-    .aphim-catfish-mobile {
-        display: none !important;
-        width: min(380px, calc(100vw - 20px)) !important;
-        height: 56px !important;
-        max-width: calc(100vw - 20px) !important;
-        object-fit: fill !important;
-        border-radius: 6px !important;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45) !important;
     }
 
-    /* 📱 Mobile & Tablet View: Elevate above the Bottom Navigation Dock */
+    /* 📱 Mobile View: Xếp chồng dọc 4 banner lên nhau + Nâng lên trên Bottom Nav */
     @media (max-width: 1023px) {
         .aphim-catfish-wrapper {
-            bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+            bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
         }
-        .aphim-catfish-pc {
-            display: none !important;
+        .aphim-catfish-grid {
+            grid-template-columns: 1fr !important;
+            width: min(390px, calc(100vw - 16px)) !important;
+            gap: 2px !important;
+            padding: 2px !important;
+            border-radius: 6px !important;
         }
-        .aphim-catfish-mobile {
-            display: block !important;
+        .aphim-catfish-close {
+            top: -11px !important;
+            right: 0px !important;
+            width: 24px !important;
+            height: 24px !important;
         }
     }
 </style>
@@ -124,22 +142,48 @@ const isHiddenCatOnThisPage = (typeof currentMovie !== 'undefined' && currentMov
             </svg>
         </button>
 
-        <a href="https://154.82.109.157/2138052.html" target="_blank" rel="noopener noreferrer nofollow" title="Nhà Cái Uy Tín - i9" style="display: block !important; margin: 0 !important; padding: 0 !important; line-height: 0 !important;">
-            <!-- PC Banner 640x70 chuẩn đẹp -->
-            <img 
-                src="/images/ads/728x90.gif" 
-                alt="i9 Quảng Cáo" 
-                class="aphim-catfish-img aphim-catfish-pc"
-                loading="eager"
-            />
-            <!-- Mobile Banner 320x48 chuẩn đẹp -->
-            <img 
-                src="/images/ads/320x50.gif" 
-                alt="i9 Quảng Cáo" 
-                class="aphim-catfish-img aphim-catfish-mobile"
-                loading="eager"
-            />
-        </a>
+        <!-- Lưới 4 banner (Desktop: 2 hàng x 2 cột | Mobile: 4 hàng xếp chồng dọc) -->
+        <div class="aphim-catfish-grid">
+            <!-- HÀNG 1 - BÊN TRÁI: 9922.com (i9) -->
+            <a href="https://154.82.109.157/2138052.html" target="_blank" rel="noopener noreferrer nofollow" title="9922.com - Tặng nạp lần đầu" class="aphim-catfish-link">
+                <img 
+                    src="/images/ads/728x90.gif" 
+                    alt="9922.com" 
+                    class="aphim-catfish-img"
+                    loading="eager"
+                />
+            </a>
+
+            <!-- HÀNG 1 - BÊN PHẢI: VSBet -->
+            <a href="http://lacampina.mx" target="_blank" rel="noopener noreferrer nofollow" title="VSBet - Đăng ký nạp 1X thưởng 10X" class="aphim-catfish-link">
+                <img 
+                    src="/images/ads/vsbet.gif" 
+                    alt="VSBet" 
+                    class="aphim-catfish-img"
+                    loading="eager"
+                />
+            </a>
+
+            <!-- HÀNG 2 - BÊN TRÁI: ColaTV -->
+            <a href="https://colatv66.live" target="_blank" rel="noopener noreferrer nofollow" title="ColaTV - Trực tiếp bóng đá" class="aphim-catfish-link">
+                <img 
+                    src="/images/ads/colatv.gif" 
+                    alt="ColaTV" 
+                    class="aphim-catfish-img"
+                    loading="eager"
+                />
+            </a>
+
+            <!-- HÀNG 2 - BÊN PHẢI: ColaScore -->
+            <a href="https://colascores.info/" target="_blank" rel="noopener noreferrer nofollow" title="ColaScore - Tỷ số bóng đá trực tiếp" class="aphim-catfish-link">
+                <img 
+                    src="/images/ads/ColaScore.gif" 
+                    alt="ColaScore" 
+                    class="aphim-catfish-img"
+                    loading="eager"
+                />
+            </a>
+        </div>
     </div>
 </div>
 
