@@ -3406,11 +3406,71 @@ html.light-mode #sidebar-cast p {
     color: #475569 !important;
 }
 
+/* ─── 1. HIDE "TOP PHIM TUẦN NÀY" TRÊN MOBILE (< 1024px) ─── */
+@media (max-width: 1023px) {
+    #top-weekly-sidebar,
+    .ap-top-weekly-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
+    }
+}
 
+/* ─── 2. KHOẢNG CÁCH RỘNG RÃI CHO KHUNG BÌNH LUẬN & TRƯỚC FOOTER ─── */
+#comments-section {
+    margin-top: 36px !important;
+    margin-bottom: 110px !important;
+    padding-bottom: 50px !important;
+}
 
+@media (min-width: 1024px) {
+    #comments-section {
+        margin-top: 44px !important;
+        margin-bottom: 140px !important;
+        padding-bottom: 70px !important;
+    }
+}
 
+/* Khung nhập bình luận to rộng, thoáng đãng */
+.ap-cmt-input-container {
+    margin-bottom: 28px !important;
+}
 
+.ap-cmt-textarea {
+    min-height: 95px !important;
+    padding: 14px 18px !important;
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+}
 
+/* Danh sách bình luận hiển thị tự nhiên, không bị bó hẹp chiều cao */
+.ap-cmt-list {
+    min-height: 220px !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    gap: 18px !important;
+    padding: 14px 2px 24px 2px !important;
+}
 
+.ap-cmt-item {
+    margin-bottom: 14px !important;
+    padding: 16px 18px !important;
+    border-radius: 14px !important;
+    transition: background-color 0.2s ease !important;
+}
 
+/* Đảm bảo khoảng cách đáy trước footer trên cả Desktop và Mobile */
+.watch-main-container {
+    padding-bottom: 80px !important;
+}
+
+@media (min-width: 1024px) {
+    .watch-main-container {
+        padding-bottom: 120px !important;
+    }
+}
 

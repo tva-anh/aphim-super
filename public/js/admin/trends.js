@@ -289,7 +289,9 @@
   function parseTrendsInput(raw) {
     if (!raw || !raw.trim()) return [];
     
-    const rawLines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    // Loại bỏ ký tự ẩn / bidi / LRM (\u200E) do Google Trends tự chèn vào số %
+    const cleanRaw = raw.replace(/[\u200B-\u200D\uFEFF\u200E\u200F\u202A-\u202E]/g, '');
+    const rawLines = cleanRaw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const results = [];
 
     // 1. Trường hợp copy bảng dạng TSV (tab-separated)
@@ -415,8 +417,8 @@
     if (!textarea) return;
     const raw = textarea.value.trim();
     if (!raw) return;
-    // Tự động nhận diện nếu dán dạng bảng Google Trends (chứa north, south hoặc số thứ tự xen kẽ)
-    if (/north|south|\n\d+\s*\n|%\s*\n\d+/i.test(raw)) {
+    // Tự động nhận diện nếu dán dạng bảng Google Trends (chứa tab, north, south, hoặc nhiều dòng chưa có '|')
+    if (/north|south|\t|\n\d+\s*\n/i.test(raw) || (raw.includes('\n') && !raw.includes('|'))) {
       const parsed = parseTrendsInput(raw);
       if (parsed.length > 0) {
         textarea.value = parsed.map(item => `${item.query} | ${item.traffic}`).join('\n');

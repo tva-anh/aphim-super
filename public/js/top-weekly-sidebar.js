@@ -8,8 +8,14 @@
         const sidebar = document.getElementById('top-weekly-sidebar');
         if (!sidebar) return;
 
+        const pathname = window.location.pathname;
+        const isWatchPage = pathname.includes('/xem-phim') || pathname.includes('/watch');
+        if (isWatchPage && window.innerWidth < 1024) {
+            sidebar.style.display = 'none';
+            return;
+        }
+
         try {
-            const pathname = window.location.pathname;
             const isNodeSSR = (typeof window !== 'undefined' && window.__IS_NODE_SERVER__ === true);
 
             // Fetch danh sách phim hot / mới cập nhật
@@ -346,6 +352,11 @@
 
     function scheduleSidebarInit() {
         const isWatchPage = window.location.pathname.includes('/xem-phim') || window.location.pathname.includes('/watch');
+        if (isWatchPage && window.innerWidth < 1024) {
+            const sidebar = document.getElementById('top-weekly-sidebar');
+            if (sidebar) sidebar.style.display = 'none';
+            return;
+        }
         if (isWatchPage) {
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(initTopWeeklySidebar, { timeout: 3500 });

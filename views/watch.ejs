@@ -4,7 +4,7 @@
 <head>
     <%- include('partials/head') %>
         <link rel="preconnect" href="https://bf.333xbet.com" crossorigin>
-        <link rel="stylesheet" href="/css/watch-page.css?v=347" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=348" />
 </head>
 
 <body class="page-watch bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
@@ -494,10 +494,10 @@
                         </div>
                     </div>
 
-                    <!-- 6. Khối Bình luận (Rebuild 100% chuẩn Image 1) -->
-                    <div id="comments-section" class="w-full text-left space-y-4 mb-24 pb-16"
-                        style="margin-bottom: 90px !important;">
-                        <div class="ap-cmt-header-wrap flex items-center justify-between gap-4 flex-wrap mb-4">
+                    <!-- 6. Khối Bình luận (Rebuild 100% chuẩn Image 1 - Khoảng cách thoáng đãng cao cấp) -->
+                    <div id="comments-section" class="w-full text-left space-y-5 mb-28 pb-20 lg:mb-36 lg:pb-28"
+                        style="margin-top: 36px !important; margin-bottom: 120px !important;">
+                        <div class="ap-cmt-header-wrap flex items-center justify-between gap-4 flex-wrap mb-5">
                             <div class="flex items-center gap-2.5">
                                 <svg style="width: 22px; height: 22px; fill: #ffffff; flex-shrink: 0;"
                                     viewBox="0 0 24 24">
@@ -522,20 +522,20 @@
                         </div>
 
                         <div class="ap-cmt-wrapper">
-                            <div class="ap-cmt-input-container mb-5">
+                            <div class="ap-cmt-input-container mb-6 sm:mb-7">
                                 <div class="text-xs sm:text-sm text-gray-400 mb-3 select-none">
                                     Vui lòng <span class="text-[#fcd576] font-bold cursor-pointer hover:underline"
                                         onclick="if(window.showAuthModal){window.showAuthModal('login');}else{alert('Vui lòng đăng nhập!');}">đăng
                                         nhập</span> để tham gia bình luận.
                                 </div>
 
-                                <div style="position: relative; width: 100%; background: #181a24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 14px 16px 12px 16px; transition: border-color 0.2s;"
+                                <div style="position: relative; width: 100%; background: #181a24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px 18px 14px 18px; transition: border-color 0.2s;"
                                     class="focus-within:border-[#fcd576]/50">
-                                    <textarea class="ap-cmt-textarea" id="ap-input-main" placeholder="Viết bình luận"
-                                        maxlength="1000" rows="3"
-                                        style="width: 100%; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 14px; resize: none; font-family: inherit; box-sizing: border-box; padding-right: 65px; min-height: 70px;"></textarea>
+                                    <textarea class="ap-cmt-textarea" id="ap-input-main" placeholder="Viết bình luận..."
+                                        maxlength="1000" rows="4"
+                                        style="width: 100%; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 14.5px; resize: none; font-family: inherit; box-sizing: border-box; padding-right: 65px; min-height: 95px; line-height: 1.6;"></textarea>
                                     <span class="ap-char-count" id="ap-count-main"
-                                        style="position: absolute; top: 14px; right: 16px; font-size: 11px; color: #64748b; font-weight: 500; user-select: none;">0
+                                        style="position: absolute; top: 16px; right: 18px; font-size: 11px; color: #64748b; font-weight: 500; user-select: none;">0
                                         / 1000</span>
 
                                     <!-- Attached GIF Live Preview -->
@@ -807,8 +807,8 @@
                         </div>
                     </div>
 
-                    <!-- Bảng Xếp Hạng Top Phim Tuần -->
-                    <div id="top-weekly-sidebar" class="w-full">
+                    <!-- Bảng Xếp Hạng Top Phim Tuần (Chỉ hiển thị trên Desktop >= 1024px, ẩn triệt để trên Mobile) -->
+                    <div id="top-weekly-sidebar" class="hidden lg:block w-full">
                         <!-- Dynamic Top 10 Weekly Ranking Items -->
                     </div>
 
@@ -818,8 +818,8 @@
 
             </div>
 
-            <!-- Generous Footer Spacer -->
-            <div style="height: 90px; width: 100%; clear: both; display: block;" class="w-full"></div>
+            <!-- Generous Footer Spacer: Chừa khoảng cách rộng rãi, thoáng đãng trước footer -->
+            <div style="height: 120px; width: 100%; clear: both; display: block;" class="w-full"></div>
         </main>
 
         <!-- Footer Partial -->
@@ -856,7 +856,7 @@
             <script src="/js/tmdb-api.js?v=100" defer></script>
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
-            <script src="/js/top-weekly-sidebar.js?v=100" defer></script>
+            <script src="/js/top-weekly-sidebar.js?v=101" defer></script>
             <script src="/js/watch.js?v=10108" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
             <script src="/js/watch-ui-init.js?v=218" defer></script>
