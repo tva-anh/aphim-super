@@ -241,14 +241,14 @@
             var isHiddenSession = sessionStorage.getItem('aphim_catfish_desktop_hidden_session') === 'true';
             var closeCount = parseInt(sessionStorage.getItem('aphim_catfish_desktop_close_count') || '0', 10);
 
-            // Nếu user đã ấn đóng hơn 5 lần (> 5 lần) ở bất kỳ trang nào trong phiên này -> ẩn trong suốt phiên
-            if (isHiddenSession || closeCount > 5) {
+            // Nếu user đã ấn đóng từ 3 lần trở lên (>= 3 lần) ở bất kỳ trang nào trong phiên này -> ẩn trong suốt phiên
+            if (isHiddenSession || closeCount >= 3) {
                 catEl.classList.add('is-hidden');
                 catEl.style.setProperty('display', 'none', 'important');
                 return;
             }
 
-            // Ngược lại, nếu chưa ấn đóng quá 5 lần hoặc user không ấn tắt mà chuyển trang:
+            // Ngược lại, nếu chưa ấn đóng đủ 3 lần hoặc user không ấn tắt mà chuyển trang:
             // Banner luôn luôn xuất hiện lại ở trang mới!
         }
 
@@ -275,8 +275,8 @@
                     current += 1;
                     sessionStorage.setItem('aphim_catfish_desktop_close_count', current.toString());
 
-                    // Khi user ấn đóng hơn 5 lần (> 5 lần): ghi nhận ẩn trong suốt phiên đó
-                    if (current > 5) {
+                    // Khi user ấn đóng đủ 3 lần (>= 3 lần): ghi nhận ẩn trong suốt phiên đó
+                    if (current >= 3) {
                         sessionStorage.setItem('aphim_catfish_desktop_hidden_session', 'true');
                     }
                 } catch (err) {}
