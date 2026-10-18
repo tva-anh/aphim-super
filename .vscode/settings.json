@@ -14,9 +14,12 @@
     //    Áp dụng cho mọi file trong workspace này (setting scope: resource).
     // ─────────────────────────────────────────────────────────────────────────
     "html.validate.scripts": false,
-
     // Giữ Emmet hoạt động trong file .ejs (gõ "div.foo" + Tab vẫn expand)
     "emmet.includeLanguages": {
         "ejs": "html"
-    }
+    },
+    "kiroAgent.enableDebugLogs": true,
+    "kiroAgent.enableTabAutocomplete": true,
+    "chat.editing.autoAcceptDelay": 1,
+    "kiroAgent.enableCodebaseIndexing": true
 }

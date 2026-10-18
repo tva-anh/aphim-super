@@ -340,9 +340,7 @@
             body.page-phim-detail header:not(.scrolled),
             html.light-mode body.page-phim-detail #sofa-header:not(.scrolled),
             html.light-mode body.page-phim-detail header#sofa-header:not(.scrolled),
-            html.light-mode body.page-phim-detail header:not(.scrolled),
-            html.light-mode #sofa-header:not(.scrolled),
-            html.light-mode header:not(.scrolled) {
+            html.light-mode body.page-phim-detail header:not(.scrolled) {
                 background: transparent !important;
                 background-color: transparent !important;
                 backdrop-filter: none !important;
@@ -358,27 +356,51 @@
                     box-shadow 0.35s ease !important;
             }
 
-            /* Icon colors at top on backdrop image (White and crisp on both mobile & desktop) */
-            body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn,
-            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn {
+            /* Icon colors at top on backdrop image (White and crisp in Dark Mode) */
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn {
                 color: #ffffff !important;
+                stroke: #ffffff !important;
+            }
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+                color: #ffffff !important;
+                stroke: #ffffff !important;
+                fill: none !important;
+            }
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg path {
+                color: #ffffff !important;
+                stroke: #ffffff !important;
+                fill: none !important;
+                filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.65)) !important;
             }
 
-            body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
-            body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger,
-            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
-            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger {
+            /* Light mode: sạch sẽ, stroke #1c1917, KHÔNG bóng đen làm lem nhem */
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn {
+                color: #1c1917 !important;
+                stroke: #1c1917 !important;
+            }
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+                color: #1c1917 !important;
+                stroke: #1c1917 !important;
+                fill: none !important;
+            }
+            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg path {
+                color: #1c1917 !important;
+                stroke: #1c1917 !important;
+                fill: none !important;
+                filter: none !important;
+            }
+
+            /* Circle buttons in Dark Mode */
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn,
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger {
                 background-color: rgba(255, 255, 255, 0.18) !important;
                 border-color: rgba(255, 255, 255, 0.3) !important;
                 color: #ffffff !important;
             }
 
-            body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
-            body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger svg,
-            body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-icon,
-            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
-            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger svg,
-            html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-icon {
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .sofa-icon-circle-btn svg,
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-trigger svg,
+            html:not(.light-mode) body.page-phim-detail #sofa-header:not(.scrolled) .nav-bell-icon {
                 stroke: #ffffff !important;
                 color: #ffffff !important;
                 fill: none !important;

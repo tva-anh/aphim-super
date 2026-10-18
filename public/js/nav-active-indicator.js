@@ -155,32 +155,39 @@
         });
 
         function placeIndicator(target, animate) {
-            const rect = target.getBoundingClientRect();
-            const containerRect = navContainer.getBoundingClientRect();
-            const offsetWidth = navContainer.offsetWidth;
-            const offsetHeight = navContainer.offsetHeight;
-            const scaleX = offsetWidth > 0 ? (containerRect.width / offsetWidth) : 1;
-            const scaleY = offsetHeight > 0 ? (containerRect.height / offsetHeight) : 1;
-            const left = (rect.left - containerRect.left) / scaleX;
-            const top = (rect.top - containerRect.top) / scaleY;
-            const width = rect.width / scaleX;
-            const height = rect.height / scaleY;
-            const computedStyle = window.getComputedStyle(navContainer);
-            const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
-            const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
+            if (!target || !navContainer || !indicator) return;
+
+            // Đọc layout trong 1 bước duy nhất
+            const targetLeft = target.offsetLeft;
+            const targetTop = target.offsetTop;
+            const targetWidth = target.offsetWidth;
+            const targetHeight = target.offsetHeight;
+
+            if (targetWidth <= 0 || targetHeight <= 0) {
+                // Fallback nếu target chưa có kích thước (chờ render)
+                const rect = target.getBoundingClientRect();
+                const containerRect = navContainer.getBoundingClientRect();
+                if (rect.width <= 0) return;
+                indicator.style.width = rect.width + 'px';
+                indicator.style.height = rect.height + 'px';
+                indicator.style.left = (rect.left - containerRect.left) + 'px';
+                indicator.style.top = (rect.top - containerRect.top) + 'px';
+                indicator.style.opacity = '1';
+                return;
+            }
 
             if (!animate) indicator.style.transition = 'none';
             else indicator.style.transition = '';
 
-            indicator.style.width = width + 'px';
-            indicator.style.height = height + 'px';
-            indicator.style.left = (left - borderLeft) + 'px';
-            indicator.style.top = (top - borderTop) + 'px';
+            indicator.style.width = targetWidth + 'px';
+            indicator.style.height = targetHeight + 'px';
+            indicator.style.left = targetLeft + 'px';
+            indicator.style.top = targetTop + 'px';
             indicator.style.opacity = '1';
 
             if (!animate) {
                 requestAnimationFrame(() => {
-                    requestAnimationFrame(() => { indicator.style.transition = ''; });
+                    requestAnimationFrame(() => { if (indicator) indicator.style.transition = ''; });
                 });
             }
         }

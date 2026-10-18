@@ -241,10 +241,10 @@
                 <!-- Top row: Logo & Social -->
                 <div class="footer-logo-row">
                     <!-- Logo (Clean header logo image /logo-aphim1.png) -->
-                    <a href="/" class="footer-logo-link group">
+                    <a href="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? '/phim-ngan' : '/' %>" class="footer-logo-link group">
                         <picture>
-                            <source srcset="/logo-aphim1.webp" type="image/webp" />
-                            <img src="/logo-aphim1.png" alt="APhim Logo"
+                            <source srcset="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? '/logo-aphim2.webp' : '/logo-aphim1.webp' %>" type="image/webp" />
+                            <img src="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? '/logo-aphim2.png' : '/logo-aphim1.png' %>" alt="APhim Logo"
                                 class="h-11 md:h-14 w-auto object-contain object-left group-hover:scale-105 transition-transform"
                                 width="240" height="100" loading="lazy" decoding="async" />
                         </picture>
@@ -458,7 +458,7 @@
 </script>
 
 <!-- Floating Side Dock & Theme Switcher Widget -->
-<link rel="stylesheet" href="/css/floating-dock.css?v=210">
+<link rel="stylesheet" href="/css/floating-dock.css?v=215">
 
 <div class="floating-dock-container" id="floatingDockContainer">
     <!-- Back to Top Button (Appears when scrolling down) -->
@@ -491,8 +491,8 @@
 </div>
 
 <script src="/js/floating-dock.js?v=208" defer></script>
-<script src="/js/section-swipe.js?v=100011" defer></script>
-<script src="/js/bottom-nav.js?v=209" defer></script>
+<script src="/js/section-swipe.js?v=100018" defer></script>
+<script src="/js/bottom-nav.js?v=20261018c" defer></script>
 <script src="/js/auth.js?v=222" defer></script>
 <script src="/js/auth-modal.js?v=221" defer></script>
 <script src="/js/user-ui.js?v=217" defer></script>

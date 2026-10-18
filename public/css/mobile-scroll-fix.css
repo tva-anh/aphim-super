@@ -42,7 +42,7 @@
 @media (max-width: 768px) {
     html, body {
         -webkit-overflow-scrolling: touch !important;
-        scroll-behavior: smooth !important;
+        scroll-behavior: auto !important; /* Chuẩn quốc tế: Để OS (iOS/Android) tự điều phối lực quán tính tự nhiên, không bị trôi tuột hay quá đà */
     }
     
     /* Tắt bớt backdrop-filter blur tốn shader GPU khi cuộn trên mobile */

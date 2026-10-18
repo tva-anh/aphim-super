@@ -14,8 +14,7 @@
                 <link rel="preconnect" href="https://image.tmdb.org" crossorigin>
                 <link rel="preconnect" href="https://phimimg.com" crossorigin>
                 <link rel="preconnect" href="https://static-cgv.vncdn.vn" crossorigin>
-                <link rel="stylesheet" href="/css/avatar-frames.css">
-                <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=23">
+                <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=24">
                 <link rel="stylesheet" href="/css/hero-banner.css?v=191">
                 <link rel="stylesheet" href="/css/interests-section.css?v=171">
                 <link
@@ -98,6 +97,23 @@
                             height: 0 !important;
                         }
 
+                        /* 🚀 120FPS GPU ACCELERATION & CONTENT VISIBILITY OPTIMIZATION (DESKTOP & MOBILE) */
+                        .phimmoi-section-grid,
+                        .top10-container,
+                        .home-comments-section {
+                            content-visibility: auto;
+                            contain-intrinsic-size: 1px 360px;
+                        }
+
+                        .de-cu-card,
+                        .cinema-hot-card,
+                        .normal-card-item,
+                        .top10-card {
+                            contain: layout paint;
+                            transform: translateZ(0);
+                            backface-visibility: hidden;
+                        }
+
                         .badge-trend {
                             height: 18px !important;
                             min-height: 18px !important;
@@ -156,6 +172,7 @@
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
                             transform: translateZ(0);
+                            will-change: scroll-position;
                         }
                         .cinema-hot-slider::-webkit-scrollbar {
                             display: none !important;
@@ -171,15 +188,11 @@
                             border: none !important;
                             text-decoration: none !important;
                             display: block !important;
-                            contain: layout style;
-                            content-visibility: auto !important;
-                            contain-intrinsic-size: 162px 320px !important;
+                            contain: paint;
+                            content-visibility: visible !important;
                             backface-visibility: hidden;
                             -webkit-backface-visibility: hidden;
-                        }
-                        .cinema-hot-card:hover {
-                            contain: none !important;
-                            content-visibility: visible !important;
+                            transform: translateZ(0);
                         }
                         /* 🌊 GIAO DIỆN GỢN SÓNG (WAVE CAROUSEL) TRÊN DESKTOP CHUẨN ẢNH SỐ 2 (NẰM TRÊN CÙNG 1 HÀNG) */
                         @media (min-width: 640px) {
@@ -211,6 +224,15 @@
                                 transform-origin: center center !important;
                                 backface-visibility: hidden;
                                 -webkit-backface-visibility: hidden;
+                                aspect-ratio: 2 / 3 !important;
+                                background: #151821 !important;
+                            }
+                            .cinema-hot-poster-wrap img {
+                                width: 100% !important;
+                                height: 100% !important;
+                                object-fit: cover !important;
+                                display: block !important;
+                                aspect-ratio: 2 / 3 !important;
                             }
                             .cinema-hot-info-wrap {
                                 margin-top: 14px !important;
@@ -289,27 +311,23 @@
                             justify-content: flex-end !important;
                             position: relative !important;
                             margin: 0 !important;
-                            contain: layout style;
-                            content-visibility: auto !important;
-                            contain-intrinsic-size: 160px 320px !important;
+                            contain: paint;
+                            content-visibility: visible !important;
                             backface-visibility: hidden;
                             -webkit-backface-visibility: hidden;
-                        }
-                        .de-cu-card:hover {
-                            contain: none !important;
-                            content-visibility: visible !important;
+                            transform: translateZ(0);
                         }
                         @media (min-width: 640px) {
                             .de-cu-slider {
                                 padding-top: 26px !important;
                                 padding-bottom: 16px !important;
                                 overflow-y: hidden !important;
+                                will-change: scroll-position;
                             }
                             .de-cu-card {
                                 flex: 0 0 205px !important; /* To rộng rãi, hiển thị ấn tượng trên Desktop */
                                 width: 205px !important;
                                 max-width: 205px !important;
-                                contain-intrinsic-size: 205px 360px !important;
                             }
                         }
                         .de-cu-poster-wrap {
@@ -323,15 +341,94 @@
                             backface-visibility: hidden;
                             -webkit-backface-visibility: hidden;
                             transform: translateZ(0);
+                            aspect-ratio: 2 / 3 !important;
+                            background: #151821 !important;
+                        }
+                        .de-cu-poster-wrap img {
+                            width: 100% !important;
+                            height: 100% !important;
+                            object-fit: cover !important;
+                            display: block !important;
+                            aspect-ratio: 2 / 3 !important;
                         }
 
-                        /* 🚀 CHỐNG CLICK NHẦM KHI KÉO CHUỘT TRÊN DESKTOP */
+                        /* 🚀 CHỐNG GIẬT LAG 120FPS KHI ĐANG KÉO / CUỘN TRÊN DESKTOP */
                         .is-smooth-dragging {
                             scroll-snap-type: none !important;
                             cursor: grabbing !important;
                         }
-                        .is-smooth-dragging a {
+                        .is-smooth-dragging a,
+                        .de-cu-slider.is-scrolling a,
+                        .cinema-hot-slider.is-scrolling a,
+                        .home-comments-track.is-scrolling a {
                             pointer-events: none !important;
+                        }
+                        .is-smooth-dragging .de-cu-card,
+                        .is-smooth-dragging .cinema-hot-card,
+                        .is-smooth-dragging .de-cu-poster-wrap,
+                        .is-smooth-dragging .cinema-hot-poster-wrap,
+                        .de-cu-slider.is-scrolling .de-cu-card,
+                        .cinema-hot-slider.is-scrolling .cinema-hot-card,
+                        .de-cu-slider.is-scrolling .de-cu-poster-wrap,
+                        .cinema-hot-slider.is-scrolling .cinema-hot-poster-wrap {
+                            transition: none !important;
+                            pointer-events: none !important;
+                        }
+                        .is-smooth-dragging .de-cu-card:hover .de-cu-poster-wrap,
+                        .de-cu-slider.is-scrolling .de-cu-card:hover .de-cu-poster-wrap,
+                        .is-smooth-dragging .cinema-hot-card:hover .cinema-hot-poster-wrap img,
+                        .cinema-hot-slider.is-scrolling .cinema-hot-card:hover .cinema-hot-poster-wrap img {
+                            transform: none !important;
+                            box-shadow: none !important;
+                            border-color: rgba(255, 255, 255, 0.08) !important;
+                            transition: none !important;
+                        }
+
+                        /* 🚀 SIÊU TỐI ƯU HÓA RENDER ENGINE DESKTOP 120FPS — CONTENT-VISIBILITY & GPU COMPOSITING */
+                        @media (min-width: 768px) {
+                            /* Khóa các section dưới nếp gấp màn hình: Bỏ qua hoàn toàn layout & repaint khi chưa cuộn tới */
+                            .home-comments-section,
+                            #homeCommentsSection {
+                                content-visibility: auto;
+                                contain-intrinsic-size: 1px 320px;
+                            }
+
+                            .top10-container,
+                            #top10Section {
+                                content-visibility: auto;
+                                contain-intrinsic-size: 1px 540px;
+                            }
+
+                            /* Tối ưu hóa lưới phim bộ, phim lẻ, phim hoạt hình và TV Shows */
+                            .home-movie-section,
+                            section:has(.grid-phim-bo),
+                            section:has(.grid-phim-le),
+                            section:has(.grid-hoat-hinh),
+                            section:has(#grid-phim-bo),
+                            section:has(#grid-phim-le),
+                            section:has(#grid-hoat-hinh),
+                            section:has(#grid-tv-shows) {
+                                content-visibility: auto;
+                                contain-intrinsic-size: 1px 580px;
+                            }
+
+                            footer,
+                            #sofaFooter {
+                                content-visibility: auto;
+                                contain-intrinsic-size: 1px 400px;
+                            }
+
+                            /* Hardware Compositing Layer cho các thanh lướt ngang */
+                            .de-cu-slider,
+                            .cinema-hot-slider,
+                            .home-comments-track,
+                            .top-movies-scroll,
+                            .country-scroll-container,
+                            .top10-platforms-scroll {
+                                contain: layout paint;
+                                transform: translateZ(0);
+                                -webkit-transform: translateZ(0);
+                            }
                         }
 
                         /* ✨ HIỆU ỨNG SKELETON SHIMMER 0MS XUẤT HIỆN TỨC THÌ TRANG CHỦ */
@@ -2577,12 +2674,27 @@
         <!-- Runtime Desktop Transparent Header Enforcer -->
         <script>
             (function () {
-                function applyDesktopHeaderTransparent() {
+                /* Trang thai header hien tai: null | 'top' | 'scrolled'
+                   Dung de CHI ghi DOM/STYLE khi trang thai THAT SU doi. */
+                var appliedState = null;
+
+                function applyDesktopHeaderTransparent(force) {
+                    /* Chi chay tren desktop (>=1024px) - giu nguyen hanh vi cu */
                     if (window.innerWidth < 1024) return;
+
                     var header = document.getElementById('sofa-header') || document.querySelector('header');
                     if (!header) return;
+
                     var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-                    if (scrollY <= 50) {
+                    var nextState = (scrollY <= 50) ? 'top' : 'scrolled';
+
+                    /* TOI UU: trang thai khong doi thi KHONG ghi DOM/STYLE gi ca.
+                       Truoc day moi lan cuon deu goi 5-7 setProperty/removeProperty
+                       (ke ca backdrop-filter) du header da dung trang thai -> gayGiat. */
+                    if (appliedState === nextState && !force) return;
+                    appliedState = nextState;
+
+                    if (nextState === 'top') {
                         header.classList.remove('scrolled', 'sofa-header-scrolled');
                         header.style.setProperty('background', 'transparent', 'important');
                         header.style.setProperty('background-color', 'transparent', 'important');
@@ -2602,16 +2714,35 @@
                         header.style.removeProperty('-webkit-backdrop-filter');
                     }
                 }
-                window.addEventListener('scroll', applyDesktopHeaderTransparent, { passive: true });
-                window.addEventListener('resize', applyDesktopHeaderTransparent, { passive: true });
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', applyDesktopHeaderTransparent);
-                } else {
-                    applyDesktopHeaderTransparent();
+
+                /* Scroll/resize di qua requestAnimationFrame de gom vao MOT nhip ve.
+                   Truoc day chay dong bo tren tung event -> giat khi luot. */
+                var ticking = false;
+                function scheduleUpdate() {
+                    if (ticking) return;
+                    ticking = true;
+                    window.requestAnimationFrame(function () {
+                        applyDesktopHeaderTransparent(false);
+                    });
                 }
-                window.addEventListener('load', applyDesktopHeaderTransparent);
-                setTimeout(applyDesktopHeaderTransparent, 50);
-                setTimeout(applyDesktopHeaderTransparent, 250);
+
+                window.addEventListener('scroll', scheduleUpdate, { passive: true });
+                window.addEventListener('resize', scheduleUpdate, { passive: true });
+
+                /* Cac lan chay dau (va load) van chay TRUC TIEP de chac chan
+                   header dung trang thai truoc khi trang ve, khong bi nhay. */
+                function boot() {
+                    applyDesktopHeaderTransparent(true);
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', boot);
+                } else {
+                    boot();
+                }
+                window.addEventListener('load', boot);
+                setTimeout(boot, 50);
+                setTimeout(boot, 250);
             })();
         </script>
 
@@ -4431,7 +4562,8 @@
 
                                 if (sliderEl && items.length) {
                                     const html = items.slice(0, 24).map((m, idx) => createDeCuCardHTML(m, idx)).join('');
-                                    if (sliderEl.innerHTML !== html || sliderEl.querySelector('.de-cu-skeleton-card')) {
+                                    const hasSkeleton = !sliderEl.children.length || !!sliderEl.querySelector('.de-cu-skeleton-card');
+                                    if (hasSkeleton || (!sliderEl._userInteracted && sliderEl.scrollLeft === 0 && sliderEl.innerHTML !== html)) {
                                         const prevScroll = sliderEl.scrollLeft;
                                         sliderEl.innerHTML = html;
                                         if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
@@ -4653,7 +4785,8 @@
                                 sliderEl.classList.remove('cinema-hot-stage-mobile');
                                 let html = topItems.map((m, idx) => createCinemaHotCardHTML(m, idx + 1, '', idx)).join('');
                                 html += buildMoreCard();
-                                if (sliderEl.innerHTML !== html || sliderEl.querySelector('.cinema-hot-skeleton-card')) {
+                                const hasSkeleton = !sliderEl.children.length || !!sliderEl.querySelector('.cinema-hot-skeleton-card');
+                                if (hasSkeleton || (!sliderEl._userInteracted && sliderEl.scrollLeft === 0 && sliderEl.innerHTML !== html)) {
                                     const prevScroll = sliderEl.scrollLeft;
                                     sliderEl.innerHTML = html;
                                     if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
@@ -5386,7 +5519,7 @@
                         });
                     })();
                 </script>
-                <script src="/js/hero-banner.js?v=192" defer></script>
+                <script src="/js/hero-banner.js?v=193" defer></script>
 </body>
 
 </html>

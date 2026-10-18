@@ -1,9 +1,9 @@
 /**
  * APhim Super — Service Worker
- * Version: 2.0.0
+ * Version: 2.4.0
  */
 
-const CACHE_NAME = 'aphim-static-v2';
+const CACHE_NAME = 'aphim-static-v13';
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',

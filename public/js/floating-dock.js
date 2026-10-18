@@ -99,6 +99,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateThemeIcon(isLight);
 
+            // ⚡ Đồng bộ tức thì header trên mọi trang (đặc biệt Phim Ngắn):
+            // Dọn sạch inline style cũ để header chuyển sang Dark/Light Mode ngay lập tức không cần lướt chuột
+            const sofaHeader = document.getElementById('sofa-header') || document.querySelector('header');
+            if (sofaHeader) {
+                if (!isLight) {
+                    ['background', 'background-color', 'background-image', 'border', 'border-bottom',
+                     'box-shadow', 'backdrop-filter', '-webkit-backdrop-filter'].forEach(p => {
+                        if (typeof sofaHeader.style.removeProperty === 'function') sofaHeader.style.removeProperty(p);
+                        else delete sofaHeader.style[p];
+                    });
+                }
+            }
+
+            // Bắn event tức thì để các script điều hướng (StickyNav, PhimNgắn Header) cập nhật ngay
+            try {
+                window.dispatchEvent(new CustomEvent('aphim:theme-change', { detail: { isLight, theme: themeVal } }));
+                window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isLight, theme: themeVal } }));
+                window.dispatchEvent(new Event('scroll'));
+            } catch (e) { }
+
             // Defer non-critical updates to next frame
             setTimeout(() => {
                 try {

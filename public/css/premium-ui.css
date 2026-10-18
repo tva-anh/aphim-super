@@ -8,8 +8,7 @@
     cursor: grab;
     /* Hardware acceleration and smooth mobile scrolling */
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain; /* Prevent browser back/forward swipe interference */
-    touch-action: pan-x; /* Lock touch events to horizontal panning for faster response */
+    touch-action: pan-x pan-y !important; /* Cho phép cả scroll ngang trong mục lẫn vuốt dọc cả trang tự nhiên */
 }
 .overflow-x-auto.scrollbar-hide:active,
 .overflow-x-auto.scrollbar-hide.active {

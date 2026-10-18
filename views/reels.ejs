@@ -62,7 +62,7 @@
     <link rel="dns-prefetch" href="https://www.youtube.com">
     <link rel="dns-prefetch" href="https://i.ytimg.com">
     <link rel="dns-prefetch" href="https://googlevideo.com">
-    <link rel="stylesheet" href="/css/reels.css?v=445" />
+    <link rel="stylesheet" href="/css/reels.css?v=446" />
     <style>
         /* 🚀 CLIPPED IFRAME GEOMETRY: Đẩy tiêu đề (top -65px) & logo YouTube/Shorts (bottom clip 90px) ra ngoài cho dọc 9:16 */
         .reels-global-player-host iframe,
@@ -1623,18 +1623,50 @@
             scroll-behavior: smooth !important;
             scroll-snap-type: y mandatory !important;
             overscroll-behavior-y: contain !important;
+            overscroll-behavior-x: none !important;
             -webkit-overflow-scrolling: touch !important;
             transform: translate3d(0, 0, 0) !important;
             will-change: scroll-position !important;
             touch-action: pan-y !important;
+            contain: strict !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
         }
         .reel-item {
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
             scroll-snap-align: start !important;
             scroll-snap-stop: always !important;
             transform: translate3d(0, 0, 0) !important;
             will-change: transform !important;
             touch-action: pan-y !important;
+            contain: layout style paint !important;
+            backface-visibility: hidden !important;
+            -webkit-backface-visibility: hidden !important;
         }
+
+        /* 📱 TỐI ƯU CỰC ĐẠI TRÊN MOBILE (<= 1024px): 120fps siêu mượt, loại bỏ triệt để giật lag */
+        @media (max-width: 1024px) {
+            .reels-feed {
+                scroll-snap-type: y mandatory !important;
+                scroll-snap-stop: always !important;
+            }
+            .reel-item {
+                content-visibility: auto !important;
+                contain-intrinsic-size: 100vh !important;
+            }
+            .reel-item.is-active,
+            .reel-item.is-near {
+                content-visibility: visible !important;
+            }
+            /* Tắt paint của các slide ở xa ngoài màn hình để giải phóng GPU và RAM */
+            .reel-item:not(.is-active):not(.is-near) .reel-ui-layer {
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+        }
+
         .reel-thumb-cover {
             transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s ease-out !important;
             will-change: opacity, visibility !important;
@@ -3685,7 +3717,7 @@
     <!-- =========================================================
          🚀 CLIENT CONTROLLER
          ========================================================= -->
-    <script src="/js/reels.js?v=445"></script>
+    <script src="/js/reels.js?v=446"></script>
 </body>
 
 </html>

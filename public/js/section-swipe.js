@@ -58,6 +58,19 @@
             return null;
         }
 
+        // 🎯 Ưu tiên tức thì cho 2 mục phim chính: Nếu chuột nằm trong section thì tìm slider tương ứng
+        const deCuSection = target.closest('#deCuSection, .de-cu-section');
+        if (deCuSection) {
+            const s = deCuSection.querySelector('#slider-de-cu') || document.getElementById('slider-de-cu');
+            if (s && s.scrollWidth > s.clientWidth) return s;
+        }
+
+        const cinemaSection = target.closest('#cinemaHotSection, .cinema-hot-section');
+        if (cinemaSection) {
+            const s = cinemaSection.querySelector('#slider-cinema-hot') || document.getElementById('slider-cinema-hot');
+            if (s && s.scrollWidth > s.clientWidth) return s;
+        }
+
         const matched = target.closest(SLIDER_SELECTORS);
         if (matched) {
             if (matched.scrollWidth > matched.clientWidth || 
@@ -130,6 +143,8 @@
         const container = getScrollContainer(e.target);
         if (!container) return;
 
+        container._userInteracted = true;
+
         // Tạm dừng auto-advance phim rạp nếu đang tương tác
         if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
             if (typeof window.pauseCinemaHotOnUserAction === 'function') {
@@ -140,10 +155,6 @@
         stopMomentum();
         stopDragRaf();
 
-        // Ngắt ngay lập tức smooth-scroll và scroll-snap để tránh xung đột khi kéo
-        container.style.scrollBehavior = 'auto';
-        container.style.scrollSnapType = 'none';
-
         activeContainer = container;
         isPointerDown = true;
         isDragging = false;
@@ -151,7 +162,7 @@
         startY = e.clientY;
         scrollStart = container.scrollLeft;
         targetScroll = scrollStart;
-        maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+        maxScroll = 0; // Tính toán lười (lazy) trong move khi thực sự kéo để tránh ép reflow khi click
 
         const now = performance.now();
         moveHistory = [{ x: e.clientX, t: now }];
@@ -205,12 +216,13 @@
         if (moveHistory.length > 5) moveHistory.shift();
 
         if (!isDragging) {
-            // Ngưỡng kích hoạt kéo mượt: 3px (Không hủy kéo vì rê chéo trên Desktop mouse)
-            if (Math.abs(deltaX) >= 3) {
+            // Ngưỡng kích hoạt kéo mượt: 4px
+            if (Math.abs(deltaX) >= 4) {
                 isDragging = true;
                 activeContainer.classList.add('is-smooth-dragging');
                 activeContainer.style.scrollBehavior = 'auto';
                 activeContainer.style.scrollSnapType = 'none';
+                maxScroll = Math.max(0, activeContainer.scrollWidth - activeContainer.clientWidth);
             }
         }
 
@@ -248,7 +260,6 @@
         if (container && wasDragging) {
             // Áp dụng vị trí cuộn cuối cùng ngay lập tức
             container.scrollLeft = targetScroll;
-            container.classList.remove('is-smooth-dragging');
 
             if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
                 if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
@@ -284,17 +295,22 @@
         // Khởi chạy quán tính vật lý (Kinetic Momentum Glide) mượt mà
         if (wasDragging && container && Math.abs(velocity) > 0.15) {
             let v = -velocity * 16; // Chuyển đổi px/ms sang px/frame (nghịch đảo)
-            v = Math.max(-45, Math.min(45, v)); // Giới hạn tốc độ tối đa tránh văng quá đà
+            v = Math.max(-42, Math.min(42, v)); // Giới hạn tốc độ tối đa tránh văng quá đà
             const friction = 0.925; // Hệ số ma sát mũ trơn tự nhiên
             const maxS = Math.max(0, container.scrollWidth - container.clientWidth);
 
+            function cleanupGlide() {
+                if (container) {
+                    container.classList.remove('is-smooth-dragging');
+                    container.style.scrollBehavior = '';
+                    container.style.scrollSnapType = '';
+                }
+                momentumAnimId = null;
+            }
+
             function glideStep() {
                 if (!container || Math.abs(v) < 0.25) {
-                    if (container) {
-                        container.style.scrollBehavior = '';
-                        container.style.scrollSnapType = '';
-                    }
-                    momentumAnimId = null;
+                    cleanupGlide();
                     return;
                 }
 
@@ -303,11 +319,7 @@
 
                 // Dừng nếu chạm biên
                 if (container.scrollLeft <= 0 || container.scrollLeft >= maxS) {
-                    if (container) {
-                        container.style.scrollBehavior = '';
-                        container.style.scrollSnapType = '';
-                    }
-                    momentumAnimId = null;
+                    cleanupGlide();
                     return;
                 }
 
@@ -317,6 +329,7 @@
             stopMomentum();
             momentumAnimId = requestAnimationFrame(glideStep);
         } else if (container) {
+            container.classList.remove('is-smooth-dragging');
             container.style.scrollBehavior = '';
             container.style.scrollSnapType = '';
         }
@@ -343,25 +356,127 @@
         }
     }, true);
 
-    // ── 5. HỖ TRỢ CON LĂN CHUỘT THÔNG MINH TRÊN DESKTOP ──
-    // Shift + Lăn chuột để cuộn ngang mượt mà, lăn dọc bình thường giữ nguyên để cuộn trang êm ái
+    // ── 5. HỖ TRỢ CUỘN NGANG KHI GIỮ SHIFT HOẶC VUỐT TRACKPAD NGANG (KHÔNG CHẶN CUỘN TRANG DỌC) ──
+    let wheelContainer = null;
+    let wheelTargetScroll = 0;
+    let wheelRafId = null;
+
+    function stopWheelGlide() {
+        if (wheelRafId) {
+            cancelAnimationFrame(wheelRafId);
+            wheelRafId = null;
+        }
+        if (wheelContainer) {
+            wheelContainer.classList.remove('is-scrolling');
+            wheelContainer = null;
+        }
+    }
+
     document.addEventListener('wheel', function (e) {
-        // Fast-exit tức thì 0ms cho cuộn dọc thông thường, tuyệt đối không chạm vào DOM để tránh reflow
-        if (!e.shiftKey || !isDesktopDevice() || e.ctrlKey || e.altKey || Math.abs(e.deltaY) <= 0) return;
+        if (!isDesktopDevice() || e.ctrlKey || e.altKey) return;
+
+        // ⚡ NGUYÊN TẮC VÀNG: Khi người dùng lăn bánh xe chuột dọc thông thường,
+        // TUYỆT ĐỐI KHÔNG can thiệp, không chặn e.preventDefault() để trang web cuộn lên/xuống tự nhiên 100%!
+        // Chỉ cuộn ngang khi:
+        // 1. Người dùng chủ động giữ phím Shift + lăn chuột
+        // 2. Hoặc người dùng gạt 2 ngón ngang thuần túy trên Trackpad (deltaX áp đảo deltaY và deltaY gần như bằng 0)
+        const isPureHorizontalTrackpad = Math.abs(e.deltaX) > 16 && Math.abs(e.deltaY) <= 3 && Math.abs(e.deltaX) > Math.abs(e.deltaY) * 3;
+        const isHorizontalIntent = e.shiftKey || isPureHorizontalTrackpad;
+
+        if (!isHorizontalIntent) {
+            stopWheelGlide();
+            return;
+        }
+
+        const rawDelta = e.shiftKey ? (Math.abs(e.deltaY) > 0 ? e.deltaY : e.deltaX) : e.deltaX;
+        if (Math.abs(rawDelta) <= 0) return;
+
+        // Chuẩn hóa đơn vị cuộn trên Windows/macOS/Firefox (Line vs Pixel vs Page)
+        let delta = rawDelta;
+        if (e.deltaMode === 1) { // Line mode
+            delta = rawDelta * 40;
+        } else if (e.deltaMode === 2) { // Page mode
+            delta = rawDelta * 400;
+        }
 
         const container = getScrollContainer(e.target);
-        if (!container) return;
+        if (!container) {
+            stopWheelGlide();
+            return;
+        }
 
-        const maxS = container.scrollWidth - container.clientWidth;
-        if (maxS <= 0) return;
-        e.preventDefault();
-        stopMomentum();
-        container.scrollLeft += e.deltaY * 1.0;
+        const maxS = Math.max(0, container.scrollWidth - container.clientWidth);
+        if (maxS <= 4) {
+            stopWheelGlide();
+            return;
+        }
+
+        // Kiểm tra xem vị trí hiện tại hoặc vị trí đích có thể cuộn ngang tiếp không
+        const currentPos = (wheelContainer === container) ? wheelTargetScroll : container.scrollLeft;
+        const canScrollForward = delta > 0 && currentPos < maxS - 2;
+        const canScrollBackward = delta < 0 && currentPos > 2;
+
+        if (canScrollForward || canScrollBackward) {
+            e.preventDefault();
+            stopMomentum();
+            container._userInteracted = true;
+
+            // Khóa hiệu ứng Hover ngay lập tức để GPU dồn toàn lực đạt 120 FPS
+            if (!container.classList.contains('is-scrolling')) {
+                container.classList.add('is-scrolling');
+            }
+            clearTimeout(container._scrollEndTimer);
+            container._scrollEndTimer = setTimeout(() => {
+                container.classList.remove('is-scrolling');
+            }, 140);
+
+            if (wheelContainer !== container) {
+                wheelContainer = container;
+                wheelTargetScroll = container.scrollLeft;
+            }
+
+            const step = delta * 1.35;
+            wheelTargetScroll = Math.max(0, Math.min(maxS, wheelTargetScroll + step));
+
+            if (!wheelRafId) {
+                const runWheelGlide = () => {
+                    if (!wheelContainer) return;
+                    const diff = wheelTargetScroll - wheelContainer.scrollLeft;
+                    if (Math.abs(diff) > 0.5) {
+                        wheelContainer.scrollLeft += diff * 0.35;
+                        wheelRafId = requestAnimationFrame(runWheelGlide);
+                    } else {
+                        wheelContainer.scrollLeft = wheelTargetScroll;
+                        wheelRafId = null;
+                    }
+                };
+                wheelRafId = requestAnimationFrame(runWheelGlide);
+            }
+        } else {
+            stopWheelGlide();
+        }
     }, { passive: false });
 
+    // ── 5.1 TỰ ĐỘNG BẬT IS-SCROLLING KHI CUỘN ĐỂ KHÓA HOVER TRANSITIONS (120FPS) ──
+    document.addEventListener('scroll', function (e) {
+        const target = e.target;
+        if (target && target.nodeType === 1 && target.matches && target.matches(SLIDER_SELECTORS)) {
+            target._userInteracted = true;
+            if (!target.classList.contains('is-scrolling')) {
+                target.classList.add('is-scrolling');
+            }
+            clearTimeout(target._scrollEndTimer);
+            target._scrollEndTimer = setTimeout(() => {
+                target.classList.remove('is-scrolling');
+            }, 120);
+        }
+    }, { capture: true, passive: true });
+
     // ── 6. CSS INJECTION CHO TRẢI NGHIỆM DESKTOP MƯỢT NHƯ BƠ ──
-    const style = document.createElement('style');
-    style.textContent = `
+    if (!document.getElementById('aphim-slider-engine-css')) {
+        const style = document.createElement('style');
+        style.id = 'aphim-slider-engine-css';
+        style.textContent = `
         @media (min-width: 768px) {
             #slider-de-cu,
             .de-cu-slider,
@@ -403,13 +518,17 @@
                 cursor: grabbing;
             }
 
-            .is-smooth-dragging {
-                cursor: grabbing !important;
+            .is-smooth-dragging,
+            .is-scrolling {
                 user-select: none !important;
                 -webkit-user-select: none !important;
             }
 
-            /* Khóa click link và tắt transition hover trong khi kéo để đạt 120fps bơ mượt */
+            .is-smooth-dragging {
+                cursor: grabbing !important;
+            }
+
+            /* Khóa click link và đóng băng toàn bộ transition/transform hover CHỈ KHI ĐANG KÉO CHUỘT (drag) */
             .is-smooth-dragging a {
                 pointer-events: none !important;
             }
@@ -420,6 +539,14 @@
             .is-smooth-dragging .cinema-hot-poster-wrap {
                 transition: none !important;
                 pointer-events: none !important;
+            }
+
+            .is-smooth-dragging .de-cu-card:hover .de-cu-poster-wrap,
+            .is-smooth-dragging .cinema-hot-card:hover .cinema-hot-poster-wrap img {
+                transform: none !important;
+                box-shadow: none !important;
+                border-color: rgba(255, 255, 255, 0.08) !important;
+                transition: none !important;
             }
 
             .de-cu-slider img,
@@ -447,8 +574,9 @@
                 user-drag: none !important;
             }
         }
-    `;
-    document.head.appendChild(style);
+        `;
+        (document.head || document.documentElement).appendChild(style);
+    }
 
-    console.log('⚡ [APhim Slider Engine] Desktop Ultra-Smooth Drag & Kinetic Momentum v14.0 Active.');
+    console.log('⚡ [APhim Slider Engine] Desktop Ultra-Smooth Drag & Kinetic Momentum v15.0 Active.');
 })();

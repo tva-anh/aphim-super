@@ -19,13 +19,17 @@ html.light-mode body {
 @media (min-width: 1024px) {
 
     html.light-mode body.has-desktop-hero,
-    html.light-mode body:has(#desktopHeroShowcase) {
+    html.light-mode body:has(#desktopHeroShowcase),
+    html.light-mode body.page-phim-ngan:not(.page-library-mode):not(.page-search-mode),
+    html.light-mode body.page-detail-mode,
+    html.light-mode body:has(#asHeroSection),
+    html.light-mode body:has(#asDramaDetailView) {
         padding-top: 0 !important;
     }
 }
 
 @media (max-width: 1280px) {
-    html.light-mode body:not(.page-phim-detail):not(.has-desktop-hero):not(:has(#desktopHeroShowcase)):not(.is-reels-page):not(.page-reels):not(:has(.reels-page-wrapper)) {
+    html.light-mode body:not(.page-phim-detail):not(.has-desktop-hero):not(:has(#desktopHeroShowcase)):not(.is-reels-page):not(.page-reels):not(:has(.reels-page-wrapper)):not(.page-phim-ngan):not(.page-detail-mode):not(:has(#asHeroSection)):not(:has(#asDramaDetailView)) {
         padding-top: 60px !important;
     }
 }
@@ -135,11 +139,12 @@ main.watch-main-container {
 /* ==========================================================================
    1. UNIFIED WARM CHAMPAGNE HEADER (#sofa-header) & NAV PILL FIXES
    ========================================================================== */
+html.light-mode #sofa-header,
+html.light-mode header#sofa-header,
+html.light-mode header,
 html.light-mode #sofa-header.scrolled,
 html.light-mode header#sofa-header.scrolled,
-html.light-mode header.scrolled,
-html.light-mode:not(:has(body.has-desktop-hero)):not(:has(body.page-phim-detail)):not(:has(body.page-watch)):not(:has(#movieHeroBackdrop)):not(:has(.movie-hero-backdrop-wrap)) #sofa-header,
-html.light-mode:not(:has(body.has-desktop-hero)):not(:has(body.page-phim-detail)):not(:has(body.page-watch)):not(:has(#movieHeroBackdrop)):not(:has(.movie-hero-backdrop-wrap)) header {
+html.light-mode header.scrolled {
     background: rgba(250, 247, 242, 0.98) !important;
     background-color: #faf7f2 !important;
     border-bottom: 1px solid #e7e0d3 !important;
@@ -154,6 +159,14 @@ html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled),
 html.light-mode body.has-desktop-hero header#sofa-header:not(.scrolled),
 html.light-mode body.page-phim-detail #sofa-header:not(.scrolled),
 html.light-mode body.page-phim-detail header#sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asHeroSection) #sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asHeroSection) header#sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asDramaDetailView) #sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asDramaDetailView) header#sofa-header:not(.scrolled),
+html.light-mode body:has(#asHeroSection) #sofa-header:not(.scrolled),
+html.light-mode body:has(#asHeroSection) header#sofa-header:not(.scrolled),
+html.light-mode body:has(#asDramaDetailView) #sofa-header:not(.scrolled),
+html.light-mode body:has(#asDramaDetailView) header#sofa-header:not(.scrolled),
 html.light-mode body.page-watch #sofa-header:not(.scrolled),
 html.light-mode body.page-watch header#sofa-header:not(.scrolled),
 html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled),
@@ -179,9 +192,9 @@ html.light-mode .sofa-header-container {
     box-shadow: none !important;
 }
 
-/* FIX: Eliminate White Box Block Effect Behind Nav Pills & Header Links (Exclude Login Button & Reels Pill) */
-html.light-mode header a:not(.sofa-login-rect-btn):not(.reels-nav-pill):not(.reels-pill),
-html.light-mode #sofa-header a:not(.sofa-login-rect-btn):not(.reels-nav-pill):not(.reels-pill),
+/* FIX: Eliminate White Box Block Effect Behind Nav Pills & Header Links (Exclude Login Button, Reels Pill & Popover CTA) */
+html.light-mode header a:not(.sofa-login-rect-btn):not(.reels-nav-pill):not(.reels-pill):not(.as-pn-popover-cta-btn):not(.as-pn-popover-card-box),
+html.light-mode #sofa-header a:not(.sofa-login-rect-btn):not(.reels-nav-pill):not(.reels-pill):not(.as-pn-popover-cta-btn):not(.as-pn-popover-card-box),
 html.light-mode .sofa-nav-links a:not(.reels-nav-pill),
 html.light-mode .sofa-nav-item:not(.reels-nav-pill),
 html.light-mode .nav-pill:not(.reels-nav-pill),
@@ -223,6 +236,76 @@ html.light-mode .reels-char,
 .light-mode .reels-char {
     color: #e11d48 !important;
     text-shadow: none !important;
+}
+
+/* 🌿 PHIM NGẮN NAVBAR & DRAWER PILL IN LIGHT / CREAM MODE (Lime Green Signature Border & Glow) */
+html.light-mode .drawer-pill-btn.phim-ngan-pill,
+.light-mode .drawer-pill-btn.phim-ngan-pill {
+    background: #f7fee7 !important;
+    border: 1.5px solid #84cc16 !important;
+    box-shadow: 0 2px 8px rgba(101, 163, 13, 0.22) !important;
+    color: #3f6212 !important;
+    transform: translateZ(0) !important;
+}
+
+html.light-mode .drawer-pill-btn.phim-ngan-pill:hover,
+.light-mode .drawer-pill-btn.phim-ngan-pill:hover {
+    background: #ecfccb !important;
+    border-color: #65a30d !important;
+    box-shadow: 0 4px 14px rgba(101, 163, 13, 0.35) !important;
+    color: #1a2e05 !important;
+    transform: translateY(-1px) scale(1.04) translateZ(0) !important;
+}
+
+html.light-mode .drawer-pill-btn.phim-ngan-pill .pn-drawer-icon,
+.light-mode .drawer-pill-btn.phim-ngan-pill .pn-drawer-icon {
+    color: #65a30d !important;
+    filter: drop-shadow(0 0 3px rgba(101, 163, 13, 0.45)) !important;
+}
+
+html.light-mode .sofa-nav-item.phim-ngan-nav-pill,
+html.light-mode .sofa-nav-item.phim-ngan-nav-pill .pn-nav-text,
+.light-mode .sofa-nav-item.phim-ngan-nav-pill,
+.light-mode .sofa-nav-item.phim-ngan-nav-pill .pn-nav-text {
+    color: #4d7c0f !important;
+    font-weight: 700 !important;
+}
+
+/* Khi có hero banner hoặc trang chi tiết phim có poster backdrop trong light mode -> Chữ và icon xanh lime nổi bật rực rỡ */
+html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill,
+html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill .pn-nav-text,
+html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill,
+html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill .pn-nav-text,
+html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill,
+html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill .pn-nav-text {
+    color: #a3e635 !important;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75) !important;
+}
+
+html.light-mode body.has-desktop-hero #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill .pn-nav-icon,
+html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill .pn-nav-icon,
+html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-nav-item.phim-ngan-nav-pill .pn-nav-icon {
+    color: #a3e635 !important;
+    filter: drop-shadow(0 0 6px rgba(163, 230, 53, 0.8)) !important;
+}
+
+html.light-mode .sofa-nav-item.phim-ngan-nav-pill .pn-nav-icon,
+.light-mode .sofa-nav-item.phim-ngan-nav-pill .pn-nav-icon {
+    color: #65a30d !important;
+    filter: drop-shadow(0 0 4px rgba(101, 163, 13, 0.45)) !important;
+}
+
+html.light-mode .sofa-nav-item.phim-ngan-nav-pill:hover,
+html.light-mode .sofa-nav-item.phim-ngan-nav-pill:hover .pn-nav-text,
+.light-mode .sofa-nav-item.phim-ngan-nav-pill:hover,
+.light-mode .sofa-nav-item.phim-ngan-nav-pill:hover .pn-nav-text {
+    color: #65a30d !important;
+}
+
+html.light-mode .sofa-nav-item.phim-ngan-nav-pill:hover .pn-nav-icon,
+.light-mode .sofa-nav-item.phim-ngan-nav-pill:hover .pn-nav-icon {
+    color: #84cc16 !important;
+    filter: drop-shadow(0 0 6px rgba(132, 204, 22, 0.7)) !important;
 }
 
 /* Header Login Button Box in Light Mode (Desktop & Mobile) */
@@ -292,21 +375,59 @@ html.light-mode header .sofa-menu-btn svg {
     stroke: #1c1917 !important;
 }
 
-/* 2. NGOẠI LỆ: Chỉ màu TRẮNG #ffffff khi ở Trang Chủ Desktop Hero hoặc Trang Chi Tiết Phim có ảnh backdrop */
-html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
-html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
-html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn,
-html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled) .sofa-menu-btn,
-html.light-mode body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled) .sofa-menu-btn {
-    color: #ffffff !important;
+/* 2. NGOẠI LỆ: Chỉ màu TRẮNG #ffffff khi ở MÀN HÌNH DESKTOP (>= 1024px) có ảnh backdrop */
+@media (min-width: 1024px) {
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
+    html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn,
+    html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled) .sofa-menu-btn,
+    html.light-mode body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled) .sofa-menu-btn {
+        color: #ffffff !important;
+    }
+
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
+    html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
+    html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg,
+    html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
+    html.light-mode body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+        stroke: #ffffff !important;
+    }
 }
 
-html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
-html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
-html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-menu-btn svg,
-html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
-html.light-mode body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled) .sofa-menu-btn svg {
-    stroke: #ffffff !important;
+/* 📱 TRÊN MÀN HÌNH MOBILE (< 1024px): Dấu 3 gạch menu ở nền kem LUÔN LUÔN màu ĐEN #1c1917, không để màu trắng */
+@media (max-width: 1023px) {
+    html.light-mode .sofa-menu-btn,
+    html.light-mode #sofa-header .sofa-menu-btn,
+    html.light-mode header#sofa-header .sofa-menu-btn,
+    html.light-mode body #sofa-header .sofa-menu-btn,
+    html.light-mode body.has-desktop-hero #sofa-header .sofa-menu-btn,
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header .sofa-menu-btn,
+    html.light-mode body:has(.desktop-hero-showcase) #sofa-header .sofa-menu-btn,
+    html.light-mode body.page-phim-detail #sofa-header .sofa-menu-btn,
+    html.light-mode body:has(#movieHeroBackdrop) #sofa-header .sofa-menu-btn,
+    html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header .sofa-menu-btn,
+    .light-mode .sofa-menu-btn {
+        color: #1c1917 !important;
+        stroke: #1c1917 !important;
+    }
+
+    html.light-mode .sofa-menu-btn svg,
+    html.light-mode #sofa-header .sofa-menu-btn svg,
+    html.light-mode header#sofa-header .sofa-menu-btn svg,
+    html.light-mode body #sofa-header .sofa-menu-btn svg,
+    html.light-mode body.has-desktop-hero #sofa-header .sofa-menu-btn svg,
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header .sofa-menu-btn svg,
+    html.light-mode body:has(.desktop-hero-showcase) #sofa-header .sofa-menu-btn svg,
+    html.light-mode body.page-phim-detail #sofa-header .sofa-menu-btn svg,
+    html.light-mode body:has(#movieHeroBackdrop) #sofa-header .sofa-menu-btn svg,
+    html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header .sofa-menu-btn svg,
+    .light-mode .sofa-menu-btn svg,
+    html.light-mode .sofa-menu-btn svg path,
+    .light-mode .sofa-menu-btn svg path {
+        color: #1c1917 !important;
+        stroke: #1c1917 !important;
+        fill: none !important;
+    }
 }
 
 /* Desktop Navigation Links */
@@ -321,21 +442,29 @@ html.light-mode .nav-text {
 }
 
 /* 🌟 WHITE CONTRAST EXCEPTION: When at top of page over dark backdrop (Hero Banner, Phim Detail) */
-html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-html.light-mode body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill) {
+html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+html.light-mode body.page-phim-detail #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+html.light-mode body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+html.light-mode body:has(.movie-hero-backdrop-wrap) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill) {
     color: #ffffff !important;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;
     font-weight: 600 !important;
 }
 
-html.light-mode .sofa-nav-item:not(.reels-nav-pill):hover,
-html.light-mode .sofa-dropdown:hover .sofa-nav-item:not(.reels-nav-pill),
-html.light-mode .nav-pill:not(.reels-nav-pill):hover .nav-text {
+html.light-mode .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill):hover,
+html.light-mode .sofa-dropdown:hover .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+html.light-mode .nav-pill:not(.reels-nav-pill):not(.phim-ngan-nav-pill):hover .nav-text {
     color: #fcd576 !important;
     background: transparent !important;
+}
+
+/* Active Header Indicator Dot in Light Mode (Phim Ngắn / Short Drama) */
+html.light-mode .as-pn-dot,
+.light-mode .as-pn-dot {
+    background: #65a30d !important;
+    background-color: #65a30d !important;
+    box-shadow: 0 0 6px rgba(101, 163, 13, 0.65), 0 0 1px #4d7c0f !important;
 }
 
 /* Dropdown Arrow Icons */
@@ -647,8 +776,8 @@ html.light-mode #sofa-mobile-drawer .drawer-sub-link:hover {
     text-decoration: underline !important;
 }
 
-html.light-mode .drawer-pill-btn:not(.reels-pill),
-html.light-mode #sofa-mobile-drawer .drawer-pill-btn:not(.reels-pill) {
+html.light-mode .drawer-pill-btn:not(.reels-pill):not(.phim-ngan-pill),
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn:not(.reels-pill):not(.phim-ngan-pill) {
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #1c1917 !important;
@@ -670,8 +799,41 @@ html.light-mode .drawer-pill-btn.reels-pill {
     box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22) !important;
 }
 
-html.light-mode .drawer-pill-btn:not(.reels-pill):hover,
-html.light-mode #sofa-mobile-drawer .drawer-pill-btn:not(.reels-pill):hover {
+/* 🌿 PHIM NGẮN DRAWER PILL IN LIGHT MODE (Chữ xanh + Viền xanh + In đậm 800 chuẩn như Reels) */
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn.phim-ngan-pill,
+html.light-mode .drawer-pill-btn.phim-ngan-pill {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #f7fee7 !important;
+    background-color: #f7fee7 !important;
+    border: 1.5px solid #65a30d !important;
+    border-color: #65a30d !important;
+    border-radius: 10px !important;
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 8px rgba(101, 163, 13, 0.22) !important;
+    gap: 6px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+}
+
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn.phim-ngan-pill span,
+html.light-mode .drawer-pill-btn.phim-ngan-pill span {
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn.phim-ngan-pill .pn-drawer-icon,
+html.light-mode .drawer-pill-btn.phim-ngan-pill .pn-drawer-icon {
+    color: #16a34a !important;
+    filter: drop-shadow(0 0 3px rgba(22, 163, 74, 0.45)) !important;
+}
+
+html.light-mode .drawer-pill-btn:not(.reels-pill):not(.phim-ngan-pill):hover,
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn:not(.reels-pill):not(.phim-ngan-pill):hover {
     background: #fff7ed !important;
     background-color: #fff7ed !important;
     border-color: #d97706 !important;
@@ -684,10 +846,20 @@ html.light-mode .drawer-pill-btn.reels-pill:hover {
     background: #fef3c7 !important;
     background-color: #fef3c7 !important;
     border-color: #d97706 !important;
-    color: #be123c !important;
-    -webkit-text-fill-color: #be123c !important;
     box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
 }
+
+html.light-mode #sofa-mobile-drawer .drawer-pill-btn.phim-ngan-pill:hover,
+html.light-mode .drawer-pill-btn.phim-ngan-pill:hover {
+    background: #ecfccb !important;
+    background-color: #ecfccb !important;
+    border-color: #4d7c0f !important;
+    color: #14532d !important;
+    -webkit-text-fill-color: #14532d !important;
+    box-shadow: 0 4px 14px rgba(101, 163, 13, 0.35) !important;
+    transform: translateY(-1px) scale(1.02) !important;
+}
+
 
 
 
@@ -3360,6 +3532,13 @@ html.light-mode footer.aphim-footer {
     color: #57534e !important;
 }
 
+html.light-mode body.page-phim-ngan footer.aphim-footer,
+html.light-mode body.page-phim-ngan #asSiteFooterWrap,
+html.light-mode #asSiteFooterWrap footer.aphim-footer {
+    background: #faf7f2 !important;
+    border-top: 1px solid rgba(22, 24, 29, 0.06) !important;
+}
+
 html.light-mode footer.aphim-footer::before {
     display: none !important;
 }
@@ -3705,50 +3884,146 @@ html.light-mode .bn-bg-svg path {
     stroke-width: 1px !important;
 }
 
-/* Tab Items (Labels & Side Icons) */
-html.light-mode .bn-tab {
+/* Tab Items (Labels & Side Icons for Main Cinema Site) */
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab {
     color: #57534e !important;
     text-shadow: none !important;
 }
 
-html.light-mode .bn-tab-label {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab-label {
     color: #57534e !important;
     font-weight: 600 !important;
 }
 
-html.light-mode .bn-tab-icon {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon {
     color: #57534e !important;
 }
 
-html.light-mode .bn-tab-icon path,
-html.light-mode .bn-tab-icon circle {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon path,
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon circle {
     stroke: #57534e !important;
 }
 
-html.light-mode .bn-tab-icon circle {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon circle {
     fill: #faf7f2 !important;
 }
 
-/* Active Tab Accent (Amber Gold #d97706) */
-html.light-mode .bn-tab.active,
-html.light-mode .bn-tab.active .bn-tab-label {
+/* 🎬 Tab Phim Ngắn trên Bottom Nav Mobile: Toàn bộ icon (kể cả đuôi ống kính path) màu xanh #65a30d */
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon path,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon rect,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-tab-icon path,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-tab-icon rect {
+    stroke: #65a30d !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon polygon,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-tab-icon polygon {
+    fill: #65a30d !important;
+    stroke: none !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-pn-dot {
+    background: #65a30d !important;
+    box-shadow: 0 0 4px rgba(101, 163, 13, 0.8) !important;
+    animation: bnPnDotPulseLight 2s infinite ease-in-out !important;
+}
+
+@keyframes bnPnDotPulseLight {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+        box-shadow: 0 0 3px rgba(101, 163, 13, 0.5);
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+        box-shadow: 0 0 6px rgba(101, 163, 13, 0.9);
+    }
+}
+
+/* Active Tab Accent (Amber Gold #d97706 for Main Cinema Site) */
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab.active:not(#bn-tab-phim-ngan):not(#bn-tab-reels),
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab.active:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-label {
     color: #d97706 !important;
     font-weight: 800 !important;
     text-shadow: none !important;
 }
 
-html.light-mode .bn-tab.active .bn-tab-icon {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab.active:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon {
     color: #d97706 !important;
 }
 
-html.light-mode .bn-tab.active .bn-tab-icon path,
-html.light-mode .bn-tab.active .bn-tab-icon circle {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab.active:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon path,
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab.active:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon circle {
     stroke: #d97706 !important;
     stroke-width: 1.8 !important;
 }
 
-html.light-mode .bn-tab.active .bn-tab-icon circle {
+html.light-mode #bottom-nav-dock:not(.bn-phim-ngan-mode) .bn-tab.active:not(#bn-tab-phim-ngan):not(#bn-tab-reels) .bn-tab-icon circle {
     fill: #fef8ee !important;
+}
+
+/* 🎬 ĐỒNG BỘ 100% MÀU XANH LÁ ĐẶC TRƯNG CHO MỌI TAB TRÊN BOTTOM NAV PHIM NGẮN (LIGHT MODE) */
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) {
+    color: #64748b !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) .bn-tab-label {
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) svg {
+    color: #64748b !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) svg * {
+    stroke: #64748b !important;
+    fill: transparent !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-label,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active {
+    color: #4d7c0f !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active .bn-tab-icon {
+    color: #4d7c0f !important;
+    stroke: #4d7c0f !important;
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 2px 6px rgba(77, 124, 15, 0.35)) !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-icon *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg polygon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg line,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg path,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg line,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active svg * {
+    stroke: #4d7c0f !important;
+    stroke-width: 1.6 !important;
+    color: #4d7c0f !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg polygon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg polygon {
+    fill: transparent !important;
 }
 
 /* Center Floating Home Circle (Warm Gold & Pure White Border - No dark bottom shadow bleed) */
@@ -4129,20 +4404,20 @@ html.light-mode #ap-auth-poster-sub {
 
 /* Floating Side Dock Light Mode Overrides (Back to top & Collapsed handle) */
 html.light-mode .fd-btn-top {
-    background: linear-gradient(135deg, #ffffff 0%, #faf7f2 100%) !important;
+    background: #ffffff !important;
     background-color: #ffffff !important;
-    border: 1px solid #e7e0d3 !important;
+    border: 1.5px solid #d97706 !important;
     border-right: none !important;
     color: #d97706 !important;
-    box-shadow: -6px 8px 22px rgba(78, 64, 45, 0.14) !important;
-    border-radius: 20px 0 0 20px !important;
+    box-shadow: -3px 4px 14px rgba(217, 119, 6, 0.16) !important;
+    border-radius: 18px 0 0 18px !important;
 }
 
 html.light-mode .fd-btn-top:hover {
     background: #ffffff !important;
     border-color: #d97706 !important;
     color: #d97706 !important;
-    box-shadow: -8px 10px 28px rgba(217, 119, 6, 0.22) !important;
+    box-shadow: -4px 6px 18px rgba(217, 119, 6, 0.22) !important;
 }
 
 html.light-mode .fd-btn-top svg {
@@ -7524,19 +7799,52 @@ html.light-mode #reportIssueDropdownBtn:focus {
 html.light-mode #reportIssueDropdownMenu {
     background-color: #ffffff !important;
     border: 1.5px solid #d6cebf !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06) !important;
 }
 
 html.light-mode .report-issue-option {
     color: #292524 !important;
     -webkit-text-fill-color: #292524 !important;
+    background: transparent !important;
+    border-left: 3px solid transparent !important;
 }
 
-html.light-mode .report-issue-option:hover,
+html.light-mode .report-issue-option .issue-title {
+    color: #1c1917 !important;
+    -webkit-text-fill-color: #1c1917 !important;
+}
+
+html.light-mode .report-issue-option .issue-desc {
+    color: #78716c !important;
+    -webkit-text-fill-color: #78716c !important;
+}
+
+html.light-mode .report-issue-option:hover {
+    background-color: #f5efe6 !important;
+}
+
+html.light-mode .report-issue-option:hover .issue-title {
+    color: #0c0a09 !important;
+    -webkit-text-fill-color: #0c0a09 !important;
+}
+
 html.light-mode .report-issue-option.active-issue-option {
     background-color: #fef3c7 !important;
+    border-left: 3px solid #d97706 !important;
+}
+
+html.light-mode .report-issue-option.active-issue-option .issue-title {
     color: #b45309 !important;
     -webkit-text-fill-color: #b45309 !important;
+}
+
+html.light-mode .report-issue-option.active-issue-option .issue-desc {
+    color: #92400e !important;
+    -webkit-text-fill-color: #92400e !important;
+}
+
+html.light-mode .report-issue-option .issue-check-icon {
+    color: #d97706 !important;
 }
 
 html.light-mode #reportIssueDesc {

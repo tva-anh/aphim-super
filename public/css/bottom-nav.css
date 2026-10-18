@@ -298,3 +298,309 @@ html.light-mode #bottom-nav-dock .bn-bg-svg path {
 html.light-mode #bottom-nav-dock .bn-bg-svg {
     filter: drop-shadow(0 -4px 14px rgba(0, 0, 0, 0.08)) drop-shadow(0 0 8px rgba(245, 158, 11, 0.15)) !important;
 }
+
+/* ============================================================
+   🎬 PHIM NGẮN BOTTOM NAV THEME (MÀU XANH LIME ĐẶC TRƯNG)
+   ============================================================ */
+#bottom-nav-dock.bn-phim-ngan-mode .bn-bg-svg {
+    filter: drop-shadow(0 -4px 12px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 14px rgba(163, 230, 53, 0.28)) !important;
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active,
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-label {
+    color: #a3e635 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 12px rgba(163, 230, 53, 0.6) !important;
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-icon {
+    color: #a3e635 !important;
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 2px 8px rgba(163, 230, 53, 0.45));
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg *,
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-icon *,
+#bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg *,
+#bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg *,
+#bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg *,
+#bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active svg * {
+    stroke: #a3e635 !important;
+    stroke-width: 1.6 !important;
+    color: #a3e635 !important;
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg circle,
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg polygon,
+#bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg circle,
+#bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg polygon {
+    fill: transparent !important;
+}
+
+/* Nút Trang chủ nổi bật màu XANH LIME chuẩn như nút Xem ngay (#a3e635) */
+#bottom-nav-dock.bn-phim-ngan-mode .bn-center-circle,
+.bn-center-circle-lime {
+    background: #a3e635 !important;
+    background: linear-gradient(145deg, #bbf45c 0%, #a3e635 55%, #92d926 100%) !important;
+    box-shadow: 0 4px 18px rgba(163, 230, 53, 0.55), 0 0 24px rgba(163, 230, 53, 0.35) !important;
+    border: 2.5px solid #ffffff !important;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease !important;
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center.active .bn-center-circle,
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center.active .bn-center-circle-lime {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 6px 24px rgba(163, 230, 53, 0.75), 0 0 32px rgba(163, 230, 53, 0.45) !important;
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center:not(.active) .bn-center-circle,
+#bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center:not(.active) .bn-center-circle-lime {
+    transform: scale(0.96);
+    filter: brightness(0.93);
+    box-shadow: 0 3px 14px rgba(163, 230, 53, 0.38) !important;
+}
+
+#bottom-nav-dock.bn-phim-ngan-mode .bn-center-icon path {
+    stroke: #14210a !important;
+}
+
+/* Nút Về Phim Chính ở góc trái */
+#bn-tab-main-site .bn-tab-icon {
+    transition: transform 0.2s ease, color 0.18s ease;
+}
+#bn-tab-main-site:hover .bn-tab-icon,
+#bn-tab-main-site:active .bn-tab-icon {
+    transform: translateX(-2.5px);
+    color: #a3e635 !important;
+}
+
+/* Light Mode cho Phim Ngắn - Đồng bộ 100% màu xanh lá chuẩn #4d7c0f cho cả icon và text (Không lẫn màu đen) */
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) {
+    color: #64748b !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) .bn-tab-label {
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab:not(.active) svg * {
+    stroke: #64748b !important;
+    fill: transparent !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-label,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active {
+    color: #4d7c0f !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active .bn-tab-icon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active .bn-tab-icon {
+    color: #4d7c0f !important;
+    stroke: #4d7c0f !important;
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 2px 6px rgba(77, 124, 15, 0.35)) !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active .bn-tab-icon *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg polygon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg line,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg *,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg path,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-library.active svg line,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-main-site.active svg * {
+    stroke: #4d7c0f !important;
+    stroke-width: 1.6 !important;
+    color: #4d7c0f !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab.active svg polygon,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-search.active svg circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode #bn-tab-pn-recommend.active svg polygon {
+    fill: transparent !important;
+}
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-center-circle,
+html.light-mode .bn-center-circle-lime,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center.active .bn-center-circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center.active .bn-center-circle-lime,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center:not(.active) .bn-center-circle,
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-tab-center:not(.active) .bn-center-circle-lime {
+    background: #a3e635 !important;
+    background: linear-gradient(145deg, #bbf45c 0%, #a3e635 55%, #92d926 100%) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    border: 2.5px solid #ffffff !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-center-icon path {
+    stroke: #14210a !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-bg-svg {
+    filter: drop-shadow(0 -3px 8px rgba(78, 64, 45, 0.08)) !important;
+}
+
+html.light-mode #bottom-nav-dock.bn-phim-ngan-mode .bn-bg-svg path {
+    fill: #ffffff !important;
+    stroke: #e7e0d3 !important;
+    stroke-width: 1px !important;
+}
+
+/* ============================================================
+   🎬 PHIM NGẮN TAB ON MAIN SITE BOTTOM NAV (TAB 2)
+   ============================================================ */
+#bn-tab-phim-ngan,
+#bn-tab-phim-ngan .bn-tab-label {
+    overflow: visible !important;
+}
+
+#bn-tab-phim-ngan .bn-pn-label-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3.5px !important;
+    overflow: visible !important;
+}
+
+#bn-tab-phim-ngan .bn-pn-dot {
+    display: inline-block !important;
+    width: 5px !important;
+    height: 5px !important;
+    min-width: 5px !important;
+    min-height: 5px !important;
+    border-radius: 50% !important;
+    background: #84cc16 !important;
+    box-shadow: 0 0 4px rgba(132, 204, 22, 0.85) !important;
+    flex-shrink: 0 !important;
+    margin-left: 1px !important;
+    animation: bnPnDotPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes bnPnDotPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+        box-shadow: 0 0 3px rgba(132, 204, 22, 0.6);
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+        box-shadow: 0 0 6px rgba(132, 204, 22, 0.95);
+    }
+}
+
+#bn-tab-phim-ngan .bn-phim-ngan-icon {
+    width: 24px !important;
+    height: 24px !important;
+    color: #a3e635 !important;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+/* Đảm bảo toàn bộ icon máy quay (thân máy, tam giác play, và ĐUÔI ỐNG KÍNH Ở CUỐI) đều xanh đồng bộ */
+#bn-tab-phim-ngan .bn-phim-ngan-icon path,
+#bn-tab-phim-ngan .bn-phim-ngan-icon rect {
+    stroke: #a3e635 !important;
+}
+
+#bn-tab-phim-ngan .bn-phim-ngan-icon polygon {
+    fill: #a3e635 !important;
+    stroke: none !important;
+}
+
+#bn-tab-phim-ngan.active {
+    color: #a3e635 !important;
+    text-shadow: 0 0 12px rgba(163, 230, 53, 0.6) !important;
+}
+
+#bn-tab-phim-ngan.active .bn-tab-label {
+    color: #a3e635 !important;
+    font-weight: 600 !important;
+}
+
+#bn-tab-phim-ngan.active .bn-phim-ngan-icon {
+    transform: scale(1.12) translateY(-1px);
+    filter: drop-shadow(0 2px 8px rgba(163, 230, 53, 0.5));
+}
+
+#bn-tab-phim-ngan.active .bn-phim-ngan-icon path,
+#bn-tab-phim-ngan.active .bn-phim-ngan-icon rect {
+    stroke: #a3e635 !important;
+}
+
+#bn-tab-phim-ngan.active .bn-phim-ngan-icon polygon {
+    fill: #a3e635 !important;
+    stroke: none !important;
+}
+
+/* Light mode for Phim Ngắn tab on main bottom nav */
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon path,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon rect,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-tab-icon path,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-tab-icon rect {
+    color: #65a30d !important;
+    stroke: #65a30d !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-phim-ngan-icon polygon,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-tab-icon polygon {
+    color: #65a30d !important;
+    fill: #65a30d !important;
+    stroke: none !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan .bn-pn-dot {
+    background: #65a30d !important;
+    box-shadow: 0 0 4px rgba(101, 163, 13, 0.8) !important;
+    animation: bnPnDotPulseLight 2s infinite ease-in-out !important;
+}
+
+@keyframes bnPnDotPulseLight {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+        box-shadow: 0 0 3px rgba(101, 163, 13, 0.5);
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+        box-shadow: 0 0 6px rgba(101, 163, 13, 0.9);
+    }
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active {
+    color: #65a30d !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-tab-label {
+    color: #65a30d !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-phim-ngan-icon {
+    filter: drop-shadow(0 2px 6px rgba(101, 163, 13, 0.45)) !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-phim-ngan-icon path,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-phim-ngan-icon rect,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-tab-icon path,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-tab-icon rect {
+    stroke: #65a30d !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-phim-ngan-icon polygon,
+html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-tab-icon polygon {
+    fill: #65a30d !important;
+    stroke: none !important;
+}
+

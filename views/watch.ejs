@@ -4,12 +4,12 @@
 <head>
     <%- include('partials/head') %>
         <link rel="preconnect" href="https://bf.333xbet.com" crossorigin>
-        <link rel="stylesheet" href="/css/watch-page.css?v=348" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=351" />
 </head>
 
 <body class="page-watch bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
     <!-- Cinema Dimmer Overlay & Exit Indicator -->
-    <div id="cinemaOverlay" onclick="toggleCinemaMode()" title="Nhấn vào đây để bật lại đèn"></div>
+    <div id="cinemaOverlay" onclick="if (event.target === this) toggleCinemaMode(false)" title="Nhấn vào đây để bật lại đèn"></div>
     <div id="cinemaExitHint" onclick="toggleCinemaMode()" style="visibility: hidden; opacity: 0; cursor: pointer;"
         title="Bấm để bật lại đèn">
         <span class="material-icons-round text-sm text-amber-400">theater_comedy</span>
@@ -857,9 +857,9 @@
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=101" defer></script>
-            <script src="/js/watch.js?v=10108" defer></script>
+            <script src="/js/watch.js?v=10109" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
-            <script src="/js/watch-ui-init.js?v=218" defer></script>
+            <script src="/js/watch-ui-init.js?v=219" defer></script>
             <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
             <div id="reportMovieModal"
                 style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;"
@@ -887,62 +887,86 @@
                         </div>
 
                         <div class="relative" id="reportIssueDropdownWrapper">
-                            <label class="block text-xs font-semibold text-gray-300 mb-1 report-modal-label">Vấn đề gặp
-                                phải <span class="text-red-400">*</span></label>
-                            <input type="hidden" id="reportIssueType"
-                                value="Server không phát / Video bị lỗi đen màn hình" />
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5 report-modal-label">Vấn đề gặp phải <span class="text-red-400">*</span></label>
+                            <input type="hidden" id="reportIssueType" value="Server không phát / Video bị lỗi đen màn hình" />
 
-                            <!-- Custom Trigger Button -->
+                            <!-- Custom Trigger Button (Modern 44px Clean Card) -->
                             <button type="button" id="reportIssueDropdownBtn" onclick="toggleReportIssueDropdown(event)"
-                                class="w-full bg-[#1e2230] border border-white/15 rounded-lg px-3 py-2 text-xs text-white flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer select-none">
-                                <span id="reportIssueSelectedLabel"
-                                    class="truncate flex items-center gap-1.5 font-medium">🔴 Video lỗi / Không phát /
-                                    Màn hình đen</span>
-                                <svg id="reportIssueArrow"
-                                    class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
+                                class="w-full bg-[#1e2230] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer select-none">
+                                <span id="reportIssueSelectedLabel" class="truncate font-semibold text-[13px] tracking-wide">Video lỗi / Không phát / Màn hình đen</span>
+                                <svg id="reportIssueArrow" class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
 
-                            <!-- Custom Dropdown Menu List -->
+                            <!-- Custom Dropdown Menu List (Enterprise Grade Clean Card) -->
                             <div id="reportIssueDropdownMenu"
-                                class="hidden absolute left-0 right-0 top-full mt-1.5 bg-[#1a1d2b] border border-white/15 rounded-xl shadow-2xl z-50 overflow-hidden py-1 transition-all">
-                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors active-issue-option bg-[#fcd576]/15 text-[#fcd576]"
+                                class="hidden absolute left-0 right-0 top-full mt-2 bg-[#161926] border border-white/15 rounded-2xl shadow-2xl z-50 overflow-hidden p-1.5 space-y-1 transition-all">
+                                <div class="report-issue-option active-issue-option"
                                     data-value="Server không phát / Video bị lỗi đen màn hình"
                                     onclick="selectReportIssue(this)">
-                                    <span>🔴</span>
-                                    <span class="truncate">Video lỗi / Không phát / Màn hình đen</span>
+                                    <div class="flex-1 min-w-0 pr-2">
+                                        <div class="issue-title font-semibold text-[13px] leading-snug">Video lỗi / Không phát / Màn hình đen</div>
+                                        <div class="issue-desc text-[11px] text-gray-400 opacity-80 leading-normal mt-0.5">Không tải được luồng phim, bị quay vòng hoặc đen màn hình</div>
+                                    </div>
+                                    <svg class="issue-check-icon w-4 h-4 text-[#fcd576] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
                                 </div>
-                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                <div class="report-issue-option"
                                     data-value="Sai tập phim / Bị đảo thứ tự / Thiếu tập"
                                     onclick="selectReportIssue(this)">
-                                    <span>⚠️</span>
-                                    <span class="truncate">Sai tập / Bị đảo / Thiếu tập phim</span>
+                                    <div class="flex-1 min-w-0 pr-2">
+                                        <div class="issue-title font-semibold text-[13px] leading-snug">Sai tập / Bị đảo / Thiếu tập phim</div>
+                                        <div class="issue-desc text-[11px] text-gray-400 opacity-80 leading-normal mt-0.5">Tập phim bị trùng lặp, nhảy số tập hoặc thiếu tập</div>
+                                    </div>
+                                    <svg class="issue-check-icon hidden w-4 h-4 text-[#fcd576] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
                                 </div>
-                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                <div class="report-issue-option"
                                     data-value="Lỗi âm thanh / Mất tiếng / Lệch tiếng"
                                     onclick="selectReportIssue(this)">
-                                    <span>🔇</span>
-                                    <span class="truncate">Mất tiếng / Lệch âm thanh</span>
+                                    <div class="flex-1 min-w-0 pr-2">
+                                        <div class="issue-title font-semibold text-[13px] leading-snug">Mất tiếng / Lệch âm thanh</div>
+                                        <div class="issue-desc text-[11px] text-gray-400 opacity-80 leading-normal mt-0.5">Mất âm thanh hoàn toàn hoặc tiếng đi trước/sau hình</div>
+                                    </div>
+                                    <svg class="issue-check-icon hidden w-4 h-4 text-[#fcd576] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
                                 </div>
-                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                <div class="report-issue-option"
                                     data-value="Lỗi phụ đề Vietsub / Phụ đề không khớp"
                                     onclick="selectReportIssue(this)">
-                                    <span>📝</span>
-                                    <span class="truncate">Lỗi phụ đề / Lệch Vietsub</span>
+                                    <div class="flex-1 min-w-0 pr-2">
+                                        <div class="issue-title font-semibold text-[13px] leading-snug">Lỗi phụ đề / Lệch Vietsub</div>
+                                        <div class="issue-desc text-[11px] text-gray-400 opacity-80 leading-normal mt-0.5">Phụ đề sai ngữ cảnh, mất chữ hoặc không khớp lời thoại</div>
+                                    </div>
+                                    <svg class="issue-check-icon hidden w-4 h-4 text-[#fcd576] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
                                 </div>
-                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
+                                <div class="report-issue-option"
                                     data-value="Video bị giật lag / Tải chậm liên tục"
                                     onclick="selectReportIssue(this)">
-                                    <span>🐌</span>
-                                    <span class="truncate">Giật lag / Tải phim chậm</span>
+                                    <div class="flex-1 min-w-0 pr-2">
+                                        <div class="issue-title font-semibold text-[13px] leading-snug">Giật lag / Tải phim chậm</div>
+                                        <div class="issue-desc text-[11px] text-gray-400 opacity-80 leading-normal mt-0.5">Tốc độ tải chậm, đứng hình liên tục dù mạng ổn định</div>
+                                    </div>
+                                    <svg class="issue-check-icon hidden w-4 h-4 text-[#fcd576] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
                                 </div>
-                                <div class="report-issue-option px-3 py-2 text-xs text-gray-200 hover:bg-[#fcd576]/15 hover:text-[#fcd576] cursor-pointer flex items-center gap-2 transition-colors"
-                                    data-value="Vấn đề khác" onclick="selectReportIssue(this)">
-                                    <span>💡</span>
-                                    <span class="truncate">Vấn đề khác</span>
+                                <div class="report-issue-option"
+                                    data-value="Vấn đề khác"
+                                    onclick="selectReportIssue(this)">
+                                    <div class="flex-1 min-w-0 pr-2">
+                                        <div class="issue-title font-semibold text-[13px] leading-snug">Vấn đề khác</div>
+                                        <div class="issue-desc text-[11px] text-gray-400 opacity-80 leading-normal mt-0.5">Các sự cố phát sinh khác chưa có trong danh sách</div>
+                                    </div>
+                                    <svg class="issue-check-icon hidden w-4 h-4 text-[#fcd576] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
                                 </div>
                             </div>
                         </div>

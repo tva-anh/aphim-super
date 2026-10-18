@@ -494,18 +494,22 @@
         window.selectReportIssue = function(el) {
             if (!el) return;
             const val = el.getAttribute('data-value');
-            const label = el.querySelector('.truncate')?.textContent || el.textContent;
-            const icon = el.querySelector('span:first-child')?.textContent || '';
+            const titleEl = el.querySelector('.issue-title') || el.querySelector('.truncate');
+            const label = titleEl ? titleEl.textContent.trim() : el.textContent.trim();
 
             const hiddenInput = document.getElementById('reportIssueType');
             const displayLabel = document.getElementById('reportIssueSelectedLabel');
             if (hiddenInput) hiddenInput.value = val;
-            if (displayLabel) displayLabel.innerHTML = `${icon} <span class="truncate">${label}</span>`.trim();
+            if (displayLabel) displayLabel.textContent = label;
 
             document.querySelectorAll('.report-issue-option').forEach(opt => {
-                opt.classList.remove('active-issue-option', 'text-[#fcd576]', 'bg-[#fcd576]/15');
+                opt.classList.remove('active-issue-option');
+                const check = opt.querySelector('.issue-check-icon');
+                if (check) check.classList.add('hidden');
             });
-            el.classList.add('active-issue-option', 'text-[#fcd576]', 'bg-[#fcd576]/15');
+            el.classList.add('active-issue-option');
+            const check = el.querySelector('.issue-check-icon');
+            if (check) check.classList.remove('hidden');
 
             const menu = document.getElementById('reportIssueDropdownMenu');
             const arrow = document.getElementById('reportIssueArrow');

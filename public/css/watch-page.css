@@ -682,9 +682,20 @@
                 }
 
                 body.cinema-active #main-player-box {
+                    position: relative !important;
+                    z-index: 9996 !important;
+                    pointer-events: auto !important;
                     width: 100% !important;
                     max-width: min(1540px, calc((100vh - 110px) * 16 / 9)) !important;
                     margin: 0 auto !important;
+                }
+
+                body.cinema-active #main-player-box * {
+                    pointer-events: auto;
+                }
+
+                body.cinema-active #main-player-box .player-overlay-meta {
+                    pointer-events: none !important;
                 }
 
                 body.cinema-active #player-and-controls > div:not(#main-player-box) {
@@ -765,6 +776,14 @@
                     width: 100% !important;
                     max-width: 100% !important;
                     margin: 0 !important;
+                }
+
+                body.cinema-active #main-player-box * {
+                    pointer-events: auto;
+                }
+
+                body.cinema-active #main-player-box .player-overlay-meta {
+                    pointer-events: none !important;
                 }
 
                 body.cinema-active header,
@@ -1095,7 +1114,9 @@
                 overflow-y: hidden !important;
                 scrollbar-width: none !important;
                 -ms-overflow-style: none !important;
-                scroll-behavior: smooth;
+                scroll-behavior: auto !important;
+                touch-action: pan-x pan-y !important;
+                overscroll-behavior-x: contain !important;
                 -webkit-overflow-scrolling: touch;
             }
 
@@ -3466,6 +3487,77 @@ html.light-mode #sidebar-cast p {
 /* Đảm bảo khoảng cách đáy trước footer trên cả Desktop và Mobile */
 .watch-main-container {
     padding-bottom: 80px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MODAL BÁO LỖI PHIM - MODERN ENTERPRISE UI (ICON-FREE & SLEEK TILES)
+   ═══════════════════════════════════════════════════════════════════ */
+#reportIssueDropdownBtn {
+    background: #1a1d2b !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    min-height: 44px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#reportIssueDropdownBtn:hover {
+    border-color: rgba(252, 213, 118, 0.5) !important;
+    background: #1e2233 !important;
+}
+
+#reportIssueDropdownBtn:focus {
+    border-color: #fcd576 !important;
+    box-shadow: 0 0 0 3px rgba(252, 213, 118, 0.15) !important;
+}
+
+#reportIssueDropdownMenu {
+    background: #161824 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+    padding: 6px !important;
+    max-height: 320px !important;
+    overflow-y: auto !important;
+}
+
+.report-issue-option {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 9px 12px !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.16s ease-in-out !important;
+    color: #e2e8f0 !important;
+    background: transparent !important;
+    border-left: 3px solid transparent !important;
+}
+
+.report-issue-option:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
+    transform: translateX(2px) !important;
+}
+
+.report-issue-option.active-issue-option {
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #fcd576 !important;
+    border-left: 3px solid #f59e0b !important;
+}
+
+.report-issue-option.active-issue-option .issue-title {
+    color: #fcd576 !important;
+    font-weight: 700 !important;
+}
+
+.report-issue-option.active-issue-option .issue-desc {
+    color: #fbbf24 !important;
+    opacity: 0.85 !important;
+}
+
+.report-issue-option .issue-check-icon {
+    color: #f59e0b !important;
 }
 
 @media (min-width: 1024px) {

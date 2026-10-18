@@ -264,7 +264,7 @@
         box-shadow: none !important;
         overflow: visible !important;
         -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
+        touch-action: pan-x pan-y !important;
     }
 
     .hero-thumb-item {
@@ -321,7 +321,7 @@
         margin-top: -2px !important; /* KÉO BXH LÊN NGƯỢC LẠI ĐỂ LẤP KHOẢNG TRỐNG */
         position: relative !important;
         z-index: 30 !important; /* Giảm z-index xuống 30 để luồn DƯỚI interests-section (40), không cắt ngang thẻ */
-        padding-top: 0px !important; /* �� c�n b?ng qua margin-top */ /* Trả lại 24px để cân bằng khoảng cách với các section dưới */
+        padding-top: 0px !important; /* �� c�n b?ng qua margin-top */ /* Trả lại 24px để cân bằng khoảng cách với các section dưới */
         background: transparent !important; /* Ép trong suốt để không tạo đường kẻ cắt ngang */
         background-color: transparent !important;
     }

@@ -7,3 +7,10 @@ yarn-error.log
 logs/
 *.log
 .DS_Store
+data/subtitles/
+*.vtt
+.kilo/
+.kiro/
+.pn-backup/
+scratch/
+*.tmp

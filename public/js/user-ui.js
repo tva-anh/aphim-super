@@ -654,7 +654,7 @@ function updateUserUI() {
                     <div class="ap-user-bar-trigger flex items-center gap-2.5 px-2 py-1 rounded-full cursor-pointer transition-all duration-200"
                          style="user-select: none;"
                          title="${displayName.replace(/"/g, '&quot;')}"
-                         onclick="this.parentElement.classList.toggle('is-open')">
+                         onclick="window.toggleUserNavDropdown(event)">
                         ${avatarHtml}
                         <span class="ap-user-name-text ${nameColorClass}" title="${displayName.replace(/"/g, '&quot;')}" style="font-size: 14.5px !important; font-weight: 900 !important; font-family: 'Montserrat', 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif !important; letter-spacing: 0.03em !important; text-transform: none !important; white-space: nowrap !important; max-width: 130px !important; overflow: hidden !important; text-overflow: ellipsis !important; vertical-align: middle !important; ${nameColorStyle}">
                             ${displayName}
@@ -669,7 +669,7 @@ function updateUserUI() {
                         
                         <!-- Top Header: Username + Modern 3D Cyber Star Badge -->
                         <div style="display:flex; align-items:center; gap:8px; padding:0 4px; margin-bottom:16px;">
-                            <span class="ap-dropdown-user-name ${nameColorClass}" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:'Montserrat', 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; display:inline-block; ${nameColorStyle}" title="${displayName.replace(/"/g, '&quot;')}">${displayName}</span>
+                            <span class="ap-dropdown-user-name ${nameColorClass}" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:'Montserrat', 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; display:inline-block; ${nameColorStyle}" title="${displayName.replace(/"/g, '&quot;')}">${displayName}</span>
                             <span class="ap-vip-modern-badge" title="Thành viên VIP" style="display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;" onmouseover="this.style.transform='scale(1.25) rotate(15deg)';" onmouseout="this.style.transform='scale(1) rotate(0deg)';">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block; filter:drop-shadow(0 2px 8px rgba(129,140,248,0.7));">
                                     <defs>
@@ -683,27 +683,21 @@ function updateUserUI() {
                                         </linearGradient>
                                         <linearGradient id="facetEN" x1="22.5" y1="12" x2="12" y2="9.5" gradientUnits="userSpaceOnUse">
                                             <stop offset="0%" stop-color="#c084fc"/>
-                                            <stop offset="100%" stop-color="#a855f7"/>
                                         </linearGradient>
-                                        <linearGradient id="facetES" x1="22.5" y1="12" x2="12" y2="14.5" gradientUnits="userSpaceOnUse">
+                                        <linearGradient id="facetES" x1="22.5" y1="12" x2="14" y2="14.5" gradientUnits="userSpaceOnUse">
                                             <stop offset="0%" stop-color="#f472b6"/>
-                                            <stop offset="100%" stop-color="#c026d3"/>
                                         </linearGradient>
-                                        <linearGradient id="facetSE" x1="12" y1="22.5" x2="14" y2="12" gradientUnits="userSpaceOnUse">
+                                        <linearGradient id="facetSE" x1="12" y1="22.5" x2="14" y2="14.5" gradientUnits="userSpaceOnUse">
                                             <stop offset="0%" stop-color="#ec4899"/>
-                                            <stop offset="100%" stop-color="#9333ea"/>
                                         </linearGradient>
-                                        <linearGradient id="facetSW" x1="12" y1="22.5" x2="10" y2="12" gradientUnits="userSpaceOnUse">
+                                        <linearGradient id="facetSW" x1="12" y1="22.5" x2="9.5" y2="14.5" gradientUnits="userSpaceOnUse">
                                             <stop offset="0%" stop-color="#7c3aed"/>
-                                            <stop offset="100%" stop-color="#4f46e5"/>
                                         </linearGradient>
-                                        <linearGradient id="facetWS" x1="1.5" y1="12" x2="12" y2="14.5" gradientUnits="userSpaceOnUse">
+                                        <linearGradient id="facetWS" x1="1.5" y1="12" x2="9.5" y2="14.5" gradientUnits="userSpaceOnUse">
                                             <stop offset="0%" stop-color="#38bdf8"/>
-                                            <stop offset="100%" stop-color="#2563eb"/>
                                         </linearGradient>
-                                        <linearGradient id="facetWN" x1="1.5" y1="12" x2="12" y2="9.5" gradientUnits="userSpaceOnUse">
+                                        <linearGradient id="facetWN" x1="1.5" y1="12" x2="10" y2="9.5" gradientUnits="userSpaceOnUse">
                                             <stop offset="0%" stop-color="#67e8f9"/>
-                                            <stop offset="100%" stop-color="#6366f1"/>
                                         </linearGradient>
                                     </defs>
                                     <polygon points="12,1.5 9.5,9.5 12,12" fill="url(#facetNW)"/>
@@ -714,14 +708,14 @@ function updateUserUI() {
                                     <polygon points="12,22.5 9.5,14.5 12,12" fill="url(#facetSW)"/>
                                     <polygon points="1.5,12 9.5,14.5 12,12" fill="url(#facetWS)"/>
                                     <polygon points="1.5,12 9.5,9.5 12,12" fill="url(#facetWN)"/>
-                                    <!-- Central Core Highlight -->
                                     <polygon points="12,8.5 13.8,12 12,15.5 10.2,12" fill="#ffffff" opacity="0.9"/>
-                                    <!-- Satellite Sparkles -->
-                                    <circle cx="20" cy="4" r="1.3" fill="#e0e7ff" opacity="0.95"/>
-                                    <circle cx="4" cy="20" r="1.1" fill="#c084fc" opacity="0.9"/>
                                 </svg>
                             </span>
+                            <button type="button" class="ap-user-menu-close" onclick="window.toggleUserNavDropdown(event, false)" title="Đóng menu" style="margin-left:auto; width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; cursor:pointer; color:rgba(255,255,255,0.7); transition:all 0.2s ease;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
                         </div>
+
 
                         <!-- Menu Items (Synchronized 100% with Profile Tabs) -->
                         <div style="display:flex; flex-direction:column; gap:3px;">
@@ -866,7 +860,7 @@ function updateUserUI() {
 
             if (!document._apUserClickGuard) {
                 document._apUserClickGuard = true;
-                document.addEventListener('click', function (e) {
+                const handleOutside = function (e) {
                     if (!e.target.closest('#navNotificationBtn')) {
                         const panel = document.getElementById('navNotifPanel');
                         if (panel && panel.classList.contains('opacity-100')) {
@@ -875,9 +869,15 @@ function updateUserUI() {
                         }
                     }
                     if (!e.target.closest('.nav-profile-dropdown')) {
-                        document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el => el.classList.remove('is-open'));
+                        document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el => {
+                            el.classList.remove('is-open');
+                            el.classList.add('is-closing');
+                            setTimeout(() => el.classList.remove('is-closing'), 300);
+                        });
                     }
-                });
+                };
+                document.addEventListener('click', handleOutside);
+                document.addEventListener('touchend', handleOutside, { passive: true });
             }
 
             if (typeof window.renderNotifications === 'function') {
@@ -909,30 +909,80 @@ function updateUserUI() {
             if (renderedNav) renderedNav.dataset.userId = userId;
         });
 
-        // Inject global hover bridge style if not present
+        // Ensure window.toggleUserNavDropdown is universally available
+        if (typeof window.toggleUserNavDropdown !== 'function') {
+            window.toggleUserNavDropdown = function(e, forceState) {
+                if (e) {
+                    if (typeof e.preventDefault === 'function') e.preventDefault();
+                    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+                }
+                const dropdowns = document.querySelectorAll('.nav-profile-dropdown');
+                if (!dropdowns.length) return;
+
+                dropdowns.forEach(function(dropdown) {
+                    const isOpen = dropdown.classList.contains('is-open');
+                    const nextState = (typeof forceState === 'boolean') ? forceState : !isOpen;
+
+                    if (nextState) {
+                        document.querySelectorAll('.sofa-logo-box.is-open').forEach(b => b.classList.remove('is-open'));
+                        const panel = document.getElementById('navNotifPanel');
+                        if (panel && panel.classList.contains('opacity-100')) {
+                            panel.classList.add('invisible', 'opacity-0', 'scale-95', 'translate-y-3');
+                            panel.classList.remove('opacity-100', 'visible', 'scale-100', 'translate-y-0');
+                        }
+                        dropdown.classList.remove('is-closing');
+                        dropdown.classList.add('is-open');
+                    } else {
+                        dropdown.classList.remove('is-open');
+                        dropdown.classList.add('is-closing');
+                        setTimeout(function() {
+                            dropdown.classList.remove('is-closing');
+                        }, 300);
+                    }
+                });
+            };
+        }
+
+        // Inject global dropdown style if not present
         if (!document.getElementById('ap-user-dropdown-bridge-style')) {
             const style = document.createElement('style');
             style.id = 'ap-user-dropdown-bridge-style';
             style.textContent = `
                 .nav-profile-dropdown { position: relative; }
-                .nav-profile-dropdown:hover .ap-user-dropdown-menu,
+                .nav-profile-dropdown.is-open .ap-user-chevron-icon {
+                    transform: rotate(180deg) !important;
+                    color: #fcd576 !important;
+                    stroke: #fcd576 !important;
+                }
                 .nav-profile-dropdown.is-open .ap-user-dropdown-menu {
                     opacity: 1 !important;
                     visibility: visible !important;
                     transform: scale(1) translateY(0) !important;
                     pointer-events: auto !important;
                 }
-                .ap-user-dropdown-menu {
-                    pointer-events: none;
+                .nav-profile-dropdown:not(.is-open) .ap-user-dropdown-menu,
+                .nav-profile-dropdown.is-closing .ap-user-dropdown-menu {
+                    opacity: 0 !important;
+                    visibility: hidden !important;
+                    transform: scale(0.95) translateY(-6px) !important;
+                    pointer-events: none !important;
                 }
-                .ap-user-dropdown-menu::before {
-                    content: '';
-                    position: absolute;
-                    top: -18px;
-                    left: 0;
-                    width: 100%;
-                    height: 20px;
-                    background: transparent;
+                .nav-profile-dropdown:not(.is-open) .ap-user-chevron-icon,
+                .nav-profile-dropdown.is-closing .ap-user-chevron-icon {
+                    transform: rotate(0deg) !important;
+                }
+                @media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+                    .nav-profile-dropdown:not(.is-closing):hover .ap-user-chevron-icon {
+                        transform: rotate(180deg) !important;
+                        color: #fcd576 !important;
+                        stroke: #fcd576 !important;
+                    }
+                    .nav-profile-dropdown:not(.is-closing):hover .ap-user-dropdown-menu {
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        transform: scale(1) translateY(0) !important;
+                        pointer-events: auto !important;
+                    }
                 }
             `;
             document.head.appendChild(style);
@@ -956,7 +1006,7 @@ function updateUserUI() {
         // Close dropdown / notif when clicking outside
         if (!document._apUserClickGuard) {
             document._apUserClickGuard = true;
-            document.addEventListener('click', function (e) {
+            const handleOutside = function (e) {
                 if (!e.target.closest('#navNotificationBtn')) {
                     const panel = document.getElementById('navNotifPanel');
                     if (panel && panel.classList.contains('opacity-100')) {
@@ -965,9 +1015,15 @@ function updateUserUI() {
                     }
                 }
                 if (!e.target.closest('.nav-profile-dropdown')) {
-                    document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el => el.classList.remove('is-open'));
+                    document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el => {
+                        el.classList.remove('is-open');
+                        el.classList.add('is-closing');
+                        setTimeout(() => el.classList.remove('is-closing'), 300);
+                    });
                 }
-            });
+            };
+            document.addEventListener('click', handleOutside);
+            document.addEventListener('touchend', handleOutside, { passive: true });
         }
 
         // 8. Render & sync notifications
@@ -1536,7 +1592,10 @@ window.syncNotifications = async function (force = false) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                console.warn('⚠️ Notifications 401 - token expired');
+                try {
+                    localStorage.removeItem('cinestream_token');
+                    localStorage.removeItem('token');
+                } catch (e) {}
             }
             return;
         }

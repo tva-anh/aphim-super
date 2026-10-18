@@ -5069,7 +5069,7 @@ window.toggleCinemaMode = function (forcedState) {
             badgeCinema.textContent = 'ON';
         }
         if (cinemaBtn) {
-            cinemaBtn.classList.add('text-amber-400');
+            cinemaBtn.classList.add('text-amber-400', 'is-active');
         }
 
         // On Desktop, smooth scroll to top where player is centered in Cinema Mode. On Mobile, stay in place.
@@ -5087,7 +5087,7 @@ window.toggleCinemaMode = function (forcedState) {
             badgeCinema.textContent = 'OFF';
         }
         if (cinemaBtn) {
-            cinemaBtn.classList.remove('text-amber-400');
+            cinemaBtn.classList.remove('text-amber-400', 'is-active');
         }
     }
 };

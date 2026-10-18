@@ -6356,9 +6356,10 @@
         .lb-filter-bar .lb-tf-group,
         .ap-gamify-tabs,
         .profile-quick-actions {
-          /* Smooth momentum scrolling */
+          /* 120FPS Native momentum scrolling */
           -webkit-overflow-scrolling: touch !important;
-          scroll-behavior: smooth !important;
+          scroll-behavior: auto !important;
+          touch-action: pan-x pan-y !important;
           /* Không bị kẹt ở cuối */
           overscroll-behavior-x: contain !important;
           /* GPU composite layer */

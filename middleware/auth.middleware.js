@@ -55,7 +55,12 @@ async function requireAuth(req, res, next) {
 async function optionalAuth(req, res, next) {
     try {
         const authHeader = req.headers.authorization || '';
-        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        let token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+        if (!token && req.headers.cookie) {
+            const match = req.headers.cookie.match(/cinestream_token=([^;]+)/);
+            if (match) token = decodeURIComponent(match[1]);
+        }
 
         if (token) {
             const { data: { user } } = await supabaseAdmin.auth.getUser(token);

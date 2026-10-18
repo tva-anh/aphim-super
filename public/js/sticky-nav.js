@@ -16,8 +16,14 @@
     let lastWidth = window.innerWidth;
 
     function hasHeroOrBackdrop() {
+        const isDesktop = window.innerWidth >= 1024;
+        const hasPhimNganHero = !isDesktop && !!(
+            (document.getElementById('asHeroSection') && (!document.getElementById('asMainHub') || document.getElementById('asMainHub').style.display !== 'none')) ||
+            (document.getElementById('asDramaDetailView') && document.getElementById('asDramaDetailView').style.display !== 'none')
+        );
         return !!(
             document.getElementById('desktopHeroShowcase') ||
+            hasPhimNganHero ||
             document.querySelector('.movie-hero-backdrop-wrap') ||
             document.getElementById('movieHeroBackdrop') ||
             document.querySelector('.has-desktop-hero') ||
@@ -127,6 +133,21 @@
     window.addEventListener('pageshow', function (e) {
         restoreScrollIfReturning(e.persisted);
     });
+
+    // 🌟 Lắng nghe thay đổi Theme để cập nhật trạng thái Header ngay lập tức
+    window.addEventListener('aphim:theme-change', updateNavOnScroll);
+    window.addEventListener('themeChanged', updateNavOnScroll);
+    try {
+        const themeObserver = new MutationObserver((mutations) => {
+            for (const m of mutations) {
+                if (m.attributeName === 'class') {
+                    updateNavOnScroll();
+                    break;
+                }
+            }
+        });
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    } catch (e) { }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => restoreScrollIfReturning(false));

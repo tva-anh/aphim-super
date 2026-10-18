@@ -32,6 +32,7 @@ const feedbackRoutes = require('./routes/feedback.routes');
 const seoRoutes = require('./routes/seo.routes');
 const reelsRoutes = require('./routes/reels.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const phimNganRoutes = require('./routes/phimNgan.routes');
 const { requireAdmin } = require('./middleware/adminAuth.middleware');
 
 const app = express();
@@ -106,6 +107,26 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
 }));
 
+// ⚡ Smart Poster Proxy: Chặn đứng lỗi 404 cho các đường dẫn poster narto dạng /assets/poster/:file
+app.get(['/assets/poster/:file', '/poster/:file'], async (req, res) => {
+    const file = req.params.file;
+    if (!file) return res.sendFile(path.join(__dirname, 'public', 'images', 'avatar-default.png'));
+    const cdnUrl = `https://img.nartodrama-api.online/poster/${file}`;
+    try {
+        const upstream = await axios.get(cdnUrl, {
+            responseType: 'stream',
+            timeout: 5000,
+            validateStatus: s => s >= 200 && s < 300
+        });
+        res.setHeader('Content-Type', upstream.headers['content-type'] || 'image/jpeg');
+        res.setHeader('Cache-Control', 'public, max-age=604800');
+        upstream.data.pipe(res);
+    } catch (e) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.sendFile(path.join(__dirname, 'public', 'images', 'avatar-default.png'));
+    }
+});
+
 // 2. Cấu hình Rate Limiter (Chống Spam / DDoS)
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút
@@ -148,6 +169,8 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/reels', reelsRoutes);
 app.use('/api/reels', reelsRoutes);
+app.use('/phim-ngan', phimNganRoutes); // Mini player + fast dub hls proxy
+app.use('/api/phim-ngan', phimNganRoutes);
 app.use('/', seoRoutes); // Sitemap đa tầng, robots.txt, dynamic seo cache
 
 // Health check endpoint
@@ -2127,7 +2150,12 @@ app.get(['/profile', '/tai-khoan', '/tai-khoan/:tab'], (req, res) => {
     });
 });
 
-// 4. Search Clean Route: /search
+// 4. Search Clean Route: /search (và alias /tim-kiem)
+app.get('/tim-kiem', (req, res) => {
+    const qStr = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+    res.redirect(301, `/search${qStr}`);
+});
+
 app.get('/search', (req, res) => {
     const keyword = (req.query.keyword || req.query.q || '').trim();
     const titleText = keyword ? `Tìm Kiếm: ${keyword}` : 'Tìm Kiếm Phim Online';

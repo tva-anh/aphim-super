@@ -13,7 +13,17 @@
         var cookieToken = (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1];
         if (!token && !cookieToken) {
           window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+          return;
         }
+        // Dọn dẹp cookie rác hoặc cookie tracking cồng kềnh tránh lỗi 400 Header Too Large trên Nginx
+        try {
+          if (document.cookie.indexOf('aphim_user_interests=') !== -1) {
+            document.cookie = 'aphim_user_interests=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          }
+          if (document.cookie.indexOf('aphim_watched_reels=') !== -1) {
+            document.cookie = 'aphim_watched_reels=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          }
+        } catch(e) {}
       })();
     </script>
     <% } else { %>

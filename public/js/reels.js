@@ -138,14 +138,14 @@
 
         // Save interests
         localStorage.setItem('aphim_reels_user_interests', JSON.stringify(state.userInterests));
-        document.cookie = `aphim_user_interests=${encodeURIComponent(JSON.stringify(state.userInterests))}; path=/; max-age=2592000; SameSite=Lax`;
+        document.cookie = `aphim_user_interests=${encodeURIComponent(JSON.stringify(state.userInterests))}; path=/reels; max-age=2592000; SameSite=Lax`;
 
         // Save watched history (suppress duplicates)
         if (ytId && !state.watchedHistory.includes(ytId)) {
             state.watchedHistory.unshift(ytId);
             if (state.watchedHistory.length > 50) state.watchedHistory = state.watchedHistory.slice(0, 50);
             localStorage.setItem('aphim_reels_watched_history', JSON.stringify(state.watchedHistory));
-            document.cookie = `aphim_watched_reels=${encodeURIComponent(state.watchedHistory.slice(0, 20).join(','))}; path=/; max-age=2592000; SameSite=Lax`;
+            document.cookie = `aphim_watched_reels=${encodeURIComponent(state.watchedHistory.slice(0, 20).join(','))}; path=/reels; max-age=2592000; SameSite=Lax`;
         }
 
         // Notify server asynchronously
@@ -399,10 +399,16 @@
         const nextItem = feedContainer.querySelector(`.reel-item[data-index="${idx + 1}"]`);
         const nextYt = nextItem ? nextItem.getAttribute('data-yt') : null;
 
-        // Reset is-playing on other items
-        document.querySelectorAll('.reel-item.is-playing').forEach(el => {
-            if (el.getAttribute('data-index') !== String(idx)) {
-                el.classList.remove('is-playing');
+        // Reset is-playing on other items & activate lightweight virtual DOM for 120fps mobile motion
+        feedContainer.querySelectorAll('.reel-item').forEach(el => {
+            const itemIdx = parseInt(el.getAttribute('data-index'), 10);
+            if (itemIdx === idx) {
+                el.classList.add('is-playing', 'is-active', 'is-near');
+            } else if (Math.abs(itemIdx - idx) <= 1) {
+                el.classList.remove('is-playing', 'is-active');
+                el.classList.add('is-near');
+            } else {
+                el.classList.remove('is-playing', 'is-active', 'is-near');
             }
         });
 
@@ -2843,10 +2849,6 @@
         const currentItem = document.getElementById(`reel-item-${state.currentIndex}`);
         if (!currentItem) return;
 
-        const viewportRect = feedContainer.getBoundingClientRect();
-        const currentRect = currentItem.getBoundingClientRect();
-        const currentOffsetY = Math.round(currentRect.top - viewportRect.top);
-
         const hostA = document.getElementById('reels-player-host-a');
         const hostB = document.getElementById('reels-player-host-b');
         const natA = document.getElementById('reels-native-host-a');
@@ -2856,6 +2858,10 @@
         const inactiveHost = (state.activeHostKey === 'a') ? hostB : hostA;
         const activeNat = (state.activeHostKey === 'a') ? natA : natB;
         const inactiveNat = (state.activeHostKey === 'a') ? natB : natA;
+
+        // ⚡ Zero-Reflow Arithmetic Engine: Cực kỳ mượt 120fps trên Mobile, không gọi getBoundingClientRect() gây giật lag
+        const itemHeight = feedContainer.clientHeight || window.innerHeight;
+        const currentOffsetY = Math.round((state.currentIndex * itemHeight) - feedContainer.scrollTop);
 
         // Active video player moves in 100% lockstep with the current reel item
         if (activeHost) {
@@ -2867,21 +2873,13 @@
 
         // Inactive player host moves in lockstep with the adjacent item
         if (currentOffsetY < 0) {
-            const nextItem = document.getElementById(`reel-item-${state.currentIndex + 1}`);
-            if (nextItem) {
-                const nextRect = nextItem.getBoundingClientRect();
-                const nextOffsetY = Math.round(nextRect.top - viewportRect.top);
-                if (inactiveHost) inactiveHost.style.transform = `translate3d(0, ${nextOffsetY}px, 0)`;
-                if (inactiveNat) inactiveNat.style.transform = `translate3d(0, ${nextOffsetY}px, 0)`;
-            }
+            const nextOffsetY = currentOffsetY + itemHeight;
+            if (inactiveHost) inactiveHost.style.transform = `translate3d(0, ${nextOffsetY}px, 0)`;
+            if (inactiveNat) inactiveNat.style.transform = `translate3d(0, ${nextOffsetY}px, 0)`;
         } else if (currentOffsetY > 0) {
-            const prevItem = document.getElementById(`reel-item-${state.currentIndex - 1}`);
-            if (prevItem) {
-                const prevRect = prevItem.getBoundingClientRect();
-                const prevOffsetY = Math.round(prevRect.top - viewportRect.top);
-                if (inactiveHost) inactiveHost.style.transform = `translate3d(0, ${prevOffsetY}px, 0)`;
-                if (inactiveNat) inactiveNat.style.transform = `translate3d(0, ${prevOffsetY}px, 0)`;
-            }
+            const prevOffsetY = currentOffsetY - itemHeight;
+            if (inactiveHost) inactiveHost.style.transform = `translate3d(0, ${prevOffsetY}px, 0)`;
+            if (inactiveNat) inactiveNat.style.transform = `translate3d(0, ${prevOffsetY}px, 0)`;
         } else {
             if (inactiveHost && inactiveHost.style.transform) inactiveHost.style.transform = '';
             if (inactiveNat && inactiveNat.style.transform) inactiveNat.style.transform = '';
@@ -3023,7 +3021,6 @@
                     sendCmd(curIfr, 'setVolume', [0]);
                 }
             }
-            syncPlayerHostsPosition();
         }, { passive: true });
 
         feedContainer.addEventListener('touchend', (e) => {
@@ -3042,14 +3039,14 @@
             // Ensure vertical movement is dominant
             if (Math.abs(deltaY) < deltaX * 1.1) return;
 
-            // Trigger on fast flick (> 0.28 px/ms and > 30px) or deliberate drag (> 12% screen height)
-            const minSwipeDist = Math.min(55, window.innerHeight * 0.12);
-            const isFlick = velocity > 0.28 && Math.abs(deltaY) > 30;
+            // 🚀 Nhạy & Mượt như TikTok: Nhận diện vuốt nhanh (flick > 0.20 px/ms) hoặc kéo vừa (> 40px)
+            const minSwipeDist = Math.min(42, window.innerHeight * 0.08);
+            const isFlick = velocity > 0.20 && Math.abs(deltaY) > 25;
             const isDrag = Math.abs(deltaY) > minSwipeDist;
 
             if (isFlick || isDrag) {
                 swipeDebounceLocked = true;
-                // 🔇 Immediate full audio cutoff
+                // 🔇 Ngắt âm thanh lập tức khi bắt đầu chuyển slide
                 stopCurrentPlaybackImmediately();
                 if (deltaY < 0) {
                     window.scrollToNextReel();
@@ -3059,9 +3056,8 @@
 
                 setTimeout(() => {
                     swipeDebounceLocked = false;
-                }, 350);
+                }, 200);
             }
-            syncPlayerHostsPosition();
         }, { passive: true });
     }
 

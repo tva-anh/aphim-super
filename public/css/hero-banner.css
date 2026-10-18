@@ -48,13 +48,13 @@
         transition: background 0.3s ease, background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease !important;
     }
 
-    /* Đảm bảo toàn bộ menu nav links luôn màu trắng sáng khi header trong suốt (cả Dark và Light mode) */
-    #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-    header#sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-    html.light-mode #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-    html.light-mode header#sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill),
-    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill) {
+    /* Đảm bảo toàn bộ menu nav links luôn màu trắng sáng khi header trong suốt (cả Dark và Light mode) - trừ Reels và Phim Ngắn */
+    #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+    header#sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+    html.light-mode #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+    html.light-mode header#sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill),
+    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-nav-item:not(.reels-nav-pill):not(.phim-ngan-nav-pill) {
         color: #ffffff !important;
         text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
         font-weight: 600 !important;
@@ -72,14 +72,20 @@
     #sofa-header:not(.scrolled) .sofa-menu-btn svg,
     header#sofa-header:not(.scrolled) .sofa-menu-btn,
     header#sofa-header:not(.scrolled) .sofa-menu-btn svg,
-    html.light-mode #sofa-header:not(.scrolled) .sofa-menu-btn,
-    html.light-mode #sofa-header:not(.scrolled) .sofa-menu-btn svg,
     body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
-    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg,
-    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
-    html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+    body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg {
         color: #ffffff !important;
         stroke: #ffffff !important;
+    }
+
+    @media (min-width: 1024px) {
+        html.light-mode #sofa-header:not(.scrolled) .sofa-menu-btn,
+        html.light-mode #sofa-header:not(.scrolled) .sofa-menu-btn svg,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn,
+        html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled) .sofa-menu-btn svg {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
     }
 
     /* Thanh tìm kiếm trong suốt cao cấp khi ở đỉnh trang */
@@ -719,8 +725,7 @@
         -ms-overflow-style: none !important;
         padding: 4px 2px !important;
         cursor: grab;
-        user-select: none;
-        touch-action: pan-x;
+        touch-action: pan-x pan-y !important;
         scroll-snap-type: x proximity;
     }
 

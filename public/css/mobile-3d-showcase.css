@@ -19,7 +19,8 @@
         margin-right: 0 !important;
         margin-top: 2px;
         margin-bottom: 24px;
-        overflow: hidden !important;
+        overflow-x: clip !important;
+        overflow-y: visible !important;
         max-width: 100vw !important;
         user-select: none;
         -webkit-user-select: none;
@@ -72,7 +73,7 @@
     .showcase-3d-stage {
         position: relative;
         width: 100%;
-        height: clamp(320px, 86vw, 368px);
+        height: clamp(352px, 88vw, 396px);
         perspective: 800px;
         -webkit-perspective: 800px;
         perspective-origin: 50% 50%;
@@ -82,9 +83,9 @@
         justify-content: center;
         touch-action: pan-y !important;
         z-index: 2;
-        overflow: hidden !important;
+        overflow: visible !important; /* 🔥 KHÔNG KHUẤT TRÊN DƯỚI: Giữ trọn vẹn bo góc 22px và hào quang thẻ bài 3D */
         max-width: 100% !important;
-        margin: 0 auto 16px auto;
+        margin: 4px auto 14px auto;
     }
 
     /* Ambient Spotlight Background BÊN TRONG STAGE (Chỉ phủ quanh poster phim bên trên) */
@@ -115,6 +116,7 @@
         transform-style: preserve-3d;
         -webkit-transform-style: preserve-3d;
         z-index: 2;
+        overflow: visible !important;
     }
 
     /* Individual 3D Poster Card (Hình to rõ, viền mỏng trắng tinh tế + 100% Bleed in all 4 rounded corners) */
@@ -210,12 +212,13 @@
     /* Responsive fine-tuning for standard mobile (390px - 430px: iPhone 13/14/15/16 Pro Max, Plus, Standard) */
     @media (max-width: 430px) {
         .showcase-3d-stage {
-            height: 326px;
+            height: 358px;
+            overflow: visible !important;
         }
         .showcase-3d-card {
             width: 196px;
             height: 304px;
-            border-radius: 21px;
+            border-radius: 20px;
         }
         .showcase-3d-card.is-left {
             transform: translate3d(calc(-50% - 100px), -50%, -40px) scale(0.85) rotateY(18deg);
@@ -228,12 +231,13 @@
     /* Responsive fine-tuning for compact mobile (<= 380px: iPhone SE / 12 Mini / Galaxy A) */
     @media (max-width: 380px) {
         .showcase-3d-stage {
-            height: 305px;
+            height: 336px;
+            overflow: visible !important;
         }
         .showcase-3d-card {
             width: 182px;
             height: 284px;
-            border-radius: 19px;
+            border-radius: 18px;
         }
         .showcase-3d-card.is-left {
             transform: translate3d(calc(-50% - 92px), -50%, -38px) scale(0.84) rotateY(16deg);
@@ -246,12 +250,13 @@
     /* Responsive fine-tuning for ultra-compact mobile (<= 340px) */
     @media (max-width: 340px) {
         .showcase-3d-stage {
-            height: 280px;
+            height: 308px;
+            overflow: visible !important;
         }
         .showcase-3d-card {
             width: 165px;
             height: 260px;
-            border-radius: 17px;
+            border-radius: 16px;
         }
         .showcase-3d-card.is-left {
             transform: translate3d(calc(-50% - 82px), -50%, -34px) scale(0.82) rotateY(14deg);

@@ -786,7 +786,7 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
         nextLayer.style.opacity = '0';
         nextLayer.style.zIndex = '2';
         currentLayer.style.zIndex = '1';
-        nextLayer.offsetHeight; // Trigger reflow
+        // Zero-reflow transition: Let browser register initial transform without forcing synchronous layout
     }
 
     // Chuẩn bị khung nội dung bên trái (Lướt nhẹ nhàng đồng bộ từ bên trái vào)
@@ -794,28 +794,30 @@ function switchHeroSlide(newIndex, explicitDirection, isAutoReturn) {
         heroInfoCol.style.transition = 'none';
         heroInfoCol.style.opacity = '0';
         heroInfoCol.style.transform = `translateZ(0) translateX(${-direction * 45}px)`;
-        heroInfoCol.offsetHeight; // Trigger reflow
     }
 
     // 4. PHASE 2: Kích hoạt đồng thời hiệu ứng lướt êm ái cho CẢ 2 BÊN (Cùng 0.68s, cùng gia tốc chuẩn điện ảnh)
+    // Dùng double requestAnimationFrame chuẩn GPU để tránh hoàn toàn Forced Reflow (Layout Thrashing)
     requestAnimationFrame(() => {
-        // Ảnh lớn lướt từ phải vào giữa
-        if (nextLayer && currentLayer) {
-            nextLayer.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
-            nextLayer.style.opacity = '1';
-            nextLayer.style.transform = 'translateZ(0) translateX(0) scale(1)';
+        requestAnimationFrame(() => {
+            // Ảnh lớn lướt từ phải vào giữa
+            if (nextLayer && currentLayer) {
+                nextLayer.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
+                nextLayer.style.opacity = '1';
+                nextLayer.style.transform = 'translateZ(0) translateX(0) scale(1)';
 
-            currentLayer.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
-            currentLayer.style.opacity = '0';
-            currentLayer.style.transform = `translateZ(0) translateX(${-direction * 45}px) scale(1.02)`;
-        }
+                currentLayer.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
+                currentLayer.style.opacity = '0';
+                currentLayer.style.transform = `translateZ(0) translateX(${-direction * 45}px) scale(1.02)`;
+            }
 
-        // Khung chữ / nội dung lướt nhẹ nhàng từ trái vào giữa (Đồng bộ 100% với ảnh nền)
-        if (heroInfoCol) {
-            heroInfoCol.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
-            heroInfoCol.style.opacity = '1';
-            heroInfoCol.style.transform = 'translateZ(0) translateX(0)';
-        }
+            // Khung chữ / nội dung lướt nhẹ nhàng từ trái vào giữa (Đồng bộ 100% với ảnh nền)
+            if (heroInfoCol) {
+                heroInfoCol.style.transition = 'opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1), transform 0.78s cubic-bezier(0.16, 1, 0.3, 1)';
+                heroInfoCol.style.opacity = '1';
+                heroInfoCol.style.transform = 'translateZ(0) translateX(0)';
+            }
+        });
     });
 
     // 5. PHASE 3: Hoàn tất chu kỳ chuyển cảnh & mở khóa thao tác nhanh
@@ -1462,11 +1464,11 @@ function attachSwipeHandler() {
         hero.classList.remove('is-dragging');
     });
 
-    // ── Hỗ trợ thêm cuộn ngang Trackpad/Mouse Wheel trên Hero Banner ──
+    // ── Hỗ trợ thêm cuộn ngang Trackpad thuần túy trên Hero Banner ──
     let wheelCooldown = 0;
     hero.addEventListener('wheel', (e) => {
         if (e.target.closest('.interests-wrapper')) return;
-        if (Math.abs(e.deltaX) > 22 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        if (Math.abs(e.deltaY) <= 5 && Math.abs(e.deltaX) > 30 && Math.abs(e.deltaX) > Math.abs(e.deltaY) * 3) {
             const now = performance.now();
             if (now - wheelCooldown < 350) return;
             wheelCooldown = now;

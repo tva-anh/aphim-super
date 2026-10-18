@@ -2,10 +2,12 @@
    A PHIM — Floating Side Dock
    ========================================================================== */
 
+#floatingDockContainer,
 .floating-dock-container {
     position: fixed !important;
     right: 0 !important;
     top: 50% !important;
+    bottom: auto !important;
     transform: translateY(-50%) !important;
     z-index: 99999 !important;
     display: flex !important;
@@ -17,28 +19,29 @@
     padding: 0 !important;
 }
 
-/* ── Scroll To Top Button ── */
+/* ── Scroll To Top Button ──
+   Dạng tab bo cong mép trái, ép phẳng sát mép phải màn hình chuẩn hình 1 */
 .fd-btn-top {
     position: relative !important;
     right: 0 !important;
-    width: 30px !important;
+    width: 32px !important;
     height: 36px !important;
     border-radius: 18px 0 0 18px !important;
-    background: linear-gradient(135deg, #1e2330 0%, #0f1422 100%) !important;
     border: 1.5px solid rgba(252, 213, 118, 0.4) !important;
     border-right: none !important;
+    background: linear-gradient(135deg, #1e2330 0%, #0f1422 100%) !important;
     color: #fcd576 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    box-shadow: -3px 4px 14px rgba(0, 0, 0, 0.45) !important;
+    box-shadow: -3px 4px 14px rgba(0, 0, 0, 0.4) !important;
     margin: 0 !important;
-    padding: 0 0 0 2px !important;
+    padding: 0 0 0 3px !important;
     opacity: 0 !important;
     visibility: hidden !important;
     transform: translateX(110%) !important;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     pointer-events: none !important;
     outline: none !important;
 }
@@ -53,9 +56,8 @@
 .fd-btn-top:hover {
     background: linear-gradient(135deg, #2a3144 0%, #171f33 100%) !important;
     border-color: #fcd576 !important;
-    box-shadow: -5px 6px 18px rgba(252, 213, 118, 0.4) !important;
-    transform: translateX(-4px) !important;
-    width: 34px !important;
+    box-shadow: -4px 6px 18px rgba(252, 213, 118, 0.35) !important;
+    transform: translateX(-3px) !important;
 }
 
 .fd-btn-top:active {
@@ -63,8 +65,8 @@
 }
 
 .fd-btn-top svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 14px !important;
+    height: 14px !important;
     color: #fcd576 !important;
     stroke: #fcd576 !important;
     transition: transform 0.25s ease !important;
@@ -206,14 +208,31 @@ html.light-mode body {
     color: #1c1917 !important;
 }
 
-html.light-mode #sofa-header,
-html.light-mode header#sofa-header,
-html.light-mode header,
-html.light-mode nav.header-modern-nav {
+html.light-mode:not(:has(#asHeroSection)):not(:has(body.page-phim-ngan:has(#asHeroSection))) #sofa-header,
+html.light-mode:not(:has(#asHeroSection)):not(:has(body.page-phim-ngan:has(#asHeroSection))) header#sofa-header,
+html.light-mode:not(:has(#asHeroSection)):not(:has(body.page-phim-ngan:has(#asHeroSection))) header,
+html.light-mode:not(:has(#asHeroSection)):not(:has(body.page-phim-ngan:has(#asHeroSection))) nav.header-modern-nav {
     background: rgba(250, 247, 242, 0.98) !important;
     background-color: #faf7f2 !important;
     border-bottom: 1px solid #e7e0d3 !important;
     box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
+}
+
+html.light-mode body.page-phim-ngan:has(#asHeroSection) #sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asHeroSection) header#sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asDramaDetailView) #sofa-header:not(.scrolled),
+html.light-mode body.page-phim-ngan:has(#asDramaDetailView) header#sofa-header:not(.scrolled),
+html.light-mode body:has(#asHeroSection) #sofa-header:not(.scrolled),
+html.light-mode body:has(#asHeroSection) header#sofa-header:not(.scrolled),
+html.light-mode body:has(#asDramaDetailView) #sofa-header:not(.scrolled),
+html.light-mode body:has(#asDramaDetailView) header#sofa-header:not(.scrolled) {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 @media (min-width: 1024px) {
@@ -232,8 +251,8 @@ html.light-mode nav.header-modern-nav {
     }
 }
 
-html.light-mode header a:not(.reels-nav-pill):not(.reels-pill):not(.sofa-login-rect-btn),
-html.light-mode nav a:not(.reels-nav-pill):not(.reels-pill),
+html.light-mode header a:not(.reels-nav-pill):not(.reels-pill):not(.sofa-login-rect-btn):not(.as-pn-popover-cta-btn):not(.as-pn-popover-card-box),
+html.light-mode nav a:not(.reels-nav-pill):not(.reels-pill):not(.as-pn-popover-cta-btn):not(.as-pn-popover-card-box),
 html.light-mode .nav-link-text,
 html.light-mode .sofa-nav-item:not(.reels-nav-pill),
 html.light-mode .nav-pill:not(.reels-nav-pill) {
@@ -323,18 +342,20 @@ html.light-mode .danh-sach-btn {
 html.light-mode .fd-btn-top {
     background: linear-gradient(135deg, #ffffff 0%, #faf7f2 100%) !important;
     background-color: #ffffff !important;
-    border: 1px solid #e7e0d3 !important;
+    border: 1.5px solid #e7e0d3 !important;
     border-right: none !important;
     color: #d97706 !important;
-    box-shadow: -6px 8px 22px rgba(78, 64, 45, 0.14) !important;
-    border-radius: 20px 0 0 20px !important;
+    box-shadow: -4px 6px 18px rgba(78, 64, 45, 0.12) !important;
+    border-radius: 22px 0 0 22px !important;
+    padding: 0 0 0 4px !important;
 }
 
 html.light-mode .fd-btn-top:hover {
     background: #ffffff !important;
     border-color: #d97706 !important;
     color: #d97706 !important;
-    box-shadow: -8px 10px 28px rgba(217, 119, 6, 0.22) !important;
+    box-shadow: -6px 8px 22px rgba(217, 119, 6, 0.22) !important;
+    transform: translateX(-4px) !important;
 }
 
 html.light-mode .fd-btn-top svg {
@@ -371,13 +392,14 @@ html.light-mode .fd-handle .fd-handle-icon {
     stroke: #d97706 !important;
 }
 
-/* ── Standalone Floating Action Button (FAB) inside Right Dock Container ── */
+/* ── Standalone Floating Action Button (FAB) inside Right Dock Container ──
+   Dạng tab bo cong bên trái, ép phẳng sát mép phải màn hình chuẩn hình 1 */
 .theme-toggle-fab {
     position: relative !important;
     right: 0 !important;
-    width: 30px !important;
-    height: 40px !important;
-    border-radius: 20px 0 0 20px !important;
+    width: 32px !important;
+    height: 36px !important;
+    border-radius: 18px 0 0 18px !important;
     border: 1.5px solid rgba(252, 213, 118, 0.45) !important;
     border-right: none !important;
     background: linear-gradient(135deg, #1e2330 0%, #0f1422 100%) !important;
@@ -386,18 +408,17 @@ html.light-mode .fd-handle .fd-handle-icon {
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    box-shadow: -3px 4px 14px rgba(0, 0, 0, 0.45), 0 0 8px rgba(252, 213, 118, 0.15) !important;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    box-shadow: -3px 4px 14px rgba(0, 0, 0, 0.4), 0 0 6px rgba(252, 213, 118, 0.15) !important;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     outline: none !important;
     pointer-events: auto !important;
-    padding: 0 0 0 2px !important;
+    padding: 0 0 0 3px !important;
     margin: 0 !important;
 }
 
 .theme-toggle-fab:hover {
-    transform: translateX(-4px) !important;
-    width: 34px !important;
-    box-shadow: -5px 6px 20px rgba(252, 213, 118, 0.45) !important;
+    transform: translateX(-3px) !important;
+    box-shadow: -4px 6px 18px rgba(252, 213, 118, 0.4) !important;
     border-color: #fcd576 !important;
 }
 
@@ -406,8 +427,8 @@ html.light-mode .fd-handle .fd-handle-icon {
 }
 
 .theme-toggle-fab svg {
-    width: 18px !important;
-    height: 18px !important;
+    width: 15px !important;
+    height: 15px !important;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease !important;
     color: #fcd576 !important;
     stroke: #fcd576 !important;
@@ -418,52 +439,140 @@ html.light-mode .fd-handle .fd-handle-icon {
 }
 
 @media (max-width: 768px) {
+    #floatingDockContainer,
     .floating-dock-container {
-        top: 60% !important;
-        gap: 6px !important;
+        top: 56% !important;
+        bottom: auto !important;
+        transform: translateY(-50%) !important;
+        gap: 5px !important;
+        right: 0 !important;
+        left: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .theme-toggle-fab {
-        width: 26px !important;
-        height: 36px !important;
-        border-radius: 18px 0 0 18px !important;
+        width: 27px !important;
+        height: 31px !important;
+        border-radius: 16px 0 0 16px !important;
+        border: 1.5px solid rgba(252, 213, 118, 0.45) !important;
+        border-right: none !important;
+        right: 0 !important;
+        margin: 0 !important;
+        padding: 0 0 0 2px !important;
+        box-shadow: -2px 3px 10px rgba(0, 0, 0, 0.35) !important;
+        transform: none !important;
+    }
+
+    .theme-toggle-fab:hover,
+    .theme-toggle-fab:active {
+        transform: none !important;
     }
 
     .theme-toggle-fab svg {
-        width: 15px !important;
-        height: 15px !important;
+        width: 13px !important;
+        height: 13px !important;
     }
 
     .fd-btn-top {
-        width: 26px !important;
-        height: 32px !important;
+        width: 27px !important;
+        height: 31px !important;
         border-radius: 16px 0 0 16px !important;
+        border: 1.5px solid rgba(252, 213, 118, 0.4) !important;
+        border-right: none !important;
+        right: 0 !important;
+        margin: 0 !important;
+        padding: 0 0 0 2px !important;
+        box-shadow: -2px 3px 10px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    .fd-btn-top.show {
+        transform: translateX(0) !important;
+    }
+
+    .fd-btn-top:hover,
+    .fd-btn-top:active {
+        transform: translateX(0) !important;
     }
 
     .fd-btn-top svg {
-        width: 14px !important;
-        height: 14px !important;
+        width: 12px !important;
+        height: 12px !important;
     }
 }
 
-/* Light Mode Styling for Floating Theme Switcher FAB */
+/* Light Mode Styling for Floating Theme Switcher FAB — Đúng chuẩn Hình 1 */
 html.light-mode .theme-toggle-fab {
     background: #ffffff !important;
-    border: 1.5px solid #d97706 !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #ea580c !important;
     border-right: none !important;
-    color: #d97706 !important;
-    box-shadow: -3px 4px 14px rgba(217, 119, 6, 0.22), -1px 1px 6px rgba(78, 64, 45, 0.08) !important;
+    color: #ea580c !important;
+    box-shadow: -3px 4px 14px rgba(234, 88, 12, 0.2), -1px 2px 6px rgba(78, 64, 45, 0.08) !important;
+    border-radius: 18px 0 0 18px !important;
+    padding: 0 0 0 3px !important;
 }
 
 html.light-mode .theme-toggle-fab:hover {
     background: #ffffff !important;
     border-color: #ea580c !important;
-    box-shadow: -5px 6px 20px rgba(217, 119, 6, 0.35) !important;
+    box-shadow: -4px 6px 18px rgba(234, 88, 12, 0.3) !important;
+    transform: translateX(-3px) !important;
 }
 
 html.light-mode .theme-toggle-fab svg {
+    color: #ea580c !important;
+    stroke: #ea580c !important;
+}
+
+html.light-mode .fd-btn-top {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #d97706 !important;
+    border-right: none !important;
     color: #d97706 !important;
-    stroke: #d97706 !important;
+    box-shadow: -3px 4px 14px rgba(217, 119, 6, 0.16) !important;
+    border-radius: 18px 0 0 18px !important;
+    padding: 0 0 0 3px !important;
+}
+
+@media (max-width: 768px) {
+    html.light-mode .theme-toggle-fab {
+        width: 27px !important;
+        height: 31px !important;
+        border-radius: 16px 0 0 16px !important;
+        border: 1.5px solid #ea580c !important;
+        border-right: none !important;
+        right: 0 !important;
+        margin: 0 !important;
+        padding: 0 0 0 2px !important;
+        transform: none !important;
+    }
+
+    html.light-mode .theme-toggle-fab:hover,
+    html.light-mode .theme-toggle-fab:active {
+        transform: none !important;
+    }
+
+    html.light-mode .fd-btn-top {
+        width: 27px !important;
+        height: 31px !important;
+        border-radius: 16px 0 0 16px !important;
+        border: 1.5px solid #d97706 !important;
+        border-right: none !important;
+        right: 0 !important;
+        margin: 0 !important;
+        padding: 0 0 0 2px !important;
+    }
+
+    html.light-mode .fd-btn-top.show {
+        transform: translateX(0) !important;
+    }
+
+    html.light-mode .fd-btn-top:hover,
+    html.light-mode .fd-btn-top:active {
+        transform: translateX(0) !important;
+    }
 }
 
 /* Expanded Dock Buttons Styling - Dark Mode Defaults */
@@ -562,10 +671,4 @@ body:has(.profile-page-bg) .theme-toggle-fab,
     opacity: 0 !important;
     pointer-events: none !important;
 }
-
-
-
-visibility: hidden !important;
-opacity: 0 !important;
-pointer-events: none !important;
-}
+

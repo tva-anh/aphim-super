@@ -183,9 +183,9 @@
 
     /* ─── 5. TỐI ƯU HÓA NÚT NỔI (FLOATING DOCK & THEME FAB) ─── */
     #floatingDockContainer {
-        bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
-        right: 12px !important;
-        z-index: 9400 !important;
+        right: 0 !important;
+        margin-right: 0 !important;
+        z-index: 99999 !important;
     }
 
     /* ─── 6. MOBILE DRAWER TRANSITIONS (MƯỢT MÀ KHÔNG GIẬT) ─── */

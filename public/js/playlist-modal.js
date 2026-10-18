@@ -593,7 +593,9 @@
 
     // ── Public API ────────────────────────────────────────
     window.openPlaylistModal = function (movie) {
-        const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+        const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function')
+            ? authService.isLoggedIn()
+            : !!(localStorage.getItem('cinestream_token') || localStorage.getItem('cinestream_user'));
         if (!isUserLoggedIn) {
             if (typeof window.showAuthModal === 'function') {
                 window.showAuthModal('login');
@@ -615,18 +617,20 @@
         const nameEl = document.getElementById('ap-pl-movie-name');
         const yearEl = document.getElementById('ap-pl-movie-year');
 
-        if (movie && movie.name) {
+        if (movie && (movie.name || movie.title)) {
+            const mName = movie.name || movie.title;
+            const mThumb = movie.thumb_url || movie.cover || movie.poster;
             card.style.display = 'flex';
-            nameEl.textContent = movie.name;
+            nameEl.textContent = mName;
             yearEl.textContent = movie.year || '2026';
-            if (movie.thumb_url) {
-                poster.src = movie.thumb_url;
+            if (mThumb) {
+                poster.src = mThumb;
                 poster.style.display = 'block';
                 fallback.style.display = 'none';
             } else {
                 poster.style.display = 'none';
                 fallback.style.display = 'flex';
-                fallback.textContent = (movie.name || '🎬').charAt(0).toUpperCase();
+                fallback.textContent = mName.charAt(0).toUpperCase();
             }
         } else {
             card.style.display = 'none';
@@ -642,7 +646,9 @@
     };
 
     window.openCreatePlaylistModalStandalone = function () {
-        const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function') ? authService.isLoggedIn() : false;
+        const isUserLoggedIn = (typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function')
+            ? authService.isLoggedIn()
+            : !!(localStorage.getItem('cinestream_token') || localStorage.getItem('cinestream_user'));
         if (!isUserLoggedIn) {
             if (typeof window.showAuthModal === 'function') {
                 window.showAuthModal('login');

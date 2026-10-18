@@ -2,10 +2,18 @@
    EXACT PHOTO 1 BRIGHT VIBRANT POSTERS & 5-COLUMN GRID STYLESHEET
    ====================================================== */
 
-/* Fix: Stable scrollbar gutter to prevent layout shift between pages */
-html {
-    scrollbar-gutter: stable;
-    overflow-y: scroll;
+/* Fix: Stable scrollbar gutter to prevent layout shift between pages on desktop only */
+@media (min-width: 1024px) {
+    html {
+        scrollbar-gutter: stable;
+        overflow-y: scroll;
+    }
+}
+@media (max-width: 1023px) {
+    html {
+        scrollbar-gutter: auto !important;
+        overflow-y: auto !important;
+    }
 }
 
 /* Fix: Body padding-top for fixed navbar */
@@ -20,7 +28,7 @@ body {
     }
 }
 @media (max-width: 1280px) {
-    body:not(.has-desktop-hero):not(:has(#desktopHeroShowcase)):not(.is-reels-page):not(.page-reels):not(:has(.reels-page-wrapper)) {
+    body:not(.has-desktop-hero):not(:has(#desktopHeroShowcase)):not(.is-reels-page):not(.page-reels):not(:has(.reels-page-wrapper)):not(.page-phim-ngan):not(.page-detail-mode):not(:has(#asHeroSection)):not(:has(#asDramaDetailView)) {
         padding-top: 60px !important;
     }
 }
@@ -210,7 +218,7 @@ main > section:first-child .section-header {
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
         -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-x !important;
+        touch-action: pan-x pan-y !important;
         box-sizing: border-box !important;
     }
 
