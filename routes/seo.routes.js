@@ -523,6 +523,12 @@ function generatePhimNganSitemap() {
 
 router.get('/sitemap-phim-ngan.xml', async (req, res) => {
     try {
+        const publicFile = path.join(__dirname, '../public/sitemap-phim-ngan.xml');
+        if (fs.existsSync(publicFile)) {
+            res.header('Content-Type', 'application/xml; charset=utf-8');
+            res.header('Cache-Control', 'public, max-age=86400');
+            return res.sendFile(publicFile);
+        }
         const xml = generatePhimNganSitemap();
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=86400');
