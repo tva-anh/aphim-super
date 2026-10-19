@@ -21,7 +21,9 @@ let sitemapCache = {
     categories: null,
     images: null,
     reels: null,
-    lastFetched: 0
+    phimNgan: null,
+    lastFetched: 0,
+    lastFetchedPhimNgan: 0
 };
 
 // Danh sách phim bị chặn (DMCA/Vi phạm) để loại trừ khỏi sitemap
@@ -121,7 +123,8 @@ async function generateAllSitemaps() {
         `${BASE_URL}/sitemap-categories.xml`,
         `${BASE_URL}/sitemap-movies.xml`,
         `${BASE_URL}/sitemap-images.xml`,
-        `${BASE_URL}/sitemap-reels.xml`
+        `${BASE_URL}/sitemap-reels.xml`,
+        `${BASE_URL}/sitemap-phim-ngan.xml`
     ];
 
     sitemapsList.forEach(sm => {
@@ -135,7 +138,9 @@ async function generateAllSitemaps() {
     // 2. MAIN STATIC SITEMAP (/sitemap-main.xml)
     const staticRoutes = [
         { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'always' },
-        { loc: `${BASE_URL}/reels`, priority: '0.95', changefreq: 'always' },
+        { loc: `${BASE_URL}/phim-ngan`, priority: '0.95', changefreq: 'always' },
+        { loc: `${BASE_URL}/phim-ngan/de-xuat`, priority: '0.90', changefreq: 'daily' },
+        { loc: `${BASE_URL}/reels`, priority: '0.90', changefreq: 'always' },
         { loc: `${BASE_URL}/danh-sach`, priority: '0.9', changefreq: 'daily' },
         { loc: `${BASE_URL}/tat-ca`, priority: '0.9', changefreq: 'daily' },
         { loc: `${BASE_URL}/categories`, priority: '0.9', changefreq: 'daily' },
@@ -321,38 +326,7 @@ async function generateAllSitemaps() {
         }
     });
 
-    // Bổ sung các phim hot mới nhất vào sitemap video (gắn player_loc hợp lệ sang player xem phim)
-    movies.slice(0, 150).forEach(m => {
-        if (m.slug && !seenReelSlugs.has(m.slug)) {
-            seenReelSlugs.add(m.slug);
-            const name = escapeXml(m.name);
-            let poster = m.poster_url || m.thumb_url || '';
-            if (poster && !poster.startsWith('http')) {
-                poster = `${BASE_URL}${poster.startsWith('/') ? '' : '/'}${poster}`;
-            }
-            poster = escapeXml(poster);
-
-            reelsXml += `  <url>\n`;
-            reelsXml += `    <loc>${BASE_URL}/reels/review/${escapeXml(m.slug)}</loc>\n`;
-            reelsXml += `    <lastmod>${m.modified || todayStr}</lastmod>\n`;
-            reelsXml += `    <changefreq>daily</changefreq>\n`;
-            reelsXml += `    <priority>0.88</priority>\n`;
-            if (poster) {
-                reelsXml += `    <video:video>\n`;
-                reelsXml += `      <video:thumbnail_loc>${poster}</video:thumbnail_loc>\n`;
-                reelsXml += `      <video:title>Review Phim ${name} (${m.year || '2026'}) - Tóm Tắt &amp; Đánh Giá</video:title>\n`;
-                reelsXml += `      <video:description>Xem video tóm tắt review phim ${name} (${escapeXml(m.origin_name || '')}) Full HD Vietsub tại APhim Reels</video:description>\n`;
-                reelsXml += `      <video:player_loc allow_embed="yes" autoplay="ap=1">${BASE_URL}/reels/review/${escapeXml(m.slug)}</video:player_loc>\n`;
-                reelsXml += `      <video:duration>720</video:duration>\n`;
-                reelsXml += `      <video:publication_date>${m.modified || todayStr}</video:publication_date>\n`;
-                reelsXml += `      <video:family_friendly>yes</video:family_friendly>\n`;
-                reelsXml += `      <video:uploader info="${BASE_URL}/">APhim Super</video:uploader>\n`;
-                reelsXml += `    </video:video>\n`;
-            }
-            reelsXml += `  </url>\n`;
-        }
-    });
-
+    // Video review & reels sitemap chuẩn W3C & Google Video Schema (chỉ chứa các video có embed thực thụ)
     reelsXml += `</urlset>`;
 
     // Cập nhật Cache
@@ -456,11 +430,116 @@ router.get('/sitemap-reels.xml', async (req, res) => {
     }
 });
 
+// ── GET /sitemap-phim-ngan.xml (Kho Phim Ngắn / Short Drama Chuẩn W3C XML) ─────
+function generatePhimNganSitemap() {
+    if (sitemapCache.phimNgan && (Date.now() - sitemapCache.lastFetchedPhimNgan < 86400000)) {
+        return sitemapCache.phimNgan;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    let catalog = [];
+    try {
+        const phimNganService = require('../lib/phimNgan.service');
+        const seeds = phimNganService.loadLocalSeeds();
+        catalog = (seeds && seeds.catalog) || [];
+    } catch (e) {
+        try {
+            const seedsPath = path.join(__dirname, '../data/phim_ngan_seeds.json');
+            if (fs.existsSync(seedsPath)) {
+                const seedsData = JSON.parse(fs.readFileSync(seedsPath, 'utf8'));
+                catalog = seedsData.catalog || [];
+            }
+        } catch (_) {}
+    }
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
+
+    // 1. Hub trang chủ phim ngắn
+    xml += `  <url>\n`;
+    xml += `    <loc>${BASE_URL}/phim-ngan</loc>\n`;
+    xml += `    <lastmod>${todayStr}</lastmod>\n`;
+    xml += `    <changefreq>always</changefreq>\n`;
+    xml += `    <priority>1.0</priority>\n`;
+    xml += `  </url>\n`;
+
+    // 2. Trang đề xuất & thịnh hành
+    xml += `  <url>\n`;
+    xml += `    <loc>${BASE_URL}/phim-ngan/de-xuat</loc>\n`;
+    xml += `    <lastmod>${todayStr}</lastmod>\n`;
+    xml += `    <changefreq>daily</changefreq>\n`;
+    xml += `    <priority>0.9</priority>\n`;
+    xml += `  </url>\n`;
+
+    // 3. Toàn bộ các bộ phim ngắn chi tiết
+    const seenDramaIds = new Set();
+    catalog.forEach(item => {
+        const dramaId = String(item.id || item.slug || '').trim();
+        if (!dramaId || seenDramaIds.has(dramaId)) return;
+        seenDramaIds.add(dramaId);
+
+        const title = escapeXml(item.title || item.originalTitle || 'Phim Ngắn');
+        let poster = item.cover || item.coverVertical || '';
+        if (poster && !poster.startsWith('http')) {
+            poster = `${BASE_URL}${poster.startsWith('/') ? '' : '/'}${poster}`;
+        }
+        poster = escapeXml(poster);
+
+        // URL trang Thông tin phim (/phim-ngan/thong-tin/:id)
+        xml += `  <url>\n`;
+        xml += `    <loc>${BASE_URL}/phim-ngan/thong-tin/${escapeXml(dramaId)}</loc>\n`;
+        xml += `    <lastmod>${todayStr}</lastmod>\n`;
+        xml += `    <changefreq>weekly</changefreq>\n`;
+        xml += `    <priority>0.85</priority>\n`;
+        if (poster) {
+            xml += `    <image:image>\n`;
+            xml += `      <image:loc>${poster}</image:loc>\n`;
+            xml += `      <image:title>Xem trọn bộ phim ngắn ${title} Full HD Vietsub - APhim Super</image:title>\n`;
+            xml += `    </image:image>\n`;
+        }
+        xml += `  </url>\n`;
+
+        // URL trang Xem phim trực tiếp (/phim-ngan/xem/:id)
+        xml += `  <url>\n`;
+        xml += `    <loc>${BASE_URL}/phim-ngan/xem/${escapeXml(dramaId)}</loc>\n`;
+        xml += `    <lastmod>${todayStr}</lastmod>\n`;
+        xml += `    <changefreq>weekly</changefreq>\n`;
+        xml += `    <priority>0.85</priority>\n`;
+        if (poster) {
+            xml += `    <image:image>\n`;
+            xml += `      <image:loc>${poster}</image:loc>\n`;
+            xml += `      <image:title>Xem phim ngắn ${title} tập 1 Vietsub Thuyết minh - APhim Super</image:title>\n`;
+            xml += `    </image:image>\n`;
+        }
+        xml += `  </url>\n`;
+    });
+
+    xml += `</urlset>`;
+
+    sitemapCache.phimNgan = xml;
+    sitemapCache.lastFetchedPhimNgan = Date.now();
+    return xml;
+}
+
+router.get('/sitemap-phim-ngan.xml', async (req, res) => {
+    try {
+        const xml = generatePhimNganSitemap();
+        res.header('Content-Type', 'application/xml; charset=utf-8');
+        res.header('Cache-Control', 'public, max-age=86400');
+        res.send(xml);
+    } catch (err) {
+        console.error('[SEO Sitemap Phim Ngan Error]:', err.message);
+        res.status(500).send('Error generating phim ngan sitemap');
+    }
+});
+
 // ── GET /robots.txt (Crawl Budget & Search Engine Guidance) ──────────────────
 router.get('/robots.txt', (req, res) => {
     res.type('text/plain; charset=utf-8');
     res.send(`User-agent: *
 Allow: /
+Allow: /phim-ngan
+Allow: /phim-ngan/
 Allow: /reels
 Allow: /reels/
 Allow: /phim/
@@ -481,10 +560,12 @@ Disallow: /*?*keyword=
 
 # Search Engines Master Sitemaps
 Sitemap: ${BASE_URL}/sitemap.xml
-Sitemap: ${BASE_URL}/sitemap-reels.xml
+Sitemap: ${BASE_URL}/sitemap-phim-ngan.xml
 Sitemap: ${BASE_URL}/sitemap-movies.xml
-Sitemap: ${BASE_URL}/sitemap-categories.xml
 Sitemap: ${BASE_URL}/sitemap-images.xml
+Sitemap: ${BASE_URL}/sitemap-categories.xml
+Sitemap: ${BASE_URL}/sitemap-reels.xml
+Sitemap: ${BASE_URL}/sitemap-main.xml
 `);
 });
 
@@ -549,7 +630,7 @@ router.post('/api/seo/indexnow/submit', async (req, res) => {
 
 // ── POST /api/seo/clear-cache (Admin only) ───────────────────────────────────
 router.post('/api/seo/clear-cache', (req, res) => {
-    sitemapCache = { index: null, main: null, movies: null, categories: null, images: null, lastFetched: 0 };
+    sitemapCache = { index: null, main: null, movies: null, categories: null, images: null, reels: null, phimNgan: null, lastFetched: 0, lastFetchedPhimNgan: 0 };
     res.json({ success: true, message: 'Đã làm mới bộ nhớ cache SEO & Sitemaps!' });
 });
 
