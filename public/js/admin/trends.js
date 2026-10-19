@@ -238,7 +238,7 @@
       const token = getAdminToken();
       const res = await fetch('/api/admin/trends', {
         headers: { 'Authorization': 'Bearer ' + token },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       const data = await res.json();
       if (data && data.success && Array.isArray(data.items)) {
@@ -731,7 +731,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ items: validItems })
       });
       const data = await res.json();

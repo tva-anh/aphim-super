@@ -509,7 +509,7 @@
     try {
       const res = await fetch('/api/admin/notifications', {
         headers: token ? { 'Authorization': 'Bearer ' + token } : {},
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       if (res.ok) {
         const json = await res.json();
@@ -716,7 +716,7 @@
       const token = getAdminToken();
       const res = await fetch('/api/admin/movies/control', {
         headers: { 'Authorization': 'Bearer ' + token },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       if (res.ok) {
         const json = await res.json();
@@ -1319,7 +1319,7 @@
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + token
             },
-            credentials: 'same-origin',
+            credentials: 'omit',
             body: JSON.stringify(payload)
           });
           const data = await res.json();
@@ -1390,7 +1390,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ slug: cleanSlug, forceState: true })
       });
       const data = await res.json();
@@ -1419,7 +1419,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ slug: cleanSlug, forceState: false })
       });
       const data = await res.json();
@@ -1446,7 +1446,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ slug: cleanSlug })
       });
       const data = await res.json();
@@ -1480,7 +1480,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ slug: cleanSlug })
       });
       const data = await res.json();
@@ -1521,7 +1521,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ slugs, action })
       });
       const data = await res.json();
@@ -1555,7 +1555,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ slugs, action: 'dmca' })
       });
       const data = await res.json();
@@ -1640,7 +1640,7 @@
       const token = getAdminToken();
       const res = await fetch('/api/admin/trends', {
         headers: { 'Authorization': 'Bearer ' + token },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       const data = await res.json();
       if (data && data.success && Array.isArray(data.items)) {
@@ -1706,7 +1706,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        credentials: 'same-origin',
+        credentials: 'omit',
         body: JSON.stringify({ items })
       });
       const data = await res.json();
@@ -1850,7 +1850,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
-          credentials: 'same-origin',
+          credentials: 'omit',
           body: JSON.stringify({ days })
         });
         const data = await res.json();
@@ -1874,7 +1874,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
-          credentials: 'same-origin'
+          credentials: 'omit'
         });
         const data = await res.json();
         if (data.success) {
@@ -1902,7 +1902,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
-          credentials: 'same-origin',
+          credentials: 'omit',
           body: JSON.stringify({ blocked: willBlock })
         });
         const data = await res.json();
@@ -2005,7 +2005,7 @@
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
               },
-              credentials: 'same-origin',
+              credentials: 'omit',
               body: JSON.stringify({ name, email, password, vipDays, coins })
             });
             const data = await res.json();
@@ -2297,7 +2297,7 @@
       const url = `/api/admin/dashboard?timeRange=${currentDashboardRange}${force ? '&force=true' : ''}`;
       const res = await fetch(url, {
         headers: { 'Authorization': 'Bearer ' + token },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -3284,7 +3284,7 @@
         const token = getAdminToken();
         const res = await fetch(`/api/admin/movies/by-status?status=${encodeURIComponent(status)}&page=${page}&limit=24`, {
           headers: { 'Authorization': 'Bearer ' + token },
-          credentials: 'same-origin'
+          credentials: 'omit'
         });
         const data = await res.json();
         if (data.success) {
@@ -3395,7 +3395,7 @@
           'Authorization': 'Bearer ' + token,
           'Accept': 'application/json'
         },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       if (res.ok) {
         const json = await res.json();
@@ -3453,7 +3453,7 @@
           'Authorization': 'Bearer ' + token,
           'Accept': 'application/json'
         },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       
       if (res.status === 401 || res.status === 403) {
@@ -4150,7 +4150,7 @@
     try {
       const res = await fetch('/api/admin/transactions?limit=30', {
         headers: { 'Authorization': 'Bearer ' + token },
-        credentials: 'same-origin'
+        credentials: 'omit'
       });
       const data = await res.json();
       if (data.success && data.data) {

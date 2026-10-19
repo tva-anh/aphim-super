@@ -17,12 +17,19 @@
         }
         // Dọn dẹp cookie rác hoặc cookie tracking cồng kềnh tránh lỗi 400 Header Too Large trên Nginx
         try {
-          if (document.cookie.indexOf('aphim_user_interests=') !== -1) {
-            document.cookie = 'aphim_user_interests=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          }
-          if (document.cookie.indexOf('aphim_watched_reels=') !== -1) {
-            document.cookie = 'aphim_watched_reels=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          }
+          var cookiesToClean = [
+            'aphim_user_interests', 
+            'aphim_watched_reels', 
+            'sb-aphim-super-auth-token', 
+            'sb-aphim-super-auth-token.0', 
+            'sb-aphim-super-auth-token.1',
+            'sb-access-token',
+            'sb-refresh-token'
+          ];
+          cookiesToClean.forEach(function(ck) {
+            document.cookie = ck + '=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            document.cookie = ck + '=; path=/reels; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          });
         } catch(e) {}
       })();
     </script>
