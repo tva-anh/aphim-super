@@ -437,17 +437,13 @@ const handleUpdateProfile = async (req, res) => {
                 ...(equipped_badge ? { equippedBadge: equipped_badge, equipped_badge } : {}),
                 ...(profile_cover ? { profileCover: profile_cover, profile_cover } : {}),
                 ...(favorites !== undefined ? { favorites } : {}),
-                ...(watchHistory !== undefined ? { watchHistory, watch_history: watchHistory } : {}),
-                ...(watchProgress !== undefined ? { watchProgress, watch_progress: watchProgress } : {}),
-                ...(playlists !== undefined ? { playlists } : {}),
                 ...(inventory !== undefined ? { inventory } : {}),
                 ...(ownedFrames !== undefined ? { ownedFrames, owned_frames: ownedFrames } : {}),
                 ...(ownedBanners !== undefined ? { ownedBanners, owned_banners: ownedBanners } : {}),
                 ...(ownedItems !== undefined ? { ownedItems, owned_items: ownedItems } : {}),
                 ...(streakData !== undefined ? { streakData, streak_data: streakData } : {}),
                 ...(missionsData !== undefined ? { missionsData, missions_data: missionsData } : {}),
-                ...(settings !== undefined ? { settings } : {}),
-                ...(notifications !== undefined ? { notifications } : {})
+                ...(settings !== undefined ? { settings } : {})
             };
 
             const updateMetaRes = await supabaseAdmin.auth.admin.updateUserById(userId, {
