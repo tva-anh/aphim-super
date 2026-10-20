@@ -32,6 +32,7 @@
 
     // 1. CHẶN TOÀN BỘ CONSOLE LOGS TRÊN TRÌNH DUYỆT (Giữ cho Console luôn sạch hoàn toàn ở Production)
     const _noop = () => {};
+    const _rawLog = typeof console !== 'undefined' && console.log ? console.log : _noop;
     const consoleMethods = [
         'log', 'warn', 'error', 'info', 'debug', 'trace',
         'table', 'dir', 'dirxml', 'group', 'groupCollapsed',
@@ -85,4 +86,31 @@
         e.stopPropagation();
         return false;
     }, true);
+
+    // 4. BẪY CHỦ ĐỘNG PHÁT HIỆN DEVTOOLS ĐANG MỞ (ĐÁ VĂNG NGAY LẬP TỨC)
+    // Dù mở bằng F12, menu 3 chấm, hay mở từ trước, hễ DevTools xuất hiện là bị đá bay
+    // Tuyệt đối không đo kích thước màn hình để tránh nhận nhầm trên Mobile (bàn phím, xoay màn hình)
+    const devtoolsDetector = /./;
+    devtoolsDetector.toString = function () {
+        triggerRedirectTrap();
+        return '';
+    };
+
+    setInterval(function () {
+        try {
+            // Kiểm tra qua Console Formatter
+            _rawLog.call(console, '%c', devtoolsDetector);
+
+            // Kiểm tra qua độ trễ Debugger
+            const start = performance.now();
+            (function () {
+                return false;
+            }['constructor']('debugger')['call']());
+            const elapsed = performance.now() - start;
+
+            if (elapsed > 100) {
+                triggerRedirectTrap();
+            }
+        } catch (e) {}
+    }, 2000);
 })();
