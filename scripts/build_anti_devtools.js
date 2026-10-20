@@ -3,16 +3,7 @@ const path = require('path');
 
 const libCode = fs.readFileSync(path.join(__dirname, '../public/js/disable-devtool.min.js'), 'utf8');
 
-const output = `/**
- * APHIM - ADVANCED ANTI DEVTOOLS & REDIRECT TRAP ENGINE (v109)
- * - Bẫy Debugger trực tiếp (dừng khựng code tại dòng debugger;, hiện thông báo Paused in debugger như MâmPhim)
- * - Đo độ trễ thời gian (nếu pause > 100ms rồi bấm resume -> redirect ngay lập tức)
- * - Chặn phím tắt F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S
- * - Chặn chuột phải (contextmenu)
- * - Tích hợp engine DisableDevtool phòng trường hợp đối phương tắt breakpoint (Deactivate breakpoints)
- * - Tự động bỏ qua trên Localhost / IP nội bộ để dev
- */
-(function () {
+const output = `(function () {
     'use strict';
 
     var hostname = window.location.hostname;
@@ -27,7 +18,6 @@ const output = `/**
         return;
     }
 
-    // 🎯 LINK TRỪNG PHẠT
     var TRAP_REDIRECT_URL = 'https://youtu.be/vLa5jvCJMGk?si=jZknktQr6iKtXRO6';
     var isBlocked = false;
 
@@ -41,7 +31,6 @@ const output = `/**
         }
     }
 
-    // 1. CHẶN PHÍM TẮT F12, CTRL+SHIFT+I/J/C, CTRL+U, CTRL+S
     window.addEventListener('keydown', function (event) {
         var key = String(event.key || '').toLowerCase();
         var keyCode = event.keyCode || event.which;
@@ -61,7 +50,6 @@ const output = `/**
         }
     }, true);
 
-    // 2. CHẶN CHUỘT PHẢI
     window.addEventListener('contextmenu', function (event) {
         var tag = event.target && event.target.tagName ? event.target.tagName.toLowerCase() : '';
         if (tag === 'input' || tag === 'textarea') return true;
@@ -70,7 +58,6 @@ const output = `/**
         return false;
     }, true);
 
-    // 3. BẪY DEBUGGER TRỰC TIẾP (CHUẨN 100% NHƯ HÌNH MÂMPHIM)
     function runDebuggerCheck() {
         if (isBlocked) return;
         var startedAt = performance.now();
@@ -80,17 +67,11 @@ const output = `/**
         }
     }
 
-    // Chạy tuần hoàn mỗi 1 giây
     window.setInterval(runDebuggerCheck, 1000);
-
-    // ⚡ KÍCH HOẠT TỨC THÌ KHI DEVTOOLS VỪA MỞ (kể cả khi ấn F12 từ thanh địa chỉ URL làm thay đổi kích thước viewport)
     window.addEventListener('resize', runDebuggerCheck, true);
-
-    // ⚡ Kích hoạt khi chuột quay lại trang sau khi click thanh địa chỉ
     window.addEventListener('focus', runDebuggerCheck, true);
     window.addEventListener('mouseenter', runDebuggerCheck, true);
 
-    // 4. LỚP PHÒNG THỦ DỰ PHÒNG DISABLE-DEVTOOL (Nếu cố tình Deactivate Breakpoints để né debugger)
     try {
         ${libCode}
 
