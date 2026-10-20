@@ -3,7 +3,7 @@
  * Version: 2.4.0
  */
 
-const CACHE_NAME = 'aphim-static-v16';
+const CACHE_NAME = 'aphim-static-v17';
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',
@@ -49,15 +49,17 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Bỏ qua API requests, websocket, auth, admin, external streams
+  // ⚡ Bỏ qua tài nguyên bên thứ 3 (CDN ảnh phimimg, google fonts, cdnjs, external streams)
+  // để trình duyệt tải trực tiếp qua HTTP/2 cache, tránh nghẽn khi server reload hoặc SW vừa activate
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Bỏ qua API requests, websocket, auth, admin
   if (
     event.request.method !== 'GET' ||
     url.pathname.startsWith('/api') ||
-    url.pathname.startsWith('/admin') ||
-    url.hostname.includes('firebase') ||
-    url.hostname.includes('supabase') ||
-    url.hostname.includes('m3u8') ||
-    url.hostname.includes('opstream')
+    url.pathname.startsWith('/admin')
   ) {
     return;
   }
