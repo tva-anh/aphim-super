@@ -71,17 +71,24 @@ const output = `/**
     }, true);
 
     // 3. BẪY DEBUGGER TRỰC TIẾP (CHUẨN 100% NHƯ HÌNH MÂMPHIM)
-    // Khi DevTools mở (bằng bất kỳ cách nào), Chrome lập tức dừng lại ở dòng debugger;
-    // và hiện thông báo vàng "Paused in debugger", đóng băng toàn bộ trang web.
-    // Nếu cố bấm Resume (F8) để chạy tiếp, thời gian tạm dừng > 100ms sẽ kích hoạt redirect ngay lập tức.
-    window.setInterval(function () {
+    function runDebuggerCheck() {
         if (isBlocked) return;
         var startedAt = performance.now();
         debugger;
         if (performance.now() - startedAt > 100) {
             triggerRedirectTrap();
         }
-    }, 1500);
+    }
+
+    // Chạy tuần hoàn mỗi 1 giây
+    window.setInterval(runDebuggerCheck, 1000);
+
+    // ⚡ KÍCH HOẠT TỨC THÌ KHI DEVTOOLS VỪA MỞ (kể cả khi ấn F12 từ thanh địa chỉ URL làm thay đổi kích thước viewport)
+    window.addEventListener('resize', runDebuggerCheck, true);
+
+    // ⚡ Kích hoạt khi chuột quay lại trang sau khi click thanh địa chỉ
+    window.addEventListener('focus', runDebuggerCheck, true);
+    window.addEventListener('mouseenter', runDebuggerCheck, true);
 
     // 4. LỚP PHÒNG THỦ DỰ PHÒNG DISABLE-DEVTOOL (Nếu cố tình Deactivate Breakpoints để né debugger)
     try {
