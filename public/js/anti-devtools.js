@@ -6,15 +6,14 @@
 (function () {
     'use strict';
 
-    // Bỏ qua anti-devtools khi đang chạy ở môi trường Localhost / IP nội bộ / Port thử nghiệm
+    // Bỏ qua anti-devtools khi đang chạy ở môi trường Localhost / IP nội bộ để dev
     const hostname = window.location.hostname;
     const isLocal = hostname === 'localhost' ||
                     hostname === '127.0.0.1' ||
                     hostname === '::1' ||
                     hostname.endsWith('.local') ||
                     hostname.startsWith('192.168.') ||
-                    hostname.startsWith('10.') ||
-                    (window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443');
+                    hostname.startsWith('10.');
 
     if (isLocal) {
         return;

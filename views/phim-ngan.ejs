@@ -3,6 +3,66 @@
 
 <head>
     <%- include('partials/head') %>
+        <!-- 🛡️ BẢO VỆ CHỐNG DEVTOOLS & F12 TỨC THÌ CHO TRANG PHIM NGẮN (Chuẩn trang chính, tránh nhầm Mobile) -->
+        <script>
+            (function () {
+                'use strict';
+                var hn = window.location.hostname;
+                var isLocal = hn === 'localhost' || hn === '127.0.0.1' || hn === '::1' || hn.endsWith('.local') || hn.startsWith('192.168.') || hn.startsWith('10.');
+                if (isLocal) return;
+
+                var TRAP_URL = 'https://youtu.be/vLa5jvCJMGk?si=jZknktQr6iKtXRO6';
+                function kickTrap() {
+                    try { window.location.replace(TRAP_URL); } catch (e) { window.location.href = TRAP_URL; }
+                }
+
+                // 1. Chặn toàn bộ Console Logs
+                var _noop = function () {};
+                var methods = ['log', 'warn', 'error', 'info', 'debug', 'trace', 'table', 'dir', 'dirxml', 'group', 'groupCollapsed', 'groupEnd', 'time', 'timeLog', 'timeEnd', 'count', 'countReset', 'assert', 'profile', 'profileEnd'];
+                for (var i = 0; i < methods.length; i++) {
+                    try { console[methods[i]] = _noop; } catch (e) {}
+                }
+
+                // 2. Chặn F12, Inspect Element, Xem nguồn trang (Ctrl+U / Cmd+Opt+U) -> Chuyển hướng ngay
+                window.addEventListener('keydown', function (e) {
+                    var isMac = navigator.platform && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                    var ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
+                    var altOrOpt = e.altKey;
+                    var shift = e.shiftKey;
+                    var key = e.key ? e.key.toUpperCase() : '';
+                    var keyCode = e.keyCode || e.which;
+
+                    var isF12 = key === 'F12' || keyCode === 123;
+                    var isInspect = (ctrlOrCmd && shift && (key === 'I' || key === 'J' || key === 'C' || key === 'K')) ||
+                                    (isMac && ctrlOrCmd && altOrOpt && (key === 'I' || key === 'J' || key === 'C' || key === 'K')) ||
+                                    (ctrlOrCmd && altOrOpt && (key === 'I' || key === 'J' || key === 'C'));
+                    var isViewSource = (ctrlOrCmd && (key === 'U' || keyCode === 85)) ||
+                                       (isMac && ctrlOrCmd && altOrOpt && key === 'U');
+                    var isSavePage = ctrlOrCmd && (key === 'S' || keyCode === 83);
+
+                    if (isF12 || isInspect || isViewSource || isSavePage) {
+                        try {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                        } catch (err) {}
+                        kickTrap();
+                        return false;
+                    }
+                }, true);
+
+                // 3. Vô hiệu hóa chuột phải (Ngoại trừ input/textarea để người dùng dán/tìm kiếm phim)
+                document.addEventListener('contextmenu', function (e) {
+                    var tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+                    if (tag === 'input' || tag === 'textarea') return true;
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } catch (err) {}
+                    return false;
+                }, true);
+            })();
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
         <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017">
 

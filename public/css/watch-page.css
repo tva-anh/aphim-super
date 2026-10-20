@@ -368,13 +368,24 @@
                 cursor: pointer !important;
                 padding: 4px 6px !important;
                 border-radius: 8px !important;
-                transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease !important;
+                /* ⚡ Tốc độ phản hồi tức thì 0ms, loại bỏ delay trên cả mobile & desktop */
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                transition: color 0.1s ease, background-color 0.1s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                will-change: transform;
                 flex-shrink: 0 !important;
             }
 
             .player-ctrl-item:hover {
                 color: #fcd576 !important;
-                background: rgba(255, 255, 255, 0.06) !important;
+                background: rgba(255, 255, 255, 0.08) !important;
+                transform: translateY(-1px) scale(1.04) translateZ(0) !important;
+            }
+
+            .player-ctrl-item:active {
+                transform: scale(0.92) translateZ(0) !important;
+                background: rgba(252, 213, 118, 0.16) !important;
+                transition: transform 0.04s ease-out, background-color 0.04s ease-out !important;
             }
 
             .player-ctrl-item.is-active,
@@ -1544,35 +1555,47 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 2px !important;
-                padding: 0 !important;
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
+                gap: 4px !important;
+                padding: 10px 18px !important;
+                background: rgba(0, 0, 0, 0.45) !important;
+                border-radius: 9999px !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+                pointer-events: none !important;
+            }
+
+            .aphim-seek-animated {
+                animation: aphimSeekSpring 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            }
+
+            @keyframes aphimSeekSpring {
+                0% { transform: scale(0.7); opacity: 0.5; }
+                50% { transform: scale(1.15); opacity: 1; }
+                100% { transform: scale(1); opacity: 1; }
             }
 
             .aphim-seek-icon {
                 color: #ffffff !important;
-                font-size: 32px !important;
-                width: 32px !important;
-                height: 32px !important;
-                line-height: 32px !important;
+                font-size: 30px !important;
+                width: 30px !important;
+                height: 30px !important;
+                line-height: 30px !important;
                 text-align: center !important;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) !important;
+                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) !important;
             }
 
             .aphim-seek-text {
                 color: #ffffff !important;
-                font-size: 15px !important;
-                font-weight: 700 !important;
+                font-size: 13.5px !important;
+                font-weight: 800 !important;
                 letter-spacing: 0.5px !important;
                 text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
-                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             }
 
             #aphim-player-wrapper {
@@ -1602,9 +1625,11 @@
                 padding-bottom: 24px !important;
                 padding-top: 60px !important;
                 background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.65) 45%, rgba(0, 0, 0, 0.2) 80%, transparent 100%) !important;
-                transition: opacity 0.16s cubic-bezier(0, 0, 0.2, 1), visibility 0.16s cubic-bezier(0, 0, 0.2, 1) !important;
-                pointer-events: auto;
-                will-change: opacity;
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+                pointer-events: auto !important;
+                transition: opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1), transform 0.36s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                will-change: opacity, transform;
             }
 
             :fullscreen #aphim-controls,
@@ -1618,9 +1643,53 @@
 
             #aphim-controls.aphim-controls-hidden {
                 opacity: 0 !important;
+                transform: translateY(14px) !important;
                 pointer-events: none !important;
+                transition: opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1), transform 0.38s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+
+            /* Pill Badge 2x khi nhấn giữ (Chuẩn YouTube Mobile) */
+            #aphim-speed-pill {
+                position: absolute !important;
+                top: 14px !important;
+                left: 50% !important;
+                transform: translateX(-50%) scale(0.9) !important;
+                z-index: 40 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 7px !important;
+                padding: 6px 16px !important;
+                background: rgba(13, 17, 23, 0.82) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                border-radius: 9999px !important;
+                backdrop-filter: blur(14px) !important;
+                -webkit-backdrop-filter: blur(14px) !important;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(252, 213, 118, 0.2) !important;
+                color: #ffffff !important;
+                font-size: 13px !important;
+                font-weight: 700 !important;
+                letter-spacing: 0.4px !important;
+                pointer-events: none !important;
+                opacity: 0 !important;
                 visibility: hidden !important;
-                transition: opacity 0.14s ease-in, visibility 0.14s ease-in !important;
+                transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s !important;
+            }
+
+            #aphim-speed-pill.active {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateX(-50%) scale(1) !important;
+            }
+
+            #aphim-speed-pill .pill-icon {
+                color: #fcd576 !important;
+                font-size: 14px !important;
+                animation: aphimPillPulse 0.8s ease-in-out infinite alternate !important;
+            }
+
+            @keyframes aphimPillPulse {
+                from { transform: scale(1); opacity: 0.85; }
+                to { transform: scale(1.15); opacity: 1; }
             }
 
             @media (max-width: 640px) {
@@ -1762,7 +1831,10 @@
                 margin: 0 !important;
                 cursor: pointer !important;
                 color: #ffffff !important;
-                transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease !important;
+                /* ⚡ Loại bỏ 300ms tap delay trên iOS/Android: phản hồi tức thì 0ms */
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.1s ease, color 0.08s ease, box-shadow 0.1s ease !important;
                 flex-shrink: 0 !important;
                 will-change: transform;
             }
@@ -1783,14 +1855,21 @@
             .aphim-ctrl-btn:hover {
                 background-color: rgba(255, 255, 255, 0.16) !important;
                 color: #fcd576 !important;
-                transform: scale(1.12) translateZ(0) !important;
+                transform: scale(1.1) translateZ(0) !important;
                 box-shadow: 0 0 14px rgba(252, 213, 118, 0.3) !important;
             }
 
             #aphim-controls button:active,
             .aphim-ctrl-btn:active {
-                transform: scale(0.9) translateZ(0) !important;
-                transition-duration: 0.08s !important;
+                transform: scale(0.88) translateZ(0) !important;
+                background-color: rgba(252, 213, 118, 0.22) !important;
+                transition: transform 0.035s ease-out, background-color 0.035s ease-out !important;
+            }
+
+            /* ⚡ Mở rộng overflow cho wrapper khi settings menu bật để không bao giờ bị cắt menu */
+            #aphim-player-wrapper.aphim-menu-open,
+            #aphim-player-wrapper:has(#aphim-settings-menu:not(.hidden)) {
+                overflow: visible !important;
             }
 
             #aphim-controls .aphim-btn-icon,
@@ -2113,10 +2192,20 @@
                 }
             }
 
+            #aphim-volume-slider-box {
+                width: 88px !important;
+                display: flex !important;
+                align-items: center !important;
+                overflow: visible !important;
+                padding-left: 2px !important;
+                padding-right: 2px !important;
+                flex-shrink: 0 !important;
+            }
+
             #aphim-volume-slider {
                 -webkit-appearance: none;
                 appearance: none;
-                width: 95px !important;
+                width: 82px !important;
                 height: 4px !important;
                 border-radius: 9999px !important;
                 background: linear-gradient(to right, #ffffff 0%, #ffffff var(--vol-pct, 90%), rgba(255, 255, 255, 0.28) var(--vol-pct, 90%), rgba(255, 255, 255, 0.28) 100%) !important;
@@ -2280,31 +2369,213 @@
                     display: none !important;
                 }
 
-                /* Compact Settings dropdown on mobile */
+                /* ⚡ Khắc phục dứt điểm menu cài đặt mobile: neo trực tiếp theo player wrapper, cách mép an toàn, không bao giờ bị cắt đỉnh */
+                #aphim-settings-wrapper {
+                    position: static !important;
+                }
+                /* ⚡ Khắc phục dứt điểm menu cài đặt mobile: neo trực tiếp theo player wrapper, cách mép an toàn, không bao giờ bị cắt đỉnh */
+                #aphim-settings-wrapper {
+                    position: static !important;
+                }
                 #aphim-settings-menu {
-                    bottom: calc(100% + 8px) !important;
-                    right: 0 !important;
-                    width: 230px !important;
-                    max-height: 200px !important;
-                    font-size: 12px !important;
+                    position: absolute !important;
+                    bottom: 46px !important;
+                    right: 8px !important;
+                    width: 248px !important;
+                    max-width: calc(100% - 16px) !important;
+                    /* ⚡ Menu chính giữ chiều cao tự nhiên thoải mái ~185px, thấy đủ cả 4 mục không bị cắt cụt */
+                    height: auto !important;
+                    max-height: 185px !important;
+                    overflow: hidden !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    font-size: 11.5px !important;
+                    background: rgba(14, 20, 32, 0.98) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+                    border-radius: 14px !important;
+                    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.92), 0 0 1px rgba(255, 255, 255, 0.25) !important;
+                    backdrop-filter: blur(24px) !important;
+                    -webkit-backdrop-filter: blur(24px) !important;
+                    z-index: 99999 !important;
+                }
+                .aphim-settings-panel {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    max-height: 185px !important;
+                    min-height: 0 !important;
+                    overflow: hidden !important;
+                    flex: 1 1 auto !important;
+                    box-sizing: border-box !important;
                 }
                 .aphim-settings-header {
-                    padding: 10px 14px 8px 14px !important;
-                    font-size: 12px !important;
+                    padding: 8px 12px 7px 12px !important;
+                    font-size: 11px !important;
+                    font-weight: 700 !important;
+                    color: #fcd576 !important;
+                    letter-spacing: 0.5px !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    flex-shrink: 0 !important;
+                    background: rgba(14, 20, 32, 0.98) !important;
+                    user-select: none !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    box-sizing: border-box !important;
+                }
+                .aphim-sub-header {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 7px !important;
+                    cursor: pointer !important;
+                    touch-action: manipulation !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    flex-shrink: 0 !important;
+                    background: rgba(14, 20, 32, 0.98) !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    padding: 8px 12px !important;
+                    font-size: 11px !important;
+                    font-weight: 700 !important;
+                    color: #fcd576 !important;
+                    box-sizing: border-box !important;
+                }
+                .aphim-sub-header:active {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+                .aphim-sub-header svg {
+                    width: 14px !important;
+                    height: 14px !important;
+                    stroke-width: 2.4 !important;
+                    color: #fcd576 !important;
+                    flex-shrink: 0 !important;
+                    display: inline-block !important;
+                }
+                /* Menu chính hiển thị đủ 4 mục không bị cắt cụt */
+                #aphim-settings-main-panel .aphim-settings-list {
+                    max-height: none !important;
+                    overflow: visible !important;
+                    padding: 2px 0 !important;
+                }
+                /* Các sub-panels con cuộn êm ru dưới header */
+                .aphim-panel-sub .aphim-settings-list {
+                    flex: 1 1 auto !important;
+                    max-height: 140px !important;
+                    min-height: 0 !important;
+                    overflow-y: auto !important;
+                    padding: 2px 0 !important;
+                    /* ⚡ Ẩn triệt để scrollbar thô thiển, cuộn chạm cực kỳ êm ru */
+                    scrollbar-width: none !important;
+                    -ms-overflow-style: none !important;
+                    -webkit-overflow-scrolling: touch !important;
+                }
+                .aphim-settings-list::-webkit-scrollbar {
+                    display: none !important;
+                    width: 0 !important;
+                    height: 0 !important;
                 }
                 .aphim-settings-item {
-                    padding: 9px 14px !important;
-                    font-size: 12px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    gap: 10px !important;
+                    padding: 7px 12px !important;
+                    font-size: 11.5px !important;
+                    cursor: pointer !important;
+                    touch-action: manipulation !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    transition: background 0.08s ease, transform 0.05s ease !important;
+                }
+                .aphim-settings-item:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+                .aphim-settings-item:active {
+                    background: rgba(252, 213, 118, 0.16) !important;
+                    transform: scale(0.98) translateZ(0) !important;
+                    transition: transform 0.035s ease-out, background 0.035s ease-out !important;
+                }
+                .aphim-item-left {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 7px !important;
+                    flex-shrink: 0 !important;
+                }
+                .aphim-item-icon {
+                    width: 15px !important;
+                    height: 15px !important;
+                    min-width: 15px !important;
+                    min-height: 15px !important;
+                    color: #94a3b8 !important;
                 }
                 .aphim-item-label {
-                    font-size: 12px !important;
+                    font-size: 11.5px !important;
+                    font-weight: 600 !important;
+                    color: #ffffff !important;
+                    white-space: nowrap !important;
+                }
+                .aphim-item-right {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 6px !important;
+                    margin-left: auto !important;
+                    min-width: 0 !important;
+                    justify-content: flex-end !important;
                 }
                 .aphim-item-value {
-                    font-size: 11px !important;
+                    font-size: 10.5px !important;
+                    font-weight: 500 !important;
+                    color: #fcd576 !important;
+                    max-width: 105px !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    white-space: nowrap !important;
+                    text-align: right !important;
+                }
+                .aphim-item-chevron {
+                    width: 12px !important;
+                    height: 12px !important;
+                    min-width: 12px !important;
+                    color: rgba(255, 255, 255, 0.5) !important;
+                    flex-shrink: 0 !important;
                 }
                 .aphim-sub-opt {
-                    padding: 8px 12px !important;
-                    font-size: 12px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    padding: 7px 12px !important;
+                    font-size: 11px !important;
+                    cursor: pointer !important;
+                    touch-action: manipulation !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    transition: background 0.08s ease, transform 0.05s ease !important;
+                }
+                .aphim-sub-opt:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+                .aphim-sub-opt:active {
+                    background: rgba(252, 213, 118, 0.16) !important;
+                    transform: scale(0.98) translateZ(0) !important;
+                    transition: transform 0.035s ease-out, background 0.035s ease-out !important;
+                }
+                .aphim-sub-opt.active {
+                    color: #fcd576 !important;
+                    font-weight: 600 !important;
+                    background: rgba(252, 213, 118, 0.08) !important;
+                }
+                .aphim-sub-opt .opt-check {
+                    width: 13px !important;
+                    height: 13px !important;
+                    stroke-width: 2.5 !important;
+                    color: #fcd576 !important;
+                    flex-shrink: 0 !important;
+                }
+
+                @media (max-width: 640px) and (orientation: landscape), (max-width: 640px) and (min-height: 480px) {
+                    #aphim-settings-menu {
+                        max-height: 250px !important;
+                    }
+                    .aphim-settings-list {
+                        max-height: 205px !important;
+                    }
                 }
 
                 /* Subtitles adjustment so cues never collide with bottom controls */
@@ -2378,12 +2649,15 @@
             :fullscreen #aphim-volume-slider-box,
             :-webkit-full-screen #aphim-volume-slider-box,
             .aphim-web-fullscreen #aphim-volume-slider-box {
-                width: 65px !important;
+                width: 75px !important;
+                overflow: visible !important;
+                display: flex !important;
+                align-items: center !important;
             }
             :fullscreen #aphim-volume-slider,
             :-webkit-full-screen #aphim-volume-slider,
             .aphim-web-fullscreen #aphim-volume-slider {
-                width: 60px !important;
+                width: 70px !important;
             }
 /* Guide Modal Styling - Transparent Rows, High-Contrast White Text, Balanced Spacing & Indentation */
 .guide-modal-card {

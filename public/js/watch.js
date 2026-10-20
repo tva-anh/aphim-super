@@ -2448,8 +2448,8 @@ function initializePlayer(episode) {
                             <button type="button" id="aphim-btn-volume" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Âm lượng (M)">
                                 <span class="material-icons-round" id="aphim-icon-volume">volume_up</span>
                             </button>
-                            <div id="aphim-volume-slider-box" class="w-12 sm:w-20 overflow-hidden transition-all duration-200 flex items-center pl-1">
-                                <input type="range" id="aphim-volume-slider" min="0" max="1" step="0.05" value="0.9" class="w-10 sm:w-18 h-1.5 bg-white/40 rounded-lg appearance-none cursor-pointer accent-[#fcd576]">
+                            <div id="aphim-volume-slider-box" class="w-12 sm:w-24 transition-all duration-200 flex items-center pl-1">
+                                <input type="range" id="aphim-volume-slider" min="0" max="1" step="0.01" value="0.9" class="w-10 sm:w-20 h-1.5 bg-white/40 rounded-lg appearance-none cursor-pointer accent-[#fcd576]">
                             </div>
                         </div>
 
@@ -2680,7 +2680,7 @@ function initializePlayer(episode) {
     const centerIcon = document.getElementById('aphim-center-icon');
 
     // UI helper: Ripple Seek Overlay Feedback
-    function showSeekOverlay(text, isForward) {
+    function showSeekOverlay(text, isForward, isMobileTouchArc = false) {
         let overlay = document.getElementById('aphim-seek-overlay');
         if (!overlay) {
             overlay = document.createElement('div');
@@ -2689,26 +2689,38 @@ function initializePlayer(episode) {
             if (wrapper) wrapper.appendChild(overlay);
         }
         
-        if (isForward !== undefined) {
+        // CHỈ khi là cử chỉ Double-tap trên Mobile thì mới vẽ cánh cung mờ ở mép màn hình
+        if (isMobileTouchArc && isForward !== undefined) {
             overlay.style.top = '0';
             overlay.style.bottom = '0';
-            overlay.style.width = '35%';
-            overlay.style.borderRadius = '0';
+            overlay.style.width = '42%';
+            overlay.style.transform = 'none';
             if (isForward) {
                 overlay.style.right = '0';
                 overlay.style.left = 'auto';
+                overlay.style.borderTopLeftRadius = '140px';
+                overlay.style.borderBottomLeftRadius = '140px';
+                overlay.style.borderTopRightRadius = '0';
+                overlay.style.borderBottomRightRadius = '0';
+                overlay.style.background = 'radial-gradient(circle at 90% 50%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%)';
             } else {
                 overlay.style.left = '0';
                 overlay.style.right = 'auto';
+                overlay.style.borderTopRightRadius = '140px';
+                overlay.style.borderBottomRightRadius = '140px';
+                overlay.style.borderTopLeftRadius = '0';
+                overlay.style.borderBottomLeftRadius = '0';
+                overlay.style.background = 'radial-gradient(circle at 10% 50%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%)';
             }
-            overlay.style.background = 'radial-gradient(circle, rgba(0, 0, 0, 0.25) 0%, transparent 75%)';
             overlay.innerHTML = `
-                <div class="aphim-seek-badge">
+                <div class="aphim-seek-badge aphim-seek-animated">
                     <span class="material-icons-round aphim-seek-icon">${isForward ? 'fast_forward' : 'fast_rewind'}</span>
                     <span class="aphim-seek-text">${text}</span>
                 </div>
             `;
         } else {
+            // TRÊN DESKTOP HOẶC BẤM NÚT / BÀN PHÍM:
+            // Nền HOÀN TOÀN TRONG SUỐT (KHÔNG mờ nền cả một vùng màn hình)
             overlay.style.top = '50%';
             overlay.style.left = '50%';
             overlay.style.bottom = 'auto';
@@ -2718,7 +2730,8 @@ function initializePlayer(episode) {
             overlay.style.borderRadius = '0';
             overlay.style.background = 'transparent';
             overlay.innerHTML = `
-                <div class="aphim-seek-badge">
+                <div class="aphim-seek-badge aphim-seek-animated">
+                    ${isForward !== undefined ? `<span class="material-icons-round aphim-seek-icon">${isForward ? 'fast_forward' : 'fast_rewind'}</span>` : ''}
                     <span class="aphim-seek-text">${text}</span>
                 </div>
             `;
@@ -2728,7 +2741,7 @@ function initializePlayer(episode) {
         clearTimeout(overlay._timer);
         overlay._timer = setTimeout(() => {
             overlay.style.opacity = '0';
-        }, 550);
+        }, 600);
     }
 
     // UI helper: pulse center indicator
@@ -2762,13 +2775,13 @@ function initializePlayer(episode) {
         };
     }
 
-    // Seek 10s with spring rotation feedback
+    // Seek 10s with snappy spring rotation feedback (tức thì 0ms, không nghẽn)
     if (btnRewind) {
         btnRewind.onclick = () => {
             const icon = btnRewind.querySelector('.material-icons-round') || btnRewind;
-            icon.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            icon.style.transform = 'rotate(-40deg) scale(1.15)';
-            setTimeout(() => { icon.style.transform = 'none'; }, 240);
+            icon.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)';
+            icon.style.transform = 'rotate(-35deg) scale(1.12)';
+            setTimeout(() => { icon.style.transform = 'none'; }, 130);
             
             player.currentTime = Math.max(0, player.currentTime - 10);
             showSeekOverlay('-10s', false);
@@ -2777,9 +2790,9 @@ function initializePlayer(episode) {
     if (btnForward) {
         btnForward.onclick = () => {
             const icon = btnForward.querySelector('.material-icons-round') || btnForward;
-            icon.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            icon.style.transform = 'rotate(40deg) scale(1.15)';
-            setTimeout(() => { icon.style.transform = 'none'; }, 240);
+            icon.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)';
+            icon.style.transform = 'rotate(35deg) scale(1.12)';
+            setTimeout(() => { icon.style.transform = 'none'; }, 130);
 
             player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
             showSeekOverlay('+10s', true);
@@ -2788,9 +2801,9 @@ function initializePlayer(episode) {
     if (btnNext) {
         btnNext.onclick = () => {
             const icon = btnNext.querySelector('.material-icons-round') || btnNext;
-            icon.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            icon.style.transform = 'translateX(4px) scale(1.15)';
-            setTimeout(() => { icon.style.transform = 'none'; }, 220);
+            icon.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)';
+            icon.style.transform = 'translateX(3px) scale(1.12)';
+            setTimeout(() => { icon.style.transform = 'none'; }, 130);
             playNextEpisode();
         };
     }
@@ -2988,7 +3001,28 @@ function initializePlayer(episode) {
         const allPanels = settingsMenu.querySelectorAll('.aphim-settings-panel');
         allPanels.forEach(p => p.classList.add('hidden'));
         const targetPanel = document.getElementById(panelId);
-        if (targetPanel) targetPanel.classList.remove('hidden');
+        if (targetPanel) {
+            targetPanel.classList.remove('hidden');
+            const list = targetPanel.querySelector('.aphim-settings-list');
+            if (list) {
+                list.scrollTop = 0;
+                if (window.innerWidth <= 640) {
+                    if (panelId === 'aphim-settings-main-panel') {
+                        list.style.maxHeight = 'none';
+                        list.style.overflow = 'visible';
+                    } else {
+                        list.style.maxHeight = '140px';
+                        list.style.overflowY = 'auto';
+                    }
+                }
+            }
+        }
+        if (window.innerWidth <= 640) {
+            settingsMenu.style.maxHeight = (panelId === 'aphim-settings-main-panel') ? '185px' : '180px';
+            settingsMenu.style.overflow = 'hidden';
+            settingsMenu.style.display = 'flex';
+            settingsMenu.style.flexDirection = 'column';
+        }
     }
 
     function refreshSettingsServers() {
@@ -3098,8 +3132,16 @@ function initializePlayer(episode) {
                 refreshSettingsServers();
                 refreshSettingsQuality();
                 settingsMenu.classList.remove('hidden');
+                if (wrapper) wrapper.classList.add('aphim-menu-open');
+                if (window.innerWidth <= 640) {
+                    settingsMenu.style.maxHeight = '185px';
+                    settingsMenu.style.overflow = 'hidden';
+                    settingsMenu.style.display = 'flex';
+                    settingsMenu.style.flexDirection = 'column';
+                }
             } else {
                 settingsMenu.classList.add('hidden');
+                if (wrapper) wrapper.classList.remove('aphim-menu-open');
             }
         };
 
@@ -3184,10 +3226,13 @@ function initializePlayer(episode) {
             });
         }
 
-        document.addEventListener('click', (e) => {
-            if (!settingsMenu.contains(e.target) && e.target !== btnSettings && !btnSettings.contains(e.target)) {
-                settingsMenu.classList.add('hidden');
-            }
+        ['click', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, (e) => {
+                if (settingsMenu && !settingsMenu.classList.contains('hidden') && !settingsMenu.contains(e.target) && e.target !== btnSettings && !btnSettings.contains(e.target)) {
+                    settingsMenu.classList.add('hidden');
+                    if (wrapper) wrapper.classList.remove('aphim-menu-open');
+                }
+            }, { passive: true });
         });
     }
 
@@ -3412,10 +3457,16 @@ function initializePlayer(episode) {
 
     function showControls(customDelay) {
         if (!controls) return;
-        controls.classList.remove('aphim-controls-hidden');
-        controls.style.opacity = '1';
-        controls.style.pointerEvents = 'auto';
-        controls.style.visibility = 'visible';
+        
+        // Loại bỏ inline styles cũ để CSS transition 0.36s chạy mượt mà 100% không bị chớp giật
+        controls.style.opacity = '';
+        controls.style.visibility = '';
+        controls.style.pointerEvents = '';
+
+        if (controls.classList.contains('aphim-controls-hidden')) {
+            controls.classList.remove('aphim-controls-hidden');
+        }
+
         if (wrapper) {
             wrapper.classList.remove('aphim-hide-cursor');
             wrapper.style.cursor = 'default';
@@ -3438,10 +3489,13 @@ function initializePlayer(episode) {
             hideTimeout = null;
         }
 
+        // Loại bỏ inline styles cũ
+        controls.style.opacity = '';
+        controls.style.visibility = '';
+        controls.style.pointerEvents = '';
+
         controls.classList.add('aphim-controls-hidden');
-        controls.style.opacity = '0';
-        controls.style.pointerEvents = 'none';
-        controls.style.visibility = 'hidden';
+
         if (wrapper) {
             wrapper.classList.add('aphim-hide-cursor');
             wrapper.style.cursor = 'none';
@@ -3505,35 +3559,113 @@ function initializePlayer(episode) {
         });
     }
 
+    // ─── SMART DUAL-ZONE HOVER CONTROLLER (DESKTOP WINDOWED & FULLSCREEN) ───
+    // Tự động phân chia 2 vùng nhạy bén trên Desktop:
+    // 1. Vùng dưới (Bottom Zone, ~35-40% đáy): Di chuột xuống -> Hiện bộ công cụ tức thì
+    // 2. Vùng trên (Top Zone, ~60-65% đỉnh): Đưa chuột lên lại -> Tự động nhận biết đang xem phim và ẩn mượt mà
+    function handleDesktopDualZoneMouseMove(e) {
+        if (e && e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
+            return;
+        }
+
+        const isFs = isCurrentlyFullscreen();
+        const targetEl = wrapper;
+        if (!targetEl) return;
+
+        const rect = targetEl.getBoundingClientRect();
+        if (rect.height <= 0) return;
+
+        const clientY = e.clientY;
+        const relativeY = clientY - rect.top;
+        const height = rect.height;
+
+        // Ngưỡng phân chia 2 vùng thông minh:
+        // - Trên Fullscreen: Vùng dưới là 32% chiều cao đáy (hoặc từ đáy tính lên 220px)
+        // - Chế độ thường: Vùng dưới là 38% chiều cao đáy (hoặc từ đáy tính lên 150px)
+        const bottomTriggerThreshold = isFs 
+            ? Math.max(height * 0.68, height - 220)
+            : Math.max(height * 0.62, height - 150);
+
+        // Vùng đệm rời đi (Hysteresis - tránh giật nhấp nháy khi rê chuột chậm quanh ranh giới)
+        const topExitThreshold = isFs
+            ? Math.max(height * 0.64, height - 250)
+            : Math.max(height * 0.58, height - 170);
+
+        if (relativeY >= bottomTriggerThreshold) {
+            // Chuột đang ở VÙNG DƯỚI:
+            // - Nếu controls đang ẨN → mới gọi showControls để trigger transition trượt lên mượt mà
+            // - Nếu controls đã HIỆN rồi → chỉ gia hạn timer, KHÔNG gọi lại showControls tránh chớp giật
+            if (controls && controls.classList.contains('aphim-controls-hidden')) {
+                showControls(2800);
+            } else {
+                scheduleHideControls(2800); // Chỉ gia hạn, không làm gián đoạn transition
+            }
+        } else if (relativeY < topExitThreshold) {
+            // Chuột đã được đưa lên lại VÙNG TRÊN (vùng xem phim) → Nhận biết user không cần controls nữa:
+            if (wrapper) {
+                wrapper.classList.remove('aphim-hide-cursor');
+                wrapper.style.cursor = 'default';
+            }
+            if (player && !player.paused && !isDraggingTimeline && !isHoveringControls) {
+                if (!settingsMenu || settingsMenu.classList.contains('hidden')) {
+                    scheduleHideControls(180); // Ẩn mượt mà sau 180ms
+                }
+            }
+        }
+    }
+
     if (wrapper) {
-        wrapper.addEventListener('mousemove', (e) => {
-            if (e && e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
-            showControls();
-        });
+        wrapper.addEventListener('mousemove', handleDesktopDualZoneMouseMove);
+
         wrapper.addEventListener('mouseenter', (e) => {
             if (e && e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
-            showControls();
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
+                showControls();
+                return;
+            }
+
+            const rect = wrapper.getBoundingClientRect();
+            const relativeY = e.clientY - rect.top;
+            const bottomThreshold = Math.max(rect.height * 0.62, rect.height - 150);
+
+            if (relativeY >= bottomThreshold) {
+                // mouseenter vào vùng dưới: chỉ show nếu đang ẩn, tránh interrupt transition
+                if (controls && controls.classList.contains('aphim-controls-hidden')) {
+                    showControls(2800);
+                } else {
+                    scheduleHideControls(2800);
+                }
+            } else {
+                // Di chuột vào ở vùng trên: không bật controls che mắt, chỉ đảm bảo con trỏ hiển thị
+                if (wrapper) {
+                    wrapper.classList.remove('aphim-hide-cursor');
+                    wrapper.style.cursor = 'default';
+                }
+            }
         });
+
         wrapper.addEventListener('mouseleave', () => {
-            // Không áp dụng mouseleave trên thiết bị cảm ứng (tránh synthetic event làm ẩn mất thanh điều khiển sau 300ms)
+            // Không áp dụng mouseleave trên thiết bị cảm ứng
             if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) return;
             isHoveringControls = false;
             if (hideTimeout) clearTimeout(hideTimeout);
             if (wrapper) wrapper.style.cursor = 'default';
             if (player && !player.paused && !isDraggingTimeline) {
+                // Di chuột ra khỏi khung chiếu -> ẩn mượt mà sau 180ms với transition trượt mờ điện ảnh
                 hideTimeout = setTimeout(() => {
                     hideControls();
-                }, 800);
+                }, 180);
             }
         });
         // ĐÃ LOẠI BỎ wrapper.addEventListener('touchstart') gọi showControls() sớm
         // Để clickzone quản lý luồng tap/double-tap/long-press chuẩn xác 100%
     }
 
-    // Global listener for Fullscreen mode
-    document.addEventListener('mousemove', () => {
-        if (document.fullscreenElement || document.webkitFullscreenElement) {
-            showControls();
+    // Global listener khi ở Fullscreen: Vẫn áp dụng chính xác Smart Dual-Zone Hover (Không bao giờ bị lỗi hiện trơ trơ nữa)
+    document.addEventListener('mousemove', (e) => {
+        if (isCurrentlyFullscreen()) {
+            handleDesktopDualZoneMouseMove(e);
         }
     });
 
@@ -3749,8 +3881,11 @@ function initializePlayer(episode) {
         if (typeof autoPlayNext === 'function') autoPlayNext();
     });
 
-    // Mobile Gestures & Touch Controller (Chuẩn YouTube / Netflix Mobile Standard)
+    // Mobile Gestures & Touch Controller (Chuẩn YouTube Mobile - Double-tap Seek 5s & 2X Speed Pill)
     let lastTapTime = 0;
+    let lastTapSide = null; // 'left' | 'right' | 'center'
+    let accumulatedSeekSec = 0;
+    let seekAccumulateTimer = null;
     let singleTapTimer = null;
     let longPressTimer = null;
     let isLongPressActive = false;
@@ -3759,6 +3894,26 @@ function initializePlayer(episode) {
     let touchMoved = false;
     let wasControlsVisibleOnTouchStart = false;
     let preSpeed = 1.0;
+
+    // Helper: Hiển thị Pill 2X tinh tế trên đỉnh giữa player (chuẩn YouTube Mobile)
+    function toggleSpeedPill(active) {
+        let pill = document.getElementById('aphim-speed-pill');
+        if (!pill && wrapper) {
+            pill = document.createElement('div');
+            pill.id = 'aphim-speed-pill';
+            pill.innerHTML = `
+                <span class="pill-icon">▶▶</span>
+                <span>2X Tốc độ phát</span>
+            `;
+            wrapper.appendChild(pill);
+        }
+        if (!pill) return;
+        if (active) {
+            pill.classList.add('active');
+        } else {
+            pill.classList.remove('active');
+        }
+    }
 
     if (clickzone) {
         // Touchstart: Ghi nhận vị trí và trạng thái ban đầu của bộ công cụ
@@ -3775,7 +3930,7 @@ function initializePlayer(episode) {
                 controls.style.opacity !== '0' && 
                 controls.style.visibility !== 'hidden';
 
-            // Kích hoạt tính năng nhấn giữ để tua nhanh 2x (YouTube style)
+            // Kích hoạt tính năng nhấn giữ để tua nhanh 2x (YouTube style với Speed Pill siêu đẹp)
             isLongPressActive = false;
             if (longPressTimer) clearTimeout(longPressTimer);
             longPressTimer = setTimeout(() => {
@@ -3783,9 +3938,9 @@ function initializePlayer(episode) {
                     isLongPressActive = true;
                     preSpeed = player.playbackRate || 1.0;
                     player.playbackRate = 2.0;
-                    showSeekOverlay('2x ▶▶', true);
+                    toggleSpeedPill(true);
                 }
-            }, 450);
+            }, 380);
         }, { passive: true });
 
         // Touchmove: Nếu người dùng vuốt ngón tay (cuộn trang web) -> huỷ tap và long-press
@@ -3809,74 +3964,117 @@ function initializePlayer(episode) {
             }
             if (isLongPressActive) {
                 isLongPressActive = false;
+                toggleSpeedPill(false);
                 if (player) {
                     player.playbackRate = preSpeed || 1.0;
-                    showSeekOverlay(`${player.playbackRate}x`, false);
                 }
                 return true;
             }
             return false;
         };
 
-        // Touchend: Xử lý Chạm đơn (Bật/Tắt thanh công cụ) và Chạm đúp (Tua 10s Trái / Phải)
+        // Touchend: Xử lý Chạm đơn (Bật/Tắt thanh công cụ) và Chạm đúp (Tua 5s Trái / Phải chuẩn YouTube)
         clickzone.addEventListener('touchend', (e) => {
             // Nếu vừa thả ngón tay sau khi nhấn giữ 2x -> chỉ trở về 1x, không kích hoạt tap
             if (cancelLongPress()) {
                 lastTapTime = 0;
+                accumulatedSeekSec = 0;
+                lastTapSide = null;
                 return;
             }
 
             // Nếu người dùng đang vuốt cuộn trang web -> bỏ qua
             if (touchMoved) {
                 lastTapTime = 0;
+                accumulatedSeekSec = 0;
+                lastTapSide = null;
                 return;
             }
 
             const now = Date.now();
-            const DOUBLE_TAP_THRESHOLD = 280;
+            const DOUBLE_TAP_THRESHOLD = 300;
             const timeSinceLastTap = now - lastTapTime;
 
-            if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD) {
-                // ── TRƯỜNG HỢP: CHẠM ĐÚP (DOUBLE TAP) ──
-                lastTapTime = 0; // Reset để không bị kích hoạt nhầm lần 3
+            const rect = clickzone.getBoundingClientRect();
+            const t = e.changedTouches[0] || e.touches[0];
+            if (!t || rect.width <= 0) return;
 
-                const rect = clickzone.getBoundingClientRect();
-                const t = e.changedTouches[0] || e.touches[0];
-                if (t && rect.width > 0) {
-                    const tapX = t.clientX - rect.left;
-                    const leftZone = rect.width * 0.4;
-                    const rightZone = rect.width * 0.6;
+            const tapX = t.clientX - rect.left;
+            const isLeft = tapX < rect.width * 0.42;
+            const isRight = tapX > rect.width * 0.58;
+            const currentSide = isLeft ? 'left' : (isRight ? 'right' : 'center');
 
-                    if (tapX < leftZone) {
-                        // Chạm đúp 40% bên trái: Lùi 10s
-                        if (player) player.currentTime = Math.max(0, player.currentTime - 10);
-                        showSeekOverlay('-10s', false);
-                    } else if (tapX > rightZone) {
-                        // Chạm đúp 40% bên phải: Tới 10s
-                        if (player) player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
-                        showSeekOverlay('+10s', true);
-                    } else {
-                        // Chạm đúp ở giữa màn: Tạm dừng / Tiếp tục
-                        togglePlayPause();
-                    }
-                    showControls(3800);
+            if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD && currentSide !== 'center' && (lastTapSide === currentSide || !lastTapSide)) {
+                // ─── CHẠM ĐÚP / NHẤP LIÊN TIẾP (TUA 5S MỖI LẦN NHẤP CHUẨN YOUTUBE) ───
+                // Huỷ ngay timer Single Tap để không bị chớp bật/tắt thanh điều khiển
+                if (singleTapTimer) {
+                    clearTimeout(singleTapTimer);
+                    singleTapTimer = null;
                 }
-            } else {
-                // ── TRƯỜNG HỢP: CHẠM ĐƠN (SINGLE TAP) - PHẢN HỒI REALTIME 0MS ──
+
                 lastTapTime = now;
-                if (!controls) return;
+                lastTapSide = currentSide;
 
-                if (!wasControlsVisibleOnTouchStart) {
-                    // Nếu bộ công cụ đang ẩn -> BẬT LÊN NGAY LẬP TỨC (0ms delay, Realtime 100%)
-                    showControls(3800);
-                } else {
-                    // Nếu bộ công cụ đang hiện -> ẨN ĐI NGAY LẬP TỨC
-                    if (settingsMenu && !settingsMenu.classList.contains('hidden')) {
-                        settingsMenu.classList.add('hidden');
-                    } else {
-                        hideControls(true);
-                    }
+                if (seekAccumulateTimer) clearTimeout(seekAccumulateTimer);
+                accumulatedSeekSec += 5; // Bước tua 5s
+
+                const isForward = (currentSide === 'right');
+                const seekSign = isForward ? '+' : '-';
+                const targetDelta = isForward ? 5 : -5;
+
+                if (player) {
+                    const newTime = isForward 
+                        ? Math.min(player.duration || 0, player.currentTime + targetDelta)
+                        : Math.max(0, player.currentTime + targetDelta);
+                    player.currentTime = newTime;
                 }
+
+                showSeekOverlay(`${seekSign}${accumulatedSeekSec}s`, isForward, true);
+                showControls(3800);
+
+                // Tự động reset bộ đếm cộng dồn sau 650ms nếu người dùng ngưng nhấp
+                seekAccumulateTimer = setTimeout(() => {
+                    accumulatedSeekSec = 0;
+                    lastTapSide = null;
+                }, 650);
+
+            } else if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD && currentSide === 'center') {
+                // Chạm đúp ở giữa màn hình -> Tạm dừng / Tiếp tục
+                if (singleTapTimer) {
+                    clearTimeout(singleTapTimer);
+                    singleTapTimer = null;
+                }
+                lastTapTime = 0;
+                accumulatedSeekSec = 0;
+                lastTapSide = null;
+                togglePlayPause();
+                showControls(3800);
+            } else {
+                // ─── CHẠM LẦN 1 (SINGLE TAP) - CÓ DEBOUNCE 240MS CHỐNG CHỚP MÀN HÌNH ───
+                lastTapTime = now;
+                lastTapSide = currentSide;
+                accumulatedSeekSec = 0;
+
+                if (singleTapTimer) clearTimeout(singleTapTimer);
+
+                // Chờ 240ms: Nếu người dùng không chạm lần 2 (để tua 5s) thì mới chuyển đổi bật/tắt controls
+                singleTapTimer = setTimeout(() => {
+                    singleTapTimer = null;
+                    lastTapSide = null;
+                    if (!controls) return;
+
+                    if (!wasControlsVisibleOnTouchStart) {
+                        // Nếu đang ẩn -> Hiện thanh điều khiển trong 3.8s
+                        showControls(3800);
+                    } else {
+                        // Nếu đang hiện -> Ẩn ngay lập tức
+                        if (settingsMenu && !settingsMenu.classList.contains('hidden')) {
+                            settingsMenu.classList.add('hidden');
+                        } else {
+                            hideControls(true);
+                        }
+                    }
+                }, 240);
             }
         });
 
@@ -3884,9 +4082,15 @@ function initializePlayer(episode) {
             cancelLongPress();
             touchMoved = false;
             lastTapTime = 0;
+            accumulatedSeekSec = 0;
+            lastTapSide = null;
             if (singleTapTimer) {
                 clearTimeout(singleTapTimer);
                 singleTapTimer = null;
+            }
+            if (seekAccumulateTimer) {
+                clearTimeout(seekAccumulateTimer);
+                seekAccumulateTimer = null;
             }
         });
     }

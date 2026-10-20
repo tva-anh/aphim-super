@@ -3,7 +3,7 @@
  * Version: 2.4.0
  */
 
-const CACHE_NAME = 'aphim-static-v13';
+const CACHE_NAME = 'aphim-static-v16';
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',
