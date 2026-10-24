@@ -885,31 +885,264 @@ function renderMovieDetail(movie) {
     renderVersions(movie);
 }
 
-// Render "Các bản chiếu"
+// Cache lưu trữ 3 ảnh độc lập cho các bản chiếu (giảm tải tối đa, load tức thì)
+window._movieStillsCache = window._movieStillsCache || {};
+
+// Tải 3 ảnh độc lập (ưu tiên ảnh trúng với từng tập phim, hoặc 3 ảnh cảnh phim backdrop khác nhau)
+async function loadVersionCardImages(movie, isEpisodic) {
+    if (!movie || !movie.slug) return;
+
+    // 1. Nếu đã có trong cache bộ nhớ thì áp dụng ngay
+    if (window._movieStillsCache[movie.slug] && Array.isArray(window._movieStillsCache[movie.slug])) {
+        applyCardImages(window._movieStillsCache[movie.slug]);
+        return;
+    }
+
+    let stillUrls = [];
+    let isSpecific = false;
+
+    // 2. Nếu là phim bộ: thử lấy ảnh still_path chuẩn của Tập 1, 2, 3 từ TMDB
+    if (isEpisodic && movie.tmdb && movie.tmdb.id && (movie.tmdb.type === 'tv' || movie.type === 'series')) {
+        try {
+            const seasonNo = movie.tmdb.season || 1;
+            const res = await fetch(`/api/tmdb/tv/${movie.tmdb.id}/season/${seasonNo}`);
+            if (res.ok) {
+                const sData = await res.json();
+                if (sData && Array.isArray(sData.episodes) && sData.episodes.length > 0) {
+                    const ep0 = sData.episodes[0]?.still_path;
+                    const ep1 = sData.episodes[1]?.still_path;
+                    const ep2 = sData.episodes[2]?.still_path;
+                    if (ep0) stillUrls[0] = `https://image.tmdb.org/t/p/w780${ep0}`;
+                    if (ep1) stillUrls[1] = `https://image.tmdb.org/t/p/w780${ep1}`;
+                    if (ep2) stillUrls[2] = `https://image.tmdb.org/t/p/w780${ep2}`;
+                    if (ep0 || ep1 || ep2) isSpecific = true;
+                }
+            }
+        } catch (e) {
+            // Không có season still, tiếp tục thử nguồn backdrop
+        }
+    }
+
+    // 3. Nếu chưa đủ 3 ảnh (hoặc là phim lẻ): lấy từ danh sách ảnh cảnh phim (backdrops)
+    if (!stillUrls[0] || !stillUrls[1] || !stillUrls[2]) {
+        try {
+            const res = await fetch(`https://phimapi.com/v1/api/phim/${encodeURIComponent(movie.slug)}/images`);
+            if (res.ok) {
+                const imgData = await res.json();
+                if (imgData.success && imgData.data && Array.isArray(imgData.data.images)) {
+                    const backdrops = imgData.data.images.filter(img => img.type === 'backdrop' || img.aspect_ratio > 1);
+                    let bIdx = 0;
+                    for (let i = 0; i < 3; i++) {
+                        if (!stillUrls[i] && backdrops[bIdx]?.file_path) {
+                            stillUrls[i] = `https://image.tmdb.org/t/p/w780${backdrops[bIdx].file_path}`;
+                            bIdx++;
+                        }
+                    }
+                }
+            }
+        } catch (e) { }
+    }
+
+    // 4. Dự phòng mặc định từ poster / thumb nếu thiếu
+    const defaultThumb = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.thumb_url || movie.poster_url, 400, 80, true) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url);
+    const defaultPoster = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 400, 80, true) : 'https://phimimg.com/' + (movie.poster_url || movie.thumb_url);
+
+    if (!stillUrls[0]) stillUrls[0] = defaultThumb;
+    if (!stillUrls[1]) stillUrls[1] = defaultPoster;
+    if (!stillUrls[2]) stillUrls[2] = defaultThumb;
+
+    window._movieStillsCache[movie.slug] = stillUrls;
+    if (isSpecific) window._movieStillsCache[movie.slug].isEpisodeSpecific = true;
+    applyCardImages(stillUrls);
+}
+
+function applyCardImages(images) {
+    if (!Array.isArray(images)) return;
+    const bg1 = document.getElementById('svap-bg-1');
+    const bg2 = document.getElementById('svap-bg-2');
+    const bg3 = document.getElementById('svap-bg-3');
+    if (bg1 && images[0]) bg1.style.backgroundImage = `url('${images[0]}')`;
+    if (bg2 && images[1]) bg2.style.backgroundImage = `url('${images[1]}')`;
+    if (bg3 && images[2]) bg3.style.backgroundImage = `url('${images[2]}')`;
+}
+
+// Render "Các bản chiếu" (3 tập demo 1, 2, 3 cho phim bộ hoặc 3 bản chuẩn cho phim full)
 function renderVersions(movie) {
     const actionsContainer = document.querySelector('.movie-actions-container');
     if (!actionsContainer) return;
 
-    let displayLang = 'Phụ đề / Vietsub'; // Mặc định
-    if (movie.lang) {
+    const episodesList = (movie && Array.isArray(movie.episodes)) ? movie.episodes : [];
+    const currentServer = episodesList[currentServerIndexDetail] || episodesList[0] || null;
+    const serverData = (currentServer && Array.isArray(currentServer.server_data)) ? currentServer.server_data : [];
+
+    // Lấy ngôn ngữ/bản theo máy chủ đang chọn (Vietsub / Thuyết Minh / Lồng Tiếng)
+    let displayLang = 'Vietsub';
+    const sName = (currentServer?.original_server_name || currentServer?.server_name || '').toLowerCase();
+    if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) {
+        displayLang = 'Thuyết Minh';
+    } else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) {
+        displayLang = 'Lồng Tiếng';
+    } else if (sName.includes('vietsub') || sName.includes('phụ đề')) {
+        displayLang = 'Vietsub';
+    } else if (movie.lang) {
         displayLang = movie.lang;
     }
 
-    const imgUrl = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 400, 80, true) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url);
+    // Kiểm tra xem là phim bộ (có nhiều tập) hay phim lẻ (phim full 1 tập)
+    const isEpisodic = serverData.length > 1 || (movie.type === 'series' && serverData.length > 0) || (movie.episode_total && parseInt(movie.episode_total, 10) > 1);
 
-    const currentDomain = window.location.hostname;
-    const isSvap1 = currentDomain.includes('aphim.top') || currentDomain === 'localhost' || currentDomain === '127.0.0.1';
-    const isSvap2 = currentDomain.includes('aphim1.io.vn');
-    const isSvap3 = currentDomain.includes('aphim.io.vn') && !isSvap2;
+    // Hình ảnh ban đầu dự phòng
+    const defaultThumb = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.thumb_url || movie.poster_url, 400, 80, true) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url);
+    const defaultPoster = typeof movieAPI !== 'undefined' ? movieAPI.getImageURL(movie.poster_url || movie.thumb_url, 400, 80, true) : 'https://phimimg.com/' + (movie.poster_url || movie.thumb_url);
 
-    // Load Lottie web component script if not present
-    if (!document.getElementById('dotlottie-script')) {
-        const script = document.createElement('script');
-        script.id = 'dotlottie-script';
-        script.src = "https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js";
-        script.type = "module";
-        document.body.appendChild(script);
+    let catSlug = '';
+    if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+    else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
+    const sParam = (currentServerIndexDetail > 0 && !catSlug) ? `?server=${currentServerIndexDetail}` : '';
+
+    let cards = [];
+
+    if (isEpisodic && serverData.length > 0) {
+        // Phim có tập: hiển thị đúng 3 tập demo đầu tiên 1, 2, 3
+        const ep1 = serverData[0] || {};
+        const ep2 = serverData[1] || serverData[0] || {};
+        const ep3 = serverData[2] || serverData[1] || serverData[0] || {};
+
+        const clean1 = (ep1.slug || '1').replace(/^tap-/, '');
+        const clean2 = (ep2.slug || '2').replace(/^tap-/, '');
+        const clean3 = (ep3.slug || '3').replace(/^tap-/, '');
+
+        const url1 = `/xem-phim/${movie.slug}/tap-${clean1}${catSlug}${sParam}`;
+        const url2 = `/xem-phim/${movie.slug}/tap-${clean2}${catSlug}${sParam}`;
+        const url3 = `/xem-phim/${movie.slug}/tap-${clean3}${catSlug}${sParam}`;
+
+        cards = [
+            {
+                tag: `${displayLang} • Tập 1`,
+                title: `${movie.name} - Tập 1`,
+                btnText: 'Xem Tập 1',
+                url: url1,
+                hasCrown: true,
+                bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
+                color: '#fcd576',
+                titleColor: '#fcd576',
+                tagClass: 'version-tag-1',
+                titleClass: 'version-title-1',
+                icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #fcd576 !important;" viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>'
+            },
+            {
+                tag: `${displayLang} • Tập 2`,
+                title: `${movie.name} - Tập 2`,
+                btnText: 'Xem Tập 2',
+                url: url2,
+                hasCrown: false,
+                bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
+                color: '#34d399',
+                titleColor: '#34d399',
+                tagClass: 'version-tag-2',
+                titleClass: 'version-title-2',
+                icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #34d399 !important;" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>'
+            },
+            {
+                tag: `${displayLang} • Tập 3`,
+                title: `${movie.name} - Tập 3`,
+                btnText: 'Xem Tập 3',
+                url: url3,
+                hasCrown: false,
+                bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
+                color: '#38bdf8',
+                titleColor: '#38bdf8',
+                tagClass: 'version-tag-3',
+                titleClass: 'version-title-3',
+                icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #38bdf8 !important;" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2h2V9H11v6zm7-1c0 .55-.45 1-1 1h-4V9h4c.55 0 1 .45 1 1v4zm-1.5-3h-1.5v2h1.5v-2z"/></svg>'
+            }
+        ];
+    } else {
+        // Phim full / Phim lẻ: Giữ nguyên 3 ô với chữ hiển thị hợp lý cho phim full
+        const ep0 = serverData[0] || {};
+        const clean0 = (ep0.slug || 'full').replace(/^tap-/, '');
+        const ep1Server2 = episodesList[1]?.server_data?.[0];
+        const ep1Server3 = episodesList[2]?.server_data?.[0];
+
+        const url1 = `/xem-phim/${movie.slug}/tap-${clean0}${catSlug}${sParam}`;
+        const url2 = episodesList[1] ? `/xem-phim/${movie.slug}${ep1Server2 ? '/tap-' + ep1Server2.slug.replace(/^tap-/, '') : ''}?server=1` : url1;
+        const url3 = episodesList[2] ? `/xem-phim/${movie.slug}${ep1Server3 ? '/tap-' + ep1Server3.slug.replace(/^tap-/, '') : ''}?server=2` : url1;
+
+        cards = [
+            {
+                tag: `${displayLang} • Bản Full HD`,
+                title: `${movie.name} (Bản Chuẩn Full)`,
+                btnText: 'Xem Bản Full',
+                url: url1,
+                hasCrown: true,
+                bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
+                color: '#fcd576',
+                titleColor: '#fcd576',
+                tagClass: 'version-tag-1',
+                titleClass: 'version-title-1',
+                icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #fcd576 !important;" viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>'
+            },
+            {
+                tag: `${displayLang} • Server VIP 2`,
+                title: `${movie.name} (Server Dự Phòng 1)`,
+                btnText: 'Xem Bản Full',
+                url: url2,
+                hasCrown: false,
+                bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
+                color: '#34d399',
+                titleColor: '#34d399',
+                tagClass: 'version-tag-2',
+                titleClass: 'version-title-2',
+                icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #34d399 !important;" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>'
+            },
+            {
+                tag: `${displayLang} • Server Tốc Độ Cao`,
+                title: `${movie.name} (Server Dự Phòng 2)`,
+                btnText: 'Xem Bản Full',
+                url: url3,
+                hasCrown: false,
+                bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
+                color: '#38bdf8',
+                titleColor: '#38bdf8',
+                tagClass: 'version-tag-3',
+                titleClass: 'version-title-3',
+                icon: '<svg class="w-4 h-4 fill-white flex-shrink-0" style="fill: #38bdf8 !important;" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2h2V9H11v6zm7-1c0 .55-.45 1-1 1h-4V9h4c.55 0 1 .45 1 1v4zm-1.5-3h-1.5v2h1.5v-2z"/></svg>'
+            }
+        ];
     }
+
+    const cachedImages = (window._movieStillsCache && window._movieStillsCache[movie.slug]) || [defaultThumb, defaultPoster, defaultThumb];
+
+    const cardsHTML = cards.map((c, idx) => {
+        const bgId = `svap-bg-${idx + 1}`;
+        const initialImg = cachedImages[idx] || (idx === 1 ? defaultPoster : defaultThumb);
+        const crownHTML = c.hasCrown ? `
+            <!-- Crown VIP -->
+            <div style="position: absolute; top: -5px; right: -5px; z-index: 20; pointer-events: none; width: 60px; height: 60px; transform: rotate(10deg); filter: drop-shadow(0 0 10px rgba(252,213,118,0.75)); flex items-center justify-center">
+                <svg class="w-8 h-8 flex-shrink-0" style="fill: #fcd576 !important;" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/></svg>
+            </div>
+        ` : '';
+
+        return `
+            <div onclick="if(typeof savePreloadedMovieData==='function'&&currentMovie)savePreloadedMovieData(currentMovie); window.location.href='${c.url}';"
+                style="flex: 1; min-width: 260px; background: ${c.bgColor}; border: none !important; outline: none !important; box-shadow: 0 4px 18px rgba(0,0,0,0.25);"
+                class="relative overflow-hidden rounded-xl p-4 text-left shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3 group cursor-pointer">
+                <!-- Hình ảnh cảnh phim trải dài toàn bộ thẻ 100%, không bị cắt đen cụt ngủn bên trái -->
+                <div id="${bgId}" style="position: absolute; inset: 0; width: 100%; height: 100%; background-image: url('${initialImg}'); background-size: cover; background-position: center right; pointer-events: none; z-index: 0; opacity: 1 !important; filter: none !important; -webkit-filter: none !important; transition: transform 0.4s ease;" class="group-hover:scale-105"></div>
+                <!-- Lớp phủ điện ảnh mềm mại chuyển dần từ trái qua phải, lộ rõ chi tiết cảnh phim, không bị mảng đen cứng -->
+                <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12, 15, 24, 0.76) 0%, rgba(12, 15, 24, 0.42) 48%, rgba(12, 15, 24, 0.05) 80%, transparent 100%); pointer-events: none; z-index: 1;"></div>
+                ${crownHTML}
+                <div class="relative z-10 flex items-center gap-2 font-bold ${c.tagClass}" style="color: ${c.color} !important; -webkit-text-fill-color: ${c.color} !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">
+                    ${c.icon}
+                    <span class="text-[13px] font-bold" style="color: ${c.color} !important; -webkit-text-fill-color: ${c.color} !important;">${c.tag}</span>
+                </div>
+                <div class="relative z-10 text-[15px] font-bold line-clamp-1 leading-snug version-card-title ${c.titleClass}" style="color: ${c.titleColor} !important; -webkit-text-fill-color: ${c.titleColor} !important; text-shadow: 0 1px 4px rgba(0,0,0,0.95); font-weight: 700;">${c.title}</div>
+                <div style="align-self: flex-start; padding: 6px 14px; border-radius: 6px; z-index: 10; position: relative; color: #111827 !important; -webkit-text-fill-color: #111827 !important; text-shadow: none !important;" class="mt-1 bg-white text-black text-[13px] font-extrabold shadow-md group-hover:bg-gray-100 transition-colors">
+                    ${c.btnText}
+                </div>
+            </div>
+        `;
+    }).join('');
 
     const versionsHTML = `
         <div class="w-full mt-0 mb-0 pl-0 ml-0">
@@ -918,52 +1151,7 @@ function renderVersions(movie) {
                 Các bản chiếu
             </h3>
             <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch;" class="w-full pl-0 ml-0">
-                <!-- SVAP1 -->
-                <button onclick="changeVersion('aphim.top')" style="flex: 1; min-width: 260px; background-color: #5a5d6a; ${isSvap1 ? 'border: 1px solid #fcd576;' : 'border: 1px solid transparent;'}" class="relative overflow-hidden rounded-xl p-4 text-left shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3 group cursor-pointer">
-                    <div id="svap-bg-1" style="position: absolute; top: 0; right: 0; bottom: 0; width: 65%; background-image: url('${imgUrl}'); background-size: cover; background-position: center; pointer-events: none; z-index: 0; opacity: 0.6; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70%); mask-image: linear-gradient(to right, transparent 0%, black 70%); transition: transform 0.5s ease, background-image 0.5s ease;" class="group-hover:scale-110"></div>
-                    
-                    <!-- Crown SVAP1 VIP -->
-                    <div style="position: absolute; top: -5px; right: -5px; z-index: 20; pointer-events: none; width: 60px; height: 60px; transform: rotate(10deg); filter: drop-shadow(0 0 10px rgba(252,213,118,0.75)); flex items-center justify-center">
-                        <svg class="w-8 h-8 flex-shrink-0" style="fill: #fcd576 !important;" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/></svg>
-                    </div>
-
-                    <div class="relative z-10 flex items-center gap-2 ${isSvap1 ? 'text-[#fcd576]' : 'text-white/90'} font-bold">
-                        <svg class="w-4 h-4 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>
-                        <span class="text-[13px] font-bold">${displayLang} (SVAP1)</span>
-                    </div>
-                    <div class="relative z-10 ${isSvap1 ? 'text-[#fcd576]' : 'text-white/90'} font-medium text-[15px] line-clamp-1 leading-snug">${movie.name}</div>
-                    <div style="align-self: flex-start; padding: 6px 14px; border-radius: 6px; z-index: 10; position: relative;" class="mt-1 ${isSvap1 ? 'bg-[#fcd576] text-black' : 'bg-white text-black'} text-[13px] font-bold shadow-sm group-hover:bg-gray-200 transition-colors">
-                        ${isSvap1 ? '<span class="flex items-center gap-1.5"><svg class="w-4 h-4 fill-black flex-shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Đang xem bản này</span>' : 'Xem bản này'}
-                    </div>
-                </button>
-                
-                <!-- SVAP2 -->
-                <button onclick="changeVersion('aphim1.io.vn')" style="flex: 1; min-width: 260px; background-color: #2b7a4b;" class="relative overflow-hidden rounded-xl ${isSvap2 ? 'border: 1px solid #fcd576;' : 'border: 1px solid transparent;'} p-4 text-left shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3 group cursor-pointer">
-                    <div id="svap-bg-2" style="position: absolute; top: 0; right: 0; bottom: 0; width: 65%; background-image: url('${imgUrl}'); background-size: cover; background-position: center; pointer-events: none; z-index: 0; opacity: 0.6; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70%); mask-image: linear-gradient(to right, transparent 0%, black 70%); transition: transform 0.5s ease, background-image 0.5s ease;" class="group-hover:scale-110"></div>
-
-                    <div class="relative z-10 flex items-center gap-2 ${isSvap2 ? 'text-[#fcd576]' : 'text-white/90'} font-bold">
-                        <svg class="w-4 h-4 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
-                        <span class="text-[13px] font-bold">${displayLang} (SVAP2)</span>
-                    </div>
-                    <div class="relative z-10 ${isSvap2 ? 'text-[#fcd576]' : 'text-white/90'} font-medium text-[15px] line-clamp-1 leading-snug">${movie.name}</div>
-                    <div style="align-self: flex-start; padding: 6px 14px; border-radius: 6px; z-index: 10; position: relative;" class="mt-1 ${isSvap2 ? 'bg-[#fcd576] text-black' : 'bg-white text-black'} text-[13px] font-bold shadow-sm group-hover:bg-gray-200 transition-colors">
-                        ${isSvap2 ? '<span class="flex items-center gap-1.5"><svg class="w-4 h-4 fill-black flex-shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Đang xem bản này</span>' : 'Xem bản này'}
-                    </div>
-                </button>
-
-                <!-- SVAP3 -->
-                <button onclick="changeVersion('aphim.io.vn')" style="flex: 1; min-width: 260px; background-color: #1e3a8a;" class="relative overflow-hidden rounded-xl ${isSvap3 ? 'border: 1px solid #fcd576;' : 'border: 1px solid transparent;'} p-4 text-left shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3 group cursor-pointer">
-                    <div id="svap-bg-3" style="position: absolute; top: 0; right: 0; bottom: 0; width: 65%; background-image: url('${imgUrl}'); background-size: cover; background-position: center; pointer-events: none; z-index: 0; opacity: 0.6; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 70%); mask-image: linear-gradient(to right, transparent 0%, black 70%); transition: transform 0.5s ease, background-image 0.5s ease;" class="group-hover:scale-110"></div>
-
-                    <div class="relative z-10 flex items-center gap-2 ${isSvap3 ? 'text-[#fcd576]' : 'text-white/90'} font-bold">
-                        <svg class="w-4 h-4 fill-white flex-shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2h2V9H11v6zm7-1c0 .55-.45 1-1 1h-4V9h4c.55 0 1 .45 1 1v4zm-1.5-3h-1.5v2h1.5v-2z"/></svg>
-                        <span class="text-[13px] font-bold">${displayLang} (SVAP3)</span>
-                    </div>
-                    <div class="relative z-10 ${isSvap3 ? 'text-[#fcd576]' : 'text-white/90'} font-medium text-[15px] line-clamp-1 leading-snug">${movie.name}</div>
-                    <div style="align-self: flex-start; padding: 6px 14px; border-radius: 6px; z-index: 10; position: relative;" class="mt-1 ${isSvap3 ? 'bg-[#fcd576] text-black' : 'bg-white text-black'} text-[13px] font-bold shadow-sm group-hover:bg-gray-200 transition-colors">
-                        ${isSvap3 ? '<span class="flex items-center gap-1.5"><svg class="w-4 h-4 fill-black flex-shrink-0" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Đang xem bản này</span>' : 'Xem bản này'}
-                    </div>
-                </button>
+                ${cardsHTML}
             </div>
         </div>
     `;
@@ -975,7 +1163,6 @@ function renderVersions(movie) {
     wrapper.id = 'versions-container';
     wrapper.className = 'w-full block';
     wrapper.innerHTML = versionsHTML;
-
 
     const mobileEpisodesWrapper = document.getElementById('episodes-mobile')?.closest('.block.lg\\:hidden') || document.getElementById('episodes-mobile')?.parentElement;
     const heroAd = document.getElementById('movie-detail-hero-ad');
@@ -1003,6 +1190,9 @@ function renderVersions(movie) {
             actionsContainer.after(wrapper);
         }
     }
+
+    // Tự động tải ngầm ảnh trúng với từng tập / cảnh phim độc lập
+    loadVersionCardImages(movie, isEpisodic);
 }
 
 // Logic chuyển hướng linh hoạt giữa Node và HTML
@@ -1156,19 +1346,22 @@ async function loadMovieGallery(movie) {
                 const svapBg3 = document.getElementById('svap-bg-3');
 
                 if (svapBg1 && svapBg2 && svapBg3) {
+                    const hasCustomStills = window._movieStillsCache && window._movieStillsCache[movie.slug] && window._movieStillsCache[movie.slug].isEpisodeSpecific;
                     const img1 = backdrops[0]?.file_path;
                     const img2 = backdrops[1]?.file_path || img1;
                     const img3 = backdrops[2]?.file_path || img2;
 
+                    if (!hasCustomStills) {
+                        if (img1) svapBg1.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img1}')`;
+                        if (img2) svapBg2.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img2}')`;
+                        if (img3) svapBg3.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img3}')`;
+                    }
                     if (img1) {
-                        svapBg1.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img1}')`;
                         const topBgImg = document.querySelector('.absolute.top-0 img');
                         if (topBgImg && (!currentMovie || !currentMovie.thumb_url)) {
                             topBgImg.src = `https://image.tmdb.org/t/p/w1280${img1}`;
                         }
                     }
-                    if (img2) svapBg2.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img2}')`;
-                    if (img3) svapBg3.style.backgroundImage = `url('https://image.tmdb.org/t/p/w780${img3}')`;
                 }
             }
         }
@@ -1591,6 +1784,7 @@ window.changeServerDetail = function (index) {
 
     currentServerIndexDetail = index;
     renderEpisodes(currentMovie.episodes);
+    renderVersions(currentMovie);
 
     // Cập nhật lại nút Xem Ngay chính khi người dùng đổi máy chủ trên movie-detail
     const watchBtn = document.getElementById('watchNowBtn') || document.querySelector('a[href*="/watch"]') || document.querySelector('a[href*="/xem-phim"]');

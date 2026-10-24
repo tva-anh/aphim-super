@@ -276,7 +276,8 @@ router.get('/de-xuat', async (req, res) => {
     try {
         const homeData = await buildPhimNganHomeData();
         const allPool = [...(homeData.heroDramas || []), ...(homeData.trendingDramas || []), ...(homeData.popularDramas || []), ...(homeData.latestDramas || [])];
-        const targetRec = allPool.find(d => d && (String(d.id) === '68154' || String(d.id) === '68211')) || allPool[0] || null;
+        // Ưu tiên chọn phim ngắn Vietsub mới nhất có sẵn trong kho
+        const targetRec = allPool.find(d => d && (d.hasSub || d.hasEmbeddedSub || d.source === 'vietshort' || d.source === 'narto' || d.isDubbed)) || allPool[0] || null;
         if (targetRec) {
             homeData.primaryHero = targetRec;
             homeData.recDrama = targetRec;
@@ -353,13 +354,14 @@ router.get(['/thu-vien', '/thu-vien/da-xem', '/thu-vien/yeu-thich', '/thu-vien/d
     }
 });
 
-// Route fallback nếu user vào thẳng /phim-ngan/thong-tin (không kèm ID)
-router.get('/thong-tin', async (req, res) => {
+// Route fallback nếu user vào thẳng /phim-ngan/thong-tin hoặc /phim-ngan/xem (không kèm ID)
+router.get(['/thong-tin', '/xem', '/phim'], async (req, res) => {
     try {
-        const homeData = await phimNganService.getHomeDramas();
-        const firstDrama = (homeData.hero && homeData.hero[0]) || (homeData.trending && homeData.trending[0]);
+        const seeds = phimNganService.loadLocalSeeds();
+        const firstDrama = (seeds.rank && seeds.rank[0]) || (seeds.catalog && seeds.catalog[0]);
         if (firstDrama && firstDrama.id) {
-            return res.redirect(`/phim-ngan/thong-tin/${firstDrama.id}`);
+            const isWatch = req.path.includes('/xem') || req.path.includes('/phim');
+            return res.redirect(301, isWatch ? `/phim-ngan/xem/${firstDrama.id}` : `/phim-ngan/thong-tin/${firstDrama.id}`);
         }
         res.redirect('/phim-ngan');
     } catch (e) {
@@ -375,11 +377,9 @@ router.get(['/xem/:dramaId', '/phim/:dramaId', '/thong-tin/:dramaId'], async (re
         const isDetailView = req.path.includes('/thong-tin/');
 
         // If legacy ID, redirect cleanly to mapped real drama ID so URLs are always consistent
-        const seeds = phimNganService.loadLocalSeeds();
-        const allSeeds = [...(seeds.rank || []), ...(seeds.catalog || [])];
-        const isKnownSeed = allSeeds.some(x => String(x.id) === dramaId || String(x.slug) === dramaId);
-
-        if (!isKnownSeed) {
+        const knownSeed = phimNganService.findSeedDrama(dramaId);
+        if (!knownSeed) {
+            const seeds = phimNganService.loadLocalSeeds();
             const realId = (seeds.legacyMap && seeds.legacyMap[dramaId]) || (/^\d{15,22}$/.test(dramaId) ? '64361' : null);
             if (realId && realId !== dramaId) {
                 const targetPath = isDetailView ? `/phim-ngan/thong-tin/${realId}` : `/phim-ngan/xem/${realId}?ep=${episodeNo}`;
@@ -788,7 +788,7 @@ router.get(['/api/ready-subs', '/ready-subs'], async (req, res) => {
 // 12. Auto Crawler Endpoints & Scheduler
 const phimNganAutoCrawler = require('../lib/phimNganAutoCrawler');
 phimNganAutoCrawler.setService(phimNganService);
-phimNganAutoCrawler.startSchedule(1.5);
+phimNganAutoCrawler.startSchedule(2);
 
 router.get(['/api/crawler/status', '/crawler/status'], (req, res) => {
     res.json(phimNganAutoCrawler.getStatus());

@@ -5,6 +5,34 @@
     <%- include('partials/head') %>
         <link rel="preconnect" href="https://bf.333xbet.com" crossorigin>
         <link rel="stylesheet" href="/css/watch-page.css?v=362" />
+        <style>
+            /* Tên phim trong Card bên phải: Vàng amber sắc nét, tương phản cao, không bị lợt trên nền kem */
+            html.light-mode #sidebar-movie-name,
+            html.light-mode h3#sidebar-movie-name {
+                background: linear-gradient(135deg, #78350f 0%, #b45309 35%, #d97706 70%, #92400e 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+                color: #b45309 !important;
+                font-weight: 900 !important;
+                text-shadow: none !important;
+                filter: drop-shadow(0 1px 1px rgba(180, 83, 9, 0.15)) !important;
+            }
+
+            /* Badge ⭐ Đang chiếu: Đồng bộ tone màu pastel/amber hài hoà với các ô tag thể loại */
+            #sidebar-aired-status-pill {
+                transition: all 0.2s ease;
+            }
+            html.light-mode #sidebar-aired-status-pill {
+                background-color: #fef3c7 !important;
+                border: 1px solid #fde68a !important;
+                color: #b45309 !important;
+                box-shadow: 0 1px 4px rgba(245, 158, 11, 0.08) !important;
+            }
+            html.light-mode #sidebar-aired-status-pill span {
+                color: #b45309 !important;
+            }
+        </style>
 </head>
 
 <body class="page-watch bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
@@ -624,15 +652,17 @@
                                 </div>
 
                                 <!-- Main Info Column -->
-                                <div class="space-y-3.5 md:space-y-4 min-w-0 flex-1">
-                                    <h3 id="sidebar-movie-name"
-                                        class="text-white font-extrabold text-base sm:text-lg leading-snug line-clamp-2">
-                                        Đang tải...</h3>
-                                    <p id="sidebar-movie-origin" style="color: #f59e0b; display: none;"
-                                        class="text-xs sm:text-sm font-medium truncate mt-1"></p>
+                                <div class="flex flex-col gap-2 min-w-0 flex-1">
+                                    <div>
+                                        <h3 id="sidebar-movie-name"
+                                            class="text-white font-extrabold text-base sm:text-lg leading-snug line-clamp-2">
+                                            Đang tải...</h3>
+                                        <p id="sidebar-movie-origin" style="color: #f59e0b; display: none;"
+                                            class="text-xs sm:text-sm font-medium truncate mt-0.5"></p>
+                                    </div>
 
                                     <!-- Connected Badges Row (Image 2 exact style) -->
-                                    <div class="flex flex-wrap items-center gap-2 pt-1.5">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         <!-- IMDb Score (Amber Gold Outline Pill) -->
                                         <span
                                             style="background-color: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #f59e0b;"
@@ -665,30 +695,30 @@
                                     </div>
 
                                     <!-- Genres Row (Vibrant Colored Badges) -->
-                                    <div id="sidebar-genres-row" class="flex flex-wrap gap-2 pt-1.5">
+                                    <div id="sidebar-genres-row" class="flex flex-wrap gap-2">
                                         <span
                                             style="background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa;"
                                             class="px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">Đang tải thể
                                             loại...</span>
                                     </div>
 
-                                    <!-- Aired Status Pill (Amber Highlight) -->
-                                    <div class="pt-1.5">
+                                    <!-- Aired Status Pill (Amber Soft Tone matching other badges) -->
+                                    <div class="flex items-center">
                                         <span id="sidebar-aired-status-pill"
-                                            style="background-color: #2a1d12; border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;"
+                                            style="background-color: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;"
                                             class="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 shadow-sm">
-                                            <span style="color: #f59e0b;">⭐</span>
-                                            <span id="sidebar-aired-status-text"> chiếu: Full tập</span>
+                                            <span>⭐</span>
+                                            <span id="sidebar-aired-status-text">Đang chiếu: Full tập</span>
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Description & Information Link Row (Divider removed) -->
-                            <div style="border-top: none;"
-                                class="pt-1.5 space-y-2 flex-1 flex flex-col justify-between min-h-0">
+                            <div style="border-top: none; margin-top: 14px;"
+                                class="space-y-2 flex-1 flex flex-col justify-between min-h-0">
                                 <p id="sidebar-description-text"
-                                    style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;"
+                                    style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; margin-top: 0;"
                                     class="line-clamp-3">
                                     Tóm tắt nội dung phim đang được tải...
                                 </p>
@@ -857,7 +887,7 @@
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=101" defer></script>
-            <script src="/js/watch.js?v=10115" defer></script>
+            <script src="/js/watch.js?v=<%= Date.now() %>" defer></script>
             <script src="/js/firebase-comments.js?v=20025" defer></script>
             <script src="/js/watch-ui-init.js?v=219" defer></script>
             <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->

@@ -63,7 +63,7 @@
                 }, true);
             })();
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" defer></script>
         <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017">
 
         <script>
@@ -14798,19 +14798,21 @@
                         <% 
                             // Pool phim để tìm kiếm: gộp tất cả nguồn, loại trùng
                             const SEARCH_POOL_MAP = new Map();
-                            [...(trendingDramas || []), ...(latestDramas || []), ...(top10Dramas || [])].forEach(d=> {
-                            if (d && d.id) SEARCH_POOL_MAP.set(String(d.id), d);
+                            [...(heroDramas || []), ...(latestDramas || []), ...(trendingDramas || []), ...(popularDramas || []), ...(top10Dramas || [])].forEach(d => {
+                                if (d && d.id) SEARCH_POOL_MAP.set(String(d.id), d);
                             });
                             (shelves || []).forEach(s => (s.items || []).forEach(d => {
-                            if (d && d.id) SEARCH_POOL_MAP.set(String(d.id), d);
+                                if (d && d.id) SEARCH_POOL_MAP.set(String(d.id), d);
                             }));
                             const SEARCH_POOL_ITEMS = [...SEARCH_POOL_MAP.values()].map(d => ({
-                            id: String(d.id),
-                            title: d.title || '',
-                            cover: d.cover || '',
-                            genre: d.genre || '',
-                            totalEpisodes: d.totalEpisodes || 0,
-                            stats: d.stats || { views: 0, likes: 0, stars: 0 }
+                                id: String(d.id),
+                                title: d.title || '',
+                                cover: d.cover || '',
+                                genre: d.genre || '',
+                                totalEpisodes: d.totalEpisodes || 0,
+                                hasSub: Boolean(d.hasSub || d.hasEmbeddedSub || d.source === 'narto' || d.source === 'vietshort'),
+                                isDubbed: Boolean(d.isDubbed),
+                                stats: d.stats || { views: 0, likes: 0, stars: 0 }
                             }));
                             const SEARCH_GENRE_TITLES = [...new Set((shelves || []).map(s => s.title).filter(Boolean))];
                             %>
@@ -16412,7 +16414,18 @@
                         ...(typeof top10Dramas !== 'undefined' && top10Dramas ? top10Dramas : []),
                         ...(typeof popularDramas !== 'undefined' && popularDramas ? popularDramas : []),
                         ...(typeof latestDramas !== 'undefined' && latestDramas ? latestDramas : [])
-                    ]) %>;
+                    ].map(d => ({
+                        id: d.id,
+                        slug: d.slug,
+                        title: d.title,
+                        cover: d.cover,
+                        genre: d.genre,
+                        totalEpisodes: d.totalEpisodes || 50,
+                        streamUrl: d.streamUrl || '',
+                        stats: d.stats,
+                        labels: d.labels,
+                        source: d.source
+                    }))) %>;
 
                     // =======================================================
                     // 🛑 QUẢN LÝ DỪNG PHÁT VÀ TRIỆT TIÊU ÂM THANH CHẠY NGẦM
@@ -17694,28 +17707,35 @@
                         const pagWrap = document.getElementById('asSearchPaginationWrap');
                         if (!results) return;
 
-                        // Lọc theo từ khóa + thể loại + tình trạng
+                        // Lọc theo từ khóa + thể loại + tình trạng (hỗ trợ cả tiếng Việt có dấu & không dấu)
+                        function stripVnTones(str) {
+                            return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+                        }
+
                         const q = (searchState.q || '').toLowerCase().trim();
+                        const qClean = stripVnTones(searchState.q);
                         const filterGenre = (searchState.genre || '').toLowerCase().trim();
+                        const filterGenreClean = stripVnTones(searchState.genre);
 
                         let items = (typeof SEARCH_POOL !== 'undefined' && Array.isArray(SEARCH_POOL)) ? [...SEARCH_POOL] : [];
 
-                        if (q || filterGenre || searchState.status) {
+                        if (qClean || filterGenreClean || searchState.status) {
                             items = items.filter(d => {
-                                if (filterGenre) {
-                                    const dGenre = (d.genre || '').toLowerCase();
-                                    const dTitle = (d.title || '').toLowerCase();
-                                    let match = dGenre.includes(filterGenre) || dTitle.includes(filterGenre);
+                                if (filterGenreClean) {
+                                    const dGenre = stripVnTones(d.genre);
+                                    const dTitle = stripVnTones(d.title);
+                                    let match = dGenre.includes(filterGenreClean) || dTitle.includes(filterGenreClean);
                                     if (!match) {
-                                        const tokens = filterGenre.split(/&|,|\s+/).map(t => t.trim()).filter(t => t.length > 2);
+                                        const tokens = filterGenreClean.split(/&|,|\s+/).map(t => t.trim()).filter(t => t.length > 2);
                                         match = tokens.some(t => dGenre.includes(t) || dTitle.includes(t));
                                     }
                                     if (!match) return false;
                                 }
                                 if (searchState.status === 'Hoàn thành' && String(d.totalEpisodes) === '0') return false;
-                                if (q) {
-                                    return (d.title || '').toLowerCase().includes(q) ||
-                                           (d.genre || '').toLowerCase().includes(q);
+                                if (qClean) {
+                                    const titleClean = stripVnTones(d.title);
+                                    const genreClean = stripVnTones(d.genre);
+                                    return titleClean.includes(qClean) || genreClean.includes(qClean);
                                 }
                                 return true;
                             });
@@ -17725,6 +17745,14 @@
                         if (searchState.sort === 'views') items.sort((a, b) => (b.stats?.views || 0) - (a.stats?.views || 0));
                         else if (searchState.sort === 'likes') items.sort((a, b) => (b.stats?.likes || 0) - (a.stats?.likes || 0));
                         else if (searchState.sort === 'episodes') items.sort((a, b) => (b.totalEpisodes || 0) - (a.totalEpisodes || 0));
+                        else {
+                            // Mặc định: Phim có Vietsub / Lồng tiếng được xếp ưu tiên lên đầu
+                            items.sort((a, b) => {
+                                const aSub = (a.hasSub || a.isDubbed) ? 1 : 0;
+                                const bSub = (b.hasSub || b.isDubbed) ? 1 : 0;
+                                return bSub - aSub;
+                            });
+                        }
 
                         lastFilteredSearchResults = items;
 
@@ -19444,7 +19472,6 @@
                 const initViewMode = <%- typeof viewMode !== 'undefined' ? JSON.stringify(viewMode) : '"player"' %>;
                             currentDetailDrama = initDrama;
                             currentActiveDrama = initDrama;
-                            renderDramaDetailView(initDrama, initEp);
                             const mainHub = document.getElementById('asMainHub');
                             const detailView = document.getElementById('asDramaDetailView');
                             if (mainHub) mainHub.style.display = 'none';
@@ -19458,6 +19485,7 @@
                                 startPlayingFromDetail(initEp);
                                 if (typeof syncDetailActionButtons === 'function') syncDetailActionButtons(initDrama);
                             } else {
+                                renderDramaDetailView(initDrama, initEp);
                                 // ĐẢM BẢO DỪNG MỌI VIDEO & ÂM THANH NỀN TRÊN TRANG CHI TIẾT
                                 if (typeof stopCinemaPlayback === 'function') stopCinemaPlayback({ keepMini: false });
                                 document.querySelectorAll('video').forEach(v => {
@@ -19491,19 +19519,25 @@
                                 updateReadyEpisodesBadge(initDrama.id);
                             }
             <% } %>
-                        // Fallback an toàn: Nếu URL là /thong-tin/:id mà initialDrama chưa có từ SSR, tự động fetch và hiển thị
+                        // Fallback an toàn: Chỉ fetch và hiển thị nếu URL là /thong-tin/:id hoặc /xem/:id mà initialDrama chưa có từ SSR
                         const curInitPath = window.location.pathname || '';
                         if (curInitPath.includes('/thong-tin/')) {
                             const matchId = curInitPath.match(/\/thong-tin\/([^\/?#]+)/);
                             if (matchId && matchId[1]) {
                                 const did = matchId[1];
-                                switchToDetailView(did, { isPopState: true });
-                                if (currentDetailDrama && String(currentDetailDrama.id) === did) {
-                                    if (typeof renderDramaDetailView === 'function') {
-                                        renderDramaDetailView(currentDetailDrama, 1);
-                                    }
-                                } else {
+                                if (!currentDetailDrama || String(currentDetailDrama.id) !== did) {
+                                    switchToDetailView(did, { isPopState: true });
                                     openDramaDetail(did, 1, { isPopState: true });
+                                }
+                            }
+                        } else if (curInitPath.includes('/xem/') || curInitPath.includes('/phim/')) {
+                            const matchId = curInitPath.match(/\/(?:xem|phim)\/([^\/?#]+)/);
+                            if (matchId && matchId[1]) {
+                                const did = matchId[1];
+                                const searchParams = new URLSearchParams(window.location.search || '');
+                                const epNo = parseInt(searchParams.get('ep'), 10) || 1;
+                                if (!currentActiveDrama || String(currentActiveDrama.id) !== did) {
+                                    openDramaPlayer(did, epNo, { isPopState: true });
                                 }
                             }
                         }

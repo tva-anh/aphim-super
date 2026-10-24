@@ -274,6 +274,107 @@
                 margin-bottom: 12px !important;
             }
 
+            /* Bỏ toàn bộ đường viền bọc của 3 ô Các bản chiếu */
+            #versions-container .relative.overflow-hidden,
+            html.light-mode #versions-container .relative.overflow-hidden,
+            #versions-container div[onclick],
+            html.light-mode #versions-container div[onclick] {
+                border: none !important;
+                outline: none !important;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+            }
+
+            /* Đảm bảo ảnh phim mép phải 100% rõ nét, không bị mờ hay filter */
+            #versions-container [id^="svap-bg-"],
+            html.light-mode #versions-container [id^="svap-bg-"] {
+                opacity: 1 !important;
+                filter: none !important;
+                -webkit-filter: none !important;
+            }
+
+            /* Chữ tên phim theo từng thẻ bản chiếu */
+            #versions-container .version-title-1,
+            html.light-mode #versions-container .version-title-1,
+            body.page-phim-detail #versions-container .version-title-1 {
+                color: #fcd576 !important;
+                -webkit-text-fill-color: #fcd576 !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+            }
+            #versions-container .version-title-2,
+            html.light-mode #versions-container .version-title-2,
+            body.page-phim-detail #versions-container .version-title-2 {
+                color: #34d399 !important;
+                -webkit-text-fill-color: #34d399 !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+            }
+            #versions-container .version-title-3,
+            html.light-mode #versions-container .version-title-3,
+            body.page-phim-detail #versions-container .version-title-3 {
+                color: #38bdf8 !important;
+                -webkit-text-fill-color: #38bdf8 !important;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+            }
+
+            /* Tag và icon của mỗi thẻ mang màu sắc đặc trưng riêng biệt */
+            #versions-container .version-tag-1,
+            #versions-container .version-tag-1 span,
+            html.light-mode #versions-container .version-tag-1,
+            html.light-mode #versions-container .version-tag-1 span {
+                color: #fcd576 !important;
+                -webkit-text-fill-color: #fcd576 !important;
+            }
+            #versions-container .version-tag-1 svg,
+            html.light-mode #versions-container .version-tag-1 svg {
+                fill: #fcd576 !important;
+            }
+
+            #versions-container .version-tag-2,
+            #versions-container .version-tag-2 span,
+            html.light-mode #versions-container .version-tag-2,
+            html.light-mode #versions-container .version-tag-2 span {
+                color: #34d399 !important;
+                -webkit-text-fill-color: #34d399 !important;
+            }
+            #versions-container .version-tag-2 svg,
+            html.light-mode #versions-container .version-tag-2 svg {
+                fill: #34d399 !important;
+            }
+
+            #versions-container .version-tag-3,
+            #versions-container .version-tag-3 span,
+            html.light-mode #versions-container .version-tag-3,
+            html.light-mode #versions-container .version-tag-3 span {
+                color: #38bdf8 !important;
+                -webkit-text-fill-color: #38bdf8 !important;
+            }
+            #versions-container .version-tag-3 svg,
+            html.light-mode #versions-container .version-tag-3 svg {
+                fill: #38bdf8 !important;
+            }
+
+            /* Nút bấm (Xem Tập 1, 2, 3) giữ nền trắng chữ đen rõ nét đồng nhất */
+            #versions-container div[class*="bg-white"],
+            #versions-container div[class*="bg-white"] *,
+            #versions-container .version-btn-1,
+            #versions-container .version-btn-1 *,
+            #versions-container .version-btn-2,
+            #versions-container .version-btn-2 *,
+            #versions-container .version-btn-3,
+            #versions-container .version-btn-3 *,
+            html.light-mode #versions-container div[class*="bg-white"],
+            html.light-mode #versions-container div[class*="bg-white"] *,
+            html.light-mode #versions-container .version-btn-1,
+            html.light-mode #versions-container .version-btn-1 *,
+            html.light-mode #versions-container .version-btn-2,
+            html.light-mode #versions-container .version-btn-2 *,
+            html.light-mode #versions-container .version-btn-3,
+            html.light-mode #versions-container .version-btn-3 * {
+                color: #111827 !important;
+                -webkit-text-fill-color: #111827 !important;
+                font-weight: 800 !important;
+                text-shadow: none !important;
+            }
+
             /* "MÁY CHỦ :" label */
             html.light-mode body.page-phim-detail .server-label-title,
             html.light-mode body.page-phim-detail span[style*="MÁY CHỦ"],
@@ -1772,7 +1873,7 @@
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
             </script>
-            <script src="/js/movie-detail.js?v=212" defer></script>
+            <script src="/js/movie-detail.js?v=<%= Date.now() %>" defer></script>
 
             <!-- ⚡ Speculative Asset Pre-warming for /xem-phim (Zero Server Overhead, Native Browser Cache Warming) -->
             <script>

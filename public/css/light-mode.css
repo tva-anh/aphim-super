@@ -2047,6 +2047,84 @@ html.light-mode #versions-container > div {
     margin-bottom: 0 !important;
 }
 
+/* Bỏ toàn bộ đường viền bọc của 3 ô Các bản chiếu trong Light Mode */
+html.light-mode #versions-container .relative.overflow-hidden,
+html.light-mode #versions-container div[onclick] {
+    border: none !important;
+    outline: none !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Đảm bảo ảnh phim mép phải 100% rõ nét, không bị mờ hay filter */
+html.light-mode #versions-container [id^="svap-bg-"] {
+    opacity: 1 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+/* Chữ tên phim theo từng thẻ bản chiếu */
+html.light-mode #versions-container .version-title-1,
+body.page-phim-detail #versions-container .version-title-1 {
+    color: #fcd576 !important;
+    -webkit-text-fill-color: #fcd576 !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+}
+html.light-mode #versions-container .version-title-2,
+body.page-phim-detail #versions-container .version-title-2 {
+    color: #34d399 !important;
+    -webkit-text-fill-color: #34d399 !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+}
+html.light-mode #versions-container .version-title-3,
+body.page-phim-detail #versions-container .version-title-3 {
+    color: #38bdf8 !important;
+    -webkit-text-fill-color: #38bdf8 !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* Tag và icon của mỗi thẻ mang màu sắc đặc trưng riêng biệt */
+html.light-mode #versions-container .version-tag-1,
+html.light-mode #versions-container .version-tag-1 span {
+    color: #fcd576 !important;
+    -webkit-text-fill-color: #fcd576 !important;
+}
+html.light-mode #versions-container .version-tag-1 svg {
+    fill: #fcd576 !important;
+}
+
+html.light-mode #versions-container .version-tag-2,
+html.light-mode #versions-container .version-tag-2 span {
+    color: #34d399 !important;
+    -webkit-text-fill-color: #34d399 !important;
+}
+html.light-mode #versions-container .version-tag-2 svg {
+    fill: #34d399 !important;
+}
+
+html.light-mode #versions-container .version-tag-3,
+html.light-mode #versions-container .version-tag-3 span {
+    color: #38bdf8 !important;
+    -webkit-text-fill-color: #38bdf8 !important;
+}
+html.light-mode #versions-container .version-tag-3 svg {
+    fill: #38bdf8 !important;
+}
+
+/* Nút bấm giữ nền trắng chữ đen rõ nét trên cả light mode */
+html.light-mode #versions-container div[class*="bg-white"],
+html.light-mode #versions-container div[class*="bg-white"] *,
+html.light-mode #versions-container .version-btn-1,
+html.light-mode #versions-container .version-btn-1 *,
+html.light-mode #versions-container .version-btn-2,
+html.light-mode #versions-container .version-btn-2 *,
+html.light-mode #versions-container .version-btn-3,
+html.light-mode #versions-container .version-btn-3 * {
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+}
+
 /* ==========================================================================
    5. FOOTER OVERRIDES
    ========================================================================== */
@@ -2646,14 +2724,23 @@ html.light-mode .movie-info-card {
 }
 
 html.light-mode #sidebar-movie-title,
-html.light-mode h2#sidebar-movie-title {
-    color: #1c1917 !important;
+html.light-mode h2#sidebar-movie-title,
+html.light-mode #sidebar-movie-name,
+html.light-mode h3#sidebar-movie-name {
+    background: linear-gradient(135deg, #78350f 0%, #b45309 35%, #d97706 70%, #92400e 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: #b45309 !important;
     text-shadow: none !important;
     font-weight: 900 !important;
+    filter: drop-shadow(0 1px 1px rgba(180, 83, 9, 0.15)) !important;
 }
 
 html.light-mode #sidebar-origin-title,
-html.light-mode h3#sidebar-origin-title {
+html.light-mode h3#sidebar-origin-title,
+html.light-mode #sidebar-movie-origin,
+html.light-mode p#sidebar-movie-origin {
     color: #57534e !important;
     text-shadow: none !important;
     font-weight: 700 !important;
@@ -2665,13 +2752,16 @@ html.light-mode p#sidebar-description-text {
     text-shadow: none !important;
 }
 
-html.light-mode #sidebar-genres-row span {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    border: 1px solid #e7e0d3 !important;
-    color: #1c1917 !important;
-    font-weight: 700 !important;
-    box-shadow: 0 1px 4px rgba(78, 64, 45, 0.05) !important;
+/* Badge ⭐ Đang chiếu: Đồng bộ tone màu pastel/amber hài hoà với các ô tag thể loại */
+html.light-mode #sidebar-aired-status-pill {
+    background-color: #fef3c7 !important;
+    border: 1px solid #fde68a !important;
+    color: #b45309 !important;
+    box-shadow: 0 1px 4px rgba(245, 158, 11, 0.08) !important;
+}
+
+html.light-mode #sidebar-aired-status-pill span {
+    color: #b45309 !important;
 }
 
 html.light-mode #sidebar-info-link,

@@ -744,7 +744,11 @@ function renderMovieInfo(movie, episode) {
     const sidebarName = document.getElementById('sidebar-movie-name');
     if (sidebarName) {
         sidebarName.textContent = movie.name;
-        sidebarName.style.background = 'linear-gradient(135deg, #FFF6CC 0%, #FCD576 40%, #E6A817 75%, #C48600 100%)';
+        if (document.documentElement.classList.contains('light-mode')) {
+            sidebarName.style.background = 'linear-gradient(135deg, #78350f 0%, #b45309 35%, #d97706 70%, #92400e 100%)';
+        } else {
+            sidebarName.style.background = 'linear-gradient(135deg, #FFF6CC 0%, #FCD576 40%, #E6A817 75%, #C48600 100%)';
+        }
         sidebarName.style.webkitBackgroundClip = 'text';
         sidebarName.style.webkitTextFillColor = 'transparent';
         sidebarName.style.backgroundClip = 'text';
