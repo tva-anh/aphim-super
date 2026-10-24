@@ -1662,17 +1662,16 @@ const TVC_VIDEO_URL = 'https://bf.333xbet.com/18881999/video9922.mp4';
 const TVC_TARGET_URL = 'https://154.82.109.157/2138052.html';
 let _tvcPreloadedVideo = null;
 
-// ⚡ Background pre-buffer TVC video immediately on page load for 0ms instant playback
+// ⚡ Background pre-buffer TVC video metadata on page load without choking network bandwidth
 function initTvcPreload() {
     try {
         if (!_tvcPreloadedVideo) {
             _tvcPreloadedVideo = document.createElement('video');
             _tvcPreloadedVideo.src = TVC_VIDEO_URL;
-            _tvcPreloadedVideo.preload = 'auto';
+            _tvcPreloadedVideo.preload = 'metadata'; // ⚡ Không tải ép toàn bộ file MP4 vào RAM để nhường băng thông cho phim
             _tvcPreloadedVideo.muted = true;
             _tvcPreloadedVideo.playsInline = true;
             _tvcPreloadedVideo.style.display = 'none';
-            _tvcPreloadedVideo.load();
         }
     } catch (e) {}
 }
@@ -3710,12 +3709,17 @@ function initializePlayer(episode) {
         if (window.hlsInstance) {
             try { window.hlsInstance.destroy(); } catch (e) { }
         }
+        const isMobileDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 850);
         const hls = new Hls({
             debug: false,
             enableWorker: true,
             lowLatencyMode: false,
-            maxBufferLength: 60,
-            maxMaxBufferLength: 120,
+            maxBufferLength: isMobileDevice ? 30 : 60, // ⚡ Mobile buffer 30s tiết kiệm pin & RAM, Desktop buffer 60s
+            maxMaxBufferLength: isMobileDevice ? 60 : 120,
+            startLevel: -1, // ⚡ Auto chọn bitrate thích ứng mạng 4G/Wifi
+            fragLoadingTimeOut: 18000,
+            manifestLoadingTimeOut: 12000,
+            levelLoadingTimeOut: 12000,
             preload: true
         });
         window.hlsInstance = hls;
