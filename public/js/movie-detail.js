@@ -1025,9 +1025,7 @@ function renderVersions(movie) {
                 hasCrown: true,
                 bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
                 color: '#fcd576',
-                titleColor: '#fcd576',
                 tagClass: 'version-tag-1',
-                titleClass: 'version-title-1',
                 icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #fcd576 !important;" viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>'
             },
             {
@@ -1038,9 +1036,7 @@ function renderVersions(movie) {
                 hasCrown: false,
                 bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
                 color: '#34d399',
-                titleColor: '#34d399',
                 tagClass: 'version-tag-2',
-                titleClass: 'version-title-2',
                 icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #34d399 !important;" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>'
             },
             {
@@ -1051,9 +1047,7 @@ function renderVersions(movie) {
                 hasCrown: false,
                 bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
                 color: '#38bdf8',
-                titleColor: '#38bdf8',
                 tagClass: 'version-tag-3',
-                titleClass: 'version-title-3',
                 icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #38bdf8 !important;" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2h2V9H11v6zm7-1c0 .55-.45 1-1 1h-4V9h4c.55 0 1 .45 1 1v4zm-1.5-3h-1.5v2h1.5v-2z"/></svg>'
             }
         ];
@@ -1077,9 +1071,7 @@ function renderVersions(movie) {
                 hasCrown: true,
                 bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
                 color: '#fcd576',
-                titleColor: '#fcd576',
                 tagClass: 'version-tag-1',
-                titleClass: 'version-title-1',
                 icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #fcd576 !important;" viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>'
             },
             {
@@ -1090,9 +1082,7 @@ function renderVersions(movie) {
                 hasCrown: false,
                 bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
                 color: '#34d399',
-                titleColor: '#34d399',
                 tagClass: 'version-tag-2',
-                titleClass: 'version-title-2',
                 icon: '<svg class="w-4 h-4 flex-shrink-0" style="fill: #34d399 !important;" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>'
             },
             {
@@ -1103,9 +1093,7 @@ function renderVersions(movie) {
                 hasCrown: false,
                 bgColor: 'linear-gradient(135deg, #181b28 0%, #10121a 100%)',
                 color: '#38bdf8',
-                titleColor: '#38bdf8',
                 tagClass: 'version-tag-3',
-                titleClass: 'version-title-3',
                 icon: '<svg class="w-4 h-4 fill-white flex-shrink-0" style="fill: #38bdf8 !important;" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2h2V9H11v6zm7-1c0 .55-.45 1-1 1h-4V9h4c.55 0 1 .45 1 1v4zm-1.5-3h-1.5v2h1.5v-2z"/></svg>'
             }
         ];
@@ -1136,7 +1124,7 @@ function renderVersions(movie) {
                     ${c.icon}
                     <span class="text-[13px] font-bold" style="color: ${c.color} !important; -webkit-text-fill-color: ${c.color} !important;">${c.tag}</span>
                 </div>
-                <div class="relative z-10 text-[15px] font-bold line-clamp-1 leading-snug version-card-title ${c.titleClass}" style="color: ${c.titleColor} !important; -webkit-text-fill-color: ${c.titleColor} !important; text-shadow: 0 1px 4px rgba(0,0,0,0.95); font-weight: 700;">${c.title}</div>
+                <div class="relative z-10 text-[15px] font-bold line-clamp-1 leading-snug version-card-title" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; text-shadow: 0 1px 4px rgba(0,0,0,0.95); font-weight: 700;">${c.title}</div>
                 <div style="align-self: flex-start; padding: 6px 14px; border-radius: 6px; z-index: 10; position: relative; color: #111827 !important; -webkit-text-fill-color: #111827 !important; text-shadow: none !important;" class="mt-1 bg-white text-black text-[13px] font-extrabold shadow-md group-hover:bg-gray-100 transition-colors">
                     ${c.btnText}
                 </div>

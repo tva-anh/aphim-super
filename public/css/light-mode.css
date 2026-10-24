@@ -2062,23 +2062,14 @@ html.light-mode #versions-container [id^="svap-bg-"] {
     -webkit-filter: none !important;
 }
 
-/* Chữ tên phim theo từng thẻ bản chiếu */
+/* Chữ tên phim luôn trắng 100% trên nền ảnh */
+html.light-mode #versions-container .version-card-title,
 html.light-mode #versions-container .version-title-1,
-body.page-phim-detail #versions-container .version-title-1 {
-    color: #fcd576 !important;
-    -webkit-text-fill-color: #fcd576 !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
-}
 html.light-mode #versions-container .version-title-2,
-body.page-phim-detail #versions-container .version-title-2 {
-    color: #34d399 !important;
-    -webkit-text-fill-color: #34d399 !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
-}
 html.light-mode #versions-container .version-title-3,
-body.page-phim-detail #versions-container .version-title-3 {
-    color: #38bdf8 !important;
-    -webkit-text-fill-color: #38bdf8 !important;
+body.page-phim-detail #versions-container .line-clamp-1 {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95) !important;
 }
 
