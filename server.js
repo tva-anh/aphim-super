@@ -1476,7 +1476,7 @@ async function fetchMovieMetadata(slug) {
 
     try {
         const response = await axios.get(`https://phimapi.com/phim/${cleanSlug}`, {
-            timeout: 3000,
+            timeout: 5000,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
         });
 
@@ -1526,10 +1526,61 @@ async function fetchMovieMetadata(slug) {
         // Fallback gracefully on timeout or network hiccup
     }
 
+    // 1.5 Fallback to OPhim API
+    try {
+        const ophimRes = await axios.get(`https://ophim1.com/phim/${cleanSlug}`, {
+            timeout: 4500,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
+        });
+
+        const oItem = ophimRes.data?.movie || ophimRes.data?.data?.item;
+        if (ophimRes.data?.status && oItem) {
+            const actors = Array.isArray(oItem.actor) ? oItem.actor.filter(Boolean) : (oItem.actor ? [oItem.actor] : []);
+            const directors = Array.isArray(oItem.director) ? oItem.director.filter(Boolean) : (oItem.director ? [oItem.director] : []);
+            const categories = Array.isArray(oItem.category) ? oItem.category.map(c => c.name || c) : [];
+            const countries = Array.isArray(oItem.country) ? oItem.country.map(c => c.name || c) : [];
+            const cleanContent = (oItem.content || '')
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const thumbUrl = oItem.thumb_url ? (oItem.thumb_url.startsWith('http') ? oItem.thumb_url : `https://img.ophim.live/uploads/movies/${oItem.thumb_url}`) : '';
+            const posterUrl = oItem.poster_url ? (oItem.poster_url.startsWith('http') ? oItem.poster_url : `https://img.ophim.live/uploads/movies/${oItem.poster_url}`) : thumbUrl;
+
+            const result = {
+                slug: cleanSlug,
+                name: oItem.name || cleanSlug,
+                origin_name: oItem.origin_name || '',
+                year: oItem.year || new Date().getFullYear(),
+                quality: oItem.quality || 'HD',
+                lang: oItem.lang || 'Vietsub',
+                episode_current: oItem.episode_current || '',
+                episode_total: oItem.episode_total || '',
+                status: oItem.status || '',
+                time: oItem.time || '',
+                content: cleanContent,
+                thumb_url: thumbUrl,
+                poster_url: posterUrl,
+                actor: actors,
+                director: directors,
+                category: categories,
+                country: countries,
+                type: oItem.type || 'single',
+                trailer_url: oItem.trailer_url || '',
+                tmdb: oItem.tmdb || null,
+                episodes: ophimRes.data?.episodes || []
+            };
+
+            movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
+            return result;
+        }
+    } catch (errOphim) {}
+
     // 2. Fallback to NguonC (phim.nguonc.com) for 18+ and external titles
     try {
         const nRes = await axios.get(`https://phim.nguonc.com/api/film/${cleanSlug}`, {
-            timeout: 3000,
+            timeout: 4000,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
         });
 
@@ -1629,7 +1680,8 @@ async function fetchMovieMetadata(slug) {
                 episodes: [] // Phim chiếu rạp chưa có tập phim stream
             };
 
-            movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
+            // Nếu là fallback TMDB và không có tập, chỉ cache tối đa 15 giây để không bị lock 30 phút nếu API stream phục hồi
+            movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() - (MOVIE_CACHE_TTL - 15000) });
             return result;
         }
     } catch (err3) {}

@@ -275,20 +275,32 @@ async function loadMovieDetail(slug) {
 
         ophimOk = true;
 
-        // Nếu phim chiếu rạp chưa có luồng phát stream -> Tự động nổi popup
-        const hasStreams = currentMovie.episodes && currentMovie.episodes.length > 0 &&
-            currentMovie.episodes.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
-        if (!hasStreams) {
-            showCinemaNoticePopup(currentMovie.name);
-        }
-
-        // Fetch secondary servers in background to append to SSR data
+        // Fetch secondary servers in background to append to SSR data / update episodes
         movieAPI.getMovieDetail(slug).then(fullData => {
-            if (fullData && fullData.data && fullData.data.item && fullData.data.item.episodes) {
-                if (fullData.data.item.episodes.length > (currentMovie.episodes || []).length) {
-                    currentMovie.episodes = fullData.data.item.episodes;
+            const fetchedItem = fullData?.data?.item || fullData?.movie || fullData?.data?.movie;
+            const fetchedEps = fetchedItem?.episodes || fullData?.episodes;
+            if (fetchedEps && Array.isArray(fetchedEps) && fetchedEps.length > 0) {
+                const currentEpCount = (currentMovie.episodes || []).reduce((acc, s) => acc + (s.server_data?.length || 0), 0);
+                const newEpCount = fetchedEps.reduce((acc, s) => acc + (s.server_data?.length || 0), 0);
+
+                if (newEpCount > currentEpCount || !currentMovie.episodes || currentMovie.episodes.length === 0) {
+                    currentMovie.episodes = fetchedEps;
+
+                    // Cập nhật lại nội dung nếu trước đó là text giữ chỗ chiếu rạp
+                    if (fetchedItem.content && (!currentMovie.content || currentMovie.content.includes('công chiếu tại các cụm rạp'))) {
+                        currentMovie.content = fetchedItem.content;
+                        const descEl = document.querySelector('.movie-description') || document.querySelector('#movieDescription');
+                        if (descEl) descEl.innerHTML = currentMovie.content;
+                    }
+
                     renderEpisodes(currentMovie.episodes);
+                    if (typeof renderVersions === 'function') renderVersions(currentMovie);
+                    if (typeof setupWatchButton === 'function') setupWatchButton(currentMovie);
                     savePreloadedMovieData(currentMovie);
+
+                    // Đóng popup rạp nếu đang mở
+                    const openModal = document.getElementById('cinemaNoticeModal');
+                    if (openModal) openModal.remove();
                 }
             }
         }).catch(() => {});
@@ -318,12 +330,6 @@ async function loadMovieDetail(slug) {
             }, 50);
 
             ophimOk = true;
-
-            const hasStreams = currentMovie.episodes && currentMovie.episodes.length > 0 &&
-                currentMovie.episodes.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
-            if (!hasStreams) {
-                showCinemaNoticePopup(currentMovie.name);
-            }
         }
     } catch (error) {
         console.warn('⚠️ [Detail] OPhim không có, thử nguồn phụ...');
@@ -349,12 +355,6 @@ async function loadMovieDetail(slug) {
             setTimeout(() => {
                 document.querySelector('.movie-content-zone')?.classList.add('loaded');
             }, 50);
-
-            const hasStreams = currentMovie.episodes && currentMovie.episodes.length > 0 &&
-                currentMovie.episodes.some(s => (s.server_data || []).some(ep => Boolean(ep.link_m3u8 || ep.link_embed)));
-            if (!hasStreams) {
-                showCinemaNoticePopup(currentMovie.name);
-            }
         }
     }
 
@@ -373,9 +373,6 @@ async function loadMovieDetail(slug) {
             setTimeout(() => {
                 document.querySelector('.movie-content-zone')?.classList.add('loaded');
             }, 50);
-
-            // Tự động bật popup thông báo phim đang chiếu rạp
-            showCinemaNoticePopup(currentMovie.name);
         } else {
             showError('Phim này chưa có nguồn phát — vui lòng thử lại sau');
         }
@@ -824,45 +821,7 @@ function renderMovieDetail(movie) {
     loadMovieGallery(movie);
 
     // Update watch button
-    const watchBtn = document.getElementById('watchNowBtn') || document.querySelector('a[href="/watch"]') || document.querySelector('a[href="watch.html"]');
-    if (watchBtn) {
-        // Check if admin has set a custom link
-        const movieLinks = JSON.parse(localStorage.getItem('movieLinks') || '{}');
-        const customLink = movieLinks[movie.slug];
-
-        if (customLink) {
-            watchBtn.href = `/xem-phim/${movie.slug}`;
-            watchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            console.log('✅ Custom link found for movie:', movie.slug);
-        } else if (movie.episodes && movie.episodes.length > 0) {
-            // Có episodes từ API
-            const serverIndex = typeof currentServerIndexDetail !== 'undefined' ? currentServerIndexDetail : 0;
-            const targetServer = movie.episodes[serverIndex] || movie.episodes[0];
-            const firstEpisode = targetServer?.server_data[0] || movie.episodes[0].server_data[0];
-            const cleanSlug = firstEpisode.slug.replace(/^tap-/, '');
-
-            let catSlug = '';
-            if (targetServer) {
-                const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
-                if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
-                else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
-            }
-            const sParam = (serverIndex > 0 && !catSlug) ? `?server=${serverIndex}` : '';
-            watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
-
-            // ⚡ Nạp dữ liệu vào sessionStorage ngay khi tương tác với nút Xem Ngay
-            const syncPreload = () => { if (typeof savePreloadedMovieData === 'function') savePreloadedMovieData(currentMovie || movie); };
-            watchBtn.addEventListener('click', syncPreload);
-            watchBtn.addEventListener('mouseenter', syncPreload, { passive: true });
-            watchBtn.addEventListener('touchstart', syncPreload, { passive: true });
-        } else {
-            // Không có link stream (Phim chiếu rạp)
-            watchBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                showCinemaNoticePopup(currentMovie?.name || movie.name);
-            });
-        }
-    }
+    setupWatchButton(movie);
 
     // Setup trailer button
     const trailerBtn = Array.from(document.querySelectorAll('button')).find(btn =>
@@ -884,6 +843,79 @@ function renderMovieDetail(movie) {
     // Tích hợp Các bản chiếu
     renderVersions(movie);
 }
+
+// 🎬 Setup & đồng bộ hóa nút Xem Ngay thông minh - Tuyệt đối không chặn navigation nếu có tập
+function setupWatchButton(movie) {
+    if (!movie) return;
+    const watchBtn = document.getElementById('watchNowBtn') || document.querySelector('a[href*="/xem-phim"]') || document.querySelector('a[href*="/watch"]');
+    if (!watchBtn) return;
+
+    // Check custom admin link
+    const movieLinks = JSON.parse(localStorage.getItem('movieLinks') || '{}');
+    const customLink = movieLinks[movie.slug];
+
+    const syncPreload = () => {
+        if (typeof savePreloadedMovieData === 'function') savePreloadedMovieData(currentMovie || movie);
+    };
+
+    if (customLink) {
+        watchBtn.href = `/xem-phim/${movie.slug}`;
+        watchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        watchBtn.onclick = syncPreload;
+        watchBtn.onmouseenter = syncPreload;
+        watchBtn.ontouchstart = syncPreload;
+        return;
+    }
+
+    const hasEpisodes = movie.episodes && Array.isArray(movie.episodes) && movie.episodes.length > 0 &&
+        movie.episodes.some(s => (s.server_data || []).length > 0);
+
+    if (hasEpisodes) {
+        const sIndex = (typeof currentServerIndexDetail !== 'undefined' && currentServerIndexDetail >= 0 && currentServerIndexDetail < movie.episodes.length)
+            ? currentServerIndexDetail : 0;
+        const targetServer = movie.episodes[sIndex] || movie.episodes[0];
+        const firstEpisode = targetServer?.server_data?.[0] || movie.episodes[0]?.server_data?.[0];
+
+        if (firstEpisode) {
+            const cleanSlug = String(firstEpisode.slug || '1').replace(/^tap-/, '');
+            let catSlug = '';
+            if (targetServer) {
+                const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
+                if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+                else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
+            }
+            const sParam = (sIndex > 0 && !catSlug) ? `?server=${sIndex}` : '';
+            watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+        } else {
+            watchBtn.href = `/xem-phim/${movie.slug}`;
+        }
+
+        watchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        // Không bao giờ chặn e.preventDefault() khi đã có tập
+        watchBtn.onclick = syncPreload;
+        watchBtn.onmouseenter = syncPreload;
+        watchBtn.ontouchstart = syncPreload;
+    } else {
+        // Chưa có dữ liệu tập
+        watchBtn.href = `/xem-phim/${movie.slug}`;
+        watchBtn.onclick = function(e) {
+            // Kiểm tra tại thời điểm click: nếu đã nạp được tập thì chuyển trang bình thường
+            const liveMovie = currentMovie || movie;
+            const liveHasEps = liveMovie?.episodes && liveMovie.episodes.length > 0 &&
+                liveMovie.episodes.some(s => (s.server_data || []).length > 0);
+
+            if (!liveHasEps) {
+                e.preventDefault();
+                showCinemaNoticePopup(liveMovie?.name || movie.name);
+            } else {
+                syncPreload();
+            }
+        };
+        watchBtn.onmouseenter = syncPreload;
+        watchBtn.ontouchstart = syncPreload;
+    }
+}
+window.setupWatchButton = setupWatchButton;
 
 // Cache lưu trữ 3 ảnh độc lập cho các bản chiếu (giảm tải tối đa, load tức thì)
 window._movieStillsCache = window._movieStillsCache || {};
@@ -1775,20 +1807,8 @@ window.changeServerDetail = function (index) {
     renderVersions(currentMovie);
 
     // Cập nhật lại nút Xem Ngay chính khi người dùng đổi máy chủ trên movie-detail
-    const watchBtn = document.getElementById('watchNowBtn') || document.querySelector('a[href*="/watch"]') || document.querySelector('a[href*="/xem-phim"]');
-    if (watchBtn && currentMovie.episodes[index]?.server_data && currentMovie.episodes[index].server_data.length > 0) {
-        const targetServer = currentMovie.episodes[index];
-        const firstEp = targetServer.server_data[0];
-        const cleanSlug = firstEp.slug.replace(/^tap-/, '');
-
-        let catSlug = '';
-        if (targetServer) {
-            const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
-            if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
-            else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
-        }
-        const sParam = (index > 0 && !catSlug) ? `?server=${index}` : '';
-        watchBtn.href = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+    if (typeof setupWatchButton === 'function') {
+        setupWatchButton(currentMovie);
     }
 };
 
