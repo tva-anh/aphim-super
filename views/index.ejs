@@ -15,7 +15,7 @@
                 <link rel="preconnect" href="https://phimimg.com" crossorigin>
                 <link rel="preconnect" href="https://static-cgv.vncdn.vn" crossorigin>
                 <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=24">
-                <link rel="stylesheet" href="/css/hero-banner.css?v=191">
+                <link rel="stylesheet" href="/css/hero-banner.css?v=195">
                 <link rel="stylesheet" href="/css/interests-section.css?v=171">
                 <link
                     href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap"
@@ -98,7 +98,6 @@
                         }
 
                         /* 🚀 120FPS GPU ACCELERATION & CONTENT VISIBILITY OPTIMIZATION (DESKTOP & MOBILE) */
-                        .phimmoi-section-grid,
                         .top10-container,
                         .home-comments-section {
                             content-visibility: auto;
@@ -108,10 +107,10 @@
                         .de-cu-card,
                         .cinema-hot-card,
                         .normal-card-item,
+                        .featured-card-item,
                         .top10-card {
-                            contain: layout paint;
-                            transform: translateZ(0);
                             backface-visibility: hidden;
+                            -webkit-backface-visibility: hidden;
                         }
 
                         .badge-trend {
@@ -220,8 +219,10 @@
                             .cinema-hot-poster-wrap {
                                 border-radius: 12px !important;
                                 overflow: hidden !important;
-                                transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+                                transition: transform 0.22s cubic-bezier(0.2, 0, 0.2, 1) !important;
                                 transform-origin: center center !important;
+                                transform: translateZ(0);
+                                will-change: transform;
                                 backface-visibility: hidden;
                                 -webkit-backface-visibility: hidden;
                                 aspect-ratio: 2 / 3 !important;
@@ -233,6 +234,10 @@
                                 object-fit: cover !important;
                                 display: block !important;
                                 aspect-ratio: 2 / 3 !important;
+                                transform: translateZ(0);
+                                will-change: transform;
+                                backface-visibility: hidden;
+                                -webkit-backface-visibility: hidden;
                             }
                             .cinema-hot-info-wrap {
                                 margin-top: 14px !important;
@@ -384,6 +389,8 @@
                             transition: none !important;
                         }
 
+
+
                         /* 🚀 SIÊU TỐI ƯU HÓA RENDER ENGINE DESKTOP 120FPS — CONTENT-VISIBILITY & GPU COMPOSITING */
                         @media (min-width: 768px) {
                             /* Khóa các section dưới nếp gấp màn hình: Bỏ qua hoàn toàn layout & repaint khi chưa cuộn tới */
@@ -397,19 +404,6 @@
                             #top10Section {
                                 content-visibility: auto;
                                 contain-intrinsic-size: 1px 540px;
-                            }
-
-                            /* Tối ưu hóa lưới phim bộ, phim lẻ, phim hoạt hình và TV Shows */
-                            .home-movie-section,
-                            section:has(.grid-phim-bo),
-                            section:has(.grid-phim-le),
-                            section:has(.grid-hoat-hinh),
-                            section:has(#grid-phim-bo),
-                            section:has(#grid-phim-le),
-                            section:has(#grid-hoat-hinh),
-                            section:has(#grid-tv-shows) {
-                                content-visibility: auto;
-                                contain-intrinsic-size: 1px 580px;
                             }
 
                             footer,
@@ -755,6 +749,7 @@
                             max-height: 36px !important;
                             display: -webkit-box !important;
                             -webkit-line-clamp: 2 !important;
+                            line-clamp: 2 !important;
                             -webkit-box-orient: vertical !important;
                             overflow: hidden !important;
                             text-overflow: ellipsis !important;
@@ -885,7 +880,6 @@
                             line-height: 0.9 !important;
                             color: #000000 !important;
                             -webkit-text-stroke: 2.2px #ffffff !important;
-                            text-stroke: 2.2px #ffffff !important;
                             paint-order: stroke fill !important;
                             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85)) !important;
                             letter-spacing: -2px !important;
@@ -1775,14 +1769,18 @@
                             overflow: hidden !important;
                             background: #151821 !important;
                             border: 1px solid rgba(255, 255, 255, 0.06) !important;
-                            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+                            transition: transform 0.22s cubic-bezier(0.2, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
                             text-decoration: none !important;
                             display: block !important;
                             box-sizing: border-box !important;
+                            transform: translateZ(0) !important;
+                            will-change: transform !important;
+                            backface-visibility: hidden !important;
+                            -webkit-backface-visibility: hidden !important;
                         }
 
                         .top10-card:hover {
-                            transform: translateY(-3px) !important;
+                            transform: translateY(-3px) translateZ(0) !important;
                             border-color: transparent !important;
                             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
                         }
@@ -2117,7 +2115,6 @@
                             filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.38));
                             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
                             display: block;
-                            vertical-align: bottom;
                             margin-bottom: 0;
                             user-select: none;
                             pointer-events: none;
@@ -2450,6 +2447,7 @@
                         .home-card-text {
                             display: -webkit-box;
                             -webkit-line-clamp: 2;
+                            line-clamp: 2;
                             -webkit-box-orient: vertical;
                             overflow: hidden;
                             text-overflow: ellipsis;
@@ -3079,18 +3077,18 @@
                                     c.iconSvg.replace(/14s1\.5\s*2\s*4\s*2\s*4-2(\s*4-2)?/g, '14c1.5 2 6.5 2 8 0' ) :
                                     defaultInterestsIcons[idx % defaultInterestsIcons.length]; %>
                                     <div class="interest-card<%= noAuraClass %>"
-                                        onclick="window.location.href='<%= c.link || '#' %>'" style="<%= rgbStyle %>">
+                                        onclick="window.location.href='<%= c.link || '#' %>'" style="<%- rgbStyle %>">
                                         <div class="interest-bg-img"
-                                            style="background-image: url('<%= c.imageUrl || '' %>');"></div>
+                                            style="background-image: url('<%= (c.imageUrl || '').replace(/'/g, '\\\'') %>');"></div>
                                         <div class="interest-icon-circle" title="<%= c.title || '' %>"
-                                            style="color: <%= c.iconColor || '#ffffff' %> !important;">
+                                            <%- 'style="color: ' + (c.iconColor || '#ffffff') + ' !important;"' %>>
                                             <%- rawIcon %>
                                         </div>
                                         <div class="interest-content">
-                                            <span class="interest-title" style="color: <%= textColor %> !important;">
+                                            <span class="interest-title" <%- 'style="color: ' + textColor + ' !important;"' %>>
                                                 <%= c.title || '' %>
                                             </span>
-                                            <span class="interest-action" style="color: <%= textColor %> !important;">
+                                            <span class="interest-action" <%- 'style="color: ' + textColor + ' !important;"' %>>
                                                 <%= c.actionText || 'XEM NGAY' %> <svg
                                                         style="width: 10px; height: 10px; display: inline;"
                                                         fill="currentColor" viewBox="0 0 20 20">
@@ -3641,34 +3639,7 @@
                 </section>
 
 
-                <!-- ==============================================
-             SECTION 3: PHIM LẺ MỚI CẬP NHẬT
-             ============================================== -->
-                <section>
-                    <div class="section-header">
-                        <div class="section-header-left">
-                            <h2 class="section-header-title">PHIM LẺ MỚI CẬP NHẬT</h2>
-                            <div class="section-header-tabs">
-                                <button type="button"
-                                    onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/danh-sach/phim-le?page=1')"
-                                    class="section-header-tab active">Mới cập nhật</button>
-                                <button type="button"
-                                    onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/the-loai/hanh-dong?page=1')"
-                                    class="section-header-tab inactive">Hành Động</button>
-                                <button type="button"
-                                    onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/the-loai/hoat-hinh?page=1')"
-                                    class="section-header-tab inactive">Hoạt Hình</button>
-                                <button type="button"
-                                    onclick="switchSectionTab(this, 'grid-phim-le', 'https://phimapi.com/v1/api/the-loai/kinh-di?page=1')"
-                                    class="section-header-tab inactive">Kinh Dị</button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div id="grid-phim-le" class="phimmoi-section-grid">
-                        <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
-                    </div>
-                </section>
 
 
                 <!-- ==============================================
@@ -3736,7 +3707,9 @@
                                     .replace('ophim1.com/uploads', 'phimimg.com/uploads')
                                     .replace('img.phimapi.com', 'phimimg.com');
                             }
-                            const clean = u.replace(/^\//, '');
+                            let clean = u.replace(/^\//, '');
+                            clean = clean.replace(/^(uploads\/movies\/)+/, 'uploads/movies/');
+                            clean = clean.replace(/^(upload\/vod\/)+/, 'upload/vod/');
                             if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
                                 return 'https://phimimg.com/' + clean;
                             }
@@ -3749,42 +3722,84 @@
                             return 'https://phimimg.com/uploads/movies/' + clean;
                         }
 
-                        // 🛡️ ULTRA ROBUST NON-BLOCKING IMAGE RESTORATION (KHÔNG GỌI FETCH CHẶN TRÌNH DUYỆT)
+                        // 🛡️ ULTRA ROBUST SELF-HEALING IMAGE RESTORATION WITH EXPONENTIAL RETRY
                         window.handleCardImgError = function (imgEl) {
                             if (!imgEl) return;
                             const step = parseInt(imgEl.dataset.errStep || '0', 10) + 1;
                             imgEl.dataset.errStep = String(step);
 
-                            const fallbackUrl = imgEl.dataset.fallback;
+                            const fallbackUrl = imgEl.dataset.fallback || '';
                             const currentSrc = imgEl.src || '';
                             const title = imgEl.alt || '';
                             const slug = imgEl.dataset.slug || '';
+                            const originalSrc = imgEl.dataset.originalSrc || currentSrc;
 
-                            // Step 1: Thử link poster / thumb đối ứng ngay lập tức
+                            // Step 1: Thử link fallback đối ứng nếu có và khác link hiện tại
                             if (step === 1 && fallbackUrl && fallbackUrl !== currentSrc && !fallbackUrl.includes('no-poster') && fallbackUrl.startsWith('http')) {
                                 imgEl.src = fallbackUrl;
                                 return;
                             }
 
-                            // Step 2: Thử chuyển đổi giữa uploads/movies/ và upload/vod/ hoặc mirror CDN
-                            if (step === 2) {
-                                if (currentSrc.includes('/uploads/movies/')) {
-                                    imgEl.src = currentSrc.replace('/uploads/movies/', '/upload/vod/');
-                                    return;
-                                } else if (currentSrc.includes('/upload/vod/')) {
-                                    imgEl.src = currentSrc.replace('/upload/vod/', '/uploads/movies/');
-                                    return;
-                                } else if (currentSrc.includes('phimimg.com')) {
-                                    imgEl.src = currentSrc.replace('https://phimimg.com/', 'https://img.phimapi.com/');
+                            // Step 2, 3, 4: Thử lại tự động qua Image Probe với độ trễ tăng dần (450ms, 1000ms, 2000ms)
+                            // Giúp vượt qua nghẽn kết nối mạng / socket pool ban đầu mà KHÔNG biến thành khung xám
+                            if (step <= 4) {
+                                const delays = [0, 450, 1000, 2000, 3000];
+                                const waitMs = delays[step] || 1500;
+                                const targetUrl = (step % 2 === 0 && fallbackUrl && fallbackUrl.startsWith('http')) ? fallbackUrl : originalSrc;
+
+                                if (targetUrl && !targetUrl.startsWith('data:')) {
+                                    setTimeout(function () {
+                                        if (!imgEl || !imgEl.isConnected) return;
+                                        const probe = new Image();
+                                        probe.onload = function () {
+                                            if (imgEl && imgEl.isConnected) {
+                                                imgEl.src = probe.src;
+                                                imgEl.removeAttribute('data-err-step');
+                                            }
+                                        };
+                                        probe.onerror = function () {
+                                            if (imgEl && imgEl.isConnected) {
+                                                window.handleCardImgError(imgEl);
+                                            }
+                                        };
+                                        probe.src = targetUrl;
+                                    }, waitMs);
                                     return;
                                 }
                             }
 
-                            // Step 3: Ngay lập tức gắn poster SVG nhẹ, sạch đẹp — KHÔNG gọi API gây quay vòng tải mãi
-                            const cleanTitle = (title || slug.replace(/-/g, ' ')).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-                            imgEl.onerror = null;
-                            imgEl.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225' viewBox='0 0 400 225'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23181b24'/%3E%3Cstop offset='100%25' stop-color='%230f1218'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='225' fill='url(%23bg)'/%3E%3Ccircle cx='200' cy='95' r='32' fill='rgba(255,255,255,0.06)'/%3E%3Cpath d='M192 82 L214 95 L192 108 Z' fill='%23f59e0b'/%3E%3Ctext x='200' y='160' text-anchor='middle' fill='%23e2e8f0' font-family='sans-serif' font-size='14' font-weight='700'%3E" + encodeURIComponent(cleanTitle.slice(0, 32)) + "%3C/text%3E%3C/svg%3E";
+                            // Chỉ khi đã thử 4 lần liên tiếp mà vẫn không nạp được mới tạm thời hiện SVG
+                            renderCardFallbackSvg(imgEl, title, slug, originalSrc);
                         };
+
+                        function renderCardFallbackSvg(imgEl, title, slug, originalSrc) {
+                            if (!imgEl) return;
+                            imgEl.onerror = null;
+                            const cleanTitle = (title || slug.replace(/-/g, ' ')).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                            const isLight = document.documentElement.classList.contains('light-mode') || document.body.classList.contains('light-mode');
+                            const stopColor1 = isLight ? '%23f8f6f0' : '%23181b24';
+                            const stopColor2 = isLight ? '%23ece6da' : '%230f1218';
+                            const circleFill = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+                            const playFill = isLight ? '%23ea580c' : '%23f59e0b';
+                            const textColor = isLight ? '%23475569' : '%23e2e8f0';
+
+                            imgEl.src = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225' viewBox='0 0 400 225'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='" + stopColor1 + "'/%3E%3Cstop offset='100%25' stop-color='" + stopColor2 + "'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='225' fill='url(%23bg)'/%3E%3Ccircle cx='200' cy='95' r='32' fill='" + circleFill + "'/%3E%3Cpath d='M192 82 L214 95 L192 108 Z' fill='" + playFill + "'/%3E%3Ctext x='200' y='160' text-anchor='middle' fill='" + textColor + "' font-family='sans-serif' font-size='14' font-weight='700'%3E" + encodeURIComponent(cleanTitle.slice(0, 32)) + "%3C/text%3E%3C/svg%3E";
+
+                            // 🔄 Tự động phục hồi lại ảnh gốc khi mạng rảnh rỗi (sau 4s)
+                            if (originalSrc && !originalSrc.startsWith('data:')) {
+                                setTimeout(function () {
+                                    if (!imgEl || !imgEl.isConnected) return;
+                                    const idleProbe = new Image();
+                                    idleProbe.onload = function () {
+                                        if (imgEl && imgEl.isConnected) {
+                                            imgEl.src = idleProbe.src;
+                                            imgEl.removeAttribute('data-err-step');
+                                        }
+                                    };
+                                    idleProbe.src = originalSrc;
+                                }, 4000);
+                            }
+                        }
 
                         window.scrollSlider = function (amount) {
                             const slider = document.getElementById('slider-de-cu');
@@ -3895,7 +3910,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 6 ? 'eager' : 'lazy'}" decoding="async" ${idx < 4 ? 'fetchpriority="high"' : ''} referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 6 ? 'eager' : 'lazy'}" decoding="async" ${idx < 4 ? 'fetchpriority="high"' : ''} referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -3933,7 +3948,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="single-feature-img" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" class="single-feature-img" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -3952,7 +3967,7 @@
                         }
 
                         // 3. Render Normal Card Item (1x1 in Unified Grid)
-                        function createNormalCardHTML(movie) {
+                        function createNormalCardHTML(movie, idx = 0) {
                             const watchUrl = '/phim/' + movie.slug;
                             const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url);
                             const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
@@ -3969,7 +3984,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 5 ? 'eager' : 'lazy'}" ${idx < 5 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -4066,7 +4081,7 @@
                             }
 
                             const cacheKey = `${containerId}_${type}${paramVal ? '_' + paramVal : ''}`;
-                            const sessionKey = `aphim_sec_v1_${cacheKey}`;
+                            const sessionKey = `aphim_sec_v2_${cacheKey}`;
                             let cachedHTML = _sectionTabCache.get(cacheKey);
                             if (!cachedHTML) {
                                 try {
@@ -4095,7 +4110,7 @@
                                 if (gridEl) {
                                     const featuredHTML = createFeaturedCardHTML(items[0]);
                                     const normalCount = limitCount - 1; // 11 normal cards
-                                    const normalHTML = items.slice(1, normalCount + 1).map(m => createNormalCardHTML(m)).join('');
+                                    const normalHTML = items.slice(1, normalCount + 1).map((m, idx) => createNormalCardHTML(m, idx)).join('');
                                     const finalHTML = featuredHTML + normalHTML;
                                     _sectionTabCache.set(cacheKey, finalHTML);
                                     try { sessionStorage.setItem(sessionKey, finalHTML); } catch (e) { }
@@ -4111,6 +4126,7 @@
                         function createTop10CardHTML(movie, index) {
                             const watchUrl = '/phim/' + movie.slug;
                             const img = getImgUrl(movie.thumb_url || movie.poster_url);
+                            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
                             const rank = index + 1;
                             const isFirst = (index === 0);
 
@@ -4159,7 +4175,7 @@
                             ${badgeLang}
                             ${badgeSub}
                         </div>
-                        <img src="${img}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                        <img src="${img}" data-original-src="${img}" data-fallback="${fallbackImg}" alt="${movie.name}" loading="${index < 4 ? 'eager' : 'lazy'}" ${index < 4 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
                         <div class="card-bottom-overlay">
                             <div class="card-title-vi" title="${movie.name}">${movie.name}</div>
                             <div class="card-title-en" title="${enTitle}">${enTitle}</div>
@@ -5504,6 +5520,12 @@
 
                         // Load the first row immediately; defer lower rows until the user is approaching them.
                         document.addEventListener('DOMContentLoaded', function () {
+                            try {
+                                Object.keys(sessionStorage).forEach(k => {
+                                    if (k.startsWith('aphim_sec_v1_')) sessionStorage.removeItem(k);
+                                });
+                            } catch (e) { }
+
                             if (window.innerWidth >= 1024) {
                                 if (typeof loadHeroBanner === 'function') loadHeroBanner();
                             } else {
@@ -5513,13 +5535,12 @@
                             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
                             loadWhenNearViewport('grid-top-10', loadTop10Section);
                             loadWhenNearViewport('grid-chieu-rap', () => loadUnifiedSection('list', 'phim-chieu-rap', 'grid-chieu-rap', 12));
-                            loadWhenNearViewport('grid-phim-le', () => loadUnifiedSection('list', 'phim-le', 'grid-phim-le', 12));
                             loadWhenNearViewport('grid-trending', () => loadUnifiedSection('list', 'phim-moi-cap-nhat', 'grid-trending', 12));
                             loadWhenNearViewport('grid-anime', () => loadUnifiedSection('list', 'hoat-hinh', 'grid-anime', 12));
                         });
                     })();
                 </script>
-                <script src="/js/hero-banner.js?v=193" defer></script>
+                <script src="/js/hero-banner.js?v=196" defer></script>
 </body>
 
 </html>

@@ -460,8 +460,21 @@ class AuthService {
             localStorage.setItem('ap_frame_id', frameId);
             localStorage.setItem('ap_equipped_frame', frameId);
         }
-        const frameUrl = user.equippedFrameUrl || user.equipped_frame_url;
-        if (frameUrl) localStorage.setItem('ap_frame_url', frameUrl);
+        let frameUrl = user.equippedFrameUrl || user.equipped_frame_url;
+        if (!frameUrl && frameId && frameId !== 'frame_none' && frameId !== 'none') {
+            if (typeof window.resolveFrameUrl === 'function') {
+                frameUrl = window.resolveFrameUrl(frameId);
+            } else if (window.DISCORD_FRAMES_MAP && window.DISCORD_FRAMES_MAP[frameId]) {
+                frameUrl = window.DISCORD_FRAMES_MAP[frameId];
+            }
+            if (frameUrl) {
+                user.equippedFrameUrl = frameUrl;
+            }
+        }
+        if (frameUrl) {
+            localStorage.setItem('ap_frame_url', frameUrl);
+            localStorage.setItem('ap_equipped_frame_url', frameUrl);
+        }
 
         const banner = user.equippedBanner || user.equipped_banner;
         if (banner) localStorage.setItem('ap_equipped_banner', banner);

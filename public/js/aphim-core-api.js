@@ -44,14 +44,19 @@
         }
 
         if (stage === 2) {
-            if (currentSrc.includes('/uploads/movies/')) {
-                imgEl.src = currentSrc.replace('/uploads/movies/', '/upload/vod/');
-                return;
-            } else if (currentSrc.includes('/upload/vod/')) {
-                imgEl.src = currentSrc.replace('/upload/vod/', '/uploads/movies/');
-                return;
-            } else if (currentSrc.includes('phimimg.com')) {
-                imgEl.src = currentSrc.replace('https://phimimg.com/', 'https://img.phimapi.com/');
+            const originalSrc = imgEl.dataset.originalSrc || currentSrc;
+            if (originalSrc && !originalSrc.startsWith('data:')) {
+                setTimeout(() => {
+                    if (imgEl && imgEl.isConnected) {
+                        const probe = new Image();
+                        probe.onload = () => { imgEl.src = probe.src; };
+                        probe.onerror = () => {
+                            imgEl.onerror = null;
+                            imgEl.src = SVG_NO_POSTER;
+                        };
+                        probe.src = originalSrc;
+                    }
+                }, 400);
                 return;
             }
         }
@@ -95,18 +100,10 @@
         }
     };
 
-    // 🎯 4. INSTANT PARALLEL IMAGE PRELOADER ENGINE
-    window.APhimCore.preloadImages = function(items, limit = 16) {
-        if (!items || !Array.isArray(items)) return;
-        const slice = items.slice(0, limit);
-        slice.forEach(movie => {
-            const url = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
-            if (url && !window.APhimCore.imageCache.has(url) && url.startsWith('http')) {
-                window.APhimCore.imageCache.add(url);
-                const img = new Image();
-                img.src = url;
-            }
-        });
+    // 🎯 4. SAFE IMAGE PRELOADER ENGINE (DISABLED TO PREVENT CONNECTION POOL SATURATION)
+    window.APhimCore.preloadImages = function(items, limit = 0) {
+        // Disabled to prevent saturating browser HTTP connection pool (max 6 sockets per domain)
+        return;
     };
 
     // 🎯 5. EXACT BADGE & EPISODE PARSER MATCHING HOMEPAGE INDEX.EJS

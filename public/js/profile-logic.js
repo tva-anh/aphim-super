@@ -579,6 +579,8 @@ function renderTab(tab) {
     panel.innerHTML = renderNotifications();
   }
 }
+window.switchTab = switchTab;
+window.switchProfileTab = switchTab;
 
 // ─── MOVIE CARD RENDERER ───
 function renderMovieCard(item, type) {

@@ -1114,6 +1114,7 @@ html.light-mode .avatar-label.ap-nc-color_default,
 html.light-mode .shop-name-text-render.ap-nc-color_default {
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: #1c1917 !important;
     color: #1c1917 !important;
     animation: none !important;
@@ -1156,6 +1157,7 @@ html.light-mode .ap-nc-color_gold {
     background-image: linear-gradient(90deg, #b45309, #d97706, #f59e0b, #fef08a, #f59e0b, #d97706, #b45309) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameShimmerGlint 3s linear infinite !important;
 }
@@ -1164,6 +1166,7 @@ html.light-mode .ap-nc-color_silver {
     background-image: linear-gradient(90deg, #475569, #64748b, #94a3b8, #cbd5e1, #94a3b8, #64748b, #475569) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameShimmerGlint 2.8s linear infinite !important;
 }
@@ -1172,6 +1175,7 @@ html.light-mode .ap-nc-color_cyan {
     background-image: linear-gradient(90deg, #0284c7, #0ea5e9, #38bdf8, #67e8f9, #38bdf8, #0ea5e9, #0284c7) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2.2s linear infinite !important;
 }
@@ -1180,6 +1184,7 @@ html.light-mode .ap-nc-color_pink {
     background-image: linear-gradient(90deg, #be185d, #db2777, #ec4899, #f472b6, #ec4899, #db2777, #be185d) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2s linear infinite, nameNeonPulse 2.5s ease-in-out infinite !important;
 }
@@ -1189,6 +1194,7 @@ html.light-mode .ap-nc-color_purple {
     background-image: linear-gradient(90deg, #6b21a8, #7e22ce, #a855f7, #c084fc, #a855f7, #7e22ce, #6b21a8) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2.4s linear infinite !important;
 }
@@ -1197,6 +1203,7 @@ html.light-mode .ap-nc-color_fire {
     background-image: linear-gradient(90deg, #b91c1c, #dc2626, #ea580c, #f97316, #ea580c, #dc2626, #b91c1c) !important;
     background-size: 250% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameFlameFlicker 2s ease-in-out infinite !important;
 }
@@ -1205,6 +1212,7 @@ html.light-mode .ap-nc-color_amber {
     background-image: linear-gradient(90deg, #b45309, #d97706, #f59e0b, #fbbf24, #f59e0b, #d97706, #b45309) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameShimmerGlint 2.5s linear infinite !important;
 }
@@ -1213,6 +1221,7 @@ html.light-mode .ap-nc-color_ocean {
     background-image: linear-gradient(90deg, #1d4ed8, #2563eb, #3b82f6, #60a5fa, #3b82f6, #2563eb, #1d4ed8) !important;
     background-size: 250% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2.5s linear infinite !important;
 }
@@ -1221,6 +1230,7 @@ html.light-mode .ap-nc-color_sakura {
     background-image: linear-gradient(90deg, #9d174d, #be185d, #ec4899, #f472b6, #ec4899, #be185d, #9d174d) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2.2s linear infinite !important;
 }
@@ -1229,6 +1239,7 @@ html.light-mode .ap-nc-color_frost {
     background-image: linear-gradient(90deg, #0369a1, #0284c7, #38bdf8, #bae6fd, #38bdf8, #0284c7, #0369a1) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2.2s linear infinite, nameFrostSparkle 3s ease-in-out infinite !important;
 }
@@ -1237,6 +1248,7 @@ html.light-mode .ap-nc-color_lime {
     background-image: linear-gradient(90deg, #4d7c0f, #65a30d, #84cc16, #a3e635, #84cc16, #65a30d, #4d7c0f) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2.1s linear infinite !important;
 }
@@ -1246,6 +1258,7 @@ html.light-mode .ap-nc-color_emerald {
     background-image: linear-gradient(90deg, #047857, #059669, #10b981, #34d399, #10b981, #059669, #047857) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2s linear infinite !important;
 }
@@ -1254,6 +1267,7 @@ html.light-mode .ap-nc-color_aurora {
     background-image: linear-gradient(90deg, #dc2626, #ea580c, #e11d48, #f43f5e, #e11d48, #ea580c, #dc2626) !important;
     background-size: 250% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 1.6s linear infinite !important;
 }
@@ -1262,6 +1276,7 @@ html.light-mode .ap-nc-color_thunder {
     background-image: linear-gradient(90deg, #0284c7, #38bdf8, #eab308, #facc15, #38bdf8, #0284c7) !important;
     background-size: 250% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameLightningFlash 2.5s infinite !important;
 }
@@ -1270,6 +1285,7 @@ html.light-mode .ap-nc-color_dark_magic {
     background-image: linear-gradient(90deg, #4c1d95, #6d28d9, #8b5cf6, #c084fc, #8b5cf6, #6d28d9, #4c1d95) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameVoidPulse 3s ease-in-out infinite !important;
 }
@@ -1278,6 +1294,7 @@ html.light-mode .ap-nc-color_mythic_plat {
     background-image: linear-gradient(90deg, #334155, #475569, #94a3b8, #cbd5e1, #94a3b8, #475569, #334155) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2s linear infinite, nameGlitchCut 3.5s infinite !important;
 }
@@ -1286,6 +1303,7 @@ html.light-mode .ap-nc-color_ruby {
     background-image: linear-gradient(90deg, #881337, #be123c, #e11d48, #fb7185, #e11d48, #be123c, #881337) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameShimmerGlint 2.4s linear infinite !important;
 }
@@ -1294,6 +1312,7 @@ html.light-mode .ap-nc-color_gradient_sunset {
     background-image: linear-gradient(90deg, #d97706, #dc2626, #ec4899, #8b5cf6, #ec4899, #dc2626, #d97706) !important;
     background-size: 300% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 2s linear infinite !important;
 }
@@ -1303,6 +1322,7 @@ html.light-mode .ap-nc-color_rainbow {
     background-image: linear-gradient(90deg, #dc2626, #d97706, #16a34a, #0284c7, #2563eb, #7c3aed, #db2777, #dc2626) !important;
     background-size: 300% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 1.8s linear infinite, nameHueShift 6s linear infinite !important;
 }
@@ -1311,6 +1331,7 @@ html.light-mode .ap-nc-color_galaxy_shift {
     background-image: linear-gradient(90deg, #7c3aed, #0284c7, #db2777, #f43f5e, #6366f1, #7c3aed) !important;
     background-size: 300% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 1.5s linear infinite !important;
 }
@@ -1319,6 +1340,7 @@ html.light-mode .ap-nc-color_matrix {
     background-image: linear-gradient(90deg, #15803d, #22c55e, #4ade80, #86efac, #4ade80, #22c55e, #15803d) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameGradientWave 1.4s linear infinite, nameMatrixPulse 2.2s ease-in-out infinite !important;
 }
@@ -1327,6 +1349,7 @@ html.light-mode .ap-nc-color_emperor {
     background-image: linear-gradient(90deg, #78350f, #b45309, #f59e0b, #fde047, #f59e0b, #b45309, #78350f) !important;
     background-size: 250% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameShimmerGlint 2s linear infinite, nameDivineGlow 2.5s ease-in-out infinite !important;
 }
@@ -1335,6 +1358,7 @@ html.light-mode .ap-nc-color_divine_light {
     background-image: linear-gradient(90deg, #b45309, #d97706, #f59e0b, #fef08a, #f59e0b, #d97706, #b45309) !important;
     background-size: 300% auto !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     animation: nameShimmerGlint 1.8s linear infinite, nameDivineGlow 2.2s ease-in-out infinite !important;
 }
@@ -1640,6 +1664,7 @@ html.light-mode .sidebar-avatar {
 html.light-mode .sidebar-username:not([class*="ap-nc-"]):not([style*="background"]) {
     background: none !important;
     -webkit-background-clip: unset !important;
+    background-clip: unset !important;
     -webkit-text-fill-color: #1c1917 !important;
     color: #1c1917 !important;
 }
@@ -1727,9 +1752,9 @@ html.light-mode .device-card,
 html.light-mode .device-item,
 html.light-mode #main-movie-info-card,
 html.light-mode .wallet-card,
-html.light-mode .bg-[#151722],
-html.light-mode .bg-[#1a1c24],
-html.light-mode .bg-[#202332] {
+html.light-mode [class*="bg-[#151722]"],
+html.light-mode [class*="bg-[#1a1c24]"],
+html.light-mode [class*="bg-[#202332]"] {
     background-color: #ffffff !important;
     border: 1px solid #e7e0d3 !important;
     color: #1c1917 !important;
@@ -3038,25 +3063,21 @@ html.light-mode .ap-top-weekly-ep {
 
 html.light-mode .ap-top-weekly-rank {
     -webkit-text-stroke: 1.5px #78716c !important;
-    text-stroke: 1.5px #78716c !important;
     color: rgba(120, 113, 108, 0.15) !important;
 }
 
 html.light-mode .ap-top-weekly-rank.rank-1 {
     -webkit-text-stroke: 1.8px #d97706 !important;
-    text-stroke: 1.8px #d97706 !important;
     color: rgba(217, 119, 6, 0.2) !important;
 }
 
 html.light-mode .ap-top-weekly-rank.rank-2 {
     -webkit-text-stroke: 1.8px #0284c7 !important;
-    text-stroke: 1.8px #0284c7 !important;
     color: rgba(2, 132, 199, 0.2) !important;
 }
 
 html.light-mode .ap-top-weekly-rank.rank-3 {
     -webkit-text-stroke: 1.8px #ea580c !important;
-    text-stroke: 1.8px #ea580c !important;
     color: rgba(234, 88, 12, 0.2) !important;
 }
 
@@ -4750,6 +4771,7 @@ html.light-mode .sidebar-avatar {
 html.light-mode .sidebar-username:not([class*="ap-nc-"]):not([style*="background"]) {
     background: none !important;
     -webkit-background-clip: unset !important;
+    background-clip: unset !important;
     -webkit-text-fill-color: #0f172a !important;
     color: #0f172a !important;
     font-weight: 900 !important;
@@ -7458,27 +7480,23 @@ html.light-mode .ap-top-weekly-badge {
 
 html.light-mode .ap-top-weekly-rank {
     -webkit-text-stroke: 1.5px #a8a29e !important;
-    text-stroke: 1.5px #a8a29e !important;
     color: transparent !important;
 }
 
 html.light-mode .ap-top-weekly-rank.rank-1 {
     -webkit-text-stroke: 1.8px #d97706 !important;
-    text-stroke: 1.8px #d97706 !important;
     color: rgba(217, 119, 6, 0.18) !important;
     filter: none !important;
 }
 
 html.light-mode .ap-top-weekly-rank.rank-2 {
     -webkit-text-stroke: 1.8px #0284c7 !important;
-    text-stroke: 1.8px #0284c7 !important;
     color: rgba(2, 132, 199, 0.18) !important;
     filter: none !important;
 }
 
 html.light-mode .ap-top-weekly-rank.rank-3 {
     -webkit-text-stroke: 1.8px #ea580c !important;
-    text-stroke: 1.8px #ea580c !important;
     color: rgba(234, 88, 12, 0.18) !important;
     filter: none !important;
 }
@@ -8061,16 +8079,4 @@ html.light-mode .phim18-pill.is-active {
     border: 1px solid #b45309 !important;
     box-shadow: 0 4px 14px rgba(217, 119, 6, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
     transform: translateY(-1px);
-}
-
-
-
-
-
-color: #ffffff !important;
-font-weight: 700 !important;
-border: 1px solid #b45309 !important;
-box-shadow: 0 4px 14px rgba(217, 119, 6, 0.38),
-inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-transform: translateY(-1px);
 }

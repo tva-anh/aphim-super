@@ -29,9 +29,11 @@ function getEquippedFrameInfo(u) {
         url = frameId;
     }
 
-    // Lookup in DISCORD_FRAMES_MAP or window._shopFramesMap if present
+    // Lookup in resolveFrameUrl, DISCORD_FRAMES_MAP or window._shopFramesMap if present
     if (!url && !cls && frameId) {
-        if (window.DISCORD_FRAMES_MAP && window.DISCORD_FRAMES_MAP[frameId]) {
+        if (typeof window.resolveFrameUrl === 'function') {
+            url = window.resolveFrameUrl(frameId);
+        } else if (window.DISCORD_FRAMES_MAP && window.DISCORD_FRAMES_MAP[frameId]) {
             url = window.DISCORD_FRAMES_MAP[frameId];
         } else if (window._shopFramesMap && window._shopFramesMap[frameId]) {
             const item = window._shopFramesMap[frameId];
@@ -43,8 +45,9 @@ function getEquippedFrameInfo(u) {
     if (url && (url.startsWith('http') || url.startsWith('data:'))) {
         url = sanitizeFrameUrl(url);
         try {
-            if (localStorage.getItem('ap_frame_url')) localStorage.setItem('ap_frame_url', url);
-            if (localStorage.getItem('ap_equipped_frame_url')) localStorage.setItem('ap_equipped_frame_url', url);
+            if (u && !u.equippedFrameUrl) u.equippedFrameUrl = url;
+            localStorage.setItem('ap_frame_url', url);
+            localStorage.setItem('ap_equipped_frame_url', url);
         } catch(e) {}
         return { type: 'url', value: url };
     }
@@ -669,8 +672,10 @@ function updateUserUI() {
                         
                         <!-- Top Header: Username + Modern 3D Cyber Star Badge -->
                         <div style="display:flex; align-items:center; gap:8px; padding:0 4px; margin-bottom:16px;">
-                            <span class="ap-dropdown-user-name ${nameColorClass}" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:'Montserrat', 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; display:inline-block; ${nameColorStyle}" title="${displayName.replace(/"/g, '&quot;')}">${displayName}</span>
-                            <span class="ap-vip-modern-badge" title="Thành viên VIP" style="display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;" onmouseover="this.style.transform='scale(1.25) rotate(15deg)';" onmouseout="this.style.transform='scale(1) rotate(0deg)';">
+                            <a href="/profile?tab=account" onclick="window.navigateToProfileTab('account', event)" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none; cursor:pointer; flex:1; min-width:0;">
+                                <span class="ap-dropdown-user-name ${nameColorClass}" style="color:#ffffff; font-size:16.5px; font-weight:900; font-family:'Montserrat', 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif !important; letter-spacing:0.03em !important; text-transform:none !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; display:inline-block; ${nameColorStyle}" title="${displayName.replace(/"/g, '&quot;')}">${displayName}</span>
+                            </a>
+                            <span class="ap-vip-modern-badge" title="Thành viên VIP" style="display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;" onmouseover="this.style.transform='scale(1.25) rotate(15deg)';" onmouseout="this.style.transform='scale(1) rotate(0deg)';" onclick="window.navigateToProfileTab('account', event)">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="display:block; filter:drop-shadow(0 2px 8px rgba(129,140,248,0.7));">
                                     <defs>
                                         <linearGradient id="facetNW" x1="12" y1="1.5" x2="10" y2="12" gradientUnits="userSpaceOnUse">
@@ -721,7 +726,7 @@ function updateUserUI() {
                         <div style="display:flex; flex-direction:column; gap:3px;">
                             <!-- 1. Thông tin cá nhân -->
                             <a href="/profile?tab=account" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('account'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('account'); else if(typeof switchTab==='function') switchTab('account'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('account', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#818cf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -731,7 +736,7 @@ function updateUserUI() {
 
                             <!-- 2. Cửa hàng -->
                             <a href="/profile?tab=shop" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('shop'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('shop'); else if(typeof switchTab==='function') switchTab('shop'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('shop', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(251,191,36,0.18); border:1px solid rgba(251,191,36,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#fbbf24;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
@@ -741,7 +746,7 @@ function updateUserUI() {
 
                             <!-- 3. Yêu thích -->
                             <a href="/profile?tab=favorites" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('favorites'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('favorites'); else if(typeof switchTab==='function') switchTab('favorites'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('favorites', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#fb7185;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
@@ -751,7 +756,7 @@ function updateUserUI() {
 
                             <!-- 4. Lịch sử xem -->
                             <a href="/profile?tab=history" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('history'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('history'); else if(typeof switchTab==='function') switchTab('history'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('history', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(34,197,94,0.18); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#4ade80;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -761,7 +766,7 @@ function updateUserUI() {
 
                             <!-- 5. Danh sách phát -->
                             <a href="/profile?tab=watchlist" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('watchlist'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('watchlist'); else if(typeof switchTab==='function') switchTab('watchlist'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('watchlist', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(56,189,248,0.18); border:1px solid rgba(56,189,248,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#38bdf8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>
@@ -771,7 +776,7 @@ function updateUserUI() {
 
                             <!-- 6. Lịch chiếu rạp -->
                             <a href="/profile?tab=cinema" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('cinema'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('cinema'); else if(typeof switchTab==='function') switchTab('cinema'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('cinema', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#c084fc;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2 7 4.41-4.41A2 2 0 017.83 2h8.34a2 2 0 011.42.59L22 7M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M15 22v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4M2 7h20"/></svg>
@@ -781,7 +786,7 @@ function updateUserUI() {
 
                             <!-- 7. Thành tựu -->
                             <a href="/profile?tab=achievements" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('achievements'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('achievements'); else if(typeof switchTab==='function') switchTab('achievements'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('achievements', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#f59e0b;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
@@ -791,7 +796,7 @@ function updateUserUI() {
 
                             <!-- 8. Cài đặt tiện ích -->
                             <a href="/profile?tab=settings" 
-                               onclick="if(window.location.pathname.startsWith('/profile')){ event.preventDefault(); if(typeof window.switchTab==='function') window.switchTab('settings'); else if(typeof window.switchProfileTab==='function') window.switchProfileTab('settings'); else if(typeof switchTab==='function') switchTab('settings'); document.querySelectorAll('.nav-profile-dropdown.is-open').forEach(el=>el.classList.remove('is-open')); document.querySelectorAll('.ap-user-dropdown-menu').forEach(menu=>{menu.style.opacity='0';menu.style.visibility='hidden';}); }"
+                               onclick="window.navigateToProfileTab('settings', event)"
                                style="display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); text-decoration:none; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.11)'; this.style.borderColor='rgba(255,255,255,0.14)'; this.style.transform='translateX(2px)';" onmouseout="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateX(0)';">
                                 <span style="width:30px; height:30px; border-radius:9px; background:rgba(100,116,139,0.22); border:1px solid rgba(100,116,139,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     <svg style="width:14px; height:14px; color:#94a3b8;" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -908,6 +913,44 @@ function updateUserUI() {
             const renderedNav = container.querySelector('#userNavProfile');
             if (renderedNav) renderedNav.dataset.userId = userId;
         });
+
+        // Universal Navigation Handler for Profile Tabs (Keeps within Standalone PWA & handles in-page tabs)
+        if (typeof window.navigateToProfileTab !== 'function') {
+            window.navigateToProfileTab = function(tabName, event) {
+                if (event) {
+                    if (typeof event.preventDefault === 'function') event.preventDefault();
+                    if (typeof event.stopPropagation === 'function') event.stopPropagation();
+                }
+                if (typeof window.toggleUserNavDropdown === 'function') {
+                    window.toggleUserNavDropdown(null, false);
+                } else {
+                    document.querySelectorAll('.nav-profile-dropdown').forEach(function(el) {
+                        el.classList.remove('is-open');
+                    });
+                    document.querySelectorAll('.ap-user-dropdown-menu').forEach(function(m) {
+                        m.style.opacity = '0';
+                        m.style.visibility = 'hidden';
+                    });
+                }
+                var targetTab = tabName || 'account';
+                var targetUrl = '/profile?tab=' + encodeURIComponent(targetTab);
+
+                if (window.location.pathname.startsWith('/profile')) {
+                    if (typeof window.switchTab === 'function') {
+                        window.switchTab(targetTab);
+                    } else if (typeof window.switchProfileTab === 'function') {
+                        window.switchProfileTab(targetTab);
+                    } else if (typeof switchTab === 'function') {
+                        switchTab(targetTab);
+                    }
+                    try {
+                        window.history.replaceState(null, '', targetUrl);
+                    } catch (e) { }
+                } else {
+                    window.location.href = targetUrl;
+                }
+            };
+        }
 
         // Ensure window.toggleUserNavDropdown is universally available
         if (typeof window.toggleUserNavDropdown !== 'function') {

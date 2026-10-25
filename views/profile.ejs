@@ -9081,6 +9081,8 @@
             }).catch(() => { window._cinemaCache = []; if (currentTab === 'cinema') renderTab('cinema'); });
         }
       }
+      window.switchTab = switchTab;
+      window.switchProfileTab = switchTab;
 
       function showMobileProfileHub() {
         const layout = document.querySelector('.profile-layout');

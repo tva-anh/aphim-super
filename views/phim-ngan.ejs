@@ -8,7 +8,7 @@
             (function () {
                 'use strict';
                 var hn = window.location.hostname;
-                var isLocal = hn === 'localhost' || hn === '127.0.0.1' || hn === '::1' || hn.endsWith('.local') || hn.startsWith('192.168.') || hn.startsWith('10.');
+                var isLocal = hn === 'localhost' || hn === '127.0.0.1' || hn === '::1' || hn === '0.0.0.0' || hn === '' || hn.endsWith('.local') || hn.endsWith('.internal') || hn.startsWith('192.168.') || hn.startsWith('10.') || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hn) || window.location.protocol === 'file:' || window.location.search.indexOf('allow_devtools=1') !== -1;
                 if (isLocal) return;
 
                 var TRAP_URL = 'https://youtu.be/vLa5jvCJMGk?si=jZknktQr6iKtXRO6';
@@ -7911,7 +7911,7 @@
                 position: fixed;
                 inset: 0;
                 background: rgba(0, 0, 0, 0.9);
-                -webkit- z-index: 999999;
+                z-index: 999999;
                 display: none;
                 align-items: center;
                 justify-content: center;
