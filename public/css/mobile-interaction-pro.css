@@ -128,6 +128,17 @@
     .fd-btn-top,
     .theme-toggle-fab,
     #episode-list button,
+    #server-list button,
+    #sort-episodes-btn,
+    #watchNowBtn,
+    #favoriteMovieBtn,
+    #saveMovieBtn,
+    #headerRatingBtn,
+    .quick-action-pill,
+    .sidebar-nav-item,
+    .ap-tab-btn,
+    .profile-empty-btn-primary,
+    .profile-empty-btn-secondary,
     .cat-tab-btn,
     .top10-type-btn,
     .top10-region-capsule {
@@ -142,9 +153,20 @@
     .app-btn:active,
     #showcase3DBtnWatch:active,
     #showcase3DBtnInfo:active,
+    #watchNowBtn:active,
+    #favoriteMovieBtn:active,
+    #saveMovieBtn:active,
+    #headerRatingBtn:active,
+    .quick-action-pill:active,
+    .sidebar-nav-item:active,
+    .profile-empty-btn-primary:active,
+    .profile-empty-btn-secondary:active,
+    .ap-tab-btn:active,
     .fd-btn-top:active,
     .theme-toggle-fab:active,
     #episode-list button:active,
+    #server-list button:active,
+    #sort-episodes-btn:active,
     .az-btn:active,
     .cat-tab-btn:active,
     .top10-type-btn:active,
@@ -154,6 +176,10 @@
     }
 
     /* ─── 4. TỐI ƯU HÓA BOTTOM NAVIGATION DOCK TRÊN MOBILE ─── */
+    body:has(#bottom-nav-dock) {
+        padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
     #bottom-nav-dock {
         padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
     }
@@ -189,8 +215,32 @@
     }
 
     /* ─── 6. MOBILE DRAWER TRANSITIONS (MƯỢT MÀ KHÔNG GIẬT) ─── */
+    #sofa-mobile-drawer,
     #mm-drawer {
         touch-action: pan-y;
         will-change: transform;
     }
+
+    /* 🚀 Global Top Loading Progress Bar */
+    #aphim-nav-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0%;
+        background: linear-gradient(90deg, #f59e0b, #fcd576, #fbbf24);
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.9), 0 0 20px rgba(252, 213, 118, 0.7);
+        z-index: 99999999;
+        transition: width 0.22s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.2s ease;
+        pointer-events: none;
+        display: none;
+    }
+
+    /* ⚡ Phản hồi xúc giác & thị giác tức thì 0ms khi ngón tay vừa chạm nút */
+    .is-touch-pressed {
+        opacity: 0.85 !important;
+        transform: scale(0.96) !important;
+        transition: transform 0.06s ease, opacity 0.06s ease !important;
+    }
 }
+

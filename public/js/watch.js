@@ -2228,7 +2228,7 @@ function renderEpisodeList(episodes) {
             if (e.touches.length === 1) {
                 const dy = Math.abs(e.touches[0].clientY - touchStartY);
                 const dx = Math.abs(e.touches[0].clientX - touchStartX);
-                if (dy > 6 || dx > 6) {
+                if (dy > 14 || dx > 14) {
                     isTouchDragging = true;
                 }
             }

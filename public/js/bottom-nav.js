@@ -125,6 +125,7 @@
                 </div>
             `;
             document.body.appendChild(dock);
+            attachInstantDockInteractions(dock);
             return;
         }
 
@@ -202,9 +203,41 @@
         `;
 
         document.body.appendChild(dock);
+        attachInstantDockInteractions(dock);
+    }
+
+    // ⚡ Bắt sự kiện chạm tức thì 0ms (Instant Visual & Haptic Feedback)
+    function attachInstantDockInteractions(dock) {
+        if (!dock) return;
+
+        dock.addEventListener('touchstart', function (e) {
+            const tab = e.target.closest('.bn-tab, .bn-tab-center');
+            if (!tab) return;
+
+            // 1. Phản hồi active ngay lập tức dưới ngón tay (0ms)
+            dock.querySelectorAll('.bn-tab, .bn-tab-center').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // 2. Kích hoạt hiệu ứng rung nhẹ vi mô
+            if (typeof window.triggerHaptic === 'function') {
+                window.triggerHaptic(6);
+            }
+
+            // 3. Kích hoạt thanh tiến trình vàng trên cùng
+            if (typeof window.triggerNavProgress === 'function') {
+                window.triggerNavProgress();
+            }
+
+            // 4. Pre-warm trước tài liệu HTML đích trong 150ms ngón tay chạm màn hình
+            const href = tab.getAttribute('href');
+            if (href && href.startsWith('/') && typeof window.preheatUrl === 'function') {
+                window.preheatUrl(href);
+            }
+        }, { passive: true });
     }
 
     window.handleFavoritesTabClick = function (e) {
+        if (typeof window.triggerNavProgress === 'function') window.triggerNavProgress();
         if (window.location.pathname.startsWith('/profile')) {
             if (e) e.preventDefault();
             if (typeof switchTab === 'function') {
@@ -216,6 +249,7 @@
     };
 
     window.handleHistoryTabClick = function (e) {
+        if (typeof window.triggerNavProgress === 'function') window.triggerNavProgress();
         if (window.location.pathname.startsWith('/profile')) {
             if (e) e.preventDefault();
             if (typeof switchTab === 'function') {
@@ -227,6 +261,7 @@
     };
 
     window.handleAccountTabClick = function (e) {
+        if (typeof window.triggerNavProgress === 'function') window.triggerNavProgress();
         const user = getCurrentUser();
         if (!user && window.showAuthModal) {
             if (e) e.preventDefault();
