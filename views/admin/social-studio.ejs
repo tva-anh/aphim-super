@@ -1,0 +1,1429 @@
+<%- include('partials/head', { title: 'Social Studio — Marketing Fanpage AI', activePage: 'social-studio' }) %>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   APHIM SOCIAL STUDIO — CHAMPAGNE CINEMA ENTERPRISE DESIGN SYSTEM
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite !important;
+  display: inline-block !important;
+}
+
+.studio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Control Toolbar & Ticker Row */
+.studio-top-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Layout Mode Buttons */
+.layout-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(78, 64, 45, 0.04);
+}
+.layout-toggle-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #78716c;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.layout-toggle-btn:hover {
+  color: #1c1917;
+  background: #faf7f2;
+}
+.layout-toggle-btn.active {
+  background: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+/* 1. Google Trends Live Radar Ribbon */
+.trends-radar-banner {
+  background: #ffffff;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 14px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(78, 64, 45, 0.04);
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.trends-radar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+}
+
+.trends-radar-scroll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+}
+.trends-radar-scroll::-webkit-scrollbar { display: none; }
+
+.trend-pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #44403c;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  flex-shrink: 0;
+}
+.trend-pill-item:hover {
+  background: #fff7ed;
+  border-color: #f97316;
+  color: #ea580c;
+  transform: translateY(-1px);
+}
+.trend-traffic-count {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ea580c;
+  background: rgba(249, 115, 22, 0.12);
+  padding: 2px 5px;
+  border-radius: 8px;
+}
+
+/* 2. Workspace Split Grid Architecture — Anti-Overflow Guaranteed */
+.studio-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.studio-left-col, .studio-right-col {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Collapsed Left Panel Mode (Focus Preview Mode) */
+.studio-workspace-grid.left-collapsed {
+  grid-template-columns: 1fr;
+}
+.studio-workspace-grid.left-collapsed .studio-left-col {
+  display: none;
+}
+.studio-workspace-grid.left-collapsed .studio-right-col {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* Master Studio Card */
+.studio-card {
+  background: #ffffff;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 10px rgba(78, 64, 45, 0.05);
+  transition: all 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.studio-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.studio-card-title h3 {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #1c1917;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+/* Source Switcher Tabs inside Step 1 */
+.source-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-default, #e7e0d3);
+  padding-bottom: 8px;
+}
+.source-tab-btn {
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #78716c;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+.source-tab-btn:hover {
+  background: #f5f0e6;
+  color: #1c1917;
+}
+.source-tab-btn.active {
+  background: #eef2ff;
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+/* Quick-Pick Horizontal Scroll Shelf */
+.quick-pick-section {
+  margin-bottom: 14px;
+  min-width: 0;
+  width: 100%;
+}
+.quick-pick-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #dcd3c4 transparent;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.quick-pick-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.quick-pick-scroll::-webkit-scrollbar-thumb {
+  background: #dcd3c4;
+  border-radius: 4px;
+}
+.quick-pick-chip {
+  flex-shrink: 0;
+  width: 95px;
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+.quick-pick-chip:hover, .quick-pick-chip.active {
+  background: #ffffff;
+  border-color: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+}
+.quick-pick-poster {
+  width: 100%;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 5px;
+  background: #e7e0d3;
+}
+.quick-pick-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1c1917;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quick-pick-rating {
+  font-size: 10px;
+  font-weight: 700;
+  color: #d97706;
+}
+
+/* Search input */
+.movie-search-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.movie-search-input {
+  width: 100%;
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 12px;
+  padding: 10px 14px 10px 40px;
+  color: #1c1917;
+  font-size: 13.5px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.movie-search-input:focus {
+  background: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+.movie-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #78716c;
+  pointer-events: none;
+}
+.movie-suggest-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 12px 30px rgba(78, 64, 45, 0.12);
+  display: none;
+}
+.movie-suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0eae0;
+  transition: background 0.15s ease;
+}
+.movie-suggest-item:hover {
+  background: #f5f0e6;
+}
+.movie-suggest-thumb {
+  width: 34px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #e7e0d3;
+}
+
+/* Selected Movie Card */
+.selected-movie-card {
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+.selected-movie-poster {
+  width: 65px;
+  height: 94px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(78, 64, 45, 0.12);
+  background: #e7e0d3;
+}
+
+/* Media Gallery Grid */
+.media-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 2px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+.media-thumb-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16/10;
+  background: #faf7f2;
+  border: 2px solid var(--border-default, #e7e0d3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.media-thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.media-thumb-item:hover {
+  border-color: #4f46e5;
+}
+.media-thumb-item.selected {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25);
+}
+.media-thumb-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+}
+.media-thumb-item.selected .media-thumb-badge {
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* 3. Live Facebook Feed Simulator (Right Column) */
+.fb-simulator-container {
+  position: sticky;
+  top: 18px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Authentic Facebook Post Card */
+.fb-feed-card {
+  background: #ffffff;
+  border: 1px solid #ced0d4;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(78, 64, 45, 0.08);
+  color: #050505;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fb-feed-card.theme-dark {
+  background: #242526;
+  border-color: #3e4042;
+  color: #e4e6eb;
+}
+.fb-feed-card.theme-dark .fb-author-name { color: #e4e6eb; }
+.fb-feed-card.theme-dark .fb-post-time { color: #b0b3b8; }
+.fb-feed-card.theme-dark .fb-post-textarea { color: #e4e6eb; }
+.fb-feed-card.theme-dark .fb-comment-preview-section { background: #18191a; border-top-color: #3e4042; }
+.fb-feed-card.theme-dark .fb-comment-bubble { background: #3a3b3c; }
+.fb-feed-card.theme-dark .fb-comment-author { color: #e4e6eb; }
+.fb-feed-card.theme-dark .fb-comment-textarea { color: #e4e6eb; }
+.fb-feed-card.theme-dark .fb-engagement-bar { border-top-color: #3e4042; color: #b0b3b8; }
+
+.fb-post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 6px 14px;
+}
+.fb-author-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fb-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.fb-author-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #050505;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fb-badge-verify {
+  width: 14px;
+  height: 14px;
+  fill: #1877f2;
+}
+.fb-post-time {
+  font-size: 11.5px;
+  color: #65676b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Post Content Editable Area */
+.fb-post-content-wrap {
+  padding: 4px 14px 10px 14px;
+}
+.fb-post-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #050505;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 160px;
+  font-family: inherit;
+  box-sizing: border-box;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+/* Facebook Dynamic Photo Grid (1 - 4 photos) */
+/* Facebook Dynamic Photo Grid (Hiển thị đầy đủ tất cả ảnh đã chọn) */
+.fb-photo-grid {
+  width: 100%;
+  background: #f0f2f5;
+  display: grid;
+  gap: 3px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.fb-feed-card.theme-dark .fb-photo-grid {
+  background: #18191a;
+}
+.fb-photo-grid.grid-1 {
+  grid-template-columns: 1fr;
+  max-height: 440px;
+}
+.fb-photo-grid.grid-1 img {
+  width: 100%;
+  max-height: 440px;
+  object-fit: cover;
+}
+.fb-photo-grid.grid-2 {
+  grid-template-columns: 1fr 1fr;
+  height: 280px;
+}
+.fb-photo-grid.grid-2 img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+.fb-photo-grid.grid-3 {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 320px;
+}
+.fb-photo-grid.grid-3 .fb-photo-item:nth-child(1) {
+  grid-row: 1 / span 2;
+  height: 320px;
+}
+.fb-photo-grid.grid-3 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fb-photo-grid.grid-4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 320px;
+}
+.fb-photo-grid.grid-4 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fb-photo-grid.grid-5 {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: 190px 150px;
+  gap: 3px;
+}
+.fb-photo-grid.grid-5 .fb-photo-item:nth-child(1),
+.fb-photo-grid.grid-5 .fb-photo-item:nth-child(2) {
+  grid-column: span 3;
+  height: 190px;
+}
+.fb-photo-grid.grid-5 .fb-photo-item:nth-child(3),
+.fb-photo-grid.grid-5 .fb-photo-item:nth-child(4),
+.fb-photo-grid.grid-5 .fb-photo-item:nth-child(5) {
+  grid-column: span 2;
+  height: 150px;
+}
+.fb-photo-grid.grid-6 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 160px 160px;
+  gap: 3px;
+}
+.fb-photo-grid.grid-many {
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 4px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.fb-photo-grid.grid-many .fb-photo-item {
+  height: 130px;
+}
+
+.fb-photo-item {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  background: #000;
+  border-radius: 2px;
+}
+.fb-photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+.fb-photo-item:hover img {
+  transform: scale(1.04);
+}
+.fb-photo-item-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+  z-index: 2;
+}
+.fb-photo-item-zoom {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 2;
+}
+.fb-photo-item:hover .fb-photo-item-zoom {
+  opacity: 1;
+}
+
+.fb-photos-count-indicator {
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.08);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Lightbox Modal */
+.studio-lightbox-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.2s ease;
+}
+.studio-lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.studio-lightbox-content img {
+  max-width: 85vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+.studio-lightbox-close {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.studio-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: rotate(90deg);
+}
+.studio-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.studio-lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.studio-lightbox-nav.prev {
+  left: -60px;
+}
+.studio-lightbox-nav.next {
+  right: -60px;
+}
+.studio-lightbox-caption {
+  margin-top: 12px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Engagement Counter Bar */
+.fb-engagement-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-top: 1px solid #e4e6eb;
+  font-size: 12.5px;
+  color: #65676b;
+}
+
+/* Facebook First Comment Box */
+.fb-comment-preview-section {
+  padding: 10px 14px;
+  background: #f7f8fa;
+  border-top: 1px solid #e4e6eb;
+}
+.fb-comment-item {
+  display: flex;
+  gap: 8px;
+}
+.fb-comment-bubble {
+  background: #f0f2f5;
+  padding: 7px 11px;
+  border-radius: 14px;
+  flex: 1;
+}
+.fb-comment-author {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #050505;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fb-comment-badge-author {
+  font-size: 10px;
+  background: #e4e6eb;
+  padding: 1px 5px;
+  border-radius: 6px;
+  color: #65676b;
+}
+.fb-comment-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #050505;
+  font-size: 12.5px;
+  font-family: inherit;
+  resize: none;
+  min-height: 46px;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+/* Action Control Buttons */
+.btn-studio-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+  transition: all 0.2s ease;
+}
+.btn-studio-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+}
+.btn-studio-publish {
+  background: linear-gradient(135deg, #1877f2 0%, #0d65d9 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 20px;
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 18px rgba(24, 119, 242, 0.35);
+  width: 100%;
+  transition: all 0.2s ease;
+}
+.btn-studio-publish:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(24, 119, 242, 0.5);
+}
+
+/* AI Studio Customization Options */
+.studio-opt-group {
+  margin-bottom: 12px;
+}
+.studio-opt-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #44403c;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.studio-select-input {
+  width: 100%;
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1c1917;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+.studio-select-input:focus {
+  border-color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.studio-pill-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.studio-pill-btn {
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  user-select: none;
+}
+.studio-pill-btn:hover {
+  background: #f5f0e6;
+  color: #1c1917;
+  border-color: #cbd5e1;
+}
+.studio-pill-btn.active {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #6366f1;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+}
+.studio-quick-chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.studio-chip-tag {
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px dashed rgba(79, 70, 229, 0.35);
+  color: #4338ca;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.studio-chip-tag:hover {
+  background: #eef2ff;
+  border-color: #4f46e5;
+  transform: translateY(-1px);
+}
+</style>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'social-studio' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Social Studio — Marketing Fanpage AI' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <div class="studio-container">
+
+        <!-- Top Control Bar (Layout Toggle + Quick Actions + Draft Auto-Save) -->
+        <div class="studio-top-toolbar">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- Button to collapse left control column -->
+            <button type="button" class="btn btn-outline" id="btnToggleLeftCol" onclick="window.SocialStudio.toggleLeftPanel()" style="font-size: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" title="Đóng hoặc Mở bảng điều khiển bên trái để xem trước rộng rãi">
+              <i data-lucide="panel-left-close" id="iconToggleLeftCol" style="width: 15px; height: 15px;"></i>
+              <span id="labelToggleLeftCol">Thu Gọn Bảng Trái</span>
+            </button>
+            
+            <!-- Button to toggle sidebar collapse -->
+            <button type="button" class="btn btn-outline" onclick="document.documentElement.classList.toggle('sidebar-collapsed')" style="font-size: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;" title="Thu gọn / Mở rộng Menu Sidebar">
+              <i data-lucide="menu" style="width: 15px; height: 15px;"></i>
+              <span>Thu Gọn Menu</span>
+            </button>
+          </div>
+
+          <!-- Draft Auto-Save Persistence Status & Actions -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div id="draftStatusBadge" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: #16a34a; background: rgba(22, 163, 74, 0.08); border: 1px solid rgba(22, 163, 74, 0.2); padding: 5px 10px; border-radius: 8px;">
+              <i data-lucide="save" style="width: 13px; height: 13px;"></i>
+              <span id="draftStatusText">Đã bật tự động lưu nháp</span>
+            </div>
+            <button type="button" class="btn btn-outline" id="btnClearDraft" onclick="window.SocialStudio.resetDraftPrompt()" style="font-size: 11.5px; padding: 5px 10px; color: #dc2626; border-color: rgba(220, 38, 38, 0.25); display: inline-flex; align-items: center; gap: 4px;" title="Xóa toàn bộ bản nháp đang lưu và tạo bài mới từ đầu">
+              <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
+              <span>Làm Mới Bài Viết</span>
+            </button>
+          </div>
+
+          <div class="layout-toggle-group">
+            <button type="button" class="layout-toggle-btn active" id="btnModeSplit" onclick="window.SocialStudio.setLayoutMode('split')">
+              <i data-lucide="columns-2" style="width: 14px; height: 14px;"></i> 2 Cột Song Song
+            </button>
+            <button type="button" class="layout-toggle-btn" id="btnModeFocus" onclick="window.SocialStudio.setLayoutMode('focus')">
+              <i data-lucide="maximize-2" style="width: 14px; height: 14px;"></i> Tập Trung Feed
+            </button>
+          </div>
+        </div>
+
+        <!-- Draft Restored Banner (Shows when draft was recovered from localStorage) -->
+        <div id="draftRestoredBanner" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 9px 14px; margin-bottom: 12px; align-items: center; justify-content: space-between; animation: fadeIn 0.25s ease;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #1e40af; font-weight: 600;">
+            <i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: #2563eb;"></i>
+            <span>Đã khôi phục phiên làm việc trước đó của bạn từ bộ nhớ máy tính (Nội dung, ảnh và cấu hình vẫn còn nguyên).</span>
+          </div>
+          <button type="button" onclick="document.getElementById('draftRestoredBanner').style.display='none'" style="background: none; border: none; font-size: 16px; color: #6b7280; cursor: pointer; padding: 0 4px; line-height: 1;" title="Đóng">&times;</button>
+        </div>
+
+        <!-- 1. Google Trends VN Live Radar Ribbon -->
+        <div class="trends-radar-banner">
+          <div class="trends-radar-badge">
+            <i data-lucide="flame" style="width: 14px; height: 14px;"></i>
+            <span>PHIM TRENDS VN 24H</span>
+          </div>
+          <div class="trends-radar-scroll" id="trendsRadarScroll">
+            <span style="font-size: 12px; color: #78716c;">⏳ Đang đồng bộ phim thịnh hành từ Google Trends Việt Nam...</span>
+          </div>
+          <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px; flex-shrink: 0;" onclick="window.SocialStudio.loadTrends()" title="Làm mới xu hướng">
+            <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i>
+          </button>
+        </div>
+
+        <!-- 2. Split Workspace Layout -->
+        <div class="studio-workspace-grid" id="studioWorkspaceGrid">
+
+          <!-- ═════ CỘT TRÁI: BỘ ĐIỀU KHIỂN & KHO MEDIA ═════ -->
+          <div class="studio-left-col" id="studioLeftCol" style="display: flex; flex-direction: column; gap: 18px;">
+
+            <!-- Card 1: Chọn Phim -->
+            <div class="studio-card">
+              <div class="studio-card-title">
+                <h3><i data-lucide="film" style="color: #4f46e5;"></i> 1. Chọn Bộ Phim Cần Đăng</h3>
+                <span class="badge badge-primary" id="catalogSourceBadge">PHIM CHÍNH WEBSITE</span>
+              </div>
+
+              <!-- Source Tabs Switcher (Phim Chính vs Phim Ngắn) -->
+              <div class="source-tabs-row">
+                <button type="button" class="source-tab-btn active" id="tabSourceMain" onclick="window.SocialStudio.switchCatalog('main')">
+                  <i data-lucide="clapperboard" style="width: 13px; height: 13px;"></i> Phim Chính Website (Mới / Rạp / Bộ)
+                </button>
+                <button type="button" class="source-tab-btn" id="tabSourceShort" onclick="window.SocialStudio.switchCatalog('phim-ngan')">
+                  <i data-lucide="smartphone" style="width: 13px; height: 13px;"></i> Phim Ngắn (Drama Mini)
+                </button>
+              </div>
+
+              <!-- Quick-Pick Shelf (Hot Movies Carousel) -->
+              <div class="quick-pick-section">
+                <div class="quick-pick-scroll" id="quickPickShelf">
+                  <div style="padding: 10px; font-size: 12px; color: #78716c;">Đang tải danh sách phim...</div>
+                </div>
+              </div>
+
+              <!-- Movie Autocomplete Search -->
+              <div class="movie-search-wrap">
+                <i data-lucide="search" class="movie-search-icon" style="width: 18px; height: 18px;"></i>
+                <input type="text" id="movieSearchInput" class="movie-search-input" placeholder="Gõ tên phim bất kỳ để tìm nhanh (Ví dụ: Chìm Vào Mắt Em, Batman, Vision Quest...)" autocomplete="off">
+                <div class="movie-suggest-dropdown" id="movieSuggestDropdown"></div>
+              </div>
+
+              <!-- Selected Movie Info Card -->
+              <div class="selected-movie-card" id="selectedMovieCard" style="display: none;">
+                <img src="" id="selMoviePoster" class="selected-movie-poster" alt="Poster">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                    <h4 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #1c1917; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="selMovieTitle">Tên Phim</h4>
+                    <span class="badge badge-gold" id="selMovieRating">9.5 ⭐</span>
+                  </div>
+                  <div style="font-size: 11.5px; font-weight: 600; color: #4f46e5; margin-bottom: 4px;" id="selMovieMeta">Phim Mới Cập Nhật · 2026</div>
+                  <p style="font-size: 11.5px; color: #44403c; line-height: 1.4; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" id="selMovieOverview"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Kho Ảnh Toàn Diện Của Phim & Tải Ảnh Lên -->
+            <div class="studio-card">
+              <div class="studio-card-title">
+                <h3><i data-lucide="images" style="color: #db2777;"></i> 2. Chọn Hình Ảnh Kèm Bài Viết</h3>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="window.SocialStudio.selectAllMedia()" title="Chọn toàn bộ ảnh hiện có">✓ Chọn Hết</button>
+                  <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="window.SocialStudio.clearAllMedia()" title="Bỏ chọn toàn bộ ảnh">✕ Bỏ Chọn</button>
+                  <span class="badge badge-cyan" id="selectedPhotoCountBadge">Đã chọn: 0 Ảnh</span>
+                </div>
+              </div>
+
+              <!-- Media Grid of Selected Movie -->
+              <div class="media-gallery-grid" id="movieMediaGallery">
+                <div style="grid-column: 1 / -1; padding: 18px; text-align: center; color: #78716c; font-size: 12.5px;">
+                  Đang bóc tách toàn bộ Poster, Backdrop & Cảnh phim...
+                </div>
+              </div>
+
+              <!-- Custom Upload / External URL -->
+              <div style="display: flex; gap: 8px; align-items: center; padding-top: 10px; border-top: 1px solid var(--border-default, #e7e0d3);">
+                <label class="btn btn-outline" style="cursor: pointer; font-size: 11.5px; display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px;">
+                  <i data-lucide="upload" style="width: 13px; height: 13px;"></i> Tải Ảnh Máy Tính (Nhiều ảnh)
+                  <input type="file" id="fileUploadCustom" accept="image/*" multiple style="display: none;" onchange="window.SocialStudio.handleFileUpload(this)">
+                </label>
+                <div style="position: relative; flex: 1;">
+                  <input type="text" id="customImageUrlInput" placeholder="Dán link ảnh online (URL)..." style="width: 100%; background: #faf7f2; border: 1px solid var(--border-default, #e7e0d3); border-radius: 8px; padding: 6px 10px; font-size: 11.5px; color: #1c1917; outline: none; box-sizing: border-box;">
+                </div>
+                <button type="button" class="btn btn-outline" style="font-size: 11.5px; padding: 6px 10px;" onclick="window.SocialStudio.addCustomUrlImage()">
+                  Thêm
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 3: Cỗ Máy Sáng Tạo Vô Cực (Dual-Engine AI) -->
+            <div class="studio-card">
+              <div class="studio-card-title">
+                <h3><i data-lucide="sparkles" style="color: #d97706;"></i> 3. Trí Tuệ Sáng Tạo Vô Cực (AI Alchemist)</h3>
+                <span class="badge" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.25);">GROQ 120B (0.2s)</span>
+              </div>
+
+              <!-- 1. Phong cách & Giọng điệu (Writing Persona / Tone) -->
+              <div class="studio-opt-group">
+                <div class="studio-opt-label">
+                  <span><i data-lucide="user-check" style="width: 13px; height: 13px; display: inline;"></i> Phong cách & Giọng điệu bài viết:</span>
+                  <span style="font-size: 10.5px; color: #4f46e5; font-weight: 700;">Chuẩn như người thật 100%</span>
+                </div>
+                <select id="aiToneSelect" class="studio-select-input">
+                  <option value="creator" selected>🎬 Content Creator Chuyên Nghiệp (Người thật review, cuốn hút, gần gũi)</option>
+                  <option value="dramatic">🔥 Review Kịch Tính & Cú Twist (Bẻ lái nghẹt thở, kích thích tò mò cực độ)</option>
+                  <option value="confession">💬 Tâm Sự Đêm Muộn (Sâu lắng, triết lý, chạm cảm xúc)</option>
+                  <option value="humor">😂 Hài Hước, Bắt Trend Giới Trẻ (Dí dỏm GenZ, kích thích tag bạn bè)</option>
+                  <option value="deep">🕵️ Phân Tích Điện Ảnh Chuyên Sâu (Deep Dive nhân vật, nghệ thuật điện ảnh)</option>
+                </select>
+              </div>
+
+              <!-- 2. Độ dài bài viết (Content Length Presets) -->
+              <div class="studio-opt-group">
+                <div class="studio-opt-label">
+                  <span><i data-lucide="align-left" style="width: 13px; height: 13px; display: inline;"></i> Độ dài bài viết:</span>
+                  <span id="aiLengthHint" style="font-size: 10.5px; color: #78716c; font-weight: 600;">Khoảng 350 - 500 từ</span>
+                </div>
+                <div class="studio-pill-group" id="aiLengthPillGroup">
+                  <button type="button" class="studio-pill-btn" data-length="short" onclick="window.SocialStudio.setLengthPreset('short')">
+                    ⚡ Ngắn gọn (180 - 250 từ)
+                  </button>
+                  <button type="button" class="studio-pill-btn active" data-length="standard" onclick="window.SocialStudio.setLengthPreset('standard')">
+                    🚀 Chuẩn SEO Facebook (350 - 500 từ)
+                  </button>
+                  <button type="button" class="studio-pill-btn" data-length="deep" onclick="window.SocialStudio.setLengthPreset('deep')">
+                    📖 Dài hơn / Phân tích sâu (600 - 850 từ)
+                  </button>
+                </div>
+                <input type="hidden" id="aiLengthInput" value="standard">
+              </div>
+
+              <!-- 3. Mục tiêu bài viết (Campaign Goal) -->
+              <div class="studio-opt-group">
+                <div class="studio-opt-label">
+                  <span><i data-lucide="target" style="width: 13px; height: 13px; display: inline;"></i> Mục tiêu bài viết:</span>
+                  <span style="font-size: 10.5px; color: #16a34a; font-weight: 700;">Tối ưu tương tác</span>
+                </div>
+                <div class="studio-pill-group" id="aiGoalPillGroup">
+                  <button type="button" class="studio-pill-btn active" data-goal="views" onclick="window.SocialStudio.setGoalPreset('views')">
+                    📈 Kéo View Vào Web (Ghim link Cmt 1)
+                  </button>
+                  <button type="button" class="studio-pill-btn" data-goal="comments" onclick="window.SocialStudio.setGoalPreset('comments')">
+                    💬 Bùng Nổ Bình Luận
+                  </button>
+                  <button type="button" class="studio-pill-btn" data-goal="shares" onclick="window.SocialStudio.setGoalPreset('shares')">
+                    🚀 Viral Share & Tag Bạn Bè
+                  </button>
+                </div>
+                <input type="hidden" id="aiGoalInput" value="views">
+              </div>
+
+              <!-- 4. Từ khóa SEO bổ sung -->
+              <div class="studio-opt-group">
+                <div class="studio-opt-label">
+                  <span><i data-lucide="hash" style="width: 13px; height: 13px; display: inline;"></i> Từ khóa SEO bổ sung (Tùy chọn):</span>
+                  <span style="font-size: 10.5px; color: #78716c;">Lồng tự nhiên vào bài</span>
+                </div>
+                <input type="text" id="seoKeywordsInput" class="movie-search-input" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" style="padding-left: 12px; font-size: 12px; padding-top: 7px; padding-bottom: 7px;" placeholder="Ví dụ: xem phim 100 ngay lua doi vietsub, tap 1, thuyet minh...">
+              </div>
+
+              <!-- 5. Ý tưởng tùy chọn của Admin & Gợi ý nhanh -->
+              <div class="studio-opt-group" style="margin-bottom: 12px;">
+                <div class="studio-opt-label">
+                  <span>💡 Ý tưởng tùy chọn của Admin (Để trống để AI tự bay bổng 100%):</span>
+                </div>
+                <input type="text" id="customAIPromptInput" class="movie-search-input" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" style="padding-left: 12px; font-size: 12px; padding-top: 7px; padding-bottom: 7px;" placeholder="Ví dụ: Nhấn mạnh cú lừa của nữ chính, rủ rê xem chung...">
+                <div class="studio-quick-chips">
+                  <span class="studio-chip-tag" onclick="window.SocialStudio.addIdeaChip('Tập trung vào cú twist bẻ lái cực gắt cuối phim')">+ Cú twist sốc</span>
+                  <span class="studio-chip-tag" onclick="window.SocialStudio.addIdeaChip('Khen ngợi diễn xuất đỉnh cao và visual xuất sắc của diễn viên chính')">+ Khen diễn xuất</span>
+                  <span class="studio-chip-tag" onclick="window.SocialStudio.addIdeaChip('Rủ rê người yêu hoặc hội bạn thân cùng cày đêm cuối tuần')">+ Rủ xem chung</span>
+                  <span class="studio-chip-tag" onclick="window.SocialStudio.addIdeaChip('Cảnh báo không nên xem một mình lúc nửa đêm vì quá cuốn')">+ Cảnh báo cày đêm</span>
+                  <span class="studio-chip-tag" onclick="window.SocialStudio.addIdeaChip('Đặt câu hỏi tình huống gây chia rẽ ý kiến tranh luận cho người xem')">+ Câu hỏi tranh cãi</span>
+                </div>
+              </div>
+
+              <!-- 6. Bảng Điều Khiển Sáng Tạo & Viết Lại Nội Dung (AI Controls) -->
+              <div style="background: #ffffff; border: 1.5px solid var(--border-default, #e2e8f0); border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+                  <span style="font-size: 12px; font-weight: 700; color: #1e293b; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="sparkles" style="width: 14px; height: 14px; color: #6366f1;"></i>
+                    <span>Bảng Điều Khiển Viết & Tái Tạo Nội Dung (AI)</span>
+                  </span>
+                  <span style="font-size: 11px; color: #64748b;">Bấm để tạo toàn bộ hoặc viết lại từng phần riêng biệt</span>
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <!-- 1. Sáng tạo toàn bộ -->
+                  <button type="button" class="btn-studio-primary" id="btnGenerateAI" onclick="window.SocialStudio.generateAI()" style="flex: 1 1 200px; padding: 10px 16px;" title="Sáng tạo toàn bộ cả bài viết và bình luận ghim kèm link">
+                    <i data-lucide="zap" style="width: 16px; height: 16px;"></i>
+                    <span>Sáng Tạo Toàn Bộ (AI Vô Cực)</span>
+                  </button>
+
+                  <!-- 2. Chỉ viết lại thân bài -->
+                  <button type="button" class="btn btn-outline" id="btnCardRegenPost" style="flex: 1 1 180px; font-size: 12.5px; font-weight: 700; color: #1d4ed8; border-color: rgba(29, 78, 216, 0.4); background: rgba(29, 78, 216, 0.06); padding: 9px 14px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="window.SocialStudio.regeneratePostOnly()" title="Chỉ viết lại thân bài này, giữ nguyên 100% bình luận và ảnh đã chọn">
+                    <i data-lucide="file-text" style="width: 15px; height: 15px;"></i>
+                    <span>Chỉ Viết Lại Thân Bài</span>
+                  </button>
+
+                  <!-- 3. Chỉ viết lại bình luận -->
+                  <button type="button" class="btn btn-outline" id="btnCardRegenComment" style="flex: 1 1 180px; font-size: 12.5px; font-weight: 700; color: #b45309; border-color: rgba(217, 119, 6, 0.4); background: rgba(217, 119, 6, 0.06); padding: 9px 14px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="window.SocialStudio.regenerateCommentOnly()" title="Chỉ đổi lời dẫn bình luận ghim, giữ nguyên 100% bài viết và ảnh">
+                    <i data-lucide="message-square" style="width: 15px; height: 15px;"></i>
+                    <span>Chỉ Viết Lại Bình Luận</span>
+                  </button>
+
+                  <!-- 4. Reset link gốc -->
+                  <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 8px 12px; border-radius: 10px;" onclick="window.SocialStudio.resetDefaultComment()" title="Đặt lại lời dẫn mặc định kèm link phim">
+                    <i data-lucide="link-2" style="width: 13px; height: 13px;"></i>
+                    <span>Reset Link Gốc</span>
+                  </button>
+
+                  <!-- 5. Đổi góc nhìn -->
+                  <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 8px 12px; border-radius: 10px;" onclick="window.SocialStudio.generateAI(true)" title="Sinh góc nhìn hoàn toàn mới lạ cho toàn bài">
+                    <i data-lucide="shuffle" style="width: 13px; height: 13px;"></i>
+                    <span>Đổi Góc Nhìn</span>
+                  </button>
+
+                  <!-- 6. Quét an toàn -->
+                  <button type="button" class="btn btn-outline" id="btnAuditSecurity" onclick="window.SocialStudio.auditSecurity()" style="font-size: 12px; padding: 8px 12px; border-radius: 10px; color: #059669; border-color: rgba(5, 150, 105, 0.35); background: rgba(5, 150, 105, 0.05);" title="Kiểm tra an toàn tiêu chuẩn Meta và chống bóp reach">
+                    <i data-lucide="shield-check" style="width: 13px; height: 13px;"></i>
+                    <span>Quét An Toàn</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Security & Policy Audit Feedback Widget -->
+              <div id="auditFeedbackBox" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 10px 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                  <span style="font-size: 12px; font-weight: 700; color: #059669; display: flex; align-items: center; gap: 5px;">
+                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Đã Kiểm Duyệt An Toàn 100%
+                  </span>
+                  <div style="display: flex; gap: 6px;">
+                    <span class="badge badge-emerald" id="auditSafetyScore" style="font-size: 10.5px;">An toàn: 99%</span>
+                    <span class="badge badge-cyan" id="auditTrendScore" style="font-size: 10.5px;">Viral: 95%</span>
+                  </div>
+                </div>
+                <div style="font-size: 11.5px; color: #047857; line-height: 1.4;" id="auditPolicyFeedback">
+                  Bài viết không vi phạm tiêu chuẩn cộng đồng, link được tách an toàn vào comment chống bóp reach.
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ═════ CỘT PHẢI: LIVE FACEBOOK SIMULATOR ═════ -->
+          <div class="studio-right-col">
+            <div class="fb-simulator-container">
+              <div class="studio-card-title" style="margin-bottom: 10px;">
+                <h3><i data-lucide="eye" style="color: #1877f2;"></i> Xem Trước Thực Tế (Live Facebook Feed)</h3>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="window.SocialStudio.toggleFbTheme()" title="Đổi giao diện Sáng / Tối Facebook">
+                    <span id="fbThemeLabel">🌙 Nền Tối</span>
+                  </button>
+                  <span class="badge badge-emerald" style="display: flex; align-items: center; gap: 4px; font-size: 11px;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+                    Page: APhim Super
+                  </span>
+                </div>
+              </div>
+
+              <!-- Simulated Facebook Post Card -->
+              <div class="fb-feed-card" id="fbFeedCard">
+                <!-- Post Author Header -->
+                <div class="fb-post-header">
+                  <div class="fb-author-row">
+                    <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" class="fb-avatar" alt="APhim Super">
+                    <div>
+                      <div class="fb-author-name">
+                        <span>APhim Super</span>
+                        <svg class="fb-badge-verify" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                      </div>
+                      <div class="fb-post-time">
+                        <span>Vừa xong</span> · <span>🌐</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="color: #65676b; font-size: 18px; cursor: pointer;">•••</div>
+                </div>
+
+                <!-- Post Body (Editable textarea with spellcheck disabled to eliminate red squiggly underlines) -->
+                <div class="fb-post-content-wrap">
+                  <textarea id="fbPostTextarea" class="fb-post-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Bấm '⚡ Sáng Tạo Bài Viết' hoặc gõ nội dung bài viết của bạn tại đây..."></textarea>
+                </div>
+
+                <!-- Photo Count & Full Visibility Notice -->
+                <div id="fbPhotoCountIndicator" class="fb-photos-count-indicator" style="display: none;"></div>
+
+                <!-- Post Images Dynamic Grid (Hiển thị đầy đủ tất cả ảnh) -->
+                <div class="fb-photo-grid grid-1" id="fbPhotoGrid" style="display: none;">
+                  <!-- Dynamically injected images -->
+                </div>
+
+                <!-- Engagement Counter Bar -->
+                <div class="fb-engagement-bar">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-flex; width: 17px; height: 17px; border-radius: 50%; background: #1877f2; color: #fff; align-items: center; justify-content: center; font-size: 10px;">👍</span>
+                    <span style="display: inline-flex; width: 17px; height: 17px; border-radius: 50%; background: #fa383e; color: #fff; align-items: center; justify-content: center; font-size: 10px;">❤️</span>
+                    <span style="font-weight: 600;">1.4K</span>
+                  </div>
+                  <div>
+                    <span>128 bình luận</span> · <span>45 lượt chia sẻ</span>
+                  </div>
+                </div>
+
+                <!-- First Comment Preview Section (Antidote to reach penalty) -->
+                <div class="fb-comment-preview-section">
+                  <div style="font-size: 11px; font-weight: 700; color: #d97706; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="pin" style="width: 12px; height: 12px;"></i>
+                    <span>Bình luận đầu tiên được tự động ghim (Chứa Link Xem Phim):</span>
+                  </div>
+                  <div class="fb-comment-item">
+                    <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" style="width: 30px; height: 30px; border-radius: 50%;" alt="Author">
+                    <div class="fb-comment-bubble">
+                      <div class="fb-comment-author">
+                        <span>APhim Super</span>
+                        <span class="fb-comment-badge-author">Tác giả</span>
+                      </div>
+                      <textarea id="fbFirstCommentInput" class="fb-comment-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Nội dung bình luận đầu tiên kèm link..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Publish Control Center -->
+              <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+                <button type="button" class="btn-studio-publish" id="btnPublishFB" onclick="window.SocialStudio.publishPost()">
+                  <i data-lucide="send" style="width: 17px; height: 17px;"></i>
+                  <span>ĐĂNG NGAY LÊN FANPAGE APHIM SUPER</span>
+                </button>
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" class="btn btn-outline" style="flex: 1; font-size: 12.5px; padding: 7px 12px;" onclick="window.SocialStudio.copyContent()">
+                    <i data-lucide="copy" style="width: 13px; height: 13px;"></i> Sao Chép Bài Viết
+                  </button>
+                  <a href="https://www.facebook.com/1307356335804337" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 12.5px; padding: 7px 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <i data-lucide="external-link" style="width: 13px; height: 13px;"></i> Xem Fanpage
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 3. Nhật Ký Bài Đăng Gần Đây (Post History Log) -->
+        <div class="studio-card" style="margin-top: 6px;">
+          <div class="studio-card-title">
+            <h3><i data-lucide="history" style="color: #7c3aed;"></i> Nhật Ký Đăng Bài Fanpage Gần Đây</h3>
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 10px;" onclick="window.SocialStudio.loadHistory()">
+              <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Làm Mới
+            </button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="text-align: left; font-size: 12px; color: #78716c; background: #faf7f2; border-bottom: 1px solid var(--border-default, #e7e0d3);">
+                  <th style="padding: 10px 14px;">BỘ PHIM</th>
+                  <th style="padding: 10px 14px;">POST ID & LINK</th>
+                  <th style="padding: 10px 14px;">SỐ ẢNH</th>
+                  <th style="padding: 10px 14px;">COMMENT LINK</th>
+                  <th style="padding: 10px 14px;">THỜI GIAN</th>
+                  <th style="padding: 10px 14px; text-align: right;">HÀNH ĐỘNG</th>
+                </tr>
+              </thead>
+              <tbody id="postHistoryTableBody">
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 20px; color: #78716c; font-size: 13px;">
+                    Chưa có bài viết nào được đăng qua hệ thống.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Lightbox Modal for Photo Review -->
+<div id="socialStudioLightbox" class="studio-lightbox-modal" style="display: none;" onclick="window.SocialStudio.closeLightbox(event)">
+  <div class="studio-lightbox-content" onclick="event.stopPropagation()">
+    <button type="button" class="studio-lightbox-close" onclick="window.SocialStudio.closeLightbox()" title="Đóng">&times;</button>
+    <button type="button" class="studio-lightbox-nav prev" onclick="window.SocialStudio.prevLightbox()" title="Ảnh trước">&#10094;</button>
+    <button type="button" class="studio-lightbox-nav next" onclick="window.SocialStudio.nextLightbox()" title="Ảnh sau">&#10095;</button>
+    <img id="studioLightboxImg" src="" alt="Zoom preview">
+    <div id="studioLightboxCaption" class="studio-lightbox-caption">Ảnh 1 / 1</div>
+  </div>
+</div>
+
+<!-- Social Studio Frontend Controller -->
+<script src="/js/admin/social-studio.js?v=<%= Date.now() %>"></script>
+
+<!-- Enterprise Admin Core Scripts & Modals -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>

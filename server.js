@@ -146,8 +146,21 @@ app.use(globalLimiter);
 
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+
+// Safe JSON error handler for body-parser errors (413 Payload Too Large, malformed JSON, etc.)
+app.use((err, req, res, next) => {
+    if (err && req.path.startsWith('/api/')) {
+        const status = err.status || err.statusCode || 400;
+        let message = err.message || 'Dữ liệu gửi lên không hợp lệ';
+        if (status === 413 || err.type === 'entity.too.large') {
+            message = 'Dung lượng tải lên vượt quá giới hạn cho phép. Vui lòng giảm kích thước ảnh hoặc chọn ảnh nhẹ hơn.';
+        }
+        return res.status(status).json({ success: false, error: message });
+    }
+    next(err);
+});
 
 // Set View Engine to EJS
 app.set('view engine', 'ejs');
@@ -165,6 +178,7 @@ app.use('/api/subscriptions', paymentRoutes); // alias
 app.use('/api/transactions', paymentRoutes); // alias
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/social-studio', require('./routes/socialStudio.routes'));
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/reels', reelsRoutes);
@@ -2492,6 +2506,15 @@ app.get('/admin/trends', (req, res) => {
         title: 'Quản Lý Google Trends 24h & Đề Cử',
         activePage: 'trends',
         pageTitle: 'Google Trends 24h'
+    });
+});
+
+// 9. Admin Social Studio (Marketing Fanpage AI)
+app.get('/admin/social-studio', (req, res) => {
+    res.render('admin/social-studio', {
+        title: 'Social Studio — Marketing Fanpage AI',
+        activePage: 'social-studio',
+        pageTitle: 'Social Studio AI'
     });
 });
 

@@ -14,3 +14,5 @@ data/subtitles/
 .pn-backup/
 scratch/
 *.tmp
+public/uploads/
+data/social_posts_log.json

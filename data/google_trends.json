@@ -1,85 +1,65 @@
 {
-  "updatedAt": "2026-10-10T04:27:33.769Z",
+  "updatedAt": "2026-10-26T19:58:00.000Z",
   "items": [
     {
-      "query": "xem phim pls love",
-      "title": "pls love",
-      "traffic": "+250%"
+      "query": "xem phim giả kim thoa",
+      "title": "Giả Kim Thoa",
+      "traffic": "Đột Biến"
     },
     {
-      "query": "xem phim lan hương như cố tập 1",
-      "title": "lan hương như cố",
-      "traffic": "+100%"
+      "query": "xem phim ngọc diệm thu",
+      "title": "Ngọc Diệm Thu",
+      "traffic": "+950%"
     },
     {
-      "query": "xem phim không thể thay thế tập 1",
-      "title": "không thể thay thế",
-      "traffic": "+80%"
+      "query": "xem phim 100 ngày lừa dối",
+      "title": "100 Ngày Lừa Dối",
+      "traffic": "+300%"
     },
     {
-      "query": "xem phim merry berry love tập 1",
-      "title": "merry berry love",
+      "query": "xem phim tiên nghịch",
+      "title": "Tiên Nghịch",
+      "traffic": "+150%"
+    },
+    {
+      "query": "gái ngoan đổi đời xem phim",
+      "title": "Gái Ngoan Đổi Đời",
       "traffic": "+70%"
     },
     {
+      "query": "nhà gia tiên xem phim",
+      "title": "Nhà Gia Tiên",
+      "traffic": "+60%"
+    },
+    {
       "query": "xem phim phá đám sinh nhật mẹ",
-      "title": "phá đám sinh nhật mẹ",
-      "traffic": "+30%"
+      "title": "Phá Đám Sinh Nhật Mẹ",
+      "traffic": "+550%"
     },
     {
       "query": "xem phim khó dỗ dành",
-      "title": "khó dỗ dành",
+      "title": "Khó Dỗ Dành",
       "traffic": "+20%"
     },
     {
-      "query": "xem phim a love other than yours",
-      "title": "a love other than yours",
-      "traffic": "+10%"
-    },
-    {
-      "query": "phí phông xem phim",
-      "title": "phí phông",
-      "traffic": "+8%"
-    },
-    {
-      "query": "xem phim đối chứng",
-      "title": "đối chứng",
-      "traffic": "+6%"
-    },
-    {
-      "query": "vé xem phim",
-      "title": "vé",
-      "traffic": "+6%"
-    },
-    {
-      "query": "xem phim trúng số độc đắc vẫn phải đi làm",
-      "title": "trúng số độc đắc vẫn phải đi làm",
-      "traffic": "+5%"
-    },
-    {
-      "query": "phim moi",
-      "title": "moi",
-      "traffic": "+5%"
-    },
-    {
-      "query": "Thay đổi",
-      "title": "thay đổi",
+      "query": "xem phim lan hương như cố",
+      "title": "Lan Hương Như Cố",
       "traffic": "+100%"
     },
     {
-      "query": "xem phim ai",
-      "title": "ai",
-      "traffic": "+2%"
+      "query": "xem phim không thể thay thế",
+      "title": "Không Thể Thay Thế",
+      "traffic": "+80%"
     },
     {
-      "query": "xem phim thien duong mau",
-      "title": "thien duong mau",
-      "traffic": "+1%"
+      "query": "xem phim merry berry love",
+      "title": "Merry Berry Love",
+      "traffic": "+70%"
     },
     {
-      "query": "xem phim quy lộ",
-      "title": "quy lộ",
-      "traffic": "-1%"
+      "query": "xem phim trúng số độc đắc vẫn phải đi làm",
+      "title": "Trúng Số Độc Đắc Vẫn Phải Đi Làm",
+      "traffic": "+30%"
     }
   ]
 }
