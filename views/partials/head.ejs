@@ -413,9 +413,38 @@
                 background: rgba(0, 0, 0, 0.7);
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
+            /* Triệt tiêu 100% khung viền bọc trong ô bình luận trên Light Mode / Nền kem (Mobile & Desktop) */
+            html.light-mode .ap-cmt-textarea,
+            html.light-mode textarea#ap-input-main,
+            html.light-mode textarea[id^="ap-input-"],
+            html.light-mode #commentInput,
+            html.light-mode .ap-cmt-input-container textarea {
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                border-radius: 0 !important;
+                color: #1c1917 !important;
+                -webkit-text-fill-color: #1c1917 !important;
+            }
+
+            html.light-mode .ap-cmt-textarea:focus,
+            html.light-mode textarea#ap-input-main:focus,
+            html.light-mode textarea[id^="ap-input-"]:focus,
+            html.light-mode #commentInput:focus,
+            html.light-mode .ap-cmt-input-container textarea:focus {
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+            }
         </style>
         <link rel="stylesheet" href="/css/movie-cards-v2.css?v=10010">
-        <link rel="stylesheet" href="/css/light-mode.css?v=20261024d">
+        <link rel="stylesheet" href="/css/light-mode.css?v=20261026e">
         <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4">
         <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017">
         <link rel="stylesheet" href="/css/mobile-interaction-pro.css?v=20268">

@@ -367,14 +367,16 @@
                 text-shadow: none !important;
             }
 
-            /* "MÁY CHỦ :" label */
-            html.light-mode body.page-phim-detail .server-label-title,
-            html.light-mode body.page-phim-detail span[style*="MÁY CHỦ"],
-            html.light-mode body.page-phim-detail div.flex.items-center.mr-2 span {
-                color: #ffffff !important;
-                -webkit-text-fill-color: #ffffff !important;
-                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
-                font-weight: 800 !important;
+            /* "MÁY CHỦ :" label (Desktop giữ nguyên màu trắng, Mobile chuyển qua màu đen) */
+            @media (min-width: 1024px) {
+                html.light-mode body.page-phim-detail .server-label-title,
+                html.light-mode body.page-phim-detail span[style*="MÁY CHỦ"],
+                html.light-mode body.page-phim-detail div.flex.items-center.mr-2 span {
+                    color: #ffffff !important;
+                    -webkit-text-fill-color: #ffffff !important;
+                    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+                    font-weight: 800 !important;
+                }
             }
 
             /* Chữ bên trong nút Server (Vietsub N1 | 12 tập) trên nền kem: MÀU ĐEN RÕ NÉT */
@@ -404,27 +406,113 @@
                 -webkit-text-fill-color: #d97706 !important;
             }
 
-            /* "Các bản chiếu" & "Danh sách tập phim" heading */
-            html.light-mode body.page-phim-detail .movie-section-heading,
-            html.light-mode body.page-phim-detail #movie-server-variants h3,
-            html.light-mode body.page-phim-detail #movie-server-variants h2,
-            html.light-mode body.page-phim-detail #tab-panel-episodes h2,
-            html.light-mode body.page-phim-detail .ap-tab-panel h2,
-            html.light-mode body.page-phim-detail .ap-tab-panel h3 {
-                color: #ffffff !important;
-                -webkit-text-fill-color: #ffffff !important;
-                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
-                font-weight: 800 !important;
+            /* "Các bản chiếu" & "Danh sách tập phim" heading (Desktop giữ nguyên màu trắng) */
+            @media (min-width: 1024px) {
+                html.light-mode body.page-phim-detail .movie-section-heading,
+                html.light-mode body.page-phim-detail #movie-server-variants h3,
+                html.light-mode body.page-phim-detail #movie-server-variants h2,
+                html.light-mode body.page-phim-detail #tab-panel-episodes h2,
+                html.light-mode body.page-phim-detail .ap-tab-panel h2,
+                html.light-mode body.page-phim-detail .ap-tab-panel h3 {
+                    color: #ffffff !important;
+                    -webkit-text-fill-color: #ffffff !important;
+                    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+                    font-weight: 800 !important;
+                }
+
+                html.light-mode body.page-phim-detail .movie-section-heading svg,
+                html.light-mode body.page-phim-detail #movie-server-variants svg,
+                html.light-mode body.page-phim-detail #tab-panel-episodes h2 svg,
+                html.light-mode body.page-phim-detail .ap-tab-panel h2 svg,
+                html.light-mode body.page-phim-detail .ap-tab-panel h3 svg {
+                    fill: #ffffff !important;
+                    color: #ffffff !important;
+                    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)) !important;
+                }
             }
 
-            html.light-mode body.page-phim-detail .movie-section-heading svg,
-            html.light-mode body.page-phim-detail #movie-server-variants svg,
-            html.light-mode body.page-phim-detail #tab-panel-episodes h2 svg,
-            html.light-mode body.page-phim-detail .ap-tab-panel h2 svg,
-            html.light-mode body.page-phim-detail .ap-tab-panel h3 svg {
-                fill: #ffffff !important;
-                color: #ffffff !important;
-                filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)) !important;
+            /* 📱 CHỈ ÁP DỤNG TRÊN MÀN HÌNH MOBILE CHO TRANG /phim: CÁC MỤC Ở HÌNH 1 & HÌNH 2 QUA MÀU ĐEN ─── */
+            @media (max-width: 1023.98px) {
+                /* Hình 1: Thanh chuyển Tab Navigation (Tập phim, Gallery, OST, Diễn viên, Đề xuất) */
+                html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn,
+                html.light-mode body.page-phim-detail #tab-btn-episodes,
+                html.light-mode body.page-phim-detail #tab-btn-gallery,
+                html.light-mode body.page-phim-detail #tab-btn-ost,
+                html.light-mode body.page-phim-detail #tab-btn-cast,
+                html.light-mode body.page-phim-detail #tab-btn-recommend {
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    text-shadow: none !important;
+                    font-weight: 700 !important;
+                    opacity: 0.82 !important;
+                }
+
+                html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn:hover,
+                html.light-mode body.page-phim-detail #tab-btn-episodes:hover,
+                html.light-mode body.page-phim-detail #tab-btn-gallery:hover,
+                html.light-mode body.page-phim-detail #tab-btn-ost:hover,
+                html.light-mode body.page-phim-detail #tab-btn-cast:hover,
+                html.light-mode body.page-phim-detail #tab-btn-recommend:hover {
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    text-shadow: none !important;
+                    opacity: 1 !important;
+                }
+
+                html.light-mode body.page-phim-detail .ap-movie-tab-system .ap-tab-btn.active,
+                html.light-mode body.page-phim-detail #tab-btn-episodes.active,
+                html.light-mode body.page-phim-detail #tab-btn-gallery.active,
+                html.light-mode body.page-phim-detail #tab-btn-ost.active,
+                html.light-mode body.page-phim-detail #tab-btn-cast.active,
+                html.light-mode body.page-phim-detail #tab-btn-recommend.active {
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    border-bottom: 2.5px solid #000000 !important;
+                    text-shadow: none !important;
+                    font-weight: 800 !important;
+                    opacity: 1 !important;
+                }
+
+                /* Hình 1: Tiêu đề mục "Các bản chiếu" & Hình 2: Tiêu đề "Danh sách tập phim" */
+                html.light-mode body.page-phim-detail .movie-section-heading,
+                html.light-mode body.page-phim-detail #versions-container .movie-section-heading,
+                html.light-mode body.page-phim-detail #versions-container h3,
+                html.light-mode body.page-phim-detail #tab-panel-episodes h2,
+                html.light-mode body.page-phim-detail #tab-panel-episodes .movie-section-heading,
+                html.light-mode body.page-phim-detail .ap-tab-panel h2,
+                html.light-mode body.page-phim-detail .ap-tab-panel h3 {
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    text-shadow: none !important;
+                    font-weight: 800 !important;
+                }
+
+                /* Hình 1 & 2: Icon svg của "Các bản chiếu" & "Danh sách tập phim" */
+                html.light-mode body.page-phim-detail .movie-section-heading svg,
+                html.light-mode body.page-phim-detail #versions-container .movie-section-heading svg,
+                html.light-mode body.page-phim-detail #versions-container h3 svg,
+                html.light-mode body.page-phim-detail #tab-panel-episodes h2 svg,
+                html.light-mode body.page-phim-detail #tab-panel-episodes .movie-section-heading svg,
+                html.light-mode body.page-phim-detail .ap-tab-panel h2 svg,
+                html.light-mode body.page-phim-detail .ap-tab-panel h3 svg {
+                    fill: #000000 !important;
+                    color: #000000 !important;
+                    filter: none !important;
+                    -webkit-filter: none !important;
+                    drop-shadow: none !important;
+                }
+
+                /* Hình 2: Label "MÁY CHỦ :" */
+                html.light-mode body.page-phim-detail .server-label-title,
+                html.light-mode body.page-phim-detail #server-list-mobile .server-label-title,
+                html.light-mode body.page-phim-detail #server-list-mobile span[style*="MÁY CHỦ"],
+                html.light-mode body.page-phim-detail #server-list-mobile div.flex.items-center.mr-2 span,
+                html.light-mode body.page-phim-detail div.flex.items-center.mr-2 span.server-label-title {
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    text-shadow: none !important;
+                    font-weight: 800 !important;
+                }
             }
 
             /* ─── 100% TRANSPARENT HEADER ON /phim (CINEMATIC BACKDROP PASSTHROUGH ON MOBILE & DESKTOP) ─── */
@@ -1941,7 +2029,7 @@
 
             <!-- ====== Sidebar & Comments ====== -->
             <script src="/js/top-weekly-sidebar.js?v=10010" defer></script>
-            <script src="/js/firebase-comments.js?v=20025" defer></script>
+            <script src="/js/firebase-comments.js?v=<%= Date.now() %>" defer></script>
 
             <script src="/js/nav-active-indicator.js?v=99" defer></script>
 

@@ -312,12 +312,30 @@ html.light-mode .text-slate-300 {
     color: #57534e !important;
 }
 
-html.light-mode input,
-html.light-mode textarea,
+html.light-mode input:not(.ap-cmt-input):not(#notifSearchInput):not([id^="ap-spoiler"]),
+html.light-mode textarea:not(.ap-cmt-textarea):not(#ap-input-main):not([id^="ap-input-"]):not(#commentInput),
 html.light-mode select {
     background-color: #ffffff !important;
     color: #1c1917 !important;
     border-color: #d6cebf !important;
+}
+
+/* Khung nhập bình luận trên Light Mode: Hoàn toàn KHÔNG viền, trong suốt ở cả trạng thái tĩnh và focus */
+html.light-mode .ap-cmt-textarea,
+html.light-mode textarea#ap-input-main,
+html.light-mode textarea[id^="ap-input-"],
+html.light-mode #commentInput,
+html.light-mode #comments-section textarea,
+html.light-mode .ap-cmt-input-container textarea {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0 !important;
 }
 
 html.light-mode #breadcrumb-category,

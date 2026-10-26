@@ -3536,20 +3536,41 @@ html.light-mode .ap-cmt-input-container div[style*="background"] {
     color: #1c1917 !important;
 }
 
-/* Comment Textarea */
+/* Comment Textarea - Đồng bộ với Dark Mode: Trong suốt, KHÔNG viền bọc, KHÔNG nền riêng */
 html.light-mode .ap-cmt-textarea,
-html.light-mode textarea#ap-input-main {
-    background: #faf7f2 !important;
-    background-color: #faf7f2 !important;
-    border: 1px solid #d6cebf !important;
-    border-radius: 10px !important;
+html.light-mode textarea#ap-input-main,
+html.light-mode textarea[id^="ap-input-"],
+html.light-mode #commentInput {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
     color: #1c1917 !important;
-    padding: 10px 14px !important;
+    -webkit-text-fill-color: #1c1917 !important;
+    padding: 10px 18px !important;
+    padding-right: 65px !important;
+}
+
+html.light-mode .ap-cmt-textarea:focus,
+html.light-mode textarea#ap-input-main:focus,
+html.light-mode textarea[id^="ap-input-"]:focus,
+html.light-mode #commentInput:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 html.light-mode .ap-cmt-textarea::placeholder,
-html.light-mode textarea#ap-input-main::placeholder {
+html.light-mode textarea#ap-input-main::placeholder,
+html.light-mode textarea[id^="ap-input-"]::placeholder,
+html.light-mode #commentInput::placeholder {
     color: #78716c !important;
+    -webkit-text-fill-color: #78716c !important;
+    opacity: 1 !important;
 }
 
 /* Inner Divider & Bottom Toolbar */
@@ -7530,16 +7551,26 @@ html.light-mode #comments-section {
     color: #1c1917 !important;
 }
 
-html.light-mode #comments-section textarea {
-    background: #ffffff !important;
-    border: 1px solid #e7e0d3 !important;
+html.light-mode #comments-section textarea,
+html.light-mode #comments-section .ap-cmt-textarea {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0 !important;
     color: #1c1917 !important;
 }
 
-html.light-mode #comments-section textarea:focus {
-    background: #ffffff !important;
-    border-color: #d97706 !important;
+html.light-mode #comments-section textarea:focus,
+html.light-mode #comments-section .ap-cmt-textarea:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
     outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
 }
 
 html.light-mode #comments-section .comment-item,

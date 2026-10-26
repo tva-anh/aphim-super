@@ -29,8 +29,21 @@
                 color: #b45309 !important;
                 box-shadow: 0 1px 4px rgba(245, 158, 11, 0.08) !important;
             }
-            html.light-mode #sidebar-aired-status-pill span {
-                color: #b45309 !important;
+            /* Khung bình luận trên nền kem: KHÔNG viền bọc bên trong, đồng bộ với Dark Mode */
+            html.light-mode .ap-cmt-textarea,
+            html.light-mode textarea#ap-input-main,
+            html.light-mode textarea[id^="ap-input-"],
+            html.light-mode #commentInput,
+            html.light-mode .ap-cmt-input-container textarea {
+                background: transparent !important;
+                background-color: transparent !important;
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                border-radius: 0 !important;
+                color: #1c1917 !important;
+                -webkit-text-fill-color: #1c1917 !important;
             }
         </style>
 </head>
@@ -888,7 +901,7 @@
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=101" defer></script>
             <script src="/js/watch.js?v=<%= Date.now() %>" defer></script>
-            <script src="/js/firebase-comments.js?v=20025" defer></script>
+            <script src="/js/firebase-comments.js?v=<%= Date.now() %>" defer></script>
             <script src="/js/watch-ui-init.js?v=219" defer></script>
             <!-- 🐞 Modal Báo Lỗi Phim (High-end Glassmorphic, Fixed Viewport Stacking Context) -->
             <div id="reportMovieModal"

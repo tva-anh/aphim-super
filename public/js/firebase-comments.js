@@ -907,6 +907,11 @@
         }
         html.light-mode .ap-cmt-textarea, body.light-mode .ap-cmt-textarea {
             color: #0f172a !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            border-radius: 0 !important;
         }
         html.light-mode .ap-cmt-textarea::placeholder, body.light-mode .ap-cmt-textarea::placeholder {
             color: #64748b !important;
