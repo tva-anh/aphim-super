@@ -40,12 +40,12 @@
             },
             {
                 img: '/ads/catfish/colatv.gif',
-                url: 'https://colatv55.live',
+                url: 'https://colatv22.live',
                 label: 'ColaTV — Xem Phim HD Miễn Phí'
             },
             {
                 img: '/ads/catfish/colascore.gif',
-                url: 'https://colascores.com',
+                url: 'https://colascores.ai',
                 label: 'ColaScore — Tỷ Số Bóng Đá Trực Tiếp'
             }
         ]
