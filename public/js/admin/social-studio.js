@@ -24,6 +24,17 @@
   let isLeftPanelCollapsed = false;
   let autoSaveTimer = null;
 
+  // Facebook Reels Studio State
+  let currentPostType = 'feed'; // 'feed' or 'reels'
+  let currentDramaEpisodes = [];
+  let selectedEpisode = null;
+  let isPublishingReels = false;
+
+  // Post History Pagination State
+  let historyItems = [];
+  let historyCurrentPage = 1;
+  const HISTORY_PAGE_SIZE = 5;
+
   const SocialStudio = {
     init: function () {
       this.bindEvents();
@@ -67,13 +78,23 @@
       }
 
       // ── Explicitly turn off spellchecking to eradicate browser red squiggly underlines ──
-      ['fbPostTextarea', 'fbFirstCommentInput', 'customAIPromptInput', 'seoKeywordsInput', 'movieSearchInput'].forEach(id => {
+      ['fbPostTextarea', 'fbFirstCommentInput', 'customAIPromptInput', 'seoKeywordsInput', 'movieSearchInput', 'reelsCaptionInput', 'reelsFirstCommentInput'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.setAttribute('spellcheck', 'false');
           el.spellcheck = false;
         }
       });
+
+      // ── Reels Caption input synchronization ──
+      const reelsCaptionInput = document.getElementById('reelsCaptionInput');
+      if (reelsCaptionInput) {
+        reelsCaptionInput.addEventListener('input', () => {
+          const previewEl = document.getElementById('reelsCaptionPreview');
+          if (previewEl) previewEl.textContent = reelsCaptionInput.value;
+          this.scheduleAutoSave();
+        });
+      }
 
       // ── Auto-save listeners on all editable controls ──
       const postTextarea = document.getElementById('fbPostTextarea');
@@ -266,10 +287,49 @@
       }
     },
 
-    // ── 3. Quick-Pick Shelf & Initial Movies Auto-Load ───────────────
+    // ── 3. Quick-Pick Shelf & Catalog Switcher ───────────────
+    switchCatalog: async function (type) {
+      currentCatalog = type;
+      const tabMain = document.getElementById('tabSourceMain');
+      const tabShort = document.getElementById('tabSourceShort');
+      const badge = document.getElementById('catalogSourceBadge');
+      const searchInput = document.getElementById('movieSearchInput');
+      const dropdown = document.getElementById('movieSuggestDropdown');
+
+      if (dropdown) dropdown.style.display = 'none';
+      if (searchInput) searchInput.value = '';
+
+      if (type === 'phim-ngan') {
+        if (tabShort) tabShort.classList.add('active');
+        if (tabMain) tabMain.classList.remove('active');
+        if (badge) {
+          badge.textContent = 'PHIM NGẮN (DRAMA MINI)';
+          badge.style.background = 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)';
+          badge.style.color = '#ffffff';
+        }
+        if (searchInput) {
+          searchInput.placeholder = '🔍 Tìm kiếm phim ngắn, drama mini, tổng tài, vietsub, lồng tiếng...';
+        }
+      } else {
+        if (tabMain) tabMain.classList.add('active');
+        if (tabShort) tabShort.classList.remove('active');
+        if (badge) {
+          badge.textContent = 'PHIM CHÍNH WEBSITE';
+          badge.style.background = '#4f46e5';
+          badge.style.color = '#ffffff';
+        }
+        if (searchInput) {
+          searchInput.placeholder = '🔍 Gõ tên phim bất kỳ để tìm nhanh (Phim Mới, Rạp, Bộ, Lẻ...)';
+        }
+      }
+
+      await this.loadInitialMovies(type, false);
+      if (window.lucide) window.lucide.createIcons();
+    },
+
     loadInitialMovies: async function (type = 'main', isSilent = false) {
       const shelf = document.getElementById('quickPickShelf');
-      if (shelf && !isSilent) shelf.innerHTML = '<div style="font-size: 12px; color: #78716c; padding: 6px;">Đang tải danh sách phim...</div>';
+      if (shelf && !isSilent) shelf.innerHTML = `<div style="font-size: 12px; color: #78716c; padding: 6px;">Đang tải danh sách ${type === 'phim-ngan' ? 'phim ngắn' : 'phim chính'}...</div>`;
 
       try {
         const res = await fetch(`/api/admin/social-studio/movies?type=${encodeURIComponent(type)}`);
@@ -314,27 +374,42 @@
     searchMovies: async function (query) {
       const dropdown = document.getElementById('movieSuggestDropdown');
       dropdown.style.display = 'block';
-      dropdown.innerHTML = '<div style="padding: 10px; text-align: center; color: #78716c; font-size: 12px;">Đang tìm phim...</div>';
+      const isShort = currentCatalog === 'phim-ngan';
+      dropdown.innerHTML = `<div style="padding: 10px; text-align: center; color: #78716c; font-size: 12px;">⏳ Đang tìm kiếm trong kho ${isShort ? 'Phim Ngắn / Drama Mini' : 'Phim Chính Website'}...</div>`;
 
       try {
-        const res = await fetch(`/api/admin/social-studio/movies?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/admin/social-studio/movies?q=${encodeURIComponent(query)}&type=${encodeURIComponent(currentCatalog)}`);
         const json = await res.json();
 
         if (json.success && Array.isArray(json.movies) && json.movies.length > 0) {
-          dropdown.innerHTML = json.movies.map(m => `
+          dropdown.innerHTML = json.movies.map(m => {
+            const isShortItem = (m.sourceType === 'short') || isShort;
+            const badgeHtml = isShortItem
+              ? `<span style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎥 PHIM NGẮN</span>`
+              : `<span style="background: #e0e7ff; color: #4338ca; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎬 PHIM CHÍNH</span>`;
+
+            const epInfo = m.episodesCount ? ` · ${m.episodesCount} tập` : '';
+
+            return `
             <div class="movie-suggest-item" onclick='window.SocialStudio.selectMovie(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
               <img src="${m.poster_url || m.thumb_url || '/quangcao/no-cover.png'}" onerror="this.src='/quangcao/no-cover.png'" class="movie-suggest-thumb" alt="${m.name}">
               <div style="flex: 1; min-width: 0;">
-                <div style="font-size: 13px; font-weight: 700; color: #1c1917; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.name}</div>
-                <div style="font-size: 11px; color: #78716c;">${m.origin_name || ''} · ${m.year || '2026'} · ⭐ ${m.rating || 9.0}</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                  <div style="font-size: 13px; font-weight: 700; color: #1c1917; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.name}</div>
+                  ${badgeHtml}
+                </div>
+                <div style="font-size: 11px; color: #78716c; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${m.origin_name || ''} · ${m.category || (isShortItem ? 'Drama Mini' : 'Phim Hay')}${epInfo} · ⭐ ${m.rating || 9.5}
+                </div>
               </div>
             </div>
-          `).join('');
+          `;
+          }).join('');
         } else {
-          dropdown.innerHTML = '<div style="padding: 10px; text-align: center; color: #78716c; font-size: 12px;">Không tìm thấy phim phù hợp. Thử từ khóa khác.</div>';
+          dropdown.innerHTML = `<div style="padding: 12px; text-align: center; color: #78716c; font-size: 12px;">Không tìm thấy phim phù hợp trong kho <b>${isShort ? 'Phim Ngắn' : 'Phim Chính'}</b>.<br><span style="font-size: 11px; color: #a8a29e;">Thử từ khóa khác (ví dụ: ${isShort ? 'tổng tài, bé cưng, hào môn...' : 'avatar, người nhện, batman...'})</span></div>`;
         }
       } catch (e) {
-        dropdown.innerHTML = '<div style="padding: 10px; text-align: center; color: #ef4444; font-size: 12px;">Lỗi tìm kiếm.</div>';
+        dropdown.innerHTML = `<div style="padding: 10px; text-align: center; color: #ef4444; font-size: 12px;">Lỗi tìm kiếm: ${e.message}</div>`;
       }
     },
 
@@ -367,6 +442,19 @@
         commentInput.value = `👉 Xem phim trọn bộ FHD Vietsub tại: ${siteUrl}/phim/${movie.slug}\nChúc cả nhà xem phim vui vẻ! 🍿🎬`;
       }
 
+      // Short Drama Auto-Detection: Show Episodes Card & Switch to Reels Mode
+      const isShortDrama = (movie.sourceType === 'short') || (currentCatalog === 'phim-ngan') || (movie.category && movie.category.toLowerCase().includes('ngắn')) || (Array.isArray(movie.episodes) && movie.episodes.length > 0);
+      const dramaCard = document.getElementById('cardDramaEpisodes');
+
+      if (isShortDrama) {
+        if (dramaCard) dramaCard.style.display = 'block';
+        await this.loadDramaEpisodes(movie.slug);
+        this.setPostType('reels');
+      } else {
+        if (dramaCard) dramaCard.style.display = 'none';
+        this.setPostType('feed');
+      }
+
       // Fetch all available media
       await this.loadMovieMedia(movie.slug);
 
@@ -375,6 +463,214 @@
         this.generateAI();
       }
       this.scheduleAutoSave();
+    },
+
+    // ── 3B. Facebook Reels Studio Controller (Video 9:16) ────────────
+    setPostType: function (type) {
+      currentPostType = type;
+      const btnFeed = document.getElementById('btnModeFeed');
+      const btnReels = document.getElementById('btnModeReels');
+      const feedSec = document.getElementById('feedSimulatorSection');
+      const reelsSec = document.getElementById('reelsSimulatorSection');
+
+      if (type === 'reels') {
+        if (btnFeed) btnFeed.classList.remove('active');
+        if (btnReels) btnReels.classList.add('active');
+        if (feedSec) feedSec.style.display = 'none';
+        if (reelsSec) reelsSec.style.display = 'block';
+
+        // If no episode selected yet but drama has episodes, select episode 1
+        if (!selectedEpisode && currentDramaEpisodes.length > 0) {
+          this.selectDramaEpisode(1);
+        }
+      } else {
+        if (btnFeed) btnFeed.classList.add('active');
+        if (btnReels) btnReels.classList.remove('active');
+        if (feedSec) feedSec.style.display = 'block';
+        if (reelsSec) reelsSec.style.display = 'none';
+      }
+      if (window.lucide) window.lucide.createIcons();
+    },
+
+    loadDramaEpisodes: async function (slug) {
+      const card = document.getElementById('cardDramaEpisodes');
+      const grid = document.getElementById('dramaEpisodesGrid');
+      const countBadge = document.getElementById('dramaEpCountBadge');
+
+      if (card) card.style.display = 'block';
+      if (grid) grid.innerHTML = '<div style="grid-column: 1 / -1; padding: 14px; text-align: center; color: #78716c; font-size: 12px;">Đang tải danh sách tập phim ngắn...</div>';
+
+      try {
+        const res = await fetch(`/api/admin/social-studio/drama-episodes/${encodeURIComponent(slug)}`);
+        const json = await res.json();
+
+        if (json.success && Array.isArray(json.episodes) && json.episodes.length > 0) {
+          currentDramaEpisodes = json.episodes;
+          if (countBadge) countBadge.textContent = `${currentDramaEpisodes.length} Tập`;
+
+          if (grid) {
+            grid.innerHTML = currentDramaEpisodes.map(ep => `
+              <div class="episode-btn ${ep.no === 1 ? 'active' : ''}" id="btn-ep-${ep.no}" onclick="window.SocialStudio.selectDramaEpisode(${ep.no})" title="${ep.title} (~${ep.duration || 90}s)">
+                <span class="episode-num">Tập ${ep.no}</span>
+                <span class="episode-dur">${ep.duration || 90}s · HD</span>
+              </div>
+            `).join('');
+          }
+
+          // Select Episode 1 by default
+          this.selectDramaEpisode(1);
+        } else {
+          if (grid) grid.innerHTML = '<div style="grid-column: 1 / -1; padding: 12px; text-align: center; color: #78716c; font-size: 12px;">Chưa có danh sách tập cho phim này.</div>';
+        }
+      } catch (e) {
+        if (grid) grid.innerHTML = '<div style="grid-column: 1 / -1; padding: 12px; text-align: center; color: #ef4444; font-size: 12px;">Lỗi kết nối tải tập phim.</div>';
+      }
+    },
+
+    selectDramaEpisode: function (epNo) {
+      const ep = currentDramaEpisodes.find(e => e.no === epNo);
+      if (!ep) return;
+      selectedEpisode = ep;
+
+      // Update UI active states
+      document.querySelectorAll('.episode-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-ep-${epNo}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const badgeNum = document.getElementById('badgeActiveEpNum');
+      if (badgeNum) badgeNum.textContent = `TẬP ${ep.no}`;
+
+      const labelTitle = document.getElementById('labelActiveEpTitle');
+      if (labelTitle) labelTitle.textContent = `Đang chọn: ${ep.title || 'Tập ' + ep.no}`;
+
+      const reelsEpBadge = document.getElementById('reelsEpisodeBadge');
+      if (reelsEpBadge) reelsEpBadge.textContent = `Tập ${ep.no}`;
+
+      const durTag = document.getElementById('reelsEpDurationTag');
+      if (durTag) durTag.textContent = `${ep.duration || 90}s`;
+
+      // Update Video Player
+      const videoPlayer = document.getElementById('reelsVideoPlayer');
+      if (videoPlayer) {
+        const streamSrc = ep.streamUrl || ep.url;
+        if (streamSrc) {
+          videoPlayer.src = streamSrc;
+          videoPlayer.load();
+        }
+      }
+
+      // Generate or refresh Reels caption
+      this.generateReelsCaption();
+    },
+
+    generateReelsCaption: function () {
+      const movie = this.ensureCurrentMovie();
+      const movieTitle = movie ? movie.name : 'Phim Ngắn Cực Hay';
+      const movieSlug = movie ? (movie.slug || 'phim-ngan') : 'phim-ngan';
+      const epNum = selectedEpisode ? selectedEpisode.no : 1;
+
+      const hookVariants = [
+        `⚡ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: CÚ LẬT KÈO KHIẾN TẤT CẢ NÍN THỞ! 😱`,
+        `🔥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BÍ MẬT THÂN PHẬN CUỐI CÙNG BỊ PHƠI BÀY! 💥`,
+        `🎬 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỪNG ĐÙA VỚI NỮ CHÍNH KHI CÔ ẤY ĐÃ TRỞ LẠI! ✨`,
+        `🍿 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: DIỄN BIẾN CAO TRÀO KHÔNG THỂ BỎ LỠ! ⚡`,
+        `💥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BẢN LĨNH THỰC SỰ ĐƯỢC CHỨNG MINH! 🚀`
+      ];
+
+      const bodyVariants = [
+        `Diễn xuất bùng nổ, tình tiết dồn dập khiến người xem không thể rời mắt khỏi màn hình! Càng xem càng cuốn không dứt ra được.`,
+        `Một tập phim nghẹt thở với những toan tính khó lường. Liệu kết cục nào đang chờ đợi ở những tập tiếp theo?`,
+        `Cú twist bất ngờ đảo lộn mọi dự đoán của khán giả! Đỉnh cao kịch tính của drama mini hot nhất hiện nay.`
+      ];
+
+      const selectedHook = hookVariants[Math.floor(Math.random() * hookVariants.length)];
+      const selectedBody = bodyVariants[Math.floor(Math.random() * bodyVariants.length)];
+
+      const movieTag = movieTitle.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]/g, '');
+      const hashtags = `#APhim #APhimSuper #PhimNgan #DramaMini #ReelsPhim #${movieTag} #TrendingReels #XemPhimOnline`;
+
+      const fullCaption = `${selectedHook}\n\n${selectedBody}\n\n👉 Xem TRỌN BỘ ${movieTitle} Full HD Vietsub tại: https://aphim.store/phim/${movieSlug}\n\n${hashtags}`;
+
+      const captionTextarea = document.getElementById('reelsCaptionInput');
+      if (captionTextarea) captionTextarea.value = fullCaption;
+
+      const previewEl = document.getElementById('reelsCaptionPreview');
+      if (previewEl) previewEl.textContent = `${selectedHook} ${selectedBody}`;
+
+      const firstCommentInput = document.getElementById('reelsFirstCommentInput');
+      if (firstCommentInput) {
+        firstCommentInput.value = `👉 Xem trọn bộ "${movieTitle}" Full HD Vietsub tốc độ cao tại:\nhttps://aphim.store/phim/${movieSlug}\nChúc cả nhà xem phim vui vẻ! 🍿🎬`;
+      }
+    },
+
+    publishReels: async function () {
+      if (!selectedEpisode) {
+        alert('Vui lòng chọn một tập phim ngắn ở Bước 1B trước khi đăng Reels.');
+        return;
+      }
+
+      const videoUrl = selectedEpisode.streamUrl || selectedEpisode.url;
+      if (!videoUrl) {
+        alert('Tập phim này không có link video hợp lệ.');
+        return;
+      }
+
+      const caption = (document.getElementById('reelsCaptionInput').value || '').trim();
+      const firstComment = (document.getElementById('reelsFirstCommentInput').value || '').trim();
+      const movie = this.ensureCurrentMovie();
+
+      if (isPublishingReels) return;
+
+      const btn = document.getElementById('btnPublishReels');
+      const origText = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" style="width: 17px; height: 17px;"></i> <span>Đang tải video & xuất bản Reels lên Meta (khoảng 3 - 5s)...</span>';
+      btn.disabled = true;
+      isPublishingReels = true;
+      if (window.lucide) window.lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/admin/social-studio/publish-reels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            videoUrl,
+            caption,
+            firstComment,
+            dramaTitle: movie ? movie.name : 'Phim Ngắn',
+            episodeNo: selectedEpisode.no,
+            slug: movie ? movie.slug : 'phim'
+          })
+        });
+
+        const rawText = await res.text();
+        let json = null;
+        try { json = JSON.parse(rawText); } catch (e) {
+          throw new Error('Máy chủ trả về phản hồi không hợp lệ: ' + rawText);
+        }
+
+        if (json.success) {
+          const reelsLink = json.postLink || `https://www.facebook.com/reel/${json.videoId}`;
+          alert(`🎉 XUẤT BẢN FACEBOOK REELS THÀNH CÔNG RỰC RỠ!\n\n🎬 Tập: ${selectedEpisode.no} - ${movie.name}\n🎥 Reels ID: ${json.videoId}\n🔗 Link: ${reelsLink}\n\nVideo Reels đang được Facebook xử lý và hiển thị ngay trên Fanpage APhim Super!`);
+          this.loadHistory();
+        } else {
+          alert('❌ Lỗi đăng Reels: ' + (json.error || 'Facebook từ chối xuất bản'));
+        }
+      } catch (err) {
+        alert('❌ Lỗi kết nối khi đăng Reels: ' + err.message);
+      } finally {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+        isPublishingReels = false;
+        if (window.lucide) window.lucide.createIcons();
+      }
+    },
+
+    copyReelsCaption: function () {
+      const text = document.getElementById('reelsCaptionInput').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Đã sao chép nội dung Caption Reels vào bộ nhớ tạm!');
+      });
     },
 
     // ── 4. Media Extraction & Multi-Photo Layout ────────────────────
@@ -1623,7 +1919,7 @@
       });
     },
 
-    // ── 10. Load Post History Log ────────────────────────────────────
+    // ── 10. Load Post History Log with Pagination ──────────────────
     loadHistory: async function () {
       const tbody = document.getElementById('postHistoryTableBody');
       if (!tbody) return;
@@ -1632,47 +1928,125 @@
         const res = await fetch('/api/admin/social-studio/history');
         const json = await res.json();
 
-        if (json.success && Array.isArray(json.history) && json.history.length > 0) {
-          tbody.innerHTML = json.history.map(item => `
-            <tr style="border-bottom: 1px solid var(--border-subtle, #f0eae0); font-size: 13px;">
-              <td style="padding: 10px 14px; font-weight: 700; color: #1c1917;">${item.movieName || 'Bài đăng'}</td>
-              <td style="padding: 10px 14px;">
-                <a href="${item.postLink || 'https://facebook.com/' + item.id}" target="_blank" rel="noopener noreferrer" style="color: #4f46e5; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
-                  <span>${item.id}</span>
-                  <i data-lucide="external-link" style="width: 12px; height: 12px;"></i>
-                </a>
-              </td>
-              <td style="padding: 10px 14px; color: #44403c;">${item.imageCount || 0} ảnh</td>
-              <td style="padding: 10px 14px;">
-                ${item.hasFirstComment ? '<span class="badge badge-emerald">Đã ghim link</span>' : '<span style="color:#78716c;">Không</span>'}
-              </td>
-              <td style="padding: 10px 14px; color: #78716c; font-size: 12px;">${new Date(item.createdAt).toLocaleString('vi-VN')}</td>
-              <td style="padding: 10px 14px; text-align: right;">
-                <a href="${item.postLink || 'https://facebook.com/' + item.id}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px; text-decoration: none;">
-                  Mở Post
-                </a>
-              </td>
-            </tr>
-          `).join('');
-          if (window.lucide) window.lucide.createIcons();
+        if (json.success && Array.isArray(json.history)) {
+          historyItems = json.history;
+          historyCurrentPage = 1;
+          this.renderHistoryTable();
         } else {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="6" style="text-align: center; padding: 20px; color: #78716c; font-size: 13px;">
-                Chưa có bài viết nào được đăng qua hệ thống.
-              </td>
-            </tr>
-          `;
+          historyItems = [];
+          this.renderHistoryTable();
         }
       } catch (err) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; padding: 20px; color: #ef4444; font-size: 13px;">
+            <td colspan="7" style="text-align: center; padding: 20px; color: #ef4444; font-size: 13px;">
               Không thể tải lịch sử bài viết.
             </td>
           </tr>
         `;
       }
+    },
+
+    renderHistoryTable: function () {
+      const tbody = document.getElementById('postHistoryTableBody');
+      const pageInfo = document.getElementById('historyPageInfo');
+      const pageBtns = document.getElementById('historyPageBtns');
+      const paginationWrap = document.getElementById('postHistoryPagination');
+      if (!tbody) return;
+
+      if (!historyItems || historyItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 20px; color: #78716c; font-size: 13px;">
+              Chưa có bài viết hoặc video Reels nào được đăng qua hệ thống.
+            </td>
+          </tr>
+        `;
+        if (paginationWrap) paginationWrap.style.display = 'none';
+        return;
+      }
+
+      if (paginationWrap) paginationWrap.style.display = 'flex';
+
+      const totalPages = Math.ceil(historyItems.length / HISTORY_PAGE_SIZE) || 1;
+      if (historyCurrentPage > totalPages) historyCurrentPage = totalPages;
+      if (historyCurrentPage < 1) historyCurrentPage = 1;
+
+      const startIndex = (historyCurrentPage - 1) * HISTORY_PAGE_SIZE;
+      const endIndex = Math.min(startIndex + HISTORY_PAGE_SIZE, historyItems.length);
+      const currentSlice = historyItems.slice(startIndex, endIndex);
+
+      tbody.innerHTML = currentSlice.map(item => {
+        const isReels = item.type === 'reels';
+        const typeBadge = isReels
+          ? '<span class="badge" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff; font-size: 11px;">🎥 REELS (9:16)</span>'
+          : '<span class="badge badge-primary" style="font-size: 11px;">📱 FEED POST</span>';
+        const mediaText = isReels ? '<span style="color:#ec4899; font-weight:700;">Video 9:16</span>' : `${item.imageCount || 0} ảnh`;
+        const postLink = item.postLink || (isReels ? `https://www.facebook.com/reel/${item.id}` : `https://facebook.com/${item.id}`);
+        const btnLabel = isReels ? 'Xem Reels' : 'Mở Post';
+
+        return `
+        <tr style="border-bottom: 1px solid var(--border-subtle, #f0eae0); font-size: 13px;">
+          <td style="padding: 10px 14px; font-weight: 700; color: #1c1917;">${item.movieName || 'Bài đăng'}</td>
+          <td style="padding: 10px 14px;">${typeBadge}</td>
+          <td style="padding: 10px 14px;">
+            <a href="${postLink}" target="_blank" rel="noopener noreferrer" style="color: #4f46e5; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
+              <span>${item.id}</span>
+              <i data-lucide="external-link" style="width: 12px; height: 12px;"></i>
+            </a>
+          </td>
+          <td style="padding: 10px 14px; color: #44403c;">${mediaText}</td>
+          <td style="padding: 10px 14px;">
+            ${item.hasFirstComment ? '<span class="badge badge-emerald">Đã ghim link</span>' : '<span style="color:#78716c;">Không</span>'}
+          </td>
+          <td style="padding: 10px 14px; color: #78716c; font-size: 12px;">${new Date(item.createdAt).toLocaleString('vi-VN')}</td>
+          <td style="padding: 10px 14px; text-align: right;">
+            <a href="${postLink}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px; text-decoration: none;">
+              ${btnLabel}
+            </a>
+          </td>
+        </tr>
+      `;
+      }).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+
+      // Render Page Info
+      if (pageInfo) {
+        pageInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} / ${historyItems.length} bài đăng (Trang ${historyCurrentPage}/${totalPages})`;
+      }
+
+      // Render Pagination Buttons
+      if (pageBtns) {
+        let btnsHtml = `
+          <button type="button" class="history-pagination-btn" onclick="window.SocialStudio.changeHistoryPage(${historyCurrentPage - 1})" ${historyCurrentPage === 1 ? 'disabled' : ''} title="Trang trước">
+            « Trước
+          </button>
+        `;
+
+        for (let p = 1; p <= totalPages; p++) {
+          btnsHtml += `
+            <button type="button" class="history-pagination-btn ${p === historyCurrentPage ? 'active' : ''}" onclick="window.SocialStudio.changeHistoryPage(${p})">
+              ${p}
+            </button>
+          `;
+        }
+
+        btnsHtml += `
+          <button type="button" class="history-pagination-btn" onclick="window.SocialStudio.changeHistoryPage(${historyCurrentPage + 1})" ${historyCurrentPage === totalPages ? 'disabled' : ''} title="Trang sau">
+            Sau »
+          </button>
+        `;
+
+        pageBtns.innerHTML = btnsHtml;
+      }
+    },
+
+    changeHistoryPage: function (page) {
+      const totalPages = Math.ceil(historyItems.length / HISTORY_PAGE_SIZE) || 1;
+      if (page < 1 || page > totalPages) return;
+      historyCurrentPage = page;
+      this.renderHistoryTable();
     }
   };
 

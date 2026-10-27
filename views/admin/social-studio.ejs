@@ -956,6 +956,304 @@
   border-color: #4f46e5;
   transform: translateY(-1px);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FACEBOOK REELS STUDIO (9:16 VERTICAL VIDEO SIMULATOR)
+   ═══════════════════════════════════════════════════════════════════ */
+.post-type-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 6px;
+  margin-bottom: 14px;
+  border: 1px solid #e2e8f0;
+}
+.post-type-btn {
+  flex: 1;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+}
+.post-type-btn:hover {
+  color: #0f172a;
+}
+.post-type-btn.active {
+  background: #ffffff;
+  color: #1877f2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.post-type-btn.active.reels-mode {
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35);
+}
+
+/* Episodes Shelf Grid */
+.drama-episodes-wrap {
+  background: #ffffff;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 10px rgba(78, 64, 45, 0.05);
+}
+.episodes-grid-shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+  margin-top: 10px;
+}
+.episode-btn {
+  background: #faf7f2;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.episode-btn:hover {
+  background: #fff7ed;
+  border-color: #f97316;
+  color: #ea580c;
+  transform: translateY(-2px);
+}
+.episode-btn.active {
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+}
+.episode-btn.active .episode-dur {
+  color: rgba(255, 255, 255, 0.85);
+}
+.episode-num {
+  font-size: 12px;
+  font-weight: 700;
+}
+.episode-dur {
+  font-size: 10px;
+  color: #78716c;
+}
+
+/* Reels Phone Mockup Container */
+.fb-reels-mockup-wrap {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  background: #000000;
+  border-radius: 28px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 0 8px #1e293b;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 9 / 16;
+  display: flex;
+  flex-direction: column;
+}
+.reels-video-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #09090b;
+}
+.reels-video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.reels-gradient-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+.reels-gradient-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 240px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+.reels-top-bar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+}
+.reels-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.reels-floating-actions {
+  position: absolute;
+  right: 12px;
+  bottom: 85px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 3;
+}
+.reels-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  gap: 3px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+.reels-action-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.reels-action-btn:hover {
+  transform: scale(1.1);
+}
+.reels-music-disk {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: #111;
+  animation: spin 3s linear infinite;
+}
+.reels-bottom-info {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 68px;
+  z-index: 3;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.reels-author-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.reels-author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+}
+.reels-author-name {
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.reels-episode-tag {
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.reels-caption-text {
+  font-size: 12px;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: #f1f5f9;
+}
+.reels-audio-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+/* History Pagination */
+.history-pagination-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-default, #e7e0d3);
+  border-radius: 8px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  user-select: none;
+}
+.history-pagination-btn:hover:not(:disabled) {
+  background: #f5f0e6;
+  border-color: #d6cfc7;
+  color: #1c1917;
+}
+.history-pagination-btn.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+.history-pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 </style>
 
 <div class="admin-wrapper">
@@ -1083,8 +1381,38 @@
               </div>
             </div>
 
+            <!-- Card 1B: Chọn Tập Phim Ngắn Để Đăng Reels (Tự động hiển thị khi chọn Phim Ngắn) -->
+            <div class="studio-card" id="cardDramaEpisodes" style="display: none; border-color: #f472b6; background: #fffdfd;">
+              <div class="studio-card-title">
+                <h3><i data-lucide="video" style="color: #ec4899;"></i> 1B. Chọn Tập Phim Ngắn Đăng Facebook Reels</h3>
+                <span class="badge" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff;" id="dramaEpCountBadge">0 Tập</span>
+              </div>
+              <div style="font-size: 12px; color: #64748b; line-height: 1.4; margin-bottom: 8px;">
+                Tất cả các tập đều là video dọc 9:16 chuẩn Meta Reels (~90s/tập). Bấm vào tập bất kỳ để xem trước video và đăng:
+              </div>
+
+              <!-- Active Episode Indicator Bar -->
+              <div id="activeEpisodeBar" style="display: flex; align-items: center; justify-content: space-between; background: #fdf2f8; border: 1px solid #fbcfe8; padding: 8px 12px; border-radius: 10px; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge" style="background: #ec4899; color: #fff; font-weight: 800;" id="badgeActiveEpNum">TẬP 1</span>
+                  <span style="font-size: 12.5px; font-weight: 700; color: #9d174d;" id="labelActiveEpTitle">Đang chọn: Tập 1</span>
+                  <span style="font-size: 11px; color: #be185d;">(Thời lượng: ~90s · 720p HD)</span>
+                </div>
+                <button type="button" class="btn btn-outline" style="font-size: 11.5px; padding: 4px 10px; color: #ec4899; border-color: #f472b6; background: #fff;" onclick="window.SocialStudio.setPostType('reels')" title="Chuyển sang xem trước Reels bên phải">
+                  <i data-lucide="play-circle" style="width: 13px; height: 13px;"></i> Xem Trước & Đăng Reels
+                </button>
+              </div>
+
+              <!-- Episodes Grid Shelf -->
+              <div class="episodes-grid-shelf" id="dramaEpisodesGrid">
+                <div style="grid-column: 1 / -1; padding: 14px; text-align: center; color: #78716c; font-size: 12px;">
+                  Đang tải danh sách tập phim...
+                </div>
+              </div>
+            </div>
+
             <!-- Card 2: Kho Ảnh Toàn Diện Của Phim & Tải Ảnh Lên -->
-            <div class="studio-card">
+            <div class="studio-card" id="cardMediaPhotos">
               <div class="studio-card-title">
                 <h3><i data-lucide="images" style="color: #db2777;"></i> 2. Chọn Hình Ảnh Kèm Bài Viết</h3>
                 <div style="display: flex; align-items: center; gap: 6px;">
@@ -1273,97 +1601,219 @@
           <!-- ═════ CỘT PHẢI: LIVE FACEBOOK SIMULATOR ═════ -->
           <div class="studio-right-col">
             <div class="fb-simulator-container">
-              <div class="studio-card-title" style="margin-bottom: 10px;">
-                <h3><i data-lucide="eye" style="color: #1877f2;"></i> Xem Trước Thực Tế (Live Facebook Feed)</h3>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="window.SocialStudio.toggleFbTheme()" title="Đổi giao diện Sáng / Tối Facebook">
-                    <span id="fbThemeLabel">🌙 Nền Tối</span>
-                  </button>
-                  <span class="badge badge-emerald" style="display: flex; align-items: center; gap: 4px; font-size: 11px;">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
-                    Page: APhim Super
-                  </span>
-                </div>
-              </div>
-
-              <!-- Simulated Facebook Post Card -->
-              <div class="fb-feed-card" id="fbFeedCard">
-                <!-- Post Author Header -->
-                <div class="fb-post-header">
-                  <div class="fb-author-row">
-                    <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" class="fb-avatar" alt="APhim Super">
-                    <div>
-                      <div class="fb-author-name">
-                        <span>APhim Super</span>
-                        <svg class="fb-badge-verify" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                      </div>
-                      <div class="fb-post-time">
-                        <span>Vừa xong</span> · <span>🌐</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div style="color: #65676b; font-size: 18px; cursor: pointer;">•••</div>
-                </div>
-
-                <!-- Post Body (Editable textarea with spellcheck disabled to eliminate red squiggly underlines) -->
-                <div class="fb-post-content-wrap">
-                  <textarea id="fbPostTextarea" class="fb-post-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Bấm '⚡ Sáng Tạo Bài Viết' hoặc gõ nội dung bài viết của bạn tại đây..."></textarea>
-                </div>
-
-                <!-- Photo Count & Full Visibility Notice -->
-                <div id="fbPhotoCountIndicator" class="fb-photos-count-indicator" style="display: none;"></div>
-
-                <!-- Post Images Dynamic Grid (Hiển thị đầy đủ tất cả ảnh) -->
-                <div class="fb-photo-grid grid-1" id="fbPhotoGrid" style="display: none;">
-                  <!-- Dynamically injected images -->
-                </div>
-
-                <!-- Engagement Counter Bar -->
-                <div class="fb-engagement-bar">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="display: inline-flex; width: 17px; height: 17px; border-radius: 50%; background: #1877f2; color: #fff; align-items: center; justify-content: center; font-size: 10px;">👍</span>
-                    <span style="display: inline-flex; width: 17px; height: 17px; border-radius: 50%; background: #fa383e; color: #fff; align-items: center; justify-content: center; font-size: 10px;">❤️</span>
-                    <span style="font-weight: 600;">1.4K</span>
-                  </div>
-                  <div>
-                    <span>128 bình luận</span> · <span>45 lượt chia sẻ</span>
-                  </div>
-                </div>
-
-                <!-- First Comment Preview Section (Antidote to reach penalty) -->
-                <div class="fb-comment-preview-section">
-                  <div style="font-size: 11px; font-weight: 700; color: #d97706; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
-                    <i data-lucide="pin" style="width: 12px; height: 12px;"></i>
-                    <span>Bình luận đầu tiên được tự động ghim (Chứa Link Xem Phim):</span>
-                  </div>
-                  <div class="fb-comment-item">
-                    <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" style="width: 30px; height: 30px; border-radius: 50%;" alt="Author">
-                    <div class="fb-comment-bubble">
-                      <div class="fb-comment-author">
-                        <span>APhim Super</span>
-                        <span class="fb-comment-badge-author">Tác giả</span>
-                      </div>
-                      <textarea id="fbFirstCommentInput" class="fb-comment-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Nội dung bình luận đầu tiên kèm link..."></textarea>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- Publish Control Center -->
-              <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
-                <button type="button" class="btn-studio-publish" id="btnPublishFB" onclick="window.SocialStudio.publishPost()">
-                  <i data-lucide="send" style="width: 17px; height: 17px;"></i>
-                  <span>ĐĂNG NGAY LÊN FANPAGE APHIM SUPER</span>
+              <!-- Format Mode Switcher: Bài Viết Feed vs Video Reels -->
+              <div class="post-type-switcher">
+                <button type="button" class="post-type-btn active" id="btnModeFeed" onclick="window.SocialStudio.setPostType('feed')">
+                  <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                  <span>Bài Viết Feed (Nhiều Ảnh)</span>
                 </button>
-                <div style="display: flex; gap: 8px;">
-                  <button type="button" class="btn btn-outline" style="flex: 1; font-size: 12.5px; padding: 7px 12px;" onclick="window.SocialStudio.copyContent()">
-                    <i data-lucide="copy" style="width: 13px; height: 13px;"></i> Sao Chép Bài Viết
-                  </button>
-                  <a href="https://www.facebook.com/1307356335804337" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 12.5px; padding: 7px 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                    <i data-lucide="external-link" style="width: 13px; height: 13px;"></i> Xem Fanpage
-                  </a>
+                <button type="button" class="post-type-btn reels-mode" id="btnModeReels" onclick="window.SocialStudio.setPostType('reels')">
+                  <i data-lucide="clapperboard" style="width: 14px; height: 14px;"></i>
+                  <span>Facebook Reels (Video 9:16)</span>
+                </button>
+              </div>
+
+              <!-- ═════════ SECTION 1: FEED SIMULATOR (NHIỀU ẢNH) ═════════ -->
+              <div id="feedSimulatorSection">
+                <div class="studio-card-title" style="margin-bottom: 10px;">
+                  <h3><i data-lucide="eye" style="color: #1877f2;"></i> Xem Trước Thực Tế (Live Facebook Feed)</h3>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="window.SocialStudio.toggleFbTheme()" title="Đổi giao diện Sáng / Tối Facebook">
+                      <span id="fbThemeLabel">🌙 Nền Tối</span>
+                    </button>
+                    <span class="badge badge-emerald" style="display: flex; align-items: center; gap: 4px; font-size: 11px;">
+                      <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+                      Page: APhim Super
+                    </span>
+                  </div>
                 </div>
+
+                <!-- Simulated Facebook Post Card -->
+                <div class="fb-feed-card" id="fbFeedCard">
+                  <!-- Post Author Header -->
+                  <div class="fb-post-header">
+                    <div class="fb-author-row">
+                      <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" class="fb-avatar" alt="APhim Super">
+                      <div>
+                        <div class="fb-author-name">
+                          <span>APhim Super</span>
+                          <svg class="fb-badge-verify" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div class="fb-post-time">
+                          <span>Vừa xong</span> · <span>🌐</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="color: #65676b; font-size: 18px; cursor: pointer;">•••</div>
+                  </div>
+
+                  <!-- Post Body -->
+                  <div class="fb-post-content-wrap">
+                    <textarea id="fbPostTextarea" class="fb-post-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Bấm '⚡ Sáng Tạo Bài Viết' hoặc gõ nội dung bài viết của bạn tại đây..."></textarea>
+                  </div>
+
+                  <!-- Photo Count & Full Visibility Notice -->
+                  <div id="fbPhotoCountIndicator" class="fb-photos-count-indicator" style="display: none;"></div>
+
+                  <!-- Post Images Dynamic Grid -->
+                  <div class="fb-photo-grid grid-1" id="fbPhotoGrid" style="display: none;">
+                    <!-- Dynamically injected images -->
+                  </div>
+
+                  <!-- Engagement Counter Bar -->
+                  <div class="fb-engagement-bar">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="display: inline-flex; width: 17px; height: 17px; border-radius: 50%; background: #1877f2; color: #fff; align-items: center; justify-content: center; font-size: 10px;">👍</span>
+                      <span style="display: inline-flex; width: 17px; height: 17px; border-radius: 50%; background: #fa383e; color: #fff; align-items: center; justify-content: center; font-size: 10px;">❤️</span>
+                      <span style="font-weight: 600;">1.4K</span>
+                    </div>
+                    <div>
+                      <span>128 bình luận</span> · <span>45 lượt chia sẻ</span>
+                    </div>
+                  </div>
+
+                  <!-- First Comment Preview Section -->
+                  <div class="fb-comment-preview-section">
+                    <div style="font-size: 11px; font-weight: 700; color: #d97706; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                      <i data-lucide="pin" style="width: 12px; height: 12px;"></i>
+                      <span>Bình luận đầu tiên được tự động ghim (Chứa Link Xem Phim):</span>
+                    </div>
+                    <div class="fb-comment-item">
+                      <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" style="width: 30px; height: 30px; border-radius: 50%;" alt="Author">
+                      <div class="fb-comment-bubble">
+                        <div class="fb-comment-author">
+                          <span>APhim Super</span>
+                          <span class="fb-comment-badge-author">Tác giả</span>
+                        </div>
+                        <textarea id="fbFirstCommentInput" class="fb-comment-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Nội dung bình luận đầu tiên kèm link..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Publish Control Center (Feed Post) -->
+                <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+                  <button type="button" class="btn-studio-publish" id="btnPublishFB" onclick="window.SocialStudio.publishPost()">
+                    <i data-lucide="send" style="width: 17px; height: 17px;"></i>
+                    <span>ĐĂNG BÀI VIẾT LÊN FANPAGE APHIM SUPER</span>
+                  </button>
+                  <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-outline" style="flex: 1; font-size: 12.5px; padding: 7px 12px;" onclick="window.SocialStudio.copyContent()">
+                      <i data-lucide="copy" style="width: 13px; height: 13px;"></i> Sao Chép Bài Viết
+                    </button>
+                    <a href="https://www.facebook.com/1307356335804337" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 12.5px; padding: 7px 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                      <i data-lucide="external-link" style="width: 13px; height: 13px;"></i> Xem Fanpage
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ═════════ SECTION 2: REELS SIMULATOR (VIDEO 9:16) ═════════ -->
+              <div id="reelsSimulatorSection" style="display: none;">
+                <div class="studio-card-title" style="margin-bottom: 10px;">
+                  <h3><i data-lucide="clapperboard" style="color: #ec4899;"></i> Xem Trước Facebook Reels (Dọc 9:16)</h3>
+                  <span class="badge" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff; font-size: 10.5px;">META REELS 9:16</span>
+                </div>
+
+                <!-- 9:16 Phone Mockup -->
+                <div class="fb-reels-mockup-wrap">
+                  <div class="reels-video-container">
+                    <video id="reelsVideoPlayer" class="reels-video-player" playsinline loop controls></video>
+                  </div>
+                  <div class="reels-gradient-top"></div>
+                  <div class="reels-gradient-bottom"></div>
+
+                  <!-- Top Bar -->
+                  <div class="reels-top-bar">
+                    <div class="reels-brand-pill">
+                      <i data-lucide="sparkles" style="width: 12px; height: 12px; color: #ec4899;"></i>
+                      <span>REELS · APHIM SUPER</span>
+                    </div>
+                    <span style="font-size: 11px; color: #fff; background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 12px;" id="reelsEpDurationTag">~90s</span>
+                  </div>
+
+                  <!-- Right Floating Action Icons -->
+                  <div class="reels-floating-actions">
+                    <div class="reels-action-item">
+                      <button type="button" class="reels-action-btn" title="Thích">
+                        <span style="font-size: 18px;">❤️</span>
+                      </button>
+                      <span>18.6K</span>
+                    </div>
+                    <div class="reels-action-item">
+                      <button type="button" class="reels-action-btn" title="Bình luận">
+                        <span style="font-size: 18px;">💬</span>
+                      </button>
+                      <span>642</span>
+                    </div>
+                    <div class="reels-action-item">
+                      <button type="button" class="reels-action-btn" title="Chia sẻ">
+                        <span style="font-size: 18px;">↗️</span>
+                      </button>
+                      <span>1.2K</span>
+                    </div>
+                    <div class="reels-action-item">
+                      <div class="reels-music-disk" title="Âm thanh gốc"></div>
+                    </div>
+                  </div>
+
+                  <!-- Bottom HUD Info -->
+                  <div class="reels-bottom-info">
+                    <div class="reels-author-header">
+                      <img src="/icons/icon-192x192.png" onerror="this.src='https://graph.facebook.com/1307356335804337/picture?type=large'" class="reels-author-avatar" alt="Author">
+                      <div class="reels-author-name">
+                        <span>APhim Super</span>
+                        <svg class="fb-badge-verify" viewBox="0 0 24 24" style="width: 14px; height: 14px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                      </div>
+                      <span class="reels-episode-tag" id="reelsEpisodeBadge">Tập 1</span>
+                    </div>
+                    <div class="reels-caption-text" id="reelsCaptionPreview">
+                      ⚡ Đang chuẩn bị kịch bản Reels siêu cuốn...
+                    </div>
+                    <div class="reels-audio-tag">
+                      <i data-lucide="music" style="width: 12px; height: 12px;"></i>
+                      <span>Âm thanh gốc - APhim Super</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Reels Caption & Comment Editor Controls -->
+                <div style="margin-top: 14px; background: #ffffff; border: 1px solid var(--border-default, #e7e0d3); border-radius: 14px; padding: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-size: 12px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 5px;">
+                      <i data-lucide="file-text" style="width: 13px; height: 13px; color: #ec4899;"></i> Caption Video Reels:
+                    </span>
+                    <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px; color: #be185d; border-color: #fbcfe8;" onclick="window.SocialStudio.generateReelsCaption()" title="Tạo lại caption Reels cuốn hút cho tập này">
+                      ⚡ Tạo Lại Caption Reels
+                    </button>
+                  </div>
+                  <textarea id="reelsCaptionInput" class="fb-post-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" style="min-height: 80px; font-size: 12.5px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px;" placeholder="Nhập hoặc để AI tự tạo caption Reels..."></textarea>
+
+                  <div style="margin-top: 10px;">
+                    <div style="font-size: 11.5px; font-weight: 700; color: #d97706; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
+                      <i data-lucide="pin" style="width: 12px; height: 12px;"></i> Bình Luận Ghim (Link Xem Trọn Bộ Phim):
+                    </div>
+                    <textarea id="reelsFirstCommentInput" class="fb-comment-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" style="min-height: 48px; font-size: 12px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; width: 100%; box-sizing: border-box; background: #faf7f2;" placeholder="Bình luận kèm link aphim.store..."></textarea>
+                  </div>
+                </div>
+
+                <!-- Publish Reels Button -->
+                <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                  <button type="button" class="btn-studio-publish" id="btnPublishReels" onclick="window.SocialStudio.publishReels()" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); box-shadow: 0 4px 18px rgba(236, 72, 153, 0.4);">
+                    <i data-lucide="video" style="width: 17px; height: 17px;"></i>
+                    <span id="labelPublishReels">ĐĂNG REELS TẬP NÀY LÊN FANPAGE APHIM SUPER</span>
+                  </button>
+                  <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-outline" style="flex: 1; font-size: 12.5px; padding: 7px 12px;" onclick="window.SocialStudio.copyReelsCaption()">
+                      <i data-lucide="copy" style="width: 13px; height: 13px;"></i> Sao Chép Caption Reels
+                    </button>
+                    <a href="https://www.facebook.com/1307356335804337/reels/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 12.5px; padding: 7px 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                      <i data-lucide="external-link" style="width: 13px; height: 13px;"></i> Kênh Reels Fanpage
+                    </a>
+                  </div>
+                </div>
+
               </div>
 
             </div>
@@ -1385,8 +1835,9 @@
               <thead>
                 <tr style="text-align: left; font-size: 12px; color: #78716c; background: #faf7f2; border-bottom: 1px solid var(--border-default, #e7e0d3);">
                   <th style="padding: 10px 14px;">BỘ PHIM</th>
+                  <th style="padding: 10px 14px;">ĐỊNH DẠNG</th>
                   <th style="padding: 10px 14px;">POST ID & LINK</th>
-                  <th style="padding: 10px 14px;">SỐ ẢNH</th>
+                  <th style="padding: 10px 14px;">MEDIA</th>
                   <th style="padding: 10px 14px;">COMMENT LINK</th>
                   <th style="padding: 10px 14px;">THỜI GIAN</th>
                   <th style="padding: 10px 14px; text-align: right;">HÀNH ĐỘNG</th>
@@ -1394,12 +1845,22 @@
               </thead>
               <tbody id="postHistoryTableBody">
                 <tr>
-                  <td colspan="6" style="text-align: center; padding: 20px; color: #78716c; font-size: 13px;">
+                  <td colspan="7" style="text-align: center; padding: 20px; color: #78716c; font-size: 13px;">
                     Chưa có bài viết nào được đăng qua hệ thống.
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Pagination Toolbar for Post History -->
+          <div id="postHistoryPagination" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-top: 1px solid var(--border-default, #e7e0d3); flex-wrap: wrap; gap: 10px; background: #faf7f2; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;">
+            <div style="font-size: 12px; color: #78716c; font-weight: 600;" id="historyPageInfo">
+              Đang tải danh sách bài đăng...
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;" id="historyPageBtns">
+              <!-- Dynamically populated page buttons -->
+            </div>
           </div>
         </div>
 
