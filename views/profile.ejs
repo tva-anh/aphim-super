@@ -1,10 +1,92 @@
 <%- include('partials/head') %>
   <%- include('partials/header') %>
     <script>
-      // Immediate auth check
-      if (!localStorage.getItem('cinestream_token') || !localStorage.getItem('cinestream_user')) {
+      (function() {
+        // 🛡️ Robust Auth Hydration & Guard for Profile (PWA, Mobile & Desktop)
+        function getCookie(name) {
+          try {
+            var prefix = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+              if (c.indexOf(prefix) === 0) return decodeURIComponent(c.substring(prefix.length, c.length));
+            }
+          } catch (e) {}
+          return null;
+        }
+
+        // 1. Check for authenticated user across all possible storage keys & cookies
+        var user = null;
+        var rawUser = null;
+        try {
+          rawUser = localStorage.getItem('cinestream_user') ||
+                    localStorage.getItem('user') ||
+                    localStorage.getItem('A Phim_user') ||
+                    localStorage.getItem('currentUser') ||
+                    localStorage.getItem('aphim_admin_user') ||
+                    sessionStorage.getItem('cinestream_user') ||
+                    sessionStorage.getItem('user');
+          if (rawUser) {
+            user = JSON.parse(rawUser);
+          }
+        } catch (e) {}
+
+        if (!user) {
+          try {
+            var cookieUser = getCookie('cinestream_user') || getCookie('user') || getCookie('aphim_admin_user');
+            if (cookieUser) {
+              user = JSON.parse(cookieUser);
+            }
+          } catch (e) {}
+        }
+
+        // 2. Check for token across all possible storage keys & cookies
+        var token = null;
+        try {
+          token = localStorage.getItem('cinestream_token') ||
+                  localStorage.getItem('token') ||
+                  localStorage.getItem('aphim_token') ||
+                  localStorage.getItem('aphim_admin_token') ||
+                  sessionStorage.getItem('cinestream_token') ||
+                  getCookie('cinestream_token') ||
+                  getCookie('aphim_token') ||
+                  getCookie('aphim_admin_token') ||
+                  getCookie('token');
+        } catch (e) {}
+
+        // 3. If authenticated session exists (user or token)
+        if (user || token) {
+          try {
+            // Self-heal and synchronize keys so all subsequent scripts find them seamlessly
+            if (user && !localStorage.getItem('cinestream_user')) {
+              localStorage.setItem('cinestream_user', JSON.stringify(user));
+            }
+            if (user && !localStorage.getItem('user')) {
+              localStorage.setItem('user', JSON.stringify(user));
+            }
+            if (token && !localStorage.getItem('cinestream_token')) {
+              localStorage.setItem('cinestream_token', token);
+            }
+            document.documentElement.classList.add('user-logged-in');
+            document.documentElement.classList.remove('user-guest');
+          } catch (e) {}
+          // Session is active -> allow profile page to render smoothly!
+          return;
+        }
+
+        // 4. Truly unauthenticated guest check
+        // Check if user is trying to access history/favorites/settings as guest (which may have local data)
+        var path = (window.location.pathname || '').toLowerCase();
+        var search = (window.location.search || '').toLowerCase();
+        var isGuestAllowedTab = search.includes('tab=history') || search.includes('tab=favorites') || search.includes('tab=settings') || path.includes('lich-su') || path.includes('yeu-thich');
+        if (isGuestAllowedTab) {
+          return; // Let guest view local history or settings
+        }
+
+        // For account / sensitive tabs when completely unauthenticated, redirect cleanly to home
         window.location.replace('/?login=true');
-      }
+      })();
     </script>
     <style>
       /* ═══════════════════════════════════════════════════════════════════

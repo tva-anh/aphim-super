@@ -1021,4 +1021,20 @@
         }, { capture: true, passive: false });
     }
 
+    // Auto open login modal if directed with ?login=true or ?login=1 for unauthenticated visitors
+    try {
+        const sp = new URLSearchParams(window.location.search);
+        if (sp.get('login') === 'true' || sp.get('login') === '1') {
+            const hasUser = localStorage.getItem('cinestream_user') || localStorage.getItem('user') || localStorage.getItem('A Phim_user');
+            const hasToken = localStorage.getItem('cinestream_token') || localStorage.getItem('token');
+            if (!hasUser && !hasToken) {
+                setTimeout(() => {
+                    if (typeof window.showAuthModal === 'function') {
+                        window.showAuthModal('login');
+                    }
+                }, 350);
+            }
+        }
+    } catch (e) {}
+
 })();

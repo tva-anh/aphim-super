@@ -563,43 +563,157 @@
       this.generateReelsCaption();
     },
 
-    generateReelsCaption: function () {
+    generateReelsCaption: async function (options = {}) {
       const movie = this.ensureCurrentMovie();
       const movieTitle = movie ? movie.name : 'Phim Ngắn Cực Hay';
       const movieSlug = movie ? (movie.slug || 'phim-ngan') : 'phim-ngan';
       const epNum = selectedEpisode ? selectedEpisode.no : 1;
-
-      const hookVariants = [
-        `⚡ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: CÚ LẬT KÈO KHIẾN TẤT CẢ NÍN THỞ! 😱`,
-        `🔥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BÍ MẬT THÂN PHẬN CUỐI CÙNG BỊ PHƠI BÀY! 💥`,
-        `🎬 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỪNG ĐÙA VỚI NỮ CHÍNH KHI CÔ ẤY ĐÃ TRỞ LẠI! ✨`,
-        `🍿 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: DIỄN BIẾN CAO TRÀO KHÔNG THỂ BỎ LỠ! ⚡`,
-        `💥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BẢN LĨNH THỰC SỰ ĐƯỢC CHỨNG MINH! 🚀`
-      ];
-
-      const bodyVariants = [
-        `Diễn xuất bùng nổ, tình tiết dồn dập khiến người xem không thể rời mắt khỏi màn hình! Càng xem càng cuốn không dứt ra được.`,
-        `Một tập phim nghẹt thở với những toan tính khó lường. Liệu kết cục nào đang chờ đợi ở những tập tiếp theo?`,
-        `Cú twist bất ngờ đảo lộn mọi dự đoán của khán giả! Đỉnh cao kịch tính của drama mini hot nhất hiện nay.`
-      ];
-
-      const selectedHook = hookVariants[Math.floor(Math.random() * hookVariants.length)];
-      const selectedBody = bodyVariants[Math.floor(Math.random() * bodyVariants.length)];
-
       const movieTag = movieTitle.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]/g, '');
-      const hashtags = `#APhim #APhimSuper #PhimNgan #DramaMini #ReelsPhim #${movieTag} #TrendingReels #XemPhimOnline`;
+      const movieLink = `https://aphim.store/phim/${movieSlug}`;
 
-      const fullCaption = `${selectedHook}\n\n${selectedBody}\n\n👉 Xem TRỌN BỘ ${movieTitle} Full HD Vietsub tại: https://aphim.store/phim/${movieSlug}\n\n${hashtags}`;
-
+      const btn = document.getElementById('btnGenerateReelsCaption');
       const captionTextarea = document.getElementById('reelsCaptionInput');
-      if (captionTextarea) captionTextarea.value = fullCaption;
-
-      const previewEl = document.getElementById('reelsCaptionPreview');
-      if (previewEl) previewEl.textContent = `${selectedHook} ${selectedBody}`;
-
       const firstCommentInput = document.getElementById('reelsFirstCommentInput');
+      const previewEl = document.getElementById('reelsCaptionPreview');
+
+      const origBtnHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" style="width: 12px; height: 12px;"></i> Đang tạo AI...';
+        btn.disabled = true;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      let generatedCaption = '';
+      let generatedComment = '';
+
+      // 1. Cố gắng tạo bằng AI qua backend API
+      try {
+        const res = await fetch('/api/admin/social-studio/generate-reels-caption', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dramaTitle: movieTitle,
+            episodeNo: epNum,
+            slug: movieSlug,
+            summary: movie ? (movie.content || movie.description || '') : ''
+          })
+        });
+        const data = await res.json();
+        if (data && data.success && data.caption) {
+          generatedCaption = data.caption;
+          if (data.firstComment) generatedComment = data.firstComment;
+        }
+      } catch (err) {
+        console.warn('[SocialStudio] AI generation error, using rich local engine:', err);
+      }
+
+      // 2. Nếu AI chưa có sẵn (hoặc fallback), dùng bộ sinh nội dung đa dạng chống lặp (Anti-Repeat Engine)
+      if (!generatedCaption) {
+        const currentCaption = captionTextarea ? captionTextarea.value.trim() : '';
+
+        const hookVariants = [
+          `⚡ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: CÚ LẬT KÈO KHIẾN TẤT CẢ NÍN THỞ! 😱`,
+          `🔥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BÍ MẬT THÂN PHẬN CUỐI CÙNG BỊ PHƠI BÀY! 💥`,
+          `🎬 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỪNG ĐÙA VỚI NỮ CHÍNH KHI CÔ ẤY ĐÃ TRỞ LẠI! ✨`,
+          `🍿 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: DIỄN BIẾN CAO TRÀO KHÔNG THỂ BỎ LỠ! ⚡`,
+          `💥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BẢN LĨNH THỰC SỰ ĐƯỢC CHỨNG MINH! 🚀`,
+          `👑 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: VẠCH TRẦN BỘ MẶT GIẢ TẠO TRƯỚC MẶT CẢ GIA TỘC! 🔥`,
+          `⚡ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: TỰ TAY ĐẬP TAN ÂM MƯU CỦA KẺ PHẢN BỘI! 💥`,
+          `✨ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: AI MỚI THỰC SỰ LÀ CHỦ NHÂN CỦA VÁN CỜ NÀY? 🎭`,
+          `💅 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: MÀN ĐÁP TRẢ CỰC GẮT KHIẾN TRÀ XANH CÂM NÍN! 🍿`,
+          `🔥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: TỔNG TÀI ĐÍCH THÂN RA TAY BẢO VỆ NGƯỜI PHỤ NỮ CỦA MÌNH! 👑`,
+          `😱 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: TÌNH THẾ NGÀN CÂN TREO SỢI TÓC, CÚ BẺ LÁI KHÔNG AI NGỜ! ⚡`,
+          `💥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: LỘT MẶT NẠ KẺ GIẢ MẠO, CẢ HÀO MÔN CHẾT LẶNG! 🚀`,
+          `🎬 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỪNG TƯỞNG DỄ BẮT NẠT, MÀN PHẢN KÍCH MÃN NHÃN TỪNG GIÂY! ⚡`,
+          `🍿 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: SỰ THẬT TÀN NHẪN ĐƯỢC HÉ LỘ SAU BAO NĂM GIẤU KÍN! 💥`,
+          `🚀 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: MÀN LỘI NGƯỢC DÒNG ĐỈNH CAO CỦA KẺ TỪNG BỊ COI THƯỜNG! 👑`,
+          `⚡ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: CAO TRÀO NGHẸT THỞ, TỪNG GIÂY ĐỀU KHÔNG THỂ RỜI MẮT! 😱`,
+          `🔥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: MÂU THUẪN BÙNG NỔ ĐẾN ĐỈNH ĐIỂM, MỘT MẤT MỘT CÒN! 💥`,
+          `🎭 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: CỨ TƯỞNG THẮNG CHẮC, AI NGỜ LẠI LÀ CHIẾC BẪY TINH VI! ⚡`,
+          `👑 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỐI ĐẦU NẢY LỬA, KẺ THỦ ÁC BẮT ĐẦU HOẢNG LOẠN! 🚀`,
+          `✨ [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỨNG HÌNH TRƯỚC PHA XỬ LÝ QUÁ ĐỖI THÔNG MINH! 💅`,
+          `🍿 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: HÀO MÔN DẬY SÓNG, CƠN BÃO BẮT ĐẦU NỔI LÊN! 🔥`,
+          `💥 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: ĐỈNH CAO ĐẤU TRÍ, ĐI TRƯỚC ĐỐI THỦ MỘT BƯỚC CỜ! ⚡`,
+          `🎬 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: MÀN TRỪNG TRỊ THÍCH ĐÁNG KHIẾN NGƯỜI XEM HẢ HÊ! 🚀`,
+          `😱 [TẬP ${epNum}] ${movieTitle.toUpperCase()}: BỨC MÀN NHUNG ĐÃ HẠ, AI LÀ BẠN VÀ AI LÀ THÙ? ⚡`
+        ];
+
+        const bodyVariants = [
+          `Diễn xuất bùng nổ, tình tiết dồn dập khiến người xem không thể rời mắt khỏi màn hình! Càng xem càng cuốn không dứt ra được.`,
+          `Một tập phim nghẹt thở với những toan tính khó lường. Liệu kết cục nào đang chờ đợi ở những tập tiếp theo?`,
+          `Cú twist bất ngờ đảo lộn mọi dự đoán của khán giả! Đỉnh cao kịch tính của drama mini hot nhất hiện nay.`,
+          `Màn ra tay dứt khoát khiến đối phương không kịp trở tay. Xem đến đoạn này thực sự quá đã và quá thỏa mãn!`,
+          `Từng ánh mắt, cử chỉ đều toát lên thần thái đỉnh cao. Phản ứng hóa học giữa hai nhân vật chính bùng nổ vượt ngoài mong đợi!`,
+          `Không khí căng như dây đàn, từng nút thắt được tháo gỡ thông minh đưa khán giả đi từ bất ngờ này sang kinh ngạc khác.`,
+          `Khi lòng người bị thử thách, chân tướng hé lộ cũng là lúc thế cờ hoàn toàn xoay chuyển. Quá kịch tính và cuốn hút!`,
+          `Nhịp phim nhanh gọn, dứt khoát, không một giây thừa thãi. Càng về sau các phân cảnh đối đầu càng nghẹt thở!`,
+          `Một pha xử lý quá bản lĩnh chứng minh ai mới là người nắm giữ quyền lực thật sự. Khán giả chỉ biết vỗ tay thán phục!`,
+          `Cảm xúc được đẩy lên cao trào tột độ. Xem xong tập này chắc chắn bạn sẽ phải tìm ngay tập kế tiếp để xem tiếp!`
+        ];
+
+        const ctaVariants = [
+          `👉 Xem TRỌN BỘ ${movieTitle} Full HD Vietsub tại: ${movieLink}`,
+          `🍿 Đừng bỏ lỡ trọn bộ Full HD Vietsub tốc độ cao tại: ${movieLink}`,
+          `🎬 Trọn bộ không quảng cáo đã có sẵn tại: ${movieLink}`,
+          `✨ Khám phá toàn bộ diễn biến các tập tiếp theo tại: ${movieLink}`,
+          `🚀 Link xem trọn bộ siêu nét, cập nhật sớm nhất: ${movieLink}`
+        ];
+
+        // Lọc bỏ hook và body đang hiển thị để đảm bảo 100% đổi mới mỗi lần bấm
+        const availableHooks = hookVariants.filter(h => !currentCaption.includes(h.substring(0, 30)));
+        const finalHookPool = availableHooks.length > 0 ? availableHooks : hookVariants;
+        const selectedHook = finalHookPool[Math.floor(Math.random() * finalHookPool.length)];
+
+        const availableBodies = bodyVariants.filter(b => !currentCaption.includes(b.substring(0, 30)));
+        const finalBodyPool = availableBodies.length > 0 ? availableBodies : bodyVariants;
+        const selectedBody = finalBodyPool[Math.floor(Math.random() * finalBodyPool.length)];
+
+        const selectedCta = ctaVariants[Math.floor(Math.random() * ctaVariants.length)];
+        const hashtags = `#APhim #APhimSuper #PhimNgan #DramaMini #ReelsPhim #${movieTag} #TrendingReels #XemPhimOnline`;
+
+        generatedCaption = `${selectedHook}\n\n${selectedBody}\n\n${selectedCta}\n\n${hashtags}`;
+      }
+
+      if (captionTextarea) {
+        captionTextarea.value = generatedCaption;
+        // Hiệu ứng phát sáng visual feedback để người dùng thấy rõ caption đã thay đổi
+        captionTextarea.style.transition = 'all 0.35s ease';
+        captionTextarea.style.borderColor = '#ec4899';
+        captionTextarea.style.boxShadow = '0 0 0 3px rgba(236, 72, 153, 0.25)';
+        setTimeout(() => {
+          captionTextarea.style.borderColor = '#e2e8f0';
+          captionTextarea.style.boxShadow = 'none';
+        }, 800);
+      }
+
+      if (previewEl) {
+        const firstLine = generatedCaption.split('\n')[0] || '';
+        const secondLine = (generatedCaption.split('\n\n')[1] || '').split('\n')[0] || '';
+        previewEl.textContent = `${firstLine} ${secondLine}`.trim();
+      }
+
       if (firstCommentInput) {
-        firstCommentInput.value = `👉 Xem trọn bộ "${movieTitle}" Full HD Vietsub tốc độ cao tại:\nhttps://aphim.store/phim/${movieSlug}\nChúc cả nhà xem phim vui vẻ! 🍿🎬`;
+        const commentVariants = [
+          `👉 Xem trọn bộ "${movieTitle}" Full HD Vietsub tốc độ cao tại:\n${movieLink}\nChúc cả nhà xem phim vui vẻ! 🍿🎬`,
+          `🍿 Link xem trọn bộ bản đẹp nhất mình đã ghim sẵn tại đây nha:\n👉 ${movieLink}\nMọi người xem đến tập mấy rồi, cmt cho mình biết với nhé! ✨`,
+          `🎬 Tập tiếp theo còn gay cấn gấp bội! Xem trọn bộ không chờ đợi tại:\n👉 ${movieLink}\nThả tim và follow kênh để không bỏ lỡ các tập mới nhất nha! ❤️🔥`,
+          `✨ Khám phá trọn bộ diễn biến kịch tính Full HD tại:\n👉 ${movieLink}\nBật mí là cú twist phía sau sẽ khiến bạn đứng hình đấy! 😱🍿`
+        ];
+        firstCommentInput.value = generatedComment || commentVariants[Math.floor(Math.random() * commentVariants.length)];
+      }
+
+      if (btn) {
+        btn.innerHTML = '<i data-lucide="check" style="width: 12px; height: 12px; color: #10b981;"></i> Đã tạo mới!';
+        if (window.lucide) window.lucide.createIcons();
+        setTimeout(() => {
+          btn.innerHTML = origBtnHtml || '<i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> Tạo Lại Caption Reels';
+          btn.disabled = false;
+          if (window.lucide) window.lucide.createIcons();
+        }, 900);
+      }
+
+      if (typeof showToast === 'function') {
+        showToast(`✨ Đã tạo caption Reels mới cho Tập ${epNum}!`, 'success');
       }
     },
 

@@ -12,7 +12,7 @@
                 const u = authService.getCurrentUser();
                 if (u) return u;
             }
-            const stored = localStorage.getItem('cinestream_user') || localStorage.getItem('currentUser');
+            const stored = localStorage.getItem('cinestream_user') || localStorage.getItem('user') || localStorage.getItem('A Phim_user') || localStorage.getItem('currentUser') || localStorage.getItem('aphim_admin_user');
             if (stored) return JSON.parse(stored);
         } catch (e) {}
         return null;
@@ -192,7 +192,7 @@
                 </a>
 
                 <!-- 5. Tài khoản (Slender User Outline 1.35) -->
-                <a href="/profile" class="bn-tab ${active === 'account' ? 'active' : ''}" id="bn-tab-account" aria-label="Tài khoản" onclick="return handleAccountTabClick(event)">
+                <a href="/profile?tab=account" class="bn-tab ${active === 'account' ? 'active' : ''}" id="bn-tab-account" aria-label="Tài khoản" onclick="return handleAccountTabClick(event)">
                     <svg class="bn-tab-icon" viewBox="0 0 24 24" fill="none">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
@@ -245,7 +245,9 @@
             }
             return false;
         }
-        return true;
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        window.location.href = '/profile?tab=favorites';
+        return false;
     };
 
     window.handleHistoryTabClick = function (e) {
@@ -257,7 +259,9 @@
             }
             return false;
         }
-        return true;
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        window.location.href = '/profile?tab=history';
+        return false;
     };
 
     window.handleAccountTabClick = function (e) {
@@ -275,8 +279,9 @@
             }
             return false;
         }
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
         window.location.href = '/profile?tab=account';
-        return true;
+        return false;
     };
 
     /* ────────────────────────────────────────────

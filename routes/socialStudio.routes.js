@@ -400,4 +400,24 @@ router.post('/publish-reels', async (req, res) => {
     }
 });
 
+/**
+ * 11. POST /api/admin/social-studio/generate-reels-caption — Generate viral Reels caption
+ */
+router.post('/generate-reels-caption', async (req, res) => {
+    try {
+        const { dramaTitle, episodeNo, slug, summary, customPrompt } = req.body;
+        const result = await socialStudioService.generateReelsCaptionAI({
+            dramaTitle: dramaTitle || 'Phim Ngắn Cực Hay',
+            episodeNo: episodeNo || 1,
+            slug: slug || 'phim-ngan',
+            summary: summary || '',
+            customPrompt: customPrompt || ''
+        });
+        res.json(result);
+    } catch (err) {
+        console.error('[SocialStudio Routes] Reels Caption Gen Error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;
