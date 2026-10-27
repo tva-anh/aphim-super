@@ -1,45 +1,66 @@
 {
-  "updatedAt": "2026-10-26T19:58:00.000Z",
+  "updatedAt": "2026-10-28T02:10:00.000Z",
   "items": [
     {
-      "query": "xem phim giả kim thoa",
-      "title": "Giả Kim Thoa",
-      "traffic": "Đột Biến"
+      "query": "trại",
+      "title": "trại",
+      "traffic": "+Đột Biến%",
+      "movie_slug": "trai-buon-nguoi",
+      "movie_name": "Trại Buôn Người",
+      "poster_url": "https://cinema.momocdn.net/img/867383626301392-tbnpo.jpg",
+      "thumb_url": "https://cinema.momocdn.net/img/74805855983673840-tbn1.jpg",
+      "year": "2026",
+      "quality": "Bản Đẹp Rạp (Full HD)",
+      "is_custom": true
     },
     {
-      "query": "xem phim ngọc diệm thu",
-      "title": "Ngọc Diệm Thu",
-      "traffic": "+950%"
+      "query": "gả kim thoa",
+      "title": "gả kim thoa",
+      "traffic": "+950%",
+      "movie_slug": "ga-kim-thoa-ga-tram-vang",
+      "movie_name": "Gả Kim Thoa / Gả trầm vàng"
     },
     {
       "query": "xem phim 100 ngày lừa dối",
       "title": "100 Ngày Lừa Dối",
-      "traffic": "+300%"
+      "traffic": "+300%",
+      "movie_slug": "100-ngay-lua-doi",
+      "movie_name": "100 Ngày Lừa Dối"
     },
     {
       "query": "xem phim tiên nghịch",
       "title": "Tiên Nghịch",
-      "traffic": "+150%"
+      "traffic": "+150%",
+      "movie_slug": "tien-nghich",
+      "movie_name": "Tiên Nghịch"
     },
     {
       "query": "gái ngoan đổi đời xem phim",
       "title": "Gái Ngoan Đổi Đời",
-      "traffic": "+70%"
+      "traffic": "+70%",
+      "movie_slug": "project-y-gai-ngoan-doi-doi",
+      "movie_name": "Project Y: Gái Ngoan Đổi Đời"
     },
     {
       "query": "nhà gia tiên xem phim",
       "title": "Nhà Gia Tiên",
-      "traffic": "+60%"
+      "traffic": "+60%",
+      "movie_slug": "nha-gia-tien",
+      "movie_name": "Nhà Gia Tiên"
     },
     {
       "query": "xem phim phá đám sinh nhật mẹ",
       "title": "Phá Đám Sinh Nhật Mẹ",
-      "traffic": "+550%"
+      "traffic": "+550%",
+      "movie_slug": "pha-dam-sinh-nhat-me",
+      "movie_name": "Phá Đám: Sinh Nhật Mẹ"
     },
     {
       "query": "xem phim khó dỗ dành",
       "title": "Khó Dỗ Dành",
-      "traffic": "+20%"
+      "traffic": "+20%",
+      "movie_slug": "kho-do-danh",
+      "movie_name": "Khó Dỗ Dành"
     },
     {
       "query": "xem phim lan hương như cố",

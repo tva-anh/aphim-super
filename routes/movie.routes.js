@@ -809,7 +809,6 @@ router.get('/trending-24h', async (req, res) => {
 });
 
 function invalidateTrendingCache() {
-    trending24hCache = null;
     trending24hCacheTime = 0;
 }
 

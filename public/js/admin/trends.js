@@ -16,7 +16,24 @@
                   localStorage.getItem('cinestream_admin_token') ||
                   sessionStorage.getItem('cinestream_admin_token') ||
                   localStorage.getItem('adminToken') ||
-                  (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1] || '';
+                  localStorage.getItem('sb-access-token') ||
+                  localStorage.getItem('token') ||
+                  (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken|sb-access-token|token)=([^;]+)/) || [])[1] || '';
+      if (!token) {
+        // Kiểm tra Supabase Auth token lưu theo key sb-...-auth-token trong localStorage
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('sb-') || key.includes('supabase')) && key.endsWith('-auth-token')) {
+            try {
+              const val = JSON.parse(localStorage.getItem(key));
+              if (val && val.access_token) {
+                token = val.access_token;
+                break;
+              }
+            } catch {}
+          }
+        }
+      }
       if (token && typeof token === 'string') {
         token = decodeURIComponent(token).trim();
         if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
@@ -221,7 +238,14 @@
       cleanList.push({
         ...item,
         movie_slug: movie.slug,
-        movie_name: movie.name
+        movie_name: movie.name,
+        poster_url: movie.poster_url || movie.thumb_url || '',
+        thumb_url: movie.thumb_url || movie.poster_url || '',
+        year: movie.year || '',
+        quality: movie.quality || '',
+        lang: movie.lang || '',
+        is_custom: !!movie.is_custom,
+        is_momo: !!movie.is_cinema
       });
     }
 
@@ -533,9 +557,11 @@
 
     try {
       const token = getAdminToken();
+      const headers = {};
+      if (token) headers['Authorization'] = 'Bearer ' + token;
       const res = await fetch('/api/admin/trends', {
-        headers: { 'Authorization': 'Bearer ' + token },
-        credentials: 'omit'
+        headers,
+        credentials: 'same-origin'
       });
       const data = await res.json();
       if (data && data.success && Array.isArray(data.items)) {
@@ -1110,13 +1136,15 @@
 
     try {
       const token = getAdminToken();
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+
       const res = await fetch('/api/admin/trends', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        credentials: 'omit',
+        headers,
+        credentials: 'same-origin',
         body: JSON.stringify({ items: validItems })
       });
       const data = await res.json();
@@ -1129,10 +1157,10 @@
         updateKpis();
         syncTextareaFromCurrentItems();
       } else {
-        if (!silent) showToast(data.message || 'Lỗi khi lưu Google Trends', 'error');
+        showToast(data?.message || 'Lỗi khi lưu Google Trends (Mã ' + res.status + ')', 'error');
       }
     } catch (e) {
-      if (!silent) showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
+      showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
     } finally {
       isSavingInProgress = false;
       if (btn && !silent) {
