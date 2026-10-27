@@ -226,35 +226,39 @@
         activeAbortController = new AbortController();
         const signal = activeAbortController.signal;
 
-        // 3. Fetch from PhimAPI
+        // 3. Giữ đúng luồng gốc: map thêm search-admin (MoMo + Custom Data) chuẩn như bên Admin
+        let list = [];
         try {
-            const url = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(cleanKw)}&limit=${limit}&page=1`;
-            const res = await fetch(url, { signal });
+            const res = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(cleanKw)}`, { signal });
             if (res.ok) {
                 const data = await res.json();
-                const items = data?.data?.items || data?.items || [];
-                if (items && items.length > 0) {
-                    const sliced = items.slice(0, limit);
-                    setCache(cacheKey, sliced);
-                    return sliced;
+                if (data && Array.isArray(data.items) && data.items.length > 0) {
+                    list = data.items;
                 }
             }
         } catch (e) {
-            if (e.name === 'AbortError') return null; // Cancelled silently
+            if (e.name === 'AbortError') return null;
         }
 
-        // 4. Fallback qua movieAPI nếu có
-        try {
-            if (typeof movieAPI !== 'undefined' && movieAPI.searchMovies) {
-                const data = await movieAPI.searchMovies(cleanKw, 1, limit);
-                const items = data?.items || data?.data?.items || [];
-                if (items && items.length > 0) {
-                    const sliced = items.slice(0, limit);
-                    setCache(cacheKey, sliced);
-                    return sliced;
+        // 4. Fallback qua luồng cũ PhimAPI nếu backend chưa có kết quả
+        if (!list || list.length === 0) {
+            try {
+                const url = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(cleanKw)}&limit=${limit}&page=1`;
+                const res = await fetch(url, { signal });
+                if (res.ok) {
+                    const data = await res.json();
+                    list = data?.data?.items || data?.items || [];
                 }
+            } catch (e) {
+                if (e.name === 'AbortError') return null;
             }
-        } catch (e) {}
+        }
+
+        if (list && list.length > 0) {
+            const sliced = list.slice(0, limit);
+            setCache(cacheKey, sliced);
+            return sliced;
+        }
 
         return [];
     }

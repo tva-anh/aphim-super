@@ -1,0 +1,33 @@
+{
+  "trai-buon-nguoi": {
+    "slug": "trai-buon-nguoi",
+    "name": "Trại Buôn Người",
+    "origin_name": "Trại Buôn Người",
+    "year": 2026,
+    "quality": "Bản Đẹp Rạp (Full HD)",
+    "thumb_url": "https://cinema.momocdn.net/img/74805855983673840-tbn1.jpg",
+    "poster_url": "https://cinema.momocdn.net/img/867383626301392-tbnpo.jpg",
+    "category": [
+      "Phim Chiếu Rạp"
+    ],
+    "country": [
+      "Việt Nam"
+    ],
+    "type": "single",
+    "episodes": [
+      {
+        "server_name": "APhim VIP Server (R2 / CDN Bản Đẹp)",
+        "server_data": [
+          {
+            "name": "Full",
+            "slug": "tap-full",
+            "link_m3u8": "https://pub-8f3b918d77aa4174a8b7af09fda29a8a.r2.dev/trai-buon-nguoi-cam-2026.mp4",
+            "link_embed": ""
+          }
+        ]
+      }
+    ],
+    "created_at": 1793121766541,
+    "updated_at": 1793122676965
+  }
+}

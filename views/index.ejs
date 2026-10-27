@@ -4596,7 +4596,7 @@
                         // ==========================================
                         // 🎥 SECTION 0.2: PHIM RẠP SẮP CHIẾU (TỰ ĐỘNG 100% TRỰC TIẾP TỪ MOMO CINEMA API)
                         // ==========================================
-                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v9';
+                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v11';
                         const CINEMA_HOT_MAX_DISPLAY = 20; // Giới hạn 20 phim hot nhất
                         let cinemaHotStoredItems = null;
                         let cinemaHotActiveIndex = 0;
@@ -4925,7 +4925,7 @@
 
                             // ⚡ 1. SWR: Nạp tức thì 0ms từ bộ nhớ đệm để không bị trễ hay giật giao diện
                             try {
-                                const cachedHtml = localStorage.getItem('aphim_cinema_hot_html_v10');
+                                const cachedHtml = localStorage.getItem('aphim_cinema_hot_html_v11');
                                 if (cachedHtml && (!sliderEl.children.length || sliderEl.querySelector('.cinema-hot-skeleton-card'))) {
                                     sliderEl.innerHTML = cachedHtml;
                                     if (window.innerWidth < 640) {

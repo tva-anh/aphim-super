@@ -1669,6 +1669,88 @@ router.post('/trends', requireAdmin, async (req, res) => {
     }
 });
 
+// ══════════════════════════════════════════════════════════════════════════
+// 🎬 CUSTOM STREAMS ADMIN API (Gán link phát tùy biến R2 / m3u8 / Embed)
+// ══════════════════════════════════════════════════════════════════════════
+const customStreams = require('../lib/customStreams');
+
+// GET /api/admin/custom-streams — Lấy tất cả phim đã gán link tùy biến
+router.get('/custom-streams', requireAdmin, (req, res) => {
+    try {
+        const items = customStreams.getAll(false);
+        return res.json({ success: true, count: items.length, items });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// GET /api/admin/custom-streams/:slug — Lấy chi tiết link đã gán của phim
+router.get('/custom-streams/:slug', requireAdmin, (req, res) => {
+    try {
+        const item = customStreams.getBySlug(req.params.slug, false);
+        return res.json({ success: true, item: item || null, hasCustom: !!item });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// POST /api/admin/custom-streams — Lưu hoặc cập nhật link phát cho phim
+router.post('/custom-streams', requireAdmin, (req, res) => {
+    try {
+        const { slug, name, origin_name, poster_url, thumb_url, year, quality, lang, content, link_m3u8, link_embed, episodes } = req.body;
+        if (!slug || !slug.trim()) {
+            return res.status(400).json({ success: false, message: 'Vui lòng cung cấp slug phim hợp lệ' });
+        }
+
+        const saved = customStreams.saveStream(slug, {
+            slug,
+            name,
+            origin_name,
+            poster_url,
+            thumb_url,
+            year,
+            quality,
+            lang,
+            content,
+            link_m3u8,
+            link_embed,
+            episodes
+        });
+
+        // Xóa cache để có hiệu lực tức thì 0ms trên trang chính
+        if (typeof global.clearMovieCache === 'function') {
+            global.clearMovieCache(slug);
+        }
+
+        return res.json({
+            success: true,
+            message: `Đã gán link chiếu thành công cho phim "${saved.name}"!`,
+            item: saved
+        });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// DELETE /api/admin/custom-streams/:slug — Xóa link tùy biến, trả về nguồn mặc định
+router.delete('/custom-streams/:slug', requireAdmin, (req, res) => {
+    try {
+        const slug = req.params.slug;
+        const deleted = customStreams.deleteStream(slug);
+
+        if (typeof global.clearMovieCache === 'function') {
+            global.clearMovieCache(slug);
+        }
+
+        return res.json({
+            success: true,
+            message: deleted ? `Đã xóa link tùy biến của phim ${slug}!` : 'Phim này chưa có link tùy biến'
+        });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
 router.invalidateAdminCache = invalidateAdminCache;
 module.exports = router;
 module.exports.invalidateAdminCache = invalidateAdminCache;

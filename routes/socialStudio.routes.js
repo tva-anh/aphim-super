@@ -342,6 +342,32 @@ router.get('/history', (req, res) => {
 });
 
 /**
+ * 7.1 GET /api/admin/social-studio/fb-status — Check Facebook Connection & Permissions
+ */
+router.get('/fb-status', async (req, res) => {
+    try {
+        const { token, pageId } = req.query;
+        const result = await socialStudioService.checkFacebookStatus(token, pageId);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * 7.2 POST /api/admin/social-studio/update-fb-token — Save and update Page Token live
+ */
+router.post('/update-fb-token', async (req, res) => {
+    try {
+        const { pageId, pageToken } = req.body;
+        const result = await socialStudioService.updateFacebookConfig({ pageId, pageToken });
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/**
  * 8. POST /api/admin/social-studio/upload-image — In-Memory Echo (Zero Disk Storage)
  */
 router.post('/upload-image', (req, res) => {

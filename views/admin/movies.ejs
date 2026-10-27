@@ -24,8 +24,8 @@
           <button class="btn btn-outline" onclick="AdminCore.syncMoviesNow()">
             <i data-lucide="refresh-cw"></i> Đồng Bộ API Ngay
           </button>
-          <button class="btn btn-primary" onclick="AdminCore.openAddCustomMovie()">
-            <i data-lucide="plus-circle"></i> Thêm Phim Tùy Biến
+          <button class="btn btn-primary" onclick="AdminCore.openCustomStreamModal()" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #000; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="video"></i> Gán Link Chiếu Phim (R2/Bản Đẹp)
           </button>
         </div>
       </div>
@@ -62,6 +62,7 @@
           <!-- Status Filter -->
           <select id="movieStatusFilter" class="form-control filter-select">
             <option value="">Tất cả trạng thái</option>
+            <option value="custom">🎬 Phim Đã Gán Link Chiếu (R2 / Bản Đẹp)</option>
             <option value="active">Đang hiển thị</option>
             <option value="hidden">Đã ẩn khỏi web</option>
             <option value="dmca">Báo cáo DMCA / Bị chặn</option>

@@ -571,6 +571,48 @@ router.get('/movie-backdrops', async (req, res) => {
                     }
                 } catch (e) {}
             }
+
+            // 1.3 Kiểm tra tiếp từ nguồn MoMo Cinema (Phim Chiếu Rạp)
+            if (!targetId && !movieDetail) {
+                try {
+                    let momoItems = null;
+                    try {
+                        const movieRoutes = require('./movie.routes');
+                        if (typeof movieRoutes.fetchFromMoMoCinema === 'function') {
+                            momoItems = await movieRoutes.fetchFromMoMoCinema();
+                        }
+                    } catch (errLocal) {}
+
+                    if (!momoItems) {
+                        const momoRes = await fetch(`http://127.0.0.1:${process.env.PORT || 3005}/api/movies/cinema-hot`).catch(() => null);
+                        if (momoRes && momoRes.ok) {
+                            const momoData = await momoRes.json();
+                            if (momoData.success && Array.isArray(momoData.items)) {
+                                momoItems = momoData.items;
+                            }
+                        }
+                    }
+
+                    if (Array.isArray(momoItems)) {
+                        const cleanTargetSlug = (slug || '').trim().toLowerCase();
+                        const cleanTargetName = (name || query || '').trim().toLowerCase();
+                        const mFound = momoItems.find(m => 
+                            (cleanTargetSlug && m.slug === cleanTargetSlug) ||
+                            (cleanTargetName && m.name && m.name.toLowerCase().includes(cleanTargetName)) ||
+                            (cleanTargetName && m.slug && cleanTargetName.includes(m.slug))
+                        );
+                        if (mFound) {
+                            movieDetail = {
+                                name: mFound.name,
+                                origin_name: mFound.origin_name || mFound.name,
+                                slug: mFound.slug,
+                                poster_url: mFound.poster || mFound.fallback_poster,
+                                thumb_url: mFound.fallback_poster || mFound.poster
+                            };
+                        }
+                    }
+                } catch (e) {}
+            }
         }
 
         // 2. Tìm kiếm qua TMDB Multi Search nếu vẫn chưa có TMDB ID

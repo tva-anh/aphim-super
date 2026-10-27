@@ -10,6 +10,7 @@
     let isSaving = false;
     let searchDebounceTimer = null;
     let cachedTrendingList = [];
+    let cachedCinemaHotList = [];
     let draggedShowcaseIndex = null;
 
     function getAdminToken() {
@@ -527,94 +528,142 @@
             }, 300);
         },
 
+        async preloadTrending() {
+            try {
+                if (!cachedTrendingList || cachedTrendingList.length === 0) {
+                    const res = await fetch('https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1');
+                    const data = await res.json();
+                    if (data.status === true && data.items?.length) {
+                        cachedTrendingList = data.items;
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                if (!cachedCinemaHotList || cachedCinemaHotList.length === 0) {
+                    const cRes = await fetch('/api/movies/cinema-hot');
+                    const cData = await cRes.json();
+                    if (cData.success && Array.isArray(cData.items) && cData.items.length > 0) {
+                        cachedCinemaHotList = cData.items;
+                    }
+                }
+            } catch (e) {}
+        },
+
         renderTrendingSuggestions() {
             const resultsBox = document.getElementById('apiSearchResults');
             if (!resultsBox) return;
 
-            if (cachedTrendingList.length > 0) {
-                resultsBox.style.display = 'flex';
-                resultsBox.innerHTML = `
-                    <div style="font-size:11.5px;color:#38bdf8;font-weight:700;padding:2px 4px;display:flex;align-items:center;gap:6px;">
-                        <span>🔥 Phim Mới Cập Nhật / Đề Cử Nhanh:</span>
-                    </div>
-                ` + cachedTrendingList.slice(0, 6).map(m => {
-                    const poster = m.poster_url || m.thumb_url || '';
-                    const fullPoster = poster.startsWith('http') ? poster : `https://phimimg.com/${poster.replace(/^\//, '')}`;
-                    const jsonStr = JSON.stringify({
-                        name: m.name || '',
-                        origin_name: m.origin_name || '',
-                        slug: m.slug || '',
-                        poster_url: fullPoster,
-                        year: String(m.year || '2026'),
-                        quality: m.quality || 'FHD',
-                        lang: m.lang || 'Vietsub Full',
-                        content: m.content ? m.content.replace(/<[^>]*>/g, '').trim() : ''
-                    }).replace(/"/g, '&quot;');
+            const hasCinema = cachedCinemaHotList && cachedCinemaHotList.length > 0;
+            const hasTrending = cachedTrendingList && cachedTrendingList.length > 0;
 
-                    return `
-                        <div onclick="MobileShowcaseAdmin.selectSearchMovie('${jsonStr}')" style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,0.06);border-radius:8px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
-                            <img src="${fullPoster}" style="width:34px;height:48px;border-radius:6px;object-fit:cover;background:#000;flex-shrink:0;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
-                            <div style="flex:1;min-width:0;">
-                                <div style="color:#ffffff;font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.name}</div>
-                                <div style="color:#94a3b8;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.origin_name || ''} • <span style="color:#38bdf8;font-weight:700;">${m.year || ''}</span></div>
-                            </div>
-                            <span style="color:#38bdf8;font-size:11.5px;font-weight:800;background:rgba(56,189,248,0.18);padding:3px 8px;border-radius:5px;flex-shrink:0;">Chọn ➔</span>
+            if (hasCinema || hasTrending) {
+                resultsBox.style.display = 'flex';
+                let html = '';
+
+                if (hasCinema) {
+                    html += `
+                        <div style="font-size:11.5px;color:#f59e0b;font-weight:800;padding:4px 6px;display:flex;align-items:center;gap:6px;background:rgba(245,158,11,0.12);border-radius:6px;">
+                            <span>🎬 ĐANG CHIẾU RẠP HOT (MOMO CINEMA):</span>
                         </div>
-                    `;
-                }).join('');
+                    ` + cachedCinemaHotList.slice(0, 8).map(m => {
+                        const poster = m.fallback_poster || m.poster || '';
+                        const jsonStr = JSON.stringify({
+                            name: m.name || '',
+                            origin_name: m.origin_name || m.name || '',
+                            slug: m.slug || '',
+                            poster_url: poster,
+                            year: String((m.release_date || '').split('-')[0] || '2026'),
+                            quality: 'Chiếu Rạp',
+                            lang: 'Vietsub Full',
+                            rating: m.rating || '9.6',
+                            content: m.synopsis || ''
+                        }).replace(/"/g, '&quot;');
+
+                        return `
+                            <div onclick="MobileShowcaseAdmin.selectSearchMovie('${jsonStr}')" style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(245,158,11,0.25)'" onmouseout="this.style.background='rgba(245,158,11,0.08)'">
+                                <img src="${poster}" style="width:34px;height:48px;border-radius:6px;object-fit:cover;background:#000;flex-shrink:0;">
+                                <div style="flex:1;min-width:0;">
+                                    <div style="color:#ffffff;font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                        <span style="background:#f59e0b;color:#000;font-size:9.5px;font-weight:900;padding:1px 4px;border-radius:3px;margin-right:4px;">RẠP</span>${m.name}
+                                    </div>
+                                    <div style="color:#fbbf24;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                        ⭐ ${m.rating || '9.6'} • ${m.duration || 'Chiếu Rạp'} • ${m.genres || 'Phim Rạp'}
+                                    </div>
+                                </div>
+                                <span style="color:#f59e0b;font-size:11.5px;font-weight:800;background:rgba(245,158,11,0.2);padding:3px 8px;border-radius:5px;flex-shrink:0;">Chọn ➔</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                if (hasTrending) {
+                    html += `
+                        <div style="font-size:11.5px;color:#38bdf8;font-weight:700;padding:6px 6px 2px 6px;margin-top:6px;">
+                            🔥 Phim Mới Cập Nhật Online:
+                        </div>
+                    ` + cachedTrendingList.slice(0, 6).map(m => {
+                        const poster = m.poster_url || m.thumb_url || '';
+                        const fullPoster = poster.startsWith('http') ? poster : `https://phimimg.com/${poster.replace(/^\//, '')}`;
+                        const jsonStr = JSON.stringify({
+                            name: m.name || '',
+                            origin_name: m.origin_name || '',
+                            slug: m.slug || '',
+                            poster_url: fullPoster,
+                            year: String(m.year || '2026'),
+                            quality: m.quality || 'FHD',
+                            lang: m.lang || 'Vietsub Full',
+                            content: m.content ? m.content.replace(/<[^>]*>/g, '').trim() : ''
+                        }).replace(/"/g, '&quot;');
+
+                        return `
+                            <div onclick="MobileShowcaseAdmin.selectSearchMovie('${jsonStr}')" style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,0.06);border-radius:8px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+                                <img src="${fullPoster}" style="width:34px;height:48px;border-radius:6px;object-fit:cover;background:#000;flex-shrink:0;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
+                                <div style="flex:1;min-width:0;">
+                                    <div style="color:#ffffff;font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.name}</div>
+                                    <div style="color:#94a3b8;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.origin_name || ''} • <span style="color:#38bdf8;font-weight:700;">${m.year || ''}</span></div>
+                                </div>
+                                <span style="color:#38bdf8;font-size:11.5px;font-weight:800;background:rgba(56,189,248,0.18);padding:3px 8px;border-radius:5px;flex-shrink:0;">Chọn ➔</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                resultsBox.innerHTML = html;
             } else {
                 resultsBox.style.display = 'none';
             }
         },
 
         async searchMovieFromAPI(manualQuery = '') {
-            const query = manualQuery || document.getElementById('inputSearchMovieAPI')?.value.trim();
+            const query = (manualQuery || document.getElementById('inputSearchMovieAPI')?.value || '').trim();
             const resultsBox = document.getElementById('apiSearchResults');
             const indicator = document.getElementById('searchLoadingIndicator');
             if (!query || !resultsBox) return;
 
             resultsBox.style.display = 'flex';
-            resultsBox.innerHTML = '<div style="color:#38bdf8;font-size:12px;padding:8px;text-align:center;">⏳ Đang tìm kiếm phim...</div>';
+            resultsBox.innerHTML = '<div style="color:#38bdf8;font-size:12px;padding:8px;text-align:center;">⏳ Đang tìm kiếm phim (MoMo & API)...</div>';
             if (indicator) indicator.style.display = 'inline';
 
             try {
                 let list = [];
-                // 1. PhimAPI search
+
+                // Gọi backend search-admin tổng hợp (MoMo Cinema + PhimAPI + OPhim) — 100% KHÔNG BỊ CORS!
                 try {
-                    const res1 = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=10&page=1`);
-                    const data1 = await res1.json();
-                    if (data1.status === 'success' && data1.data?.items?.length) {
-                        list = data1.data.items;
+                    const res = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+                        list = data.items;
                     }
-                } catch(e) {}
+                } catch (e) {}
 
-                // 2. Ophim fallback
+                // Fallback trực tiếp PhimAPI nếu backend bận
                 if (!list.length) {
                     try {
-                        const res2 = await fetch(`https://ophim1.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}`);
-                        const data2 = await res2.json();
-                        if (data2.data?.items?.length) {
-                            list = data2.data.items;
-                        }
-                    } catch(e) {}
-                }
-
-                // 3. NguonC fallback
-                if (!list.length) {
-                    try {
-                        const res3 = await fetch(`https://phim.nguonc.com/api/films/search?name=${encodeURIComponent(query)}`);
-                        const data3 = await res3.json();
-                        if (data3.items && Array.isArray(data3.items)) {
-                            list = data3.items.map(it => ({
-                                name: it.name,
-                                origin_name: it.original_name,
-                                slug: it.slug,
-                                poster_url: it.poster_url || it.thumb_url,
-                                year: it.year,
-                                quality: it.quality,
-                                lang: it.language,
-                                content: it.description
-                            }));
+                        const res1 = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=10&page=1`);
+                        const data1 = await res1.json();
+                        if (data1.status === 'success' && data1.data?.items?.length) {
+                            list = data1.data.items;
                         }
                     } catch(e) {}
                 }
@@ -628,7 +677,7 @@
                     <div style="font-size:11.5px;color:#38bdf8;font-weight:700;padding:2px 4px;">
                         ✨ Kết quả tìm kiếm (${list.length} phim):
                     </div>
-                ` + list.slice(0, 8).map(m => {
+                ` + list.slice(0, 10).map(m => {
                     const poster = m.poster_url || m.thumb_url || '';
                     const fullPoster = poster.startsWith('http') ? poster : `https://phimimg.com/${poster.replace(/^\//, '')}`;
                     const jsonStr = JSON.stringify({
@@ -642,14 +691,20 @@
                         content: m.content ? m.content.replace(/<[^>]*>/g, '').trim() : ''
                     }).replace(/"/g, '&quot;');
 
+                    const isMomo = !!m.is_momo;
+
                     return `
-                        <div onclick="MobileShowcaseAdmin.selectSearchMovie('${jsonStr}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,0.06);border-radius:8px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+                        <div onclick="MobileShowcaseAdmin.selectSearchMovie('${jsonStr}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${isMomo ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.06)'};border:${isMomo ? '1px solid rgba(245,158,11,0.4)' : '1px solid transparent'};border-radius:8px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='${isMomo ? 'rgba(245,158,11,0.25)' : 'rgba(56,189,248,0.2)'}'" onmouseout="this.style.background='${isMomo ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.06)'}'">
                             <img src="${fullPoster}" style="width:34px;height:48px;border-radius:6px;object-fit:cover;background:#000;flex-shrink:0;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
                             <div style="flex:1;min-width:0;">
-                                <div style="color:#ffffff;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.name}</div>
-                                <div style="color:#94a3b8;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.origin_name || ''} • <span style="color:#38bdf8;font-weight:700;">${m.year || ''}</span> • ${m.lang || 'Vietsub'}</div>
+                                <div style="color:#ffffff;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                    ${isMomo ? '<span style="background:#f59e0b;color:#000;font-size:10px;font-weight:900;padding:1px 5px;border-radius:3px;margin-right:5px;">PHIM RẠP</span>' : ''}${m.name}
+                                </div>
+                                <div style="color:${isMomo ? '#fbbf24' : '#94a3b8'};font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                    ${m.origin_name || ''} • <span style="font-weight:700;">${m.quality || m.year || '2026'}</span> ${m.rating ? '• ⭐ ' + m.rating : ''}
+                                </div>
                             </div>
-                            <span style="color:#38bdf8;font-size:12px;font-weight:800;background:rgba(56,189,248,0.18);padding:4px 10px;border-radius:6px;flex-shrink:0;">Chọn ➔</span>
+                            <span style="color:${isMomo ? '#f59e0b' : '#38bdf8'};font-size:12px;font-weight:800;background:${isMomo ? 'rgba(245,158,11,0.18)' : 'rgba(56,189,248,0.18)'};padding:4px 10px;border-radius:6px;flex-shrink:0;">Chọn ➔</span>
                         </div>
                     `;
                 }).join('');
@@ -734,6 +789,22 @@
                             detail = data3.movie;
                         }
                     } catch(e) {}
+                }
+
+                if (!detail && cachedCinemaHotList && cachedCinemaHotList.length > 0) {
+                    const mFound = cachedCinemaHotList.find(it => it.slug === slug);
+                    if (mFound) {
+                        detail = {
+                            name: mFound.name,
+                            origin_name: mFound.origin_name || mFound.name,
+                            slug: mFound.slug,
+                            content: mFound.synopsis || '',
+                            quality: 'Chiếu Rạp',
+                            year: String((mFound.release_date || '').split('-')[0] || '2026'),
+                            lang: 'Vietsub Full',
+                            poster_url: mFound.fallback_poster || mFound.poster
+                        };
+                    }
                 }
 
                 if (detail) {

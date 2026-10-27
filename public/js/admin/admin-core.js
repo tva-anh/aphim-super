@@ -840,6 +840,9 @@
           <div class="inspector-section" style="margin-top: 16px;">
             <label class="form-label">Tác Vụ Quản Trị:</label>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <button class="btn btn-primary" onclick="AdminCore.openCustomStreamModal('${cleanSlug}')" id="btnInspectCustomStream" style="grid-column: span 2; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #000; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 2px;" title="Gán link phát m3u8, R2 hoặc embed để chiếu phim trực tiếp lên website">
+                <i data-lucide="video"></i> 🎬 Gán Link Chiếu Phim / Bản Đẹp Rạp (R2 / M3U8)
+              </button>
               <button class="btn ${isFeatured ? 'btn-primary' : 'btn-outline'}" onclick="AdminCore.toggleMovieFeatured('${cleanSlug}')" id="btnInspectFeatured" title="${isFeatured ? 'Bỏ ghim khỏi trang chủ' : 'Ghim phim lên trang chủ'}">
                 <i data-lucide="${isFeatured ? 'star-off' : 'star'}"></i> ${isFeatured ? 'Bỏ Ghim Trang Chủ' : 'Ghim Trang Chủ'}
               </button>
@@ -856,9 +859,15 @@
       }
     } catch (e) {
       content.innerHTML = `
-        <div style="padding: 24px; text-align: center; color: var(--rose);">
-          <i data-lucide="alert-triangle" style="width: 32px; height: 32px;"></i>
-          <p style="margin-top: 10px;">Không thể tải dữ liệu phim từ API nguồn!</p>
+        <div style="padding: 24px; text-align: center;">
+          <i data-lucide="film" style="width: 40px; height: 40px; color: #f59e0b; margin-bottom: 8px;"></i>
+          <h4 style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px;">Phim Này Chưa Có Luồng Phát Trên API</h4>
+          <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px; max-width: 320px; margin-left: auto; margin-right: auto;">
+            Phim chiếu rạp hoặc phim mới chưa có trên máy chủ API công khai. Bạn có thể gán link phát tùy biến (Cloudflare R2 / M3U8 / Embed) để chiếu trực tiếp trên trang chính!
+          </p>
+          <button class="btn btn-primary" onclick="AdminCore.openCustomStreamModal('${cleanSlug}')" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #000; font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
+            <i data-lucide="video"></i> 🎬 Gán Link Chiếu Cho Phim Này Ngay
+          </button>
         </div>
       `;
       if (window.lucide) lucide.createIcons();
@@ -2025,36 +2034,499 @@
       }
     },
     openAddCustomMovie: () => {
-      openDrawer('Thêm Phim Tùy Biến', 'Thêm phim ngoài kho API KKPhim/Ophim');
+      AdminCore.openCustomStreamModal();
+    },
+
+    openCustomStreamModal: async (slugOrMovie = null) => {
+      openDrawer('🎬 Gán Link Chiếu Phim (R2 / M3U8 / Embed)', 'Gán luồng phát chất lượng cao để người dùng xem trực tiếp trên trang chính');
       const content = document.getElementById('drawerContent');
-      if (content) {
-        content.innerHTML = `
-          <div class="inspector-section">
-            <div class="form-group">
-              <label class="form-label">Tên phim:</label>
-              <input type="text" class="form-control" placeholder="Ví dụ: Lật Mặt 8">
+      if (!content) return;
+
+      content.innerHTML = `
+        <div style="padding: 24px; text-align: center; color: var(--text-muted);">
+          <i data-lucide="loader" class="spin" style="width: 24px; height: 24px; color: var(--primary);"></i>
+          <p style="margin-top: 10px;">Đang tải thông tin phim & luồng phát...</p>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+
+      let initialSlug = '';
+      let initialName = '';
+      let initialPoster = '';
+      let initialThumb = '';
+      let initialYear = new Date().getFullYear();
+      let initialQuality = 'Bản Đẹp Rạp (Full HD)';
+      let initialLang = 'Vietsub / Thuyết Minh';
+      let initialContent = '';
+      let existingM3u8 = '';
+      let existingEmbed = '';
+      let existingServerName = 'APhim VIP Server (R2 / CDN Bản Đẹp)';
+      let existingEpName = 'Full';
+      let hasCustom = false;
+
+      if (slugOrMovie) {
+        if (typeof slugOrMovie === 'object') {
+          initialSlug = slugOrMovie.slug || '';
+          initialName = slugOrMovie.name || '';
+          initialPoster = slugOrMovie.poster_url || slugOrMovie.poster || '';
+          initialThumb = slugOrMovie.thumb_url || slugOrMovie.thumb || initialPoster;
+          initialYear = slugOrMovie.year || initialYear;
+        } else {
+          initialSlug = String(slugOrMovie).trim();
+        }
+      }
+
+      // 1. Kiểm tra xem phim đã có custom stream trên server chưa
+      if (initialSlug) {
+        try {
+          const res = await fetch(`/api/admin/custom-streams/${encodeURIComponent(initialSlug)}`, {
+            headers: { 'Authorization': 'Bearer ' + getAdminToken() }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.item) {
+              const it = data.item;
+              hasCustom = true;
+              initialName = it.name || initialName;
+              initialPoster = it.poster_url || initialPoster;
+              initialThumb = it.thumb_url || initialThumb;
+              initialYear = it.year || initialYear;
+              initialQuality = it.quality || initialQuality;
+              initialLang = it.lang || initialLang;
+              initialContent = it.content || initialContent;
+
+              const firstServer = it.episodes?.[0];
+              if (firstServer) {
+                existingServerName = firstServer.server_name || existingServerName;
+                const firstEp = firstServer.server_data?.[0];
+                if (firstEp) {
+                  existingEpName = firstEp.name || existingEpName;
+                  existingM3u8 = firstEp.link_m3u8 || '';
+                  existingEmbed = firstEp.link_embed || '';
+                }
+              }
+            }
+          }
+        } catch (e) {}
+
+        // Nếu chưa có tên hoặc poster, thử lấy từ backend search-admin
+        if (!initialName || !initialPoster) {
+          try {
+            const sRes = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(initialSlug)}`);
+            if (sRes.ok) {
+              const sData = await sRes.json();
+              const found = (sData.items || []).find(m => m.slug === initialSlug);
+              if (found) {
+                initialName = initialName || found.name;
+                initialPoster = initialPoster || found.poster_url || found.thumb_url;
+                initialThumb = initialThumb || found.thumb_url || found.poster_url;
+                initialYear = initialYear || found.year;
+                initialContent = initialContent || found.content || '';
+              }
+            }
+          } catch(e) {}
+        }
+      }
+
+      content.innerHTML = `
+        <!-- Bảng tìm kiếm phim nhanh nếu chưa chọn hoặc muốn đổi phim -->
+        <div class="inspector-section" style="margin-bottom: 16px;">
+          <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+            <span><i data-lucide="search" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Tìm kiếm phim (MoMo Rạp + API):</span>
+            <span style="font-size: 11px; color: var(--text-dim);">Tự động điền thông tin</span>
+          </label>
+          <div style="position: relative;">
+            <input type="text" id="csSearchMovieInput" class="form-control" placeholder="Gõ tên phim (ví dụ: Trại Buôn Người, Lật Mặt...)" style="padding-right: 32px;">
+            <div id="csSearchLoading" style="display: none; position: absolute; right: 10px; top: 9px;">
+              <i data-lucide="loader" class="spin" style="width: 16px; height: 16px; color: var(--primary);"></i>
             </div>
-            <div class="form-group" style="margin-top: 12px;">
-              <label class="form-label">Slug URL:</label>
-              <input type="text" class="form-control" placeholder="lat-mat-8">
+            <div id="csSearchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100; background: #161822; border: 1px solid var(--border-default); border-radius: 8px; max-height: 220px; overflow-y: auto; margin-top: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>
+          </div>
+        </div>
+
+        ${hasCustom ? `
+          <div style="margin-bottom: 14px; padding: 10px 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; font-size: 12.5px; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong style="color: #34d399;">✅ Phim Đang Chiếu Bản Tùy Biến</strong>
+              <div style="font-size: 11.5px; color: rgba(167, 243, 208, 0.8);">Phim này đã có link phát đang hoạt động trên website chính.</div>
             </div>
-            <div class="form-group" style="margin-top: 12px;">
-              <label class="form-label">Link Poster / Thumbnail URL:</label>
-              <input type="text" class="form-control" placeholder="https://...">
-            </div>
-            <div class="form-group" style="margin-top: 12px;">
-              <label class="form-label">Link Stream Video (M3U8 / Embed Iframe):</label>
-              <input type="text" class="form-control" placeholder="https://...">
+            <a href="/phim/${initialSlug}" target="_blank" class="btn btn-xs btn-outline" style="color: #34d399; border-color: #34d399; text-decoration: none;">Xem Web ➔</a>
+          </div>
+        ` : ''}
+
+        <!-- Thông tin phim -->
+        <div class="inspector-section" style="background: rgba(255,255,255,0.02); padding: 14px; border-radius: 10px; border: 1px solid var(--border-subtle);">
+          <div style="display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px;">
+            <img id="csPosterPreview" src="${initialPoster || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'}" style="width: 70px; height: 98px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-default); flex-shrink: 0; background: #000;" onerror="this.src='https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'">
+            <div style="flex: 1; min-width: 0;">
+              <div class="form-group">
+                <label class="form-label">Tên phim:</label>
+                <input type="text" id="csMovieName" class="form-control" value="${sanitize(initialName)}" placeholder="Ví dụ: Trại Buôn Người">
+              </div>
+              <div class="form-group" style="margin-top: 8px;">
+                <label class="form-label">Slug URL:</label>
+                <input type="text" id="csMovieSlug" class="form-control" value="${sanitize(initialSlug)}" placeholder="trai-buon-nguoi" style="font-family: monospace;">
+              </div>
             </div>
           </div>
-        `;
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Chất lượng hiển thị:</label>
+              <input type="text" id="csMovieQuality" class="form-control" value="${sanitize(initialQuality)}" placeholder="Bản Đẹp Rạp (Full HD)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ngôn ngữ / Phiên bản:</label>
+              <input type="text" id="csMovieLang" class="form-control" value="${sanitize(initialLang)}" placeholder="Vietsub Full / Thuyết Minh">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Link Poster / Thumbnail URL:</label>
+            <input type="text" id="csMoviePoster" class="form-control" value="${sanitize(initialPoster)}" placeholder="https://..." oninput="document.getElementById('csPosterPreview').src = this.value;">
+          </div>
+        </div>
+
+        <!-- Cấu hình luồng phát Stream Video -->
+        <div class="inspector-section" style="margin-top: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <label class="form-label" style="font-weight: 700; color: #f59e0b; margin-bottom: 0;">
+              <i data-lucide="play-circle" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Cấu Hình Luồng Phát (Stream):
+            </label>
+            <span style="font-size: 11px; color: var(--text-muted);">Hỗ trợ R2, M3U8, MP4, Iframe</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Link Stream M3U8 hoặc Cloudflare R2 / Direct MP4:</label>
+            <input type="text" id="csStreamM3U8" class="form-control" value="${sanitize(existingM3u8)}" placeholder="https://pub-xxxx.r2.dev/video.m3u8 hoặc https://.../video.mp4" style="font-family: monospace;">
+            <small style="font-size: 11px; color: var(--text-dim); display: block; margin-top: 4px;">⚡ Khuyến nghị: Dán link m3u8 hoặc mp4 từ Cloudflare R2 để tải siêu tốc không giật lag.</small>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Link Iframe Embed (Dự phòng):</label>
+            <input type="text" id="csStreamEmbed" class="form-control" value="${sanitize(existingEmbed)}" placeholder="https://stream... (tùy chọn)" style="font-family: monospace;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div class="form-group">
+              <label class="form-label">Tên Server hiển thị:</label>
+              <input type="text" id="csServerName" class="form-control" value="${sanitize(existingServerName)}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tên Tập:</label>
+              <input type="text" id="csEpName" class="form-control" value="${sanitize(existingEpName)}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Khung xem thử (Live Stream Preview Player) -->
+        <div class="inspector-section" style="margin-top: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0;">Kiểm Tra & Phát Thử (Live Preview):</label>
+            <button type="button" class="btn btn-xs btn-outline" onclick="AdminCore.testCustomStreamPreview()" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="play" style="width: 12px; height: 12px;"></i> Phát Thử Ngay
+            </button>
+          </div>
+          <div id="csPreviewPlayerContainer" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000; border: 1px solid var(--border-default);">
+            <div id="csPreviewPlaceholder" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); font-size: 12px; gap: 6px;">
+              <i data-lucide="video" style="width: 24px; height: 24px; opacity: 0.5;"></i>
+              <span>Bấm "Phát Thử Ngay" để kiểm tra luồng video</span>
+            </div>
+          </div>
+        </div>
+
+        ${hasCustom ? `
+          <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-xs btn-danger" onclick="AdminCore.deleteCustomStream('${initialSlug}')" style="display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i> Xóa Link Tùy Biến (Về mặc định)
+            </button>
+          </div>
+        ` : ''}
+      `;
+
+      if (window.lucide) lucide.createIcons();
+
+      // Cài đặt sự kiện tìm kiếm phim với debounce
+      let searchTimeout = null;
+      const searchInput = document.getElementById('csSearchMovieInput');
+      const resultsBox = document.getElementById('csSearchResults');
+      const loadingInd = document.getElementById('csSearchLoading');
+
+      if (searchInput && resultsBox) {
+        searchInput.addEventListener('input', (e) => {
+          const val = e.target.value.trim();
+          clearTimeout(searchTimeout);
+          if (!val) {
+            resultsBox.style.display = 'none';
+            return;
+          }
+          if (loadingInd) loadingInd.style.display = 'block';
+          searchTimeout = setTimeout(async () => {
+            try {
+              const res = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(val)}`);
+              const data = await res.json();
+              if (loadingInd) loadingInd.style.display = 'none';
+              if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+                resultsBox.style.display = 'block';
+                resultsBox.innerHTML = data.items.slice(0, 8).map(m => {
+                  const poster = m.poster_url || m.thumb_url || '';
+                  const fullPoster = poster.startsWith('http') ? poster : `https://phimimg.com/${poster.replace(/^\//, '')}`;
+                  const isMomo = !!m.is_momo;
+                  const itemJson = JSON.stringify({
+                    slug: m.slug,
+                    name: m.name,
+                    origin_name: m.origin_name || '',
+                    poster_url: fullPoster,
+                    year: m.year,
+                    content: m.content || ''
+                  }).replace(/"/g, '&quot;');
+
+                  return `
+                    <div onclick="AdminCore.selectMovieForCustomStream('${itemJson}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;" onmouseover="this.style.background='rgba(245,158,11,0.15)'" onmouseout="this.style.background='transparent'">
+                      <img src="${fullPoster}" style="width:30px;height:42px;object-fit:cover;border-radius:4px;flex-shrink:0;">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:12.5px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                          ${isMomo ? '<span style="background:#f59e0b;color:#000;font-size:9.5px;font-weight:900;padding:1px 4px;border-radius:3px;margin-right:4px;">RẠP</span>' : ''}${m.name}
+                        </div>
+                        <div style="font-size:11px;color:#94a3b8;">${m.origin_name || ''} • ${m.year || ''}</div>
+                      </div>
+                      <span style="font-size:11px;color:#f59e0b;font-weight:700;">Chọn ➔</span>
+                    </div>
+                  `;
+                }).join('');
+              } else {
+                resultsBox.style.display = 'block';
+                resultsBox.innerHTML = '<div style="padding:10px;text-align:center;font-size:12px;color:#94a3b8;">Không tìm thấy phim phù hợp</div>';
+              }
+            } catch(err) {
+              if (loadingInd) loadingInd.style.display = 'none';
+            }
+          }, 300);
+        });
       }
+
+      // Nút Lưu trên Footer Drawer
       const primaryBtn = document.getElementById('drawerPrimaryBtn');
       if (primaryBtn) {
-        primaryBtn.onclick = () => {
-          showToast('Đã thêm phim tùy biến thành công!', 'success');
-          closeDrawer();
+        primaryBtn.textContent = '🚀 Lưu & Chiếu Ngay Trên Web';
+        primaryBtn.onclick = async () => {
+          await AdminCore.saveCustomStream();
         };
+      }
+    },
+
+    selectMovieForCustomStream: (jsonStr) => {
+      try {
+        const m = JSON.parse(jsonStr.replace(/&quot;/g, '"'));
+        const nameInput = document.getElementById('csMovieName');
+        const slugInput = document.getElementById('csMovieSlug');
+        const posterInput = document.getElementById('csMoviePoster');
+        const posterImg = document.getElementById('csPosterPreview');
+        const resultsBox = document.getElementById('csSearchResults');
+
+        if (nameInput) nameInput.value = m.name || '';
+        if (slugInput) slugInput.value = m.slug || '';
+        if (posterInput) posterInput.value = m.poster_url || '';
+        if (posterImg && m.poster_url) posterImg.src = m.poster_url;
+        if (resultsBox) resultsBox.style.display = 'none';
+
+        // Tự động kiểm tra xem phim đã có stream chưa
+        if (m.slug) {
+          fetch(`/api/admin/custom-streams/${encodeURIComponent(m.slug)}`, {
+            headers: { 'Authorization': 'Bearer ' + getAdminToken() }
+          }).then(r => r.json()).then(data => {
+            if (data.success && data.item) {
+              const it = data.item;
+              const sM3u8 = document.getElementById('csStreamM3U8');
+              const sEmbed = document.getElementById('csStreamEmbed');
+              const sServer = document.getElementById('csServerName');
+              const sEp = document.getElementById('csEpName');
+
+              const firstServer = it.episodes?.[0];
+              if (firstServer) {
+                if (sServer) sServer.value = firstServer.server_name || '';
+                const firstEp = firstServer.server_data?.[0];
+                if (firstEp) {
+                  if (sEp) sEp.value = firstEp.name || 'Full';
+                  if (sM3u8) sM3u8.value = firstEp.link_m3u8 || '';
+                  if (sEmbed) sEmbed.value = firstEp.link_embed || '';
+                }
+              }
+              showToast(`Phim "${it.name}" đã có link phát trên hệ thống!`, 'info');
+            }
+          }).catch(() => {});
+        }
+      } catch (e) {
+        console.error('Lỗi chọn phim:', e);
+      }
+    },
+
+    testCustomStreamPreview: () => {
+      const container = document.getElementById('csPreviewPlayerContainer');
+      const m3u8 = (document.getElementById('csStreamM3U8')?.value || '').trim();
+      const embed = (document.getElementById('csStreamEmbed')?.value || '').trim();
+
+      if (!container) return;
+      if (!m3u8 && !embed) {
+        showToast('Vui lòng nhập Link M3U8/MP4 hoặc Link Embed để phát thử!', 'warning');
+        return;
+      }
+
+      if (embed && !m3u8) {
+        container.innerHTML = `
+          <iframe src="${sanitize(embed)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        `;
+        showToast('Đang phát thử luồng Embed Iframe...', 'info');
+        return;
+      }
+
+      // Phát M3U8 hoặc MP4
+      const isMp4 = m3u8.endsWith('.mp4') || m3u8.includes('.mp4?');
+      container.innerHTML = `
+        <video id="csTestVideo" controls autoplay playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;background:#000;object-fit:contain;"></video>
+      `;
+
+      const video = document.getElementById('csTestVideo');
+      if (isMp4) {
+        video.src = m3u8;
+        video.play().catch(e => console.log('Autoplay prevented:', e));
+        showToast('Đang phát thử video MP4 trực tiếp...', 'info');
+      } else if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(m3u8);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(e => console.log('Autoplay prevented:', e));
+          showToast('Luồng M3U8 HLS hợp lệ, đang phát thử!', 'success');
+        });
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            showToast('Lỗi tải luồng video: ' + data.type, 'error');
+          }
+        });
+      } else {
+        video.src = m3u8;
+        video.play().catch(() => {});
+      }
+    },
+
+    saveCustomStream: async () => {
+      const slug = (document.getElementById('csMovieSlug')?.value || '').trim().toLowerCase();
+      const name = (document.getElementById('csMovieName')?.value || '').trim();
+      const poster = (document.getElementById('csMoviePoster')?.value || '').trim();
+      const quality = (document.getElementById('csMovieQuality')?.value || '').trim();
+      const lang = (document.getElementById('csMovieLang')?.value || '').trim();
+      const m3u8 = (document.getElementById('csStreamM3U8')?.value || '').trim();
+      const embed = (document.getElementById('csStreamEmbed')?.value || '').trim();
+      const serverName = (document.getElementById('csServerName')?.value || '').trim() || 'APhim VIP Server';
+      const epName = (document.getElementById('csEpName')?.value || '').trim() || 'Full';
+
+      if (!slug) {
+        showToast('Vui lòng nhập Slug URL cho phim (ví dụ: trai-buon-nguoi)!', 'warning');
+        return;
+      }
+      if (!name) {
+        showToast('Vui lòng nhập Tên phim!', 'warning');
+        return;
+      }
+      if (!m3u8 && !embed) {
+        showToast('Vui lòng nhập ít nhất 1 link phát (M3U8 / MP4 hoặc Embed Iframe)!', 'warning');
+        return;
+      }
+
+      const saveBtn = document.getElementById('drawerPrimaryBtn');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i data-lucide="loader" class="spin" style="width: 14px; height: 14px; display: inline-block;"></i> Đang lưu...';
+        if (window.lucide) lucide.createIcons();
+      }
+
+      try {
+        const res = await fetch('/api/admin/custom-streams', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getAdminToken()
+          },
+          body: JSON.stringify({
+            slug,
+            name,
+            poster_url: poster,
+            thumb_url: poster,
+            quality: quality || 'Bản Đẹp Rạp (Full HD)',
+            lang: lang || 'Vietsub / Thuyết Minh',
+            server_name: serverName,
+            episode_name: epName,
+            episode_slug: epName.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'tap-full',
+            link_m3u8: m3u8,
+            link_embed: embed
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showToast(`🎉 Đã gán link chiếu phim "${name}" thành công!`, 'success');
+          
+          // Hiển thị hộp thông báo kèm link xem ngay
+          const content = document.getElementById('drawerContent');
+          if (content) {
+            content.innerHTML = `
+              <div style="padding: 30px 20px; text-align: center;">
+                <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; color: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                  <i data-lucide="check" style="width: 32px; height: 32px;"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px;">Đã Công Chiếu Thành Công!</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; max-width: 360px; margin-left: auto; margin-right: auto;">
+                  Phim <strong>"${sanitize(name)}"</strong> hiện đã có luồng phát trực tiếp. Người dùng truy cập trang phim sẽ xem được ngay mà không còn thấy thông báo rạp!
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 0 auto;">
+                  <a href="/phim/${slug}" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #000; font-weight: 800; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="external-link"></i> Mở Trang Chi Tiết Phim (/phim/${slug})
+                  </a>
+                  <a href="/xem-phim/${slug}" target="_blank" class="btn btn-outline" style="color: #38bdf8; border-color: rgba(56,189,248,0.5); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="play"></i> Mở Trang Xem Phim Trực Tiếp (/xem-phim/${slug})
+                  </a>
+                </div>
+              </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+          }
+
+          if (saveBtn) saveBtn.style.display = 'none';
+        } else {
+          showToast(data.message || 'Lỗi lưu thông tin', 'error');
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '🚀 Lưu & Chiếu Ngay Trên Web';
+          }
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối tới máy chủ: ' + err.message, 'error');
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '🚀 Lưu & Chiếu Ngay Trên Web';
+        }
+      }
+    },
+
+    deleteCustomStream: async (slug) => {
+      if (!confirm(`Bạn có chắc chắn muốn xóa link phát tùy biến của phim "${slug}" và đưa về trạng thái mặc định không?`)) {
+        return;
+      }
+      try {
+        const res = await fetch(`/api/admin/custom-streams/${encodeURIComponent(slug)}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + getAdminToken() }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Đã xóa link tùy biến!', 'success');
+          closeDrawer();
+        } else {
+          showToast(data.message || 'Không thể xóa', 'error');
+        }
+      } catch (e) {
+        showToast('Lỗi kết nối máy chủ: ' + e.message, 'error');
       }
     },
     openAddVipTierModal: () => {
@@ -3157,7 +3629,11 @@
       const isFeatured = (movieControlsData.featured || []).includes(m.slug) || m.controlStatus === 'featured' || m.isFeatured;
 
       let statusHtml = '<span class="status-pill active"><span class="dot"></span> Hiển thị</span>';
-      if (isDMCA) {
+      if (m.is_custom) {
+        statusHtml = '<span class="badge badge-emerald" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; white-space: nowrap;"><i data-lucide="video" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Đã gán link</span>';
+      } else if (m.is_momo) {
+        statusHtml = '<span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24; white-space: nowrap;"><i data-lucide="film" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Phim Rạp</span>';
+      } else if (isDMCA) {
         statusHtml = '<span class="badge badge-error" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; white-space: nowrap;"><i data-lucide="shield-alert" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Chặn DMCA</span>';
       } else if (isHidden) {
         statusHtml = '<span class="badge badge-warning" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24; white-space: nowrap;"><i data-lucide="eye-off" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:3px;"></i> Đã ẩn</span>';
@@ -3184,6 +3660,9 @@
           <td>${statusHtml}</td>
           <td style="text-align: right;">
             <div class="table-actions-cell">
+              <button class="btn btn-xs btn-primary" onclick="AdminCore.openCustomStreamModal('${m.slug}')" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #000; font-weight: 700; white-space: nowrap;" title="Gán link phát m3u8 / R2">
+                <i data-lucide="video"></i> Gán link
+              </button>
               <button class="btn btn-xs btn-outline" onclick="AdminCore.inspectMovie('${m.slug}')">
                 <i data-lucide="sliders"></i> Inspector
               </button>
@@ -3267,6 +3746,59 @@
     const category = document.getElementById('movieCategoryFilter')?.value || '';
     const status = document.getElementById('movieStatusFilter')?.value || '';
 
+    // Nếu chọn lọc phim đã gán link chiếu tùy biến (R2 / Bản đẹp)
+    if (status === 'custom') {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center" style="padding: 40px; color: var(--text-dim);">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px;"></i> Đang tải danh sách phim đã gán link chiếu...
+            </div>
+          </td>
+        </tr>
+      `;
+      if (window.lucide) lucide.createIcons();
+
+      try {
+        const token = getAdminToken();
+        const res = await fetch('/api/admin/custom-streams', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const items = data.items || [];
+          renderAdminMoviesData({
+            data: {
+              items: items.map(it => ({
+                name: it.name,
+                origin_name: it.origin_name || it.name,
+                slug: it.slug,
+                year: it.year,
+                quality: it.quality || 'Bản Đẹp Rạp',
+                lang: it.lang || 'Vietsub',
+                episode_current: it.episodes?.[0]?.server_data?.[0]?.name || 'FULL',
+                poster_url: it.poster_url || it.thumb_url,
+                thumb_url: it.thumb_url || it.poster_url,
+                type: it.type || 'single'
+              })),
+              params: {
+                pagination: {
+                  totalItems: items.length,
+                  totalItemsPerPage: 24,
+                  currentPage: 1,
+                  pageRanges: 5,
+                  totalPages: 1
+                }
+              }
+            }
+          }, 1);
+          return;
+        }
+      } catch (err) {
+        console.error('[Admin] Load custom streams error:', err);
+      }
+    }
+
     // Nếu chọn lọc theo trạng thái đặc biệt (DMCA, Ẩn, Ghim nổi bật)
     if (status === 'dmca' || status === 'hidden' || status === 'featured') {
       tbody.innerHTML = `
@@ -3315,10 +3847,62 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    let url = `https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`;
+    // ⚡ TÌM KIẾM TỔNG HỢP ADMIN (Custom Streams + MoMo Chiếu Rạp + PhimAPI + OPhim)
     if (search) {
-      url = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(search)}&page=${page}`;
-    } else if (type) {
+      try {
+        const res = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(search)}`);
+        const searchData = await res.json();
+        if (searchData.success && Array.isArray(searchData.items)) {
+          let items = searchData.items;
+          if (status === 'active') {
+            items = items.filter(m => !(movieControlsData.dmca || []).includes(m.slug) && !(movieControlsData.hidden || []).includes(m.slug));
+          } else if (status === 'dmca') {
+            items = items.filter(m => (movieControlsData.dmca || []).includes(m.slug));
+          } else if (status === 'hidden') {
+            items = items.filter(m => (movieControlsData.hidden || []).includes(m.slug));
+          } else if (status === 'featured') {
+            items = items.filter(m => (movieControlsData.featured || []).includes(m.slug));
+          } else if (status === 'custom') {
+            items = items.filter(m => m.is_custom);
+          }
+
+          const formattedData = {
+            data: {
+              items: items.map(it => ({
+                name: it.name,
+                origin_name: it.origin_name || it.name,
+                slug: it.slug,
+                year: it.year,
+                quality: it.quality || (it.is_momo ? 'Chiếu Rạp' : 'Full HD'),
+                lang: it.lang || 'Vietsub',
+                episode_current: it.quality || (it.is_momo ? 'Chiếu Rạp' : 'Full HD'),
+                poster_url: it.poster_url || it.thumb_url,
+                thumb_url: it.thumb_url || it.poster_url,
+                type: it.type || 'single',
+                is_momo: it.is_momo,
+                is_custom: it.is_custom
+              })),
+              params: {
+                pagination: {
+                  totalItems: items.length,
+                  totalItemsPerPage: 24,
+                  currentPage: 1,
+                  pageRanges: 5,
+                  totalPages: 1
+                }
+              }
+            }
+          };
+          renderAdminMoviesData(formattedData, 1);
+          return;
+        }
+      } catch (err) {
+        console.warn('Search admin error, fallback to phimapi:', err);
+      }
+    }
+
+    let url = `https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`;
+    if (type) {
       url = `https://phimapi.com/v1/api/danh-sach/${type}?page=${page}`;
     } else if (category) {
       url = `https://phimapi.com/v1/api/the-loai/${category}?page=${page}`;

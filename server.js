@@ -33,6 +33,7 @@ const seoRoutes = require('./routes/seo.routes');
 const reelsRoutes = require('./routes/reels.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const phimNganRoutes = require('./routes/phimNgan.routes');
+const streamRoutes = require('./routes/stream.routes');
 const { requireAdmin } = require('./middleware/adminAuth.middleware');
 
 const app = express();
@@ -185,6 +186,7 @@ app.use('/reels', reelsRoutes);
 app.use('/api/reels', reelsRoutes);
 app.use('/phim-ngan', phimNganRoutes); // Mini player + fast dub hls proxy
 app.use('/api/phim-ngan', phimNganRoutes);
+app.use('/api/stream', streamRoutes); // Enterprise video streaming proxy (giấu R2, hỗ trợ 206 Range)
 app.use('/', seoRoutes); // Sitemap đa tầng, robots.txt, dynamic seo cache
 
 // Health check endpoint
@@ -844,11 +846,25 @@ app.get('/api/actor-avatar', async (req, res) => {
 // ==========================================
 const vsmovCache = new Map();
 const nguoncCache = new Map();
+const customStreams = require('./lib/customStreams');
+
+global.clearMovieCache = (slug) => {
+    if (!slug) return;
+    const clean = String(slug).toLowerCase().trim();
+    movieMetadataCache.delete(clean);
+    vsmovCache.delete(clean);
+};
 
 app.get('/api/vsmov/:slug', async (req, res) => {
     const slug = req.params.slug;
     if (!slug || slug.length > 200) {
         return res.status(400).json({ status: false, message: 'Invalid slug' });
+    }
+
+    const clean = String(slug).toLowerCase().trim();
+    const custom = customStreams.getBySlug(clean);
+    if (custom && custom.episodes && custom.episodes.length > 0) {
+        return res.json({ status: true, movie: custom, episodes: custom.episodes });
     }
 
     const cached = vsmovCache.get(slug);
@@ -1178,7 +1194,20 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
         return res.status(400).json({ status: false, message: 'Invalid slug' });
     }
 
-    const cached = mergedCache.get(slug);
+    const cleanSlug = String(slug).toLowerCase().trim();
+
+    // 🎬 0. Ưu tiên luồng phát tùy biến / R2 nội bộ từ Admin (0ms, không gọi API bên ngoài)
+    const custom = customStreams.getBySlug(cleanSlug);
+    if (custom && custom.episodes && custom.episodes.length > 0) {
+        return res.json({
+            status: true,
+            source: 'aphim-custom',
+            movie: custom,
+            episodes: custom.episodes
+        });
+    }
+
+    const cached = mergedCache.get(cleanSlug);
     if (cached && Date.now() - cached.timestamp < 15 * 60 * 1000) { // 15 phút cache
         return res.json(cached.data);
     }
@@ -1483,6 +1512,37 @@ const MOVIE_CACHE_TTL = 60 * 60 * 1000; // 1 giờ
 async function fetchMovieMetadata(slug) {
     if (!slug) return null;
     const cleanSlug = String(slug).trim().toLowerCase();
+
+    // 🎬 0. ƯU TIÊN LUỒNG PHÁT TÙY BIẾN TỪ ADMIN (Cloudflare R2, m3u8, MP4, Bản Đẹp Rạp)
+    const custom = customStreams.getBySlug(cleanSlug);
+    if (custom && custom.episodes && custom.episodes.length > 0) {
+        const customResult = {
+            slug: cleanSlug,
+            name: custom.name || cleanSlug,
+            origin_name: custom.origin_name || '',
+            year: custom.year || new Date().getFullYear(),
+            quality: custom.quality || 'Bản Đẹp Rạp (Full HD)',
+            lang: custom.lang || 'Vietsub / Thuyết Minh',
+            episode_current: custom.episodes[0]?.server_data?.length === 1 ? 'FULL' : `${custom.episodes[0]?.server_data?.length || 1} Tập`,
+            episode_total: String(custom.episodes[0]?.server_data?.length || '1'),
+            status: 'completed',
+            time: custom.time || '120 phút',
+            content: custom.content || `Xem phim ${custom.name || cleanSlug} bản đẹp sắc nét miễn phí tại APhim Super.`,
+            thumb_url: custom.thumb_url || custom.poster_url || '',
+            poster_url: custom.poster_url || custom.thumb_url || '',
+            actor: custom.actor || [],
+            director: custom.director || [],
+            category: custom.category || ['Phim Chiếu Rạp'],
+            country: custom.country || ['Việt Nam'],
+            type: custom.type || 'single',
+            trailer_url: custom.trailer_url || '',
+            tmdb: custom.tmdb || null,
+            episodes: custom.episodes
+        };
+        movieMetadataCache.set(cleanSlug, { data: customResult, ts: Date.now() });
+        return customResult;
+    }
+
     const cached = movieMetadataCache.get(cleanSlug);
     if (cached && (Date.now() - cached.ts < MOVIE_CACHE_TTL)) {
         return cached.data;

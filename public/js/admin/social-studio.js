@@ -40,6 +40,7 @@
       this.bindEvents();
       this.loadTrends();
       this.loadHistory();
+      this.checkFbStatus();
 
       // Check if a saved session/draft exists on local machine
       const hasDraft = this.restoreDraft();
@@ -2161,6 +2162,167 @@
       if (page < 1 || page > totalPages) return;
       historyCurrentPage = page;
       this.renderHistoryTable();
+    },
+
+    // ── Facebook Fanpage Token & Connection Management ──
+    checkFbStatus: async function () {
+      try {
+        const res = await fetch('/api/admin/social-studio/fb-status');
+        const data = await res.json();
+        const shortText = document.getElementById('fbStatusShortText');
+        const btn = document.getElementById('btnFbConfig');
+        if (data.success) {
+          if (shortText) shortText.innerHTML = `🟢 ${data.pageName || 'Đã kết nối Fanpage'}`;
+          if (btn) {
+            btn.style.background = 'rgba(22, 163, 74, 0.08)';
+            btn.style.borderColor = 'rgba(22, 163, 74, 0.3)';
+            btn.style.color = '#16a34a';
+          }
+        } else {
+          if (shortText) shortText.innerHTML = '🔴 Lỗi Token Fanpage';
+          if (btn) {
+            btn.style.background = 'rgba(239, 68, 68, 0.08)';
+            btn.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            btn.style.color = '#dc2626';
+          }
+        }
+      } catch (e) {}
+    },
+
+    openFbModal: function () {
+      const modal = document.getElementById('fbConfigModal');
+      if (modal) modal.style.display = 'flex';
+      this.testFbConnection(true);
+      if (window.lucide) window.lucide.createIcons();
+    },
+
+    closeFbModal: function (e) {
+      if (e && e.target && e.target.id !== 'fbConfigModal' && !e.target.closest('button')) return;
+      const modal = document.getElementById('fbConfigModal');
+      if (modal) modal.style.display = 'none';
+    },
+
+    testFbConnection: async function (isAuto = false) {
+      const box = document.getElementById('fbLiveStatusBox');
+      const tokenInput = document.getElementById('inputFbPageToken');
+      const pageIdInput = document.getElementById('inputFbPageId');
+      const btn = document.getElementById('btnTestFbToken');
+
+      if (btn && !isAuto) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" style="width:14px;height:14px;"></i> Đang kiểm tra...';
+      }
+
+      if (box) {
+        box.style.display = 'block';
+        box.style.background = '#eff6ff';
+        box.style.borderColor = '#bfdbfe';
+        box.style.color = '#1e40af';
+        box.innerHTML = `
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;">
+            <i data-lucide="loader-2" class="animate-spin" style="width:16px;height:16px;"></i>
+            <span>Đang kiểm tra kết nối với máy chủ Facebook Graph API...</span>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      try {
+        const queryToken = (tokenInput && tokenInput.value.trim()) ? encodeURIComponent(tokenInput.value.trim()) : '';
+        const queryPageId = (pageIdInput && pageIdInput.value.trim()) ? encodeURIComponent(pageIdInput.value.trim()) : '';
+        const url = `/api/admin/social-studio/fb-status?token=${queryToken}&pageId=${queryPageId}`;
+        
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.success) {
+          if (box) {
+            box.style.background = '#f0fdf4';
+            box.style.borderColor = '#bbf7d0';
+            box.style.color = '#166534';
+            box.innerHTML = `
+              <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;margin-bottom:4px;">
+                <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#16a34a;"></i>
+                <span>${data.message || 'Kết nối Fanpage hoàn hảo!'}</span>
+              </div>
+              <div style="font-size:12px;opacity:0.9;">
+                <b>Trang:</b> ${data.pageName} | <b>ID:</b> ${data.pageId} | <b>Loại Token:</b> ${data.tokenType || 'Page Access Token'}
+              </div>
+            `;
+          }
+          if (pageIdInput && data.pageId) pageIdInput.value = data.pageId;
+          this.checkFbStatus();
+        } else {
+          if (box) {
+            box.style.background = '#fef2f2';
+            box.style.borderColor = '#fecaca';
+            box.style.color = '#991b1b';
+            const guide = (data.formattedGuide || data.message || 'Lỗi kết nối').replace(/\\n/g, '<br>');
+            box.innerHTML = `
+              <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:13.5px;margin-bottom:6px;">
+                <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#dc2626;"></i>
+                <span>Chưa thể kết nối Fanpage (Token không hợp lệ)</span>
+              </div>
+              <div style="font-size:12px;line-height:1.5;background:#fff;border-radius:8px;padding:10px;border:1px solid #fee2e2;">
+                ${guide}
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        if (box) {
+          box.style.background = '#fef2f2';
+          box.style.borderColor = '#fecaca';
+          box.style.color = '#991b1b';
+          box.innerHTML = `<div style="font-weight:700;">Lỗi kiểm tra: ${err.message}</div>`;
+        }
+      } finally {
+        if (btn && !isAuto) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Kiểm Tra Token';
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+    },
+
+    saveFbToken: async function () {
+      const tokenInput = document.getElementById('inputFbPageToken');
+      const pageIdInput = document.getElementById('inputFbPageId');
+      const btn = document.getElementById('btnSaveFbToken');
+
+      const pageToken = tokenInput ? tokenInput.value.trim() : '';
+      const pageId = pageIdInput ? pageIdInput.value.trim() : '';
+
+      if (!pageToken) {
+        alert('Vui lòng dán mã Page Access Token trước khi lưu!');
+        return;
+      }
+
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" style="width:14px;height:14px;"></i> Đang lưu...';
+
+      try {
+        const res = await fetch('/api/admin/social-studio/update-fb-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pageId, pageToken })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('🎉 ' + data.message);
+          this.testFbConnection(true);
+          this.checkFbStatus();
+        } else {
+          alert('Lỗi lưu Token: ' + (data.error || data.message));
+        }
+      } catch (err) {
+        alert('Lỗi kết nối máy chủ: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+        if (window.lucide) window.lucide.createIcons();
+      }
     }
   };
 

@@ -103,18 +103,32 @@
         try {
             let items = [], total = 0;
 
-            // Thử dùng movieAPI nếu có
-            if (typeof movieAPI !== 'undefined' && movieAPI.searchMovies) {
-                try {
-                    const data = await movieAPI.searchMovies(keyword, 1);
-                    if (data && data.data && data.data.items && data.data.items.length > 0) {
-                        items = data.data.items;
-                        total = data.data.params?.pagination?.totalItems || data.data.pagination?.totalItems || items.length;
+            // 1. Map thêm search-admin (MoMo + Custom Data) như bên Admin
+            try {
+                const res = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(keyword)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data.items) && data.items.length > 0) {
+                        items = data.items;
+                        total = items.length;
                     }
-                } catch(e) {}
+                }
+            } catch(e) {}
+
+            // 2. Thử dùng movieAPI luồng cũ nếu có
+            if (!items || items.length === 0) {
+                if (typeof movieAPI !== 'undefined' && movieAPI.searchMovies) {
+                    try {
+                        const data = await movieAPI.searchMovies(keyword, 1);
+                        if (data && data.data && data.data.items && data.data.items.length > 0) {
+                            items = data.data.items;
+                            total = data.data.params?.pagination?.totalItems || data.data.pagination?.totalItems || items.length;
+                        }
+                    } catch(e) {}
+                }
             }
             
-            // Nếu API 1 lỗi hoặc không có phim, lập tức chuyển sang API dự phòng
+            // 3. Nếu API 1 lỗi hoặc không có phim, lập tức chuyển sang API dự phòng
             if (!items || items.length === 0) {
                 try {
                     const base1 = (typeof API_CONFIG !== 'undefined' && API_CONFIG.OPHIM_URL) ? API_CONFIG.OPHIM_URL : 'https://ophim1.com/v1/api';

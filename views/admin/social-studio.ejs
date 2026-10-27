@@ -1295,6 +1295,10 @@
               <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
               <span>Làm Mới Bài Viết</span>
             </button>
+            <button type="button" class="btn btn-outline" id="btnFbConfig" onclick="window.SocialStudio.openFbModal()" style="font-size: 11.5px; padding: 5px 12px; background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); color: #2563eb; display: inline-flex; align-items: center; gap: 5px; font-weight: 700;" title="Kiểm tra trạng thái kết nối Fanpage & Cập nhật Token">
+              <i data-lucide="facebook" style="width: 13px; height: 13px;"></i>
+              <span id="fbStatusShortText">Kết Nối Fanpage</span>
+            </button>
           </div>
 
           <div class="layout-toggle-group">
@@ -1877,6 +1881,72 @@
     <button type="button" class="studio-lightbox-nav next" onclick="window.SocialStudio.nextLightbox()" title="Ảnh sau">&#10095;</button>
     <img id="studioLightboxImg" src="" alt="Zoom preview">
     <div id="studioLightboxCaption" class="studio-lightbox-caption">Ảnh 1 / 1</div>
+  </div>
+</div>
+
+<!-- Modal Cấu Hình Fanpage Facebook Token -->
+<div id="fbConfigModal" class="studio-lightbox-modal" style="display: none; align-items: center; justify-content: center;" onclick="window.SocialStudio.closeFbModal(event)">
+  <div style="background: #ffffff; border-radius: 16px; border: 1px solid var(--border-default, #e7e0d3); box-shadow: 0 20px 40px rgba(0,0,0,0.25); max-width: 580px; width: 92%; padding: 24px; position: relative; max-height: 90vh; overflow-y: auto;" onclick="event.stopPropagation()">
+    <button type="button" onclick="window.SocialStudio.closeFbModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #78716c; cursor: pointer;">&times;</button>
+    
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #1877f2; display: flex; align-items: center; justify-content: center; color: #fff;">
+        <i data-lucide="facebook" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div>
+        <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #1c1917;">Cấu Hình Kết Nối Fanpage Facebook</h3>
+        <p style="margin: 2px 0 0; font-size: 12px; color: #78716c;">Kiểm tra token, quyền hạn và kết nối đăng bài tự động</p>
+      </div>
+    </div>
+
+    <!-- Live Status Box -->
+    <div id="fbLiveStatusBox" style="border-radius: 12px; padding: 14px; margin-bottom: 18px; font-size: 13px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1e40af;">
+      <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;">
+        <i data-lucide="loader-2" class="animate-spin" style="width: 16px; height: 16px;"></i>
+        <span>Đang kiểm tra trạng thái Fanpage...</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #44403c; margin-bottom: 6px;">ID Trang Fanpage (FB_PAGE_ID):</label>
+        <input type="text" id="inputFbPageId" class="form-control" value="1307356335804337" placeholder="Ví dụ: 1307356335804337" style="width: 100%; font-family: monospace; font-size: 13px;">
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #44403c; margin-bottom: 6px;">Page Access Token (FB_PAGE_ACCESS_TOKEN):</label>
+        <textarea id="inputFbPageToken" class="form-control" rows="4" placeholder="Dán mã Page Access Token (bắt đầu bằng EAAB... hoặc EAA...)" style="width: 100%; font-family: monospace; font-size: 12px; resize: vertical; word-break: break-all;"></textarea>
+        <div style="font-size: 11px; color: #78716c; margin-top: 4px;">
+          ⚠️ <b>Lưu ý quan trọng:</b> Phải là <b>Page Access Token</b> (của Trang Fanpage), không dùng User Token (cá nhân).
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button type="button" class="btn btn-outline" id="btnTestFbToken" onclick="window.SocialStudio.testFbConnection()" style="font-size: 12.5px; padding: 8px 16px;">
+          <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Kiểm Tra Token
+        </button>
+        <button type="button" class="btn btn-primary" id="btnSaveFbToken" onclick="window.SocialStudio.saveFbToken()" style="font-size: 12.5px; padding: 8px 18px; background: #1877f2; border-color: #1877f2; color: #fff;">
+          <i data-lucide="save" style="width: 14px; height: 14px;"></i> Lưu & Áp Dụng
+        </button>
+      </div>
+
+      <!-- Step by step guidance -->
+      <div style="background: #fdfaf6; border: 1px solid #ebd9c8; border-radius: 12px; padding: 14px; margin-top: 10px; font-size: 12px; color: #451a03; line-height: 1.6;">
+        <div style="font-weight: 800; font-size: 13px; color: #9a3412; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="help-circle" style="width: 15px; height: 15px;"></i>
+          <span>Hướng dẫn lấy Page Access Token vĩnh viễn (30 giây):</span>
+        </div>
+        <ol style="margin: 0; padding-left: 20px;">
+          <li>Truy cập <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color: #2563eb; font-weight: 700; text-decoration: underline;">Facebook Graph API Explorer</a>.</li>
+          <li>Chọn đúng <b>Meta App</b> của bạn.</li>
+          <li>Mục <b>Permissions</b> (Quyền), tích chọn 3 quyền: <code style="background:#f1e5d8;padding:1px 4px;border-radius:4px;">pages_show_list</code>, <code style="background:#f1e5d8;padding:1px 4px;border-radius:4px;">pages_read_engagement</code>, <code style="background:#f1e5d8;padding:1px 4px;border-radius:4px;">pages_manage_posts</code>.</li>
+          <li>Bấm nút <b>Generate Access Token</b> và cấp quyền cho Trang của bạn.</li>
+          <li>Ở menu xổ xuống <b>User or Page</b>, bấm vào và chọn đúng <b>Tên Trang Fanpage</b> (ví dụ: APhim Super).</li>
+          <li>Sao chép mã Token mới tạo và dán vào ô bên trên rồi bấm <b>Lưu & Áp Dụng</b>!</li>
+        </ol>
+      </div>
+    </div>
   </div>
 </div>
 

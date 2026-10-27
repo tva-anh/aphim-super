@@ -147,10 +147,10 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         if (raw) preloaded = JSON.parse(raw);
     } catch (e) { }
 
-    // Nếu preloaded thiếu stream links, tự động bổ sung từ window.initialEpisodes (SSR có links)
+    // Luôn ưu tiên đồng bộ link stream mới nhất từ SSR vào Preloaded Data để cập nhật tức thì khi Admin đổi link
     if (preloaded && preloaded.slug === slug) {
-        if (!checkHasStreamLinks(preloaded.episodes) && checkHasStreamLinks(window.initialEpisodes)) {
-            console.log('🔄 [Watch] Tự động bổ sung streaming links từ SSR vào Preloaded Data');
+        if (checkHasStreamLinks(window.initialEpisodes)) {
+            console.log('🔄 [Watch] Đồng bộ streaming links mới nhất từ SSR vào Preloaded Data');
             preloaded.episodes = window.initialEpisodes;
         }
     }
@@ -398,6 +398,11 @@ async function getSecondaryEpisodes(slug) {
 
 // 🔄 Fetch và merge các server phụ
 async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlug = null) {
+    // 🎬 Nếu phim là luồng tùy biến VIP / Phim Rạp của APhim thì 100% dùng nguồn nội bộ, không gọi API ngoài tránh 404
+    if (window.initialMovie?.is_custom || currentMovie?.is_custom || window.initialMovie?.is_cinema || currentMovie?.is_cinema) {
+        return;
+    }
+
     try {
         const data = await getSecondaryEpisodes(slug);
 
@@ -1283,6 +1288,11 @@ async function loadMovieGallery(movie) {
     const scrollContainer = document.getElementById('movie-gallery-scroll');
     const galleryCount = document.getElementById('movie-gallery-count');
     if (!galleryContainer || !scrollContainer) return;
+
+    // Phim tùy biến hoặc không có TMDB metadata thì bỏ qua, không gọi phimapi gây lỗi 404
+    if (movie.is_custom || movie.is_cinema || (!movie.tmdb?.id && !movie.tmdb_id)) {
+        return;
+    }
 
     try {
         const url = `https://phimapi.com/v1/api/phim/${movie.slug}/images`;
@@ -2263,7 +2273,7 @@ function initializePlayer(episode) {
     _isInitializingPlayer = true;
     setTimeout(() => { _isInitializingPlayer = false; }, 5000);
 
-    console.log('🎥 Initializing ArtPlayer with episode:', episode);
+    console.log('🎥 Initializing ArtPlayer:', episode?.name || 'Tập phim');
 
     if (!episode) {
         console.error('❌ No episode provided');
@@ -2309,10 +2319,15 @@ function initializePlayer(episode) {
     // Auto upgrade http to https to prevent Mixed Content security blocking on mobile browsers
     if (videoUrl.startsWith('http://')) {
         videoUrl = videoUrl.replace('http://', 'https://');
-        console.log('🔒 Upgraded video URL to HTTPS:', videoUrl);
+        console.log('🔒 Upgraded video URL to HTTPS');
     }
 
-    console.log('🔗 Video URL:', videoUrl);
+    // Log an toàn (không để lộ URL lưu trữ đám mây gốc)
+    if (videoUrl.includes('/api/stream/')) {
+        console.log('🔗 [Secure Gateway Stream]:', videoUrl);
+    } else {
+        console.log('🔗 [Stream Mode Active]');
+    }
     if (customLink) {
         console.log('✅ Using custom link from admin');
     }
@@ -3703,8 +3718,28 @@ function initializePlayer(episode) {
         }
     }
 
-    // Direct HLS connection
-    if (Hls.isSupported()) {
+    // Direct MP4 or HLS connection
+    const isDirectMp4 = videoUrl.endsWith('.mp4') || videoUrl.includes('.mp4?') || videoUrl.includes('/api/stream/');
+    if (isDirectMp4) {
+        console.log('✅ [Direct MP4 Core] Khởi tạo phát MP4 bảo mật tốc độ cao (Range 206 Native)');
+        if (window.hlsInstance) {
+            try { window.hlsInstance.destroy(); } catch (e) { }
+            window.hlsInstance = null;
+        }
+        player.src = videoUrl;
+        player.addEventListener('loadedmetadata', () => {
+            const shouldResume = !isTimeRestored && 
+                                 progress && 
+                                 progress.currentTime > 5 && 
+                                 !progress.completed &&
+                                 (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
+            if (shouldResume) {
+                isTimeRestored = true;
+                player.currentTime = progress.currentTime;
+            }
+            player.play().catch(e => console.log('Autoplay prevented:', e));
+        }, { once: true });
+    } else if (Hls.isSupported()) {
         console.log('✅ [Hybrid Native Core] Khởi tạo HLS với 100% chất lượng GPU DirectComposition');
         if (window.hlsInstance) {
             try { window.hlsInstance.destroy(); } catch (e) { }

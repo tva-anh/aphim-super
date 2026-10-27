@@ -169,8 +169,14 @@ const GENRE_MAP = {
     28: 'Hành Động', 12: 'Phiêu Lưu', 16: 'Hoạt Hình', 35: 'Hài', 80: 'Hình Sự',
     99: 'Tài Liệu', 18: 'Chính Kịch', 10751: 'Gia Đình', 14: 'Giả Tưởng', 36: 'Lịch Sử',
     27: 'Kinh Dị', 10402: 'Âm Nhạc', 9648: 'Bí Ẩn', 10749: 'Lãng Mạn', 878: 'Viễn Tưởng',
-    10770: 'Phim Truyền Hình', 53: 'Gay Cấn', 10752: 'Chiến Tranh', 37: 'Miền Tây'
 };
+
+function cleanMoMoImg(url) {
+    if (!url) return '';
+    // MoMo CDN attaches /convert-webp and ?size=SM / ?size=M for low quality thumbnails.
+    // Stripping these parameters retrieves the crystal-clear, uncompressed studio poster/backdrop.
+    return url.replace('/convert-webp', '').split('?')[0];
+}
 
 async function fetchFromMoMoCinema() {
     try {
@@ -209,8 +215,8 @@ async function fetchFromMoMoCinema() {
             if (seen.has(slug)) continue;
             seen.add(slug);
 
-            const poster = (m.GraphicUrl || m.BannerUrl || '').replace('/convert-webp', '');
-            const fallbackPoster = (m.BannerUrl || m.GraphicUrl || '').replace('/convert-webp', '');
+            const poster = cleanMoMoImg(m.GraphicUrl || m.BannerUrl);
+            const fallbackPoster = cleanMoMoImg(m.BannerUrl || m.GraphicUrl);
 
             const rawAge = (m.ApiRatingFormat || (m.ApiRating === 'C18' ? '18+' : m.ApiRating === 'C16' ? '16+' : m.ApiRating === 'C13' ? '13+' : (m.ApiRating === 'P' ? 'P' : '16+'))).trim();
             const rating = m.ApiRatingPoint ? Number(m.ApiRatingPoint).toFixed(1) : null;
@@ -250,8 +256,8 @@ async function fetchFromMoMoCinema() {
             if (seen.has(slug)) continue;
             seen.add(slug);
 
-            const poster = (m.GraphicUrl || m.BannerUrl || '').replace('/convert-webp', '');
-            const fallbackPoster = (m.BannerUrl || m.GraphicUrl || '').replace('/convert-webp', '');
+            const poster = cleanMoMoImg(m.GraphicUrl || m.BannerUrl);
+            const fallbackPoster = cleanMoMoImg(m.BannerUrl || m.GraphicUrl);
 
             const rawAge = (m.ApiRatingFormat || (m.ApiRating === 'C18' ? '18+' : m.ApiRating === 'C16' ? '16+' : m.ApiRating === 'C13' ? '13+' : (m.ApiRating === 'P' ? 'P' : '16+'))).trim();
 
@@ -399,6 +405,162 @@ router.get('/cinema-hot', async (req, res) => {
         return res.status(500).json({ success: false, items: [], message: err.message });
     }
 });
+
+// ── GET /api/movies/search & /api/movies/search-admin — API tìm kiếm phim tổng hợp toàn hệ thống (Custom Data + MoMo Rạp + PhimAPI + OPhim) ──
+async function handleUnifiedMovieSearch(req, res) {
+    try {
+        const keyword = (req.query.keyword || req.query.q || '').trim();
+        if (!keyword) {
+            return res.json({
+                status: 'success',
+                success: true,
+                count: 0,
+                items: [],
+                data: { items: [], params: { pagination: { totalItems: 0, totalPages: 1, currentPage: 1 } } }
+            });
+        }
+
+        const normalizeVN = (str) => (str || '').toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[đĐ]/g, 'd')
+            .replace(/[^a-z0-9\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        const normK = normalizeVN(keyword);
+
+        const list = [];
+        const seenSlugs = new Set();
+
+        // 0. ƯU TIÊN SỐ 1: Tìm kiếm trong kho phim gán link tùy biến của chúng ta (Custom Streams / R2 / Bản Đẹp Rạp)
+        try {
+            const customStreams = require('../lib/customStreams');
+            const allCustom = customStreams.getAll(true) || [];
+            allCustom.forEach(c => {
+                const normName = normalizeVN(c.name);
+                const normOrigin = normalizeVN(c.origin_name);
+                const normSlug = normalizeVN(c.slug);
+                if (normName.includes(normK) || normOrigin.includes(normK) || normSlug.includes(normK) || normK.includes(normName)) {
+                    if (!seenSlugs.has(c.slug)) {
+                        seenSlugs.add(c.slug);
+                        list.push({
+                            _id: c.slug,
+                            name: c.name,
+                            origin_name: c.origin_name || c.name,
+                            slug: c.slug,
+                            poster_url: c.poster_url || c.thumb_url,
+                            thumb_url: c.thumb_url || c.poster_url,
+                            year: String(c.year || new Date().getFullYear()),
+                            quality: c.quality || 'Bản Đẹp Rạp (Full HD)',
+                            lang: c.lang || 'Thuyết Minh / Vietsub',
+                            rating: '9.8',
+                            content: c.content || '',
+                            is_custom: true,
+                            is_cinema: true,
+                            type: c.type || 'single'
+                        });
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('[Search] Lỗi nạp customStreams:', e.message);
+        }
+
+        // 1. Tìm kiếm trong kho Phim Chiếu Rạp MoMo
+        let momoItems = cinemaHotCache;
+        if (!momoItems || !momoItems.length) {
+            momoItems = await fetchFromMoMoCinema();
+            if (momoItems && momoItems.length) {
+                cinemaHotCache = momoItems;
+                cinemaHotCacheTime = Date.now();
+            }
+        }
+
+        if (momoItems && Array.isArray(momoItems)) {
+            const matchedMomo = momoItems.filter(m => {
+                const normName = normalizeVN(m.name);
+                const normOrigin = normalizeVN(m.origin_name);
+                const normSlug = normalizeVN(m.slug);
+                return normName.includes(normK) || normOrigin.includes(normK) || normSlug.includes(normK) || normK.includes(normName);
+            });
+
+            matchedMomo.forEach(m => {
+                if (seenSlugs.has(m.slug)) return;
+                seenSlugs.add(m.slug);
+                list.push({
+                    _id: m.slug,
+                    name: m.name,
+                    origin_name: m.origin_name || m.name,
+                    slug: m.slug,
+                    poster_url: cleanMoMoImg(m.poster || m.fallback_poster),
+                    thumb_url: cleanMoMoImg(m.fallback_poster || m.poster),
+                    year: String((m.release_date || '').split('-')[0] || new Date().getFullYear()),
+                    quality: 'Chiếu Rạp',
+                    lang: 'Vietsub Full',
+                    rating: m.rating || '9.6',
+                    content: m.synopsis || '',
+                    is_momo: true,
+                    is_cinema: true
+                });
+            });
+        }
+
+        // 2. Tìm kiếm qua PhimAPI & OPhim song song qua backend (hoàn toàn KHÔNG bị chặn CORS!)
+        const [pRes, oRes] = await Promise.allSettled([
+            axios.get(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=15&page=1`, { timeout: 3500 }),
+            axios.get(`https://ophim1.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}`, { timeout: 3500 })
+        ]);
+
+        if (pRes.status === 'fulfilled' && pRes.value.data?.status === 'success' && pRes.value.data.data?.items) {
+            pRes.value.data.data.items.forEach(it => {
+                if (!seenSlugs.has(it.slug)) {
+                    seenSlugs.add(it.slug);
+                    list.push(it);
+                }
+            });
+        }
+
+        if (oRes.status === 'fulfilled' && oRes.value.data?.data?.items) {
+            oRes.value.data.data.items.forEach(it => {
+                if (!seenSlugs.has(it.slug)) {
+                    seenSlugs.add(it.slug);
+                    list.push(it);
+                }
+            });
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 24;
+
+        return res.json({
+            status: 'success',
+            success: true,
+            count: list.length,
+            items: list,
+            data: {
+                items: list,
+                params: {
+                    pagination: {
+                        totalItems: list.length,
+                        totalItemsPerPage: limit,
+                        currentPage: page,
+                        totalPages: Math.ceil(list.length / limit) || 1
+                    }
+                }
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({
+            status: 'error',
+            success: false,
+            items: [],
+            data: { items: [] },
+            message: err.message
+        });
+    }
+}
+
+router.get('/search', handleUnifiedMovieSearch);
+router.get('/search-admin', handleUnifiedMovieSearch);
 
 // ── GET /api/movies/trending-24h — Lấy phim xu hướng 24h chuẩn Google Trends (Khám phá "xem phim" 24h qua) ───
 let trending24hCache = null;
@@ -653,5 +815,6 @@ function invalidateTrendingCache() {
 
 router.invalidateTrendingCache = invalidateTrendingCache;
 router.refreshTrending24hInBackground = refreshTrending24hInBackground;
+router.fetchFromMoMoCinema = fetchFromMoMoCinema;
 module.exports = router;
 
