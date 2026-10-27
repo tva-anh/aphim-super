@@ -4541,7 +4541,7 @@
                         async function loadDeCuSlider() {
                             const sliderEl = document.getElementById('slider-de-cu');
                             if (!sliderEl) return;
-                            const cacheKey = 'aphim_de_cu_slider_trends_v28';
+                            const cacheKey = 'aphim_de_cu_slider_trends_v29';
                             try {
                                 const cached = localStorage.getItem(cacheKey);
                                 if (cached && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
@@ -4579,7 +4579,7 @@
                                 if (sliderEl && items.length) {
                                     const html = items.slice(0, 24).map((m, idx) => createDeCuCardHTML(m, idx)).join('');
                                     const hasSkeleton = !sliderEl.children.length || !!sliderEl.querySelector('.de-cu-skeleton-card');
-                                    if (hasSkeleton || (!sliderEl._userInteracted && sliderEl.scrollLeft === 0 && sliderEl.innerHTML !== html)) {
+                                    if (hasSkeleton || sliderEl.innerHTML !== html) {
                                         const prevScroll = sliderEl.scrollLeft;
                                         sliderEl.innerHTML = html;
                                         if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;

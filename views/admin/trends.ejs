@@ -180,7 +180,76 @@
             </p>
           </div>
 
+      <!-- Modal Gán Phim Thông Minh (Live Search & 1-Click Match) -->
+      <div id="assignMovieTrendsModal" class="modal-backdrop" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px;">
+        <div class="modal-card" style="background: #0f121d; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; width: 100%; max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(249, 115, 22, 0.15); overflow: hidden; animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+          
+          <!-- Modal Header -->
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(249,115,22,0.15); color: #f97316;">
+                <i data-lucide="link"></i>
+              </span>
+              <div>
+                <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin: 0;">Gán Phim Cho Từ Khóa Trends</h3>
+                <div id="modalTargetKeywordBadge" style="font-size: 12px; color: #f97316; font-weight: 600; margin-top: 2px;"></div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="window.TrendsAdmin.closeAssignModal()" style="color: #94a3b8; padding: 6px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Đóng">
+              <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+          </div>
+
+          <!-- Search Input Box -->
+          <div style="padding: 16px 24px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); background: rgba(0, 0, 0, 0.2);">
+            <div style="position: relative; width: 100%;">
+              <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
+                <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+              </span>
+              <input type="text" id="modalSearchMovieInput" class="form-control" placeholder="Gõ tên phim, diễn viên hoặc slug (ví dụ: Trai Buon Nguoi, Đấu Phá, Nhà Gia Tiên...)" style="width: 100%; padding: 12px 40px 12px 42px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 10px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s;" autocomplete="off" />
+              <button type="button" id="modalSearchMovieClear" onclick="window.TrendsAdmin.clearModalSearch()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: none;" title="Xóa tìm kiếm">
+                <i data-lucide="x-circle" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+
+            <!-- Quick Filter Tabs -->
+            <div style="display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 2px;">
+              <button type="button" class="btn-filter-tag active" data-filter="all" onclick="window.TrendsAdmin.filterModalResults('all', this)" style="padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(249,115,22,0.15); color: #f97316; cursor: pointer;">
+                Tất cả kho phim
+              </button>
+              <button type="button" class="btn-filter-tag" data-filter="custom" onclick="window.TrendsAdmin.filterModalResults('custom', this)" style="padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #94a3b8; cursor: pointer;">
+                ⭐ Phim R2 VIP / Tùy Biến
+              </button>
+              <button type="button" class="btn-filter-tag" data-filter="cinema" onclick="window.TrendsAdmin.filterModalResults('cinema', this)" style="padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #94a3b8; cursor: pointer;">
+                🎬 Phim Chiếu Rạp
+              </button>
+              <button type="button" class="btn-filter-tag" data-filter="online" onclick="window.TrendsAdmin.filterModalResults('online', this)" style="padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #94a3b8; cursor: pointer;">
+                🌐 Phim Online (API)
+              </button>
+            </div>
+          </div>
+
+          <!-- Search Results List Container -->
+          <div id="modalMovieSearchResults" style="flex: 1; overflow-y: auto; max-height: 420px; padding: 12px 20px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="text-align: center; padding: 35px 20px; color: #94a3b8; font-size: 13px;">
+              <i data-lucide="search" style="width: 24px; height: 24px; margin-bottom: 8px; opacity: 0.6;"></i>
+              <div>Nhập tên phim để tìm kiếm ngay lập tức trong toàn bộ kho phim...</div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25);">
+            <button type="button" class="btn btn-ghost" id="btnRemoveAssignedMovie" onclick="window.TrendsAdmin.removeAssignedMovie()" style="color: #ef4444; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
+              <i data-lucide="unlink" style="width: 14px; height: 14px;"></i> Gỡ Gán Phim
+            </button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-outline" onclick="window.TrendsAdmin.closeAssignModal()" style="font-size: 12px; padding: 7px 16px;">
+                Đóng
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
 
       <!-- Dedicated Script with Dynamic Timestamp Cache Buster -->
       <script src="/js/admin/trends.js?v=<%= Date.now() %>"></script>
