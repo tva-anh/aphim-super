@@ -78,6 +78,17 @@
 
     if (slug) {
       if (movieCache.has('slug:' + slug)) return movieCache.get('slug:' + slug);
+      // 1. Thử lấy từ movie-merged (hỗ trợ cả custom streams R2 và phim mặc định)
+      try {
+        const resLocal = await fetch(`/api/movie-merged/${encodeURIComponent(slug)}`);
+        const dataLocal = await resLocal.json();
+        if (dataLocal && dataLocal.status && dataLocal.movie) {
+          movieCache.set('slug:' + slug, dataLocal.movie);
+          return dataLocal.movie;
+        }
+      } catch {}
+
+      // 2. Thử PhimAPI fallback
       try {
         const res = await fetch(`https://phimapi.com/phim/${encodeURIComponent(slug)}`);
         const data = await res.json();
@@ -93,10 +104,24 @@
     if (!clean) return null;
     if (movieCache.has('kw:' + clean)) return movieCache.get('kw:' + clean);
 
+    // ⚡ Tìm kiếm tổng hợp qua /api/movies/search-admin (Custom Streams + MoMo Chiếu Rạp + PhimAPI + OPhim)
     try {
-      const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(clean)}&limit=4`);
-      const data = await res.json();
-      const items = data?.data?.items || [];
+      let items = [];
+      try {
+        const resAdmin = await fetch(`/api/movies/search-admin?keyword=${encodeURIComponent(clean)}`);
+        const dataAdmin = await resAdmin.json();
+        if (dataAdmin.success && Array.isArray(dataAdmin.items) && dataAdmin.items.length > 0) {
+          items = dataAdmin.items;
+        }
+      } catch (errAdmin) {}
+
+      // Fallback phimapi nếu search-admin không có kết quả
+      if (!items.length) {
+        const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(clean)}&limit=6`);
+        const data = await res.json();
+        items = data?.data?.items || [];
+      }
+
       if (!items.length) {
         movieCache.set('kw:' + clean, null);
         return null;
@@ -110,7 +135,7 @@
         return mSlug.includes(cleanSlug) || cleanSlug.includes(mSlug) ||
                oSlug.includes(cleanSlug) || cleanSlug.includes(oSlug) ||
                s.includes(cleanSlug);
-      });
+      }) || items[0];
 
       if (found) {
         movieCache.set('kw:' + clean, found);

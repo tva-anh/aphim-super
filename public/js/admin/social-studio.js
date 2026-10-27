@@ -385,9 +385,16 @@
         if (json.success && Array.isArray(json.movies) && json.movies.length > 0) {
           dropdown.innerHTML = json.movies.map(m => {
             const isShortItem = (m.sourceType === 'short') || isShort;
-            const badgeHtml = isShortItem
-              ? `<span style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎥 PHIM NGẮN</span>`
-              : `<span style="background: #e0e7ff; color: #4338ca; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎬 PHIM CHÍNH</span>`;
+            let badgeHtml = '';
+            if (m.is_custom) {
+              badgeHtml = `<span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">⚡ BẢN R2 VIP</span>`;
+            } else if (m.is_momo) {
+              badgeHtml = `<span style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-size: 9.5px; font-weight: 900; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎟️ PHIM RẠP</span>`;
+            } else if (isShortItem) {
+              badgeHtml = `<span style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎥 PHIM NGẮN</span>`;
+            } else {
+              badgeHtml = `<span style="background: #e0e7ff; color: #4338ca; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px; white-space: nowrap;">🎬 PHIM CHÍNH</span>`;
+            }
 
             const epInfo = m.episodesCount ? ` · ${m.episodesCount} tập` : '';
 

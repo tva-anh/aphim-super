@@ -10,6 +10,8 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 const socialStudioService = require('../lib/socialStudio.service');
+const customStreams = require('../lib/customStreams');
+const movieRoutes = require('./movie.routes');
 
 // Optional Admin Auth middleware
 let requireAdmin = (req, res, next) => next();
@@ -139,13 +141,58 @@ router.get('/movies', async (req, res) => {
         // LUỒNG 2: CHUYÊN BIỆT CHO PHIM CHÍNH WEBSITE (RẠP / BỘ / LẺ)
         // 100% ĐỘC LẬP - TUYỆT ĐỐI KHÔNG CHỨA PHIM NGẮN
         // ════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════
+        // LUỒNG 2: CHUYÊN BIỆT CHO PHIM CHÍNH WEBSITE (RẠP / BỘ / LẺ)
+        // HỖ TRỢ TỔNG HỢP: CUSTOM STREAMS (R2) + MOMO CHIẾU RẠP + PHIM MỚI
+        // ════════════════════════════════════════════════════════════════
         else {
             if (!q) {
-                // PRIMARY: Fetch main website movies (Phim Mới / Rạp / Bộ / Lẻ)
+                // 1. ƯU TIÊN SỐ 1: Các phim VIP đã gán link tùy biến R2 / m3u8
+                try {
+                    const customList = customStreams.getAll().map(c => ({
+                        name: c.name,
+                        origin_name: c.origin_name || c.name,
+                        slug: c.slug,
+                        year: c.year || '2026',
+                        poster_url: formatImg(c.poster_url || c.thumb_url),
+                        thumb_url: formatImg(c.thumb_url || c.poster_url),
+                        category: (c.category && c.category.join(', ')) || 'Phim VIP (Bản Đẹp Rạp)',
+                        rating: '9.9',
+                        content: c.content || '',
+                        sourceType: 'main',
+                        is_custom: true
+                    }));
+                    movies.push(...customList);
+                } catch (e) {}
+
+                // 2. ƯU TIÊN SỐ 2: Phim Chiếu Rạp trực tiếp từ MoMo Cinema
+                try {
+                    if (typeof movieRoutes.fetchFromMoMoCinema === 'function') {
+                        const momoList = await movieRoutes.fetchFromMoMoCinema();
+                        if (Array.isArray(momoList)) {
+                            const momoItems = momoList.slice(0, 15).map(m => ({
+                                name: m.name,
+                                origin_name: m.origin_name || m.name,
+                                slug: m.slug,
+                                year: (m.release_date || '').split('-')[0] || '2026',
+                                poster_url: m.poster || m.fallback_poster,
+                                thumb_url: m.fallback_poster || m.poster,
+                                category: m.genres || 'Phim Chiếu Rạp',
+                                rating: '9.6',
+                                content: m.synopsis || '',
+                                sourceType: 'main',
+                                is_momo: true
+                            }));
+                            movies.push(...momoItems);
+                        }
+                    }
+                } catch (e) {}
+
+                // 3. Phim mới cập nhật từ PhimAPI
                 try {
                     const mainRes = await socialStudioService.httpsRequest('https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1');
                     if (mainRes && mainRes.data && Array.isArray(mainRes.data.items)) {
-                        movies = mainRes.data.items.map(item => ({
+                        const apiItems = mainRes.data.items.map(item => ({
                             name: item.name,
                             origin_name: item.origin_name || '',
                             slug: item.slug,
@@ -157,10 +204,11 @@ router.get('/movies', async (req, res) => {
                             content: '',
                             sourceType: 'main'
                         }));
+                        movies.push(...apiItems);
                     }
                 } catch (e) {}
 
-                // Append local custom control movies if any
+                // 4. Local movies_control.json
                 try {
                     const controlPath = path.join(__dirname, '../data/movies_control.json');
                     if (fs.existsSync(controlPath)) {
@@ -172,12 +220,59 @@ router.get('/movies', async (req, res) => {
                                 thumb_url: formatImg(m.thumb_url || m.thumb || m.banner),
                                 sourceType: 'main'
                             }));
-                            movies = localList.concat(movies);
+                            movies.push(...localList);
                         }
                     }
                 } catch (e) {}
             } else {
-                // Online search phimapi.com
+                // ⚡ TÌM KIẾM TỔNG HỢP (Custom Streams + MoMo Cinema + PhimAPI + OPhim)
+                // 1. Tìm trong Custom Streams
+                try {
+                    const customMatches = customStreams.searchStreams(q).map(c => ({
+                        name: c.name,
+                        origin_name: c.origin_name || c.name,
+                        slug: c.slug,
+                        year: c.year || '2026',
+                        poster_url: formatImg(c.poster_url || c.thumb_url),
+                        thumb_url: formatImg(c.thumb_url || c.poster_url),
+                        category: (c.category && c.category.join(', ')) || 'Phim VIP (Bản Đẹp Rạp)',
+                        rating: '9.9',
+                        content: c.content || '',
+                        sourceType: 'main',
+                        is_custom: true
+                    }));
+                    movies.push(...customMatches);
+                } catch (e) {}
+
+                // 2. Tìm trong MoMo Cinema
+                try {
+                    if (typeof movieRoutes.fetchFromMoMoCinema === 'function') {
+                        const momoList = await movieRoutes.fetchFromMoMoCinema();
+                        if (Array.isArray(momoList)) {
+                            const qLow = q.toLowerCase();
+                            const momoMatches = momoList.filter(m => 
+                                (m.name && m.name.toLowerCase().includes(qLow)) ||
+                                (m.origin_name && m.origin_name.toLowerCase().includes(qLow)) ||
+                                (m.slug && m.slug.includes(qLow))
+                            ).map(m => ({
+                                name: m.name,
+                                origin_name: m.origin_name || m.name,
+                                slug: m.slug,
+                                year: (m.release_date || '').split('-')[0] || '2026',
+                                poster_url: m.poster || m.fallback_poster,
+                                thumb_url: m.fallback_poster || m.poster,
+                                category: m.genres || 'Phim Chiếu Rạp',
+                                rating: '9.6',
+                                content: m.synopsis || '',
+                                sourceType: 'main',
+                                is_momo: true
+                            }));
+                            movies.push(...momoMatches);
+                        }
+                    }
+                } catch (e) {}
+
+                // 3. Tìm trực tuyến qua PhimAPI
                 try {
                     const searchRes = await socialStudioService.httpsRequest(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(q)}&limit=25`);
                     if (searchRes && searchRes.data && searchRes.data.data && Array.isArray(searchRes.data.data.items)) {
@@ -198,7 +293,7 @@ router.get('/movies', async (req, res) => {
                     }
                 } catch (onlineErr) {}
 
-                // Local movies_control.json search
+                // 4. Tìm trong movies_control.json
                 try {
                     const controlPath = path.join(__dirname, '../data/movies_control.json');
                     if (fs.existsSync(controlPath)) {
@@ -215,7 +310,7 @@ router.get('/movies', async (req, res) => {
                                 thumb_url: formatImg(m.thumb_url || m.thumb || m.banner),
                                 sourceType: 'main'
                             }));
-                            movies = localMatches.concat(movies);
+                            movies.push(...localMatches);
                         }
                     }
                 } catch (e) {}
@@ -240,7 +335,9 @@ router.get('/movies', async (req, res) => {
                 rating: m.rating || m.vote_average || '9.5',
                 content: m.content || m.description || m.intro || '',
                 sourceType: m.sourceType || (catalogType === 'phim-ngan' ? 'short' : 'main'),
-                episodesCount: m.episodesCount || 0
+                episodesCount: m.episodesCount || 0,
+                is_custom: !!m.is_custom,
+                is_momo: !!m.is_momo
             });
             if (results.length >= 35) break;
         }
