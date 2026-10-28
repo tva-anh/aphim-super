@@ -2420,7 +2420,6 @@
 </head>
 
 <body class="page-reels is-reels-page bg-[#06080f] text-gray-100 min-h-screen overflow-hidden w-full select-none">
-    <!-- 🚀 CRAWLABLE SSR SEO CONTENT (Googlebot Video, Bingbot, Yandex crawlers) -->
     <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0 && initialReels[0].yt) { 
         const primaryFeat = initialReels[0];
         const primaryTitle = primaryFeat.movieTitle || primaryFeat.title || 'Review Phim';
@@ -2568,7 +2567,6 @@
                     </div>
                 </form>
 
-                <!-- 🎬 KHUNG GỢI Ý TÌM KIẾM RIÊNG BIỆT (FLOATING POPUP GUPHIM / NETFLIX STYLE) -->
                 <div id="sidebar-search-dropdown" class="sidebar-search-dropdown hidden">
                     <div class="sidebar-dropdown-header">
                         <div class="sidebar-dropdown-title-wrap">
@@ -2597,7 +2595,6 @@
             </div>
 
             <div class="sidebar-scrollable-content">
-                <!-- 🌟 NỘI DUNG CHÍNH (REELS & REVIEW) -->
                 <div class="sidebar-nav-section">
                     <div class="sidebar-section-title">NỘI DUNG CHÍNH</div>
                     <div class="sidebar-nav-group">
@@ -2663,7 +2660,6 @@
                             <span class="sidebar-history-count-badge" id="sidebar-history-count" style="display:none;">0</span>
                         </button>
 
-                        <!-- 🎬 Mini Last-Watched Preview Card (renders from localStorage) -->
                         <div class="sidebar-last-watched-card hidden" id="sidebar-last-watched-card" onclick="openReelsHistoryModal()" title="Xem tiếp phim đã xem">
                             <div class="slw-thumb-wrap">
                                 <img class="slw-thumb" id="slw-thumb-img" src="" alt="" onerror="this.src='/android-chrome-192x192.png'" />
@@ -2878,7 +2874,6 @@
              📱 CENTER REELS VIEWPORT (TikTok 9:16 Vertical Stage)
              ========================================================= -->
         <main class="reels-main-container">
-            <!-- 🎬 FLOATING EXIT THEATER BUTTON (Visible in Theater / 16:9 Cinema Mode) -->
             <button id="reels-theater-exit-btn" class="reels-theater-exit-btn" onclick="handleExitTheaterOrCinema(event)" title="Thoát Rạp chiếu / Toàn màn hình (ESC hoặc F)">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -2889,7 +2884,6 @@
 
             <div class="reels-viewport <%= (currentTab === 'reel' || currentTab === 'for-you') ? 'is-tab-reel' : 'is-tab-review' %>">
 
-                <!-- 🌟 Top Floating Navigation Bar (Premium TikTok Style) -->
                 <div class="reels-top-bar">
                     <!-- Left: Back Button (◀) & Sound/Speaker Button Group (Balanced with gap) -->
                     <div class="reels-top-left-group">
@@ -2971,11 +2965,9 @@
                 <!-- Ambient Backdrop for 16:9 Cinema Mode -->
                 <div class="reels-ambient-backdrop" id="reels-ambient-backdrop"></div>
 
-                <!-- 🚀 DUAL GLOBAL PLAYER HOSTS (Zero-Lag Switch) -->
                 <div class="reels-global-player-host active" id="reels-player-host-a" data-player="a"></div>
                 <div class="reels-global-player-host is-prebuffering" id="reels-player-host-b" data-player="b"></div>
 
-                <!-- 🚀 DUAL NATIVE HTML5 MSE VIDEO HOSTS (Facebook / Meta Ultra-Low Latency Engine) -->
                 <div class="reels-native-player-host" id="reels-native-host-a" data-player="native-a">
                     <video id="reels-native-video-a" playsinline webkit-playsinline preload="auto" loop></video>
                 </div>
@@ -3041,7 +3033,6 @@
 
                                 <!-- Right Action Dock (TikTok / Reels Style - Pure White Crisp) -->
                                 <div class="reels-actions-bar">
-                                    <!-- 🎬 TikTok Circular Avatar with Play Watch Movie Badge -->
                                     <a href="<%= item.watchUrl %>" class="reel-action-btn reel-avatar-btn group" title="Xem phim <%= item.movieTitle %> ngay">
                                         <div class="reel-avatar-disc">
                                             <img src="<%= item.poster %>" alt="<%= item.movieTitle %>" data-yt="<%= item.yt %>" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-192x192.png'; }" />
@@ -3094,7 +3085,6 @@
                                     </button>
                                 </div>
 
-                                <!-- 🎬 BOTTOM FLOATING TRANSLUCENT GLASS MOVIE CARD -->
                                 <div class="reel-bottom-info">
                                     <a href="<%= item.watchUrl %>" class="reel-movie-glass-card" title="Xem phim <%= item.movieTitle %> ngay">
                                         <div class="reel-card-thumb-wrap">
@@ -3325,7 +3315,6 @@
                 <button class="desktop-dock-btn" onclick="scrollToNextReel()" title="Video tiếp theo (Phím ↓ / J)">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
-                <!-- 🎬 PHÓNG TO / RẠP CHIẾU TOÀN MÀN HÌNH (FULLSCREEN / THEATER MODE) -->
                 <button class="desktop-dock-btn" id="reels-fullscreen-btn" onclick="toggleReelsFullscreen(event)" title="Phóng to / Rạp chiếu toàn màn hình (Phím F)">
                     <svg id="reels-fullscreen-icon" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/>
@@ -3344,7 +3333,6 @@
              ========================================================= -->
         <aside class="reels-desktop-info-panel" id="reels-desktop-info-panel">
             <% if (initialReels && initialReels[0]) { var first = initialReels[0]; %>
-                <!-- 🎬 UNIFIED HERO POSTER CARD (Image wraps down below XEM NGAY button) -->
                 <div class="info-panel-poster-wrap">
                     <img src="<%= first.poster %>" alt="<%= first.movieTitle %>" class="info-panel-poster-img" id="panel-hero-img" data-yt="<%= first.yt %>" onerror="if(!this.dataset.triedYt && this.dataset.yt){ this.dataset.triedYt='1'; this.src='https://i.ytimg.com/vi/' + this.dataset.yt + '/hqdefault.jpg'; } else { this.src='/android-chrome-512x512.png'; }" />
                     <div class="info-panel-badge-overlay">
@@ -3358,7 +3346,6 @@
                             <div class="info-panel-sub" id="panel-sub"><%= first.year %> • <%= Array.isArray(first.categories) ? first.categories.slice(0, 2).join(' • ') : first.categories %></div>
                         </div>
 
-                        <!-- 🌟 TOP-RIGHT LUXURY CIRCULAR PLAY BUTTON -->
                         <a href="<%= first.watchUrl %>" class="info-panel-circle-play-cta" id="panel-watch-btn" title="Xem phim ngay (Tập 1)" aria-label="Xem phim ngay">
                             <div class="circle-play-badge">
                                 <span class="circle-play-pulse"></span>
@@ -3413,7 +3400,6 @@
                     <% }); %>
                 </div>
 
-                <!-- 🌟 BỘ THỨ 2 DƯỚI REVIEW TƯƠNG TỰ: TOP REVIEW XEM NHIỀU -->
                 <div class="info-panel-related-title mt-6 flex items-center justify-between">
                     <span>🔥 Top Review Xem Nhiều</span>
                     <span class="info-trending-badge">THỊNH HÀNH</span>

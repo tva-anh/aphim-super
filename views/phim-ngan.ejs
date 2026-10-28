@@ -3,7 +3,6 @@
 
 <head>
     <%- include('partials/head') %>
-        <!-- 🛡️ BẢO VỆ CHỐNG DEVTOOLS & F12 TỨC THÌ CHO TRANG PHIM NGẮN (Chuẩn trang chính, tránh nhầm Mobile) -->
         <script>
             (function () {
                 'use strict';
@@ -13540,7 +13539,6 @@
                                     </a>
                                 </div>
 
-                                <!-- Hàng 4 Card Xem Tiếp chuẩn 100% Ảnh 1 & Ảnh 2 -->
                                 <div class="as-continue-cards-grid" id="asContinueCardsGrid">
                                     <% 
                                         // Danh sách 4 phim tiếp tục xem lấy động từ danh sách phim thịnh hành
@@ -13878,7 +13876,6 @@
                                             <div class="as-lb-body">
                                                 <!-- LEFT: Nội dung xếp hạng -->
                                                 <div class="as-lb-main">
-                                                    <!-- Hàng 1: Tiêu đề + tabs thể loại (Responsive chuẩn trên mobile & desktop) -->
                                                     <div class="as-lb-head-row">
                                                         <div class="as-lb-label">
                                                             <svg width="18" height="18" viewBox="0 0 24 24"
@@ -14321,7 +14318,6 @@
                 <section class="as-recommend-view" id="asRecommendView"
                     style="<%= (typeof pnView !== 'undefined' && pnView === 'recommend') ? 'display:flex;' : 'display:none;' %>">
                     <div class="as-rec-layout">
-                        <!-- 1. LEFT: Thông tin phim + chọn tập (chuẩn 100% Ảnh 1) -->
                         <div class="as-rec-info">
                             <div class="as-rec-badges">
                                 <span class="as-rec-badge" id="asRecEpCount"
@@ -14369,7 +14365,6 @@
                             <div class="as-rec-ep-nums" id="asRecEpNums"></div>
                         </div>
 
-                        <!-- 2. CENTER: Khung video dọc chuẩn Reels (Cố định, lướt êm ái) -->
                         <div class="as-rec-stage" id="asRecStage">
                             <div class="as-rec-video-frame" id="asRecVideoFrame" onclick="toggleRecPlayPause(event)">
                                 <img class="as-rec-video-poster" id="asRecVideoPoster"
@@ -14430,7 +14425,6 @@
                                     </div>
                                 </div>
 
-                                <!-- 🎬 Phụ đề song ngữ hiển thị trên Video chuẩn Ảnh 1 -->
                                 <div class="as-rec-subtitles" id="asRecSubtitles">
                                     <div class="as-rec-sub-cn" id="asRecSubCn">我都把我哥</div>
                                     <div class="as-rec-sub-vi" id="asRecSubVi">Ôn Trĩ, tớ hiến cả anh trai tớ cho cậu
@@ -14445,7 +14439,6 @@
                             </div>
                         </div>
 
-                        <!-- 3. ACTIONS: Cột nút dọc (Thích, Lưu, Bình luận, Tập, Chia sẻ, Cài đặt, Màn hình) sao chép chuẩn 100% từ /phim-ngan/xem -->
                         <div class="as-rec-actions">
                             <button class="as-rec-action" data-rec-action="fav" title="Thích">
                                 <span class="as-rec-action-ico">
@@ -14523,7 +14516,6 @@
 
 
                         <!-- Menu Cài đặt riêng cho trang Đề xuất (dùng chung style với rạp chiếu) -->
-                        <!-- Menu Cài đặt riêng cho trang Đề xuất (Chuẩn giao diện Ảnh mẫu 2) -->
                         <div class="as-tool-pop as-rec-settings-pop as-settings-sheet-pop" id="asRecSettingsPop">
                             <div class="as-tool-pop-head">
                                 <h3 class="as-tool-pop-title">Cài đặt</h3>
@@ -14665,7 +14657,6 @@
                             </div>
                         </div>
 
-                        <!-- 4. RIGHT: Counter, phím tắt & danh sách Tiếp theo (Ảnh 1) -->
                         <div class="as-rec-side">
                             <div class="as-rec-counter-row">
                                 <button class="as-rec-nav-btn prev" onclick="reelsStepDrama(-1)" title="Phim trước (↑)">
@@ -14832,7 +14823,6 @@
 
                             <p class="as-search-hint" id="asSearchHint">Tất cả phim ngắn đặc sắc — Khám phá &amp; thưởng thức</p>
 
-                            <!-- Grid hiển thị phim ngắn chuẩn (6 cột Desktop, 3 cột Mobile, chuẩn Netflix / APhim) -->
                             <div class="as-search-results" id="asSearchResults">
                                 <% 
                                 const initialSearchPage = SEARCH_POOL_ITEMS.slice(0, 18);
@@ -14941,7 +14931,6 @@
                         <h3 class="as-library-subheading" id="asLibrarySubheading"><%= (typeof initialLibraryTab !== 'undefined' && initialLibraryTab === 'fav') ? 'Yêu thích' : ((typeof initialLibraryTab !== 'undefined' && initialLibraryTab === 'playlist') ? 'Danh sách phát' : 'Đã xem gần đây') %></h3>
                         <div class="as-library-grid" id="asLibraryGrid"></div>
 
-                        <!-- Bộ chuyển trang chuẩn ảnh 5 (Exact Screenshot 5) -->
                         <div id="asLibPaginationWrap" class="as-lib-pagination-wrap" style="display: none;">
                             <button id="asLibPrevBtn" type="button" onclick="changeLibraryPage(-1)" class="as-lib-page-btn" aria-label="Trang trước">
                                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -15454,7 +15443,6 @@
                                     </div>
                                 </div>
 
-                                <!-- 2. Cấu hình phụ đề (Chuẩn Ảnh mẫu số 2) -->
                                 <div class="as-tool-pop" id="asPopCc">
                                     <div class="as-tool-pop-head">
                                         <div class="as-tool-head-left">
@@ -15832,7 +15820,6 @@
                                     </div>
                                 </div>
 
-                                <!-- 6. Cài đặt (Chuẩn giao diện Ảnh mẫu 2) -->
                                 <div class="as-tool-pop as-settings-sheet-pop" id="asPopSettings">
                                     <div class="as-tool-pop-head">
                                         <h3 class="as-tool-pop-title">Cài đặt</h3>
@@ -15990,7 +15977,6 @@
                                 <!-- Ambient Blur Background 2 bên (Hình 1) -->
                                 <div class="as-ambient-bg" id="asAmbientBg"></div>
 
-                                <!-- ⚡ Hiệu ứng tua nhanh 5s khi double-tap cạnh trái / phải (hoặc phím mũi tên) -->
                                 <div class="as-seek-ripple as-seek-left" id="asSeekRippleLeft">
                                     <div class="as-seek-content">
                                         <div class="as-seek-icons">
@@ -16030,7 +16016,6 @@
 
                                 <div class="as-sub-overlay" id="asSubOverlay"></div>
 
-                                <!-- 🟢 CỘT CÔNG CỤ DỌC NỔI BÊN PHẢI TRÊN MOBILE (CHUẨN ẢNH 2) -->
                                 <div class="as-mobile-cinema-actions" id="asMobileCinemaActions">
                                     <!-- Thích -->
                                     <button class="as-mobile-action-btn" id="asMobileFavBtn"
@@ -16141,17 +16126,14 @@
                                     </svg>
                                 </button>
 
-                                <!-- 🟢 THÔNG TIN PHIM GÓC TRÁI DƯỚI (CHUẨN ẢNH 2) -->
                                 <div class="as-mobile-bottom-info" id="asMobileBottomInfo">
                                     <div class="as-mobile-drama-title" id="asMobileDramaTitle">Tên phim</div>
                                     <div class="as-mobile-drama-ep" id="asMobileDramaEp">Tập 1 / 100</div>
                                 </div>
                             </div>
 
-                            <!-- 🟢 Bottom Bar Video Controls: Nằm DƯỚI khung chiếu phim chuẩn 100% Ảnh 1 -->
                             <div class="as-cinema-bottom-bar-wrap">
                                 <div class="as-cinema-bottom-bar">
-                                    <!-- Tập trước |◀ (chuẩn Ảnh 1) -->
                                     <button class="as-cinema-ctrl-btn as-btn-prev-ep" onclick="navigateDramaEpisode(-1)"
                                         title="Tập trước đó">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -16160,7 +16142,6 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Lùi 10s (Vòng tròn mũi tên quay ngược kèm số 10 ở tâm chuẩn Ảnh 1) -->
                                     <button class="as-cinema-ctrl-btn as-btn-skip-10" onclick="skipCinemaTime(-10)"
                                         title="Lùi 10 giây">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -16174,7 +16155,6 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Play / Pause ▶ / ❚❚ (chuẩn Ảnh 1) -->
                                     <button class="as-cinema-ctrl-btn as-btn-main-play" id="asPlayPauseBtn"
                                         onclick="toggleCinemaPlay()" title="Phát / Tạm dừng">
                                         <svg id="asPlayIconSvg" style="display:none;" width="18" height="18"
@@ -16188,7 +16168,6 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Tua 10s (Vòng tròn mũi tên quay xuôi kèm số 10 ở tâm chuẩn Ảnh 1) -->
                                     <button class="as-cinema-ctrl-btn as-btn-skip-10" onclick="skipCinemaTime(10)"
                                         title="Tua 10 giây">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -16202,7 +16181,6 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Tập tiếp theo ▶| (chuẩn Ảnh 1) -->
                                     <button class="as-cinema-ctrl-btn as-btn-next-ep" onclick="navigateDramaEpisode(1)"
                                         title="Tập tiếp theo">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -16223,11 +16201,9 @@
                                     <!-- Tổng thời lượng 02:12 -->
                                     <span class="as-cinema-time" id="asDurationLabel">00:00</span>
 
-                                    <!-- Nút đổi tốc độ 1x (Pill capsule chuẩn Ảnh 1) -->
                                     <button class="as-cinema-speed-btn" id="asSpeedBtn"
                                         onclick="cycleCinemaSpeed()">1x</button>
 
-                                    <!-- Nút CC & DUB nổi bật trên mobile chuẩn Ảnh 2 -->
                                     <button class="as-cinema-badge-btn as-cinema-cc-btn active" id="asBottomCcBtn"
                                         onclick="openToolPop('asPopCc', event)" title="Cấu hình phụ đề">CC</button>
                                     <button class="as-cinema-badge-btn as-cinema-dub-btn" id="asBottomDubBtn"
@@ -16239,7 +16215,6 @@
 
                         <!-- 🟢 Right: Ô Nổi Bo Tròn Thông Tin Phim & Tập Phim (Hình Số 1) -->
                         <div class="as-cinema-sidebar" id="asCinemaSidebar">
-                            <!-- Thanh kéo & tiêu đề Bottom Sheet trên Mobile (Ảnh 2) -->
                             <div class="as-mobile-sheet-topbar" id="asMobileSheetTopbar">
                                 <div class="as-mobile-sheet-pull"></div>
                                 <div class="as-mobile-sheet-header-row">

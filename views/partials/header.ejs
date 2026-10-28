@@ -1,4 +1,3 @@
-<!-- High-End Sofaflix Style Header (Single Dark Bar, Glassmorphism & Luxurious Layout) -->
 <style>
     /* Single Dark Bar - Uniform 64px Height & Color at Top and Scrolled */
     #sofa-header,
@@ -3052,7 +3051,6 @@
 
 <header id="sofa-header" class="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? 'is-phim-ngan' : '' %>">
     <div class="sofa-header-container">
-        <!-- Left Section: Hamburger Icon + Logo Image + Desktop Nav Links -->
         <div class="sofa-header-left-group">
             <div class="sofa-left-section">
                 <button type="button" onclick="toggleMobileHeaderMenu()" class="sofa-menu-btn" title="Danh mục"
@@ -3078,7 +3076,6 @@
                         </div>
                     </a>
 
-                    <!-- Dropdown chuyển đổi chế độ xem khi ở Phim Ngắn -->
                     <div class="sofa-logo-dropdown" id="sofaLogoDropdown">
                         <div class="sofa-logo-dd-arrow"></div>
                         <div class="sofa-logo-dd-header">
@@ -3086,7 +3083,6 @@
                             <span class="sofa-logo-dd-subtitle">Chuyển chế độ xem</span>
                         </div>
                         <div class="sofa-logo-dd-items">
-                            <!-- Chế độ Phim dài / Xem phim thông thường -->
                             <a href="/" class="sofa-logo-dd-item sofa-logo-dd-main" title="Về trang xem phim thông thường">
                                 <div class="sofa-logo-dd-icon-wrap sofa-dd-gold">
                                     <img src="/logo-aphim1.webp" alt="APhim Cinema" class="sofa-logo-dd-thumb">
@@ -3100,7 +3096,6 @@
                                 </div>
                             </a>
 
-                            <!-- Chế độ Phim Ngắn: Khi ấn vào đưa ra lại trang chủ Phim Ngắn -->
                             <a href="/phim-ngan" class="sofa-logo-dd-item active sofa-logo-dd-current" onclick="return handleLogoPhimNganClick(event);" title="Về trang chủ Phim Ngắn">
                                 <div class="sofa-logo-dd-icon-wrap sofa-dd-green">
                                     <img src="/logo-aphim2.webp" alt="APhim Phim Ngắn" class="sofa-logo-dd-thumb">
@@ -3118,10 +3113,8 @@
                 </div>
             </div>
 
-            <!-- Desktop Navigation Links -->
             <nav class="sofa-nav-links hidden lg:flex <%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? 'as-pn-header-nav' : '' %>">
             <% if (typeof activePage !== 'undefined' && activePage === 'phim-ngan') { %>
-                <!-- Điều hướng riêng khi vào mục Phim Ngắn: 4 trang riêng (chuẩn Ảnh mẫu) -->
                 <a href="/phim-ngan" class="sofa-nav-item as-pn-nav-link <%= (typeof pnView === 'undefined' || !pnView) ? 'active' : '' %>" title="Trang chủ Phim Ngắn" onclick="return typeof handlePhimNganTabClick === 'function' ? handlePhimNganTabClick(event, 'home') : true;">
                     <span>Trang chủ</span>
                     <% if (typeof pnView === 'undefined' || !pnView) { %><span class="as-pn-dot"></span><% } %>
@@ -3139,7 +3132,6 @@
                     <% if (typeof pnView !== 'undefined' && pnView === 'library') { %><span class="as-pn-dot"></span><% } %>
                 </a>
 
-                <!-- Nút Về Phim Chính: Hiển thị Popover nhắc nhở + Logo APhim Cinema khi di chuột trên Desktop -->
                 <div class="as-pn-back-main-wrap">
                     <a href="/" class="as-pn-back-main-link" title="Quay lại trang xem phim thông thường">
                         <span class="as-pn-back-main-icon">
@@ -3159,7 +3151,6 @@
                         <svg class="as-pn-back-main-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
                     </a>
 
-                    <!-- Hover Popover Card nhắc nhở & chuyển về trang phim chính -->
                     <div class="as-pn-back-main-popover" role="tooltip">
                         <div class="as-pn-popover-caret"></div>
                         <div class="as-pn-popover-header">
@@ -3199,7 +3190,6 @@
                     </div>
                 </div>
             <% } else { %>
-                <!-- 1. Loại Phim ▼ -->
                 <div class="sofa-dropdown">
                     <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">
                         Loại Phim
@@ -3225,7 +3215,6 @@
                     </div>
                 </div>
 
-                <!-- 2. Thể Loại ▼ -->
                 <div class="sofa-dropdown">
                     <a href="/categories" class="sofa-nav-item">
                         Thể Loại
@@ -3257,7 +3246,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Quốc Gia ▼ -->
                 <div class="sofa-dropdown">
                     <a href="/phim-theo-quoc-gia" class="sofa-nav-item">
                         Quốc Gia
@@ -3285,7 +3273,6 @@
                     </div>
                 </div>
 
-                <!-- 4. Reels & Review (TikTok Style — Sequential Letter Light Wave) -->
                 <a href="/reels" class="sofa-nav-item reels-nav-pill" title="Xem video ngắn Reels & Review phim">
                     <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥">
                     <span class="reels-shimmer-text">
@@ -3296,7 +3283,6 @@
                     </span>
                 </a>
 
-                <!-- 5. Phim ngắn (Short Drama — Modern Cinema Videocam Icon & Lime Green Tone) -->
                 <a href="/phim-ngan" class="sofa-nav-item phim-ngan-nav-pill" title="Phim ngắn hot, kịch tính trọn bộ">
                     <span style="display:inline-flex;align-items:center;gap:5px;">
                         <svg class="pn-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
@@ -3308,21 +3294,16 @@
                     </span>
                 </a>
 
-                <!-- 6. Cộng đồng -->
                 <a href="#" class="sofa-nav-item">Cộng đồng</a>
 
-                <!-- 7. Lịch chiếu -->
                 <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">Lịch chiếu</a>
 
-                <!-- 8. Song Ngữ -->
                 <a href="/danh-sach?list=phim-bo" class="sofa-nav-item">Song Ngữ</a>
             <% } %>
             </nav>
         </div>
 
-        <!-- Right Section: Single Desktop Search Bar (With Inner Filter Button) + Bell Icon + Login Button -->
         <div class="sofa-right-section">
-            <!-- 1. Desktop Search Form (Single Container with Embedded Inner Filter Button) -->
             <% const pnPage = (typeof activePage !== 'undefined' && activePage === 'phim-ngan'); %>
             <form action="<%= pnPage ? '/phim-ngan/tim-kiem' : '/search' %>" method="GET" class="sofa-desktop-search-form"<%= pnPage ? ' data-pn-search="1"' : '' %>>
                 <svg class="sofa-desktop-search-icon" fill="none" stroke="currentColor" stroke-width="2"
@@ -3342,7 +3323,6 @@
                 </a>
             </form>
 
-            <!-- 2. Mobile Circular Search Button (Visible on Mobile) -->
             <button type="button" id="sofa-mobile-search-btn" onclick="toggleMobileSearchOverlay()"
                 class="sofa-icon-circle-btn sofa-mobile-search-btn" title="Tìm kiếm" aria-label="Tìm kiếm">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -3351,7 +3331,6 @@
                 </svg>
             </button>
 
-            <!-- Auth / Profile Container (Dynamically updated by user-ui.js when logged in) -->
             <div id="authContainer" style="display: inline-flex; align-items: center; gap: 10px;">
                 <a href="#" onclick="if(window.showAuthModal){ event.preventDefault(); showAuthModal('login'); }"
                     class="sofa-icon-circle-btn" title="Thông báo" aria-label="Thông báo">
@@ -3680,7 +3659,6 @@
     </div>
 </header>
 
-<!-- Mobile / Desktop Search Overlay Dropdown -->
 <div id="sofa-mobile-search-overlay" class="sofa-mobile-search-overlay">
     <% const pnPageMobile = (typeof activePage !== 'undefined' && activePage === 'phim-ngan'); %>
     <form action="<%= pnPageMobile ? '/phim-ngan/tim-kiem' : '/search' %>" method="GET" class="sofa-mobile-search-inner-form"<%= pnPageMobile ? ' data-pn-search="1"' : '' %>>
@@ -3699,10 +3677,8 @@
     </form>
 </div>
 
-<!-- Mobile Sidebar Drawer Menu -->
 <div id="sofa-mobile-drawer" class="mobile-drawer" onclick="toggleMobileHeaderMenu()">
     <div class="mobile-drawer-content" onclick="event.stopPropagation()">
-        <!-- Top Button: Đóng Menu -->
         <button type="button" onclick="toggleMobileHeaderMenu()" class="drawer-close-btn">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
@@ -3711,7 +3687,6 @@
         </button>
 
         <% if (typeof activePage !== 'undefined' && activePage === 'phim-ngan') { %>
-        <!-- Nút quay lại trang xem phim thông thường trên Mobile -->
         <a href="/" class="drawer-return-main-banner" title="Quay lại trang xem phim thông thường">
             <div class="drawer-return-banner-left">
                 <img src="/logo-aphim1.webp" alt="APhim Cinema" class="drawer-return-banner-logo">
@@ -3726,9 +3701,7 @@
         </a>
         <% } %>
 
-        <!-- Accordion Group -->
         <div class="drawer-accordion-group">
-            <!-- 1. Loại Phim Accordion -->
             <div class="drawer-accordion-item" id="drawer-acc-loai">
                 <button type="button" class="drawer-accordion-header"
                     onclick="toggleDrawerAccordion('drawer-acc-loai')">
@@ -3755,7 +3728,6 @@
                 </div>
             </div>
 
-            <!-- 2. Thể Loại Accordion -->
             <div class="drawer-accordion-item" id="drawer-acc-theloai">
                 <button type="button" class="drawer-accordion-header"
                     onclick="toggleDrawerAccordion('drawer-acc-theloai')">
@@ -3806,7 +3778,6 @@
                 </div>
             </div>
 
-            <!-- 3. Quốc Gia Accordion -->
             <div class="drawer-accordion-item" id="drawer-acc-quocgia">
                 <button type="button" class="drawer-accordion-header"
                     onclick="toggleDrawerAccordion('drawer-acc-quocgia')">
@@ -3858,7 +3829,6 @@
             </div>
         </div>
 
-        <!-- Quick Action Pills Grid at Bottom -->
         <div class="drawer-quick-pills">
             <a href="/reels" class="drawer-pill-btn reels-pill" title="Xem video ngắn Reels & Review phim">
                 <img src="/images/icons8-flames-96.png" class="reels-flame-icon" width="16" height="16" alt="🔥"
@@ -4033,7 +4003,6 @@
     })();
 </script>
 
-<!-- 🚀 YouTube-style Global Top Loading Progress Bar -->
 <div id="aphim-nav-progress"></div>
 
 <script>
@@ -4197,7 +4166,6 @@
     })();
 </script>
 
-<!-- 🌟 APHIM ADS SYSTEM (CAT BANNERS + TOP BANNER) -->
 <% if (typeof activePage === 'undefined' || activePage !== 'phim-ngan') { %>
 <%- include('ads-cat') %>
 <%- include('ads-top') %>

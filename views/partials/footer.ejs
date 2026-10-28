@@ -1,4 +1,3 @@
-<!-- Footer Section ( AP-Phim Dragon Cinema Style Footer ) -->
 <style>
     footer.aphim-footer {
         position: relative !important;
@@ -227,20 +226,15 @@
 </style>
 
 <footer class="aphim-footer py-12 relative overflow-hidden text-gray-400">
-    <!-- Background pattern/logo graphic watermark -->
     <div class="absolute right-0 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none scale-150 z-0">
         <span class="material-icons-round text-[400px]">play_circle_outline</span>
     </div>
 
-    <!-- Dùng app-container chuẩn đồng bộ 100% lề 2 bên với các mục trên -->
     <div class="app-container relative z-10">
 
         <div class="footer-grid">
-            <!-- CỘT TRÁI (Canh lề trái phẳng tuyệt đối) -->
             <div class="footer-col-left">
-                <!-- Top row: Logo & Social -->
                 <div class="footer-logo-row">
-                    <!-- Logo (Clean header logo image /logo-aphim1.png) -->
                     <a href="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? '/phim-ngan' : '/' %>" class="footer-logo-link group">
                         <picture>
                             <source srcset="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? '/logo-aphim2.webp' : '/logo-aphim1.webp' %>" type="image/webp" />
@@ -251,10 +245,8 @@
                         <span class="text-gray-400 text-xs md:text-sm mt-1 font-medium">Xem Phim Mới Nhất</span>
                     </a>
 
-                    <!-- Divider -->
                     <div class="hidden sm:block w-px h-8 bg-white/10 footer-divider"></div>
 
-                    <!-- Social Icons (8 Icons) -->
                     <div class="flex flex-wrap gap-2.5 items-center justify-start footer-social-icons">
                         <a href="https://t.me/dautayonly" target="_blank" aria-label="Telegram">
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -306,7 +298,6 @@
                     </div>
                 </div>
 
-                <!-- DANH SÁCH A-Z (Nằm trên 1 hàng ngang duy nhất) -->
                 <div class="az-container">
                     <div class="flex items-center gap-2.5 mb-3 flex-wrap">
                         <h4 class="text-sm md:text-[15px] font-bold text-white tracking-wide uppercase">DANH SÁCH A-Z
@@ -346,9 +337,7 @@
                     </div>
                 </div>
 
-                <!-- Bottom half: Links, text, copyright -->
                 <div class="mt-6">
-                    <!-- Links (Cỡ vừa vặn hài hòa) -->
                     <div
                         class="flex flex-wrap text-left justify-start gap-4 md:gap-6 mb-4 text-sm md:text-[14.5px] font-bold text-white tracking-wide">
                         <a href="/hoi-dap" class="hover:text-[#fcd576] transition-colors">Hỏi-Đáp</a>
@@ -360,7 +349,6 @@
                         <a href="/lien-he" class="hover:text-[#fcd576] transition-colors">Liên hệ</a>
                     </div>
 
-                    <!-- Text block (Tăng vừa đủ 13.5px dễ nhìn) -->
                     <p class="text-sm text-gray-300 leading-relaxed max-w-4xl mb-4 text-left font-normal footer-desc-text"
                         style="font-size:13.5px; line-height:1.65; color:#a1a1aa;">
                         <a href="/"
@@ -376,21 +364,18 @@
                             phim trực tuyến</a> hay nhất chất lượng 4K!
                     </p>
 
-                    <!-- Copyright -->
                     <div class="text-xs md:text-sm text-gray-400 font-medium text-left">
                         Copyright ©2026 A Phim
                     </div>
                 </div>
-            </div><!-- /col-left -->
+            </div>
 
-            <!-- CỘT PHẢI (Chữ thanh mảnh, dịu dàng, canh giữa theo chiều dọc) -->
             <div class="footer-col-right">
                 <h3 style="font-size:clamp(0.95rem,1.6vw,1.18rem);font-weight:500;color:rgba(255,255,255,0.78);line-height:1.5;letter-spacing:0.03em;margin:0 0 16px 0;max-width:380px;"
                     class="text-center">
                     THÊM A PHIM VÀO MÀN HÌNH CHÍNH<br class="hidden md:inline" /> ĐỂ TRẢI NGHIỆM MƯỢT MÀ HƠN
                 </h3>
                 <div class="flex gap-2.5 flex-wrap justify-center w-full">
-                    <!-- App Store -->
                     <button onclick="aphimOpenGuide()" class="app-btn" type="button">
                         <svg width="26" height="26" viewBox="0 0 814 1000" fill="white">
                             <path
@@ -401,7 +386,6 @@
                             <div class="app-btn-text-large">App Store</div>
                         </div>
                     </button>
-                    <!-- Google Play -->
                     <button onclick="aphimOpenGuide()" class="app-btn" type="button">
                         <svg width="26" height="26" viewBox="0 0 512 512">
                             <path fill="#34A853" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" />
@@ -417,12 +401,11 @@
                         </div>
                     </button>
                 </div>
-            </div><!-- /col-right -->
-        </div><!-- /footer-grid -->
+            </div>
+        </div>
     </div>
 </footer>
 
-<!-- App Guide Popup Modal -->
 <div id="aphim-guide-overlay" onclick="if(event.target===this)aphimCloseGuide()"
     style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;">
     <div
@@ -457,11 +440,9 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') aphimCloseGuide(); });
 </script>
 
-<!-- Floating Side Dock & Theme Switcher Widget -->
 <link rel="stylesheet" href="/css/floating-dock.css?v=20261026b">
 
 <div class="floating-dock-container" id="floatingDockContainer">
-    <!-- Back to Top Button (Appears when scrolling down) -->
     <button type="button" id="fdBtnTop" class="fd-btn-top" title="Cuộn lên đầu trang" aria-label="Cuộn lên đầu trang">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
             stroke-linecap="round" stroke-linejoin="round">
@@ -469,10 +450,8 @@
         </svg>
     </button>
 
-    <!-- Standalone Floating Action Button for Theme Switcher -->
     <button type="button" id="themeToggleFab" class="theme-toggle-fab" title="Chuyển Chế Độ Sáng / Tối"
         aria-label="Chuyển Chế Độ Sáng / Tối">
-        <!-- Sun Icon (Shown in Dark Mode to switch to Light) -->
         <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="4.5" fill="currentColor" fill-opacity="0.25"></circle>
@@ -480,7 +459,6 @@
                 d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41">
             </path>
         </svg>
-        <!-- Moon Icon (Shown in Light Mode to switch to Dark) -->
         <svg class="theme-icon-moon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" fill-opacity="0.25"></path>
