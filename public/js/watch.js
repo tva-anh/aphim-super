@@ -846,8 +846,27 @@ function renderMovieInfo(movie, episode) {
 
     const sidebarEpBadge = document.getElementById('sidebar-ep-badge');
     if (sidebarEpBadge) {
-        let epStr = movie.episode_total ? `${movie.episode_total} Tập` : (movie.episode_current || 'Tập Full');
-        if (!isNaN(epStr)) epStr = `${epStr} Tập`;
+        const catList = Array.isArray(movie.category) ? movie.category : [];
+        const isSingleOrCinema = movie.type === 'single' ||
+            movie.chieu_rap === true ||
+            movie.is_cinema === true ||
+            catList.some(c => {
+                const n = (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase();
+                return n.includes('chiếu rạp') || n.includes('chieu-rap') || n.includes('phim lẻ') || n.includes('phim-le');
+            }) ||
+            String(movie.episode_total || '').trim() === '1' ||
+            String(movie.episode_current || '').toLowerCase().includes('full') ||
+            String(movie.episode_current || '').toLowerCase().includes('chiếu rạp');
+
+        let epStr = 'Full';
+        if (isSingleOrCinema) {
+            epStr = 'Full';
+        } else if (movie.episode_total && !isNaN(movie.episode_total) && Number(movie.episode_total) > 1) {
+            epStr = `${movie.episode_total} Tập`;
+        } else if (movie.episode_current) {
+            epStr = movie.episode_current;
+            if (!isNaN(epStr)) epStr = `${epStr} Tập`;
+        }
         sidebarEpBadge.textContent = epStr;
     }
 

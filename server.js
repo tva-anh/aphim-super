@@ -95,6 +95,21 @@ app.use(helmet({
     crossOriginResourcePolicy: false, // Cho phép ảnh/icon PWA tải liên nguồn không bị NotSameOrigin
     crossOriginOpenerPolicy: false,
 }));
+app.disable('x-powered-by');
+
+// 🛡️ Enterprise Security Headers & Anti-Clickjacking for Admin Area
+app.use(['/admin', '/api/admin'], (req, res, next) => {
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    if (req.path.includes('/login') || req.path.startsWith('/api/admin/login')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
 
 // 🚀 Serve static assets with Smart HTTP Caching (Cache-Control & ETag)
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -2072,9 +2087,24 @@ app.get([
         movieEpisodes
     );
 
+    const isSingleMovie = meta && (
+        meta.type === 'single' ||
+        meta.chieu_rap === true ||
+        meta.is_cinema === true ||
+        (Array.isArray(meta.category) && meta.category.some(c => {
+            const n = (typeof c === 'string' ? c : (c.name || '')).toLowerCase();
+            return n.includes('chiếu rạp') || n.includes('phim lẻ');
+        })) ||
+        String(meta.episode_total || '').trim() === '1' ||
+        String(meta.episode_current || '').toLowerCase().includes('full') ||
+        String(meta.episode_current || '').toLowerCase().includes('chiếu rạp')
+    );
+
     let epText = '';
-    let epNumber = cleanEp || '1';
-    if (cleanEp) {
+    let epNumber = cleanEp || (isSingleMovie ? 'full' : '1');
+    if (isSingleMovie) {
+        epText = '- Full ';
+    } else if (cleanEp) {
         epText = cleanEp.toLowerCase() === 'full' ? '- Bản Full ' : `- Tập ${cleanEp} `;
     }
 
@@ -2560,6 +2590,15 @@ app.get('/admin/settings', (req, res) => {
     });
 });
 
+// 7B. Admin Security Audit & Intrusion Monitor
+app.get(['/admin/security', '/admin/security-audit', '/admin/security-logs'], (req, res) => {
+    res.render('admin/security', {
+        title: 'Giám Sát An Ninh & Cảnh Báo Xâm Nhập Enterprise',
+        activePage: 'security',
+        pageTitle: 'Giám Sát An Ninh'
+    });
+});
+
 // 8. Admin Google Trends 24h Management
 app.get('/admin/trends', (req, res) => {
     res.render('admin/trends', {
@@ -2580,10 +2619,22 @@ app.get('/admin/social-studio', (req, res) => {
 
 // 8. Admin Login Portal
 app.get('/admin/login', (req, res) => {
+    // Generate secure CSRF token for this admin login session
+    const crypto = require('crypto');
+    const csrfToken = crypto.randomBytes(24).toString('hex');
+    res.cookie('aphim_csrf_login', csrfToken, {
+        httpOnly: true,
+        sameSite: 'Lax',
+        secure: process.env.NODE_ENV === 'production' || req.secure || req.headers['x-forwarded-proto'] === 'https',
+        maxAge: 30 * 60 * 1000 // 30 phút
+    });
+
     res.render('admin/login', {
         title: 'Đăng Nhập Quản Trị Viên',
         activePage: 'login',
-        pageTitle: 'Đăng Nhập'
+        pageTitle: 'Đăng Nhập',
+        turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || '0x4AAAAAAFg_6li9AZQECDb9',
+        csrfToken: csrfToken
     });
 });
 

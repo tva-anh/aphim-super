@@ -1,0 +1,356 @@
+<%- include('partials/head', { title: 'Giám Sát An Ninh & Cảnh Báo Xâm Nhập Enterprise', activePage: 'security' }) %>
+
+<div class="admin-wrapper">
+  <!-- Sidebar Navigation -->
+  <%- include('partials/sidebar', { activePage: 'security' }) %>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <!-- Header -->
+    <%- include('partials/header', { pageTitle: 'Giám Sát An Ninh' }) %>
+
+    <!-- Page Body -->
+    <main class="admin-content">
+      <!-- Section Header -->
+      <div class="page-title-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span class="badge badge-rose" style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px; padding: 3px 8px;">
+              <i data-lucide="shield-alert" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i> THREAT DEFENSE
+            </span>
+            <span style="font-size: 12px; color: var(--text-dim);">Tường Lửa & Giám Sát Quản Trị Viên</span>
+          </div>
+          <h1 class="page-main-title">Giám Sát An Ninh & Cảnh Báo Xâm Nhập</h1>
+          <p class="page-sub-title">Theo dõi các lượt truy cập trang quản trị theo thời gian thực, phát hiện đăng nhập sai mật khẩu, ngăn chặn brute-force và bảo vệ an toàn tài khoản.</p>
+        </div>
+        <div class="page-action-buttons">
+          <button class="btn btn-outline" onclick="AdminCore.loadSecurityLogs(true)" id="btnRefreshSecurityLogs" title="Tải lại nhật ký an ninh">
+            <i data-lucide="refresh-cw"></i> Làm Mới
+          </button>
+          <button class="btn btn-outline" onclick="AdminCore.openSecurityCleanupModal()" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171; background: rgba(239, 68, 68, 0.08);" title="Dọn dẹp logs giải phóng bộ nhớ database">
+            <i data-lucide="trash-2"></i> Dọn Dẹp Logs
+          </button>
+        </div>
+      </div>
+
+      <!-- Real-time Active Threat Lockout Banner -->
+      <div id="secActiveThreatBanner" style="display:none; margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- 4 High-Density Security KPI Badges -->
+      <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="metric-card glass-card" style="padding: 16px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">TỔNG LƯỢT TRUY CẬP HÔM NAY</div>
+              <div style="font-size: 26px; font-weight: 800; color: #fff; margin-top: 4px;" id="secTotalToday">0</div>
+            </div>
+            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); display: flex; align-items: center; justify-content: center; color: #38bdf8;">
+              <i data-lucide="globe"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card glass-card" style="padding: 16px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">ĐĂNG NHẬP HỢP LỆ</div>
+              <div style="font-size: 26px; font-weight: 800; color: #10b981; margin-top: 4px;" id="secSuccessToday">0</div>
+            </div>
+            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981;">
+              <i data-lucide="shield-check"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card glass-card" style="padding: 16px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">SAI MẬT KHẨU (CẢNH BÁO)</div>
+              <div style="font-size: 26px; font-weight: 800; color: #f59e0b; margin-top: 4px;" id="secFailedToday">0</div>
+            </div>
+            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+              <i data-lucide="alert-triangle"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-card glass-card" style="padding: 16px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">KHÓA CHẶN BRUTE-FORCE</div>
+              <div style="font-size: 26px; font-weight: 800; color: #ef4444; margin-top: 4px;" id="secBlockedToday">0</div>
+            </div>
+            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #ef4444;">
+              <i data-lucide="shield-ban"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Security Logs Table Card -->
+      <div class="glass-card" id="securityAuditCard">
+        <!-- Filter and Search Toolbar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-xs btn-outline sec-filter-btn active" onclick="AdminCore.filterSecurityLogs('all', this)">Tất Cả</button>
+            <button class="btn btn-xs btn-outline sec-filter-btn" onclick="AdminCore.filterSecurityLogs('failed', this)">
+              <i data-lucide="alert-triangle" style="width:12px;height:12px;color:#f59e0b;"></i> Nhập Sai MK
+            </button>
+            <button class="btn btn-xs btn-outline sec-filter-btn" onclick="AdminCore.filterSecurityLogs('blocked', this)">
+              <i data-lucide="shield-ban" style="width:12px;height:12px;color:#ef4444;"></i> Bị Chặn / Xâm Nhập
+            </button>
+            <button class="btn btn-xs btn-outline sec-filter-btn" onclick="AdminCore.filterSecurityLogs('success', this)">
+              <i data-lucide="shield-check" style="width:12px;height:12px;color:#10b981;"></i> Đăng Nhập Hợp Lệ
+            </button>
+          </div>
+          <div style="position: relative; min-width: 260px;">
+            <input type="text" id="secSearchInput" class="form-control" placeholder="Tìm theo IP, Email, lý do..." oninput="AdminCore.searchSecurityLogs(this.value)" style="font-size: 12px; padding: 6px 12px 6px 30px;">
+            <i data-lucide="search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-dim);"></i>
+          </div>
+        </div>
+
+        <!-- Security Logs Table -->
+        <div class="table-responsive" style="max-height: 640px; overflow-y: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="min-width: 140px;">THỜI GIAN</th>
+                <th style="min-width: 170px;">SỰ KIỆN / HÀNH ĐỘNG</th>
+                <th style="min-width: 180px;">TÀI KHOẢN ĐÍCH</th>
+                <th style="min-width: 170px;">ĐỊA CHỈ IP & THIẾT BỊ</th>
+                <th style="min-width: 110px;">TRẠNG THÁI</th>
+                <th style="min-width: 260px;">CHI TIẾT & CẢNH BÁO</th>
+                <th style="text-align: right; min-width: 110px;">THAO TÁC</th>
+              </tr>
+            </thead>
+            <tbody id="securityLogsTableBody">
+              <tr>
+                <td colspan="7" class="text-center" style="padding: 32px; color: var(--text-dim);">
+                  <i data-lucide="loader-2" class="spin" style="width: 20px; height: 20px; margin-bottom: 6px;"></i>
+                  <div>Đang tải nhật ký an ninh hệ thống...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Security Logs Pagination Bar -->
+        <div class="table-pagination users-pagination-footer" id="secPaginationBar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 14px 10px; margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
+          <div class="pagination-info" id="secPaginationInfo" style="font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 10px;">
+            <span>Đang tải phân trang...</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim);">
+              <span>Hiển thị:</span>
+              <select id="secPageSizeSelect" onchange="AdminCore.changeSecPageSize(this.value)" class="form-control" style="background: #1e293b; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px;">
+                <option value="10" selected>10 dòng / trang</option>
+                <option value="20">20 dòng / trang</option>
+                <option value="50">50 dòng / trang</option>
+                <option value="100">100 dòng / trang</option>
+              </select>
+            </div>
+            <div class="pagination-controls" id="secPaginationControls" style="display: flex; align-items: center; gap: 6px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal 1: Dọn Dẹp & Giải Phóng Bộ Nhớ Nhật Ký An Ninh -->
+<div id="modalSecurityCleanup" class="admin-modal-backdrop" onclick="if(event.target===this)AdminCore.closeSecurityCleanupModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:9999999;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div class="glass-card" style="width:100%;max-width:540px;background:#0f172a;border:1.5px solid rgba(239,68,68,0.35);border-radius:18px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,0.85);color:#fff;">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:14px;margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;color:#ef4444;">
+          <i data-lucide="trash-2"></i>
+        </div>
+        <div>
+          <h3 style="font-size:16px;font-weight:800;color:#fff;margin:0;">Dọn Dẹp Bộ Nhớ Nhật Ký An Ninh</h3>
+          <p style="font-size:12px;color:var(--text-dim);margin:2px 0 0 0;">Giải phóng dung lượng database và loại bỏ nhật ký truy cập cũ</p>
+        </div>
+      </div>
+      <button type="button" onclick="AdminCore.closeSecurityCleanupModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:20px;padding:4px 8px;">✕</button>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:8px;">Chọn chế độ dọn dẹp:</label>
+      
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.25);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="cleanupOption" value="24hours" checked style="margin-top:3px;">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#38bdf8;">⚡ Dọn logs cũ hơn 24 giờ (Dọn hôm qua trở về trước)</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Chỉ giữ lại nhật ký của ngày hôm nay, dọn sạch dữ liệu các ngày trước.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="cleanupOption" value="7days" style="margin-top:3px;">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#fff;">🗓️ Dọn logs cũ hơn 7 ngày (Dọn nhanh tuần)</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Chỉ giữ lại nhật ký 7 ngày gần nhất, thích hợp định kỳ tuần.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="cleanupOption" value="30days" style="margin-top:3px;">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#fff;">📅 Dọn logs cũ hơn 30 ngày (Giữ 1 tháng)</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Giữ lại dữ liệu 1 tháng gần nhất, dọn dẹp toàn bộ dữ liệu cũ hơn.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.25);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="cleanupOption" value="success_only" style="margin-top:3px;">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#10b981;">🛡️ Chỉ xóa lượt đăng nhập thành công</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Giữ nguyên 100% các cảnh báo sai mật khẩu, xâm nhập & IP bị khóa để tiếp tục theo dõi.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="cleanupOption" value="all" style="margin-top:3px;">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#f87171;">⚠️ Xóa toàn bộ lịch sử an ninh (Làm sạch 100%)</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Xóa sạch toàn bộ bảng ghi log trong database về trạng thái ban đầu.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
+      <button type="button" class="btn btn-outline" onclick="AdminCore.closeSecurityCleanupModal()">Hủy</button>
+      <button type="button" class="btn btn-primary" id="btnConfirmCleanup" style="background:#ef4444;border-color:#ef4444;" onclick="AdminCore.executeSecurityCleanup()">
+        <i data-lucide="check"></i> Xác Nhận Dọn Dẹp
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Chi Tiết Sự Kiện An Ninh & Cảnh Báo Xâm Nhập (Full Investigation) -->
+<div id="modalSecurityDetail" class="admin-modal-backdrop" onclick="if(event.target===this)AdminCore.closeSecurityDetailModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);z-index:9999999;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div class="glass-card" style="width:100%;max-width:680px;background:#0b1329;border:1.5px solid rgba(56,189,248,0.3);border-radius:20px;padding:26px;box-shadow:0 30px 60px rgba(0,0,0,0.95);color:#fff;max-height:90vh;overflow-y:auto;">
+    <!-- Modal Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:16px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="secDetailIconWrap" style="width:44px;height:44px;border-radius:12px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;color:#f59e0b;font-size:22px;flex-shrink:0;">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h3 id="secDetailTitle" style="font-size:18px;font-weight:800;color:#fff;margin:0;">Chi Tiết Sự Kiện An Ninh</h3>
+            <span id="secDetailBadge" class="badge" style="font-size:11px;">CẢNH BÁO</span>
+          </div>
+          <p id="secDetailSub" style="font-size:12px;color:var(--text-dim);margin:3px 0 0 0;">Mã sự kiện: <code id="secDetailActionCode" style="color:#38bdf8;">admin_login_failed</code></p>
+        </div>
+      </div>
+      <button type="button" onclick="AdminCore.closeSecurityDetailModal()" style="background:rgba(255,255,255,0.06);border:none;border-radius:8px;color:#94a3b8;cursor:pointer;font-size:16px;padding:6px 12px;" title="Đóng cửa sổ">✕</button>
+    </div>
+
+    <!-- Threat Severity Card -->
+    <div id="secDetailThreatBanner" style="margin-bottom:20px;padding:12px 16px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <!-- Dynamic Threat Assessment -->
+    </div>
+
+    <!-- Information Grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;margin-bottom:20px;">
+      <!-- Card: Mục Tiêu & Thời Gian -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">TÀI KHOẢN MỤC TIÊU</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div id="secDetailEmail" style="font-size:15px;font-weight:800;color:var(--gold);word-break:break-all;">admin@aphim.io.vn</div>
+          <button type="button" class="btn btn-xs btn-outline" onclick="AdminCore.copySecDetailText('secDetailEmail')" title="Sao chép email">
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;">THỜI GIAN GHI NHẬN</div>
+          <div id="secDetailTimestamp" style="font-size:13px;font-weight:700;color:#fff;">--:--:-- --/--/----</div>
+          <div id="secDetailRelTime" style="font-size:11px;color:#38bdf8;margin-top:2px;">--</div>
+        </div>
+      </div>
+
+      <!-- Card: Địa Chỉ IP & Vị Trí -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">ĐỊA CHỈ IP GỬI YÊU CẦU</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <code id="secDetailIp" style="font-size:15px;font-weight:800;color:#38bdf8;background:rgba(56,189,248,0.1);padding:3px 8px;border-radius:6px;">127.0.0.1</code>
+            <span id="secDetailIpType" class="badge" style="font-size:10px;">Public IP</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button type="button" class="btn btn-xs btn-outline" onclick="AdminCore.copySecDetailText('secDetailIp')" title="Sao chép IP">
+              <i data-lucide="copy"></i>
+            </button>
+            <a id="secDetailWhoisLink" href="#" target="_blank" class="btn btn-xs btn-outline" title="Tra cứu địa lý IP trên IPInfo">
+              <i data-lucide="external-link"></i> Tra Cứu
+            </a>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;">THIẾT BỊ & TRÌNH DUYỆT</div>
+          <div id="secDetailBrowser" style="font-size:13px;font-weight:700;color:#fff;">Google Chrome (Windows)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Chi Tiết Lỗi / Ghi Chú Phân Tích -->
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">NỘI DUNG & NGUYÊN NHÂN PHÁT HIỆN</div>
+      <div id="secDetailNote" style="font-size:13px;line-height:1.6;color:#cbd5e1;background:rgba(0,0,0,0.3);padding:12px 14px;border-radius:8px;border-left:3px solid #f59e0b;word-break:break-word;">
+        Đang tải nội dung...
+      </div>
+    </div>
+
+    <!-- Card: User-Agent Raw Header -->
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;">RAW USER-AGENT HEADER</div>
+        <button type="button" class="btn btn-xs btn-outline" onclick="AdminCore.copySecDetailText('secDetailUserAgent')" style="font-size:10px;">
+          <i data-lucide="copy"></i> Copy UA
+        </button>
+      </div>
+      <pre id="secDetailUserAgent" style="font-family:monospace;font-size:11px;color:#94a3b8;white-space:pre-wrap;word-break:break-all;margin:0;background:rgba(0,0,0,0.35);padding:10px;border-radius:6px;max-height:80px;overflow-y:auto;"></pre>
+    </div>
+
+    <!-- Modal Actions -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,0.1);padding-top:18px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="AdminCore.copyCurrentSecLogJson()" style="color:#38bdf8;border-color:rgba(56,189,248,0.3);">
+          <i data-lucide="code"></i> Sao Chép Log (JSON)
+        </button>
+        <div id="secDetailUnlockActionWrap">
+          <!-- Dynamic Unlock button if blocked -->
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" onclick="AdminCore.closeSecurityDetailModal()">
+        Đóng Cửa Sổ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Partials -->
+<%- include('partials/drawer') %>
+<%- include('partials/cmd_palette') %>
+<%- include('partials/lock_modal') %>
+<%- include('partials/scripts') %>
+
+<script>
+  (function initSecMonitor() {
+    function run() {
+      if (window.AdminCore && typeof AdminCore.loadSecurityLogs === 'function') {
+        AdminCore.loadSecurityLogs();
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>

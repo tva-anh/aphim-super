@@ -7,7 +7,10 @@ const { supabaseAdmin } = require('../lib/supabase');
 async function requireAdmin(req, res, next) {
     try {
         const authHeader = req.headers.authorization || '';
-        let token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        let token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+        if (token === 'null' || token === 'undefined' || !token) {
+            token = null;
+        }
 
         if (!token && req.cookies) {
             token = req.cookies.adminToken || req.cookies.cinestream_admin_token || req.cookies.aphim_admin_token || req.cookies['sb-access-token'] || req.cookies.token;
@@ -74,6 +77,20 @@ async function requireAdmin(req, res, next) {
         }
 
         if (profErr || !profile || profile.role !== 'admin') {
+            try {
+                const SecurityLog = require('../models/SecurityLog');
+                if (SecurityLog && typeof SecurityLog.create === 'function') {
+                    SecurityLog.create({
+                        user_id: userId || '',
+                        email: user?.email || 'unauthorized',
+                        action: 'admin_unauthorized_access',
+                        ip_address: req.headers['cf-connecting-ip'] || (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '',
+                        user_agent: req.headers['user-agent'] || '',
+                        status: 'blocked',
+                        note: `Cố tình truy cập trái phép API quản trị [${req.method} ${req.originalUrl}] không có vai trò admin`
+                    }).catch(() => {});
+                }
+            } catch (e) {}
             return res.status(403).json({ success: false, message: 'Bạn không có quyền truy cập khu vực admin.' });
         }
 

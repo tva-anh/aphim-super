@@ -640,7 +640,7 @@
                                             </span>
                                             <span id="sidebar-ep-badge"
                                                 style="background-color: #374151; color: #ffffff;"
-                                                class="px-2.5 py-1 font-bold">1 Tập</span>
+                                                class="px-2.5 py-1 font-bold"><%= (movie && (movie.type === 'single' || (movie.category && movie.category.some(c => (typeof c === 'string' ? c : (c.name || '')).toLowerCase().includes('chiếu rạp') || (typeof c === 'string' ? c : (c.name || '')).toLowerCase().includes('phim lẻ'))) || (movie.episode_total && String(movie.episode_total) === '1') || (movie.episode_current && String(movie.episode_current).toLowerCase().includes('full')))) ? 'Full' : ((movie && movie.episode_total && !isNaN(movie.episode_total) && Number(movie.episode_total) > 1) ? (movie.episode_total + ' Tập') : ((movie && movie.episode_current) ? movie.episode_current : 'Full')) %></span>
                                             <span id="sidebar-year-badge"
                                                 style="background-color: #ffffff; color: #000000;"
                                                 class="px-2.5 py-1 font-extrabold">2026</span>

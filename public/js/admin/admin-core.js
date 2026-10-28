@@ -1740,14 +1740,24 @@
   window.AdminCore.closeGoogleTrendsModal = closeGoogleTrendsModal;
   window.AdminCore.saveGoogleTrends = saveGoogleTrends;
 
-  // ─── 10. LOGIN HANDLER (REAL SUPABASE AUTH) ───
+  // ─── 10. LOGIN HANDLER (REAL SUPABASE AUTH & CLOUDFLARE TURNSTILE) ───
   async function handleLogin() {
     const email = document.getElementById('loginEmail')?.value?.trim();
     const pwd = document.getElementById('loginPassword')?.value;
     const submitBtn = document.getElementById('btnLoginSubmit');
+    const csrfToken = document.getElementById('csrfToken')?.value || '';
+    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value || window.turnstileToken || '';
 
     if (!email || !pwd) {
       showToast('Vui lòng nhập đầy đủ email và mật khẩu quản trị!', 'error');
+      return false;
+    }
+
+    // Kiểm tra Cloudflare Turnstile nếu có hiển thị trên trang
+    const turnstileWidget = document.querySelector('.cf-turnstile');
+    if (turnstileWidget && !turnstileToken) {
+      showToast('Vui lòng hoàn thành xác minh Cloudflare Turnstile để tiếp tục!', 'warning');
+      playUiSound('error');
       return false;
     }
 
@@ -1762,7 +1772,7 @@
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: pwd })
+        body: JSON.stringify({ email, password: pwd, turnstileToken, csrfToken })
       });
 
       let data;
@@ -1781,10 +1791,13 @@
       }
 
       if (res.ok && data.success) {
-        // Lưu token và thông tin admin vào localStorage và cookie
+        // Lưu token và thông tin admin vào localStorage & cookie
         localStorage.setItem('aphim_admin_token', data.token);
+        localStorage.setItem('cinestream_admin_token', data.token);
         localStorage.setItem('aphim_admin_user', JSON.stringify(data.admin));
-        document.cookie = 'aphim_admin_token=' + data.token + '; path=/; max-age=604800; SameSite=Lax';
+        if (data.token && data.token.length < 3800) {
+          document.cookie = 'aphim_admin_token=' + data.token + '; path=/; max-age=604800; SameSite=Lax';
+        }
 
         showToast('Đăng nhập thành công! Đang vào hệ thống...', 'success');
         playUiSound('success');
@@ -1796,6 +1809,15 @@
       } else {
         showToast(data.message || 'Email hoặc mật khẩu không chính xác!', 'error');
         playUiSound('error');
+
+        // Tự động làm mới Cloudflare Turnstile để người dùng thử lại
+        if (window.turnstile) {
+          try {
+            window.turnstile.reset();
+            window.turnstileToken = '';
+          } catch(e) {}
+        }
+
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalHtml;
@@ -1805,6 +1827,14 @@
     } catch (err) {
       console.error('Login error:', err);
       showToast(err.message || 'Không thể kết nối đến máy chủ API.', 'error');
+
+      if (window.turnstile) {
+        try {
+          window.turnstile.reset();
+          window.turnstileToken = '';
+        } catch(e) {}
+      }
+
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHtml;
@@ -1813,6 +1843,698 @@
     }
     return false;
   }
+
+  // ─── 10B. SECURITY MONITOR & ACCESS AUDIT LOGS ───
+  let cachedSecurityLogs = [];
+  let currentSecFilter = 'all';
+  let currentSecSearch = '';
+  let currentSecPage = 1;
+  let secPageSize = 10;
+
+  function formatRelativeTime(dateStr) {
+    if (!dateStr) return 'Vừa xong';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffSec = Math.floor((now - d) / 1000);
+    if (diffSec < 60) return `${diffSec} giây trước`;
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin} phút trước`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  function renderSecurityActionBadge(action, status) {
+    if (status === 'blocked' || action === 'admin_brute_force_blocked' || action === 'admin_unauthorized_access') {
+      return `<span class="badge badge-rose" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="shield-ban" style="width:12px;height:12px;"></i> Bị Chặn / Xâm Nhập</span>`;
+    }
+    if (status === 'failed' || action === 'admin_login_failed' || action === 'login_failed') {
+      return `<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);display:inline-flex;align-items:center;gap:4px;"><i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Sai Mật Khẩu</span>`;
+    }
+    if (action === 'admin_manual_unlock') {
+      return `<span class="badge badge-cyan" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="unlock" style="width:12px;height:12px;"></i> Admin Mở Khóa</span>`;
+    }
+    if (action === 'admin_security_cleanup') {
+      return `<span class="badge badge-rose" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> Dọn Dẹp Logs</span>`;
+    }
+    return `<span class="badge badge-emerald" style="display:inline-flex;align-items:center;gap:4px;"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> Đăng Nhập Thành Công</span>`;
+  }
+
+  function renderSecurityStatusPill(status, action) {
+    if (status === 'blocked' || action === 'admin_brute_force_blocked') {
+      return `<span class="status-live-pill" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);"><span class="status-dot" style="background:#ef4444;"></span> ĐÃ CHẶN</span>`;
+    }
+    if (status === 'failed') {
+      return `<span class="status-live-pill" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);"><span class="status-dot" style="background:#f59e0b;"></span> CẢNH BÁO</span>`;
+    }
+    return `<span class="status-live-pill" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);"><span class="status-dot" style="background:#10b981;"></span> HỢP LỆ</span>`;
+  }
+
+  async function loadSecurityLogs(force = false) {
+    const tableBody = document.getElementById('securityLogsTableBody');
+    if (!tableBody) return;
+
+    const token = getAdminToken();
+    try {
+      const btn = document.getElementById('btnRefreshSecurityLogs');
+      if (btn && force) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Đang tải...';
+        if (window.lucide) lucide.createIcons();
+      }
+
+      const res = await fetch(`/api/admin/security/logs?limit=300&t=${Date.now()}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) throw new Error('Không thể tải nhật ký an ninh');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Lỗi lấy nhật ký an ninh');
+
+      cachedSecurityLogs = data.logs || [];
+
+      // Update KPI Badges
+      if (data.stats) {
+        const elTotal = document.getElementById('secTotalToday');
+        const elSuccess = document.getElementById('secSuccessToday');
+        const elFailed = document.getElementById('secFailedToday');
+        const elBlocked = document.getElementById('secBlockedToday');
+        if (elTotal) elTotal.textContent = data.stats.total_today || 0;
+        if (elSuccess) elSuccess.textContent = data.stats.success_today || 0;
+        if (elFailed) elFailed.textContent = data.stats.failed_today || 0;
+        if (elBlocked) elBlocked.textContent = data.stats.blocked_today || 0;
+      }
+
+      // Update Active Lockout Banner
+      const threatBanner = document.getElementById('secActiveThreatBanner');
+      if (threatBanner) {
+        if (Array.isArray(data.active_locks) && data.active_locks.length > 0) {
+          threatBanner.style.display = 'block';
+          threatBanner.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <i data-lucide="shield-alert" style="width:24px;height:24px;color:#ef4444;flex-shrink:0;"></i>
+                <div>
+                  <strong style="color:#fff;font-size:14px;">🚨 CẢNH BÁO AN NINH: Phát hiện ${data.active_locks.length} đối tượng đang bị tạm khóa</strong>
+                  <div style="font-size:12px;color:#fca5a5;margin-top:2px;">
+                    ${data.active_locks.map(l => `<span>Mục tiêu: <strong style="color:#fff;">${l.target}</strong> (Sai ${l.attempts}/5 lần • Còn ${l.remainingMinutes} phút)</span>`).join(' | ')}
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                ${data.active_locks.map(l => `
+                  <button type="button" class="btn btn-xs btn-outline" style="border-color:#ef4444;color:#fff;background:rgba(239,68,68,0.2);" onclick="AdminCore.unlockSecurityTarget('${l.target}')">
+                    <i data-lucide="unlock"></i> Mở Khóa ${l.target}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          threatBanner.style.display = 'none';
+        }
+      }
+
+      renderFilteredSecurityLogs();
+
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="refresh-cw"></i> Làm Mới';
+        if (window.lucide) lucide.createIcons();
+      }
+    } catch (err) {
+      console.error('[Security Logs Error]:', err);
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center" style="padding: 24px; color: var(--rose);">
+            <i data-lucide="alert-triangle" style="width:24px;height:24px;margin-bottom:6px;"></i>
+            <div>Lỗi khi tải nhật ký an ninh: ${err.message}</div>
+          </td>
+        </tr>
+      `;
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  function filterSecurityLogs(filter, btn) {
+    currentSecFilter = filter || 'all';
+    currentSecPage = 1;
+    const btns = document.querySelectorAll('.sec-filter-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderFilteredSecurityLogs();
+  }
+
+  function searchSecurityLogs(query) {
+    currentSecSearch = (query || '').toLowerCase().trim();
+    currentSecPage = 1;
+    renderFilteredSecurityLogs();
+  }
+
+  function renderFilteredSecurityLogs() {
+    const tableBody = document.getElementById('securityLogsTableBody');
+    if (!tableBody) return;
+
+    let list = cachedSecurityLogs || [];
+    if (currentSecFilter === 'failed') {
+      list = list.filter(l => l.action === 'admin_login_failed' || l.action === 'login_failed');
+    } else if (currentSecFilter === 'blocked') {
+      list = list.filter(l => l.status === 'blocked' || l.action === 'admin_brute_force_blocked' || l.action === 'admin_unauthorized_access');
+    } else if (currentSecFilter === 'success') {
+      list = list.filter(l => l.status === 'success' && (l.action === 'admin_login_success' || l.action === 'login_success'));
+    }
+
+    if (currentSecSearch) {
+      list = list.filter(l => 
+        (l.email && l.email.toLowerCase().includes(currentSecSearch)) ||
+        (l.ip_address && l.ip_address.toLowerCase().includes(currentSecSearch)) ||
+        (l.note && l.note.toLowerCase().includes(currentSecSearch)) ||
+        (l.action && l.action.toLowerCase().includes(currentSecSearch))
+      );
+    }
+
+    const total = list.length;
+    const totalPages = Math.max(1, Math.ceil(total / secPageSize));
+    if (currentSecPage > totalPages) currentSecPage = totalPages;
+    if (currentSecPage < 1) currentSecPage = 1;
+
+    // Slice for current page
+    const startIdx = (currentSecPage - 1) * secPageSize;
+    const endIdx = Math.min(startIdx + secPageSize, total);
+    const pagedList = list.slice(startIdx, endIdx);
+
+    renderSecurityPagination(total, totalPages, startIdx, endIdx);
+
+    if (!pagedList.length) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center" style="padding: 32px; color: var(--text-dim);">
+            <i data-lucide="shield-check" style="width:28px;height:28px;margin-bottom:8px;color:var(--emerald);"></i>
+            <div>Không có sự kiện an ninh nào khớp với bộ lọc hiện tại.</div>
+          </td>
+        </tr>
+      `;
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+
+    window.__pagedSecurityLogs = pagedList;
+
+    tableBody.innerHTML = pagedList.map((log, index) => {
+      const d = new Date(log.created_at);
+      const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')} ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+      const relTime = formatRelativeTime(log.created_at);
+      const isLoopback = log.ip_address === '::1' || log.ip_address === '127.0.0.1';
+      const ipBadge = isLoopback 
+        ? `<span class="badge" style="background:rgba(255,255,255,0.08);color:#94a3b8;font-size:10px;">Localhost</span>`
+        : `<span class="badge" style="background:rgba(56,189,248,0.12);color:#38bdf8;font-size:10px;">Public IP</span>`;
+
+      let uaShort = 'Trình duyệt Web';
+      const ua = log.user_agent || '';
+      if (ua.includes('Chrome') && !ua.includes('Edg')) uaShort = 'Google Chrome';
+      else if (ua.includes('Edg')) uaShort = 'Microsoft Edge';
+      else if (ua.includes('Firefox')) uaShort = 'Mozilla Firefox';
+      else if (ua.includes('Safari') && !ua.includes('Chrome')) uaShort = 'Apple Safari';
+      else if (ua.includes('curl') || ua.includes('Postman') || ua.includes('python')) uaShort = 'Bot / Tool API';
+
+      const isBlocked = log.status === 'blocked' || log.action === 'admin_brute_force_blocked';
+      const logId = String(log._id || log.id || `idx_${index}`);
+
+      return `
+        <tr style="cursor:pointer; transition: background 0.15s ease; ${isBlocked ? 'background:rgba(239,68,68,0.06);' : ''}" onclick="AdminCore.showSecurityLogDetail('${logId}', ${index})" title="Nhấp vào bất kỳ đâu trên dòng này để xem toàn bộ nội dung chi tiết">
+          <td style="white-space:nowrap;">
+            <div style="font-weight:700;color:#fff;font-size:12px;">${timeStr}</div>
+            <div style="font-size:11px;color:var(--text-dim);">${relTime}</div>
+          </td>
+          <td>
+            ${renderSecurityActionBadge(log.action, log.status)}
+          </td>
+          <td>
+            <div style="font-weight:700;color:${log.email?.includes('admin') ? 'var(--gold)' : '#fff'};font-size:13px;">
+              ${sanitize(log.email || 'Không rõ')}
+            </div>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <code style="font-size:12px;color:#38bdf8;background:rgba(56,189,248,0.08);padding:2px 6px;border-radius:4px;">${sanitize(log.ip_address || 'N/A')}</code>
+              ${ipBadge}
+            </div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;" title="${sanitize(ua)}">${uaShort}</div>
+          </td>
+          <td>
+            ${renderSecurityStatusPill(log.status, log.action)}
+          </td>
+          <td style="max-width:320px;">
+            <div style="font-size:12px;line-height:1.4;color:${isBlocked ? '#fca5a5' : 'var(--text-dim)'};word-break:break-word;">
+              ${sanitize(log.note || 'Không có ghi chú thêm')}
+            </div>
+          </td>
+          <td style="text-align:right;white-space:nowrap;" onclick="event.stopPropagation()">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
+              <button type="button" class="btn btn-xs btn-outline" style="color:#38bdf8;border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.06);" onclick="AdminCore.showSecurityLogDetail('${logId}', ${index})" title="Xem chi tiết nội dung sự kiện">
+                <i data-lucide="info"></i> Chi tiết
+              </button>
+              ${isBlocked ? `
+                <button type="button" class="btn btn-xs btn-outline" style="border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,0.1);" onclick="AdminCore.unlockSecurityTarget('ip:${log.ip_address}')" title="Mở khóa IP này">
+                  <i data-lucide="unlock"></i> Mở Khóa
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function renderSecurityPagination(total, totalPages, startIdx, endIdx) {
+    const infoEl = document.getElementById('secPaginationInfo');
+    const controlsEl = document.getElementById('secPaginationControls');
+    const container = document.getElementById('secPaginationBar');
+    if (!controlsEl) return;
+
+    if (container) {
+      container.style.display = total > 0 ? 'flex' : 'none';
+    }
+
+    if (infoEl) {
+      if (total === 0) {
+        infoEl.innerHTML = '<span>0 sự kiện</span>';
+      } else {
+        infoEl.innerHTML = `
+          <span>Hiển thị <strong>${startIdx + 1} - ${endIdx}</strong> / <strong>${new Intl.NumberFormat('vi-VN').format(total)}</strong> sự kiện</span>
+          <span class="pagination-badge-pill" style="background:rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:12px;">Trang <b>${currentSecPage}</b> / <b>${totalPages}</b></span>
+        `;
+      }
+    }
+
+    if (totalPages <= 1) {
+      controlsEl.innerHTML = `
+        <div class="pagination-page-chips" style="display:flex;gap:4px;">
+          <button class="btn btn-xs btn-primary" disabled style="padding:4px 10px;font-weight:700;">1</button>
+        </div>
+      `;
+      return;
+    }
+
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentSecPage > 3) pages.push('...');
+      const start = Math.max(2, currentSecPage - 1);
+      const end = Math.min(totalPages - 1, currentSecPage + 1);
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) pages.push(i);
+      }
+      if (currentSecPage < totalPages - 2) pages.push('...');
+      if (!pages.includes(totalPages)) pages.push(totalPages);
+    }
+
+    const svgFirst = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>`;
+    const svgPrev = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>`;
+    const svgNext = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+    const svgLast = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>`;
+
+    controlsEl.innerHTML = `
+      <div class="pagination-nav-group" style="display:flex;align-items:center;gap:4px;">
+        <button class="btn btn-xs btn-outline" ${currentSecPage <= 1 ? 'disabled' : ''} onclick="AdminCore.changeSecPage(1)" title="Trang đầu" style="padding:4px 8px;">
+          ${svgFirst}
+        </button>
+        <button class="btn btn-xs btn-outline" ${currentSecPage <= 1 ? 'disabled' : ''} onclick="AdminCore.changeSecPage(${currentSecPage - 1})" title="Trang trước" style="padding:4px 8px;display:flex;align-items:center;gap:4px;">
+          ${svgPrev} <span>Trước</span>
+        </button>
+      </div>
+
+      <div class="pagination-page-chips" style="display:flex;align-items:center;gap:4px;">
+        ${pages.map(p => {
+          if (p === '...') return `<span style="padding:0 4px;color:var(--text-dim);font-weight:700;">…</span>`;
+          const isActive = p === currentSecPage;
+          return `
+            <button class="btn btn-xs ${isActive ? 'btn-primary' : 'btn-outline'}" style="min-width:28px;padding:4px 8px;font-weight:${isActive ? '800' : '600'};" onclick="AdminCore.changeSecPage(${p})">
+              ${p}
+            </button>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="pagination-nav-group" style="display:flex;align-items:center;gap:4px;">
+        <button class="btn btn-xs btn-outline" ${currentSecPage >= totalPages ? 'disabled' : ''} onclick="AdminCore.changeSecPage(${currentSecPage + 1})" title="Trang sau" style="padding:4px 8px;display:flex;align-items:center;gap:4px;">
+          <span>Sau</span> ${svgNext}
+        </button>
+        <button class="btn btn-xs btn-outline" ${currentSecPage >= totalPages ? 'disabled' : ''} onclick="AdminCore.changeSecPage(${totalPages})" title="Trang cuối" style="padding:4px 8px;">
+          ${svgLast}
+        </button>
+      </div>
+    `;
+  }
+
+  function changeSecPage(page) {
+    currentSecPage = Math.max(1, page);
+    renderFilteredSecurityLogs();
+    const card = document.getElementById('securityAuditCard');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function changeSecPageSize(size) {
+    secPageSize = parseInt(size) || 10;
+    currentSecPage = 1;
+    renderFilteredSecurityLogs();
+  }
+
+  function openSecurityCleanupModal() {
+    const modal = document.getElementById('modalSecurityCleanup');
+    if (modal) {
+      modal.style.setProperty('display', 'flex', 'important');
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  function closeSecurityCleanupModal() {
+    const modal = document.getElementById('modalSecurityCleanup');
+    if (modal) {
+      modal.style.setProperty('display', 'none', 'important');
+    }
+  }
+
+  async function executeSecurityCleanup() {
+    const selectedOption = document.querySelector('input[name="cleanupOption"]:checked')?.value || '24hours';
+    const btnConfirm = document.getElementById('btnConfirmCleanup');
+
+    let confirmMsg = 'Bạn có chắc chắn muốn thực hiện dọn dẹp nhật ký này không?';
+    if (selectedOption === 'all') {
+      confirmMsg = '⚠️ CẢNH BÁO: Bạn đang chọn XÓA TOÀN BỘ lịch sử an ninh! Thao tác này không thể hoàn tác. Bạn chắc chắn chứ?';
+    }
+    if (!confirm(confirmMsg)) return;
+
+    const token = getAdminToken();
+    try {
+      if (btnConfirm) {
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Đang dọn dẹp...';
+        if (window.lucide) lucide.createIcons();
+      }
+
+      const res = await fetch('/api/admin/security/clear-logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        credentials: 'include',
+        body: JSON.stringify({ mode: selectedOption })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.deletedCount === 0) {
+          showToast('Không có bản ghi nào cũ hơn mốc thời gian đã chọn (Dữ liệu đều mới hơn). Hãy chọn "Dọn logs cũ hơn 24 giờ" hoặc "Xóa toàn bộ" nếu cần xóa ngay.', 'info');
+        } else {
+          showToast(data.message || `Đã dọn dẹp thành công ${data.deletedCount} bản ghi!`, 'success');
+        }
+        closeSecurityCleanupModal();
+        currentSecPage = 1;
+        loadSecurityLogs(true);
+      } else {
+        showToast(data.message || 'Lỗi khi dọn dẹp.', 'error');
+      }
+    } catch (e) {
+      showToast(e.message || 'Lỗi kết nối khi dọn dẹp.', 'error');
+    } finally {
+      if (btnConfirm) {
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = '<i data-lucide="check"></i> Xác Nhận Dọn Dẹp';
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+  }
+
+  async function unlockSecurityTarget(target) {
+    if (!confirm(`Bạn có chắc chắn muốn mở khóa ngay cho đối tượng [${target}] không?`)) return;
+    const token = getAdminToken();
+    try {
+      const res = await fetch('/api/admin/security/unlock', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        credentials: 'include',
+        body: JSON.stringify({ target })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(data.message || 'Đã mở khóa thành công!', 'success');
+        loadSecurityLogs(true);
+      } else {
+        showToast(data.message || 'Không thể mở khóa.', 'error');
+      }
+    } catch (e) {
+      showToast(e.message || 'Lỗi kết nối khi mở khóa.', 'error');
+    }
+  }
+
+  let selectedSecLog = null;
+
+  function showSecurityLogDetail(id, pagedIdx) {
+    let log = null;
+    if (typeof pagedIdx === 'number' && window.__pagedSecurityLogs && window.__pagedSecurityLogs[pagedIdx]) {
+      log = window.__pagedSecurityLogs[pagedIdx];
+    }
+    if (!log && id) {
+      log = (cachedSecurityLogs || []).find(l => String(l._id) === String(id) || String(l.id) === String(id));
+    }
+    if (!log && typeof id === 'string' && id.startsWith('idx_')) {
+      const idx = parseInt(id.replace('idx_', ''), 10);
+      if (!isNaN(idx) && cachedSecurityLogs && cachedSecurityLogs[idx]) {
+        log = cachedSecurityLogs[idx];
+      }
+    }
+    if (!log && cachedSecurityLogs && cachedSecurityLogs.length > 0) {
+      log = cachedSecurityLogs[0];
+    }
+    if (!log) {
+      showToast('Không tìm thấy thông tin chi tiết của bản ghi này.', 'warning');
+      return;
+    }
+    selectedSecLog = log;
+
+    const modal = document.getElementById('modalSecurityDetail');
+    if (!modal) {
+      alert(`[Chi Tiết Nhật Ký An Ninh]\nEmail: ${log.email || 'N/A'}\nIP: ${log.ip_address || 'N/A'}\nHành động: ${log.action}\nGhi chú: ${log.note || 'Không có'}`);
+      return;
+    }
+
+    const isFailed = log.action === 'admin_login_failed' || log.action === 'login_failed';
+    const isBlocked = log.status === 'blocked' || log.action === 'admin_brute_force_blocked';
+    const isSuccess = log.status === 'success' && (log.action === 'admin_login_success' || log.action === 'login_success');
+
+    const titleEl = document.getElementById('secDetailTitle');
+    const badgeEl = document.getElementById('secDetailBadge');
+    const iconWrap = document.getElementById('secDetailIconWrap');
+    const actionCodeEl = document.getElementById('secDetailActionCode');
+    const threatBanner = document.getElementById('secDetailThreatBanner');
+
+    if (actionCodeEl) actionCodeEl.textContent = log.action || 'unknown';
+
+    if (isBlocked) {
+      if (titleEl) titleEl.textContent = '🚨 BỊ KHÓA CHẶN XÂM NHẬP (BRUTE-FORCE)';
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-rose';
+        badgeEl.textContent = 'MỨC NGUY HIỂM CAO';
+      }
+      if (iconWrap) {
+        iconWrap.style.background = 'rgba(239,68,68,0.2)';
+        iconWrap.style.color = '#ef4444';
+        iconWrap.innerHTML = '<i data-lucide="shield-ban"></i>';
+      }
+      if (threatBanner) {
+        threatBanner.style.background = 'rgba(239,68,68,0.15)';
+        threatBanner.style.border = '1px solid rgba(239,68,68,0.4)';
+        threatBanner.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <i data-lucide="shield-alert" style="width:22px;height:22px;color:#ef4444;flex-shrink:0;"></i>
+            <div>
+              <strong style="color:#fff;font-size:13px;">Phát hiện cố tình dò mật khẩu quản trị viên!</strong>
+              <div style="font-size:11px;color:#fca5a5;">IP hoặc tài khoản này đã kích hoạt cơ chế khóa tạm thời 15 phút.</div>
+            </div>
+          </div>
+          <span class="badge badge-rose">ĐÃ CHẶN KẾT NỐI</span>
+        `;
+      }
+    } else if (isFailed) {
+      if (titleEl) titleEl.textContent = '⚠️ CẢNH BÁO: ĐĂNG NHẬP THẤT BẠI (SAI MẬT KHẨU)';
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-warning';
+        badgeEl.textContent = 'CẢNH BÁO AN NINH';
+      }
+      if (iconWrap) {
+        iconWrap.style.background = 'rgba(245,158,11,0.18)';
+        iconWrap.style.color = '#f59e0b';
+        iconWrap.innerHTML = '<i data-lucide="alert-triangle"></i>';
+      }
+      if (threatBanner) {
+        threatBanner.style.background = 'rgba(245,158,11,0.12)';
+        threatBanner.style.border = '1px solid rgba(245,158,11,0.35)';
+        threatBanner.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <i data-lucide="alert-circle" style="width:22px;height:22px;color:#f59e0b;flex-shrink:0;"></i>
+            <div>
+              <strong style="color:#fff;font-size:13px;">Nhập sai thông tin xác thực quản trị viên!</strong>
+              <div style="font-size:11px;color:#fcd34d;">Hệ thống đang đếm số lần thử. Nếu sai quá 5 lần sẽ tự động khóa IP và tài khoản 15 phút.</div>
+            </div>
+          </div>
+          <span class="badge badge-warning">ĐANG THEO DÕI</span>
+        `;
+      }
+    } else {
+      if (titleEl) titleEl.textContent = '✅ ĐĂNG NHẬP QUẢN TRỊ THÀNH CÔNG';
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-emerald';
+        badgeEl.textContent = 'HỢP LỆ & AN TOÀN';
+      }
+      if (iconWrap) {
+        iconWrap.style.background = 'rgba(16,185,129,0.15)';
+        iconWrap.style.color = '#10b981';
+        iconWrap.innerHTML = '<i data-lucide="shield-check"></i>';
+      }
+      if (threatBanner) {
+        threatBanner.style.background = 'rgba(16,185,129,0.1)';
+        threatBanner.style.border = '1px solid rgba(16,185,129,0.3)';
+        threatBanner.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <i data-lucide="check-circle-2" style="width:22px;height:22px;color:#10b981;flex-shrink:0;"></i>
+            <div>
+              <strong style="color:#fff;font-size:13px;">Xác thực tài khoản và bảo mật hoàn tất</strong>
+              <div style="font-size:11px;color:#86efac;">Phiên làm việc hợp lệ được cấp JWT Token bảo mật.</div>
+            </div>
+          </div>
+          <span class="badge badge-emerald">ĐÃ CẤP QUYỀN</span>
+        `;
+      }
+    }
+
+    const emailEl = document.getElementById('secDetailEmail');
+    if (emailEl) emailEl.textContent = log.email || 'Không rõ email';
+
+    const d = new Date(log.created_at);
+    const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')} ngày ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+    const timestampEl = document.getElementById('secDetailTimestamp');
+    if (timestampEl) timestampEl.textContent = timeStr;
+
+    const relTimeEl = document.getElementById('secDetailRelTime');
+    if (relTimeEl) relTimeEl.textContent = 'Thời gian tương đối: ' + formatRelativeTime(log.created_at);
+
+    const ipEl = document.getElementById('secDetailIp');
+    if (ipEl) ipEl.textContent = log.ip_address || '127.0.0.1';
+
+    const isLoopback = log.ip_address === '::1' || log.ip_address === '127.0.0.1';
+    const ipTypeEl = document.getElementById('secDetailIpType');
+    if (ipTypeEl) {
+      ipTypeEl.textContent = isLoopback ? 'Localhost (Máy chủ)' : 'Public Internet IP';
+      ipTypeEl.className = isLoopback ? 'badge' : 'badge badge-primary';
+    }
+
+    const whoisLink = document.getElementById('secDetailWhoisLink');
+    if (whoisLink) {
+      whoisLink.href = isLoopback ? '#' : `https://ipinfo.io/${log.ip_address}`;
+      whoisLink.style.display = isLoopback ? 'none' : 'inline-flex';
+    }
+
+    const ua = log.user_agent || '';
+    let browserName = 'Trình duyệt Web';
+    if (ua.includes('Chrome') && !ua.includes('Edg')) browserName = 'Google Chrome';
+    else if (ua.includes('Edg')) browserName = 'Microsoft Edge';
+    else if (ua.includes('Firefox')) browserName = 'Mozilla Firefox';
+    else if (ua.includes('Safari') && !ua.includes('Chrome')) browserName = 'Apple Safari';
+    else if (ua.includes('curl') || ua.includes('Postman') || ua.includes('python')) browserName = 'Tập lệnh / API Bot';
+
+    let osName = 'Không rõ HĐH';
+    if (ua.includes('Windows NT 10.0')) osName = 'Windows 10 / 11';
+    else if (ua.includes('Macintosh')) osName = 'macOS';
+    else if (ua.includes('Android')) osName = 'Android';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) osName = 'iOS';
+    else if (ua.includes('Linux')) osName = 'Linux';
+
+    const browserEl = document.getElementById('secDetailBrowser');
+    if (browserEl) browserEl.textContent = `${browserName} • ${osName}`;
+
+    const noteEl = document.getElementById('secDetailNote');
+    if (noteEl) {
+      let noteContent = log.note || 'Không có ghi chú thêm từ máy chủ.';
+      if (isFailed && !log.note) {
+        noteContent = 'Đăng nhập sai mật khẩu hoặc thông tin xác thực không đúng. Hệ thống đã ghi lại để theo dõi brute-force.';
+      }
+      noteEl.textContent = noteContent;
+      noteEl.style.borderLeftColor = isBlocked ? '#ef4444' : (isFailed ? '#f59e0b' : '#10b981');
+    }
+
+    const uaEl = document.getElementById('secDetailUserAgent');
+    if (uaEl) uaEl.textContent = ua || '(Trống / Không có User-Agent header)';
+
+    const actionWrap = document.getElementById('secDetailUnlockActionWrap');
+    if (actionWrap) {
+      if (isBlocked || (log.note && log.note.includes('khóa'))) {
+        actionWrap.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="border-color:#ef4444;color:#ef4444;" onclick="AdminCore.unlockSecurityTarget('ip:${log.ip_address}')">
+            <i data-lucide="unlock"></i> Mở Khóa IP Này Ngay
+          </button>
+        `;
+      } else {
+        actionWrap.innerHTML = `
+          <button type="button" class="btn btn-outline btn-sm" style="color:var(--text-dim);" onclick="AdminCore.copySecDetailText('secDetailIp')" title="Sao chép IP để chặn trên Cloudflare WAF">
+            <i data-lucide="shield"></i> Sao Chép IP
+          </button>
+        `;
+      }
+    }
+
+    modal.style.setProperty('display', 'flex', 'important');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function closeSecurityDetailModal() {
+    const modal = document.getElementById('modalSecurityDetail');
+    if (modal) {
+      modal.style.setProperty('display', 'none', 'important');
+    }
+  }
+
+  function copySecDetailText(elemId) {
+    const el = document.getElementById(elemId);
+    if (!el) return;
+    const text = el.textContent || el.innerText || '';
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      showToast('Đã sao chép vào bộ nhớ tạm: ' + text.trim(), 'success');
+    }).catch(() => {
+      showToast('Không thể tự động sao chép', 'warning');
+    });
+  }
+
+  function copyCurrentSecLogJson() {
+    if (!selectedSecLog) return;
+    const jsonStr = JSON.stringify(selectedSecLog, null, 2);
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      showToast('Đã sao chép toàn bộ dữ liệu log JSON!', 'success');
+    }).catch(() => {
+      showToast('Không thể sao chép JSON', 'warning');
+    });
+  }
+
+  function clearOldSecurityLogs() {
+    openSecurityCleanupModal();
+  }
+
+  window.AdminCore.openSecurityCleanupModal = openSecurityCleanupModal;
+  window.AdminCore.closeSecurityCleanupModal = closeSecurityCleanupModal;
+  window.AdminCore.executeSecurityCleanup = executeSecurityCleanup;
+  window.AdminCore.showSecurityLogDetail = showSecurityLogDetail;
+  window.AdminCore.closeSecurityDetailModal = closeSecurityDetailModal;
+  window.AdminCore.copySecDetailText = copySecDetailText;
+  window.AdminCore.copyCurrentSecLogJson = copyCurrentSecLogJson;
 
   // ─── 11. EXPORT TO GLOBAL OBJECT ───
   Object.assign(window.AdminCore, {
@@ -1833,6 +2555,20 @@
     updateTableRowStatus,
     fetchMovieControlsData,
     handleLogin,
+    loadSecurityLogs,
+    filterSecurityLogs,
+    searchSecurityLogs,
+    unlockSecurityTarget,
+    clearOldSecurityLogs,
+    changeSecPage,
+    changeSecPageSize,
+    openSecurityCleanupModal,
+    closeSecurityCleanupModal,
+    executeSecurityCleanup,
+    showSecurityLogDetail,
+    closeSecurityDetailModal,
+    copySecDetailText,
+    copyCurrentSecLogJson,
     toggleDataMasking,
     switchPreviewEpisode: (link) => {
       const iframe = document.querySelector('.inspector-section iframe');
@@ -4902,6 +5638,11 @@
         };
         document.body.appendChild(s);
       }
+    }
+
+    // 7B. Security Access & Threat Intelligence Logs
+    if (document.getElementById('securityLogsTableBody')) {
+      loadSecurityLogs();
     }
 
     // 8. Header Actions & Logout

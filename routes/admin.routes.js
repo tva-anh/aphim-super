@@ -4,12 +4,92 @@
  */
 const express = require('express');
 const router  = express.Router();
+const axios   = require('axios');
 const { requireAdmin } = require('../middleware/adminAuth.middleware');
 const { supabase, supabaseAdmin } = require('../lib/supabase');
 const Gamification = require('../models/Gamification');
 const AdminLog     = require('../models/AdminLog');
 const framesMap    = require('../public/js/admin/frames-map.json');
 const trendsControl = require('../lib/trendsControl');
+
+// ── Enterprise Anti-Brute-Force & Rate Limiter for Admin Login ────────────────
+const adminLoginAttempts = new Map();
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 phút
+
+function checkLoginRateLimit(key) {
+    const record = adminLoginAttempts.get(key);
+    if (!record) return { allowed: true, attempts: 0 };
+    const now = Date.now();
+    if (record.lockedUntil && record.lockedUntil > now) {
+        const remainingMs = record.lockedUntil - now;
+        const remainingMin = Math.ceil(remainingMs / 60000);
+        return { allowed: false, remainingMin, attempts: record.attempts };
+    }
+    if (record.lockedUntil && record.lockedUntil <= now) {
+        adminLoginAttempts.delete(key);
+        return { allowed: true, attempts: 0 };
+    }
+    return { allowed: true, attempts: record.attempts };
+}
+
+function recordFailedLogin(key) {
+    const now = Date.now();
+    let record = adminLoginAttempts.get(key) || { attempts: 0, lastAttempt: now };
+    record.attempts += 1;
+    record.lastAttempt = now;
+    if (record.attempts >= MAX_LOGIN_ATTEMPTS) {
+        record.lockedUntil = now + LOGIN_LOCKOUT_MS;
+    }
+    adminLoginAttempts.set(key, record);
+    return record;
+}
+
+function resetLoginRateLimit(key) {
+    adminLoginAttempts.delete(key);
+}
+
+// Tự động dọn dẹp bộ nhớ rate-limiter định kỳ mỗi 10 phút
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, val] of adminLoginAttempts.entries()) {
+        if (val.lockedUntil && val.lockedUntil < now) {
+            adminLoginAttempts.delete(key);
+        } else if (!val.lockedUntil && now - val.lastAttempt > 30 * 60 * 1000) {
+            adminLoginAttempts.delete(key);
+        }
+    }
+}, 10 * 60 * 1000);
+
+// Xác minh Cloudflare Turnstile CAPTCHA Token
+async function verifyCloudflareTurnstile(token, clientIp) {
+    const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAAFg_6pLbG5HjqfB1wiFh9m4rLg8';
+    if (!token) return { success: false, reason: 'missing-token' };
+
+    try {
+        const params = new URLSearchParams();
+        params.append('secret', secretKey);
+        params.append('response', token);
+        const isPrivateOrLoopback = !clientIp || clientIp === '127.0.0.1' || clientIp === '::1' || clientIp.startsWith('192.168.') || clientIp.startsWith('10.') || clientIp.startsWith('::ffff:127.');
+        if (clientIp && !isPrivateOrLoopback) {
+            params.append('remoteip', clientIp);
+        }
+
+        const resp = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', params.toString(), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            timeout: 7000
+        });
+
+        if (resp.data && resp.data.success) {
+            return { success: true };
+        }
+        console.warn('[Turnstile] Cloudflare verification failed:', resp.data);
+        return { success: false, reason: resp.data ? resp.data['error-codes'] : 'invalid' };
+    } catch (err) {
+        console.error('[Turnstile] Cloudflare verify API error:', err.message);
+        return { success: false, reason: err.message };
+    }
+}
 
 // Fast server-side in-memory cache for admin API queries
 const adminServerCache = new Map();
@@ -241,10 +321,35 @@ async function computeDashboardSummary(timeRange = '7d') {
     };
 }
 
-// ── POST /api/admin/login — Xác thực đăng nhập Quản Trị Viên ───────────────────
+// ── POST /api/admin/login — Xác thực đăng nhập Quản Trị Viên (Enterprise Security) ──
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body || {};
+        const { email, password, turnstileToken, csrfToken } = req.body || {};
+        const clientIp = req.headers['cf-connecting-ip'] || (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '127.0.0.1';
+        const userAgent = req.headers['user-agent'] || '';
+
+        // 1. Kiểm tra Rate Limiting chống Brute-Force theo IP
+        const ipLimit = checkLoginRateLimit(`ip:${clientIp}`);
+        if (!ipLimit.allowed) {
+            try {
+                const SecurityLog = require('../models/SecurityLog');
+                if (SecurityLog && typeof SecurityLog.create === 'function') {
+                    await SecurityLog.create({
+                        email: String(email || 'unknown').toLowerCase(),
+                        action: 'admin_brute_force_blocked',
+                        ip_address: clientIp,
+                        user_agent: userAgent,
+                        status: 'blocked',
+                        note: `Địa chỉ IP bị chặn truy cập đăng nhập do vượt quá 5 lần nhập sai (khóa 15 phút)`
+                    }).catch(() => {});
+                }
+            } catch (e) {}
+
+            return res.status(429).json({
+                success: false,
+                message: `Địa chỉ IP của bạn bị tạm khóa do nhập sai quá 5 lần. Vui lòng thử lại sau ${ipLimit.remainingMin} phút.`
+            });
+        }
 
         if (!email || !password) {
             return res.status(400).json({
@@ -254,6 +359,48 @@ router.post('/login', async (req, res) => {
         }
 
         let loginEmail = String(email).trim().toLowerCase();
+
+        // 2. Kiểm tra Rate Limiting chống Brute-Force theo Email/Tài khoản
+        const emailLimit = checkLoginRateLimit(`email:${loginEmail}`);
+        if (!emailLimit.allowed) {
+            try {
+                const SecurityLog = require('../models/SecurityLog');
+                if (SecurityLog && typeof SecurityLog.create === 'function') {
+                    await SecurityLog.create({
+                        email: loginEmail,
+                        action: 'admin_brute_force_blocked',
+                        ip_address: clientIp,
+                        user_agent: userAgent,
+                        status: 'blocked',
+                        note: `Tài khoản ${loginEmail} bị khóa đăng nhập tạm thời do nhập sai quá 5 lần (khóa 15 phút)`
+                    }).catch(() => {});
+                }
+            } catch (e) {}
+
+            return res.status(429).json({
+                success: false,
+                message: `Tài khoản này đang bị tạm khóa do nhập sai quá 5 lần. Vui lòng thử lại sau ${emailLimit.remainingMin} phút.`
+            });
+        }
+
+        // 3. Kiểm tra CSRF Token bảo vệ
+        if (req.cookies && req.cookies.aphim_csrf_login) {
+            if (!csrfToken || csrfToken !== req.cookies.aphim_csrf_login) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Mã xác thực phiên làm việc (CSRF Token) không hợp lệ hoặc đã hết hạn. Vui lòng tải lại trang đăng nhập.'
+                });
+            }
+        }
+
+        // 4. Xác minh Cloudflare Turnstile CAPTCHA (Bảo vệ Bot & Tự động hóa)
+        const turnstileCheck = await verifyCloudflareTurnstile(turnstileToken, clientIp);
+        if (!turnstileCheck.success) {
+            return res.status(400).json({
+                success: false,
+                message: 'Xác minh Cloudflare Turnstile không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.'
+            });
+        }
 
         // Chuẩn hóa nếu người dùng nhập username thay vì full email
         const adminEnvUser = (process.env.ADMIN_USERNAME || 'admin').toLowerCase();
@@ -280,13 +427,13 @@ router.post('/login', async (req, res) => {
             }
         }
 
-        // 1. Thử đăng nhập với Supabase Auth
+        // 5. Thử đăng nhập với Supabase Auth
         let { data, error } = await supabase.auth.signInWithPassword({
             email: loginEmail,
             password
         });
 
-        // 2. Dự phòng mật khẩu quản trị từ .env hoặc master key
+        // 6. Dự phòng mật khẩu quản trị từ .env hoặc master key
         const envPassword = process.env.ADMIN_PASSWORD;
         const masterPasswords = [envPassword, '#Anh0937010123'].filter(Boolean);
 
@@ -308,14 +455,41 @@ router.post('/login', async (req, res) => {
             }
         }
 
+        // Xử lý khi xác thực thất bại: ghi nhận Brute-Force & ghi nhật ký bảo mật
         if (error || !data?.session) {
+            const ipRec = recordFailedLogin(`ip:${clientIp}`);
+            const emailRec = recordFailedLogin(`email:${loginEmail}`);
+            const currentAttempts = Math.max(ipRec.attempts, emailRec.attempts);
+            const remainingTries = Math.max(0, MAX_LOGIN_ATTEMPTS - currentAttempts);
+
+            try {
+                const SecurityLog = require('../models/SecurityLog');
+                if (SecurityLog && typeof SecurityLog.create === 'function') {
+                    await SecurityLog.create({
+                        email: loginEmail,
+                        action: 'admin_login_failed',
+                        ip_address: clientIp,
+                        user_agent: userAgent,
+                        status: 'failed',
+                        note: `Đăng nhập sai mật khẩu (lần ${currentAttempts}/${MAX_LOGIN_ATTEMPTS})`
+                    }).catch(() => {});
+                }
+            } catch (e) {}
+
+            if (remainingTries <= 0) {
+                return res.status(429).json({
+                    success: false,
+                    message: 'Bạn đã nhập sai mật khẩu 5 lần liên tiếp. Hệ thống tạm khóa đăng nhập trong 15 phút để bảo vệ tài khoản.'
+                });
+            }
+
             return res.status(401).json({
                 success: false,
-                message: 'Tài khoản hoặc mật khẩu quản trị không chính xác.'
+                message: `Tài khoản hoặc mật khẩu quản trị không chính xác. Bạn còn ${remainingTries} lần thử trước khi bị tạm khóa 15 phút.`
             });
         }
 
-        // 3. Kiểm tra quyền Admin trong bảng profiles
+        // 7. Kiểm tra quyền Admin trong bảng profiles
         let { data: profile } = await supabaseAdmin
             .from('profiles')
             .select('*')
@@ -323,18 +497,41 @@ router.post('/login', async (req, res) => {
             .single();
 
         if (!profile || profile.role !== 'admin') {
-            return res.status(403).json({
+            recordFailedLogin(`ip:${clientIp}`);
+            recordFailedLogin(`email:${loginEmail}`);
+
+            try {
+                const SecurityLog = require('../models/SecurityLog');
+                if (SecurityLog && typeof SecurityLog.create === 'function') {
+                    await SecurityLog.create({
+                        user_id: data.user.id,
+                        email: loginEmail,
+                        action: 'admin_login_failed',
+                        ip_address: clientIp,
+                        user_agent: userAgent,
+                        status: 'failed',
+                        note: 'Tài khoản không có vai trò admin (chống user enumeration)'
+                    }).catch(() => {});
+                }
+            } catch (e) {}
+
+            // Trả về thông báo lỗi chung để ngăn chặn dò tìm tài khoản (Anti-User Enumeration)
+            return res.status(401).json({
                 success: false,
-                message: 'Tài khoản này không có quyền truy cập khu vực Quản Trị Viên (Admin).'
+                message: 'Tài khoản hoặc mật khẩu quản trị không chính xác.'
             });
         }
 
         if (profile.is_blocked) {
             return res.status(403).json({
                 success: false,
-                message: 'Tài khoản quản trị viên hiện đang bị tạm khóa.'
+                message: 'Tài khoản quản trị viên hiện đang bị tạm khóa. Vui lòng liên hệ trưởng nhóm DevOps.'
             });
         }
+
+        // Đăng nhập thành công: xóa lịch sử thất bại của IP và Email
+        resetLoginRateLimit(`ip:${clientIp}`);
+        resetLoginRateLimit(`email:${loginEmail}`);
 
         const token = data.session.access_token;
         const adminPayload = {
@@ -345,16 +542,21 @@ router.post('/login', async (req, res) => {
             avatar_url: profile.avatar_url || ''
         };
 
-        // Ghi cookie phiên đăng nhập cho trình duyệt
-        res.cookie('aphim_admin_token', token, {
-            path: '/',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: false,
-            sameSite: 'Lax',
-            secure: process.env.NODE_ENV === 'production'
-        });
+        // Ghi cookie phiên đăng nhập an toàn (SameSite=Lax, hỗ trợ cả client guard và server auth)
+        if (token && token.length < 3800) {
+            res.cookie('aphim_admin_token', token, {
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                httpOnly: false,
+                sameSite: 'Lax',
+                secure: process.env.NODE_ENV === 'production' || req.secure || req.headers['x-forwarded-proto'] === 'https'
+            });
+        }
 
-        // Ghi nhật ký đăng nhập Admin (nếu có model)
+        // Xóa cookie CSRF đăng nhập tạm sau khi xác thực thành công
+        res.clearCookie('aphim_csrf_login', { path: '/' });
+
+        // Ghi nhật ký đăng nhập Admin thành công
         try {
             const SecurityLog = require('../models/SecurityLog');
             if (SecurityLog && typeof SecurityLog.create === 'function') {
@@ -362,9 +564,10 @@ router.post('/login', async (req, res) => {
                     user_id: data.user.id,
                     email: loginEmail,
                     action: 'admin_login_success',
-                    ip_address: req.ip,
-                    user_agent: req.headers['user-agent'],
-                    status: 'success'
+                    ip_address: clientIp,
+                    user_agent: userAgent,
+                    status: 'success',
+                    note: 'Đăng nhập admin thành công (Cloudflare Turnstile Verified)'
                 }).catch(() => {});
             }
         } catch (e) {}
@@ -1533,7 +1736,6 @@ router.post('/movies/batch-action', requireAdmin, (req, res) => {
 });
 
 // GET /api/admin/movies/by-status — Lấy danh sách phim theo trạng thái (dmca, hidden, featured)
-const axios = require('axios');
 router.get('/movies/by-status', requireAdmin, async (req, res) => {
     try {
         const status = (req.query.status || '').toLowerCase().trim();
@@ -1752,6 +1954,182 @@ router.delete('/custom-streams/:slug', requireAdmin, (req, res) => {
         });
     } catch (e) {
         return res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// ── GET /api/admin/security/logs — Danh sách nhật ký truy cập & giám sát an ninh ──
+router.get('/security/logs', requireAdmin, async (req, res) => {
+    try {
+        const SecurityLog = require('../models/SecurityLog');
+        const limit = Math.min(parseInt(req.query.limit) || 300, 1000);
+        const filterType = req.query.filter || 'all'; // 'all', 'failed', 'blocked', 'success'
+        const search = (req.query.search || '').trim();
+
+        const query = {};
+        if (filterType === 'failed') {
+            query.action = { $in: ['admin_login_failed', 'login_failed'] };
+        } else if (filterType === 'blocked') {
+            query.$or = [
+                { status: 'blocked' },
+                { action: { $in: ['admin_brute_force_blocked', 'admin_unauthorized_access'] } }
+            ];
+        } else if (filterType === 'success') {
+            query.status = 'success';
+            query.action = { $in: ['admin_login_success', 'login_success'] };
+        }
+
+        if (search) {
+            query.$and = query.$and || [];
+            query.$and.push({
+                $or: [
+                    { email: { $regex: search, $options: 'i' } },
+                    { ip_address: { $regex: search, $options: 'i' } },
+                    { note: { $regex: search, $options: 'i' } }
+                ]
+            });
+        }
+
+        // 1. Lấy danh sách logs
+        const logs = await SecurityLog.find(query)
+            .sort({ created_at: -1 })
+            .limit(limit)
+            .lean();
+
+        // 2. Thống kê an ninh trong ngày hôm nay
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const [totalToday, failedToday, blockedToday, successToday] = await Promise.all([
+            SecurityLog.countDocuments({ created_at: { $gte: todayStart } }),
+            SecurityLog.countDocuments({ created_at: { $gte: todayStart }, action: { $in: ['admin_login_failed', 'login_failed'] } }),
+            SecurityLog.countDocuments({ created_at: { $gte: todayStart }, $or: [{ status: 'blocked' }, { action: { $in: ['admin_brute_force_blocked', 'admin_unauthorized_access'] } }] }),
+            SecurityLog.countDocuments({ created_at: { $gte: todayStart }, status: 'success', action: { $in: ['admin_login_success', 'login_success'] } })
+        ]);
+
+        // 3. Lấy danh sách các IP/Email đang bị tạm khóa trong bộ nhớ
+        const activeLocks = [];
+        const now = Date.now();
+        for (const [key, val] of adminLoginAttempts.entries()) {
+            if (val.lockedUntil && val.lockedUntil > now) {
+                const remainingMin = Math.ceil((val.lockedUntil - now) / 60000);
+                activeLocks.push({
+                    target: key,
+                    attempts: val.attempts,
+                    lockedUntil: new Date(val.lockedUntil).toISOString(),
+                    remainingMinutes: remainingMin
+                });
+            }
+        }
+
+        return res.json({
+            success: true,
+            logs,
+            stats: {
+                total_today: totalToday,
+                failed_today: failedToday,
+                blocked_today: blockedToday,
+                success_today: successToday
+            },
+            active_locks: activeLocks,
+            server_time: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('[Admin Security Logs API] Error:', err);
+        return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy nhật ký an ninh.' });
+    }
+});
+
+// ── POST /api/admin/security/unlock — Mở khóa ngay IP hoặc Email bị chặn ──
+router.post('/security/unlock', requireAdmin, async (req, res) => {
+    try {
+        const { target } = req.body || {};
+        if (!target) {
+            return res.status(400).json({ success: false, message: 'Thiếu thông tin đối tượng cần mở khóa.' });
+        }
+
+        resetLoginRateLimit(target);
+
+        // Ghi log hành động admin mở khóa
+        try {
+            const SecurityLog = require('../models/SecurityLog');
+            if (SecurityLog && typeof SecurityLog.create === 'function') {
+                await SecurityLog.create({
+                    email: req.admin?.email || 'admin@aphim.io.vn',
+                    action: 'admin_manual_unlock',
+                    ip_address: req.headers['cf-connecting-ip'] || (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '',
+                    user_agent: req.headers['user-agent'] || '',
+                    status: 'success',
+                    note: `Super Admin đã chủ động giải phóng khóa cho đối tượng: ${target}`
+                }).catch(() => {});
+            }
+        } catch(e) {}
+
+        return res.json({
+            success: true,
+            message: `Đã mở khóa thành công cho "${target}"!`
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ── POST /api/admin/security/clear-logs — Dọn dẹp logs theo tùy chọn bảo mật ──
+router.post('/security/clear-logs', requireAdmin, async (req, res) => {
+    try {
+        const SecurityLog = require('../models/SecurityLog');
+        const { mode = '30days' } = req.body || {};
+        let filter = {};
+        let noteMsg = '';
+
+        if (mode === '24hours') {
+            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            filter = { created_at: { $lt: oneDayAgo } };
+            noteMsg = 'cũ hơn 24 giờ';
+        } else if (mode === '7days') {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            filter = { created_at: { $lt: sevenDaysAgo } };
+            noteMsg = 'cũ hơn 7 ngày';
+        } else if (mode === '30days') {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            filter = { created_at: { $lt: thirtyDaysAgo } };
+            noteMsg = 'cũ hơn 30 ngày';
+        } else if (mode === 'success_only') {
+            filter = { status: 'success', action: { $in: ['admin_login_success', 'login_success'] } };
+            noteMsg = 'các lượt đăng nhập thành công (vẫn giữ lại cảnh báo & xâm nhập)';
+        } else if (mode === 'all') {
+            filter = {};
+            noteMsg = 'toàn bộ lịch sử an ninh';
+        } else {
+            const defaultDays = new Date();
+            defaultDays.setDate(defaultDays.getDate() - 30);
+            filter = { created_at: { $lt: defaultDays } };
+            noteMsg = 'cũ hơn 30 ngày';
+        }
+
+        const result = await SecurityLog.deleteMany(filter);
+
+        // Ghi log bảo mật hành động dọn dẹp
+        try {
+            await SecurityLog.create({
+                email: req.admin?.email || 'admin@aphim.io.vn',
+                action: 'admin_security_cleanup',
+                ip_address: req.headers['cf-connecting-ip'] || (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '',
+                user_agent: req.headers['user-agent'] || '',
+                status: 'success',
+                note: `Admin thực hiện dọn dẹp ${noteMsg}: đã giải phóng ${result.deletedCount || 0} bản ghi`
+            });
+        } catch(e) {}
+
+        return res.json({
+            success: true,
+            deletedCount: result.deletedCount || 0,
+            message: `Đã dọn dẹp thành công ${result.deletedCount || 0} bản ghi (${noteMsg})!`
+        });
+    } catch (err) {
+        console.error('[Admin Security Clear Logs API] Error:', err);
+        return res.status(500).json({ success: false, message: err.message });
     }
 });
 

@@ -16,6 +16,8 @@
     </div>
 
     <form id="adminLoginForm" onsubmit="event.preventDefault(); return AdminCore.handleLogin();">
+      <input type="hidden" id="csrfToken" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
       <div class="form-group">
         <label class="form-label" for="loginEmail">Email hoặc Tên Đăng Nhập:</label>
         <div class="input-with-icon">
@@ -32,6 +34,11 @@
         </div>
       </div>
 
+      <!-- Cloudflare Turnstile Protection (Bot & Brute-force Shield) -->
+      <div class="turnstile-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 16px 0 12px 0; min-height: 68px;">
+        <div class="cf-turnstile" id="cfTurnstileWidget" data-sitekey="<%= typeof turnstileSiteKey !== 'undefined' ? turnstileSiteKey : '0x4AAAAAAFg_6li9AZQECDb9' %>" data-theme="dark" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired"></div>
+      </div>
+
       <div class="login-options-row">
         <label class="remember-wrap">
           <input type="checkbox" checked id="rememberAdmin">
@@ -45,10 +52,22 @@
       </button>
 
       <div class="login-security-notice">
-        <i data-lucide="shield"></i> Phiên kết nối được mã hóa AES-256 & giám sát IP tự động
+        <i data-lucide="shield"></i> Bảo vệ bởi Cloudflare Turnstile, Cookie HttpOnly & Chống Brute-force
       </div>
     </form>
   </div>
 </div>
+
+<!-- Cloudflare Turnstile Script & Callbacks -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+  window.turnstileToken = '';
+  window.onTurnstileSuccess = function(token) {
+    window.turnstileToken = token;
+  };
+  window.onTurnstileExpired = function() {
+    window.turnstileToken = '';
+  };
+</script>
 
 <%- include('partials/scripts') %>

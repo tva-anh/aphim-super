@@ -12,15 +12,13 @@
         var token = localStorage.getItem('aphim_admin_token') || sessionStorage.getItem('aphim_admin_token') || localStorage.getItem('cinestream_admin_token') || localStorage.getItem('adminToken');
         var cookieToken = (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1];
         
-        // Tự động xóa token khổng lồ (> 4KB) từ phiên bản cũ để triệt tiêu lỗi 400 Header Too Large
-        if ((token && token.length > 3000) || (cookieToken && cookieToken.length > 3000)) {
-          localStorage.removeItem('aphim_admin_token');
-          localStorage.removeItem('cinestream_admin_token');
-          localStorage.removeItem('adminToken');
-          sessionStorage.removeItem('aphim_admin_token');
+        // Chỉ xóa cookie nếu quá lớn (> 3800 ký tự) để chống lỗi 400 Header Too Large trên web server
+        if (cookieToken && cookieToken.length > 3800) {
           document.cookie = 'aphim_admin_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
-          return;
+        }
+        if (token && token.length > 20000) {
+          localStorage.removeItem('aphim_admin_token');
+          token = '';
         }
 
         if (!token && !cookieToken) {
