@@ -78,7 +78,7 @@
             <span class="pill-title">API Crawler:</span>
             <strong class="pill-status">Tự động 15p • 301,275 tập</strong>
           </div>
-          <a href="/admin/security" class="ticker-pill" title="Theo dõi an ninh và cảnh báo xâm nhập" style="text-decoration:none;">
+          <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/security" class="ticker-pill" title="Theo dõi an ninh và cảnh báo xâm nhập" style="text-decoration:none;">
             <span class="ping-dot green" id="tickerSecDot"></span>
             <span class="pill-title">An Ninh & Cảnh Báo:</span>
             <strong class="pill-status" id="tickerSecStatus" style="color:#10b981;">Bảo vệ an toàn • 0 Khóa</strong>
@@ -107,7 +107,7 @@
           </div>
           <div class="kpi-footer">
             <span class="kpi-trend positive"><i data-lucide="trending-up"></i> Giao dịch trực tiếp</span>
-            <a href="/admin/subscriptions" class="kpi-subtext" style="color:var(--emerald);font-weight:700;text-decoration:none;">Sổ cái GD ➔</a>
+            <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/subscriptions" class="kpi-subtext" style="color:var(--emerald);font-weight:700;text-decoration:none;">Sổ cái GD ➔</a>
           </div>
         </div>
 
@@ -130,7 +130,7 @@
           </div>
           <div class="kpi-footer">
             <span class="kpi-trend positive"><i data-lucide="user-check"></i> Hoạt động 24/7</span>
-            <a href="/admin/users" class="kpi-subtext" style="color:#d97706;font-weight:700;text-decoration:none;">Quản lý ➔</a>
+            <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/users" class="kpi-subtext" style="color:#d97706;font-weight:700;text-decoration:none;">Quản lý ➔</a>
           </div>
         </div>
 
@@ -153,7 +153,7 @@
           </div>
           <div class="kpi-footer">
             <span class="kpi-trend positive"><i data-lucide="check-circle"></i> 100% HLS m3u8</span>
-            <a href="/admin/movies" class="kpi-subtext" style="color:#0284c7;font-weight:700;text-decoration:none;">Kho phim ➔</a>
+            <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/movies" class="kpi-subtext" style="color:#0284c7;font-weight:700;text-decoration:none;">Kho phim ➔</a>
           </div>
         </div>
 
@@ -199,7 +199,7 @@
           </div>
           <div class="kpi-footer">
             <span class="kpi-trend positive"><i data-lucide="shield-check"></i> Đã kiểm duyệt</span>
-            <a href="/admin/comments" class="kpi-subtext" style="color:#7c3aed;font-weight:700;text-decoration:none;">Kiểm duyệt ➔</a>
+            <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/comments" class="kpi-subtext" style="color:#7c3aed;font-weight:700;text-decoration:none;">Kiểm duyệt ➔</a>
           </div>
         </div>
 
@@ -407,7 +407,7 @@
                 <i data-lucide="search" style="width:13px;height:13px;color:#94a3b8;"></i>
                 <input type="text" id="inputTrendingSearch" placeholder="Tìm kiếm phim..." oninput="AdminCore.searchTrendingMovies(this.value)">
               </div>
-              <a href="/admin/movies" class="btn-text">Xem tất cả <i data-lucide="chevron-right"></i></a>
+              <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/movies" class="btn-text">Xem tất cả <i data-lucide="chevron-right"></i></a>
             </div>
           </div>
 

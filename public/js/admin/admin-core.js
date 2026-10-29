@@ -74,6 +74,15 @@
     }
   };
 
+  function getAdminPrefix() {
+    return window.ADMIN_PREFIX || '/aphim-quan-tri-2026';
+  }
+
+  function getAdminLoginUrl(redirectUrl) {
+    const pfx = getAdminPrefix();
+    return pfx + '/login' + (redirectUrl ? '?redirect=' + encodeURIComponent(redirectUrl) : '');
+  }
+
   function getAdminToken() {
     try {
       let token = localStorage.getItem('aphim_admin_token') ||
@@ -186,10 +195,11 @@
             const activePage = doc.body.getAttribute('data-page') || '';
             document.body.setAttribute('data-page', activePage);
 
+            const pfx = getAdminPrefix();
             document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => {
               el.classList.remove('active');
               const href = el.getAttribute('href');
-              if (href === url || (url === '/admin' && href === '/admin/dashboard') || (url === '/admin/dashboard' && href === '/admin')) {
+              if (href === url || (url === pfx && href === pfx + '/dashboard') || (url === pfx + '/dashboard' && href === pfx) || (url === '/admin' && href === pfx)) {
                 el.classList.add('active');
               }
             });
@@ -212,30 +222,32 @@
     },
 
     init() {
+      const pfx = getAdminPrefix();
+      const selector = `a[href^="${pfx}"], a[href^="/admin"]`;
       document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href^="/admin"]');
+        const link = e.target.closest(selector);
         if (!link) return;
         if (link.target === '_blank' || link.hasAttribute('download') || e.ctrlKey || e.metaKey || e.shiftKey) return;
         
         const href = link.getAttribute('href');
-        if (href && !href.includes('/admin/login') && !href.startsWith('#')) {
+        if (href && !href.includes('/login') && !href.startsWith('#')) {
           e.preventDefault();
           this.navigateTo(href);
         }
       });
 
       document.addEventListener('mouseover', (e) => {
-        const link = e.target.closest('a[href^="/admin"]');
+        const link = e.target.closest(selector);
         if (!link) return;
         const href = link.getAttribute('href');
-        if (href && !href.includes('/admin/login') && !href.startsWith('#')) {
+        if (href && !href.includes('/login') && !href.startsWith('#')) {
           this.prefetch(href);
         }
       });
 
       window.addEventListener('popstate', () => {
         const url = window.location.pathname;
-        if (url.startsWith('/admin') && !url.includes('/admin/login')) {
+        if ((url.startsWith(pfx) || url.startsWith('/admin')) && !url.includes('/login')) {
           this.navigateTo(url, false);
         }
       });
@@ -331,7 +343,7 @@
       const adminUser = JSON.parse(localStorage.getItem('aphim_admin_user') || '{}');
       const email = adminUser.email;
       if (!email) {
-        window.location.href = '/admin/login';
+        window.location.href = getAdminLoginUrl();
         return false;
       }
       const res = await fetch('/api/admin/login', {
@@ -1803,7 +1815,10 @@
         playUiSound('success');
         setTimeout(() => {
           const params = new URLSearchParams(window.location.search);
-          const redirect = params.get('redirect') || '/admin';
+          let redirect = params.get('redirect') || getAdminPrefix();
+          if (redirect === '/admin' || redirect.startsWith('/admin/')) {
+            redirect = redirect.replace('/admin', getAdminPrefix());
+          }
           window.location.href = redirect;
         }, 500);
       } else {
@@ -3481,7 +3496,7 @@
   });
 
   async function animateKpiNumbers(force = false, silent = false) {
-    if (window.location.pathname.includes('/admin/login')) return;
+    if (window.location.pathname.includes('/login')) return;
 
     const cacheKey = `dashboard_summary_${currentDashboardRange}`;
 
@@ -3495,8 +3510,8 @@
 
     const token = getAdminToken();
     if (!token) {
-      if (!window.location.pathname.includes('/admin/login')) {
-        window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+      if (!window.location.pathname.includes('/login')) {
+        window.location.replace(getAdminLoginUrl(window.location.pathname));
       }
       return;
     }
@@ -3511,7 +3526,7 @@
       if (res.status === 401 || res.status === 403) {
         localStorage.removeItem('aphim_admin_token');
         localStorage.removeItem('aphim_admin_user');
-        window.location.href = '/admin/login';
+        window.location.href = getAdminLoginUrl();
         return;
       }
 
@@ -4759,7 +4774,7 @@
     
     const token = getAdminToken();
     if (!token) {
-      window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+      window.location.replace(getAdminLoginUrl(window.location.pathname));
       return;
     }
 
@@ -4779,7 +4794,7 @@
       if (res.status === 401 || res.status === 403) {
          localStorage.removeItem('aphim_admin_token');
          localStorage.removeItem('aphim_admin_user');
-         window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+         window.location.replace(getAdminLoginUrl(window.location.pathname));
          return;
       }
 
@@ -5122,7 +5137,7 @@
       if (res.status === 401 || res.status === 403) {
         localStorage.removeItem('aphim_admin_token');
         localStorage.removeItem('aphim_admin_user');
-        window.location.href = '/admin/login';
+        window.location.href = getAdminLoginUrl();
         return;
       }
 
@@ -5664,7 +5679,7 @@
           localStorage.removeItem('aphim_admin_user');
           document.cookie = 'aphim_admin_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
           AdminCache.clear();
-          window.location.href = '/admin/login';
+          window.location.href = getAdminLoginUrl();
         }
       };
     }

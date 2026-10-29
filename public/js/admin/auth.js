@@ -38,19 +38,19 @@ class AdminAuthService {
         localStorage.removeItem('cinestream_admin_token');
         localStorage.removeItem('cinestream_admin_user');
         if (typeof ADMIN_STORAGE_KEYS !== 'undefined') localStorage.removeItem(ADMIN_STORAGE_KEYS.ADMIN_TOKEN);
-        if (!window.location.pathname.includes('/admin/login')) {
-            window.location.href = '/admin/login';
+        if (!window.location.pathname.includes('/login')) {
+            window.location.href = (window.ADMIN_PREFIX || '/aphim-quan-tri-2026') + '/login';
         }
     }
 
     // Check authentication and redirect if needed
     checkAuth() {
         const currentPage = window.location.pathname;
-        const isLoginPage = currentPage.includes('/admin/login');
+        const isLoginPage = currentPage.includes('/login');
         const isLoggedIn = this.isLoggedIn();
 
         if (!isLoggedIn && !isLoginPage) {
-            window.location.href = '/admin/login';
+            window.location.href = (window.ADMIN_PREFIX || '/aphim-quan-tri-2026') + '/login';
         }
     }
 

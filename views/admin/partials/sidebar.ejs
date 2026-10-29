@@ -1,7 +1,7 @@
 <aside class="admin-sidebar" id="adminSidebar">
   <!-- Brand Logo & Collapse Toggle -->
   <div class="sidebar-header">
-    <a href="/admin" class="sidebar-brand" title="APhim Super Enterprise">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>" class="sidebar-brand" title="APhim Super Enterprise">
       <div class="brand-logo-icon">
         <i data-lucide="clapperboard"></i>
       </div>
@@ -19,25 +19,25 @@
   <nav class="sidebar-nav">
     <div class="nav-section-title">HỆ THỐNG QUẢN TRỊ</div>
 
-    <a href="/admin" class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>" data-tooltip="Tổng Quan KPI">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>" class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>" data-tooltip="Tổng Quan KPI">
       <div class="nav-item-icon"><i data-lucide="layout-dashboard"></i></div>
       <span class="nav-item-label">Tổng Quan KPI</span>
       <span class="badge badge-primary">LIVE</span>
     </a>
 
-    <a href="/admin/movies" class="nav-item <%= activePage === 'movies' ? 'active' : '' %>" data-tooltip="Kho Phim API">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/movies" class="nav-item <%= activePage === 'movies' ? 'active' : '' %>" data-tooltip="Kho Phim API">
       <div class="nav-item-icon"><i data-lucide="film"></i></div>
       <span class="nav-item-label">Kho Phim API</span>
       <span class="badge badge-cyan" id="sidebarMovieCount">API SYNC</span>
     </a>
 
-    <a href="/admin/users" class="nav-item <%= activePage === 'users' ? 'active' : '' %>" data-tooltip="Thành Viên & Xu/XP">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/users" class="nav-item <%= activePage === 'users' ? 'active' : '' %>" data-tooltip="Thành Viên & Xu/XP">
       <div class="nav-item-icon"><i data-lucide="users"></i></div>
       <span class="nav-item-label">Thành Viên & Xu/XP</span>
       <span class="badge badge-gold">VIP</span>
     </a>
 
-    <a href="/admin/subscriptions" class="nav-item <%= activePage === 'subscriptions' ? 'active' : '' %>" data-tooltip="Gói VIP & Doanh Thu">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/subscriptions" class="nav-item <%= activePage === 'subscriptions' ? 'active' : '' %>" data-tooltip="Gói VIP & Doanh Thu">
       <div class="nav-item-icon"><i data-lucide="crown"></i></div>
       <span class="nav-item-label">Gói VIP & Doanh Thu</span>
       <span class="badge badge-emerald">PRO</span>
@@ -45,24 +45,24 @@
 
     <div class="nav-section-title">NỘI DUNG & TƯƠNG TÁC</div>
 
-    <a href="/admin/banners" class="nav-item <%= activePage === 'banners' ? 'active' : '' %>" data-tooltip="Banners & Slider">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/banners" class="nav-item <%= activePage === 'banners' ? 'active' : '' %>" data-tooltip="Banners & Slider">
       <div class="nav-item-icon"><i data-lucide="image"></i></div>
       <span class="nav-item-label">Banners & Slider</span>
     </a>
 
-    <a href="/admin/trends" class="nav-item <%= activePage === 'trends' ? 'active' : '' %>" data-tooltip="Google Trends 24h">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/trends" class="nav-item <%= activePage === 'trends' ? 'active' : '' %>" data-tooltip="Google Trends 24h">
       <div class="nav-item-icon" style="color: #f97316;"><i data-lucide="flame"></i></div>
       <span class="nav-item-label">Google Trends 24h</span>
       <span class="badge" style="background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); font-size: 10px; font-weight: 700; padding: 2px 6px;">HOT</span>
     </a>
 
-    <a href="/admin/social-studio" class="nav-item <%= activePage === 'social-studio' ? 'active' : '' %>" data-tooltip="Social Studio (Marketing AI)">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/social-studio" class="nav-item <%= activePage === 'social-studio' ? 'active' : '' %>" data-tooltip="Social Studio (Marketing AI)">
       <div class="nav-item-icon" style="color: #38bdf8;"><i data-lucide="share-2"></i></div>
       <span class="nav-item-label">Social Studio AI</span>
       <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); font-size: 10px; font-weight: 700; padding: 2px 6px;">META AI</span>
     </a>
 
-    <a href="/admin/comments" class="nav-item <%= activePage === 'comments' ? 'active' : '' %>" data-tooltip="Bình Luận & Chat">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/comments" class="nav-item <%= activePage === 'comments' ? 'active' : '' %>" data-tooltip="Bình Luận & Chat">
       <div class="nav-item-icon"><i data-lucide="message-square"></i></div>
       <span class="nav-item-label">Bình Luận & Chat</span>
       <span class="badge badge-pink" id="sidebarCommentCount">MOD</span>
@@ -70,12 +70,12 @@
 
     <div class="nav-section-title">HỆ THỐNG & BẢO MẬT</div>
 
-    <a href="/admin/settings" class="nav-item <%= activePage === 'settings' ? 'active' : '' %>" data-tooltip="Cấu Hình & Security">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/settings" class="nav-item <%= activePage === 'settings' ? 'active' : '' %>" data-tooltip="Cấu Hình & Security">
       <div class="nav-item-icon"><i data-lucide="settings"></i></div>
       <span class="nav-item-label">Cấu Hình & Security</span>
     </a>
 
-    <a href="/admin/security" class="nav-item <%= activePage === 'security' ? 'active' : '' %>" data-tooltip="Giám Sát An Ninh">
+    <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/security" class="nav-item <%= activePage === 'security' ? 'active' : '' %>" data-tooltip="Giám Sát An Ninh">
       <div class="nav-item-icon" style="color: #ef4444;"><i data-lucide="shield-alert"></i></div>
       <span class="nav-item-label">Giám Sát An Ninh</span>
       <span class="badge badge-rose" style="font-size:10px;">THREAT</span>

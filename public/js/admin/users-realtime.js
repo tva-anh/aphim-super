@@ -43,10 +43,10 @@
   }
 
   function checkAdminAuth() {
-    if (window.location.pathname.includes('/admin/login')) return true;
+    if (window.location.pathname.includes('/login')) return true;
     const token = getAdminToken();
     if (!token) {
-      window.location.replace('/admin/login');
+      window.location.replace((window.ADMIN_PREFIX || '/aphim-quan-tri-2026') + '/login');
       return false;
     }
     return true;
@@ -60,7 +60,7 @@
       localStorage.removeItem('cinestream_admin_token');
     } catch (e) { }
     showToast('Đã đăng xuất an toàn', 'info');
-    setTimeout(() => { if (!window.location.pathname.includes('/admin/login')) window.location.href = '/admin/login'; }, 500);
+    setTimeout(() => { if (!window.location.pathname.includes('/login')) window.location.href = (window.ADMIN_PREFIX || '/aphim-quan-tri-2026') + '/login'; }, 500);
   };
 
   // Tự động khóa phiên sau 30 phút không hoạt động

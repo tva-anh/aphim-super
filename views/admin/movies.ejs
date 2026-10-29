@@ -18,7 +18,7 @@
           <p class="page-sub-title">Đồng bộ tự động từ nguồn Ophim / KKPhim, quản lý ẩn/hiện, ghim nổi bật và kiểm duyệt DMCA</p>
         </div>
         <div class="page-action-buttons">
-          <a href="/admin/trends" class="btn btn-outline" style="border-color: rgba(249,115,22,0.4); color: #f97316; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          <a href="<%= typeof adminPrefix !== 'undefined' ? adminPrefix : '/aphim-quan-tri-2026' %>/trends" class="btn btn-outline" style="border-color: rgba(249,115,22,0.4); color: #f97316; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
             <i data-lucide="flame"></i> Trends 24h (Google)
           </a>
           <button class="btn btn-outline" onclick="AdminCore.syncMoviesNow()">

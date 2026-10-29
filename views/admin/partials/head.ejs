@@ -6,6 +6,9 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 
     <!-- Immediate Authentication Guard (Synchronously runs before DOM paints to prevent unauthorized view) -->
+    <script>
+      window.ADMIN_PREFIX = '<%= typeof adminPrefix !== "undefined" ? adminPrefix : "/aphim-quan-tri-2026" %>';
+    </script>
     <% if (typeof activePage === 'undefined' || activePage !== 'login') { %>
     <script>
       (function() {
@@ -22,7 +25,7 @@
         }
 
         if (!token && !cookieToken) {
-          window.location.replace('/admin/login?redirect=' + encodeURIComponent(window.location.pathname));
+          window.location.replace((window.ADMIN_PREFIX || '/aphim-quan-tri-2026') + '/login?redirect=' + encodeURIComponent(window.location.pathname));
           return;
         }
         // Dọn dẹp cookie rác hoặc cookie tracking cồng kềnh tránh lỗi 400 Header Too Large trên Nginx
@@ -50,7 +53,7 @@
         var cookieToken = (document.cookie.match(/(?:^|;\s*)(?:aphim_admin_token|cinestream_admin_token|adminToken)=([^;]+)/) || [])[1];
         if (token || cookieToken) {
           var params = new URLSearchParams(window.location.search);
-          var dest = params.get('redirect') || '/admin';
+          var dest = params.get('redirect') || (window.ADMIN_PREFIX || '/aphim-quan-tri-2026');
           window.location.replace(dest);
         }
       })();

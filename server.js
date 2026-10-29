@@ -98,7 +98,8 @@ app.use(helmet({
 app.disable('x-powered-by');
 
 // 🛡️ Enterprise Security Headers & Anti-Clickjacking for Admin Area
-app.use(['/admin', '/api/admin'], (req, res, next) => {
+const ADMIN_SECRET_PATH = '/aphim-quan-tri-2026';
+app.use([ADMIN_SECRET_PATH, '/admin', '/api/admin'], (req, res, next) => {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -2561,101 +2562,117 @@ app.post('/api/admin/set-google-sheet-url', (req, res) => {
 // ==========================================
 
 // ==========================================
-// 🛡️ APHIM SUPER ENTERPRISE ADMIN SUITE ROUTES
+// 🛡️ APHIM SUPER ENTERPRISE ADMIN SUITE ROUTES (SECRET PATH: /aphim-quan-tri-2026)
 // ==========================================
 
+// Global adminPrefix for views
+app.use((req, res, next) => {
+    res.locals.adminPrefix = ADMIN_SECRET_PATH;
+    next();
+});
+
 // 1. Admin Dashboard (Overview & Realtime KPI)
-app.get(['/admin', '/admin/dashboard'], (req, res) => {
+app.get([ADMIN_SECRET_PATH, `${ADMIN_SECRET_PATH}/dashboard`], (req, res) => {
     res.render('admin/dashboard', {
         title: 'Bảng Điều Khiển KPI & Doanh Thu',
         activePage: 'dashboard',
-        pageTitle: 'Bảng Điều Khiển KPI'
+        pageTitle: 'Bảng Điều Khiển KPI',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 2. Admin Movies Management
-app.get('/admin/movies', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/movies`, (req, res) => {
     res.render('admin/movies', {
         title: 'Quản Lý Kho Phim & API Stream',
         activePage: 'movies',
-        pageTitle: 'Kho Phim API'
+        pageTitle: 'Kho Phim API',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 3. Admin Users & Gamification (Xu/XP, Streaks)
-app.get('/admin/users', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/users`, (req, res) => {
     res.render('admin/users', {
         title: 'Quản Lý Thành Viên & Gamification',
         activePage: 'users',
-        pageTitle: 'Thành Viên & Xu/XP'
+        pageTitle: 'Thành Viên & Xu/XP',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 4. Admin Subscriptions (VIP tiers & Transactions)
-app.get('/admin/subscriptions', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/subscriptions`, (req, res) => {
     res.render('admin/subscriptions', {
         title: 'Gói VIP, Bảng Giá & Doanh Thu',
         activePage: 'subscriptions',
-        pageTitle: 'Gói VIP & Doanh Thu'
+        pageTitle: 'Gói VIP & Doanh Thu',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 5. Admin Banners & Hero Slider
-app.get('/admin/banners', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/banners`, (req, res) => {
     res.render('admin/banners', {
         title: 'Quản Lý Banners & Slider',
         activePage: 'banners',
-        pageTitle: 'Banners & Slider'
+        pageTitle: 'Banners & Slider',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 6. Admin Comments & Live Chat Moderation
-app.get('/admin/comments', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/comments`, (req, res) => {
     res.render('admin/comments', {
         title: 'Kiểm Duyệt Bình Luận & Phòng Chat',
         activePage: 'comments',
-        pageTitle: 'Bình Luận & Chat'
+        pageTitle: 'Bình Luận & Chat',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 7. Admin Settings & Security
-app.get('/admin/settings', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/settings`, (req, res) => {
     res.render('admin/settings', {
         title: 'Cài Đặt Hệ Thống & Bảo Mật Enterprise',
         activePage: 'settings',
-        pageTitle: 'Cấu Hình & Security'
+        pageTitle: 'Cấu Hình & Security',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 7B. Admin Security Audit & Intrusion Monitor
-app.get(['/admin/security', '/admin/security-audit', '/admin/security-logs'], (req, res) => {
+app.get([`${ADMIN_SECRET_PATH}/security`, `${ADMIN_SECRET_PATH}/security-audit`, `${ADMIN_SECRET_PATH}/security-logs`], (req, res) => {
     res.render('admin/security', {
         title: 'Giám Sát An Ninh & Cảnh Báo Xâm Nhập Enterprise',
         activePage: 'security',
-        pageTitle: 'Giám Sát An Ninh'
+        pageTitle: 'Giám Sát An Ninh',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 8. Admin Google Trends 24h Management
-app.get('/admin/trends', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/trends`, (req, res) => {
     res.render('admin/trends', {
         title: 'Quản Lý Google Trends 24h & Đề Cử',
         activePage: 'trends',
-        pageTitle: 'Google Trends 24h'
+        pageTitle: 'Google Trends 24h',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
 // 9. Admin Social Studio (Marketing Fanpage AI)
-app.get('/admin/social-studio', (req, res) => {
+app.get(`${ADMIN_SECRET_PATH}/social-studio`, (req, res) => {
     res.render('admin/social-studio', {
         title: 'Social Studio — Marketing Fanpage AI',
         activePage: 'social-studio',
-        pageTitle: 'Social Studio AI'
+        pageTitle: 'Social Studio AI',
+        adminPrefix: ADMIN_SECRET_PATH
     });
 });
 
-// 8. Admin Login Portal
-app.get('/admin/login', (req, res) => {
+// 10. Admin Login Portal
+app.get(`${ADMIN_SECRET_PATH}/login`, (req, res) => {
     // Generate secure CSRF token for this admin login session
     const crypto = require('crypto');
     const csrfToken = crypto.randomBytes(24).toString('hex');
@@ -2671,8 +2688,26 @@ app.get('/admin/login', (req, res) => {
         activePage: 'login',
         pageTitle: 'Đăng Nhập',
         turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || '0x4AAAAAAFg_6li9AZQECDb9',
-        csrfToken: csrfToken
+        csrfToken: csrfToken,
+        adminPrefix: ADMIN_SECRET_PATH
     });
+});
+
+// 🛑 HONEYPOT & PROBE BLOCKER FOR LEGACY /admin PATHS
+// Trả về 404 thuần túy để bot/kẻ tấn công tưởng rằng không hề tồn tại trang admin trên máy chủ
+app.use('/admin', (req, res) => {
+    const clientIp = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.ip || req.socket?.remoteAddress;
+    console.warn(`[SHIELD BLOCKED] 404 Fake Admin Probe: ${req.method} ${req.originalUrl} from IP: ${clientIp}`);
+    res.status(404).type('html').send(`<!DOCTYPE html>
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<h1>404 Not Found</h1>
+<p>The requested URL was not found on this server.</p>
+<hr>
+<address>APhim Server at ${req.headers.host || 'aphim.io.vn'}</address>
+</body>
+</html>`);
 });
 
 // ==========================================
