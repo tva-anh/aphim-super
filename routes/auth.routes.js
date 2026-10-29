@@ -268,10 +268,25 @@ router.post('/logout', requireAuth, async (req, res) => {
     }
 });
 
+// ⚡ User Profile Micro-Cache (20s) to eliminate DB roundtrips during rapid page browsing
+const userProfileMicroCache = new Map();
+const USER_PROFILE_CACHE_TTL = 20 * 1000;
+
+function clearUserProfileCache(userId) {
+    if (userId) userProfileMicroCache.delete(userId);
+}
+global.clearUserProfileCache = clearUserProfileCache;
+
 // ── GET /api/auth/me ─────────────────────────────────────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
+        const now = Date.now();
+        const cached = userProfileMicroCache.get(userId);
+        if (cached && (now - cached.time < USER_PROFILE_CACHE_TTL)) {
+            res.setHeader('X-Profile-Cache', 'HIT');
+            return res.json({ success: true, data: cached.data });
+        }
 
         let { data: profile } = await supabaseAdmin
             .from('profiles')
@@ -321,9 +336,12 @@ router.get('/me', requireAuth, async (req, res) => {
             console.warn('[Auth] MongoDB Gamification fetch error:', gerr.message);
         }
 
+        const responseData = buildUserResponse(req.user, profile, subscription);
+        userProfileMicroCache.set(userId, { data: responseData, time: Date.now() });
+        res.setHeader('X-Profile-Cache', 'MISS');
         return res.json({
             success: true,
-            data: buildUserResponse(req.user, profile, subscription)
+            data: responseData
         });
 
     } catch (err) {
@@ -501,6 +519,7 @@ const handleUpdateProfile = async (req, res) => {
             .limit(1)
             .single();
 
+        clearUserProfileCache(userId);
         const userResponse = buildUserResponse(authUser, profile, subscription);
         return res.json({ success: true, data: userResponse, user: userResponse });
 

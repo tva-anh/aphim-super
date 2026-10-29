@@ -224,6 +224,7 @@ function buildPhimNganSEO(type, params = {}) {
 
 // 1. Phim Ngắn Hub (Main View)
 router.get('/', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     try {
         const homeData = await phimNganService.getHomeDramas();
         const seo = buildPhimNganSEO('home');

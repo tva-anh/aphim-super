@@ -348,7 +348,7 @@ router.get('/', async (req, res) => {
         });
 
         res.set({
-            'Cache-Control': 'private, max-age=30, stale-while-revalidate=120',
+            'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
             'X-Response-Time-Optimization': 'Instant-Memory-Cache-v2'
         });
 

@@ -35,15 +35,32 @@
         } catch (e) { }
     })();
 </script>
-<script src="/js/anti-devtools.js?v=111"></script>
-<script src="/js/discord-frames-map.js?v=1"></script>
+<script src="/js/anti-devtools.js?v=111" defer></script>
+<script src="/js/discord-frames-map.js?v=1" defer></script>
 
 <script type="speculationrules">
 {
   "prefetch": [
     {
       "source": "list",
-      "urls": ["/", "/phim-ngan", "/reels", "/profile", "/phim-ngan/de-xuat", "/phim-ngan/tim-kiem", "/phim-ngan/thu-vien"]
+      "urls": ["/", "/phim-ngan", "/reels", "/profile", "/danh-sach", "/categories", "/phim-theo-quoc-gia"]
+    },
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/admin/*" } },
+          { "not": { "href_matches": "/api/*" } }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ],
+  "prerender": [
+    {
+      "source": "list",
+      "urls": ["/", "/phim-ngan", "/reels"]
     }
   ]
 }
@@ -63,20 +80,25 @@
     gtag('config', 'G-QYK5R13WK2');
 </script>
 
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-<link rel="preconnect" href="https://phimimg.com">
+<!-- ⚡ Consolidated Turbo DNS Prefetch & Preconnect -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://image.tmdb.org" crossorigin>
 <link rel="preconnect" href="https://phimimg.com" crossorigin>
-<link rel="preconnect" href="https://img.phimapi.com">
 <link rel="preconnect" href="https://img.phimapi.com" crossorigin>
+<link rel="preconnect" href="https://img.ophimimg.com" crossorigin>
 <link rel="preconnect" href="https://img.ophim.live" crossorigin>
 <link rel="preconnect" href="https://vip.opstream16.com" crossorigin>
-<link rel="preconnect" href="https://image.tmdb.org" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="dns-prefetch" href="https://image.tmdb.org">
 <link rel="dns-prefetch" href="https://phimimg.com">
 <link rel="dns-prefetch" href="https://img.phimapi.com">
+<link rel="dns-prefetch" href="https://img.ophimimg.com">
 <link rel="dns-prefetch" href="https://img.ophim.live">
 <link rel="dns-prefetch" href="https://vip.opstream16.com">
-<link rel="dns-prefetch" href="https://m3u8.phimapi.com">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
 <title>
     <%= typeof title !=='undefined' ? title : 'APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026' %>
@@ -145,33 +167,29 @@
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 
-        <!-- Turbo Performance Preconnect -->
-        <link rel="preconnect" href="https://image.tmdb.org" crossorigin>
-        <link rel="preconnect" href="https://phimapi.com" crossorigin>
-        <link rel="preconnect" href="https://phimimg.com" crossorigin>
-        <link rel="preconnect" href="https://img.ophimimg.com" crossorigin>
-        <link rel="preconnect" href="https://img.ophim.live" crossorigin>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="dns-prefetch" href="https://image.tmdb.org">
-        <link rel="dns-prefetch" href="https://phimapi.com">
-        <link rel="dns-prefetch" href="https://phimimg.com">
-        <link rel="dns-prefetch" href="https://img.ophimimg.com">
-        <link rel="dns-prefetch" href="https://img.ophim.live">
-
         <!-- TailwindCSS + Material Icons + Custom Styles -->
         <link rel="stylesheet" href="/css/tailwind.min.css?v=25">
         <link rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap">
+            href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap"
+            media="print" onload="this.media='all'">
+        <noscript>
+            <link rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Nunito:wght@700;800;900&family=Montserrat:wght@800;900&family=Oswald:wght@700&display=swap">
+        </noscript>
         <link rel="stylesheet"
-            href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons">
+            href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons"
+            media="print" onload="this.media='all'">
+        <noscript>
+            <link rel="stylesheet"
+                href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round|Material+Icons">
+        </noscript>
 
         <link rel="stylesheet" href="/css/navigation-modern.css?v=21">
         <link rel="stylesheet" href="/css/navigation-pill-v2.css?v=21">
         <link rel="stylesheet" href="/css/nav-desktop-v2.css?v=63">
         <link rel="stylesheet" href="/css/material-icons-fix.css?v=21">
         <link rel="stylesheet" href="/css/bottom-nav.css?v=20261018c">
-        <link rel="stylesheet" href="/css/avatar-frames.css?v=100">
+        <link rel="stylesheet" href="/css/avatar-frames.css?v=100" media="print" onload="this.media='all'">
 
         <style>
             /* Super Motchill Carbon Cinematic Styling */
@@ -443,8 +461,8 @@
         </style>
         <link rel="stylesheet" href="/css/movie-cards-v2.css?v=10010">
         <link rel="stylesheet" href="/css/light-mode.css?v=20261026e">
-        <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4">
-        <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017">
+        <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4" media="print" onload="this.media='all'">
+        <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017" media="print" onload="this.media='all'">
         <link rel="stylesheet" href="/css/mobile-interaction-pro.css?v=20268">
         <script src="/js/config.js?v=100" defer></script>
         <script src="/js/toast-system.js?v=102" defer></script>

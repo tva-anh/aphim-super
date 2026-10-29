@@ -1123,8 +1123,8 @@ function renderMovieInfo(movie, episode) {
         sidebarCastSection.classList.add('hidden');
     }
 
-    // Tích hợp Các bản chiếu
-    renderVersions(movie);
+    // Tích hợp Các bản chiếu (Đã tắt theo yêu cầu để tối ưu tốc độ trang)
+    // renderVersions(movie);
 
     // Load movie gallery
     loadMovieGallery(movie);
@@ -1136,71 +1136,10 @@ function renderMovieInfo(movie, episode) {
     }
 }
 
-// Render "Các bản chiếu" trên trang Xem Phim
+// Render "Các bản chiếu" trên trang Xem Phim (Đã vô hiệu hóa để tăng tốc tải trang)
 function renderVersions(movie) {
-    const episodeSection = document.getElementById('episode-list');
-    if (!episodeSection) return;
-    const parentContainer = episodeSection.parentElement;
-
-    let displayLang = 'Phụ đề / Vietsub';
-    if (movie && movie.lang) {
-        displayLang = movie.lang;
-    }
-
-    const currentDomain = window.location.hostname;
-    const isSvap1 = currentDomain.includes('aphim.top') || currentDomain === 'localhost' || currentDomain === '127.0.0.1';
-    const isSvap2 = currentDomain.includes('aphim1.io.vn');
-    const isSvap3 = currentDomain.includes('aphim.io.vn') && !isSvap2;
-
-    // Load Lottie web component script if not present
-    if (!document.getElementById('dotlottie-script')) {
-        const script = document.createElement('script');
-        script.id = 'dotlottie-script';
-        script.src = "https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js";
-        script.type = "module";
-        document.body.appendChild(script);
-    }
-
-    const versionsHTML = `
-        <div class="w-full mb-6 mt-2">
-            <!-- Banner Notification -->
-            <div class="w-full mb-4 mt-2" style="padding-right: 6px; padding-left: 6px;">
-                <div class="svap-notice-banner flex justify-center items-center gap-2 px-4 py-2.5 w-full rounded-lg bg-white/5 text-center border border-white/10 text-gray-300 text-[11px] sm:text-xs md:text-[13px] shadow-sm">
-                    <span class="material-icons-round text-[#fcd576] text-[16px] flex-shrink-0">info</span>
-                    <span>Nếu xem bị lỗi, hãy thử đổi máy chủ (SVAP) phía dưới nhé!</span>
-                </div>
-            </div>
-
-            <!-- Server Buttons -->
-            <div class="flex flex-wrap items-center justify-center gap-3 w-full">
-                <button onclick="changeVersion('aphim.top')" style="background-color: #fcd576; color: black; box-shadow: ${isSvap1 ? '0 0 15px rgba(252,213,118,0.8)' : '0 4px 12px rgba(252,213,118,0.3)'}; ${isSvap1 ? 'transform: scale(1.05); border: 2px solid white;' : ''}" class="relative overflow-visible flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-lg transition-all text-sm font-bold hover:-translate-y-1 hover:brightness-95">
-                    ${isSvap1 ? '<span class="material-icons-round text-[16px]">check_circle</span><span>Đang xem (SVAP1)</span>' : '<span>' + displayLang + ' (SVAP1)</span>'}
-                    
-                    <!-- Lottie Crown SVAP1 VIP -->
-                    <div style="position: absolute; top: -14px; right: -14px; z-index: 20; pointer-events: none; width: 40px; height: 40px; transform: rotate(15deg); filter: drop-shadow(0 0 10px rgba(252,213,118,0.75));">
-                        <dotlottie-wc src="/icons/gold-medal.lottie" style="width: 100%; height: 100%;" autoplay loop></dotlottie-wc>
-                    </div>
-                </button>
-                <button onclick="changeVersion('aphim1.io.vn')" style="background-color: #c8407a; color: white; box-shadow: ${isSvap2 ? '0 0 15px rgba(200,64,122,0.8)' : '0 4px 12px rgba(200,64,122,0.3)'}; ${isSvap2 ? 'transform: scale(1.05); border: 2px solid white;' : ''}" class="relative overflow-visible flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-lg transition-all text-sm font-bold hover:-translate-y-1 hover:brightness-110">
-                    ${isSvap2 ? '<span class="material-icons-round text-[16px]">check_circle</span><span>Đang xem (SVAP2)</span>' : '<span>' + displayLang + ' (SVAP2)</span>'}
-                </button>
-                <button onclick="changeVersion('aphim.io.vn')" style="background-color: #299573; color: white; box-shadow: ${isSvap3 ? '0 0 15px rgba(41,149,115,0.8)' : '0 4px 12px rgba(41,149,115,0.3)'}; ${isSvap3 ? 'transform: scale(1.05); border: 2px solid white;' : ''}" class="relative overflow-visible flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-lg transition-all text-sm font-bold hover:-translate-y-1 hover:brightness-110">
-                    ${isSvap3 ? '<span class="material-icons-round text-[16px]">check_circle</span><span>Đang xem (SVAP3)</span>' : '<span>' + displayLang + ' (SVAP3)</span>'}
-                </button>
-            </div>
-        </div>
-    `;
-
     const oldVersions = document.getElementById('watch-versions-container');
     if (oldVersions) oldVersions.remove();
-
-    const wrapper = document.createElement('div');
-    wrapper.id = 'watch-versions-container';
-    wrapper.className = 'w-full';
-    wrapper.innerHTML = versionsHTML;
-
-    // Chèn vào SAU danh sách tập phim (dưới cùng của block)
-    parentContainer.appendChild(wrapper);
 }
 
 // Logic chuyển hướng linh hoạt giữa Node và HTML

@@ -1440,9 +1440,19 @@ async function getDesktopHeroAutoSlide() {
 let cachedDesktopInterests = null;
 let cachedDesktopInterestsTime = 0;
 
+let cachedHomepageHtml = null;
+let cachedHomepageTime = 0;
+const HOMEPAGE_SSR_CACHE_TTL = 120 * 1000; // 2 phút
+
+global.invalidateHomepageCache = function() {
+    cachedHomepageHtml = null;
+    cachedHomepageTime = 0;
+};
+
 global.invalidateInterestsCache = function() {
     cachedDesktopInterests = null;
     cachedDesktopInterestsTime = 0;
+    if (global.invalidateHomepageCache) global.invalidateHomepageCache();
 };
 
 async function getDesktopInterests() {
@@ -1470,22 +1480,44 @@ async function getDesktopInterests() {
 
 // 1. Homepage Route (SSR Direct Injection for 0ms Instant First Paint)
 app.get('/', async (req, res) => {
-    const [heroSlides, heroAutoSlide, desktopInterests] = await Promise.all([
-        getDesktopHeroSlides(),
-        getDesktopHeroAutoSlide(),
-        getDesktopInterests()
-    ]);
-    const { CURATED_REVIEWS } = require('./lib/reels.seeds');
-    const homeReels = (CURATED_REVIEWS || []).slice(0, 10);
-    res.render('index', {
-        title: formatSeoTitle('APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026', 65),
-        metaDescription: 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.',
-        canonicalUrl: 'https://aphim.store/',
-        heroSlides: heroSlides || null,
-        heroAutoSlide: heroAutoSlide || null,
-        desktopInterests: desktopInterests || null,
-        homeReels: homeReels || []
-    });
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    const now = Date.now();
+    if (cachedHomepageHtml && (now - cachedHomepageTime < HOMEPAGE_SSR_CACHE_TTL)) {
+        res.setHeader('X-SSR-Cache', 'HIT');
+        return res.send(cachedHomepageHtml);
+    }
+
+    try {
+        const [heroSlides, heroAutoSlide, desktopInterests] = await Promise.all([
+            getDesktopHeroSlides(),
+            getDesktopHeroAutoSlide(),
+            getDesktopInterests()
+        ]);
+        const { CURATED_REVIEWS } = require('./lib/reels.seeds');
+        const homeReels = (CURATED_REVIEWS || []).slice(0, 10);
+
+        res.render('index', {
+            title: formatSeoTitle('APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026', 65),
+            metaDescription: 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.',
+            canonicalUrl: 'https://aphim.store/',
+            heroSlides: heroSlides || null,
+            heroAutoSlide: heroAutoSlide || null,
+            desktopInterests: desktopInterests || null,
+            homeReels: homeReels || []
+        }, (err, html) => {
+            if (err) {
+                console.error('[Homepage Render Error]', err);
+                return res.status(500).send('Lỗi máy chủ');
+            }
+            cachedHomepageHtml = html;
+            cachedHomepageTime = Date.now();
+            res.setHeader('X-SSR-Cache', 'MISS');
+            res.send(html);
+        });
+    } catch (e) {
+        console.error('[Homepage Route Error]', e);
+        res.status(500).send('Lỗi tải trang');
+    }
 });
 
 // ==========================================
@@ -1783,6 +1815,7 @@ async function fetchMovieMetadata(slug) {
 
 // 2. Movie Detail Showcase Route: /phim/:slug
 app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1800');
     const slug = req.params.slug;
     const meta = await fetchMovieMetadata(slug);
 
@@ -2070,6 +2103,7 @@ app.get([
     '/xem-phim/:slug/:episode',
     '/xem-phim/:slug/:episode/:variant'
 ], checkBlockedSlug, async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1800');
     const slug = req.params.slug || req.query.slug || '';
     const rawEpisode = req.params.episode || req.query.episode || '';
     const rawVariant = req.params.variant || '';
@@ -2281,6 +2315,7 @@ const COUNTRY_NAMES_MAP = {
 
 // 3. Category / List Clean Route: /danh-sach & /tat-ca
 app.get(['/danh-sach', '/tat-ca'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const listType = req.query.list || req.query.type || '';
     let listTitle = 'Tất Cả Phim Mới Cập Nhật';
     if (listType === 'phim-bo') listTitle = 'Phim Bộ Mới Nhất 2026';
@@ -2328,6 +2363,7 @@ app.get('/search', (req, res) => {
 
 // 5. Category filter Clean Route: /categories
 app.get('/categories', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const catSlug = req.query.category || '';
     const catName = CATEGORY_NAMES_MAP[catSlug] || (catSlug ? catSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '');
     const titleText = catName ? `Phim ${catName} Hay Nhất 2026` : 'Khám Phá Thể Loại Phim';
@@ -2341,6 +2377,7 @@ app.get('/categories', (req, res) => {
 
 // 6. Country Clean Route: /phim-theo-quoc-gia
 app.get('/phim-theo-quoc-gia', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const countrySlug = req.query.country || '';
     const countryName = COUNTRY_NAMES_MAP[countrySlug] || (countrySlug ? countrySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '');
     const titleText = countryName ? `Phim ${countryName} Mới Nhất 2026` : 'Phim Theo Quốc Gia';
