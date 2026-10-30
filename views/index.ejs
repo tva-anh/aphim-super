@@ -1043,46 +1043,93 @@
              SECTION 6: TỪ KHÓA XU HƯỚNG (SEO TRENDING KEYWORDS)
              ============================================== -->
                 <% if (typeof seoTrendsList !== 'undefined' && Array.isArray(seoTrendsList) && seoTrendsList.length > 0) { %>
-                <section style="margin-top: 60px; margin-bottom: 10px; width: 100%;">
-                    <div style="margin-bottom: 16px;">
-                        <h2 style="font-size: 22px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
-                            <span style="display:inline-block; animation: pulse 1.5s cubic-bezier(0.4,0,0.6,1) infinite;">🔥</span> TỪ KHÓA XU HƯỚNG
-                        </h2>
-                        <p style="font-size: 13px; color: #9ca3af; margin: 0; font-weight: 500;">
-                            Cập nhật xu hướng tìm kiếm phim hot nhất theo Google Trends 24h
-                        </p>
+                <section class="trending-keywords-section">
+                    <style>
+                        .trending-keywords-section {
+                            margin-top: 56px;
+                            margin-bottom: 8px;
+                            width: 100%;
+                        }
+                        .trending-kw-header {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            margin-bottom: 14px;
+                            flex-wrap: wrap;
+                        }
+                        .trending-kw-title {
+                            font-size: 15px;
+                            font-weight: 700;
+                            color: #ffffff;
+                            text-transform: uppercase;
+                            letter-spacing: 0.6px;
+                            margin: 0;
+                            white-space: nowrap;
+                        }
+                        .trending-kw-divider {
+                            flex: 1;
+                            height: 1px;
+                            background: rgba(255,255,255,0.08);
+                            min-width: 20px;
+                        }
+                        .trending-kw-badge {
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: #6b7280;
+                            white-space: nowrap;
+                            letter-spacing: 0.3px;
+                        }
+                        .trending-kw-grid {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 7px;
+                        }
+                        .trending-kw-tag {
+                            font-size: 12.5px;
+                            color: #9ca3af;
+                            background: rgba(255,255,255,0.04);
+                            padding: 5px 12px;
+                            border-radius: 6px;
+                            border: 1px solid rgba(255,255,255,0.08);
+                            text-decoration: none;
+                            transition: color 0.15s, border-color 0.15s, background 0.15s;
+                            white-space: nowrap;
+                            line-height: 1.4;
+                        }
+                        .trending-kw-tag:hover {
+                            color: #fcd576;
+                            border-color: rgba(252,213,118,0.35);
+                            background: rgba(252,213,118,0.06);
+                        }
+                        /* Mobile: giới hạn 10 tag, ẩn bớt */
+                        @media (max-width: 767px) {
+                            .trending-kw-title { font-size: 13px; }
+                            .trending-kw-tag { font-size: 12px; padding: 5px 10px; }
+                            .trending-kw-tag.kw-hide-mobile { display: none; }
+                        }
+                        /* Light mode */
+                        html.light-mode .trending-kw-title { color: #1f2937; }
+                        html.light-mode .trending-kw-divider { background: rgba(0,0,0,0.1); }
+                        html.light-mode .trending-kw-tag { color: #4b5563; background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+                        html.light-mode .trending-kw-tag:hover { color: #92400e; border-color: rgba(217,119,6,0.4); background: rgba(217,119,6,0.06); }
+                    </style>
+                    <div class="trending-kw-header">
+                        <h2 class="trending-kw-title">TỪ KHÓA XU HƯỚNG</h2>
+                        <div class="trending-kw-divider"></div>
+                        <span class="trending-kw-badge">Google Trends 24h</span>
                     </div>
-                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-                        <% seoTrendsList.slice(0, 16).forEach(function(item) {
+                    <div class="trending-kw-grid">
+                        <% seoTrendsList.slice(0, 18).forEach(function(item, idx) {
                             const targetSlug = item.movie_slug || item.slug || '';
                             const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(item.title || item.query || '')}`;
                             const label = item.title || item.query || item.movie_name || '';
+                            const hideMobile = idx >= 10 ? 'kw-hide-mobile' : '';
                         %>
-                        <a href="<%= targetUrl %>" title="Xem phim <%= label %> Full HD Vietsub"
-                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
-                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
-                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
-                            <%= label %>
-                        </a>
+                        <a href="<%= targetUrl %>" title="Xem phim <%= label %> Full HD Vietsub" class="trending-kw-tag <%= hideMobile %>"><%= label %></a>
                         <% }); %>
-                        <a href="/danh-sach?list=phim-moi-cap-nhat" title="Phim mới cập nhật hôm nay"
-                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
-                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
-                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
-                            Phim mới cập nhật
-                        </a>
-                        <a href="/danh-sach?list=phim-chieu-rap" title="Phim chiếu rạp Full HD"
-                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
-                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
-                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
-                            Phim chiếu rạp 2026
-                        </a>
-                        <a href="/danh-sach?list=phim-bo" title="Phim bộ trọn bộ hay"
-                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
-                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
-                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
-                            Phim bộ hot Vietsub
-                        </a>
+                        <a href="/danh-sach?list=phim-moi-cap-nhat" title="Phim mới cập nhật hôm nay" class="trending-kw-tag">Phim mới cập nhật</a>
+                        <a href="/danh-sach?list=phim-chieu-rap" title="Phim chiếu rạp Full HD" class="trending-kw-tag kw-hide-mobile">Phim chiếu rạp 2026</a>
+                        <a href="/danh-sach?list=phim-bo" title="Phim bộ trọn bộ hay" class="trending-kw-tag kw-hide-mobile">Phim bộ hot Vietsub</a>
                     </div>
                 </section>
                 <% } %>
