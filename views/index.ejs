@@ -1265,7 +1265,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 6 ? 'eager' : 'lazy'}" decoding="async" ${idx < 4 ? 'fetchpriority="high"' : ''} referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" decoding="async" ${idx < 2 ? 'fetchpriority="high"' : ''} referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1339,7 +1339,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 5 ? 'eager' : 'lazy'}" ${idx < 5 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" ${idx < 2 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1530,7 +1530,7 @@
                             ${badgeLang}
                             ${badgeSub}
                         </div>
-                        <img src="${img}" data-original-src="${img}" data-fallback="${fallbackImg}" alt="${movie.name}" loading="${index < 4 ? 'eager' : 'lazy'}" ${index < 4 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                        <img src="${img}" data-original-src="${img}" data-fallback="${fallbackImg}" alt="${movie.name}" loading="${index < 4 ? 'eager' : 'lazy'}" ${index < 2 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
                         <div class="card-bottom-overlay">
                             <div class="card-title-vi" title="${movie.name}">${movie.name}</div>
                             <div class="card-title-en" title="${enTitle}">${enTitle}</div>
@@ -1996,7 +1996,7 @@
                                     <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block group">
                                         <div class="cinema-hot-poster-wrap">
                                             <span class="cinema-hot-badge-age ${ageClass}">${age}</span>
-                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 8 ? 'eager' : 'lazy'}" decoding="async" ${idx < 8 ? 'fetchpriority="high"' : ''} onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
+                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" decoding="async" ${idx < 2 ? 'fetchpriority="high"' : ''} onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
                                             ${rankHTML}
                                             <div class="phimmoi-play-overlay">
                                                 <div class="phimmoi-play-btn">
