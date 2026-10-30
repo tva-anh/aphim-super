@@ -337,6 +337,38 @@
                     </div>
                 </div>
 
+                <!-- 🚀 SEO TRENDING KEYWORDS & INTERNAL LINKS HUB (Tối ưu liên kết nội bộ theo chuẩn Top Google & Bing) -->
+                <% if (typeof seoTrendsList !== 'undefined' && Array.isArray(seoTrendsList) && seoTrendsList.length > 0) { %>
+                <div class="footer-trending-hub mt-5 pt-4 border-t border-white/5">
+                    <div class="flex items-center gap-2 mb-2.5 flex-wrap">
+                        <span class="text-xs md:text-[13px] font-bold text-[#ff6a00] uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="inline-block animate-pulse">🔥</span> TỪ KHÓA PHIM HOT XU HƯỚNG:
+                        </span>
+                        <span class="text-gray-400 text-xs">Cập nhật xu hướng tìm kiếm Google Trends 24h</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <% seoTrendsList.slice(0, 16).forEach(function(item) { 
+                            const targetSlug = item.movie_slug || item.slug || '';
+                            const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(item.title || item.query || '')}`;
+                            const label = item.title || item.query || item.movie_name || '';
+                        %>
+                        <a href="<%= targetUrl %>" title="Xem phim <%= label %> Full HD Vietsub" class="footer-trend-tag text-[12px] text-gray-400 hover:text-[#fcd576] hover:border-[#fcd576]/50 bg-white/[0.04] px-2.5 py-1 rounded border border-white/10 transition-all duration-200">
+                            <%= label %>
+                        </a>
+                        <% }); %>
+                        <a href="/danh-sach?list=phim-moi-cap-nhat" title="Phim mới cập nhật hôm nay" class="footer-trend-tag text-[12px] text-gray-400 hover:text-[#fcd576] hover:border-[#fcd576]/50 bg-white/[0.04] px-2.5 py-1 rounded border border-white/10 transition-all duration-200">
+                            Phim mới cập nhật
+                        </a>
+                        <a href="/danh-sach?list=phim-chieu-rap" title="Phim chiếu rạp Full HD" class="footer-trend-tag text-[12px] text-gray-400 hover:text-[#fcd576] hover:border-[#fcd576]/50 bg-white/[0.04] px-2.5 py-1 rounded border border-white/10 transition-all duration-200">
+                            Phim chiếu rạp 2026
+                        </a>
+                        <a href="/danh-sach?list=phim-bo" title="Phim bộ trọn bộ hay" class="footer-trend-tag text-[12px] text-gray-400 hover:text-[#fcd576] hover:border-[#fcd576]/50 bg-white/[0.04] px-2.5 py-1 rounded border border-white/10 transition-all duration-200">
+                            Phim bộ hot Vietsub
+                        </a>
+                    </div>
+                </div>
+                <% } %>
+
                 <div class="mt-6">
                     <div
                         class="flex flex-wrap text-left justify-start gap-4 md:gap-6 mb-4 text-sm md:text-[14.5px] font-bold text-white tracking-wide">

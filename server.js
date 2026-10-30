@@ -183,6 +183,17 @@ app.use((err, req, res, next) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// ⚡ Global SEO & Trending Hub Context for all rendered pages
+app.use((req, res, next) => {
+    try {
+        const trendsControl = require('./lib/trendsControl');
+        res.locals.seoTrendsList = trendsControl.getStoredTrends() || [];
+    } catch (e) {
+        res.locals.seoTrendsList = [];
+    }
+    next();
+});
+
 // ==========================================
 // MOUNT API ROUTES — Supabase + MongoDB
 // ==========================================
@@ -1832,19 +1843,39 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
             else langBadge = ' [Vietsub]';
         }
 
-        let candidateTitle = `Phim ${meta.name} (${meta.year})${langBadge} - APhim`;
-        if (candidateTitle.length > 65) {
+        let candidateTitle = `Xem Phim ${meta.name} (${meta.year})${langBadge} Full HD - APhim`;
+        if (candidateTitle.length > 68) {
+            candidateTitle = `Phim ${meta.name} (${meta.year})${langBadge} Full HD - APhim`;
+        }
+        if (candidateTitle.length > 68) {
+            candidateTitle = `Xem Phim ${meta.name} (${meta.year}) - APhim`;
+        }
+        if (candidateTitle.length > 68) {
             candidateTitle = `Phim ${meta.name} (${meta.year}) - APhim`;
         }
-        const title = formatSeoTitle(candidateTitle, 65);
+        const title = formatSeoTitle(candidateTitle, 68);
 
         const actorList = meta.actor.length ? meta.actor.slice(0, 4).join(', ') : '';
         const actorText = actorList ? ` Diễn viên: ${actorList}.` : '';
         const directorText = meta.director.length ? ` Đạo diễn: ${meta.director.slice(0, 2).join(', ')}.` : '';
         const descSnippet = meta.content ? ` ${meta.content.slice(0, 80)}...` : '';
-        const rawDesc = `Xem phim ${meta.name} (${meta.origin_name}) ${meta.year} chất lượng ${meta.quality} ${meta.lang} miễn phí.${actorText}${directorText}${descSnippet} Xem online tốc độ cao tại APhim Super.`;
+        const rawDesc = `Xem phim ${meta.name} (${meta.origin_name}) ${meta.year} trọn bộ Full HD ${meta.quality || ''} ${meta.lang || 'Vietsub'} miễn phí, không quảng cáo giật lag.${actorText}${directorText}${descSnippet} Xem online tốc độ cao tại APhim Super.`;
         const metaDescription = formatMetaDescription(rawDesc, 155);
-        const metaKeywords = `${meta.name}, xem phim ${meta.name}, ${meta.origin_name}, phim ${meta.name} vietsub, ${meta.name} thuyet minh, phim ${meta.year}, ${meta.category.join(', ')}, ${meta.country.join(', ')}, xem phim online full hd, aphim, aphim store`;
+        const metaKeywords = [
+            meta.name,
+            `xem phim ${meta.name}`,
+            `phim ${meta.name} vietsub`,
+            `phim ${meta.name} thuyet minh`,
+            `phim ${meta.name} ${meta.year}`,
+            meta.origin_name ? `${meta.origin_name} vietsub` : '',
+            `${meta.name} full hd`,
+            `${meta.name} tron bo`,
+            ...(meta.category || []).slice(0, 3).map(c => `phim ${c}`),
+            ...(meta.country || []).slice(0, 2).map(c => `phim ${c}`),
+            'xem phim online full hd',
+            'aphim',
+            'aphim store'
+        ].filter(Boolean).join(', ');
         const ogImage = meta.poster_url || meta.thumb_url || 'https://aphim.store/android-chrome-512x512.png';
         const canonicalUrl = `https://aphim.store/phim/${slug}`;
         const mainCategory = meta.category[0] || 'Phim mới';
@@ -2172,17 +2203,31 @@ app.get([
             subtitleSchema = { "@type": "Text", "name": "Phụ đề Tiếng Việt (Vietsub)" };
         }
 
-        // Tạo Title tối ưu CTR và chuẩn SEO Bing & Google (<= 65 ký tự, không bị cắt dấu ...)
-        let candidateWatchTitle = `Xem Phim ${meta.name} ${epText}${variantBadge} - APhim`;
-        if (candidateWatchTitle.length > 65) {
+        // Tạo Title tối ưu CTR và chuẩn SEO Bing & Google (<= 68 ký tự, không bị cắt dấu ...)
+        let candidateWatchTitle = `Xem Phim ${meta.name} ${epText}${variantBadge} Full HD - APhim`;
+        if (candidateWatchTitle.length > 68) {
+            candidateWatchTitle = `Xem Phim ${meta.name} ${epText}${variantBadge} - APhim`;
+        }
+        if (candidateWatchTitle.length > 68) {
             candidateWatchTitle = `Xem Phim ${meta.name} ${epText}- APhim`;
         }
-        const title = formatSeoTitle(candidateWatchTitle, 65);
+        const title = formatSeoTitle(candidateWatchTitle, 68);
 
-        const rawWatchDesc = `Xem phim ${meta.name} ${epText}${variantDescText || 'Full HD Vietsub Thuyết minh'} không quảng cáo giật lag. Kho phim lẻ, phim bộ chất lượng cao mới nhất trên APhim Super.`;
+        const rawWatchDesc = `Xem phim ${meta.name} (${meta.origin_name}) ${epText}${variantDescText || 'Full HD Vietsub Thuyết minh'} mới nhất ${meta.year} chất lượng cao, không giật lag. Kho phim hay xem online tốc độ cao tại APhim Super.`;
         const metaDescription = formatMetaDescription(rawWatchDesc, 155);
         const ogImage = meta.thumb_url || meta.poster_url || 'https://aphim.store/android-chrome-512x512.png';
-        const metaKeywords = `xem phim ${meta.name}, ${meta.name} ${epNumber ? 'tap ' + epNumber : ''}, ${meta.name} ${variantKeyword}, ${meta.origin_name}, phim ${meta.year}, xem phim online full hd, xem phim khong quang cao, aphim, aphim store`;
+        const metaKeywords = [
+            `xem phim ${meta.name}`,
+            `${meta.name} ${epNumber ? 'tap ' + epNumber : ''}`,
+            `${meta.name} ${variantKeyword}`,
+            meta.origin_name ? `${meta.origin_name} vietsub` : '',
+            `phim ${meta.name} ${meta.year}`,
+            `${meta.name} full hd`,
+            'xem phim online full hd',
+            'xem phim khong quang cao',
+            'aphim',
+            'aphim store'
+        ].filter(Boolean).join(', ');
 
         // Smart Canonical URL: Phân biệt rõ bản nội dung khác nhau vs server clone kỹ thuật
         let canonicalUrl = `https://aphim.store/xem-phim/${slug}`;
