@@ -1040,7 +1040,55 @@
 
 
                 <!-- ==============================================
-             SECTION 6: CÂU HỎI THƯỜNG GẶP (FAQ)
+             SECTION 6: TỪ KHÓA XU HƯỚNG (SEO TRENDING KEYWORDS)
+             ============================================== -->
+                <% if (typeof seoTrendsList !== 'undefined' && Array.isArray(seoTrendsList) && seoTrendsList.length > 0) { %>
+                <section style="margin-top: 60px; margin-bottom: 10px; width: 100%;">
+                    <div style="margin-bottom: 16px;">
+                        <h2 style="font-size: 22px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
+                            <span style="display:inline-block; animation: pulse 1.5s cubic-bezier(0.4,0,0.6,1) infinite;">🔥</span> TỪ KHÓA XU HƯỚNG
+                        </h2>
+                        <p style="font-size: 13px; color: #9ca3af; margin: 0; font-weight: 500;">
+                            Cập nhật xu hướng tìm kiếm phim hot nhất theo Google Trends 24h
+                        </p>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <% seoTrendsList.slice(0, 16).forEach(function(item) {
+                            const targetSlug = item.movie_slug || item.slug || '';
+                            const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(item.title || item.query || '')}`;
+                            const label = item.title || item.query || item.movie_name || '';
+                        %>
+                        <a href="<%= targetUrl %>" title="Xem phim <%= label %> Full HD Vietsub"
+                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
+                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
+                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                            <%= label %>
+                        </a>
+                        <% }); %>
+                        <a href="/danh-sach?list=phim-moi-cap-nhat" title="Phim mới cập nhật hôm nay"
+                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
+                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
+                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                            Phim mới cập nhật
+                        </a>
+                        <a href="/danh-sach?list=phim-chieu-rap" title="Phim chiếu rạp Full HD"
+                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
+                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
+                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                            Phim chiếu rạp 2026
+                        </a>
+                        <a href="/danh-sach?list=phim-bo" title="Phim bộ trọn bộ hay"
+                            style="font-size:13px; color:#d1d5db; background:rgba(255,255,255,0.05); padding:7px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.1); text-decoration:none; transition:all 0.2s ease; white-space:nowrap;"
+                            onmouseover="this.style.color='#fcd576';this.style.borderColor='rgba(252,213,118,0.5)';this.style.background='rgba(252,213,118,0.08)'"
+                            onmouseout="this.style.color='#d1d5db';this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                            Phim bộ hot Vietsub
+                        </a>
+                    </div>
+                </section>
+                <% } %>
+
+                <!-- ==============================================
+             SECTION 7: CÂU HỎI THƯỜNG GẶP (FAQ)
              ============================================== -->
                 <%- include('partials/faq') %>
 
