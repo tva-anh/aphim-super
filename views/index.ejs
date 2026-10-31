@@ -12,7 +12,7 @@
             <link rel="prefetch" as="image" href="<%= _hero1Img %>">
             <% } %>
                 <link rel="preconnect" href="https://static-cgv.vncdn.vn" crossorigin>
-                <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=24">
+                <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=25">
                 <link rel="stylesheet" href="/css/hero-banner.css?v=195">
                 <link rel="stylesheet" href="/css/interests-section.css?v=171">
                 <link rel="stylesheet" href="/css/home-layout.css?v=1">
@@ -1448,7 +1448,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" ${idx < 2 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" ${idx < 4 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1639,7 +1639,7 @@
                             ${badgeLang}
                             ${badgeSub}
                         </div>
-                        <img src="${img}" data-original-src="${img}" data-fallback="${fallbackImg}" alt="${movie.name}" loading="${index < 4 ? 'eager' : 'lazy'}" ${index < 2 ? 'fetchpriority="high"' : ''} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                        <img src="${img}" data-original-src="${img}" data-fallback="${fallbackImg}" alt="${movie.name}" loading="eager" ${index < 4 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
                         <div class="card-bottom-overlay">
                             <div class="card-title-vi" title="${movie.name}">${movie.name}</div>
                             <div class="card-title-en" title="${enTitle}">${enTitle}</div>
@@ -2716,11 +2716,16 @@
                             if (!track || !showcase3DItems.length) return;
 
                             // Render 3D Cards with smart tap handling
-                            track.innerHTML = showcase3DItems.map((item, idx) => `
+                            track.innerHTML = showcase3DItems.map((item, idx) => {
+                                const rawImg = item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg';
+                                const finalImg = getImgUrl(rawImg);
+                                const fallbackImg = getImgUrl(item.thumb_url || item.poster_url || rawImg);
+                                return `
                 <div class="showcase-3d-card" data-index="${idx}" onclick="handle3DCardClick(${idx})" role="button" aria-label="${item.name || 'Phim'}">
-                    <img src="${item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg'}" alt="${item.name || 'Phim'}" loading="${idx < 3 ? 'eager' : 'lazy'}" onerror="this.src='/images/comment-mascot.webp'">
+                    <img src="${finalImg}" data-original-src="${finalImg}" data-fallback="${fallbackImg}" alt="${item.name || 'Phim'}" loading="eager" fetchpriority="${idx < 3 ? 'high' : 'auto'}" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError ? window.handleCardImgError(this) : (this.src='/images/comment-mascot.webp')">
                 </div>
-            `).join('');
+            `;
+                            }).join('');
 
                             // Render Pagination Dots
                             if (pagination) {

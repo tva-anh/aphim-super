@@ -130,8 +130,6 @@
         height: clamp(298px, 80vw, 340px);
         border-radius: 22px;
         overflow: hidden;
-        -webkit-mask-image: -webkit-radial-gradient(white, black);
-        mask-image: -webkit-radial-gradient(white, black);
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
         transform-style: preserve-3d;
@@ -156,8 +154,6 @@
         display: block !important;
         border-radius: inherit !important;
         -webkit-border-radius: inherit !important;
-        -webkit-mask-image: -webkit-radial-gradient(white, black);
-        mask-image: -webkit-radial-gradient(white, black);
         transform: scale(1.02); /* Micro-scale to bleed perfectly into all 4 rounded corners */
         pointer-events: none;
     }

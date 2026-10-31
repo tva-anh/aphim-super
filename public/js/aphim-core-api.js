@@ -163,10 +163,10 @@
         const fallbackImg = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
         const { topBadgesHTML, bottomBadgesHTML } = window.APhimCore.renderBadges(movie);
 
-        // Nạp tức thì (eager + fetchpriority) cho 6 card đầu tiên trên màn hình để không phải đợi lazy observer
-        const isPriority = index < 6;
+        // Nạp tức thì (eager + fetchpriority) cho 12 card đầu tiên trên màn hình để không phải đợi lazy observer
+        const isPriority = index < 12;
         const loadingAttr = isPriority ? 'loading="eager"' : 'loading="lazy"';
-        const priorityAttr = index < 2 ? 'fetchpriority="high"' : (isPriority ? 'fetchpriority="auto"' : 'fetchpriority="low"');
+        const priorityAttr = index < 4 ? 'fetchpriority="high"' : (isPriority ? 'fetchpriority="auto"' : 'fetchpriority="low"');
 
         return `
             <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
