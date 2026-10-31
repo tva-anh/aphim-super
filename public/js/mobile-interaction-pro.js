@@ -165,19 +165,16 @@
     }
     window.preheatUrl = preheatUrl;
 
-    // Tự động sưởi ấm trước các trang trọng điểm của website khi rảnh rỗi (Idle)
+    // Tự động sưởi ấm trước các trang trọng điểm của website một cách nhẹ nhàng (chỉ khi mạng rảnh và sau 4s)
     function preheatKeyHubs() {
-        const keyHubs = ['/', '/phim-ngan', '/reels', '/profile', '/phim-ngan/de-xuat'];
-        const idleCallback = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
-        idleCallback(() => {
-            keyHubs.forEach(u => preheatUrl(u));
-        });
+        // Disabled aggressive preheating on page load to prevent saturating browser connection pool for images
     }
 
     // ── 4. INSTANT TOUCH EVENTS (Nhận diện & phản hồi 0ms trên Mobile) ────────
     let touchStartX = 0;
     let touchStartY = 0;
     let touchStartTime = 0;
+    let preheatTouchTimer = null;
 
     document.addEventListener('touchstart', function (e) {
         if (!isTouchOrMobile() || !e.touches || !e.touches[0]) return;
@@ -185,15 +182,31 @@
         touchStartY = e.touches[0].clientY;
         touchStartTime = performance.now();
 
-        // Nạp ngầm link ngay từ khi ngón tay chạm xuống màn hình (0ms Pre-warm)
+        if (preheatTouchTimer) {
+            clearTimeout(preheatTouchTimer);
+            preheatTouchTimer = null;
+        }
+
         const anchor = e.target.closest('a[href], .bn-tab, .bn-tab-center, #showcase3DBtnWatch, #showcase3DBtnInfo, .de-cu-card, .normal-card-item, .featured-card-item, .top10-card, .grid-movie-card');
         if (anchor) {
-            const href = anchor.getAttribute('href') || (anchor.querySelector('a') ? anchor.querySelector('a').getAttribute('href') : null);
-            if (href && href.startsWith('/') && !href.startsWith('//')) {
-                preheatUrl(href);
-            }
             anchor.classList.add('is-touch-pressed');
+            const href = anchor.getAttribute('href') || (anchor.querySelector('a') ? anchor.querySelector('a').getAttribute('href') : null);
+            // Chỉ preheat nếu người dùng chạm giữ > 130ms (ý định click thật, không phải vuốt lướt scroll)
+            if (href && href.startsWith('/') && !href.startsWith('//')) {
+                preheatTouchTimer = setTimeout(() => {
+                    preheatUrl(href);
+                }, 130);
+            }
         }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function (e) {
+        // Khi người dùng đang cuộn/lướt màn hình, HỦY NGAY lệnh preheat để không làm nghẽn luồng tải ảnh
+        if (preheatTouchTimer) {
+            clearTimeout(preheatTouchTimer);
+            preheatTouchTimer = null;
+        }
+        document.querySelectorAll('.is-touch-pressed').forEach(el => el.classList.remove('is-touch-pressed'));
     }, { passive: true });
 
     document.addEventListener('touchend', function (e) {

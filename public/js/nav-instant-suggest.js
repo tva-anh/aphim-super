@@ -292,7 +292,7 @@
         return `
             <a class="ap-suggest-row" href="${detailUrl}">
                 <div class="ap-suggest-thumb-box">
-                    <img class="ap-suggest-thumb" src="${thumb}" alt="${title}" loading="lazy" decoding="async"
+                    <img class="ap-suggest-thumb" src="${thumb}" alt="${title}" loading="eager" fetchpriority="high" decoding="async"
                          onerror="this.src='/android-chrome-512x512.png'" />
                 </div>
                 <div class="ap-suggest-info">

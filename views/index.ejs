@@ -1311,7 +1311,7 @@
                         const PLAY_SVG_HTML = `<svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>`;
 
                         // Helper to format language badges matching Photo 2
-                        function formatLangBadges(lang) {
+                        function formatLangBadges(lang, isCompact = false) {
                             if (!lang) return `<span class="badge-tag badge-tag-pd">Vietsub</span>`;
                             const str = lang.toLowerCase();
                             let badges = [];
@@ -1330,7 +1330,8 @@
                             if (hasTm) {
                                 badges.push(`<span class="badge-tag badge-tag-tm">T.Minh</span>`);
                             }
-                            if (hasLt) {
+                            // Trên các ô nhỏ (isCompact = true), giới hạn tối đa 2 tag ngôn ngữ để không bị tràn dính chùm
+                            if (hasLt && (!isCompact || badges.length < 2)) {
                                 badges.push(`<span class="badge-tag badge-tag-lt">L.Tiếng</span>`);
                             }
 
@@ -1436,7 +1437,7 @@
                             const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
                             const epText = movie.episode_current || 'Full';
                             const epBadgeHTML = getEpBadgeHTML(epText);
-                            const langBadges = formatLangBadges(movie.lang || 'Vietsub');
+                            const langBadges = formatLangBadges(movie.lang || 'Vietsub', true);
 
                             return `
                 <div class="normal-card-item">
@@ -1621,8 +1622,8 @@
                             }
 
                             const starBadge = `
-                <span class="badge-star-score" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); border: 1px solid rgba(245, 158, 11, 0.45); color: #f59e0b; padding: 1.5px 5.5px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 2.5px; letter-spacing: 0.2px; line-height: 1.2;">
-                    <svg style="width: 10px; height: 10px; fill: #f59e0b;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <span class="badge-star-score">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                     <span>${starVal}</span>
                 </span>
             `;

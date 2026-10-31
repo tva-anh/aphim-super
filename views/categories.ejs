@@ -316,7 +316,7 @@
                     return;
                 }
 
-                gridEl.innerHTML = res.items.map(movie => core.createGridCardHTML(movie)).join('');
+                gridEl.innerHTML = res.items.map((movie, idx) => core.createGridCardHTML(movie, idx)).join('');
                 if (core.preloadImages) core.preloadImages(res.items, 16);
                 if (core.initLazyObserver) setTimeout(() => core.initLazyObserver(), 20);
                 updatePaginationUI(page, totalPages);

@@ -215,6 +215,7 @@
                                 will-change: transform;
                                 backface-visibility: hidden;
                                 -webkit-backface-visibility: hidden;
+                                filter: brightness(1.08) contrast(1.03) !important;
                             }
                             .cinema-hot-info-wrap {
                                 margin-top: 14px !important;
@@ -624,6 +625,7 @@
                             width: 100% !important; height: 100% !important;
                             object-fit: cover !important;
                             display: block !important;
+                            filter: brightness(1.08) contrast(1.03) !important;
                             transition: transform 0.35s ease !important;
                         }
                         .cinema-hot-card:hover .cinema-hot-poster-wrap img {

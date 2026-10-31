@@ -215,13 +215,17 @@
 
     html.light-mode .drawer-sub-link,
     html.light-mode #sofa-mobile-drawer .drawer-sub-link {
-        color: #44403c !important;
+        background: transparent !important;
+        transition: opacity 0.15s ease, filter 0.15s ease !important;
     }
 
     html.light-mode .drawer-sub-link:hover,
     html.light-mode #sofa-mobile-drawer .drawer-sub-link:hover {
-        background: #eae3d5 !important;
-        color: #b45309 !important;
+        background: transparent !important;
+        filter: none !important;
+        opacity: 0.8 !important;
+        transform: none !important;
+        text-decoration: none !important;
     }
 
     html.light-mode .drawer-accordion-header,
@@ -1560,6 +1564,7 @@
         border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
         padding: 24px 18px !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 16px !important;
@@ -1692,6 +1697,7 @@
     .drawer-accordion-body {
         display: none !important;
         padding: 6px 4px 16px 16px !important;
+        overflow-x: hidden !important;
     }
 
     .drawer-accordion-item.active .drawer-accordion-body {
@@ -1704,15 +1710,34 @@
         gap: 14px 20px !important;
         max-height: 320px !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    .drawer-grid-2::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
     .drawer-sub-link {
         font-size: 13px !important;
-        font-weight: 400 !important;
+        font-weight: 500 !important;
         text-decoration: none !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+        background: transparent !important;
+        transition: opacity 0.15s ease, filter 0.15s ease !important;
+    }
+
+    .drawer-sub-link:hover {
+        background: transparent !important;
+        filter: none !important;
+        opacity: 0.8 !important;
+        transform: none !important;
+        text-decoration: none !important;
     }
 
     .drawer-quick-pills {

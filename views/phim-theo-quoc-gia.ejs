@@ -200,7 +200,7 @@
                     return;
                 }
 
-                gridEl.innerHTML = res.items.map(movie => core.createGridCardHTML(movie)).join('');
+                gridEl.innerHTML = res.items.map((movie, idx) => core.createGridCardHTML(movie, idx)).join('');
                 updatePaginationUI(page, totalPages);
             } catch (err) {
                 console.warn(err);

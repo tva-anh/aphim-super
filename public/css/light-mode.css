@@ -767,13 +767,17 @@ html.light-mode #sofa-mobile-drawer .drawer-accordion-item.active .drawer-accord
 html.light-mode .drawer-sub-link,
 html.light-mode #sofa-mobile-drawer .drawer-sub-link {
     font-weight: 600 !important;
-    filter: brightness(0.75) saturate(1.2);
+    filter: none !important;
+    background: transparent !important;
 }
 
 html.light-mode .drawer-sub-link:hover,
 html.light-mode #sofa-mobile-drawer .drawer-sub-link:hover {
-    filter: brightness(0.5) saturate(1.5);
-    text-decoration: underline !important;
+    filter: none !important;
+    background: transparent !important;
+    opacity: 0.8 !important;
+    transform: none !important;
+    text-decoration: none !important;
 }
 
 html.light-mode .drawer-pill-btn:not(.reels-pill):not(.phim-ngan-pill),
@@ -1583,7 +1587,6 @@ html.light-mode .normal-card-item,
 html.light-mode .featured-card-item,
 html.light-mode .de-cu-card,
 html.light-mode .grid-movie-card,
-html.light-mode .grid-poster-wrap,
 html.light-mode .motchill-movie-card,
 html.light-mode .motchill-poster-wrap,
 html.light-mode .motchill-feature-card,
@@ -1594,6 +1597,12 @@ html.light-mode .movie-card-item {
     border: none !important;
     box-shadow: none !important;
     outline: none !important;
+}
+
+html.light-mode .grid-poster-wrap {
+    background: #e2e8f0 !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06) !important;
 }
 
 html.light-mode .normal-card-item:hover,
@@ -1618,11 +1627,15 @@ html.light-mode .landscape-poster-wrap img,
 html.light-mode .de-cu-poster-wrap img,
 html.light-mode .normal-card-item img,
 html.light-mode .featured-card-item img,
+html.light-mode .top10-card img,
+html.light-mode .single-feature-img,
+html.light-mode .cinema-hot-card img,
 html.light-mode .de-cu-card img {
     border: none !important;
     outline: none !important;
     box-shadow: 0 4px 14px rgba(78, 64, 45, 0.08) !important;
     border-radius: 10px !important;
+    filter: brightness(1.08) contrast(1.03) !important;
 }
 
 html.light-mode .normal-card-item:hover,
@@ -3821,6 +3834,9 @@ html.light-mode .landscape-poster-wrap img,
 html.light-mode .de-cu-poster-wrap img,
 html.light-mode .normal-card-item img,
 html.light-mode .featured-card-item img,
+html.light-mode .top10-card img,
+html.light-mode .single-feature-img,
+html.light-mode .cinema-hot-card img,
 html.light-mode .de-cu-card img {
     border: none !important;
     outline: none !important;

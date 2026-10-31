@@ -158,15 +158,23 @@
     };
 
     // 🎯 6. UNIVERSAL MOVIE CARD RENDERER MATCHING HOMEPAGE INDEX.EJS (INSTANT DIRECT SRC LOADING)
-    window.APhimCore.createGridCardHTML = function(movie) {
-        const imgUrl = window.APhimCore.getImgUrl(movie.thumb_url || movie.poster_url);
+    window.APhimCore.createGridCardHTML = function(movie, index = 0) {
+        const primaryImg = window.APhimCore.getImgUrl(movie.thumb_url || movie.poster_url);
+        const fallbackImg = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
         const { topBadgesHTML, bottomBadgesHTML } = window.APhimCore.renderBadges(movie);
+
+        // Nạp tức thì (eager + fetchpriority) cho 6 card đầu tiên trên màn hình để không phải đợi lazy observer
+        const isPriority = index < 6;
+        const loadingAttr = isPriority ? 'loading="eager"' : 'loading="lazy"';
+        const priorityAttr = index < 2 ? 'fetchpriority="high"' : (isPriority ? 'fetchpriority="auto"' : 'fetchpriority="low"');
 
         return `
             <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
                 <div class="grid-poster-wrap">
-                    ${topBadgesHTML ? `<div class="grid-top-badges">${topBadgesHTML}</div>` : ''}
-                    <img src="${imgUrl}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />
+                    <div class="grid-top-badges">
+                        ${topBadgesHTML || ''}
+                    </div>
+                    <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" alt="${movie.name}" ${loadingAttr} ${priorityAttr} decoding="async" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />
                     <div class="phimmoi-play-overlay">
                         <div class="phimmoi-play-btn">
                             <svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>
@@ -176,7 +184,7 @@
                 </div>
                 <div class="grid-title-wrap">
                     <div class="grid-title-vi">${movie.name}</div>
-                    <div class="grid-title-en">${movie.origin_name || ''}</div>
+                    <div class="grid-title-en">${movie.origin_name || '&nbsp;'}</div>
                 </div>
             </a>
         `;
