@@ -43,24 +43,8 @@
   "prefetch": [
     {
       "source": "list",
-      "urls": ["/", "/phim-ngan", "/reels", "/profile", "/danh-sach", "/categories", "/phim-theo-quoc-gia"]
-    },
-    {
-      "source": "document",
-      "where": {
-        "and": [
-          { "href_matches": "/*" },
-          { "not": { "href_matches": "/admin/*" } },
-          { "not": { "href_matches": "/api/*" } }
-        ]
-      },
-      "eagerness": "moderate"
-    }
-  ],
-  "prerender": [
-    {
-      "source": "list",
-      "urls": ["/", "/phim-ngan", "/reels"]
+      "urls": ["/phim-ngan", "/reels", "/danh-sach", "/categories", "/phim-theo-quoc-gia"],
+      "eagerness": "conservative"
     }
   ]
 }

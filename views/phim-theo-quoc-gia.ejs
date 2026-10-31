@@ -141,6 +141,26 @@
             }
         };
 
+        // ⚡ Chờ APhimCore sẵn sàng trước khi fetch
+        function waitForAPhimCore() {
+            if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
+                return Promise.resolve(window.APhimCore);
+            }
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    attempts++;
+                    if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
+                        clearInterval(interval);
+                        resolve(window.APhimCore);
+                    } else if (attempts > 150) {
+                        clearInterval(interval);
+                        resolve(null);
+                    }
+                }, 40);
+            });
+        }
+
         async function loadMovies(page) {
             currentPage = page;
             const gridEl = document.getElementById('movieGrid');
@@ -151,8 +171,25 @@
                 </div>
             `;
 
+            const core = await waitForAPhimCore();
+            if (!core) {
+                gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-red-400 font-medium">Không thể kết nối dữ liệu. Vui lòng <a href="" style="color:#ff9900;text-decoration:underline">tải lại trang</a>.</div>';
+                return;
+            }
+
+            // Retry tối đa 3 lần
+            let res = null;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    res = await core.fetchMovieGridData('country', country, page);
+                    if (res && res.items && res.items.length) break;
+                } catch (fetchErr) {
+                    if (attempt < 2) await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+                }
+            }
+
             try {
-                const res = await window.APhimCore.fetchMovieGridData('country', country, page);
+                if (!res) throw new Error('No response');
                 totalPages = res.totalPages || 50;
                 if (res.titlePage && pageTitleEl) {
                     pageTitleEl.textContent = 'Quốc Gia ' + res.titlePage.replace(/^(Phim|Quốc Gia)\s+/i, '');
@@ -163,7 +200,7 @@
                     return;
                 }
 
-                gridEl.innerHTML = res.items.map(movie => window.APhimCore.createGridCardHTML(movie)).join('');
+                gridEl.innerHTML = res.items.map(movie => core.createGridCardHTML(movie)).join('');
                 updatePaginationUI(page, totalPages);
             } catch (err) {
                 console.warn(err);

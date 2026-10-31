@@ -1,6 +1,20 @@
 {
-  "updatedAt": "2026-10-28T02:10:00.000Z",
+  "updatedAt": "2026-10-31T04:25:16.457Z",
   "items": [
+    {
+      "query": "việc",
+      "title": "việc",
+      "traffic": "+Đột Biến%",
+      "movie_slug": "viec-ma-luong-quai",
+      "movie_name": "Việc Ma, Lương Quái",
+      "poster_url": "https://phimimg.com/uploads/movies/20261031/viec-ma-luong-quai-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20261031/viec-ma-luong-quai-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
+    },
     {
       "query": "trại",
       "title": "trại",
@@ -11,76 +25,163 @@
       "thumb_url": "https://cinema.momocdn.net/img/74805855983673840-tbn1.jpg",
       "year": "2026",
       "quality": "Bản Đẹp Rạp (Full HD)",
-      "is_custom": true
+      "lang": "Thuyết Minh / Vietsub",
+      "is_custom": true,
+      "is_momo": true
     },
     {
       "query": "gả kim thoa",
       "title": "gả kim thoa",
       "traffic": "+950%",
       "movie_slug": "ga-kim-thoa-ga-tram-vang",
-      "movie_name": "Gả Kim Thoa / Gả trầm vàng"
+      "movie_name": "Gả Kim Thoa / Gả trâm vàng",
+      "poster_url": "https://phimimg.com/uploads/movies/20261016/ga-kim-thoa-ga-tram-vang-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20261016/ga-kim-thoa-ga-tram-vang-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub + Thuyết Minh",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim 100 ngày lừa dối",
-      "title": "100 Ngày Lừa Dối",
+      "title": "ngày lừa dối",
       "traffic": "+300%",
       "movie_slug": "100-ngay-lua-doi",
-      "movie_name": "100 Ngày Lừa Dối"
+      "movie_name": "100 Ngày Lừa Dối",
+      "poster_url": "https://phimimg.com/uploads/movies/20261011/100-ngay-lua-doi-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20261011/100-ngay-lua-doi-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim tiên nghịch",
-      "title": "Tiên Nghịch",
+      "title": "tiên nghịch",
       "traffic": "+150%",
       "movie_slug": "tien-nghich",
-      "movie_name": "Tiên Nghịch"
+      "movie_name": "Tiên Nghịch",
+      "poster_url": "https://phimimg.com/uploads/movies/20260720/tien-nghich-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20260720/tien-nghich-thumb.webp",
+      "year": "2023",
+      "quality": "FHD",
+      "lang": "Vietsub + Thuyết Minh",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "gái ngoan đổi đời xem phim",
-      "title": "Gái Ngoan Đổi Đời",
+      "title": "gái ngoan đổi đời",
       "traffic": "+70%",
       "movie_slug": "project-y-gai-ngoan-doi-doi",
-      "movie_name": "Project Y: Gái Ngoan Đổi Đời"
+      "movie_name": "Project Y: Gái Ngoan Đổi Đời",
+      "poster_url": "https://phimimg.com/upload/vod/20260318-1/8545339897a3469172ad61ba0a43ee75.jpg",
+      "thumb_url": "https://phimimg.com/upload/vod/20260318-1/ed2843ccbd0785dc0d55d9b85c27c636.jpg",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub + Thuyết Minh + Lồng Tiếng",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "nhà gia tiên xem phim",
-      "title": "Nhà Gia Tiên",
+      "title": "nhà gia tiên",
       "traffic": "+60%",
       "movie_slug": "nha-gia-tien",
-      "movie_name": "Nhà Gia Tiên"
+      "movie_name": "Nhà Gia Tiên",
+      "poster_url": "https://phimimg.com/upload/vod/20250710-1/5af1cd558e89eb88b67d72181906edac.jpg",
+      "thumb_url": "https://phimimg.com/upload/vod/20250710-1/3024e503f4c8cecdb0578c20c77e4cdf.jpg",
+      "year": "2025",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim phá đám sinh nhật mẹ",
-      "title": "Phá Đám Sinh Nhật Mẹ",
+      "title": "phá đám sinh nhật mẹ",
       "traffic": "+550%",
       "movie_slug": "pha-dam-sinh-nhat-me",
-      "movie_name": "Phá Đám: Sinh Nhật Mẹ"
+      "movie_name": "Phá Đám: Sinh Nhật Mẹ",
+      "poster_url": "https://phimimg.com/upload/vod/20260517-1/cf6c033ac490be0f8414ce3abadf4246.jpg",
+      "thumb_url": "https://phimimg.com/upload/vod/20260517-1/ad67ffa5d2d07e1566bb07f27bdeb123.jpg",
+      "year": "2025",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim khó dỗ dành",
-      "title": "Khó Dỗ Dành",
+      "title": "khó dỗ dành",
       "traffic": "+20%",
       "movie_slug": "kho-do-danh",
-      "movie_name": "Khó Dỗ Dành"
+      "movie_name": "Khó Dỗ Dành",
+      "poster_url": "https://phimimg.com/upload/vod/20250218-1/7812aa97a4c6bfdd29e1bc33386b72e1.jpg",
+      "thumb_url": "https://phimimg.com/upload/vod/20250218-1/397055acaa0da79ba975b51df4dbf50f.jpg",
+      "year": "2025",
+      "quality": "FHD",
+      "lang": "Vietsub + Thuyết Minh",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim lan hương như cố",
-      "title": "Lan Hương Như Cố",
-      "traffic": "+100%"
+      "title": "lan hương như cố",
+      "traffic": "+100%",
+      "movie_slug": "lan-huong-nhu-co",
+      "movie_name": "Lan Hương Như Cố",
+      "poster_url": "https://phimimg.com/uploads/movies/20260912/lan-huong-nhu-co-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20260912/lan-huong-nhu-co-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim không thể thay thế",
-      "title": "Không Thể Thay Thế",
-      "traffic": "+80%"
+      "title": "không thể thay thế",
+      "traffic": "+80%",
+      "movie_slug": "khong-the-thay-the-2026",
+      "movie_name": "Không Thể Thay Thế",
+      "poster_url": "https://phimimg.com/uploads/movies/20260929/khong-the-thay-the-phan-1-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20260929/khong-the-thay-the-phan-1-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub + Thuyết Minh",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim merry berry love",
-      "title": "Merry Berry Love",
-      "traffic": "+70%"
+      "title": "merry berry love",
+      "traffic": "+70%",
+      "movie_slug": "dau-tay-ngot-ngao-phan-1",
+      "movie_name": "Dâu Tây Ngọt Ngào (Phần 1)",
+      "poster_url": "https://phimimg.com/uploads/movies/20261008/dau-tay-ngot-ngao-phan-1-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20261008/dau-tay-ngot-ngao-phan-1-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
     },
     {
       "query": "xem phim trúng số độc đắc vẫn phải đi làm",
-      "title": "Trúng Số Độc Đắc Vẫn Phải Đi Làm",
-      "traffic": "+30%"
+      "title": "trúng số độc đắc vẫn phải đi làm",
+      "traffic": "+30%",
+      "movie_slug": "trung-so-doc-dac-van-phai-di-lam",
+      "movie_name": "Trúng Số Độc Đắc Vẫn Phải Đi Làm",
+      "poster_url": "https://phimimg.com/uploads/movies/20260910/trung-so-doc-dac-van-phai-di-lam-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20260910/trung-so-doc-dac-van-phai-di-lam-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Vietsub",
+      "is_custom": false,
+      "is_momo": false
     }
   ]
 }

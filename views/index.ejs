@@ -1101,10 +1101,23 @@
                             border-color: rgba(252,213,118,0.35);
                             background: rgba(252,213,118,0.06);
                         }
-                        /* Mobile: giới hạn 10 tag, ẩn bớt */
+                        /* Mobile: grid canh đều 2 bên */
                         @media (max-width: 767px) {
                             .trending-kw-title { font-size: 13px; }
-                            .trending-kw-tag { font-size: 12px; padding: 5px 10px; }
+                            .trending-kw-grid {
+                                display: grid;
+                                grid-template-columns: repeat(3, 1fr);
+                                gap: 7px;
+                            }
+                            .trending-kw-tag {
+                                font-size: 12px;
+                                padding: 6px 8px;
+                                text-align: center;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                display: block;
+                            }
                             .trending-kw-tag.kw-hide-mobile { display: none; }
                         }
                         /* Light mode */
@@ -1121,8 +1134,8 @@
                     <div class="trending-kw-grid">
                         <% seoTrendsList.slice(0, 18).forEach(function(item, idx) {
                             const targetSlug = item.movie_slug || item.slug || '';
-                            const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(item.title || item.query || '')}`;
-                            const label = item.title || item.query || item.movie_name || '';
+                            const label = item.movie_name || item.title || item.query || '';
+                            const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(label)}`;
                             const hideMobile = idx >= 10 ? 'kw-hide-mobile' : '';
                         %>
                         <a href="<%= targetUrl %>" title="Xem phim <%= label %> Full HD Vietsub" class="trending-kw-tag <%= hideMobile %>"><%= label %></a>
@@ -1501,11 +1514,11 @@
                                     if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
                                         clearInterval(interval);
                                         resolve(window.APhimCore);
-                                    } else if (attempts > 50) {
+                                    } else if (attempts > 150) {
                                         clearInterval(interval);
                                         resolve(window.APhimCore || {});
                                     }
-                                }, 30);
+                                }, 40);
                             });
                         }
 
@@ -2664,10 +2677,11 @@
                             }
 
                             const observer = new IntersectionObserver((entries) => {
-                                if (!entries.some(entry => entry.isIntersecting)) return;
-                                observer.disconnect();
-                                loadSection();
-                            }, { rootMargin: '250px 0px' });
+                                if (entries.some(entry => entry.isIntersecting)) {
+                                    observer.disconnect();
+                                    loadSection();
+                                }
+                            }, { rootMargin: '600px 0px' });
 
                             observer.observe(container);
                         }
@@ -2981,7 +2995,10 @@
                             } else {
                                 loadMobile3DShowcase();
                             }
+
                             loadHomeCommentsShowcase();
+
+                            // ✅ Các section dưới màn dùng IntersectionObserver + hard-timeout 4s
                             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
                             loadWhenNearViewport('grid-top-10', loadTop10Section);
                             loadWhenNearViewport('grid-chieu-rap', () => loadUnifiedSection('list', 'phim-chieu-rap', 'grid-chieu-rap', 12));

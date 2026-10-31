@@ -253,6 +253,26 @@
             }
         };
 
+        // ⚡ Chờ APhimCore sẵn sàng trước khi fetch
+        function waitForAPhimCore() {
+            if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
+                return Promise.resolve(window.APhimCore);
+            }
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    attempts++;
+                    if (window.APhimCore && typeof window.APhimCore.fetchMovieGridData === 'function') {
+                        clearInterval(interval);
+                        resolve(window.APhimCore);
+                    } else if (attempts > 150) {
+                        clearInterval(interval);
+                        resolve(null);
+                    }
+                }, 40);
+            });
+        }
+
         async function loadMovies(page) {
             currentPage = page;
             const gridEl = document.getElementById('movieGrid');
@@ -263,13 +283,29 @@
                 </div>
             `;
 
-            try {
-                let fetchParam = category;
-                if (category === 'phim-18') {
-                    fetchParam = `phim-18?page=${page}` + (country ? `&country=${encodeURIComponent(country)}` : '') + (query ? `&q=${encodeURIComponent(query)}` : '');
-                }
+            const core = await waitForAPhimCore();
+            if (!core) {
+                gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-red-400 font-medium">Không thể kết nối dữ liệu. Vui lòng <a href="" style="color:#ff9900;text-decoration:underline">tải lại trang</a>.</div>';
+                return;
+            }
 
-                const res = await window.APhimCore.fetchMovieGridData('category', fetchParam, page);
+            // Retry tối đa 3 lần
+            let res = null;
+            let fetchParam = category;
+            if (category === 'phim-18') {
+                fetchParam = `phim-18?page=${page}` + (country ? `&country=${encodeURIComponent(country)}` : '') + (query ? `&q=${encodeURIComponent(query)}` : '');
+            }
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    res = await core.fetchMovieGridData('category', fetchParam, page);
+                    if (res && res.items && res.items.length) break;
+                } catch (fetchErr) {
+                    if (attempt < 2) await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+                }
+            }
+
+            try {
+                if (!res) throw new Error('No response');
                 totalPages = res.totalPages || 50;
                 if (res.titlePage && pageTitleEl && category !== 'phim-18') {
                     pageTitleEl.textContent = 'Phim ' + res.titlePage;
@@ -280,13 +316,13 @@
                     return;
                 }
 
-                gridEl.innerHTML = res.items.map(movie => window.APhimCore.createGridCardHTML(movie)).join('');
-                if (window.APhimCore.preloadImages) window.APhimCore.preloadImages(res.items, 16);
-                if (window.APhimCore.initLazyObserver) setTimeout(() => window.APhimCore.initLazyObserver(), 20);
+                gridEl.innerHTML = res.items.map(movie => core.createGridCardHTML(movie)).join('');
+                if (core.preloadImages) core.preloadImages(res.items, 16);
+                if (core.initLazyObserver) setTimeout(() => core.initLazyObserver(), 20);
                 updatePaginationUI(page, totalPages);
             } catch (err) {
                 console.warn('[categories] loadMovies error', err);
-                gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-red-400 font-medium">Có lỗi khi kết nối dữ liệu thể loại phim. Vui lòng thử lại sau.</div>';
+                gridEl.innerHTML = '<div class="col-span-full text-center py-16 text-red-400 font-medium">Có lỗi khi kết nối dữ liệu. Vui lòng <a href="" style="color:#ff9900;text-decoration:underline">thử lại</a>.</div>';
             }
         }
 
