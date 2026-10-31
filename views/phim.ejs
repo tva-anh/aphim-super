@@ -993,9 +993,28 @@
     <div class="movie-hero-backdrop-wrap absolute top-0 left-0 right-0 w-full h-[620px] sm:h-[680px] lg:h-[750px] z-0 overflow-hidden pointer-events-none"
         style="-webkit-mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%); mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);">
         <div class="relative w-full h-full bg-transparent">
+            <%
+                let ssrBackdropUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                if (typeof movie !== 'undefined' && movie) {
+                    let rawBd = (movie.thumb_url || movie.poster_url || '').trim();
+                    if (rawBd) {
+                        rawBd = rawBd.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+                        if (rawBd.startsWith('http://') || rawBd.startsWith('https://')) {
+                            ssrBackdropUrl = rawBd;
+                        } else {
+                            let cleanBd = rawBd.replace(/^\//, '');
+                            if (cleanBd.startsWith('upload/') || cleanBd.startsWith('uploads/')) {
+                                ssrBackdropUrl = 'https://phimimg.com/' + cleanBd;
+                            } else {
+                                ssrBackdropUrl = 'https://phimimg.com/uploads/movies/' + cleanBd;
+                            }
+                        }
+                    }
+                }
+            %>
             <img id="movieHeroBackdrop" alt="Background"
                 class="w-full h-full object-cover object-top transition-opacity duration-700 opacity-70 lg:opacity-40 blur-xl lg:blur-2xl"
-                src="<%= typeof movie !== 'undefined' && movie && (movie.thumb_url || movie.poster_url) ? ((movie.thumb_url || movie.poster_url).startsWith('http') ? (movie.thumb_url || movie.poster_url) : 'https://phimimg.com/' + (movie.thumb_url || movie.poster_url).replace(/^\//, '')) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' %>"
+                src="<%= ssrBackdropUrl %>"
                 fetchpriority="high" />
             <div class="absolute inset-0 backdrop-gradient"></div>
         </div>
@@ -1079,9 +1098,28 @@
                         </style>
                         <div
                             class="custom-mobile-poster mx-auto lg:mx-0 relative aspect-[2/3] rounded-[20px] lg:rounded-2xl overflow-hidden shadow-2xl shadow-black/90 lg:shadow-black/50 group bg-transparent">
+                            <%
+                                let ssrPosterUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                                if (typeof movie !== 'undefined' && movie) {
+                                    let rawP = (movie.poster_url || movie.thumb_url || '').trim();
+                                    if (rawP) {
+                                        rawP = rawP.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+                                        if (rawP.startsWith('http://') || rawP.startsWith('https://')) {
+                                            ssrPosterUrl = rawP;
+                                        } else {
+                                            let cleanP = rawP.replace(/^\//, '');
+                                            if (cleanP.startsWith('upload/') || cleanP.startsWith('uploads/')) {
+                                                ssrPosterUrl = 'https://phimimg.com/' + cleanP;
+                                            } else {
+                                                ssrPosterUrl = 'https://phimimg.com/uploads/movies/' + cleanP;
+                                            }
+                                        }
+                                    }
+                                }
+                            %>
                             <img id="movieDetailPoster" alt="Poster"
                                 class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                                src="<%= typeof movie !== 'undefined' && movie && (movie.poster_url || movie.thumb_url) ? (movie.poster_url || movie.thumb_url) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' %>"
+                                src="<%= ssrPosterUrl %>"
                                 fetchpriority="high" />
                             <div id="posterQualityBadge"
                                 class="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded shadow-lg uppercase tracking-wider cinematic-gold-badge">

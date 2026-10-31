@@ -145,11 +145,16 @@ function renderMoviesTable(movies, listName, totalItems, totalPages_api) {
 
     let gridHTML = '';
 
-    movies.forEach((movie) => {
+    movies.forEach((movie, index) => {
         const rawImg = movie.poster_url || movie.thumb_url || '';
-        const posterUrl = (typeof imageOptimizer !== 'undefined' && rawImg)
-            ? imageOptimizer.optimizeImageUrl(rawImg, 400, 80)
-            : (rawImg.startsWith('http') ? rawImg : (rawImg ? `https://phimimg.com/${rawImg}` : 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22%3E%3Crect fill=%22%23111%22 width=%22400%22 height=%22600%22/%3E%3Ctext fill=%22%23555%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 alignment-baseline=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22%3ENo Image%3C/text%3E%3C/svg%3E'));
+        let posterUrl = '';
+        if (typeof movieAPI !== 'undefined' && typeof movieAPI.getImageURL === 'function') {
+            posterUrl = movieAPI.getImageURL(rawImg, 400, 80, index < 8);
+        } else if (typeof imageOptimizer !== 'undefined' && rawImg) {
+            posterUrl = imageOptimizer.optimizeImageUrl(rawImg, 400, 80, index < 8);
+        } else {
+            posterUrl = rawImg.startsWith('http') ? rawImg : (rawImg ? `https://phimimg.com/${rawImg.replace(/^\//, '')}` : 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22%3E%3Crect fill=%22%23111%22 width=%22400%22 height=%22600%22/%3E%3Ctext fill=%22%23555%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 alignment-baseline=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22%3ENo Image%3C/text%3E%3C/svg%3E');
+        }
         const year = movie.year || 'N/A';
         const quality = movie.quality || movie.lang || '';
         const episodeCurrent = movie.episode_current || 'N/A';
@@ -169,8 +174,11 @@ function renderMoviesTable(movies, listName, totalItems, totalPages_api) {
                          data-tmdb-name="${(movie.name || '').replace(/"/g, '&quot;')}"
                          data-tmdb-year="${movie.year || ''}"
                          data-tmdb-type="poster"
-                         loading="lazy"
-                         onerror="window.autoHealMovieImage ? window.autoHealMovieImage(this, typeof movie !== 'undefined' ? movie.slug : '', typeof movie !== 'undefined' ? (movie.name || movie.title) : '') : null">
+                         loading="${index < 8 ? 'eager' : 'lazy'}"
+                         ${index < 4 ? 'fetchpriority="high"' : ''}
+                         decoding="async"
+                         referrerpolicy="no-referrer"
+                         onerror="window.autoHealMovieImage ? window.autoHealMovieImage(this, '${movie.slug || ''}', '${(movie.name || '').replace(/'/g, "\\'")}') : null">
                     
                     ${hiddenUI.badge}
                     

@@ -14,6 +14,11 @@
         if (!rawUrl) return '';
         let url = String(rawUrl).trim();
         if (url.startsWith('data:image')) return url;
+
+        // Xóa triệt để tiền tố kép uploads/movies/upload/vod
+        url = url.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+        url = url.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+
         if (url.startsWith('http://') || url.startsWith('https://')) {
             return url.replace('img.ophimimg.com', 'phimimg.com')
                       .replace('img.phimapi.com', 'phimimg.com')
@@ -26,6 +31,9 @@
         }
         if (clean.match(/^\d{8}-\d+\//)) {
             return 'https://phimimg.com/upload/vod/' + clean;
+        }
+        if (clean.includes('.com/') || clean.includes('.vn/') || clean.includes('.net/') || clean.includes('.org/')) {
+            return 'https://' + clean;
         }
         return 'https://phimimg.com/uploads/movies/' + clean;
     };

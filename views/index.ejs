@@ -669,14 +669,14 @@
                     (function () {
                         try {
                             var deCuEl = document.getElementById('slider-de-cu');
-                            var cachedDeCu = localStorage.getItem('aphim_de_cu_slider_trends_v10') || sessionStorage.getItem('aphim_de_cu_slider_trends_v8');
+                            var cachedDeCu = localStorage.getItem('aphim_de_cu_slider_trends_v32');
                             if (deCuEl && cachedDeCu) {
                                 deCuEl.innerHTML = cachedDeCu;
                             }
                         } catch (e) { }
                         try {
                             var cinemaEl = document.getElementById('slider-cinema-hot');
-                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v10');
+                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v12');
                             if (cinemaEl && cachedCinemaHtml) {
                                 cinemaEl.innerHTML = cachedCinemaHtml;
                                 if (window.innerWidth < 640) {
@@ -1165,6 +1165,11 @@
                             if (!url) return '';
                             let u = String(url).trim();
                             if (u.startsWith('data:image')) return u;
+
+                            // Tự động gỡ bỏ nhân đôi tiền tố uploads/movies/upload/vod/...
+                            u = u.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+                            u = u.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+
                             if (u.startsWith('http://') || u.startsWith('https://')) {
                                 return u.replace('img.ophimimg.com', 'phimimg.com')
                                     .replace('ophim1.com/uploads', 'phimimg.com/uploads')
@@ -1374,7 +1379,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" decoding="async" ${idx < 2 ? 'fetchpriority="high"' : ''} referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" ${idx < 8 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -2005,8 +2010,14 @@
                         async function loadDeCuSlider() {
                             const sliderEl = document.getElementById('slider-de-cu');
                             if (!sliderEl) return;
-                            const cacheKey = 'aphim_de_cu_slider_trends_v30';
+                            const cacheKey = 'aphim_de_cu_slider_trends_v32';
                             try {
+                                for (let i = localStorage.length - 1; i >= 0; i--) {
+                                    const k = localStorage.key(i);
+                                    if (k && k.startsWith('aphim_de_cu_slider_trends_') && k !== cacheKey) {
+                                        localStorage.removeItem(k);
+                                    }
+                                }
                                 const cached = localStorage.getItem(cacheKey);
                                 if (cached && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
                                     sliderEl.innerHTML = cached;
@@ -2060,7 +2071,8 @@
                         // ==========================================
                         // 🎥 SECTION 0.2: PHIM RẠP SẮP CHIẾU (TỰ ĐỘNG 100% TRỰC TIẾP TỪ MOMO CINEMA API)
                         // ==========================================
-                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v11';
+                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v12';
+                        const CINEMA_HOT_HTML_KEY = 'aphim_cinema_hot_html_v12';
                         const CINEMA_HOT_MAX_DISPLAY = 20; // Giới hạn 20 phim hot nhất
                         let cinemaHotStoredItems = null;
                         let cinemaHotActiveIndex = 0;
@@ -2105,7 +2117,7 @@
                                     <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block group">
                                         <div class="cinema-hot-poster-wrap">
                                             <span class="cinema-hot-badge-age ${ageClass}">${age}</span>
-                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" decoding="async" ${idx < 2 ? 'fetchpriority="high"' : ''} onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
+                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" ${idx < 8 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
                                             ${rankHTML}
                                             <div class="phimmoi-play-overlay">
                                                 <div class="phimmoi-play-btn">
@@ -2271,7 +2283,7 @@
                                     sliderEl.innerHTML = html;
                                     if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
                                 }
-                                try { localStorage.setItem('aphim_cinema_hot_html_v10', html); } catch (e) { }
+                                try { localStorage.setItem(CINEMA_HOT_HTML_KEY, html); } catch (e) { }
                             } else {
                                 // --- MOBILE: 3D COVERFLOW STAGE CHUẨN HERO ẢNH SỐ 1 (0ms Lag, Căn giữa tuyệt đối 100%, Bỏ ô Xem tất cả) ---
                                 sliderEl.classList.add('cinema-hot-stage-mobile');
@@ -2283,7 +2295,7 @@
                                 if (sliderEl.innerHTML !== html || sliderEl.querySelector('.cinema-hot-skeleton-card')) {
                                     sliderEl.innerHTML = html;
                                 }
-                                try { localStorage.setItem('aphim_cinema_hot_html_v10', html); } catch (e) { }
+                                try { localStorage.setItem(CINEMA_HOT_HTML_KEY, html); } catch (e) { }
 
                                 // Giữ nguyên vị trí thẻ hiện tại nếu đang tương tác, hoặc đưa về 0
                                 if (typeof cinemaHotActiveIndex !== 'number' || cinemaHotActiveIndex >= topItems.length) {
@@ -2389,7 +2401,13 @@
 
                             // ⚡ 1. SWR: Nạp tức thì 0ms từ bộ nhớ đệm để không bị trễ hay giật giao diện
                             try {
-                                const cachedHtml = localStorage.getItem('aphim_cinema_hot_html_v11');
+                                for (let i = localStorage.length - 1; i >= 0; i--) {
+                                    const k = localStorage.key(i);
+                                    if (k && (k.startsWith('aphim_cinema_hot_html_') || k.startsWith('aphim_cinema_hot_momo_live_')) && k !== CINEMA_HOT_CACHE_KEY && k !== CINEMA_HOT_HTML_KEY) {
+                                        localStorage.removeItem(k);
+                                    }
+                                }
+                                const cachedHtml = localStorage.getItem(CINEMA_HOT_HTML_KEY);
                                 if (cachedHtml && (!sliderEl.children.length || sliderEl.querySelector('.cinema-hot-skeleton-card'))) {
                                     sliderEl.innerHTML = cachedHtml;
                                     if (window.innerWidth < 640) {

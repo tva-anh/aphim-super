@@ -87,12 +87,24 @@ window.autoHealMovieImage = async function(imgEl, slug, movieTitle) {
 window.getCleanMovieImageUrl = function(rawUrl) {
     if (!rawUrl) return 'https://aphim.top/android-chrome-512x512.png';
     let url = String(rawUrl).trim();
+    if (url.startsWith('data:image')) return url;
+
+    // Gỡ bỏ tiền tố kép uploads/movies/upload/vod/...
+    url = url.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+    url = url.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+
     if (url.startsWith('http://') || url.startsWith('https://')) {
         return url.replace(/img\.ophimimg\.com/g, 'phimimg.com').replace(/phimapi\.com\/uploads/g, 'phimimg.com/uploads');
     }
     const clean = url.replace(/^\//, '');
     if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
         return 'https://phimimg.com/' + clean;
+    }
+    if (clean.match(/^\d{8}-\d+\//)) {
+        return 'https://phimimg.com/upload/vod/' + clean;
+    }
+    if (clean.includes('.com/') || clean.includes('.vn/') || clean.includes('.net/') || clean.includes('.org/')) {
+        return 'https://' + clean;
     }
     return 'https://phimimg.com/uploads/movies/' + clean;
 };
@@ -815,15 +827,31 @@ class MovieAPI {
     getImageURL(imagePath, width = 400, quality = 80, isPriority = false) {
         if (!imagePath) return '/apple-touch-icon.png';
 
-        let fullUrl = imagePath;
-        if (fullUrl.includes('phimimg.com')) {
-            fullUrl = fullUrl.replace('phimimg.com', 'phimimg.com');
-        } else if (!imagePath.startsWith('http')) {
-            let filename = imagePath.replace(/^\//, "");
-            if (!filename.startsWith('uploads/')) {
-                filename = 'uploads/movies/' + filename;
+        let fullUrl = String(imagePath).trim();
+        if (fullUrl.startsWith('data:image')) return fullUrl;
+
+        // Xóa triệt để tiền tố kép uploads/movies/upload/vod
+        fullUrl = fullUrl.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+        fullUrl = fullUrl.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+
+        if (fullUrl.includes('ophim1.com') || fullUrl.includes('img.phimapi.com') || fullUrl.includes('img.ophimimg.com')) {
+            fullUrl = fullUrl.replace(/img\.ophimimg\.com/g, 'phimimg.com')
+                             .replace(/ophim1\.com\/uploads/g, 'phimimg.com/uploads')
+                             .replace(/phimapi\.com\/uploads/g, 'phimimg.com/uploads')
+                             .replace(/img\.phimapi\.com/g, 'phimimg.com');
+        }
+
+        if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+            let filename = fullUrl.replace(/^\//, '');
+            if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
+                fullUrl = `https://phimimg.com/${filename}`;
+            } else if (filename.match(/^\d{8}-\d+\//)) {
+                fullUrl = `https://phimimg.com/upload/vod/${filename}`;
+            } else if (filename.includes('.com/') || filename.includes('.vn/') || filename.includes('.net/') || filename.includes('.org/')) {
+                fullUrl = `https://${filename}`;
+            } else {
+                fullUrl = `https://phimimg.com/uploads/movies/${filename}`;
             }
-            fullUrl = `https://phimimg.com/${filename}`;
         }
 
         // Use imageOptimizer for advanced compression and caching

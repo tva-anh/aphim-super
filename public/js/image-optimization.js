@@ -14,13 +14,24 @@ class ImageOptimizer {
             optimizeImageUrl(url, width = 400, quality = 80, isPriority = false) {
         if (!url) return 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22 style=%22background:%23111%22%3E%3Ctext fill=%22%23555%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 alignment-baseline=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22%3ENo Image%3C/text%3E%3C/svg%3E';
         
-        let resolvedUrl = url;
-        if (!resolvedUrl.startsWith('http')) {
+        let resolvedUrl = String(url).trim();
+        if (resolvedUrl.startsWith('data:image')) return resolvedUrl;
+
+        // Xóa tiền tố kép uploads/movies/upload/vod
+        resolvedUrl = resolvedUrl.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+        resolvedUrl = resolvedUrl.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+
+        if (!resolvedUrl.startsWith('http://') && !resolvedUrl.startsWith('https://')) {
             let filename = resolvedUrl.replace(/^\//, '');
-            if (!filename.startsWith('uploads/')) {
-                filename = 'uploads/movies/' + filename;
+            if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
+                resolvedUrl = "https://phimimg.com/" + filename;
+            } else if (filename.match(/^\d{8}-\d+\//)) {
+                resolvedUrl = "https://phimimg.com/upload/vod/" + filename;
+            } else if (filename.includes('.com/') || filename.includes('.vn/') || filename.includes('.net/') || filename.includes('.org/')) {
+                resolvedUrl = "https://" + filename;
+            } else {
+                resolvedUrl = "https://phimimg.com/uploads/movies/" + filename;
             }
-            resolvedUrl = "https://phimimg.com/" + filename;
         }
 
         if (!resolvedUrl.includes('localhost') && !resolvedUrl.includes('127.0.0.1')) {
@@ -64,13 +75,23 @@ class ImageOptimizer {
     getProgressiveUrls(url) {
         if (!url) return { placeholder: null, full: 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22 style=%22background:%23111%22%3E%3Ctext fill=%22%23555%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 alignment-baseline=%22middle%22 font-family=%22sans-serif%22 font-size=%2220%22%3ENo Image%3C/text%3E%3C/svg%3E' };
 
-        let full = url;
-        if (!full.startsWith('http')) {
+        let full = String(url).trim();
+        if (full.startsWith('data:image')) return { placeholder: null, full: full };
+
+        full = full.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+        full = full.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+
+        if (!full.startsWith('http://') && !full.startsWith('https://')) {
             let filename = full.replace(/^\//, "");
-            if (!filename.startsWith('uploads/')) {
-                filename = 'uploads/movies/' + filename;
+            if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
+                full = "https://phimimg.com/" + filename;
+            } else if (filename.match(/^\d{8}-\d+\//)) {
+                full = "https://phimimg.com/upload/vod/" + filename;
+            } else if (filename.includes('.com/') || filename.includes('.vn/') || filename.includes('.net/') || filename.includes('.org/')) {
+                full = "https://" + filename;
+            } else {
+                full = "https://phimimg.com/uploads/movies/" + filename;
             }
-            full = "https://phimimg.com/" + filename;
         }
 
         // Bỏ qua CDN nếu đang run local
