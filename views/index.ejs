@@ -1247,6 +1247,36 @@
                                 }
                             }
 
+                            // BƯỚC 2.5: Thử TMDB Fast CDN WebP Poster (30ms) nếu server nguồn bị đơ/chậm
+                            if (!imgEl.dataset.triedTmdb && slug) {
+                                imgEl.dataset.triedTmdb = '1';
+                                try {
+                                    const cached = sessionStorage.getItem('tmdb_card_poster_' + slug);
+                                    if (cached && cached !== currentSrc) {
+                                        imgEl.src = cached;
+                                        return;
+                                    }
+                                    const q = originTitle || title || slug.replace(/-/g, ' ');
+                                    if (q) {
+                                        fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(q)}`)
+                                            .then(r => r.ok ? r.json() : null)
+                                            .then(data => {
+                                                const match = data?.results?.[0];
+                                                const p = match?.poster_path || match?.backdrop_path;
+                                                if (p && imgEl.isConnected) {
+                                                    const tmdbImg = `https://image.tmdb.org/t/p/w300${p}`;
+                                                    try { sessionStorage.setItem('tmdb_card_poster_' + slug, tmdbImg); } catch (_) {}
+                                                    imgEl.src = tmdbImg;
+                                                } else {
+                                                    renderCardFallbackSvg(imgEl, title || originTitle, slug, originalSrc);
+                                                }
+                                            })
+                                            .catch(() => renderCardFallbackSvg(imgEl, title || originTitle, slug, originalSrc));
+                                        return;
+                                    }
+                                } catch (_) {}
+                            }
+
                             // BƯỚC 3: Render SVG fallback thanh lịch với tên phim
                             renderCardFallbackSvg(imgEl, title || originTitle, slug, originalSrc);
                         };
@@ -2706,14 +2736,24 @@
                                 return;
                             }
 
+                            let loaded = false;
+                            const trigger = () => {
+                                if (loaded) return;
+                                loaded = true;
+                                try { observer.disconnect(); } catch (_) {}
+                                loadSection();
+                            };
+
                             const observer = new IntersectionObserver((entries) => {
                                 if (entries.some(entry => entry.isIntersecting)) {
-                                    observer.disconnect();
-                                    loadSection();
+                                    trigger();
                                 }
-                            }, { rootMargin: '600px 0px' });
+                            }, { rootMargin: '800px 0px' });
 
                             observer.observe(container);
+
+                            // Tự động kích hoạt sau 1.2s để khi người xem cuộn tới là phim đã hiện sẵn
+                            setTimeout(trigger, 1200);
                         }
 
                         // ==========================================

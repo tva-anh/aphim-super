@@ -2444,7 +2444,12 @@ async function fetchCastDataForMovie(movie) {
                                 const cOrig = removeVietnameseAccents(c.original_name || '');
                                 return actorList.some(a => {
                                     const aNorm = removeVietnameseAccents(cleanActorTitle(a));
-                                    return cNorm === aNorm || cOrig === aNorm || (aNorm.length >= 4 && (cNorm.includes(aNorm) || aNorm.includes(cNorm)));
+                                    if (!aNorm || aNorm.length < 2) return false;
+                                    if (cNorm && cNorm === aNorm) return true;
+                                    if (cOrig && cOrig === aNorm) return true;
+                                    if (cNorm && cNorm.length >= 4 && aNorm.length >= 4 && (cNorm.includes(aNorm) || aNorm.includes(cNorm))) return true;
+                                    if (cOrig && cOrig.length >= 4 && aNorm.length >= 4 && (cOrig.includes(aNorm) || aNorm.includes(cOrig))) return true;
+                                    return false;
                                 });
                             });
                             if (hasMatch) {
@@ -2470,22 +2475,34 @@ async function fetchCastDataForMovie(movie) {
         }
     }
 
-    // 4. Map final cast with high quality photos & fallback avatars
+    // 4. Map final cast with high quality photos & fallback avatars (Zero duplicate photo guarantee)
     const targetActors = actorList.slice(0, 15);
-    const result = await Promise.all(targetActors.map(async (actorName) => {
+    const assignedCastIds = new Set();
+    const assignedPhotoUrls = new Set();
+
+    const result = [];
+    for (const actorName of targetActors) {
         const cleanedName = cleanActorTitle(actorName);
         const aNorm = removeVietnameseAccents(cleanedName);
 
-        // Strict name match only - NEVER fallback to arbitrary index tmdbCast[idx]!
-        const matched = tmdbCast.find(c => {
-            if (!c || !c.name) return false;
-            const cNorm = removeVietnameseAccents(c.name);
-            const cOrig = removeVietnameseAccents(c.original_name || '');
-            if (cNorm === aNorm || cOrig === aNorm) return true;
-            if (aNorm.length >= 4 && (cNorm.includes(aNorm) || aNorm.includes(cNorm))) return true;
-            if (cOrig && aNorm.length >= 4 && (cOrig.includes(aNorm) || aNorm.includes(cOrig))) return true;
-            return false;
-        });
+        // Strict name match only: Guard against empty/short strings to prevent false matching non-Latin names
+        let matched = null;
+        if (aNorm && aNorm.length >= 2) {
+            matched = tmdbCast.find(c => {
+                if (!c || !c.name || (c.id && assignedCastIds.has(c.id))) return false;
+                const cNorm = removeVietnameseAccents(c.name);
+                const cOrig = removeVietnameseAccents(c.original_name || '');
+                if (cNorm && cNorm === aNorm) return true;
+                if (cOrig && cOrig === aNorm) return true;
+                if (cNorm && cNorm.length >= 4 && aNorm.length >= 4 && (cNorm.includes(aNorm) || aNorm.includes(cNorm))) return true;
+                if (cOrig && cOrig.length >= 4 && aNorm.length >= 4 && (cOrig.includes(aNorm) || aNorm.includes(cOrig))) return true;
+                return false;
+            });
+        }
+
+        if (matched && matched.id) {
+            assignedCastIds.add(matched.id);
+        }
 
         let profileUrl = matched && matched.profile_path ? `https://image.tmdb.org/t/p/w300${matched.profile_path}` : '';
         const charName = matched && matched.character ? matched.character : 'Diễn viên';
@@ -2509,13 +2526,21 @@ async function fetchCastDataForMovie(movie) {
             } catch (e) { }
         }
 
-        return {
+        // Anti-duplicate protection: If this photo URL has already been assigned to another actor, fallback to distinct initials avatar
+        if (profileUrl && assignedPhotoUrls.has(profileUrl)) {
+            profileUrl = '';
+        }
+        if (profileUrl) {
+            assignedPhotoUrls.add(profileUrl);
+        }
+
+        result.push({
             name: actorName,
             character: charName,
             photoUrl: profileUrl || fallbackUrl,
             fallbackUrl: fallbackUrl
-        };
-    }));
+        });
+    }
 
     return result;
 }

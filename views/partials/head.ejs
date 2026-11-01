@@ -430,7 +430,7 @@
                 -webkit-box-shadow: none !important;
             }
         </style>
-        <link rel="stylesheet" href="/css/movie-cards-v2.css?v=10014">
+        <link rel="stylesheet" href="/css/movie-cards-v2.css?v=10015">
         <link rel="stylesheet" href="/css/light-mode.css?v=20261031b">
         <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4" media="print" onload="this.media='all'">
         <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017" media="print" onload="this.media='all'">
@@ -439,3 +439,10 @@
         <script src="/js/toast-system.js?v=102" defer></script>
         <script src="/js/aphim-core-api.js?v=10013" defer></script>
         <script src="/js/nav-instant-suggest.js?v=10005" defer></script>
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('/service-worker.js').catch(function () {});
+                });
+            }
+        </script>

@@ -132,9 +132,19 @@ async function trySearchActorsDirectly(movie) {
             const data = await response.json();
 
             if (data.results && data.results.length > 0) {
-                const actor = data.results[0];
+                const cleanA = cleanActorTitle(actorName);
+                const aNorm = removeVietnameseAccents(cleanA);
+                const actor = data.results.find(p => {
+                    if (!p || !p.profile_path) return false;
+                    const pNorm = removeVietnameseAccents(p.name || '');
+                    const pOrig = removeVietnameseAccents(p.original_name || '');
+                    if (pNorm && pNorm === aNorm) return true;
+                    if (pOrig && pOrig === aNorm) return true;
+                    if (pNorm && pNorm.length >= 4 && aNorm.length >= 4 && (pNorm.includes(aNorm) || aNorm.includes(pNorm))) return true;
+                    return false;
+                });
 
-                if (actor.profile_path) {
+                if (actor && actor.profile_path) {
                     const imageUrl = TMDB_IMAGE_BASE + actor.profile_path;
 
                     const avatarContainer = actorElement.querySelector('.actor-avatar-container');
@@ -222,9 +232,9 @@ async function getActorAvatarClient(actorName) {
 // Attach to window so movie-detail.js can also access
 window.getActorAvatarClient = getActorAvatarClient;
 
-// Update actor avatars with TMDB images
+// Update actor avatars with TMDB images (Zero duplicate photo guarantee)
 function updateActorAvatars(localActors, tmdbCast) {
-    if (!localActors || localActors.length === 0) {
+    if (!localActors || localActors.length === 0 || !tmdbCast || tmdbCast.length === 0) {
         return;
     }
     const actorElements = document.querySelectorAll('[data-actor-name], .actor-card');
@@ -232,35 +242,56 @@ function updateActorAvatars(localActors, tmdbCast) {
         return;
     }
 
+    const assignedTmdbIds = new Set();
+    const assignedAvatarUrls = new Set();
+
     actorElements.forEach(async (element) => {
         const actorName = element.getAttribute('data-actor-name');
+        if (!actorName || actorName.trim().length < 2) return;
         const avatarContainer = element.querySelector('.actor-avatar-container');
 
         if (!avatarContainer) {
             return;
         }
 
-        // Try to find matching actor in TMDB data
+        const cleanedLocal = cleanActorTitle(actorName);
+        const normalizedLocal = removeVietnameseAccents(cleanedLocal);
+
+        // Try to find matching actor in TMDB data with strict non-empty comparison
         let tmdbActor = null;
+        if (normalizedLocal && normalizedLocal.length >= 2) {
+            tmdbActor = tmdbCast.find(cast => {
+                if (!cast || !cast.name || (cast.id && assignedTmdbIds.has(cast.id))) return false;
+                const normalizedTmdb = removeVietnameseAccents(cast.name);
+                const normalizedOrig = removeVietnameseAccents(cast.original_name || '');
 
-        // Method 1: Try exact match or partial match by name
-        tmdbActor = tmdbCast.find(cast => {
-            const tmdbName = cast.name.toLowerCase();
-            const localName = actorName.toLowerCase();
+                if (normalizedTmdb && normalizedTmdb === normalizedLocal) return true;
+                if (normalizedOrig && normalizedOrig === normalizedLocal) return true;
 
-            // Remove Vietnamese accents for better matching
-            const normalizedTmdb = removeVietnameseAccents(tmdbName);
-            const normalizedLocal = removeVietnameseAccents(localName);
+                if (normalizedTmdb && normalizedTmdb.length >= 4 && normalizedLocal.length >= 4) {
+                    if (normalizedTmdb.includes(normalizedLocal) || normalizedLocal.includes(normalizedTmdb)) return true;
+                }
+                if (normalizedOrig && normalizedOrig.length >= 4 && normalizedLocal.length >= 4) {
+                    if (normalizedOrig.includes(normalizedLocal) || normalizedLocal.includes(normalizedOrig)) return true;
+                }
+                return false;
+            });
+        }
 
-            return normalizedTmdb === normalizedLocal ||
-                normalizedTmdb.includes(normalizedLocal) ||
-                normalizedLocal.includes(normalizedTmdb);
-        });
+        if (tmdbActor && tmdbActor.id) {
+            assignedTmdbIds.add(tmdbActor.id);
+        }
+
+        let imageUrl = tmdbActor && tmdbActor.profile_path ? (TMDB_IMAGE_BASE + tmdbActor.profile_path) : '';
+        if (imageUrl && assignedAvatarUrls.has(imageUrl)) {
+            imageUrl = ''; // Prevent duplicate avatar reuse
+        }
+        if (imageUrl) {
+            assignedAvatarUrls.add(imageUrl);
+        }
 
         // Update avatar if actor found and has profile image
-        if (tmdbActor && tmdbActor.profile_path) {
-            const imageUrl = TMDB_IMAGE_BASE + tmdbActor.profile_path;
-
+        if (imageUrl) {
             // Create image element
             const img = document.createElement('img');
             img.src = imageUrl;
@@ -285,7 +316,8 @@ function updateActorAvatars(localActors, tmdbCast) {
         } else {
             // Multi-source fallback via cached client avatar resolver
             const avatarUrl = await getActorAvatarClient(actorName);
-            if (avatarUrl) {
+            if (avatarUrl && !assignedAvatarUrls.has(avatarUrl)) {
+                assignedAvatarUrls.add(avatarUrl);
                 const img = document.createElement('img');
                 img.src = avatarUrl;
                 img.alt = actorName;

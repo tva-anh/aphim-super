@@ -86,6 +86,43 @@
             }
         }
 
+        // BƯỚC 3: Thử TMDB Fast CDN WebP Poster (30ms) nếu server nguồn bị đơ/chậm
+        const slug = imgEl.dataset.slug || '';
+        const title = imgEl.dataset.title || '';
+        const originTitle = imgEl.dataset.origin || '';
+        if (!imgEl.dataset.triedTmdb && slug) {
+            imgEl.dataset.triedTmdb = '1';
+            try {
+                const cached = sessionStorage.getItem('tmdb_card_poster_' + slug);
+                if (cached && cached !== currentSrc) {
+                    imgEl.src = cached;
+                    return;
+                }
+                const q = originTitle || title || slug.replace(/-/g, ' ');
+                if (q) {
+                    fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(q)}`)
+                        .then(r => r.ok ? r.json() : null)
+                        .then(data => {
+                            const match = data?.results?.[0];
+                            const p = match?.poster_path || match?.backdrop_path;
+                            if (p && imgEl.isConnected) {
+                                const tmdbImg = `https://image.tmdb.org/t/p/w300${p}`;
+                                try { sessionStorage.setItem('tmdb_card_poster_' + slug, tmdbImg); } catch (_) {}
+                                imgEl.src = tmdbImg;
+                            } else {
+                                imgEl.onerror = null;
+                                imgEl.src = SVG_NO_POSTER;
+                            }
+                        })
+                        .catch(() => {
+                            imgEl.onerror = null;
+                            imgEl.src = SVG_NO_POSTER;
+                        });
+                    return;
+                }
+            } catch (_) {}
+        }
+
         // Final fallback: inline SVG Data URI (chuẩn tỉ lệ 2:3, không bao giờ 404)
         imgEl.onerror = null;
         imgEl.src = SVG_NO_POSTER;

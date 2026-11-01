@@ -1,35 +1,62 @@
 /**
- * APhim Super — Service Worker
- * Version: 2.4.0
+ * APhim Super — Enterprise Service Worker
+ * Version: 3.0.0
+ * Features: Static Assets Cache + Ultra-Fast Movie Poster & Image Caching (Cache-First 0ms)
  */
 
-const CACHE_NAME = 'aphim-static-v17';
+const STATIC_CACHE = 'aphim-static-v18';
+const IMAGE_CACHE = 'aphim-images-v1';
+const MAX_IMAGE_ENTRIES = 350;
+
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',
   '/android-chrome-192x192.png',
   '/android-chrome-512x512.png',
-  '/manifest.json'
+  '/manifest.json',
+  '/css/movie-cards-v2.css?v=10014',
+  '/css/light-mode.css?v=20261031b'
 ];
 
-// Install Event
+// Domains of movie image CDNs eligible for high-speed local caching
+const IMAGE_HOSTS = [
+  'phimimg.com',
+  'img.phimapi.com',
+  'img.ophimimg.com',
+  'image.tmdb.org',
+  'vsmov.com'
+];
+
+// Helper: Trim cache to prevent taking excess storage
+async function trimCache(cacheName, maxItems) {
+  try {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+    if (keys.length > maxItems) {
+      const itemsToDelete = keys.slice(0, keys.length - maxItems);
+      await Promise.all(itemsToDelete.map(k => cache.delete(k)));
+    }
+  } catch (_) {}
+}
+
+// 1. Install Event
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(STATIC_CACHE).then((cache) => {
       return cache.addAll(STATIC_ASSETS).catch((err) => {
         console.warn('[SW] Pre-caching static assets failed:', err);
       });
-    })
+    }).then(() => self.skipWaiting())
   );
 });
 
-// Activate Event - Clean old caches
+// 2. Activate Event - Clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key !== STATIC_CACHE && key !== IMAGE_CACHE) {
             return caches.delete(key);
           }
         })
@@ -38,46 +65,74 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Skip waiting message from sw-updater.js
+// 3. Message handler
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Fetch Event - Network first with cache fallback for static assets
+// 4. Fetch Event: Dual-pipeline (Ultra-Fast Image Caching + Network-First Static)
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const req = event.request;
+  if (req.method !== 'GET') return;
 
-  // ⚡ Bỏ qua tài nguyên bên thứ 3 (CDN ảnh phimimg, google fonts, cdnjs, external streams)
-  // để trình duyệt tải trực tiếp qua HTTP/2 cache, tránh nghẽn khi server reload hoặc SW vừa activate
-  if (url.origin !== self.location.origin) {
+  const url = new URL(req.url);
+
+  // 🚀 PIPELINE 1: MOVIE POSTER & THUMBNAIL IMAGES (Cache-First with Background Fallback)
+  const isImageHost = IMAGE_HOSTS.some(host => url.hostname.includes(host));
+  const isImageFile = /\.(?:jpg|jpeg|png|webp|avif)(?:\?.*)?$/i.test(url.pathname);
+
+  if (isImageHost || (req.destination === 'image' && isImageFile)) {
+    event.respondWith(
+      caches.open(IMAGE_CACHE).then(async (cache) => {
+        const cachedResponse = await cache.match(req);
+        if (cachedResponse) {
+          return cachedResponse; // ⚡ Tức thì 0ms từ bộ nhớ đệm
+        }
+
+        try {
+          const networkResponse = await fetch(req);
+          // Opaque response (type === 'opaque') từ cross-origin CDN vẫn lưu cache hợp lệ
+          if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+            cache.put(req, networkResponse.clone()).catch(() => {});
+            // Dọn bớt nếu vượt quá giới hạn
+            setTimeout(() => trimCache(IMAGE_CACHE, MAX_IMAGE_ENTRIES), 2000);
+          }
+          return networkResponse;
+        } catch (fetchErr) {
+          // Nếu mất mạng hoặc server CDN lỗi, thử tìm lại cache
+          return cachedResponse || new Response('', { status: 408, statusText: 'Request Timeout' });
+        }
+      })
+    );
     return;
   }
 
-  // Bỏ qua API requests, websocket, auth, admin
+  // 🛡️ Bỏ qua API routes, websocket, admin
   if (
-    event.request.method !== 'GET' ||
+    url.origin !== self.location.origin ||
     url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/aphim-quan-tri') ||
     url.pathname.startsWith('/admin')
   ) {
     return;
   }
 
-  // Network first with cache fallback
+  // 🚀 PIPELINE 2: STATIC PAGES & LOCAL ASSETS (Network-First with Cache Fallback)
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache).catch(() => { });
+          caches.open(STATIC_CACHE).then((cache) => {
+            cache.put(req, responseToCache).catch(() => {});
           });
         }
         return networkResponse;
       })
       .catch(() => {
-        return caches.match(event.request);
+        return caches.match(req);
       })
   );
 });

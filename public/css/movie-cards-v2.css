@@ -643,6 +643,27 @@ html.light-mode .de-cu-card .de-cu-poster-wrap {
     overflow: hidden !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
+    background: linear-gradient(110deg, #131722 8%, #1f273b 18%, #131722 33%) !important;
+    background-size: 200% 100% !important;
+    animation: aphimPosterShimmer 1.5s ease-in-out infinite !important;
+}
+
+.grid-poster-wrap {
+    background: linear-gradient(110deg, #131722 8%, #1f273b 18%, #131722 33%) !important;
+    background-size: 200% 100% !important;
+    animation: aphimPosterShimmer 1.5s ease-in-out infinite !important;
+}
+
+html.light-mode .landscape-poster-wrap,
+html.light-mode .grid-poster-wrap {
+    background: linear-gradient(110deg, #e4ded3 8%, #f3eee6 18%, #e4ded3 33%) !important;
+    background-size: 200% 100% !important;
+    animation: aphimPosterShimmer 1.5s ease-in-out infinite !important;
+}
+
+@keyframes aphimPosterShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 .featured-card-item .landscape-poster-wrap {
