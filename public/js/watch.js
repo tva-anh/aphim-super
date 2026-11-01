@@ -1637,291 +1637,36 @@ function handleInitialPlayerMount(episode) {
     }
 }
 
-// ── 🎬 PRE-ROLL TVC VIDEO CONTROLLER (PARTNER i9 SPONSOR - INSTANT 0MS PRELOAD) ─
-const TVC_VIDEO_URL = 'https://bf.333xbet.com/18881999/video9922.mp4';
-const TVC_TARGET_URL = 'https://154.82.109.157/2138052.html';
-let _tvcPreloadedVideo = null;
-
-// ⚡ Background pre-buffer TVC video metadata on page load without choking network bandwidth
-function initTvcPreload() {
-    try {
-        if (!_tvcPreloadedVideo) {
-            _tvcPreloadedVideo = document.createElement('video');
-            _tvcPreloadedVideo.src = TVC_VIDEO_URL;
-            _tvcPreloadedVideo.preload = 'metadata'; // ⚡ Không tải ép toàn bộ file MP4 vào RAM để nhường băng thông cho phim
-            _tvcPreloadedVideo.muted = true;
-            _tvcPreloadedVideo.playsInline = true;
-            _tvcPreloadedVideo.style.display = 'none';
-        }
-    } catch (e) {}
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTvcPreload, { once: true, passive: true });
-} else {
-    initTvcPreload();
-}
+// ── 🎬 DIRECT INSTANT MOVIE PLAYBACK CONTROLLER (ZERO ADS) ─
+window._isTvcActive = false;
 
 function playTvcPreroll(onFinished) {
+    window._isTvcActive = false;
     const placeholder = document.getElementById('playerPlaceholder');
-    const playerContainer = (placeholder && placeholder.parentElement) ? placeholder.parentElement : document.querySelector('.aspect-video');
-
-    if (!playerContainer) {
-        if (typeof onFinished === 'function') onFinished();
-        return;
-    }
-
     if (placeholder) placeholder.style.display = 'none';
 
-    // Remove any existing TVC overlay if present
-    const existingOverlay = document.getElementById('aphimTvcOverlay');
-    if (existingOverlay) existingOverlay.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'aphimTvcOverlay';
-    overlay.style.cssText = 'position: absolute; inset: 0; z-index: 9999; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden;';
-
-    // Reuse pre-buffered video instance for instant launch without network lag
-    let videoEl = _tvcPreloadedVideo;
-    if (!videoEl) {
-        videoEl = document.createElement('video');
-        videoEl.src = TVC_VIDEO_URL;
-        videoEl.preload = 'auto';
+    const mainVideo = document.getElementById('videoPlayer') || window.player;
+    if (mainVideo && typeof mainVideo.play === 'function') {
+        mainVideo.muted = false;
+        mainVideo.volume = 0.9;
+        mainVideo.play().catch(() => {});
+    } else {
+        initializePlayer(currentEpisode);
     }
-    videoEl.id = 'aphimTvcVideo';
-    videoEl.playsInline = true;
-    videoEl.autoplay = true;
-    videoEl.style.cssText = 'width: 100%; height: 100%; object-fit: contain; cursor: pointer; background: #000; display: block;';
-    videoEl.title = 'Bấm vào để mở trang nhà tài trợ';
-
-    overlay.innerHTML = `
-        <style>
-            @media (max-width: 767px) {
-                #aphimTvcCtaBtn {
-                    display: none !important;
-                }
-                #aphimTvcSkipBtn {
-                    bottom: 10px !important;
-                    right: 10px !important;
-                    font-size: 11.5px !important;
-                    padding: 5.5px 13px !important;
-                }
-            }
-        </style>
-
-        <!-- Bottom Left Click CTA Button (Enterprise Dark Glassmorphism - Hidden on Mobile) -->
-        <a 
-            href="${TVC_TARGET_URL}" 
-            target="_blank" 
-            rel="noopener noreferrer nofollow" 
-            id="aphimTvcCtaBtn"
-            style="
-                position: absolute; bottom: 14px; left: 14px; 
-                background: rgba(15, 23, 42, 0.82); 
-                backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-                color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-weight: 700; font-size: 12.5px; letter-spacing: 0.2px;
-                padding: 6px 14px 6px 10px; border-radius: 9999px; 
-                border: 1px solid rgba(255, 255, 255, 0.22); 
-                box-shadow: 0 8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.25); 
-                text-decoration: none; display: flex; align-items: center; gap: 8px; z-index: 20; 
-                transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-                cursor: pointer; user-select: none;
-            "
-            onmouseover="this.style.transform='translateY(-2px) scale(1.04)'; this.style.background='rgba(30, 41, 59, 0.94)'; this.style.borderColor='rgba(245, 158, 11, 0.65)'; this.style.boxShadow='0 12px 32px rgba(0,0,0,0.75), 0 0 16px rgba(245, 158, 11, 0.4)';"
-            onmouseout="this.style.transform='translateY(0) scale(1.0)'; this.style.background='rgba(15, 23, 42, 0.82)'; this.style.borderColor='rgba(255, 255, 255, 0.22)'; this.style.boxShadow='0 8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.25)';"
-        >
-            <span style="display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 0 10px rgba(245,158,11,0.55); flex-shrink: 0;">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#0a0c10" stroke="#0a0c10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 1.5px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            </span>
-            <span style="background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Khám Phá Ngay</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-
-        <!-- Bottom Right Skip Countdown Button (Frosted Dark Glass) -->
-        <div 
-            id="aphimTvcSkipBtn" 
-            style="
-                position: absolute; bottom: 14px; right: 14px; 
-                background: rgba(10, 14, 23, 0.85); 
-                backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-                color: rgba(255, 255, 255, 0.9); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-weight: 600; font-size: 12.5px; letter-spacing: 0.2px;
-                padding: 6.5px 16px; border-radius: 9999px; 
-                border: 1px solid rgba(255, 255, 255, 0.18); 
-                box-shadow: 0 8px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.15); 
-                display: flex; align-items: center; justify-content: center; z-index: 20; 
-                cursor: not-allowed; user-select: none;
-                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            "
-        >
-            <span id="aphimTvcSkipText">Có thể bỏ qua sau <strong style="color: #fbbf24; font-weight: 800; font-size: 13.5px; margin: 0 1.5px;">5</strong>s</span>
-        </div>
-    `;
-
-    overlay.insertBefore(videoEl, overlay.firstChild);
-    playerContainer.appendChild(overlay);
-
-    const skipBtn = overlay.querySelector('#aphimTvcSkipBtn');
-    const skipText = overlay.querySelector('#aphimTvcSkipText');
-
-    let countdown = 5;
-    let countdownInterval = null;
-    let finished = false;
-
-    function cleanupAndFinish() {
-        if (finished) return;
-        finished = true;
-        window._isTvcActive = false;
-        if (countdownInterval) clearInterval(countdownInterval);
-        try {
-            if (videoEl) {
-                videoEl.pause();
-                videoEl.removeAttribute('src');
-                videoEl.load();
-            }
-        } catch (e) {}
-        _tvcPreloadedVideo = null;
-        if (overlay && overlay.parentElement) {
-            overlay.remove();
-        }
-
-        // ⚡ INSTANT UNMUTE & 0MS SEAMLESS TRANSITION TO MAIN MOVIE STREAM
-        const mainVideo = document.getElementById('videoPlayer') || window.player;
-        if (mainVideo && typeof mainVideo.play === 'function') {
-            mainVideo.muted = false;
-            mainVideo.volume = 0.9;
-
-            // Kiểm tra tiến độ xem trước đó
-            try {
-                const progress = (typeof userService !== 'undefined' && userService.getWatchProgress)
-                    ? userService.getWatchProgress(currentMovie?.slug, currentEpisode?.slug)
-                    : null;
-                const shouldResume = progress && progress.currentTime > 5 && !progress.completed &&
-                                     (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
-
-                if (shouldResume) {
-                    mainVideo.currentTime = progress.currentTime;
-                } else {
-                    mainVideo.currentTime = 0;
-                }
-            } catch (e) {
-                mainVideo.currentTime = 0;
-            }
-
-            const playPromise = mainVideo.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(err => {
-                    console.log('Main stream play error on skip:', err);
-                    mainVideo.muted = true;
-                    mainVideo.play().catch(() => {});
-                });
-            }
-
-            // Cập nhật UI âm lượng và icon
-            const volIcon = document.getElementById('aphim-icon-volume');
-            const volSlider = document.getElementById('aphim-volume-slider');
-            if (volIcon) volIcon.textContent = 'volume_up';
-            if (volSlider) volSlider.value = 0.9;
-        } else {
-            // Fallback nếu player chưa khởi tạo
-            initializePlayer(currentEpisode);
-        }
-
-        if (typeof onFinished === 'function') {
-            onFinished();
-        }
-    }
-
-    videoEl.onclick = () => {
-        window.open(TVC_TARGET_URL, '_blank', 'noopener,noreferrer');
-    };
-
-    videoEl.muted = false;
-    const playPromise = videoEl.play();
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            videoEl.muted = true;
-            videoEl.play().catch(() => {});
-        });
-    }
-
-    countdownInterval = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-            if (skipText) skipText.innerHTML = `Có thể bỏ qua sau <strong style="color: #fbbf24; font-weight: 800; font-size: 13.5px; margin: 0 1.5px;">${countdown}</strong>s`;
-        } else {
-            clearInterval(countdownInterval);
-            if (skipBtn) {
-                skipBtn.style.cursor = 'pointer';
-                skipBtn.style.background = 'rgba(15, 23, 42, 0.92)';
-                skipBtn.style.backdropFilter = 'blur(16px)';
-                skipBtn.style.webkitBackdropFilter = 'blur(16px)';
-                skipBtn.style.border = '1.5px solid rgba(239, 68, 68, 0.65)';
-                skipBtn.style.boxShadow = '0 8px 30px rgba(0,0,0,0.65), 0 0 20px rgba(239,68,68,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
-                skipBtn.style.padding = '6px 12px 6px 16px';
-                skipBtn.style.transform = 'scale(1.02)';
-                skipBtn.innerHTML = `
-                    <span style="font-weight: 800; font-size: 13px; color: #ffffff; letter-spacing: 0.1px; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">Bỏ qua quảng cáo</span>
-                    <span id="aphimTvcSkipBadge" style="
-                        display: flex; align-items: center; justify-content: center;
-                        width: 22px; height: 22px; border-radius: 50%;
-                        background: #ffffff; color: #ef4444;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 10px rgba(239,68,68,0.5);
-                        flex-shrink: 0;
-                        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
-                    ">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </span>
-                `;
-                skipBtn.onmouseover = () => {
-                    skipBtn.style.transform = 'translateY(-2px) scale(1.05)';
-                    skipBtn.style.background = 'rgba(239, 68, 68, 0.95)';
-                    skipBtn.style.borderColor = '#ffffff';
-                    skipBtn.style.boxShadow = '0 12px 35px rgba(239,68,68,0.55), 0 0 25px rgba(239,68,68,0.65)';
-                    const badge = skipBtn.querySelector('#aphimTvcSkipBadge');
-                    if (badge) badge.style.transform = 'rotate(90deg) scale(1.1)';
-                };
-                skipBtn.onmouseout = () => {
-                    skipBtn.style.transform = 'translateY(0) scale(1.02)';
-                    skipBtn.style.background = 'rgba(15, 23, 42, 0.92)';
-                    skipBtn.style.borderColor = 'rgba(239, 68, 68, 0.65)';
-                    skipBtn.style.boxShadow = '0 8px 30px rgba(0,0,0,0.65), 0 0 20px rgba(239,68,68,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
-                    const badge = skipBtn.querySelector('#aphimTvcSkipBadge');
-                    if (badge) badge.style.transform = 'rotate(0deg) scale(1.0)';
-                };
-                skipBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    cleanupAndFinish();
-                };
-            }
-        }
-    }, 580); // ⚡ Đếm ngược 5s trôi nhanh trong 2.9s giúp user bỏ qua quảng cáo siêu tốc mà đối tác vẫn thấy đủ 5s
-
-    videoEl.addEventListener('ended', cleanupAndFinish);
-    videoEl.addEventListener('error', (err) => {
-        console.warn('⚠️ TVC Video error, proceeding to main stream...', err);
-        cleanupAndFinish();
-    });
+    if (typeof onFinished === 'function') onFinished();
 }
 
-// ⚡ Global callback: Song song phát TVC & nạp ngầm luồng video phim (0ms delay khi bỏ qua)
+// ⚡ Global callback: Bấm Play là phát phim trực tiếp tức thì 0ms, không quảng cáo
 window.startActualPlayback = function () {
-    console.log('⚡ Khởi chạy song song: TVC Pre-roll & Nạp đệm ngầm luồng phim (0ms instant playback)...');
-    window._isTvcActive = true;
+    window._isTvcActive = false;
+    const placeholder = document.getElementById('playerPlaceholder');
+    if (placeholder) placeholder.style.display = 'none';
 
-    // 1. Khởi tạo player và nạp đệm luồng HLS ngay dưới nền (chế độ tắt tiếng ngầm)
     try {
         initializePlayer(currentEpisode);
     } catch (e) {
-        console.warn('Lỗi khởi tạo player ngầm:', e);
+        console.warn('Lỗi khởi tạo player:', e);
     }
-
-    // 2. Chạy TVC Pre-roll nổi lên trên (z-index: 9999) có âm thanh
-    playTvcPreroll();
 };
 
 function getLangTag(server, movie) {

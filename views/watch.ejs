@@ -3,7 +3,6 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="preconnect" href="https://bf.333xbet.com" crossorigin>
         <link rel="stylesheet" href="/css/watch-page.css?v=362" />
         <style>
             /* Tên phim trong Card bên phải: Vàng amber sắc nét, tương phản cao, không bị lợt trên nền kem */
@@ -602,24 +601,26 @@
                                     class="relative w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden flex-shrink-0 bg-gray-800 shadow-md">
                                     <% 
                                         let ssrWatchPoster = '';
+                                        let rawOriginWatchP = '';
                                         if (typeof movie !== 'undefined' && movie) {
                                             let rawP = (movie.poster_url || movie.thumb_url || '').trim();
                                             if (rawP) {
                                                 rawP = rawP.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
                                                 if (rawP.startsWith('http://') || rawP.startsWith('https://')) {
-                                                    ssrWatchPoster = rawP;
+                                                    rawOriginWatchP = rawP;
                                                 } else {
                                                     let cleanP = rawP.replace(/^\//, '');
                                                     if (cleanP.startsWith('upload/') || cleanP.startsWith('uploads/')) {
-                                                        ssrWatchPoster = 'https://phimimg.com/' + cleanP;
+                                                        rawOriginWatchP = 'https://phimimg.com/' + cleanP;
                                                     } else {
-                                                        ssrWatchPoster = 'https://phimimg.com/uploads/movies/' + cleanP;
+                                                        rawOriginWatchP = 'https://phimimg.com/uploads/movies/' + cleanP;
                                                     }
                                                 }
+                                                ssrWatchPoster = rawOriginWatchP;
                                             }
                                         }
                                     %>
-                                    <img id="sidebar-poster" src="<%= ssrWatchPoster %>" alt="<%= (typeof movie !== 'undefined' && movie && movie.name) ? movie.name : 'Poster' %>" class="w-full h-full object-cover" />
+                                    <img id="sidebar-poster" src="<%= ssrWatchPoster %>" data-fallback="<%= rawOriginWatchP %>" onerror="if(!this.dataset.tried && this.dataset.fallback){this.dataset.tried='1';this.src=this.dataset.fallback;}" alt="<%= (typeof movie !== 'undefined' && movie && movie.name) ? movie.name : 'Poster' %>" class="w-full h-full object-cover" />
                                     <span id="sidebar-poster-badge" style="background-color: #38bdf8; color: #ffffff;"
                                         class="absolute top-1.5 left-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md shadow">Song
                                         ngữ</span>

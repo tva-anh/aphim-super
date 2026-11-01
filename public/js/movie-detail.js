@@ -550,6 +550,7 @@ function renderMovieDetail(movie) {
                         tmdbSlug: movie.slug,
                         tmdbId: movie.tmdb.id,
                         tmdbName: movie.name,
+                        tmdbOriginName: movie.origin_name || '',
                         tmdbYear: movie.year,
                         tmdbType: 'poster',
                         tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
@@ -581,16 +582,17 @@ function renderMovieDetail(movie) {
         }
         posterImg.alt = `Xem Phim ${movie.name} (${movie.year}) Full HD Vietsub tại APhim`;
 
-        // ⚡ Anti-Stall Watchdog: Nếu máy chủ phimimg.com bị nghẽn (>3s chưa nạp xong), chủ động bám sang TMDB siêu tốc
+        // ⚡ Anti-Stall Watchdog: Nếu máy chủ phimimg.com bị nghẽn (>1s chưa nạp xong), chủ động bám sang TMDB siêu tốc
         if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
             setTimeout(() => {
                 if (!posterImg.complete || posterImg.naturalWidth === 0) {
-                    console.warn('⚡ [Detail] Ảnh poster từ nguồn chính phản hồi lâu (>3s), kích hoạt tăng tốc TMDB...');
+                    console.warn('⚡ [Detail] Ảnh poster từ nguồn chính phản hồi lâu (>1s), kích hoạt tăng tốc TMDB...');
                     imageOptimizer.getTMDBImageUrl({
                         dataset: {
                             tmdbSlug: movie.slug,
                             tmdbId: movie.tmdb.id,
                             tmdbName: movie.name,
+                            tmdbOriginName: movie.origin_name || '',
                             tmdbYear: movie.year,
                             tmdbType: 'poster',
                             tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
@@ -602,7 +604,7 @@ function renderMovieDetail(movie) {
                         }
                     }).catch(() => {});
                 }
-            }, 3000);
+            }, 1000);
         }
     }
 
@@ -644,6 +646,7 @@ function renderMovieDetail(movie) {
                         tmdbSlug: movie.slug,
                         tmdbId: movie.tmdb.id,
                         tmdbName: movie.name,
+                        tmdbOriginName: movie.origin_name || '',
                         tmdbYear: movie.year,
                         tmdbType: 'backdrop',
                         tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
@@ -666,16 +669,17 @@ function renderMovieDetail(movie) {
             bgImg.src = defaultBgUrl;
         }
 
-        // ⚡ Anti-Stall Watchdog: Nếu ảnh nền từ nguồn chính bị treo (>3.5s chưa xong), chuyển sang TMDB backdrop
+        // ⚡ Anti-Stall Watchdog: Nếu ảnh nền từ nguồn chính bị treo (>1.2s chưa xong), chuyển sang TMDB backdrop
         if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
             setTimeout(() => {
                 if (!bgImg.complete || bgImg.naturalWidth === 0) {
-                    console.warn('⚡ [Detail] Ảnh nền từ nguồn chính phản hồi lâu (>3.5s), kích hoạt tăng tốc TMDB...');
+                    console.warn('⚡ [Detail] Ảnh nền từ nguồn chính phản hồi lâu (>1.2s), kích hoạt tăng tốc TMDB...');
                     imageOptimizer.getTMDBImageUrl({
                         dataset: {
                             tmdbSlug: movie.slug,
                             tmdbId: movie.tmdb.id,
                             tmdbName: movie.name,
+                            tmdbOriginName: movie.origin_name || '',
                             tmdbYear: movie.year,
                             tmdbType: 'backdrop',
                             tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
@@ -2381,6 +2385,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Helper to normalize and remove Vietnamese accents
+function removeVietnameseAccents(str) {
+    if (!str) return '';
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+              .toLowerCase()
+              .replace(/[^a-z0-9\s]/g, '')
+              .replace(/\s+/g, ' ')
+              .trim();
+}
+
+// Helper to remove prefixes like NSƯT, NSND, etc.
+function cleanActorTitle(name) {
+    if (!name) return '';
+    return name.replace(/^(NSƯT|NSND|Nghệ sĩ|Đạo diễn|MC|Diễn viên)\s+/i, '').trim();
+}
+
 // Helper to fetch complete cast data with photos & fallbacks
 async function fetchCastDataForMovie(movie) {
     let tmdbCast = [];
@@ -2411,7 +2433,28 @@ async function fetchCastDataForMovie(movie) {
                     const credRes = await fetch(`/api/tmdb/${tmdbType}/${match.id}/credits`);
                     if (credRes.ok) {
                         const cData = await credRes.json();
-                        tmdbCast = cData.cast || [];
+                        const candidateCast = cData.cast || [];
+                        
+                        // Strict validation: if actorList is provided, TMDB credits MUST have at least one matching actor.
+                        // Otherwise, it matched a completely unrelated film with the same generic title (e.g. Hamlet).
+                        if (actorList.length > 0) {
+                            const hasMatch = candidateCast.some(c => {
+                                if (!c || !c.name) return false;
+                                const cNorm = removeVietnameseAccents(c.name);
+                                const cOrig = removeVietnameseAccents(c.original_name || '');
+                                return actorList.some(a => {
+                                    const aNorm = removeVietnameseAccents(cleanActorTitle(a));
+                                    return cNorm === aNorm || cOrig === aNorm || (aNorm.length >= 4 && (cNorm.includes(aNorm) || aNorm.includes(cNorm)));
+                                });
+                            });
+                            if (hasMatch) {
+                                tmdbCast = candidateCast;
+                                movie._verifiedTmdb = { id: match.id, type: tmdbType };
+                            }
+                        } else {
+                            tmdbCast = candidateCast;
+                            movie._verifiedTmdb = { id: match.id, type: tmdbType };
+                        }
                     }
                 }
             }
@@ -2429,20 +2472,33 @@ async function fetchCastDataForMovie(movie) {
 
     // 4. Map final cast with high quality photos & fallback avatars
     const targetActors = actorList.slice(0, 15);
-    const result = await Promise.all(targetActors.map(async (actorName, idx) => {
-        const matched = tmdbCast.find(c => c.name && (c.name.toLowerCase().includes(actorName.toLowerCase()) || actorName.toLowerCase().includes(c.name.toLowerCase()))) || (tmdbCast.length > idx ? tmdbCast[idx] : null);
+    const result = await Promise.all(targetActors.map(async (actorName) => {
+        const cleanedName = cleanActorTitle(actorName);
+        const aNorm = removeVietnameseAccents(cleanedName);
+
+        // Strict name match only - NEVER fallback to arbitrary index tmdbCast[idx]!
+        const matched = tmdbCast.find(c => {
+            if (!c || !c.name) return false;
+            const cNorm = removeVietnameseAccents(c.name);
+            const cOrig = removeVietnameseAccents(c.original_name || '');
+            if (cNorm === aNorm || cOrig === aNorm) return true;
+            if (aNorm.length >= 4 && (cNorm.includes(aNorm) || aNorm.includes(cNorm))) return true;
+            if (cOrig && aNorm.length >= 4 && (cOrig.includes(aNorm) || aNorm.includes(cOrig))) return true;
+            return false;
+        });
+
         let profileUrl = matched && matched.profile_path ? `https://image.tmdb.org/t/p/w300${matched.profile_path}` : '';
         const charName = matched && matched.character ? matched.character : 'Diễn viên';
-        const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(actorName)}&background=1e2130&color=fcd576&size=200&bold=true`;
+        const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanedName || actorName)}&background=1e2130&color=fcd576&size=200&bold=true`;
 
-        // If no TMDB movie cast photo, fetch from cached actor avatar resolver
+        // If no TMDB movie cast photo, fetch from cached actor avatar resolver (strict individual search)
         if (!profileUrl) {
             try {
                 if (typeof window.getActorAvatarClient === 'function') {
-                    const cachedAvatar = await window.getActorAvatarClient(actorName);
+                    const cachedAvatar = await window.getActorAvatarClient(cleanedName);
                     if (cachedAvatar) profileUrl = cachedAvatar;
                 } else {
-                    const avatarRes = await fetch(`/api/actor-avatar?name=${encodeURIComponent(actorName)}`);
+                    const avatarRes = await fetch(`/api/actor-avatar?name=${encodeURIComponent(cleanedName)}`);
                     if (avatarRes.ok) {
                         const aData = await avatarRes.json();
                         if (aData && aData.success && aData.url) {
@@ -2486,22 +2542,13 @@ async function populateMovieTabContents(movie) {
             }
         } catch (e) { }
 
-        // Fallback TMDB multi-search for backdrops if tmdb.id was missing
-        if (backdrops.length === 0 && (movie.origin_name || movie.name)) {
+        // Fallback TMDB backdrops ONLY if TMDB search was verified to match this movie
+        if (backdrops.length === 0 && movie._verifiedTmdb) {
             try {
-                const queryName = movie.origin_name || movie.name;
-                const searchRes = await fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(queryName)}`);
-                if (searchRes.ok) {
-                    const sData = await searchRes.json();
-                    if (sData.results && sData.results.length > 0) {
-                        const match = sData.results[0];
-                        const tmdbType = match.media_type === 'tv' ? 'tv' : 'movie';
-                        const imgRes = await fetch(`/api/tmdb/${tmdbType}/${match.id}/images`);
-                        if (imgRes.ok) {
-                            const imgData = await imgRes.json();
-                            backdrops = imgData.backdrops || [];
-                        }
-                    }
+                const imgRes = await fetch(`/api/tmdb/${movie._verifiedTmdb.type}/${movie._verifiedTmdb.id}/images`);
+                if (imgRes.ok) {
+                    const imgData = await imgRes.json();
+                    backdrops = imgData.backdrops || [];
                 }
             } catch (e) { }
         }

@@ -184,7 +184,9 @@ async function fetchRealMovieDetail(movie) {
 }
 
 function prefetchAllMovieDetails() {
-    DEFAULT_HERO_SLIDES.forEach(m => fetchRealMovieDetail(m));
+    setTimeout(() => {
+        DEFAULT_HERO_SLIDES.forEach(m => fetchRealMovieDetail(m));
+    }, 4000);
 }
 
 // -- Entry Point -------------------------------------------------
@@ -1197,23 +1199,19 @@ function convertThumbnailsFromAPI(banners) {
     }));
 }
 
-// -- Preload ảnh ngầm siêu tốc cho các slide phía sau (sẵn sàng 0ms chất lượng cũ trên desktop) ---------
+// -- Preload ảnh ngầm an toàn cho slide kế tiếp sau khi trang đã hoàn tất tải ---------
 function preloadSlideImages(movies) {
     if (!Array.isArray(movies) || movies.length <= 1) return;
     const doPreload = () => {
-        // Tải trước toàn bộ các slide phía sau với 100% chất lượng cũ gốc
-        movies.slice(1).forEach((movie, idx) => {
-            const rawUrl = getHeroImageUrl(movie);
-            const targetUrl = movie.rawImageUrl || movie.imageUrl || rawUrl;
-            if (!targetUrl) return;
-            const img = new Image();
-            if (idx === 0) img.fetchPriority = 'high';
-            img.decoding = 'async';
-            img.src = targetUrl;
-        });
+        const nextMovie = movies[1];
+        if (!nextMovie) return;
+        const targetUrl = nextMovie.rawImageUrl || nextMovie.imageUrl || getHeroImageUrl(nextMovie);
+        if (!targetUrl) return;
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = targetUrl;
     };
-    // Khởi động nạp ngầm siêu tốc ngay sau 100ms khi trang vừa sẵn sàng
-    setTimeout(doPreload, 100);
+    setTimeout(doPreload, 3000);
 }
 
 // -- Render thumbnail DOM (Hỗ trợ không giới hạn số lượng phim do Admin chọn) -------------

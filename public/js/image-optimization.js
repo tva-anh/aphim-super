@@ -60,12 +60,7 @@ class ImageOptimizer {
                 }
             }
             
-            // Chia cắt logic: Các ảnh Hero Thumbnails tải trực tiếp siêu tốc (Bypass CDN để không bị timeout)
-            if (isPriority === 'thumbnail') {
-                return resolvedUrl;
-            }
-
-            // DO CLOUDFLARE BLOCK WSRV.NL KHI TẢI TỪ IMG.OPHIM.LIVE (LỖI 302 ToS ABUSE), CHÚNG TA BUỘC PHẢI DÙNG LINK TRỰC TIẾP
+            // Trả về trực tiếp ảnh gốc (phimimg.com đã được Cloudflare tối ưu hóa và cache sẵn)
             return resolvedUrl;
         }
 
@@ -347,13 +342,15 @@ class ImageOptimizer {
                         const data = await res.json();
                         const tmdbTitle = (data.title || data.name || data.original_title || data.original_name || '').toLowerCase();
                         const reqName = (name || slug || '').toLowerCase().replace(/[-_]/g, ' ');
+                        const originName = (img.dataset?.tmdbOriginName || '').toLowerCase().replace(/[-_]/g, ' ');
 
-                        // Verify title match if name is available to prevent wrong ID assignment
+                        // Verify title match against either VN name or origin name to prevent wrong ID assignment
                         let isMatch = true;
-                        if (reqName && tmdbTitle) {
+                        if ((reqName || originName) && tmdbTitle) {
                             const reqWords = reqName.split(' ').filter(w => w.length > 2);
-                            const hasCommonWord = reqWords.some(w => tmdbTitle.includes(w));
-                            if (!hasCommonWord && reqWords.length > 0) {
+                            const originWords = originName ? originName.split(' ').filter(w => w.length > 2) : [];
+                            const hasCommonWord = reqWords.some(w => tmdbTitle.includes(w)) || originWords.some(w => tmdbTitle.includes(w));
+                            if (!hasCommonWord && (reqWords.length > 0 || originWords.length > 0)) {
                                 isMatch = false;
                             }
                         }

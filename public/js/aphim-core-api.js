@@ -10,66 +10,83 @@
     const SVG_NO_POSTER = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%231a1d26'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-family='sans-serif' font-size='20' font-weight='bold'%3EAPhim Cinema%3C/text%3E%3C/svg%3E";
 
     // 🎯 1. SAFE IMAGE URL CLEANER & CDN REWRITE WITH MIRROR SUPPORT
-    window.APhimCore.getImgUrl = function(rawUrl) {
+    window.APhimCore.getImgUrl = function(rawUrl, width = 440, quality = 85) {
         if (!rawUrl) return '';
         let url = String(rawUrl).trim();
         if (url.startsWith('data:image')) return url;
+        if (url.includes('wsrv.nl')) return url;
 
         // Xóa triệt để tiền tố kép uploads/movies/upload/vod
         url = url.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
         url = url.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
 
+        let full = '';
         if (url.startsWith('http://') || url.startsWith('https://')) {
-            return url.replace('img.ophimimg.com', 'phimimg.com')
+            full = url.replace('img.ophimimg.com', 'phimimg.com')
                       .replace('img.phimapi.com', 'phimimg.com')
                       .replace('ophim1.com/uploads', 'phimimg.com/uploads')
                       .replace('phimapi.com/uploads', 'phimimg.com/uploads');
-        }
-        const clean = url.replace(/^\//, '');
-        if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
-            return 'https://phimimg.com/' + clean;
-        }
-        if (clean.match(/^\d{8}-\d+\//)) {
-            return 'https://phimimg.com/upload/vod/' + clean;
-        }
-        if (clean.includes('.com/') || clean.includes('.vn/') || clean.includes('.net/') || clean.includes('.org/')) {
-            return 'https://' + clean;
-        }
-        return 'https://phimimg.com/uploads/movies/' + clean;
-    };
-
-    // 🎯 2. AUTO-HEALING FAST CDN MIRROR IMAGE FALLBACK & TMDB AUTO-HEAL
-    window.APhimCore.handleImgError = async function(imgEl) {
-        if (!imgEl) return;
-        const currentSrc = imgEl.src || '';
-        const stage = parseInt(imgEl.dataset.fallbackStage || '0', 10) + 1;
-        imgEl.dataset.fallbackStage = String(stage);
-
-        const altSrc = imgEl.dataset.fallback;
-        if (stage === 1 && altSrc && altSrc !== currentSrc && !altSrc.includes('no-poster') && altSrc.startsWith('http')) {
-            imgEl.src = altSrc;
-            return;
-        }
-
-        if (stage === 2) {
-            const originalSrc = imgEl.dataset.originalSrc || currentSrc;
-            if (originalSrc && !originalSrc.startsWith('data:')) {
-                setTimeout(() => {
-                    if (imgEl && imgEl.isConnected) {
-                        const probe = new Image();
-                        probe.onload = () => { imgEl.src = probe.src; };
-                        probe.onerror = () => {
-                            imgEl.onerror = null;
-                            imgEl.src = SVG_NO_POSTER;
-                        };
-                        probe.src = originalSrc;
-                    }
-                }, 400);
-                return;
+        } else {
+            const clean = url.replace(/^\//, '');
+            if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
+                full = 'https://phimimg.com/' + clean;
+            } else if (clean.match(/^\d{8}-\d+\//)) {
+                full = 'https://phimimg.com/upload/vod/' + clean;
+            } else if (clean.includes('.com/') || clean.includes('.vn/') || clean.includes('.net/') || clean.includes('.org/')) {
+                full = 'https://' + clean;
+            } else {
+                full = 'https://phimimg.com/uploads/movies/' + clean;
             }
         }
 
-        // Final fallback: inline SVG Data URI (zero 404 network errors, never brand logo)
+        // Trả về trực tiếp ảnh gốc (phimimg.com đã được Cloudflare CDN phục vụ siêu tốc)
+        return full;
+    };
+
+    // 🧹 Tự động xóa sạch các poster TMDB gán sai bị lưu trong sessionStorage
+    try {
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const k = sessionStorage.key(i);
+            if (k && k.startsWith('tmdb_card_poster_')) {
+                sessionStorage.removeItem(k);
+            }
+        }
+    } catch (_) {}
+
+    // 🎯 2. AUTO-HEALING FAST CDN MIRROR IMAGE FALLBACK
+    window.APhimCore.handleImgError = function(imgEl) {
+        if (!imgEl) return;
+        const fallbackUrl = imgEl.dataset.fallback || '';
+        const currentSrc = imgEl.src || '';
+        const originalSrc = imgEl.dataset.originalSrc || currentSrc;
+
+        // BƯỚC 1: Thử fallbackUrl (ví dụ thumb_url thay vì poster_url hoặc ngược lại)
+        if (!imgEl.dataset.triedFallback && fallbackUrl && fallbackUrl !== currentSrc && !fallbackUrl.includes('no-poster') && fallbackUrl.startsWith('http')) {
+            imgEl.dataset.triedFallback = '1';
+            imgEl.src = fallbackUrl;
+            return;
+        }
+
+        // BƯỚC 2: Thử direct source từ origin nếu CDN proxy gặp sự cố
+        if (!imgEl.dataset.triedDirect && originalSrc && originalSrc.includes('wsrv.nl')) {
+            imgEl.dataset.triedDirect = '1';
+            const m = originalSrc.match(/url=([^&]+)/);
+            if (m && m[1]) {
+                try {
+                    let decoded = decodeURIComponent(m[1]);
+                    if (decoded.includes('url=')) {
+                        const m2 = decoded.match(/url=([^&]+)/);
+                        if (m2 && m2[1]) decoded = decodeURIComponent(m2[1]);
+                    }
+                    if (decoded && decoded.startsWith('http') && decoded !== currentSrc) {
+                        imgEl.src = decoded;
+                        return;
+                    }
+                } catch (_) {}
+            }
+        }
+
+        // Final fallback: inline SVG Data URI (chuẩn tỉ lệ 2:3, không bao giờ 404)
         imgEl.onerror = null;
         imgEl.src = SVG_NO_POSTER;
     };
@@ -108,9 +125,8 @@
         }
     };
 
-    // 🎯 4. SAFE IMAGE PRELOADER ENGINE (DISABLED TO PREVENT CONNECTION POOL SATURATION)
-    window.APhimCore.preloadImages = function(items, limit = 0) {
-        // Disabled to prevent saturating browser HTTP connection pool (max 6 sockets per domain)
+    // 🎯 4. PRELOAD IMAGES (No-op để tránh Cloudflare rate-limit và nghẽn tab)
+    window.APhimCore.preloadImages = function(items, limit = 24) {
         return;
     };
 
@@ -167,14 +183,15 @@
 
     // 🎯 6. UNIVERSAL MOVIE CARD RENDERER MATCHING HOMEPAGE INDEX.EJS (INSTANT DIRECT SRC LOADING)
     window.APhimCore.createGridCardHTML = function(movie, index = 0) {
-        const primaryImg = window.APhimCore.getImgUrl(movie.thumb_url || movie.poster_url);
-        const fallbackImg = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
+        // Với thẻ dọc 2:3, poster_url là poster chuẩn, thumb_url là dự phòng
+        const primaryImg = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
+        const fallbackImg = window.APhimCore.getImgUrl(movie.thumb_url || movie.poster_url);
         const { topBadgesHTML, bottomBadgesHTML } = window.APhimCore.renderBadges(movie);
 
-        // Nạp tức thì (eager + fetchpriority) cho 12 card đầu tiên trên màn hình để không phải đợi lazy observer
-        const isPriority = index < 12;
+        // Chỉ eager 2 card đầu tiên nếu là hàng trên cùng, còn lại lazy để trình duyệt kích hoạt xong onload ngay lập tức
+        const isPriority = index < 2;
         const loadingAttr = isPriority ? 'loading="eager"' : 'loading="lazy"';
-        const priorityAttr = index < 4 ? 'fetchpriority="high"' : (isPriority ? 'fetchpriority="auto"' : 'fetchpriority="low"');
+        const priorityAttr = index < 2 ? 'fetchpriority="high"' : 'fetchpriority="low"';
 
         return `
             <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
@@ -182,7 +199,7 @@
                     <div class="grid-top-badges">
                         ${topBadgesHTML || ''}
                     </div>
-                    <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" alt="${movie.name}" ${loadingAttr} ${priorityAttr} decoding="async" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />
+                    <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" ${loadingAttr} ${priorityAttr} decoding="async" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />
                     <div class="phimmoi-play-overlay">
                         <div class="phimmoi-play-btn">
                             <svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>
@@ -305,10 +322,6 @@
                         sessionStorage.setItem(cacheKey, JSON.stringify(cacheObj));
                     } catch (e) {}
 
-                    // 🚀 PRELOAD POSTER IMAGES & INITIALIZE LAZY OBSERVER IMMEDIATELY
-                    if (items && items.length > 0) {
-                        window.APhimCore.preloadImages(items, 16);
-                    }
                     setTimeout(() => window.APhimCore.initLazyObserver(), 50);
                     return result;
                 }
@@ -320,5 +333,60 @@
         console.warn('[APhimCore] Không thể tải dữ liệu:', endpointPath, lastError?.message || lastError);
         return { items: [], totalPages: 1, titlePage: '' };
     };
+
+    // 🎯 8. HOVER INTENT TURBO PRELOAD ENGINE (DI CHUỘT VÀO MENU / LINK THÌ DỒN LỰC TẢI TRƯỚC)
+    const _hoverPreloadedUrls = new Set();
+    window.APhimCore.initHoverPreload = function() {
+        let hoverTimer = null;
+
+        function handleHover(e) {
+            const link = e.target.closest('a[href]');
+            if (!link) return;
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+            clearTimeout(hoverTimer);
+            hoverTimer = setTimeout(() => {
+                if (_hoverPreloadedUrls.has(href)) return;
+                _hoverPreloadedUrls.add(href);
+
+                try {
+                    const u = new URL(href, window.location.origin);
+                    const pathname = u.pathname;
+                    const searchParams = u.searchParams;
+
+                    let type = '', paramVal = '', page = searchParams.get('page') || 1;
+                    if (pathname === '/phim-theo-quoc-gia') {
+                        type = 'country';
+                        paramVal = searchParams.get('country') || 'viet-nam';
+                    } else if (pathname === '/categories') {
+                        type = 'category';
+                        paramVal = searchParams.get('category') || 'hanh-dong';
+                    } else if (pathname === '/danh-sach') {
+                        type = 'list';
+                        paramVal = searchParams.get('list') || 'phim-bo';
+                    }
+
+                    if (type && paramVal) {
+                        window.APhimCore.fetchMovieGridData(type, paramVal, page);
+                    }
+                } catch (_) {}
+            }, 60);
+        }
+
+        document.addEventListener('mouseover', handleHover, { passive: true });
+        document.addEventListener('touchstart', handleHover, { passive: true });
+        document.addEventListener('mouseout', function(e) {
+            if (e.target.closest('a[href]')) clearTimeout(hoverTimer);
+        }, { passive: true });
+    };
+
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.APhimCore.initHoverPreload());
+        } else {
+            window.APhimCore.initHoverPreload();
+        }
+    }
 })();
 

@@ -668,15 +668,22 @@
                 <script>
                     (function () {
                         try {
+                            for (let i = localStorage.length - 1; i >= 0; i--) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('aphim_de_cu_slider_trends_') && k !== 'aphim_de_cu_slider_trends_v42') {
+                                    localStorage.removeItem(k);
+                                }
+                            }
                             var deCuEl = document.getElementById('slider-de-cu');
-                            var cachedDeCu = localStorage.getItem('aphim_de_cu_slider_trends_v32');
-                            if (deCuEl && cachedDeCu) {
+                            var cachedDeCu = localStorage.getItem('aphim_de_cu_slider_trends_v42');
+                            if (deCuEl && cachedDeCu && !cachedDeCu.includes('data:image/svg+xml')) {
                                 deCuEl.innerHTML = cachedDeCu;
                             }
                         } catch (e) { }
+
                         try {
                             var cinemaEl = document.getElementById('slider-cinema-hot');
-                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v12');
+                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v13');
                             if (cinemaEl && cachedCinemaHtml) {
                                 cinemaEl.innerHTML = cachedCinemaHtml;
                                 if (window.innerWidth < 640) {
@@ -1159,85 +1166,89 @@
                 <!-- Dynamic PhimMoi Render Script -->
                 <script>
                     (function () {
+                        try {
+                            for (let i = sessionStorage.length - 1; i >= 0; i--) {
+                                const k = sessionStorage.key(i);
+                                if (k && (k.startsWith('tmdb_card_poster_') || k.startsWith('aphim_sec_v2_') || k.startsWith('aphim_api_cache_'))) {
+                                    sessionStorage.removeItem(k);
+                                }
+                            }
+                        } catch (_) {}
+
                         const API_BASE = 'https://phimapi.com';
 
-                        function getImgUrl(url, cdnDomain) {
+                        function getImgUrl(url, cdnDomain, width = 500, quality = 85) {
                             if (!url) return '';
                             let u = String(url).trim();
                             if (u.startsWith('data:image')) return u;
+                            if (u.includes('wsrv.nl')) return u;
 
                             // Tự động gỡ bỏ nhân đôi tiền tố uploads/movies/upload/vod/...
                             u = u.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
                             u = u.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
 
+                            let full = '';
                             if (u.startsWith('http://') || u.startsWith('https://')) {
-                                return u.replace('img.ophimimg.com', 'phimimg.com')
+                                full = u.replace('img.ophimimg.com', 'phimimg.com')
                                     .replace('ophim1.com/uploads', 'phimimg.com/uploads')
                                     .replace('img.phimapi.com', 'phimimg.com');
+                            } else {
+                                let clean = u.replace(/^\//, '');
+                                clean = clean.replace(/^(uploads\/movies\/)+/, 'uploads/movies/');
+                                clean = clean.replace(/^(upload\/vod\/)+/, 'upload/vod/');
+                                if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
+                                    full = 'https://phimimg.com/' + clean;
+                                } else if (clean.match(/^\d{8}-\d+\//)) {
+                                    full = 'https://phimimg.com/upload/vod/' + clean;
+                                } else if (clean.includes('.vn/') || clean.includes('.com/') || clean.includes('.org/') || clean.includes('.net/')) {
+                                    full = 'https://' + clean;
+                                } else {
+                                    full = 'https://phimimg.com/uploads/movies/' + clean;
+                                }
                             }
-                            let clean = u.replace(/^\//, '');
-                            clean = clean.replace(/^(uploads\/movies\/)+/, 'uploads/movies/');
-                            clean = clean.replace(/^(upload\/vod\/)+/, 'upload/vod/');
-                            if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
-                                return 'https://phimimg.com/' + clean;
-                            }
-                            if (clean.match(/^\d{8}-\d+\//)) {
-                                return 'https://phimimg.com/upload/vod/' + clean;
-                            }
-                            if (clean.includes('.vn/') || clean.includes('.com/') || clean.includes('.org/') || clean.includes('.net/')) {
-                                return 'https://' + clean;
-                            }
-                            return 'https://phimimg.com/uploads/movies/' + clean;
+
+                            // Trả về trực tiếp ảnh gốc (phimimg.com đã được Cloudflare CDN phục vụ siêu tốc)
+                            return full;
                         }
 
-                        // 🛡️ ULTRA ROBUST SELF-HEALING IMAGE RESTORATION WITH EXPONENTIAL RETRY
+                        // 🛡️ ULTRA ROBUST SELF-HEALING IMAGE RESTORATION
                         window.handleCardImgError = function (imgEl) {
                             if (!imgEl) return;
-                            const step = parseInt(imgEl.dataset.errStep || '0', 10) + 1;
-                            imgEl.dataset.errStep = String(step);
-
                             const fallbackUrl = imgEl.dataset.fallback || '';
                             const currentSrc = imgEl.src || '';
-                            const title = imgEl.alt || '';
+                            const title = imgEl.dataset.title || imgEl.alt || '';
+                            const originTitle = imgEl.dataset.origin || '';
                             const slug = imgEl.dataset.slug || '';
                             const originalSrc = imgEl.dataset.originalSrc || currentSrc;
 
-                            // Step 1: Thử link fallback đối ứng nếu có và khác link hiện tại
-                            if (step === 1 && fallbackUrl && fallbackUrl !== currentSrc && !fallbackUrl.includes('no-poster') && fallbackUrl.startsWith('http')) {
+                            // BƯỚC 1: Thử fallbackUrl (ví dụ thumb_url thay vì poster_url hoặc ngược lại)
+                            if (!imgEl.dataset.triedFallback && fallbackUrl && fallbackUrl !== currentSrc && !fallbackUrl.includes('no-poster') && fallbackUrl.startsWith('http')) {
+                                imgEl.dataset.triedFallback = '1';
                                 imgEl.src = fallbackUrl;
                                 return;
                             }
 
-                            // Step 2, 3, 4: Thử lại tự động qua Image Probe với độ trễ tăng dần (450ms, 1000ms, 2000ms)
-                            // Giúp vượt qua nghẽn kết nối mạng / socket pool ban đầu mà KHÔNG biến thành khung xám
-                            if (step <= 4) {
-                                const delays = [0, 450, 1000, 2000, 3000];
-                                const waitMs = delays[step] || 1500;
-                                const targetUrl = (step % 2 === 0 && fallbackUrl && fallbackUrl.startsWith('http')) ? fallbackUrl : originalSrc;
-
-                                if (targetUrl && !targetUrl.startsWith('data:')) {
-                                    setTimeout(function () {
-                                        if (!imgEl || !imgEl.isConnected) return;
-                                        const probe = new Image();
-                                        probe.onload = function () {
-                                            if (imgEl && imgEl.isConnected) {
-                                                imgEl.src = probe.src;
-                                                imgEl.removeAttribute('data-err-step');
-                                            }
-                                        };
-                                        probe.onerror = function () {
-                                            if (imgEl && imgEl.isConnected) {
-                                                window.handleCardImgError(imgEl);
-                                            }
-                                        };
-                                        probe.src = targetUrl;
-                                    }, waitMs);
-                                    return;
+                            // BƯỚC 2: Thử direct source từ origin nếu CDN proxy gặp sự cố
+                            if (!imgEl.dataset.triedDirect && originalSrc && originalSrc.includes('wsrv.nl')) {
+                                imgEl.dataset.triedDirect = '1';
+                                const m = originalSrc.match(/url=([^&]+)/);
+                                if (m && m[1]) {
+                                    try {
+                                        let decoded = decodeURIComponent(m[1]);
+                                        if (decoded.includes('url=')) {
+                                            const m2 = decoded.match(/url=([^&]+)/);
+                                            if (m2 && m2[1]) decoded = decodeURIComponent(m2[1]);
+                                        }
+                                        if (decoded && decoded.startsWith('http') && decoded !== currentSrc) {
+                                            imgEl.src = decoded;
+                                            return;
+                                        }
+                                    } catch (_) {}
                                 }
                             }
 
-                            // Chỉ khi đã thử 4 lần liên tiếp mà vẫn không nạp được mới tạm thời hiện SVG
-                            renderCardFallbackSvg(imgEl, title, slug, originalSrc);
+                            // BƯỚC 3: Render SVG fallback thanh lịch với tên phim
+                            renderCardFallbackSvg(imgEl, title || originTitle, slug, originalSrc);
                         };
 
                         function renderCardFallbackSvg(imgEl, title, slug, originalSrc) {
@@ -1359,8 +1370,8 @@
                         // 1. Render Vertical 2:3 Movie Card (For PHIM MỚI ĐỀ CỬ Slider Only)
                         function createDeCuCardHTML(movie, idx = 0) {
                             const watchUrl = '/phim/' + movie.slug;
-                            const primaryImg = getImgUrl(movie.poster_url || movie.thumb_url);
-                            const fallbackImg = getImgUrl(movie.thumb_url || movie.poster_url);
+                            const primaryImg = getImgUrl(movie.poster_url || movie.thumb_url, null, 420, 85);
+                            const fallbackImg = getImgUrl(movie.thumb_url || movie.poster_url, null, 420, 85);
                             const epText = movie.episode_current || 'Tập 1';
                             const langBadges = formatLangBadges(movie.lang || 'Vietsub');
                             const isFull = epText.toLowerCase().includes('full') || epText.toLowerCase().includes('hoàn tất');
@@ -1379,7 +1390,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" ${idx < 8 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1399,11 +1410,11 @@
             `;
                         }
 
-                        // 2. Render Featured Card
+                        // 2. Render Featured Card (Large 2x2 16:9 HD Display)
                         function createFeaturedCardHTML(movie) {
                             const watchUrl = '/phim/' + movie.slug;
-                            const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url);
-                            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
+                            const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url, null, 720, 85);
+                            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url, null, 720, 85);
                             const epText = movie.episode_current || 'Tập 1';
                             const epBadgeHTML = getEpBadgeHTML(epText);
                             const langBadges = formatLangBadges(movie.lang || 'Vietsub');
@@ -1417,7 +1428,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" class="single-feature-img" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="lazy" fetchpriority="auto" decoding="async" referrerpolicy="no-referrer" class="single-feature-img" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1435,11 +1446,11 @@
             `;
                         }
 
-                        // 3. Render Normal Card Item (1x1 in Unified Grid)
+                        // 3. Render Normal Card Item (1x1 in Unified Grid - 16:9 Sharp Display)
                         function createNormalCardHTML(movie, idx = 0) {
                             const watchUrl = '/phim/' + movie.slug;
-                            const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url);
-                            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url);
+                            const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url, null, 500, 85);
+                            const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url, null, 500, 85);
                             const epText = movie.episode_current || 'Full';
                             const epBadgeHTML = getEpBadgeHTML(epText);
                             const langBadges = formatLangBadges(movie.lang || 'Vietsub', true);
@@ -1453,7 +1464,7 @@
                                 ${langBadges}
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" ${idx < 4 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -1550,7 +1561,7 @@
                             }
 
                             const cacheKey = `${containerId}_${type}${paramVal ? '_' + paramVal : ''}`;
-                            const sessionKey = `aphim_sec_v2_${cacheKey}`;
+                            const sessionKey = `aphim_sec_v3_${cacheKey}`;
                             let cachedHTML = _sectionTabCache.get(cacheKey);
                             if (!cachedHTML) {
                                 try {
@@ -2010,7 +2021,7 @@
                         async function loadDeCuSlider() {
                             const sliderEl = document.getElementById('slider-de-cu');
                             if (!sliderEl) return;
-                            const cacheKey = 'aphim_de_cu_slider_trends_v32';
+                            const cacheKey = 'aphim_de_cu_slider_trends_v42';
                             try {
                                 for (let i = localStorage.length - 1; i >= 0; i--) {
                                     const k = localStorage.key(i);
@@ -2019,7 +2030,7 @@
                                     }
                                 }
                                 const cached = localStorage.getItem(cacheKey);
-                                if (cached && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
+                                if (cached && !cached.includes('data:image/svg+xml') && (!sliderEl.children.length || sliderEl.querySelector('.de-cu-skeleton-card'))) {
                                     sliderEl.innerHTML = cached;
                                 }
                             } catch (e) { }
@@ -2059,7 +2070,7 @@
                                         sliderEl.innerHTML = html;
                                         if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
                                     }
-                                    if (items.some(m => m.is_google_trend)) {
+                                    if (items.some(m => m.is_google_trend) && !html.includes('data:image/svg+xml')) {
                                         try { localStorage.setItem(cacheKey, html); } catch (e) { }
                                     }
                                 }
@@ -2071,8 +2082,8 @@
                         // ==========================================
                         // 🎥 SECTION 0.2: PHIM RẠP SẮP CHIẾU (TỰ ĐỘNG 100% TRỰC TIẾP TỪ MOMO CINEMA API)
                         // ==========================================
-                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v12';
-                        const CINEMA_HOT_HTML_KEY = 'aphim_cinema_hot_html_v12';
+                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v13';
+                        const CINEMA_HOT_HTML_KEY = 'aphim_cinema_hot_html_v13';
                         const CINEMA_HOT_MAX_DISPLAY = 20; // Giới hạn 20 phim hot nhất
                         let cinemaHotStoredItems = null;
                         let cinemaHotActiveIndex = 0;
@@ -3010,7 +3021,12 @@
                         document.addEventListener('DOMContentLoaded', function () {
                             try {
                                 Object.keys(sessionStorage).forEach(k => {
-                                    if (k.startsWith('aphim_sec_v1_')) sessionStorage.removeItem(k);
+                                    if (k.startsWith('aphim_sec_')) sessionStorage.removeItem(k);
+                                });
+                                Object.keys(localStorage).forEach(k => {
+                                    if (k.startsWith('aphim_de_cu_slider_trends_v40') || k.startsWith('aphim_cinema_hot_html_v12')) {
+                                        localStorage.removeItem(k);
+                                    }
                                 });
                             } catch (e) { }
 
@@ -3031,7 +3047,7 @@
                         });
                     })();
                 </script>
-                <script src="/js/hero-banner.js?v=196" defer></script>
+                <script src="/js/hero-banner.js?v=197" defer></script>
 </body>
 
 </html>

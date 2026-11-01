@@ -78,6 +78,17 @@ async function loadActorImagesFromTMDB(movie) {
                     const creditsData = await creditsResponse.json();
 
                     if (creditsData.cast && creditsData.cast.length > 0) {
+                        if (movie.actor && movie.actor.length > 0) {
+                            const hasMatch = creditsData.cast.some(c => {
+                                if (!c || !c.name) return false;
+                                const cNorm = removeVietnameseAccents(c.name);
+                                return movie.actor.some(a => {
+                                    const aNorm = removeVietnameseAccents(cleanActorTitle(a));
+                                    return cNorm === aNorm || (aNorm.length >= 4 && cNorm.includes(aNorm));
+                                });
+                            });
+                            if (!hasMatch) continue; // Unrelated movie with same title
+                        }
                         sessionStorage.setItem(cacheKey, JSON.stringify(creditsData.cast));
                         updateActorAvatars(movie.actor, creditsData.cast);
                         return true;
@@ -166,18 +177,25 @@ async function trySearchActorsDirectly(movie) {
 // Global Client-Side Actor Avatar Cache
 window.__actorAvatarClientCache = window.__actorAvatarClientCache || new Map();
 
+function cleanActorTitle(name) {
+    if (!name) return '';
+    return name.replace(/^(NSƯT|NSND|Nghệ sĩ|Đạo diễn|MC|Diễn viên)\s+/i, '').trim();
+}
+
 async function getActorAvatarClient(actorName) {
     if (!actorName || actorName === 'Đang cập nhật') return null;
-    const key = actorName.trim().toLowerCase();
+    const cleanName = cleanActorTitle(actorName);
+    if (!cleanName) return null;
+    const key = cleanName.toLowerCase();
     
     // 1. Check in-memory map
     if (window.__actorAvatarClientCache.has(key)) {
         return window.__actorAvatarClientCache.get(key);
     }
     
-    // 2. Check sessionStorage
+    // 2. Check sessionStorage (version 2 to avoid poisoned cache)
     try {
-        const stored = sessionStorage.getItem(`actor_avatar_${key}`);
+        const stored = sessionStorage.getItem(`actor_avatar_v2_${key}`);
         if (stored !== null) {
             window.__actorAvatarClientCache.set(key, stored || null);
             return stored || null;
@@ -186,13 +204,13 @@ async function getActorAvatarClient(actorName) {
 
     // 3. Fetch from API
     try {
-        const res = await fetch(`/api/actor-avatar?name=${encodeURIComponent(actorName)}`);
+        const res = await fetch(`/api/actor-avatar?name=${encodeURIComponent(cleanName)}`);
         if (res.ok) {
             const data = await res.json();
             const url = (data && data.success && data.url) ? data.url : '';
             window.__actorAvatarClientCache.set(key, url || null);
             try {
-                sessionStorage.setItem(`actor_avatar_${key}`, url);
+                sessionStorage.setItem(`actor_avatar_v2_${key}`, url);
             } catch (e) {}
             return url || null;
         }

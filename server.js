@@ -761,14 +761,35 @@ app.post('/api/comments/:id/react', async (req, res) => {
 // ==========================================
 const actorAvatarCache = new Map();
 
+function normalizePersonName(str) {
+    if (!str) return '';
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+              .toLowerCase()
+              .replace(/[^a-z0-9\s]/g, '')
+              .replace(/\s+/g, ' ')
+              .trim();
+}
+
+function cleanActorTitle(name) {
+    if (!name) return '';
+    return name.replace(/^(NSƯT|NSND|Nghệ sĩ|Đạo diễn|MC|Diễn viên)\s+/i, '').trim();
+}
+
 app.get('/api/actor-avatar', async (req, res) => {
     try {
-        const name = (req.query.name || '').trim();
-        if (!name || name === 'Đang cập nhật' || name.length < 2) {
+        const rawName = (req.query.name || '').trim();
+        if (!rawName || rawName === 'Đang cập nhật' || rawName.length < 2) {
             return res.json({ success: false, url: null });
         }
 
-        const cacheKey = name.toLowerCase();
+        const cleanedName = cleanActorTitle(rawName);
+        if (!cleanedName || cleanedName.length < 2) {
+            return res.json({ success: false, url: null });
+        }
+
+        const cacheKey = cleanedName.toLowerCase();
         if (actorAvatarCache.has(cacheKey)) {
             const cachedUrl = actorAvatarCache.get(cacheKey);
             if (cachedUrl) {
@@ -779,18 +800,31 @@ app.get('/api/actor-avatar', async (req, res) => {
             return res.json({ success: !!cachedUrl, url: cachedUrl });
         }
 
-        // 1. Try TMDB Person Search
+        const targetNorm = normalizePersonName(cleanedName);
+
+        // 1. Try TMDB Person Search with Strict Name Verification
         try {
             const tmdbRes = await axios.get(`${TMDB_BASE_URL}/search/person`, {
                 params: {
                     api_key: TMDB_API_KEY,
-                    query: name
+                    query: cleanedName
                 },
                 timeout: 4000
             });
             const results = tmdbRes.data?.results || [];
             if (results.length > 0) {
-                const match = results.find(p => p.profile_path);
+                const match = results.find(p => {
+                    if (!p.profile_path) return false;
+                    const pNorm = normalizePersonName(p.name || '');
+                    const pOrig = normalizePersonName(p.original_name || '');
+                    if (pNorm === targetNorm || pOrig === targetNorm) return true;
+                    // If target has at least 2 words, allow exact token matching
+                    if (targetNorm.includes(' ')) {
+                        if (pNorm === targetNorm || pNorm.startsWith(targetNorm + ' ') || pNorm.endsWith(' ' + targetNorm)) return true;
+                        if (pOrig === targetNorm || pOrig.startsWith(targetNorm + ' ') || pOrig.endsWith(' ' + targetNorm)) return true;
+                    }
+                    return false;
+                });
                 if (match && match.profile_path) {
                     const imgUrl = `https://image.tmdb.org/t/p/w300${match.profile_path}`;
                     actorAvatarCache.set(cacheKey, imgUrl);
@@ -800,14 +834,29 @@ app.get('/api/actor-avatar', async (req, res) => {
             }
         } catch (e) { }
 
+        // Helper to check valid person photo from Wikipedia
+        const isValidWikiPhoto = (imgUrl, title, summaryData) => {
+            if (!imgUrl) return false;
+            const lowerUrl = imgUrl.toLowerCase();
+            if (lowerUrl.includes('.svg') || lowerUrl.includes('map') || lowerUrl.includes('flag') || lowerUrl.includes('logo') || lowerUrl.includes('diagram') || lowerUrl.includes('location')) {
+                return false;
+            }
+            const tNorm = normalizePersonName(title || '');
+            if (tNorm !== targetNorm && !tNorm.includes(targetNorm)) {
+                return false;
+            }
+            const text = `${summaryData?.description || ''} ${summaryData?.extract || ''}`.toLowerCase();
+            return /diễn viên|nghệ sĩ|ca sĩ|người|sinh năm|đạo diễn|nhân vật|actor|actress|artist|director/.test(text);
+        };
+
         // 2. Try Wikipedia VI Direct Summary
         try {
-            const wikiRes = await axios.get(`https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`, {
+            const wikiRes = await axios.get(`https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanedName)}`, {
                 timeout: 3500,
                 headers: { 'User-Agent': 'APhimSuper/2.0 (webmaster@aphim.com)' }
             });
-            if (wikiRes.data?.thumbnail?.source) {
-                const imgUrl = wikiRes.data.thumbnail.source;
+            const imgUrl = wikiRes.data?.thumbnail?.source;
+            if (imgUrl && isValidWikiPhoto(imgUrl, wikiRes.data?.title, wikiRes.data)) {
                 actorAvatarCache.set(cacheKey, imgUrl);
                 res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                 return res.json({ success: true, url: imgUrl });
@@ -819,7 +868,7 @@ app.get('/api/actor-avatar', async (req, res) => {
             const searchRes = await axios.get('https://vi.wikipedia.org/w/api.php', {
                 params: {
                     action: 'opensearch',
-                    search: name,
+                    search: cleanedName,
                     limit: 3,
                     format: 'json'
                 },
@@ -828,29 +877,32 @@ app.get('/api/actor-avatar', async (req, res) => {
             });
             const titles = searchRes.data?.[1] || [];
             for (const title of titles) {
-                try {
-                    const sumRes = await axios.get(`https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, {
-                        timeout: 3000,
-                        headers: { 'User-Agent': 'APhimSuper/2.0 (webmaster@aphim.com)' }
-                    });
-                    if (sumRes.data?.thumbnail?.source) {
-                        const imgUrl = sumRes.data.thumbnail.source;
-                        actorAvatarCache.set(cacheKey, imgUrl);
-                        res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
-                        return res.json({ success: true, url: imgUrl });
-                    }
-                } catch (e) { }
+                const tNorm = normalizePersonName(title);
+                if (tNorm === targetNorm || tNorm.includes(targetNorm)) {
+                    try {
+                        const sumRes = await axios.get(`https://vi.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, {
+                            timeout: 3000,
+                            headers: { 'User-Agent': 'APhimSuper/2.0 (webmaster@aphim.com)' }
+                        });
+                        const imgUrl = sumRes.data?.thumbnail?.source;
+                        if (imgUrl && isValidWikiPhoto(imgUrl, title, sumRes.data)) {
+                            actorAvatarCache.set(cacheKey, imgUrl);
+                            res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+                            return res.json({ success: true, url: imgUrl });
+                        }
+                    } catch (e) { }
+                }
             }
         } catch (e) { }
 
         // 4. Try Wikipedia EN Direct Summary
         try {
-            const wikiEnRes = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`, {
+            const wikiEnRes = await axios.get(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanedName)}`, {
                 timeout: 3500,
                 headers: { 'User-Agent': 'APhimSuper/2.0 (webmaster@aphim.com)' }
             });
-            if (wikiEnRes.data?.thumbnail?.source) {
-                const imgUrl = wikiEnRes.data.thumbnail.source;
+            const imgUrl = wikiEnRes.data?.thumbnail?.source;
+            if (imgUrl && isValidWikiPhoto(imgUrl, wikiEnRes.data?.title, wikiEnRes.data)) {
                 actorAvatarCache.set(cacheKey, imgUrl);
                 res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
                 return res.json({ success: true, url: imgUrl });
@@ -1454,7 +1506,7 @@ let cachedDesktopInterestsTime = 0;
 
 let cachedHomepageHtml = null;
 let cachedHomepageTime = 0;
-const HOMEPAGE_SSR_CACHE_TTL = 120 * 1000; // 2 phút
+const HOMEPAGE_SSR_CACHE_TTL = 60 * 1000; // 1 phut SSR cache
 
 global.invalidateHomepageCache = function() {
     cachedHomepageHtml = null;
