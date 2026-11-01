@@ -528,15 +528,22 @@ function renderMovieDetail(movie) {
     // Update poster
     const posterImg = document.getElementById('movieDetailPoster') || document.querySelector('.aspect-\\[2\\/3\\] img');
     if (posterImg) {
+        posterImg.style.opacity = '1';
         const rawPosterUrl = movie.poster_url || movie.thumb_url;
         const targetPosterUrl = movieAPI.getImageURL(rawPosterUrl, 600, 85, true);
         const currentPosterSrc = posterImg.getAttribute('src') || '';
-        const isPosterValid = posterImg.complete && posterImg.naturalWidth > 0 && !currentPosterSrc.startsWith('data:image/gif');
+        const isPlaceholder = !currentPosterSrc || currentPosterSrc.startsWith('data:image/gif');
+        const hasValidMoviePoster = currentPosterSrc && (
+            (movie.poster_url && currentPosterSrc.includes(movie.poster_url)) ||
+            (movie.thumb_url && currentPosterSrc.includes(movie.thumb_url)) ||
+            currentPosterSrc === targetPosterUrl
+        );
 
         // Bắt lỗi ảnh poster: chỉ khi ảnh 1 lỗi hoặc 404 mới fallback sang TMDB hoặc thumb_url
         posterImg.onerror = () => {
             console.warn('⚠️ [Detail] Poster gốc bị lỗi hoặc 404, kích hoạt fallback TMDB/nguồn phụ...');
             posterImg.onerror = null;
+            posterImg.style.opacity = '1';
             if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
                 imageOptimizer.getTMDBImageUrl({
                     dataset: {
@@ -553,25 +560,50 @@ function renderMovieDetail(movie) {
                     } else if (movie.thumb_url) {
                         posterImg.src = movieAPI.getImageURL(movie.thumb_url, 600, 85, true);
                     }
-                }).catch(() => {});
+                    posterImg.style.opacity = '1';
+                }).catch(() => {
+                    posterImg.style.opacity = '1';
+                });
             } else if (movie.thumb_url) {
                 posterImg.src = movieAPI.getImageURL(movie.thumb_url, 600, 85, true);
+                posterImg.style.opacity = '1';
             }
         };
 
-        // Nếu ảnh chưa hiển thị hoặc là placeholder hoặc khác phim thì mới gán src và animate
-        if (!isPosterValid || (!currentPosterSrc.includes(movie.poster_url) && !currentPosterSrc.includes(movie.thumb_url))) {
-            posterImg.style.opacity = '0';
+        // Chỉ cập nhật src khi là placeholder hoặc poster chưa đúng với phim này
+        if (isPlaceholder || (!hasValidMoviePoster && targetPosterUrl)) {
             posterImg.onload = () => {
-                posterImg.style.opacity = '';
-                posterImg.animate([
-                    { opacity: 0, transform: 'scale(0.95)' },
-                    { opacity: 1, transform: 'scale(1)' }
-                ], { duration: 600, easing: 'ease-out' });
+                posterImg.style.opacity = '1';
             };
             posterImg.src = targetPosterUrl;
+        } else {
+            posterImg.style.opacity = '1';
         }
         posterImg.alt = `Xem Phim ${movie.name} (${movie.year}) Full HD Vietsub tại APhim`;
+
+        // ⚡ Anti-Stall Watchdog: Nếu máy chủ phimimg.com bị nghẽn (>3s chưa nạp xong), chủ động bám sang TMDB siêu tốc
+        if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
+            setTimeout(() => {
+                if (!posterImg.complete || posterImg.naturalWidth === 0) {
+                    console.warn('⚡ [Detail] Ảnh poster từ nguồn chính phản hồi lâu (>3s), kích hoạt tăng tốc TMDB...');
+                    imageOptimizer.getTMDBImageUrl({
+                        dataset: {
+                            tmdbSlug: movie.slug,
+                            tmdbId: movie.tmdb.id,
+                            tmdbName: movie.name,
+                            tmdbYear: movie.year,
+                            tmdbType: 'poster',
+                            tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
+                        }
+                    }).then(url => {
+                        if (url && (!posterImg.complete || posterImg.naturalWidth === 0)) {
+                            posterImg.src = url;
+                            posterImg.style.opacity = '1';
+                        }
+                    }).catch(() => {});
+                }
+            }, 3000);
+        }
     }
 
     // Update hero background image (Full bleed backdrop image)
@@ -632,6 +664,30 @@ function renderMovieDetail(movie) {
         if (!isBgValid || (!currentBgSrc.includes(movie.thumb_url) && !currentBgSrc.includes(movie.poster_url))) {
             bgImg.onload = () => handleBgAspectRatio(bgImg);
             bgImg.src = defaultBgUrl;
+        }
+
+        // ⚡ Anti-Stall Watchdog: Nếu ảnh nền từ nguồn chính bị treo (>3.5s chưa xong), chuyển sang TMDB backdrop
+        if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
+            setTimeout(() => {
+                if (!bgImg.complete || bgImg.naturalWidth === 0) {
+                    console.warn('⚡ [Detail] Ảnh nền từ nguồn chính phản hồi lâu (>3.5s), kích hoạt tăng tốc TMDB...');
+                    imageOptimizer.getTMDBImageUrl({
+                        dataset: {
+                            tmdbSlug: movie.slug,
+                            tmdbId: movie.tmdb.id,
+                            tmdbName: movie.name,
+                            tmdbYear: movie.year,
+                            tmdbType: 'backdrop',
+                            tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
+                        }
+                    }).then(url => {
+                        if (url && (!bgImg.complete || bgImg.naturalWidth === 0)) {
+                            bgImg.src = url;
+                            handleBgAspectRatio(bgImg);
+                        }
+                    }).catch(() => {});
+                }
+            }, 3500);
         }
 
         // 🛡️ CHỈ tìm ảnh TMDB thay thế NẾU ảnh thumb_url hoàn toàn không có hoặc là placeholder
