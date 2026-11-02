@@ -1542,6 +1542,102 @@ async function getDesktopInterests() {
     return null;
 }
 
+// ── In-Memory Cache for Mobile 3D Coverflow Showcase (Instant SSR) ──
+let cachedMobile3DShowcase = null;
+let cachedMobile3DShowcaseTime = 0;
+
+global.invalidateMobile3DShowcaseCache = function() {
+    cachedMobile3DShowcase = null;
+    cachedMobile3DShowcaseTime = 0;
+    if (global.invalidateHomepageCache) global.invalidateHomepageCache();
+};
+
+function formatMobileShowcaseImg(url) {
+    if (!url) return '';
+    let u = String(url).trim();
+    if (u.includes('image.tmdb.org')) {
+        return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, 'image.tmdb.org/t/p/w500/');
+    }
+    if (u.startsWith('http://') || u.startsWith('https://')) {
+        return u.replace('img.ophimimg.com', 'phimimg.com')
+            .replace('ophim1.com/uploads', 'phimimg.com/uploads')
+            .replace('img.phimapi.com', 'phimimg.com');
+    }
+    let clean = u.replace(/^\//, '');
+    clean = clean.replace(/^(uploads\/movies\/)+/, 'uploads/movies/');
+    clean = clean.replace(/^(upload\/vod\/)+/, 'upload/vod/');
+    if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
+        return 'https://phimimg.com/' + clean;
+    } else if (clean.match(/^\d{8}-\d+\//)) {
+        return 'https://phimimg.com/upload/vod/' + clean;
+    } else if (clean.includes('.vn/') || clean.includes('.com/') || clean.includes('.org/') || clean.includes('.net/')) {
+        return 'https://' + clean;
+    }
+    return 'https://phimimg.com/uploads/movies/' + clean;
+}
+
+async function getMobile3DShowcase() {
+    if (cachedMobile3DShowcase && (Date.now() - cachedMobile3DShowcaseTime < 5000)) {
+        return cachedMobile3DShowcase;
+    }
+    try {
+        const { data: row } = await supabaseAdmin
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'mobile_3d_showcase')
+            .maybeSingle();
+
+        const rawList = (row && Array.isArray(row.value) && row.value.length > 0)
+            ? row.value
+            : [
+                {
+                    slug: 'doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi',
+                    name: 'Doraemon: Nobita và Lâu Đài Dưới Đáy Biển (Phiên Bản Mới)',
+                    origin_name: 'Doraemon the Movie: New Nobita and the Castle of the Undersea Devil',
+                    poster_url: 'https://phimimg.com/uploads/movies/20260829/doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi-poster.webp',
+                    thumb_url: 'https://phimimg.com/uploads/movies/20260829/doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi-thumb.webp',
+                    quality: 'FHD',
+                    year: '2026',
+                    lang: 'Vietsub + Lồng Tiếng',
+                    content: '"Doraemon: Nobita và Lâu đài dưới đáy biển" là một trong những tác phẩm kinh điển thuộc loạt truyện dài Doraemon. Chuyến thám hiểm đáy đại dương kỳ vĩ và hấp dẫn của nhóm bạn Nobita.'
+                },
+                {
+                    slug: 'quat-mo-trung-ma',
+                    name: 'Quật Mộ Trùng Ma',
+                    origin_name: 'Exhuma',
+                    poster_url: 'https://phimimg.com/upload/vod/20250530-1/759df554cc21bf9d6805966dc3fe2b67.jpg',
+                    thumb_url: 'https://phimimg.com/upload/vod/20250530-1/fdf11774cff47f0ffc9c2dbe2e02d0ca.jpg',
+                    quality: 'FHD',
+                    year: '2024',
+                    lang: 'Vietsub Full',
+                    content: 'Hai pháp sư, một thầy phong thuỷ và một chuyên gia khâm liệm cùng hợp lực khai quật ngôi mộ bí ẩn của một gia tộc giàu có, mở ra chuỗi sự kiện kinh dị tâm linh rùng rợn.'
+                },
+                {
+                    slug: 'tham-tu-lung-danh-conan-ngoi-sao-5-canh-1-trieu-do',
+                    name: 'Thám Tử Lừng Danh Conan: Ngôi Sao 5 Cánh 1 Triệu Đô',
+                    origin_name: 'Detective Conan Movie 27: The Million Dollar Pentagram',
+                    poster_url: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+                    thumb_url: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
+                    quality: 'FHD',
+                    year: '2024',
+                    lang: 'Vietsub + Lồng Tiếng',
+                    content: 'Cuộc đối đầu kịch tính giữa Siêu trộm Kaito Kid, Thám tử miền Tây Hattori Heiji và Conan tại Hakodate xoay quanh thanh kiếm Nhật cổ chứa đựng bí mật lịch sử chấn động.'
+                }
+            ];
+
+        cachedMobile3DShowcase = rawList.map(item => ({
+            ...item,
+            poster_url: formatMobileShowcaseImg(item.poster_url || item.thumb_url),
+            thumb_url: formatMobileShowcaseImg(item.thumb_url || item.poster_url)
+        }));
+        cachedMobile3DShowcaseTime = Date.now();
+        return cachedMobile3DShowcase;
+    } catch (e) {
+        console.warn('[getMobile3DShowcase Error]', e);
+    }
+    return null;
+}
+
 // 1. Homepage Route (SSR Direct Injection for 0ms Instant First Paint)
 app.get('/', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
@@ -1552,10 +1648,11 @@ app.get('/', async (req, res) => {
     }
 
     try {
-        const [heroSlides, heroAutoSlide, desktopInterests] = await Promise.all([
+        const [heroSlides, heroAutoSlide, desktopInterests, mobileShowcase] = await Promise.all([
             getDesktopHeroSlides(),
             getDesktopHeroAutoSlide(),
-            getDesktopInterests()
+            getDesktopInterests(),
+            getMobile3DShowcase()
         ]);
         const { CURATED_REVIEWS } = require('./lib/reels.seeds');
         const homeReels = (CURATED_REVIEWS || []).slice(0, 10);
@@ -1567,7 +1664,8 @@ app.get('/', async (req, res) => {
             heroSlides: heroSlides || null,
             heroAutoSlide: heroAutoSlide || null,
             desktopInterests: desktopInterests || null,
-            homeReels: homeReels || []
+            homeReels: homeReels || [],
+            mobileShowcase: mobileShowcase || null
         }, (err, html) => {
             if (err) {
                 console.error('[Homepage Render Error]', err);

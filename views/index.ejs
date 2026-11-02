@@ -5,11 +5,16 @@
     <%- include('partials/head') %>
         <% const _hero0Img=(typeof heroSlides !=='undefined' && Array.isArray(heroSlides) && heroSlides[0]) ?
             (heroSlides[0].rawImageUrl || heroSlides[0].imageUrl) : null; if (_hero0Img) { %>
-            <link rel="preload" as="image" href="<%= _hero0Img %>" fetchpriority="high">
+            <link rel="preload" as="image" href="<%= _hero0Img %>" media="(min-width: 1024px)" fetchpriority="high">
             <% } %>
         <% const _hero1Img=(typeof heroSlides !=='undefined' && Array.isArray(heroSlides) && heroSlides[1]) ?
             (heroSlides[1].rawImageUrl || heroSlides[1].imageUrl || heroSlides[1].thumb_url) : null; if (_hero1Img) { %>
-            <link rel="prefetch" as="image" href="<%= _hero1Img %>">
+            <link rel="prefetch" as="image" href="<%= _hero1Img %>" media="(min-width: 1024px)">
+            <% } %>
+        <% const _mobileList=(typeof mobileShowcase !=='undefined' && Array.isArray(mobileShowcase) && mobileShowcase.length > 0) ? mobileShowcase : null;
+           const _mob0Poster = _mobileList ? (_mobileList[0].poster_url || _mobileList[0].thumb_url) : null;
+           if (_mob0Poster) { %>
+            <link rel="preload" as="image" href="<%= _mob0Poster %>" media="(max-width: 1023px)" fetchpriority="high">
             <% } %>
                 <link rel="preconnect" href="https://static-cgv.vncdn.vn" crossorigin>
                 <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=25">
@@ -134,6 +139,7 @@
             <script>
                 window.__INITIAL_HERO_SLIDES__ = <%- JSON.stringify(ssrHeroList || null) %>;
                 window.__INITIAL_HERO_AUTOSLIDE__ = <%- JSON.stringify(typeof heroAutoSlide !== 'undefined' ? heroAutoSlide : null) %>;
+                window.__INITIAL_MOBILE_SHOWCASE__ = <%- JSON.stringify(_mobileList || null) %>;
             </script>
             <section id="desktopHeroShowcase" class="desktop-hero-showcase relative w-full select-none hidden lg:block">
                 <!-- Background Image & Clean Vignettes (Zero Foggy Overlay, Dual-Layer 60fps Cinema Transitions) -->
@@ -482,26 +488,87 @@
                     <div class="showcase-3d-stage" id="showcase3DStage">
                         <div class="showcase-3d-ambient-light" id="showcase3DAmbientLight"></div>
                         <div class="showcase-3d-card-track" id="showcase3DTrack">
-                            <!-- Loaded dynamically via JS -->
+                            <% if (_mobileList && _mobileList.length > 0) { 
+                                const total = _mobileList.length;
+                                _mobileList.forEach((item, idx) => {
+                                    const rawImg = item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg';
+                                    const fallbackImg = item.thumb_url || item.poster_url || rawImg;
+                                    let cardClass = 'showcase-3d-card';
+                                    let priority = 'auto';
+                                    let loadingMode = 'lazy';
+                                    let decodingMode = 'async';
+
+                                    if (idx === 0) {
+                                        cardClass += ' is-center';
+                                        priority = 'high';
+                                        loadingMode = 'eager';
+                                        decodingMode = 'sync';
+                                    } else if (idx === 1) {
+                                        cardClass += ' is-right';
+                                        priority = 'high';
+                                        loadingMode = 'eager';
+                                    } else if (idx === total - 1) {
+                                        cardClass += ' is-left';
+                                        priority = 'high';
+                                        loadingMode = 'eager';
+                                    } else if (idx === 2) {
+                                        cardClass += ' is-far-right';
+                                    } else {
+                                        cardClass += ' is-hidden';
+                                    }
+                            %>
+                            <div class="<%= cardClass %>" data-index="<%= idx %>" onclick="handle3DCardClick(<%= idx %>)" role="button" aria-label="<%= item.name || 'Phim' %>">
+                                <img src="<%= rawImg %>" data-original-src="<%= rawImg %>" data-fallback="<%= fallbackImg %>" alt="<%= item.name || 'Phim' %>" loading="<%= loadingMode %>" fetchpriority="<%= priority %>" decoding="<%= decodingMode %>" referrerpolicy="no-referrer" onerror="window.handleCardImgError ? window.handleCardImgError(this) : (this.src='/images/comment-mascot.webp')">
+                            </div>
+                            <% }); } %>
                         </div>
                     </div>
 
                     <!-- Dynamic Movie Info Box below 3D cards -->
+                    <% 
+                        const ssrMob0 = (_mobileList && _mobileList.length > 0) ? _mobileList[0] : null;
+                        const ssrMobTitle = ssrMob0 ? (ssrMob0.name || 'Đang tải phim...') : 'Đang tải phim...';
+                        const ssrMobOrigin = ssrMob0 ? (ssrMob0.origin_name || '') : '';
+                        const ssrMobWatch = ssrMob0 ? `/xem-phim/${ssrMob0.slug}/tap-1` : '#';
+                        const ssrMobInfo = ssrMob0 ? `/phim/${ssrMob0.slug}` : '#';
+                        const ssrMobImdb = ssrMob0 ? (ssrMob0.imdb || ssrMob0.vote_average || '9.2') : '9.2';
+                        const ssrMobQuality = ssrMob0 ? (ssrMob0.quality || 'FHD') : 'FHD';
+                        let ssrMobLang = ssrMob0 ? (ssrMob0.lang || 'Vietsub').trim() : 'VS.1';
+                        if (ssrMobLang.toLowerCase().includes('vietsub') && ssrMobLang.toLowerCase().includes('lồng tiếng')) {
+                            ssrMobLang = 'VS + LT';
+                        } else if (ssrMobLang.toLowerCase().includes('vietsub') && ssrMobLang.toLowerCase().includes('thuyết minh')) {
+                            ssrMobLang = 'VS + TM';
+                        } else if (ssrMobLang.toLowerCase().includes('vietsub')) {
+                            ssrMobLang = 'VS.1';
+                        } else if (ssrMobLang.toLowerCase().includes('thuyết minh')) {
+                            ssrMobLang = 'TM';
+                        } else if (ssrMobLang.toLowerCase().includes('lồng tiếng')) {
+                            ssrMobLang = 'LT';
+                        }
+                        let ssrMobEp = ssrMob0 ? (ssrMob0.episode_current || ssrMob0.episode_total || ssrMob0.episodes || '') : '';
+                        if (!ssrMobEp) {
+                            if (ssrMob0 && (ssrMob0.type === 'single' || ssrMob0.type === 'movie')) ssrMobEp = 'Phim Lẻ';
+                            else if (ssrMob0 && ssrMob0.type === 'series') ssrMobEp = 'Series';
+                            else ssrMobEp = '12 Tập';
+                        }
+                        const ssrMobYear = ssrMob0 ? (ssrMob0.year || '2026') : '2026';
+                        const ssrMobDesc = ssrMob0 ? (ssrMob0.content ? ssrMob0.content.replace(/<[^>]*>/g, '').trim() : '') : '';
+                    %>
                     <div class="showcase-3d-info-box" id="showcase3DInfoBox">
                         <div class="showcase-3d-title-wrap">
-                            <h3 class="showcase-3d-title" id="showcase3DTitle">Đang tải phim...</h3>
-                            <div class="showcase-3d-origin-title" id="showcase3DOrigin"></div>
+                            <h3 class="showcase-3d-title" id="showcase3DTitle"><%= ssrMobTitle %></h3>
+                            <div class="showcase-3d-origin-title" id="showcase3DOrigin"><%= ssrMobOrigin %></div>
                         </div>
 
                         <!-- 2 Action CTA Buttons (Xem phim & Thong tin) -->
                         <div class="showcase-3d-actions">
-                            <a href="#" id="showcase3DBtnWatch" class="btn-3d-watch">
+                            <a href="<%= ssrMobWatch %>" id="showcase3DBtnWatch" class="btn-3d-watch">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M8 5v14l11-7z" />
                                 </svg>
                                 <span>Xem phim</span>
                             </a>
-                            <a href="#" id="showcase3DBtnInfo" class="btn-3d-info">
+                            <a href="<%= ssrMobInfo %>" id="showcase3DBtnInfo" class="btn-3d-info">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path
                                         d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
@@ -517,31 +584,37 @@
                                 <!-- IMDb Amber Gold Outline Pill -->
                                 <span class="showcase-badge-imdb" id="showcase3DImdbWrap">
                                     <span class="showcase-badge-imdb-label">IMDb</span>
-                                    <span class="showcase-badge-imdb-val" id="showcase3DImdb">9.2</span>
+                                    <span class="showcase-badge-imdb-val" id="showcase3DImdb"><%= ssrMobImdb %></span>
                                 </span>
 
                                 <!-- Connected Pill Group: FHD | CC VS.1 | 12 Tập | 2026 -->
                                 <div class="showcase-connected-badge-group">
                                     <span class="showcase-badge-segment segment-quality"
-                                        id="showcase3DQuality">FHD</span>
+                                        id="showcase3DQuality"><%= ssrMobQuality %></span>
                                     <span class="showcase-badge-segment segment-lang" id="showcase3DLangWrap">
                                         <svg class="showcase-cc-icon" viewBox="0 0 24 24">
                                             <path
                                                 d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"
                                                 fill="currentColor" />
                                         </svg>
-                                        <span id="showcase3DLang">VS.1</span>
+                                        <span id="showcase3DLang"><%= ssrMobLang %></span>
                                     </span>
-                                    <span class="showcase-badge-segment segment-ep" id="showcase3DEp">12 Tập</span>
-                                    <span class="showcase-badge-segment segment-year" id="showcase3DYear">2026</span>
+                                    <span class="showcase-badge-segment segment-ep" id="showcase3DEp"><%= ssrMobEp %></span>
+                                    <span class="showcase-badge-segment segment-year" id="showcase3DYear"><%= ssrMobYear %></span>
                                 </div>
                             </div>
                         </div>
 
-                        <p class="showcase-3d-desc" id="showcase3DDesc"></p>
+                        <p class="showcase-3d-desc" id="showcase3DDesc"><%= ssrMobDesc %></p>
 
                         <!-- Pagination Dots -->
-                        <div class="showcase-3d-pagination" id="showcase3DPagination"></div>
+                        <div class="showcase-3d-pagination" id="showcase3DPagination">
+                            <% if (_mobileList && _mobileList.length > 0) { %>
+                                <% _mobileList.forEach((_, idx) => { %>
+                                    <div class="showcase-dot <%= idx === 0 ? 'active' : '' %>" onclick="goTo3DShowcaseSlide(<%= idx %>)" role="button" aria-label="Chuyển sang phim <%= idx + 1 %>"></div>
+                                <% }); %>
+                            <% } %>
+                        </div>
                     </div>
                 </section>
 
@@ -1420,7 +1493,7 @@
                                 <span class="badge-fhd">FHD</span>
                             </div>
 
-                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" ${idx < 2 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
                             <div class="phimmoi-play-overlay">
                                 <div class="phimmoi-play-btn">
@@ -2759,7 +2832,9 @@
                         // ==========================================
                         // 3D MOBILE COVERFLOW SHOWCASE CONTROLLER
                         // ==========================================
-                        let showcase3DItems = [];
+                        let showcase3DItems = (window.__INITIAL_MOBILE_SHOWCASE__ && Array.isArray(window.__INITIAL_MOBILE_SHOWCASE__) && window.__INITIAL_MOBILE_SHOWCASE__.length > 0)
+                            ? window.__INITIAL_MOBILE_SHOWCASE__
+                            : [];
                         let showcase3DIndex = 0;
                         let showcase3DAutoTimer = null;
 
@@ -2767,40 +2842,46 @@
                             const section = document.getElementById('mobile3DShowcaseSection');
                             if (!section) return;
 
+                            if (showcase3DItems && showcase3DItems.length > 0) {
+                                initMobile3DShowcase(true);
+                                return;
+                            }
+
                             try {
                                 const res = await fetch('/api/settings/mobile-3d-showcase');
                                 const data = await res.json();
                                 if (data.success && Array.isArray(data.data) && data.data.length > 0) {
                                     showcase3DItems = data.data;
-                                    initMobile3DShowcase();
+                                    initMobile3DShowcase(false);
                                 }
                             } catch (err) {
                                 console.warn('Lỗi tải Mobile 3D Showcase:', err);
                             }
                         }
 
-                        function initMobile3DShowcase() {
+                        function initMobile3DShowcase(isAlreadyRendered = false) {
                             const track = document.getElementById('showcase3DTrack');
                             const pagination = document.getElementById('showcase3DPagination');
                             if (!track || !showcase3DItems.length) return;
 
-                            // Render 3D Cards with smart tap handling
-                            track.innerHTML = showcase3DItems.map((item, idx) => {
-                                const rawImg = item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg';
-                                const finalImg = getImgUrl(rawImg);
-                                const fallbackImg = getImgUrl(item.thumb_url || item.poster_url || rawImg);
-                                return `
-                <div class="showcase-3d-card" data-index="${idx}" onclick="handle3DCardClick(${idx})" role="button" aria-label="${item.name || 'Phim'}">
-                    <img src="${finalImg}" data-original-src="${finalImg}" data-fallback="${fallbackImg}" alt="${item.name || 'Phim'}" loading="eager" fetchpriority="${idx < 3 ? 'high' : 'auto'}" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError ? window.handleCardImgError(this) : (this.src='/images/comment-mascot.webp')">
-                </div>
-            `;
-                            }).join('');
+                            // If not SSR rendered or cards don't exist yet, render 3D Cards
+                            if (!isAlreadyRendered || !track.querySelector('.showcase-3d-card')) {
+                                track.innerHTML = showcase3DItems.map((item, idx) => {
+                                    const rawImg = item.poster_url || item.thumb_url || 'https://phimimg.com/upload/vod/20240506-1/3ea3a7267104b2bfe6f481c4e72750db.jpg';
+                                    const finalImg = getImgUrl(rawImg);
+                                    const fallbackImg = getImgUrl(item.thumb_url || item.poster_url || rawImg);
+                                    return `
+                    <div class="showcase-3d-card ${idx === 0 ? 'is-center' : (idx === 1 ? 'is-right' : (idx === showcase3DItems.length - 1 ? 'is-left' : ''))}" data-index="${idx}" onclick="handle3DCardClick(${idx})" role="button" aria-label="${item.name || 'Phim'}">
+                        <img src="${finalImg}" data-original-src="${finalImg}" data-fallback="${fallbackImg}" alt="${item.name || 'Phim'}" loading="${idx < 3 ? 'eager' : 'lazy'}" fetchpriority="${idx === 0 ? 'high' : 'auto'}" decoding="${idx === 0 ? 'sync' : 'async'}" referrerpolicy="no-referrer" onerror="window.handleCardImgError ? window.handleCardImgError(this) : (this.src='/images/comment-mascot.webp')">
+                    </div>
+                `;
+                                }).join('');
 
-                            // Render Pagination Dots
-                            if (pagination) {
-                                pagination.innerHTML = showcase3DItems.map((_, idx) => `
-                    <div class="showcase-dot ${idx === 0 ? 'active' : ''}" onclick="goTo3DShowcaseSlide(${idx})" role="button" aria-label="Chuyển sang phim ${idx + 1}"></div>
-                `).join('');
+                                if (pagination) {
+                                    pagination.innerHTML = showcase3DItems.map((_, idx) => `
+                        <div class="showcase-dot ${idx === 0 ? 'active' : ''}" onclick="goTo3DShowcaseSlide(${idx})" role="button" aria-label="Chuyển sang phim ${idx + 1}"></div>
+                    `).join('');
+                                }
                             }
 
                             update3DShowcasePositions();
@@ -3055,6 +3136,11 @@
                                     start3DAutoPlay();
                                 }
                             });
+                        }
+
+                        // ⚡ Kích hoạt Mobile 3D Showcase ngay lập tức 0ms không chờ DOMContentLoaded
+                        if (window.innerWidth < 1024) {
+                            loadMobile3DShowcase();
                         }
 
                         // Load the first row immediately; defer lower rows until the user is approaching them.

@@ -763,6 +763,10 @@ router.put('/mobile-3d-showcase', requireAdmin, async (req, res) => {
             updated_at: new Date().toISOString()
         }, { onConflict: 'key' });
 
+        if (typeof global.invalidateMobile3DShowcaseCache === 'function') {
+            global.invalidateMobile3DShowcaseCache();
+        }
+
         try {
             if (AdminLog && req.admin) {
                 AdminLog.create({
