@@ -949,30 +949,85 @@ function renderMovieInfo(movie, episode) {
         };
     }
 
-    // 🎬 Dynamically fetch & update exact Review Video Duration (e.g. "1 GIỜ 43P", "45 PHÚT", "15 PHÚT")
+    // 🎬 Tải thời lượng Review thông minh (Tách luồng, nạp nền khi cuộn tới hoặc lúc rảnh, không cản trở Video Player)
     const durationChip = document.getElementById('sidebar-reels-duration-chip');
     if (durationChip && movie) {
-        const queryTarget = movie.name || movie.slug;
-        fetch(`/api/reels/search?q=${encodeURIComponent(queryTarget)}&tab=review`)
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.success && data.items && data.items.length > 0) {
-                    const firstMatch = data.items[0];
-                    if (firstMatch.durationBadge) {
-                        durationChip.textContent = firstMatch.durationBadge;
-                    } else if (firstMatch.duration) {
-                        const parts = String(firstMatch.duration).trim().split(':').map(p => parseInt(p, 10) || 0);
-                        if (parts.length === 3) {
-                            const [h, m, s] = parts;
-                            durationChip.textContent = h > 0 ? `${h} GIỜ ${m > 0 ? m + 'P' : ''}`.trim() : `${m} PHÚT`;
-                        } else if (parts.length === 2) {
-                            const [m, s] = parts;
-                            durationChip.textContent = m >= 60 ? `${Math.floor(m / 60)} GIỜ ${m % 60 > 0 ? (m % 60) + 'P' : ''}`.trim() : `${m} PHÚT`;
+        const movieKey = movie.slug || movie.name || '';
+        const durCacheKey = 'aphim_reels_dur_' + movieKey;
+
+        // 1. Nếu đã lưu trong bộ nhớ tạm (0ms - Không tốn request mạng)
+        try {
+            const cachedDur = sessionStorage.getItem(durCacheKey);
+            if (cachedDur) {
+                durationChip.textContent = cachedDur;
+            }
+        } catch (_) {}
+
+        // 2. Hàm nạp nền thời lượng review khi trình duyệt rảnh rỗi (Low Priority)
+        let _durFetched = false;
+        const fetchReelsDurationLazy = () => {
+            if (_durFetched || durationChip.dataset.loaded) return;
+            _durFetched = true;
+            durationChip.dataset.loaded = 'true';
+
+            const queryTarget = movie.name || movie.slug;
+            if (!queryTarget) return;
+
+            const executeQuery = () => {
+                fetch(`/api/reels/search?q=${encodeURIComponent(queryTarget)}&tab=review`, { priority: 'low' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.success && data.items && data.items.length > 0) {
+                            const firstMatch = data.items[0];
+                            let formattedBadge = '';
+                            if (firstMatch.durationBadge) {
+                                formattedBadge = firstMatch.durationBadge;
+                            } else if (firstMatch.duration) {
+                                const parts = String(firstMatch.duration).trim().split(':').map(p => parseInt(p, 10) || 0);
+                                if (parts.length === 3) {
+                                    const [h, m, s] = parts;
+                                    formattedBadge = h > 0 ? `${h} GIỜ ${m > 0 ? m + 'P' : ''}`.trim() : `${m} PHÚT`;
+                                } else if (parts.length === 2) {
+                                    const [m, s] = parts;
+                                    formattedBadge = m >= 60 ? `${Math.floor(m / 60)} GIỜ ${m % 60 > 0 ? (m % 60) + 'P' : ''}`.trim() : `${m} PHÚT`;
+                                }
+                            }
+                            if (formattedBadge) {
+                                durationChip.textContent = formattedBadge;
+                                try { sessionStorage.setItem(durCacheKey, formattedBadge); } catch (_) {}
+                            }
                         }
+                    })
+                    .catch(() => {});
+            };
+
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(executeQuery, { timeout: 4000 });
+            } else {
+                setTimeout(executeQuery, 2000);
+            }
+        };
+
+        // 3. Chỉ kích hoạt khi người dùng lướt tới banner (IntersectionObserver) hoặc tương tác
+        if ('IntersectionObserver' in window && sidebarReelsReviewLink) {
+            const reelsBannerObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        fetchReelsDurationLazy();
+                        observer.disconnect();
                     }
-                }
-            })
-            .catch(() => {});
+                });
+            }, { rootMargin: '120px' });
+            reelsBannerObserver.observe(sidebarReelsReviewLink);
+        } else {
+            // Thiết bị cũ: trì hoãn sau 4s khi video player đã bắt đầu phát ổn định
+            setTimeout(fetchReelsDurationLazy, 4000);
+        }
+
+        if (sidebarReelsReviewLink) {
+            sidebarReelsReviewLink.addEventListener('mouseenter', fetchReelsDurationLazy, { once: true, passive: true });
+            sidebarReelsReviewLink.addEventListener('touchstart', fetchReelsDurationLazy, { once: true, passive: true });
+        }
     }
 
     const sidebarQuality = document.getElementById('sidebar-quality');
@@ -2785,17 +2840,44 @@ function initializePlayer(episode) {
             }
             if (isActive) currentActiveName = sName;
 
+            // Đọc dữ liệu ping từ Ping Engine
+            const pingData = (window.getServerPingDataSync && window.getServerPingDataSync(s, idx)) || null;
+            const pingText = pingData ? (pingData.ok ? `${pingData.ping} ms` : (pingData.text || 'Lỗi')) : 'Đang đo...';
+            const pingColor = pingData ? (pingData.ok ? (pingData.status === 'fast' ? 'text-emerald-400' : (pingData.status === 'good' ? 'text-amber-400' : 'text-rose-400')) : 'text-rose-400') : 'text-gray-400';
+            const signalSvg = (window.renderSignalBars && window.renderSignalBars(pingData ? pingData.status : 'loading', true)) || `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="flex-shrink-0">
+                    <rect x="2" y="15" width="3.5" height="6" rx="1" fill="#64748b" />
+                    <rect x="7.5" y="11" width="3.5" height="10" rx="1" fill="#64748b" />
+                    <rect x="13" y="7" width="3.5" height="14" rx="1" fill="#64748b" />
+                    <rect x="18.5" y="3" width="3.5" height="18" rx="1" fill="#64748b" />
+                </svg>
+            `;
+
             return `
-                <div class="aphim-sub-opt ${isActive ? 'active' : ''}" data-server-idx="${idx}">
-                    <span class="truncate">${sName}</span>
-                    <svg class="opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                <div class="aphim-sub-opt ${isActive ? 'active' : ''}" data-server-idx="${idx}" style="display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 7px 10px !important;">
+                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                        <div id="settings-server-signal-${idx}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 6px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            ${signalSvg}
+                        </div>
+                        <span class="truncate" style="font-weight: ${isActive ? '700' : '500'}; font-size: 13px; color: ${isActive ? '#fcd576' : '#f8fafc'};">${sName}</span>
+                        ${isActive ? '<span style="color: #fcd576; font-size: 12px; font-weight: 800; margin-left: 2px;">✓</span>' : ''}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                        <span id="settings-server-ping-${idx}" class="${pingColor}" style="font-size: 11px; font-weight: 700;">${pingText}</span>
+                        <svg class="opt-check" style="${isActive ? 'opacity: 1 !important;' : 'opacity: 0 !important;'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
                 </div>
             `;
         }).join('');
 
         if (valServer) valServer.textContent = currentActiveName;
+
+        // Kích hoạt đo ping nền nếu chưa có
+        if (typeof window.triggerMeasureAllPings === 'function') {
+            window.triggerMeasureAllPings();
+        }
 
         const sOpts = serverOptionsList.querySelectorAll('.aphim-sub-opt');
         sOpts.forEach(opt => {
@@ -2865,6 +2947,7 @@ function initializePlayer(episode) {
                 refreshSettingsServers();
                 refreshSettingsQuality();
                 settingsMenu.classList.remove('hidden');
+                btnSettings.classList.add('is-active');
                 if (wrapper) wrapper.classList.add('aphim-menu-open');
                 if (window.innerWidth <= 640) {
                     settingsMenu.style.maxHeight = '185px';
@@ -2874,6 +2957,7 @@ function initializePlayer(episode) {
                 }
             } else {
                 settingsMenu.classList.add('hidden');
+                btnSettings.classList.remove('is-active');
                 if (wrapper) wrapper.classList.remove('aphim-menu-open');
             }
         };
@@ -2963,6 +3047,7 @@ function initializePlayer(episode) {
             document.addEventListener(evt, (e) => {
                 if (settingsMenu && !settingsMenu.classList.contains('hidden') && !settingsMenu.contains(e.target) && e.target !== btnSettings && !btnSettings.contains(e.target)) {
                     settingsMenu.classList.add('hidden');
+                    btnSettings.classList.remove('is-active');
                     if (wrapper) wrapper.classList.remove('aphim-menu-open');
                 }
             }, { passive: true });

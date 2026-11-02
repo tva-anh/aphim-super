@@ -24,6 +24,45 @@ router.get('/hidden/list', async (req, res) => {
     }
 });
 
+// ── GET /api/movies/ping-server — Đo độ trễ HTTP máy chủ video (Fallback khi client chặn CORS) ─────────────
+router.get('/ping-server', async (req, res) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl || typeof targetUrl !== 'string') {
+        return res.status(400).json({ success: false, message: 'Thiếu url' });
+    }
+    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+        return res.status(400).json({ success: false, message: 'URL không hợp lệ' });
+    }
+
+    const startTime = Date.now();
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3500);
+        const response = await fetch(targetUrl, {
+            method: 'HEAD',
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhimPing/1.0',
+                'Accept': '*/*'
+            }
+        });
+        clearTimeout(timeout);
+        const latency = Date.now() - startTime;
+        return res.json({
+            success: true,
+            status: response.status,
+            latency: latency,
+            ok: response.status < 400
+        });
+    } catch (err) {
+        return res.json({
+            success: false,
+            latency: -1,
+            error: err.name === 'AbortError' ? 'timeout' : err.message
+        });
+    }
+});
+
 // ── POST /api/movies/hide — Admin ────────────────────────────────────────────
 router.post('/hide', requireAdmin, async (req, res) => {
     try {

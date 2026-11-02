@@ -352,8 +352,14 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                flex-wrap: wrap !important;
-                gap: 8px 16px !important;
+                flex-wrap: nowrap !important;
+                gap: 6px 10px !important;
+                overflow-x: auto !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+            }
+            .player-ctrl-bar-container::-webkit-scrollbar {
+                display: none !important;
             }
 
             .player-ctrl-item {
@@ -859,7 +865,7 @@
                     width: auto !important;
                 }
 
-                /* Mobile Icon-Only Buttons (Image 2 Spec) */
+                /* Mobile Icon-Only Buttons with Instant Tactile Feedback */
                 .player-ctrl-bar .player-ctrl-item,
                 .player-ctrl-bar-actions-row .player-ctrl-item,
                 .player-ctrl-bar-toggles-row .player-ctrl-item {
@@ -876,12 +882,20 @@
                     border-radius: 8px !important;
                     color: #cbd5e1 !important;
                     cursor: pointer !important;
-                    transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease !important;
+                    touch-action: manipulation !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    transition: color 0.12s ease, background-color 0.12s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                    will-change: transform;
                 }
 
                 .player-ctrl-bar .player-ctrl-item:active {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    transform: scale(0.92) !important;
+                    background: rgba(252, 213, 118, 0.24) !important;
+                    color: #fcd576 !important;
+                    transform: scale(0.88) translateZ(0) !important;
+                    transition: transform 0.03s ease-out, background-color 0.03s ease-out !important;
+                }
+                .player-ctrl-bar .player-ctrl-item:active svg {
+                    stroke: #fcd576 !important;
                 }
 
                 /* Hide text labels and ON/OFF badges on mobile for sleek space-saving single row */
@@ -1029,8 +1043,12 @@
                     display: flex !important;
                     flex-direction: row !important;
                     align-items: center !important;
+                    justify-content: flex-start !important;
+                    flex-wrap: nowrap !important;
                     width: 100% !important;
-                    gap: 8px !important;
+                    gap: 10px !important;
+                    overflow-x: auto !important;
+                    scrollbar-width: none !important;
                 }
 
                 .player-ctrl-bar-actions-row,
@@ -1045,9 +1063,11 @@
                     align-items: center !important;
                     justify-content: center !important;
                     height: 32px !important;
-                    padding: 0 10px !important;
+                    padding: 0 8px !important;
                     font-size: 13px !important;
                     font-weight: 600 !important;
+                    white-space: nowrap !important;
+                    flex-shrink: 0 !important;
                     color: #cbd5e1 !important;
                     line-height: 1 !important;
                     background: transparent !important;
@@ -1057,7 +1077,47 @@
                     margin: 0 !important;
                     gap: 6px !important;
                     vertical-align: middle !important;
-                    order: 1 !important;
+                    order: initial !important;
+                    cursor: pointer !important;
+                    touch-action: manipulation !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    will-change: transform;
+                    transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item:hover,
+                .player-ctrl-bar-actions-row .player-ctrl-item:hover,
+                .player-ctrl-bar-toggles-row .player-ctrl-item:hover {
+                    color: #fcd576 !important;
+                    background: rgba(255, 255, 255, 0.12) !important;
+                    transform: translateY(-1px) scale(1.04) translateZ(0) !important;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+                }
+                .player-ctrl-bar .player-ctrl-item:hover span {
+                    color: #fcd576 !important;
+                }
+                .player-ctrl-bar .player-ctrl-item:hover svg {
+                    stroke: #fcd576 !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item:active,
+                .player-ctrl-bar-actions-row .player-ctrl-item:active,
+                .player-ctrl-bar-toggles-row .player-ctrl-item:active {
+                    transform: scale(0.91) translateZ(0) !important;
+                    background: rgba(252, 213, 118, 0.22) !important;
+                    color: #fcd576 !important;
+                    transition: transform 0.03s ease-out, background-color 0.03s ease-out !important;
+                }
+
+                .player-ctrl-bar .player-ctrl-item.is-active,
+                .player-ctrl-bar .player-ctrl-item.active {
+                    color: #fcd576 !important;
+                }
+                .player-ctrl-bar .player-ctrl-item.is-active span {
+                    color: #fcd576 !important;
+                }
+                .player-ctrl-bar .player-ctrl-item.is-active svg {
+                    stroke: #fcd576 !important;
                 }
 
                 .player-ctrl-bar .player-ctrl-item span,
@@ -1068,6 +1128,7 @@
                     font-size: 13px !important;
                     line-height: 1 !important;
                     vertical-align: middle !important;
+                    transition: color 0.1s ease !important;
                 }
 
                 .player-ctrl-bar .player-ctrl-item svg {
@@ -1076,6 +1137,18 @@
                     flex-shrink: 0 !important;
                     display: block !important;
                     margin: 0 !important;
+                    transition: stroke 0.1s ease !important;
+                }
+
+                /* Icon máy chủ phóng to cân bằng với các icon khác */
+                .player-ctrl-bar .player-ctrl-item svg.server-icon-svg,
+                .server-icon-svg {
+                    width: 19px !important;
+                    height: 19px !important;
+                    min-width: 19px !important;
+                    max-width: 19px !important;
+                    display: inline-block !important;
+                    vertical-align: middle !important;
                 }
 
                 .badge-status-on,
@@ -1087,27 +1160,47 @@
                     font-size: 10px !important;
                     font-weight: 800 !important;
                     padding: 0 5px !important;
-                    margin: 0 0 0 4px !important;
+                    margin: 0 0 0 5px !important;
                     border-radius: 3px !important;
                     line-height: 1 !important;
                     vertical-align: middle !important;
                     box-sizing: border-box !important;
                 }
 
-                /* Nút Báo lỗi đứng 1 mình bên góc phải trên Desktop */
+                /* Nút Báo lỗi và Nút Trợ giúp nằm cùng nhau ở bên phải để phân chia rõ ràng */
                 .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn,
                 .player-ctrl-bar-actions-row .player-ctrl-item.player-ctrl-report-btn,
                 .player-ctrl-bar-actions-row button.player-ctrl-report-btn,
                 .player-ctrl-report-btn {
                     margin-left: auto !important;
                     margin-right: 0 !important;
-                    order: 99 !important;
+                    order: initial !important;
+                    padding: 0 8px !important;
+                    gap: 6px !important;
+                    flex-shrink: 0 !important;
                 }
 
-                /* Nút Trợ giúp ẩn trên Desktop để giữ nguyên bố cục */
+                .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn:hover {
+                    color: #f87171 !important;
+                    background: rgba(239, 68, 68, 0.16) !important;
+                    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+                }
+                .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn:hover span {
+                    color: #f87171 !important;
+                }
+                .player-ctrl-bar .player-ctrl-item.player-ctrl-report-btn:hover svg {
+                    stroke: #f87171 !important;
+                }
+
+                /* Giữ nút Trợ giúp (?) hiển thị cùng mục Báo lỗi ở bên phải */
                 .player-ctrl-bar .player-ctrl-help-btn,
                 .player-ctrl-help-btn {
-                    display: none !important;
+                    display: inline-flex !important;
+                    margin-left: 0 !important;
+                    order: initial !important;
+                    padding: 0 6px !important;
+                    min-width: 30px !important;
+                    flex-shrink: 0 !important;
                 }
             }
 
@@ -1935,43 +2028,65 @@
             }
 
             #aphim-btn-settings {
-                transition: transform 0.25s ease, color 0.2s ease !important;
+                transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.12s ease, color 0.12s ease, box-shadow 0.15s ease !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                cursor: pointer !important;
+                will-change: transform;
             }
 
             #aphim-btn-settings:hover {
                 color: #fcd576 !important;
-                transform: rotate(30deg) scale(1.08) !important;
+                background-color: rgba(255, 255, 255, 0.18) !important;
+                transform: rotate(30deg) scale(1.1) translateZ(0) !important;
+                box-shadow: 0 0 14px rgba(252, 213, 118, 0.35) !important;
+            }
+
+            #aphim-btn-settings:active {
+                transform: scale(0.90) translateZ(0) !important;
+                background-color: rgba(252, 213, 118, 0.28) !important;
+                transition: transform 0.03s ease-out, background-color 0.03s ease-out !important;
+            }
+
+            /* Trạng thái khi Menu Cài đặt đang mở: Viền & nền vàng hổ phách nổi bật (Chuẩn Hình 2) */
+            #aphim-player-wrapper.aphim-menu-open #aphim-btn-settings,
+            #aphim-btn-settings.is-active {
+                background-color: rgba(252, 213, 118, 0.22) !important;
+                color: #fcd576 !important;
+                border: 1px solid rgba(252, 213, 118, 0.45) !important;
+                box-shadow: 0 0 16px rgba(252, 213, 118, 0.4) !important;
+                transform: rotate(30deg) scale(1.08) translateZ(0) !important;
             }
 
             #aphim-settings-menu {
                 position: absolute !important;
-                bottom: calc(100% + 14px) !important;
+                bottom: calc(100% + 30px) !important;
                 right: 0 !important;
-                width: 275px !important;
+                width: 295px !important;
                 max-width: 92vw !important;
-                background: rgba(14, 28, 34, 0.94) !important;
-                backdrop-filter: blur(24px) !important;
-                -webkit-backdrop-filter: blur(24px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important;
+                backdrop-filter: blur(28px) saturate(190%) !important;
+                -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.30) !important;
                 border-radius: 16px !important;
-                box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15) !important;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
                 padding: 0 !important;
                 z-index: 99999 !important;
                 overflow: hidden !important;
                 user-select: none !important;
                 -webkit-user-select: none !important;
                 font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-                animation: aphimMenuFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+                animation: aphimMenuFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
             }
 
             @keyframes aphimMenuFadeIn {
                 from {
                     opacity: 0;
-                    transform: translateY(8px) scale(0.97);
+                    transform: translateY(8px) scale(0.97) translateZ(0);
                 }
                 to {
                     opacity: 1;
-                    transform: translateY(0) scale(1);
+                    transform: translateY(0) scale(1) translateZ(0);
                 }
             }
 
@@ -1990,16 +2105,19 @@
             }
 
             .aphim-settings-header {
-                padding: 14px 18px 12px 18px !important;
+                padding: 13px 18px 11px 18px !important;
                 font-size: 13.5px !important;
                 font-weight: 700 !important;
                 color: #ffffff !important;
-                letter-spacing: 0.6px !important;
+                letter-spacing: 0.8px !important;
                 text-transform: uppercase !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                border: none !important;
+                border-bottom: none !important;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
                 display: flex !important;
                 align-items: center !important;
                 gap: 8px !important;
+                background: transparent !important;
             }
 
             .aphim-settings-header.aphim-sub-header {
@@ -2009,12 +2127,21 @@
                 text-transform: none !important;
                 letter-spacing: normal !important;
                 font-weight: 600 !important;
-                transition: background 0.15s ease, color 0.15s ease !important;
+                background: transparent !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                transition: background 0.12s ease, color 0.12s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
 
             .aphim-settings-header.aphim-sub-header:hover {
-                background: rgba(255, 255, 255, 0.06) !important;
-                color: #ffffff !important;
+                background: rgba(255, 255, 255, 0.09) !important;
+                color: #fcd576 !important;
+            }
+
+            .aphim-settings-header.aphim-sub-header:active {
+                transform: scale(0.98) translateZ(0) !important;
+                background: rgba(255, 255, 255, 0.15) !important;
+                transition: transform 0.03s ease-out !important;
             }
 
             .aphim-settings-header.aphim-sub-header svg {
@@ -2022,6 +2149,12 @@
                 height: 16px !important;
                 margin-left: -2px !important;
                 color: rgba(255, 255, 255, 0.85) !important;
+                transition: transform 0.15s ease !important;
+            }
+
+            .aphim-settings-header.aphim-sub-header:hover svg {
+                transform: translateX(-2px) !important;
+                color: #fcd576 !important;
             }
 
             .aphim-settings-list {
@@ -2046,17 +2179,41 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                padding: 12px 18px !important;
+                padding: 11px 18px !important;
                 cursor: pointer !important;
-                transition: background 0.15s ease !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                transition: background 0.12s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
                 font-size: 13.5px !important;
                 font-weight: 500 !important;
                 color: #ffffff !important;
                 white-space: nowrap !important;
+                background: transparent !important;
+                will-change: transform;
             }
 
             .aphim-settings-item:hover {
-                background: rgba(255, 255, 255, 0.06) !important;
+                background: rgba(255, 255, 255, 0.10) !important;
+            }
+
+            .aphim-settings-item:hover .aphim-item-icon {
+                color: #fcd576 !important;
+                transform: scale(1.12) translateZ(0) !important;
+            }
+
+            .aphim-settings-item:hover .aphim-item-label {
+                color: #ffffff !important;
+            }
+
+            .aphim-settings-item:hover .aphim-item-chevron {
+                color: #ffffff !important;
+                transform: translateX(3px) translateZ(0) !important;
+            }
+
+            .aphim-settings-item:active {
+                transform: scale(0.98) translateZ(0) !important;
+                background: rgba(255, 255, 255, 0.16) !important;
+                transition: transform 0.03s ease-out !important;
             }
 
             .aphim-item-left {
@@ -2066,20 +2223,22 @@
             }
 
             .aphim-item-icon {
-                width: 20px !important;
-                height: 20px !important;
-                min-width: 20px !important;
-                min-height: 20px !important;
-                color: #ffffff !important;
-                opacity: 0.95 !important;
+                width: 19px !important;
+                height: 19px !important;
+                min-width: 19px !important;
+                min-height: 19px !important;
+                color: rgba(255, 255, 255, 0.9) !important;
                 flex-shrink: 0 !important;
+                transition: color 0.12s ease, transform 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
 
             .aphim-item-label {
                 font-size: 13.5px !important;
-                font-weight: 500 !important;
+                font-weight: 600 !important;
                 color: #ffffff !important;
                 white-space: nowrap !important;
+                letter-spacing: -0.1px !important;
+                transition: color 0.12s ease !important;
             }
 
             .aphim-item-right {
@@ -2090,9 +2249,9 @@
 
             .aphim-item-value {
                 font-size: 12.5px !important;
-                font-weight: 400 !important;
-                color: rgba(255, 255, 255, 0.65) !important;
-                max-width: 100px !important;
+                font-weight: 500 !important;
+                color: #94a3b8 !important;
+                max-width: 115px !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
                 white-space: nowrap !important;
@@ -2104,8 +2263,9 @@
                 height: 14px !important;
                 min-width: 14px !important;
                 min-height: 14px !important;
-                color: rgba(255, 255, 255, 0.45) !important;
+                color: rgba(255, 255, 255, 0.35) !important;
                 flex-shrink: 0 !important;
+                transition: color 0.12s ease, transform 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
 
             .aphim-sub-opt {
@@ -2116,22 +2276,34 @@
                 padding: 10px 14px !important;
                 border-radius: 9px !important;
                 cursor: pointer !important;
-                transition: background 0.15s ease, color 0.15s ease !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                transition: background 0.12s ease, color 0.12s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.12s ease !important;
                 font-size: 13.5px !important;
                 font-weight: 500 !important;
-                color: rgba(255, 255, 255, 0.85) !important;
+                color: rgba(255, 255, 255, 0.88) !important;
                 white-space: nowrap !important;
+                border: 1px solid transparent !important;
+                will-change: transform;
             }
 
             .aphim-sub-opt:hover {
-                background: rgba(255, 255, 255, 0.07) !important;
+                background: rgba(255, 255, 255, 0.10) !important;
                 color: #ffffff !important;
+                transform: translateX(3px) translateZ(0) !important;
+            }
+
+            .aphim-sub-opt:active {
+                transform: scale(0.97) translateZ(0) !important;
+                background: rgba(252, 213, 118, 0.22) !important;
+                transition: transform 0.03s ease-out !important;
             }
 
             .aphim-sub-opt.active {
-                color: #ffffff !important;
+                color: #fcd576 !important;
                 font-weight: 600 !important;
-                background: rgba(255, 255, 255, 0.11) !important;
+                background: rgba(252, 213, 118, 0.14) !important;
+                border: 1px solid rgba(252, 213, 118, 0.35) !important;
             }
 
             .aphim-sub-opt .opt-check {
@@ -2139,14 +2311,15 @@
                 height: 17px !important;
                 min-width: 17px !important;
                 min-height: 17px !important;
-                color: #ffffff !important;
+                color: #fcd576 !important;
                 opacity: 0 !important;
                 flex-shrink: 0 !important;
-                transition: opacity 0.15s ease !important;
+                transition: opacity 0.12s ease, transform 0.12s ease !important;
             }
 
             .aphim-sub-opt.active .opt-check {
                 opacity: 1 !important;
+                transform: scale(1.08) !important;
             }
 
             /* ─── TIME DISPLAY (ELEGANT MODERN PROPORTIONAL SANS-SERIF) ─── */
@@ -2381,7 +2554,7 @@
                     position: absolute !important;
                     bottom: 46px !important;
                     right: 8px !important;
-                    width: 248px !important;
+                    width: 265px !important;
                     max-width: calc(100% - 16px) !important;
                     /* ⚡ Menu chính giữ chiều cao tự nhiên thoải mái ~185px, thấy đủ cả 4 mục không bị cắt cụt */
                     height: auto !important;
@@ -2390,12 +2563,12 @@
                     display: flex !important;
                     flex-direction: column !important;
                     font-size: 11.5px !important;
-                    background: rgba(14, 20, 32, 0.98) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.30) !important;
                     border-radius: 14px !important;
-                    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.92), 0 0 1px rgba(255, 255, 255, 0.25) !important;
-                    backdrop-filter: blur(24px) !important;
-                    -webkit-backdrop-filter: blur(24px) !important;
+                    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+                    backdrop-filter: blur(28px) saturate(190%) !important;
+                    -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
                     z-index: 99999 !important;
                 }
                 .aphim-settings-panel {
@@ -2410,14 +2583,14 @@
                     box-sizing: border-box !important;
                 }
                 .aphim-settings-header {
-                    padding: 8px 12px 7px 12px !important;
-                    font-size: 11px !important;
+                    padding: 9px 12px 8px 12px !important;
+                    font-size: 11.5px !important;
                     font-weight: 700 !important;
-                    color: #fcd576 !important;
-                    letter-spacing: 0.5px !important;
+                    color: #ffffff !important;
+                    letter-spacing: 0.6px !important;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
                     flex-shrink: 0 !important;
-                    background: rgba(14, 20, 32, 0.98) !important;
+                    background: transparent !important;
                     user-select: none !important;
                     display: flex !important;
                     align-items: center !important;
@@ -2431,12 +2604,12 @@
                     touch-action: manipulation !important;
                     -webkit-tap-highlight-color: transparent !important;
                     flex-shrink: 0 !important;
-                    background: rgba(14, 20, 32, 0.98) !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-                    padding: 8px 12px !important;
-                    font-size: 11px !important;
-                    font-weight: 700 !important;
-                    color: #fcd576 !important;
+                    background: transparent !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    padding: 9px 12px !important;
+                    font-size: 11.5px !important;
+                    font-weight: 600 !important;
+                    color: #ffffff !important;
                     box-sizing: border-box !important;
                 }
                 .aphim-sub-header:active {
@@ -2446,7 +2619,7 @@
                     width: 14px !important;
                     height: 14px !important;
                     stroke-width: 2.4 !important;
-                    color: #fcd576 !important;
+                    color: rgba(255, 255, 255, 0.85) !important;
                     flex-shrink: 0 !important;
                     display: inline-block !important;
                 }
@@ -2504,7 +2677,7 @@
                     height: 15px !important;
                     min-width: 15px !important;
                     min-height: 15px !important;
-                    color: #94a3b8 !important;
+                    color: rgba(255, 255, 255, 0.9) !important;
                 }
                 .aphim-item-label {
                     font-size: 11.5px !important;
@@ -2523,7 +2696,7 @@
                 .aphim-item-value {
                     font-size: 10.5px !important;
                     font-weight: 500 !important;
-                    color: #fcd576 !important;
+                    color: #94a3b8 !important;
                     max-width: 105px !important;
                     overflow: hidden !important;
                     text-overflow: ellipsis !important;
@@ -2534,7 +2707,7 @@
                     width: 12px !important;
                     height: 12px !important;
                     min-width: 12px !important;
-                    color: rgba(255, 255, 255, 0.5) !important;
+                    color: rgba(255, 255, 255, 0.35) !important;
                     flex-shrink: 0 !important;
                 }
                 .aphim-sub-opt {
@@ -3838,5 +4011,75 @@ html.light-mode #sidebar-cast p {
     .watch-main-container {
         padding-bottom: 120px !important;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   POPOVER MÁY CHỦ • PING HTTP - CHUẨN KÍNH MỜ HÒA TRỘN TRẮNG
+   Bỏ đường kẻ ngang & Chống đen chữ trong Light Mode
+   ═══════════════════════════════════════════════════════════════════ */
+#serverPingModalCard,
+html.light-mode #serverPingModalCard {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important;
+    backdrop-filter: blur(28px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+    color: #ffffff !important;
+}
+
+#serverPingModalCard .border-b,
+#serverPingModalCard .border-t,
+#serverPingModalCard hr,
+html.light-mode #serverPingModalCard .border-b,
+html.light-mode #serverPingModalCard .border-t {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+#serverPingModalCard h3,
+#serverPingModalCard .server-title-text,
+html.light-mode #serverPingModalCard h3,
+html.light-mode #serverPingModalCard .server-title-text {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+#serverPingModalCard span.server-active-name,
+html.light-mode #serverPingModalCard span.server-active-name {
+    color: #fcd576 !important;
+    -webkit-text-fill-color: #fcd576 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+#serverPingModalCard [id^="server-ping-val-"],
+html.light-mode #serverPingModalCard [id^="server-ping-val-"] {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    font-variant-numeric: tabular-nums !important;
+    letter-spacing: -0.01em !important;
+}
+
+#serverPingModalCard .server-subtext,
+#serverPingModalCard .server-footer-text,
+#serverPingModalCard .text-gray-400,
+html.light-mode #serverPingModalCard .text-gray-400,
+html.light-mode #serverPingModalCard .server-footer-text {
+    color: #cbd5e1 !important;
+    -webkit-text-fill-color: #cbd5e1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+#serverPingModalCard #btnRefreshServerPing svg,
+#serverPingModalCard button svg,
+html.light-mode #serverPingModalCard button svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+#serverPingModalCard button:hover svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
 }
 

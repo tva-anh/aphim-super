@@ -3,7 +3,7 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css?v=362" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=<%= Date.now() %>" />
         <style>
             /* Tên phim trong Card bên phải: Vàng amber sắc nét, tương phản cao, không bị lợt trên nền kem */
             html.light-mode #sidebar-movie-name,
@@ -43,6 +43,132 @@
                 border-radius: 0 !important;
                 color: #1c1917 !important;
                 -webkit-text-fill-color: #1c1917 !important;
+            }
+
+            /* Giao diện Popover Máy Chủ • Ping HTTP & Menu Cài Đặt Kính Mờ Trắng (Frosted White Glass) */
+            #serverPingModalCard,
+            #aphim-settings-menu,
+            html.light-mode #serverPingModalCard,
+            html.light-mode #aphim-settings-menu {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important;
+                backdrop-filter: blur(28px) saturate(190%) !important;
+                -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.30) !important;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+                color: #ffffff !important;
+            }
+
+            #aphim-settings-menu .aphim-settings-header,
+            html.light-mode #aphim-settings-menu .aphim-settings-header {
+                border: none !important;
+                border-bottom: none !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+            }
+
+            @media (min-width: 641px) {
+                #aphim-settings-menu {
+                    bottom: calc(100% + 30px) !important;
+                }
+            }
+
+            /* Triệt để bỏ đường kẻ trắng ngang qua bên trên và bên dưới */
+            #serverPingModalCard .border-b,
+            #serverPingModalCard .border-t,
+            #serverPingModalCard hr {
+                border: none !important;
+                border-top: none !important;
+                border-bottom: none !important;
+            }
+
+            /* Toàn bộ chữ và icon bên trong hòa trộn màu trắng sáng sắc nét (chống bị đen/nâu trong Light Mode) */
+            #serverPingModalCard h3,
+            #serverPingModalCard .server-title-text,
+            html.light-mode #serverPingModalCard h3,
+            html.light-mode #serverPingModalCard .server-title-text {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                text-shadow: none !important;
+            }
+
+            #serverPingModalCard span.server-active-name,
+            html.light-mode #serverPingModalCard span.server-active-name {
+                color: #fcd576 !important;
+                -webkit-text-fill-color: #fcd576 !important;
+            }
+
+            #serverPingModalCard [id^="server-ping-val-"],
+            html.light-mode #serverPingModalCard [id^="server-ping-val-"] {
+                font-size: 11px !important;
+                font-weight: 600 !important;
+                font-variant-numeric: tabular-nums !important;
+                letter-spacing: -0.01em !important;
+            }
+
+            #serverPingModalCard .server-subtext,
+            #serverPingModalCard .text-gray-400,
+            #serverPingModalCard .server-footer-text,
+            html.light-mode #serverPingModalCard .text-gray-400,
+            html.light-mode #serverPingModalCard .server-footer-text {
+                color: #94a3b8 !important;
+                -webkit-text-fill-color: #94a3b8 !important;
+            }
+
+            #serverPingModalCard svg,
+            html.light-mode #serverPingModalCard svg {
+                color: currentColor;
+            }
+
+            #serverPingModalCard #btnRefreshServerPing svg,
+            #serverPingModalCard button svg {
+                color: #cbd5e1 !important;
+                stroke: #cbd5e1 !important;
+            }
+
+            #serverPingModalCard button:hover svg {
+                color: #ffffff !important;
+                stroke: #ffffff !important;
+            }
+
+            .server-ping-row {
+                background: transparent !important;
+                transition: all 0.15s ease !important;
+            }
+            .server-ping-row:hover {
+                background: rgba(255, 255, 255, 0.08) !important;
+            }
+            .server-ping-row.active {
+                background: rgba(255, 255, 255, 0.13) !important;
+            }
+
+            /* Nút Ping HTTP siêu nhỏ gọn ở tiêu đề Danh sách tập */
+            .header-ping-http-btn {
+                background: rgba(255, 255, 255, 0.06) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                color: #cbd5e1 !important;
+            }
+            .header-ping-http-btn svg {
+                color: #10b981 !important;
+                stroke: #10b981 !important;
+            }
+            .header-ping-http-btn:hover {
+                background: rgba(255, 255, 255, 0.12) !important;
+                color: #ffffff !important;
+            }
+            html.light-mode .header-ping-http-btn {
+                background: #f1f5f9 !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #475569 !important;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            }
+            html.light-mode .header-ping-http-btn svg {
+                color: #059669 !important;
+                stroke: #059669 !important;
+            }
+            html.light-mode .header-ping-http-btn:hover {
+                background: #e2e8f0 !important;
+                color: #0f172a !important;
             }
         </style>
 </head>
@@ -322,10 +448,10 @@
 
                         <div class="player-ctrl-bar w-full select-none"
                             style="margin-top: 10px; margin-bottom: 8px; background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;">
-                            <div class="player-ctrl-bar-container w-full flex items-center justify-between flex-wrap gap-2 sm:gap-3 py-1.5 px-0"
-                                style="background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;">
+                            <div class="player-ctrl-bar-container w-full flex items-center justify-between flex-nowrap gap-1.5 sm:gap-2 py-1 px-0 overflow-x-auto"
+                                style="background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important; scrollbar-width: none; -ms-overflow-style: none;">
 
-                                <div class="player-ctrl-bar-actions-row flex items-center gap-2 sm:gap-3">
+                                <div class="player-ctrl-bar-actions-row flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                                     <button type="button" id="favoriteMovieBtn" class="player-ctrl-item"
                                         title="Yêu thích phim này">
                                         <svg class="player-item-svg" viewBox="0 0 24 24" fill="none"
@@ -350,7 +476,7 @@
                                     </button>
                                 </div>
 
-                                <div class="player-ctrl-bar-toggles-row flex items-center gap-2 sm:gap-3.5 flex-wrap">
+                                <div class="player-ctrl-bar-toggles-row flex items-center gap-1 sm:gap-1.5 flex-nowrap flex-shrink-0">
                                     <button type="button" id="btnAutoNext" onclick="toggleAutoNextBadge()"
                                         class="player-ctrl-item is-active"
                                         title="Tự động phát tập tiếp theo khi hết phim">
@@ -360,7 +486,7 @@
                                             <polygon points="5 4 15 12 5 20 5 4"></polygon>
                                             <line x1="19" y1="5" x2="19" y2="19"></line>
                                         </svg>
-                                        <span class="whitespace-nowrap hidden sm:inline-flex">Tự động chuyển tập</span>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Chuyển tập</span>
                                         <span id="badgeAutoNext" class="badge-status-on hidden sm:inline-flex">ON</span>
                                         <input type="checkbox" id="toggleAutoNext" class="hidden" checked>
                                     </button>
@@ -375,7 +501,7 @@
                                             <line x1="19" y1="6" x2="19" y2="18" fill="none"
                                                 style="fill: none !important;"></line>
                                         </svg>
-                                        <span class="whitespace-nowrap hidden sm:inline-flex">Auto skip intro</span>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Skip intro</span>
                                         <span id="badgeAutoSkip"
                                             class="badge-status-off hidden sm:inline-flex">OFF</span>
                                         <input type="checkbox" id="toggleAutoSkip" class="hidden">
@@ -400,6 +526,21 @@
                                         <span id="badgeCinema" class="badge-status-off hidden sm:inline-flex">OFF</span>
                                     </button>
 
+                                    <!-- 🎬 Nút Máy chủ • Ping HTTP (Chuẩn Hình 3) -->
+                                    <button type="button" id="btnServerPingModal" onclick="openServerPingModal(this, event)"
+                                        class="player-ctrl-item" title="Kiểm tra độ trễ (Ping HTTP) & Chọn máy chủ phát mượt">
+                                        <svg class="player-item-svg server-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 19px !important; height: 19px !important; min-width: 19px !important; max-width: 19px !important; display: inline-block !important; vertical-align: middle !important;">
+                                            <rect x="2" y="13" width="20" height="9" rx="2.5"></rect>
+                                            <path d="M6 17.5h.01"></path>
+                                            <path d="M10 17.5h.01"></path>
+                                            <path d="M3.5 8a12 12 0 0 1 17 0"></path>
+                                            <path d="M7 11a7 7 0 0 1 10 0"></path>
+                                        </svg>
+                                        <span class="whitespace-nowrap hidden sm:inline-flex">Máy chủ</span>
+                                        <span id="badgeServerCount" class="server-count-badge" style="border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 5px; padding: 0 5px; font-size: 11px; font-weight: 700; color: #f8fafc; background: rgba(255,255,255,0.06); min-width: 16px; height: 17px; line-height: 17px; display: inline-flex; align-items: center; justify-content: center; margin-left: 5px;">1</span>
+                                    </button>
+
+                                    <!-- 🐛 Nút Báo lỗi -->
                                     <button type="button" onclick="reportError()"
                                         class="player-ctrl-item player-ctrl-report-btn hover:text-red-400"
                                         title="Báo cáo sự cố hoặc lỗi phim">
@@ -447,6 +588,19 @@
                                     style="color: #94a3b8; font-weight: 500; font-size: 13px; margin-left: 4px;">(1
                                     TẬP)</span>
                             </h2>
+                            <button type="button" id="btnEpisodePingHttp" onclick="openServerPingModal(this, event)"
+                                class="header-ping-http-btn"
+                                style="display: inline-flex !important; align-items: center !important; gap: 4px !important; height: 22px !important; max-height: 22px !important; padding: 0 7px !important; font-size: 11px !important; font-weight: 700 !important; white-space: nowrap !important; border-radius: 6px !important; cursor: pointer !important; line-height: 1 !important; transition: all 0.2s ease !important;"
+                                title="Kiểm tra độ trễ mạng từng máy chủ">
+                                <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; max-width: 12px !important; display: inline-block !important; flex-shrink: 0 !important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="14" width="20" height="8" rx="2"></rect>
+                                    <path d="M6 18h.01"></path>
+                                    <path d="M10 18h.01"></path>
+                                    <path d="M6 10a8 8 0 0 1 12 0"></path>
+                                    <path d="M9 12a4 4 0 0 1 6 0"></path>
+                                </svg>
+                                <span style="white-space: nowrap !important; font-size: 11px !important; line-height: 1 !important;">Ping HTTP</span>
+                            </button>
                         </div>
 
                         <div id="server-list" class="w-full space-y-2" style="margin-top: 14px;">
@@ -845,6 +999,53 @@
             <script src="/js/watch.js?v=<%= Date.now() %>" defer></script>
             <script src="/js/firebase-comments.js?v=<%= Date.now() %>" defer></script>
             <script src="/js/watch-ui-init.js?v=219" defer></script>
+            <script src="/js/watch-server-ping.js?v=<%= Date.now() %>" defer></script>
+
+            <!-- 📡 Popover Máy chủ • Ping HTTP (Chuẩn Kính Mờ & Tinh Gọn Như Hình 3) -->
+            <div id="serverPingModal"
+                style="display: none; position: fixed !important; inset: 0 !important; z-index: 999990 !important; background: rgba(0, 0, 0, 0.2) !important;"
+                class="opacity-0 transition-opacity duration-150 select-none"
+                onclick="if(event.target===this)closeServerPingModal()">
+                <div class="fixed rounded-2xl p-3 space-y-2 transform scale-95 opacity-0 transition-all duration-150 flex flex-col"
+                    id="serverPingModalCard" onclick="event.stopPropagation()"
+                    style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important; backdrop-filter: blur(28px) saturate(190%) !important; -webkit-backdrop-filter: blur(28px) saturate(190%) !important; border: 1px solid rgba(255, 255, 255, 0.30) !important; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important; width: 315px; max-width: calc(100vw - 20px); overflow: hidden;">
+                    
+                    <!-- Header: Máy chủ • Ping HTTP & Nút Refresh + Đóng (Bỏ đường kẻ ngang & Tinh gọn kích thước) -->
+                    <div class="flex items-center justify-between pb-1 px-1 flex-shrink-0" style="border: none !important; border-bottom: none !important;">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                            <h3 class="text-white font-bold tracking-wide" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; margin: 0; font-size: 12px; font-weight: 700;">
+                                Máy chủ • Ping HTTP
+                            </h3>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button type="button" id="btnRefreshServerPing" onclick="refreshServerPings(event)"
+                                class="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all cursor-pointer"
+                                style="border: none !important;"
+                                title="Đo lại tốc độ ping tất cả máy chủ">
+                                <svg id="serverPingRefreshSvg" class="transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffffff !important; stroke: #ffffff !important; width: 11px; height: 11px;">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                                </svg>
+                            </button>
+                            <button type="button" onclick="closeServerPingModal()"
+                                class="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all cursor-pointer"
+                                style="border: none !important;"
+                                title="Đóng">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffffff !important; stroke: #ffffff !important; width: 11px; height: 11px;">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách Máy chủ & Ping (Chuẩn Hình 3) -->
+                    <div id="serverPingListContainer" class="space-y-1 overflow-y-auto pr-0.5 custom-scrollbar flex-1 min-h-0">
+                        <!-- Được render tự động bởi watch-server-ping.js -->
+                    </div>
+                </div>
+            </div>
+
             <div id="reportMovieModal"
                 style="display: none; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background: rgba(0, 0, 0, 0.8) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; align-items: center !important; justify-content: center !important; padding: 16px !important;"
                 class="opacity-0 transition-opacity duration-300" onclick="if(event.target===this)closeReportModal()">

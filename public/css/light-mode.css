@@ -8127,3 +8127,90 @@ html.light-mode .phim18-pill.is-active {
     box-shadow: 0 4px 14px rgba(217, 119, 6, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
     transform: translateY(-1px);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   POPOVER MÁY CHỦ • PING HTTP & MENU CÀI ĐẶT (LIGHT MODE CHUẨN KÍNH MỜ TRẮNG)
+   ═══════════════════════════════════════════════════════════════════ */
+#serverPingModalCard,
+#aphim-settings-menu,
+html.light-mode #serverPingModalCard,
+html.light-mode #aphim-settings-menu {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important;
+    backdrop-filter: blur(28px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+    color: #ffffff !important;
+}
+
+#aphim-settings-menu .aphim-settings-header,
+html.light-mode #aphim-settings-menu .aphim-settings-header {
+    border: none !important;
+    border-bottom: none !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+@media (min-width: 641px) {
+    #aphim-settings-menu,
+    html.light-mode #aphim-settings-menu {
+        bottom: calc(100% + 30px) !important;
+    }
+}
+
+#serverPingModalCard .border-b,
+#serverPingModalCard .border-t,
+#serverPingModalCard hr,
+html.light-mode #serverPingModalCard .border-b,
+html.light-mode #serverPingModalCard .border-t {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+#serverPingModalCard h3,
+#serverPingModalCard .server-title-text,
+html.light-mode #serverPingModalCard h3,
+html.light-mode #serverPingModalCard .server-title-text {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+#serverPingModalCard span.server-active-name,
+html.light-mode #serverPingModalCard span.server-active-name {
+    color: #fcd576 !important;
+    -webkit-text-fill-color: #fcd576 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+#serverPingModalCard [id^="server-ping-val-"],
+html.light-mode #serverPingModalCard [id^="server-ping-val-"] {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    font-variant-numeric: tabular-nums !important;
+    letter-spacing: -0.01em !important;
+}
+
+#serverPingModalCard .server-subtext,
+#serverPingModalCard .server-footer-text,
+#serverPingModalCard .text-gray-400,
+html.light-mode #serverPingModalCard .text-gray-400,
+html.light-mode #serverPingModalCard .server-footer-text {
+    color: #cbd5e1 !important;
+    -webkit-text-fill-color: #cbd5e1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+#serverPingModalCard #btnRefreshServerPing svg,
+#serverPingModalCard button svg,
+html.light-mode #serverPingModalCard button svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+#serverPingModalCard button:hover svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}

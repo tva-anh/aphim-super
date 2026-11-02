@@ -2049,6 +2049,21 @@
                             epDesktop.addEventListener('mouseenter', prewarmWatchAssets, { passive: true, once: true });
                             epDesktop.addEventListener('touchstart', prewarmWatchAssets, { passive: true, once: true });
                         }
+                        var reviewBtn = document.getElementById('headerRatingBtn');
+                        if (reviewBtn) {
+                            var prefetchReview = function () {
+                                if (reviewBtn.dataset.prefetched) return;
+                                reviewBtn.dataset.prefetched = 'true';
+                                try {
+                                    var l = document.createElement('link');
+                                    l.rel = 'prefetch';
+                                    l.href = reviewBtn.href;
+                                    document.head.appendChild(l);
+                                } catch (_) {}
+                            };
+                            reviewBtn.addEventListener('mouseenter', prefetchReview, { passive: true, once: true });
+                            reviewBtn.addEventListener('touchstart', prefetchReview, { passive: true, once: true });
+                        }
                     }
                     if (document.readyState === 'loading') {
                         document.addEventListener('DOMContentLoaded', attachIntentListeners);
