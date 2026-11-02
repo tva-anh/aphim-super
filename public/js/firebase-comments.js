@@ -447,8 +447,16 @@
                         this.eventSource.addEventListener('comment_deleted', () => {
                             this.fetchData(slug, cb);
                         });
+                        let consecutiveErrors = 0;
                         this.eventSource.onerror = () => {
-                            // Will automatically reconnect
+                            consecutiveErrors++;
+                            if (consecutiveErrors >= 3) {
+                                try { if (this.eventSource) this.eventSource.close(); } catch(e) {}
+                                this.eventSource = null;
+                                setTimeout(() => {
+                                    if (this.currentSlug === slug) connectSSE();
+                                }, 15000);
+                            }
                         };
                     } catch(e) {
                         console.warn('[CommentsSSE] Stream init warning:', e);

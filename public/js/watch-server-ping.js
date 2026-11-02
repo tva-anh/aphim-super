@@ -24,7 +24,7 @@
         return list[0]?.link_m3u8 || list[0]?.link_embed || '';
     }
 
-    // Helper: Đo độ trễ HTTP đến URL
+    // Helper: Đo độ trễ HTTP đến URL (Qua backend proxy để tránh trình duyệt báo đỏ lỗi CORS từ CDN bên ngoài)
     async function measureHttpPing(url) {
         if (!url) return { ok: false, ping: -1, status: 'error', text: 'Không khả dụng' };
 
@@ -34,40 +34,26 @@
             return cached.data;
         }
 
-        const startTime = performance.now();
         let pingResult = null;
 
-        // 1. Thử client-side fetch HEAD trước (nếu CDN mở CORS thì đo chuẩn xác 100% từ mạng người dùng)
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2800);
-            const res = await fetch(url, {
-                method: 'HEAD',
-                mode: 'cors',
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const proxyRes = await fetch(`/api/movies/ping-server?url=${encodeURIComponent(url)}`, {
                 cache: 'no-store',
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
-            const elapsed = Math.round(performance.now() - startTime);
-
-            if (res.ok || (res.status >= 200 && res.status < 400)) {
-                pingResult = formatPingData(elapsed, true);
+            const json = await proxyRes.json();
+            if (json && json.success && (json.ok || (json.latency > 0 && json.status !== 404 && json.status !== 502 && json.status !== 503))) {
+                pingResult = formatPingData(json.latency || 120, true);
+            } else if (json && json.latency && json.latency > 0) {
+                pingResult = formatPingData(json.latency, true);
             } else {
-                pingResult = { ok: false, ping: elapsed, status: 'error', text: res.status === 404 ? 'Lỗi 404' : 'Lỗi máy chủ' };
+                pingResult = { ok: false, ping: -1, status: 'error', text: 'Chậm/Lỗi' };
             }
-        } catch (_) {
-            // 2. Fallback backend server ping nếu client bị chặn CORS hoặc mạng chập chờn
-            try {
-                const proxyRes = await fetch(`/api/movies/ping-server?url=${encodeURIComponent(url)}`, { cache: 'no-store' });
-                const json = await proxyRes.json();
-                if (json && json.success && json.ok) {
-                    pingResult = formatPingData(json.latency || 120, true);
-                } else {
-                    pingResult = { ok: false, ping: -1, status: 'error', text: 'Không phát' };
-                }
-            } catch (err2) {
-                pingResult = { ok: false, ping: -1, status: 'error', text: 'Mất kết nối' };
-            }
+        } catch (err) {
+            pingResult = { ok: false, ping: -1, status: 'error', text: 'Mất kết nối' };
         }
 
         pingCache.set(url, { time: Date.now(), data: pingResult });
