@@ -2905,14 +2905,14 @@ html.light-mode .player-ctrl-bar,
         -webkit-backdrop-filter: none !important;
         color: #ffffff !important;
         font-weight: 700 !important;
-        padding: 0 10px !important;
+        padding: 0 6px !important;
         height: 32px !important;
         margin: 0 !important;
         border-radius: 8px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 6px !important;
+        gap: 5px !important;
         line-height: 1 !important;
         vertical-align: middle !important;
         box-sizing: border-box !important;
