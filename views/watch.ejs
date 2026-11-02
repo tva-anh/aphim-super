@@ -230,13 +230,13 @@
                         <span
                             class="material-icons-round text-amber-400/90 text-sm flex-shrink-0 notice-info-icon">info</span>
                         <span class="font-normal text-[11.5px] sm:text-[12.5px] text-gray-300 leading-snug">Nếu video bị
-                            lỗi hoặc không tải được, bạn hãy bấm nút <span
-                                class="text-white font-semibold notice-btn-highlight">[Đổi trình phát]</span> ở phần Cấu
-                            hình để chuyển đổi trình phát nhé!</span>
+                            lỗi hoặc không tải được, bạn hãy bấm nút <button type="button" onclick="openServerPingModal(this, event)"
+                                class="text-white font-semibold underline decoration-amber-400 decoration-1 underline-offset-2 hover:text-amber-300 cursor-pointer transition-colors notice-btn-highlight"
+                                title="Bấm để chọn máy chủ">[Máy chủ]</button> ở bên dưới để chuyển đổi máy chủ phát nhé!</span>
                     </div>
                     <button type="button" onclick="document.getElementById('dismissibleNotice').remove()"
                         class="notice-close-btn text-gray-400 hover:text-white transition-colors p-1 ml-2 flex-shrink-0"
-                        title="ng thng bo">
+                        title="Đóng thông báo">
                         <span class="material-icons-round text-sm">close</span>
                     </button>
                 </div>
