@@ -789,7 +789,16 @@ router.get(['/api/ready-subs', '/ready-subs'], async (req, res) => {
 // 12. Auto Crawler Endpoints & Scheduler
 const phimNganAutoCrawler = require('../lib/phimNganAutoCrawler');
 phimNganAutoCrawler.setService(phimNganService);
-phimNganAutoCrawler.startSchedule(2);
+
+// 🛡️ BẢO VỆ HIỆU NĂNG MÁY CHỦ: Không tự động chạy ngầm trên tiến trình Web chính
+// trừ khi được kích hoạt rõ ràng bằng ENABLE_AUTO_CRAWLER=true trong .env.
+// Để cào phim: Bấm "Bắt đầu cào" trong Admin hoặc chạy worker độc lập: pm2 start scripts/crawler-worker.js --name aphim-crawler
+if (process.env.ENABLE_AUTO_CRAWLER === 'true') {
+    const intervalHours = parseFloat(process.env.CRAWLER_INTERVAL_HOURS) || 4;
+    phimNganAutoCrawler.startSchedule(intervalHours);
+} else {
+    console.log('⚡ [AutoCrawler] Tự động cào định kỳ bị tắt trên Web server chính để giải phóng 100% CPU/RAM cho người dùng.');
+}
 
 router.get(['/api/crawler/status', '/crawler/status'], (req, res) => {
     res.json(phimNganAutoCrawler.getStatus());
