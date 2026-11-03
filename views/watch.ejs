@@ -199,16 +199,18 @@
                         </svg>
                         <a id="breadcrumb-category"
                             class="hover:text-[#fcd576] transition-colors flex-shrink-0 text-white font-bold whitespace-nowrap"
-                            href="/danh-sach?list=phim-bo">Phim Bộ</a>
+                            href="/danh-sach?list=<%= (typeof isSingleMovie !== 'undefined' && isSingleMovie) ? 'phim-le' : 'phim-bo' %>">
+                            <%= (typeof isSingleMovie !== 'undefined' && isSingleMovie) ? 'Phim Lẻ' : 'Phim Bộ' %>
+                        </a>
                         <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; display: inline-block !important;"
                             class="text-gray-200 mx-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                             stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                         <span id="breadcrumb-movie-name"
-                            class="text-white font-extrabold truncate flex-1 min-w-0">...</span>
+                            class="text-white font-extrabold truncate flex-1 min-w-0"><%= typeof movie !== 'undefined' && movie ? movie.name : '...' %></span>
                         <span id="watchBreadcrumbEpName"
-                            class="text-[#fcd576] font-extrabold flex-shrink-0 whitespace-nowrap">...</span>
+                            class="text-[#fcd576] font-extrabold flex-shrink-0 whitespace-nowrap"><%= (typeof isSingleMovie !== 'undefined' && isSingleMovie) ? '- Bản Full' : (typeof episodeParam !== 'undefined' && episodeParam ? `- Tập ${String(episodeParam).replace(/^tap-/, '')}` : '') %></span>
                     </div>
 
                     <div id="watchToEarnPill"

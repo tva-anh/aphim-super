@@ -936,6 +936,33 @@ function setupWatchButton(movie) {
         const targetServer = movie.episodes[sIndex] || movie.episodes[0];
         const firstEpisode = targetServer?.server_data?.[0] || movie.episodes[0]?.server_data?.[0];
 
+        const rawType = String(movie.type || '').trim().toLowerCase();
+        const epTotal = String(movie.episode_total || '').trim().toLowerCase();
+        const epCurrent = String(movie.episode_current || '').trim().toLowerCase();
+        const catList = Array.isArray(movie.category)
+            ? movie.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+            : [];
+        const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+        const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+        const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+        const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+        const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+        // Chặn triệt để bẫy nhận diện sai Phim Bộ mới ra Tập 1 thành Phim Lẻ
+        const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+
+        const isSingle = !isDefinitelySeries && Boolean(
+            rawType === 'single' ||
+            rawType === 'movie' ||
+            movie.chieu_rap === true ||
+            movie.is_cinema === true ||
+            epTotal === '1' ||
+            epTotal === '01' ||
+            epCurrent.includes('full') ||
+            epCurrent.includes('chiếu rạp') ||
+            catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+        );
+
         if (firstEpisode) {
             const cleanSlug = String(firstEpisode.slug || '1').replace(/^tap-/, '');
             let catSlug = '';
@@ -945,9 +972,13 @@ function setupWatchButton(movie) {
                 else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
             }
             const sParam = (sIndex > 0 && !catSlug) ? `?server=${sIndex}` : '';
-            watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+            if (isSingle) {
+                watchBtn.href = `/xem-phim/${movie.slug}/full${catSlug}${sParam}`;
+            } else {
+                watchBtn.href = `/xem-phim/${movie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+            }
         } else {
-            watchBtn.href = `/xem-phim/${movie.slug}`;
+            watchBtn.href = isSingle ? `/xem-phim/${movie.slug}/full` : `/xem-phim/${movie.slug}/tap-1`;
         }
 
         watchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -1150,9 +1181,9 @@ function renderVersions(movie) {
         const ep1Server2 = episodesList[1]?.server_data?.[0];
         const ep1Server3 = episodesList[2]?.server_data?.[0];
 
-        const url1 = `/xem-phim/${movie.slug}/tap-${clean0}${catSlug}${sParam}`;
-        const url2 = episodesList[1] ? `/xem-phim/${movie.slug}${ep1Server2 ? '/tap-' + ep1Server2.slug.replace(/^tap-/, '') : ''}?server=1` : url1;
-        const url3 = episodesList[2] ? `/xem-phim/${movie.slug}${ep1Server3 ? '/tap-' + ep1Server3.slug.replace(/^tap-/, '') : ''}?server=2` : url1;
+        const url1 = `/xem-phim/${movie.slug}/full${catSlug}${sParam}`;
+        const url2 = episodesList[1] ? `/xem-phim/${movie.slug}/full${catSlug}?server=1` : url1;
+        const url3 = episodesList[2] ? `/xem-phim/${movie.slug}/full${catSlug}?server=2` : url1;
 
         cards = [
             {
@@ -1822,11 +1853,31 @@ function renderEpisodes(episodes) {
         const _urlP = new URLSearchParams(window.location.search);
         const _epParam = _urlP.get('episode');
         const _epNum = _epParam ? _epParam.replace(/^tap-/, '') : null;
+        const isSingle = Boolean(
+            currentMovie && (
+                currentMovie.type === 'single' ||
+                currentMovie.type === 'movie' ||
+                currentMovie.chieu_rap === true ||
+                currentMovie.is_cinema === true ||
+                String(currentMovie.episode_total || '').trim() === '1' ||
+                String(currentMovie.episode_total || '').trim() === '01' ||
+                String(currentMovie.episode_current || '').toLowerCase().includes('full') ||
+                String(currentMovie.episode_current || '').toLowerCase().includes('chiếu rạp') ||
+                (Array.isArray(currentMovie.category) && currentMovie.category.some(c => {
+                    const n = (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase();
+                    return n.includes('chiếu rạp') || n.includes('phim lẻ');
+                })) ||
+                (Array.isArray(currentMovie.episodes) && currentMovie.episodes.length > 0 && Math.max(...currentMovie.episodes.map(s => (s.server_data || []).length)) === 1)
+            )
+        );
+
         const cleanSlug = ep.slug.replace(/^tap-/, '');
         const isActive = _epNum ? (cleanSlug === _epNum) : false;
 
         let epName = ep.name ? ep.name.trim() : '';
-        if (/^\d+$/.test(epName)) {
+        if (isSingle || cleanSlug === 'full' || (displayEpisodes.length === 1 && (cleanSlug === '1' || epName === '1' || epName.toLowerCase() === 'full'))) {
+            epName = 'Bản FULL';
+        } else if (/^\d+$/.test(epName)) {
             epName = `Tập ${parseInt(epName, 10)}`;
         } else if (/^tập\s*0*(\d+)/i.test(epName)) {
             epName = epName.replace(/^tập\s*0*(\d+)/i, 'Tập $1');
@@ -1840,7 +1891,9 @@ function renderEpisodes(episodes) {
             else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
         }
         const sParam = (currentServerIndexDetail > 0 && !catSlug) ? `?server=${currentServerIndexDetail}` : '';
-        const watchHref = `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+        const watchHref = isSingle
+            ? `/xem-phim/${currentMovie.slug}/full${catSlug}${sParam}`
+            : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
 
         return `
             <a href="${watchHref}"

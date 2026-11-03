@@ -118,16 +118,68 @@ function updateWatchUrlState(movie, episode, serverIndex) {
         else if (cat === 'Lồng Tiếng') catSlug = '-long-tieng';
     }
 
-    const cleanEp = (episode && episode.slug) ? episode.slug.replace(/^tap-/, '') : 'full';
+    const rawType = String(movie.type || '').trim().toLowerCase();
+    const epTotal = String(movie.episode_total || '').trim().toLowerCase();
+    const epCurrent = String(movie.episode_current || '').trim().toLowerCase();
+    const catList = Array.isArray(movie.category)
+        ? movie.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+        : [];
+
+    const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+    const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+    const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+    const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+    const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+    // Chặn triệt để bẫy nhận diện sai Phim Bộ mới ra Tập 1 thành Phim Lẻ
+    const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+
+    const isSingle = !isDefinitelySeries && Boolean(
+        rawType === 'single' ||
+        rawType === 'movie' ||
+        movie.chieu_rap === true ||
+        movie.is_cinema === true ||
+        epTotal === '1' ||
+        epTotal === '01' ||
+        epCurrent.includes('full') ||
+        epCurrent.includes('chiếu rạp') ||
+        catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+    );
+
+    const cleanEp = (episode && episode.slug) ? episode.slug.replace(/^tap-/, '') : (isSingle ? 'full' : '1');
     const serverParam = (!catSlug && serverIndex > 0) ? `?server=${serverIndex}` : '';
 
-    const newUrl = `/xem-phim/${movie.slug}/tap-${cleanEp}${catSlug}${serverParam}`;
+    let newUrl = '';
+    let variantTag = catSlug === '-thuyet-minh' ? 'Thuyết Minh Tiếng Việt' : (catSlug === '-long-tieng' ? 'Lồng Tiếng Trọn Bộ' : 'Vietsub Full HD');
+
+    if (isSingle) {
+        newUrl = `/xem-phim/${movie.slug}/full${catSlug}${serverParam}`;
+        document.title = `Xem Phim ${movie.name} - Bản Full HD [${variantTag}] - APhim Super`;
+    } else {
+        const seriesEp = cleanEp === 'full' ? '1' : cleanEp;
+        newUrl = `/xem-phim/${movie.slug}/tap-${seriesEp}${catSlug}${serverParam}`;
+        let epStr = episode?.name ? (episode.name.toLowerCase().includes('tập') ? episode.name : `Tập ${episode.name}`) : `Tập ${seriesEp}`;
+        document.title = `Xem Phim ${movie.name} ${epStr ? epStr + ' ' : ''}[${variantTag}] - APhim Super`;
+    }
+
     window.history.pushState({}, '', newUrl);
 
-    // Cập nhật Title trang động theo đúng phiên bản đang xem
-    let epStr = episode?.name ? (episode.name.toLowerCase().includes('tập') ? episode.name : `Tập ${episode.name}`) : '';
-    let variantTag = catSlug === '-thuyet-minh' ? 'Thuyết Minh Tiếng Việt' : (catSlug === '-long-tieng' ? 'Lồng Tiếng Trọn Bộ' : 'Vietsub Full HD');
-    document.title = `Xem Phim ${movie.name} ${epStr ? epStr + ' ' : ''}[${variantTag}] - APhim Super`;
+    // Cập nhật breadcrumbs đồng bộ tức thì
+    const catBreadcrumb = document.getElementById('breadcrumb-category');
+    if (catBreadcrumb) {
+        if (isSingle) {
+            catBreadcrumb.textContent = 'Phim Lẻ';
+            catBreadcrumb.href = '/danh-sach?list=phim-le';
+        } else {
+            catBreadcrumb.textContent = 'Phim Bộ';
+            catBreadcrumb.href = '/danh-sach?list=phim-bo';
+        }
+    }
+    const epNameEl = document.getElementById('watchBreadcrumbEpName');
+    if (epNameEl) {
+        epNameEl.textContent = isSingle ? ' - Bản Full' : ` - Tập ${cleanEp === 'full' ? '1' : cleanEp}`;
+        epNameEl.style.display = 'inline';
+    }
 }
 
 // Load movie and play
@@ -505,10 +557,35 @@ function injectVideoSchema(movie, episode) {
         if (old) old.remove();
 
         const slug = movie.slug;
-        const epSlug = episode ? episode.slug : '';
-        const pageUrl = 'https://aphim.store/xem-phim/' + encodeURIComponent(slug)
-            + (epSlug ? '/tap-' + encodeURIComponent(epSlug) : '');
-        const canonicalUrl = 'https://aphim.store/phim/' + encodeURIComponent(slug);
+        const rawType = String(movie.type || '').trim().toLowerCase();
+        const epTotal = String(movie.episode_total || '').trim().toLowerCase();
+        const epCurrent = String(movie.episode_current || '').trim().toLowerCase();
+        const catList = Array.isArray(movie.category)
+            ? movie.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+            : [];
+        const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+        const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+        const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+        const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+        const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+        const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+        const isSingle = !isDefinitelySeries && Boolean(
+            rawType === 'single' ||
+            rawType === 'movie' ||
+            movie.chieu_rap === true ||
+            movie.is_cinema === true ||
+            epTotal === '1' ||
+            epTotal === '01' ||
+            epCurrent.includes('full') ||
+            epCurrent.includes('chiếu rạp') ||
+            catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+        );
+
+        const pageUrl = isSingle
+            ? 'https://aphim.store/xem-phim/' + encodeURIComponent(slug) + '/full'
+            : 'https://aphim.store/xem-phim/' + encodeURIComponent(slug) + '/tap-' + encodeURIComponent(episode && episode.slug ? episode.slug.replace(/^tap-/, '') : '1');
+        const canonicalUrl = pageUrl;
 
         let rawThumb = movie.thumb_url || movie.poster_url || '';
         let absoluteThumb = 'https://aphim.store/android-chrome-512x512.png';

@@ -11,13 +11,17 @@ const fs = require('fs');
 const path = require('path');
 
 const BASE_URL = process.env.BASE_URL || 'https://aphim.store';
-const SITEMAP_CACHE_TTL = 45 * 60 * 1000; // 45 phút cache để tránh overload API
+const SITEMAP_CACHE_FILE = path.join(__dirname, '../data/sitemaps_cache.json');
+const SITEMAP_REFRESH_INTERVAL = 2 * 60 * 60 * 1000; // 2 tiếng làm mới cache ngầm (Stale-While-Revalidate)
 
-// Bộ nhớ đệm Sitemaps
+// Bộ nhớ đệm Sitemaps Đa Tầng (RAM + Disk Cache)
 let sitemapCache = {
     index: null,
     main: null,
     movies: null,
+    moviesSingle: null,
+    moviesSeries: null,
+    episodesSeries: null,
     categories: null,
     images: null,
     reels: null,
@@ -25,6 +29,21 @@ let sitemapCache = {
     lastFetched: 0,
     lastFetchedPhimNgan: 0
 };
+
+let isRefreshingSitemaps = false;
+
+// Đọc cache từ đĩa ngay khi khởi động để phản hồi Googlebot trong < 20ms
+try {
+    if (fs.existsSync(SITEMAP_CACHE_FILE)) {
+        const diskData = JSON.parse(fs.readFileSync(SITEMAP_CACHE_FILE, 'utf8'));
+        if (diskData && diskData.movies) {
+            sitemapCache = Object.assign({}, sitemapCache, diskData);
+            console.log('✅ [SEO Cache] Đã nạp thành công Sitemap Cache từ đĩa (SWR Ready)');
+        }
+    }
+} catch (e) {
+    console.warn('[SEO Cache] Chưa có cache đĩa hoặc file cache bị hỏng:', e.message);
+}
 
 // Danh sách phim bị chặn (DMCA/Vi phạm) để loại trừ khỏi sitemap
 const BLOCKED_SLUGS = ['trai-cam', 'moi-thu-la-loi-co-ay', 'michael', 'dac-vu-xuyen-quoc-gia', 'xac-song-thanh-pho-chet-phan-2'];
@@ -55,48 +74,206 @@ function escapeXml(str) {
 }
 
 /**
- * Cào danh sách phim mới nhất để xây dựng sitemap động
+ * Trích xuất con số tập THỰC TẾ ĐÃ PHÁT SÓNG của một bộ phim dài tập
+ * TUYỆT ĐỐI CHỐNG BẪY SINH KHỐNG TẬP CHƯA CHIẾU:
+ * - Nếu đang chiếu 'Tập 1' hay '12/40' -> Chỉ sinh đúng 1 hoặc 12 tập, không lấy tổng 16 hay 40 tập!
+ * - Chỉ sinh đủ tổng số tập khi phim có trạng thái 'Hoàn tất', 'Full', 'Trọn bộ'
+ */
+function parseAiredEpisodes(epCurrent, epTotal) {
+    const curStr = String(epCurrent || '').toLowerCase().trim();
+    const totStr = String(epTotal || '').toLowerCase().trim();
+
+    const isCompleted = curStr.includes('full') || curStr.includes('hoàn tất') || curStr.includes('trọn bộ') || curStr.includes('đủ tập');
+
+    // 1. Phân số: 12/40, (12/40), Hoàn tất (40/40), Full 36/36
+    const fracMatch = curStr.match(/(\d+)\s*\/\s*(\d+)/);
+    if (fracMatch) {
+        const curNum = parseInt(fracMatch[1], 10);
+        const totNum = parseInt(fracMatch[2], 10);
+        if (isCompleted) {
+            const best = Math.max(curNum, totNum);
+            return (best > 0 && best <= 250) ? best : 1;
+        }
+        // Chưa hoàn tất: Chỉ lấy số tập thực tế đã chiếu (số đứng trước)
+        return (curNum > 0 && curNum <= 250) ? curNum : 1;
+    }
+
+    // 2. Có từ khóa Tập: 'Tập 24', 'Tập 1', 'Tập 08'
+    const tapMatch = curStr.match(/tập\s*(\d+)/i) || curStr.match(/tap\s*(\d+)/i);
+    if (tapMatch) {
+        const n = parseInt(tapMatch[1], 10);
+        if (!isNaN(n) && n > 0 && n <= 250) {
+            // Nếu có chữ Hoàn tất/Full và có epTotal lớn hơn -> lấy epTotal
+            if (isCompleted) {
+                const totalMatch = totStr.match(/(\d+)/);
+                if (totalMatch) {
+                    const totN = parseInt(totalMatch[1], 10);
+                    if (!isNaN(totN) && totN > n && totN <= 250) return totN;
+                }
+            }
+            return n;
+        }
+    }
+
+    // 3. Nếu là phim đã Hoàn tất / Trọn bộ nhưng curStr không chứa số tập cụ thể (vd: 'Full', 'Hoàn tất')
+    if (isCompleted) {
+        const totalMatch = totStr.match(/(\d+)/);
+        if (totalMatch) {
+            const totN = parseInt(totalMatch[1], 10);
+            if (!isNaN(totN) && totN > 1 && totN <= 250) return totN;
+        }
+    }
+
+    return 1;
+}
+
+// Giữ alias tương thích
+const parseMaxEpisodes = parseAiredEpisodes;
+
+/**
+ * Thuật toán phân loại Phim Lẻ vs Phim Bộ siêu chuẩn
+ * Chặn triệt để bẫy nhận diện sai Phim Bộ mới ra "Tập 1" thành Phim Lẻ
+ */
+function evaluateMovieType(m, forcedType = null) {
+    const rawType = String(forcedType || m.type || '').trim().toLowerCase();
+    const epTotal = String(m.episode_total || '').trim().toLowerCase();
+    const epCurrent = String(m.episode_current || '').trim().toLowerCase();
+    const catList = Array.isArray(m.category)
+        ? m.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+        : [];
+
+    const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+    const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+    const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+    const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+    const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+    // Chặn triệt để bẫy phim bộ mới ra Tập 1
+    const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+
+    const isSingle = !isDefinitelySeries && Boolean(
+        rawType === 'single' ||
+        rawType === 'movie' ||
+        m.chieu_rap === true ||
+        m.is_cinema === true ||
+        epTotal === '1' ||
+        epTotal === '01' ||
+        epCurrent.includes('full') ||
+        epCurrent.includes('chiếu rạp') ||
+        catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+    );
+
+    return {
+        isSingle,
+        type: isSingle ? 'single' : 'series'
+    };
+}
+
+/**
+ * Cào danh sách phim mới nhất và đầy đủ từ nhiều nguồn danh mục để xây dựng sitemap động quy mô lớn
  */
 async function fetchMoviesForSitemap() {
     const movies = [];
     const movieSlugsSeen = new Set();
     const todayStr = new Date().toISOString().split('T')[0];
-    
-    // Cào 35 trang danh sách phim mới (~840 phim x 2 = ~1,680 URLs chất lượng cao nhất)
-    const pageNumbers = Array.from({ length: 35 }, (_, i) => i + 1);
 
+    // Helper trích xuất và chuẩn hóa movie item
+    const extractMovie = (m, forcedType = null) => {
+        if (!m || !m.slug || movieSlugsSeen.has(m.slug) || BLOCKED_SLUGS.includes(m.slug.toLowerCase())) {
+            return;
+        }
+        movieSlugsSeen.add(m.slug);
+
+        let thumb = m.thumb_url || '';
+        if (thumb && !thumb.startsWith('http')) thumb = `https://img.phimapi.com/${thumb}`;
+
+        let poster = m.poster_url || '';
+        if (poster && !poster.startsWith('http')) poster = `https://img.phimapi.com/${poster}`;
+
+        const classification = evaluateMovieType(m, forcedType);
+
+        movies.push({
+            slug: m.slug,
+            name: m.name || m.origin_name || m.slug,
+            origin_name: m.origin_name || '',
+            year: m.year || new Date().getFullYear(),
+            thumb_url: thumb,
+            poster_url: poster,
+            episode_current: m.episode_current || '',
+            episode_total: m.episode_total || '',
+            isSingle: classification.isSingle,
+            type: classification.type,
+            modified: m.modified?.time ? new Date(m.modified.time).toISOString().split('T')[0] : todayStr
+        });
+    };
+
+    // 1. Cào 60 trang danh sách phim mới cập nhật (~1.440 phim)
+    const newPageNumbers = Array.from({ length: 60 }, (_, i) => i + 1);
     await Promise.allSettled(
-        pageNumbers.map(async (page) => {
+        newPageNumbers.map(async (page) => {
             try {
                 const res = await axios.get(`https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}`, {
-                    timeout: 8000,
+                    timeout: 6000,
                     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-SEO-Crawler/3.0' }
                 });
-                const items = res.data?.items || [];
-                items.forEach((m) => {
-                    if (m && m.slug && !movieSlugsSeen.has(m.slug) && !BLOCKED_SLUGS.includes(m.slug.toLowerCase())) {
-                        movieSlugsSeen.add(m.slug);
-                        
-                        let thumb = m.thumb_url || '';
-                        if (thumb && !thumb.startsWith('http')) thumb = `https://img.phimapi.com/${thumb}`;
-                        
-                        let poster = m.poster_url || '';
-                        if (poster && !poster.startsWith('http')) poster = `https://img.phimapi.com/${poster}`;
+                (res.data?.items || []).forEach(m => extractMovie(m));
+            } catch (err) { }
+        })
+    );
 
-                        movies.push({
-                            slug: m.slug,
-                            name: m.name || m.origin_name || m.slug,
-                            origin_name: m.origin_name || '',
-                            year: m.year || new Date().getFullYear(),
-                            thumb_url: thumb,
-                            poster_url: poster,
-                            modified: m.modified?.time ? new Date(m.modified.time).toISOString().split('T')[0] : todayStr
-                        });
-                    }
+    // 2. Cào bổ sung danh mục Phim Lẻ chuyên biệt (20 trang x 24 = ~480 phim lẻ)
+    const singlePages = Array.from({ length: 20 }, (_, i) => i + 1);
+    await Promise.allSettled(
+        singlePages.map(async (page) => {
+            try {
+                const res = await axios.get(`https://phimapi.com/v1/api/danh-sach/phim-le?page=${page}&limit=24`, {
+                    timeout: 6000,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-SEO-Crawler/3.0' }
                 });
-            } catch (err) {
-                // Tiếp tục xử lý các page khác
-            }
+                (res.data?.data?.items || []).forEach(m => extractMovie(m, 'single'));
+            } catch (err) { }
+        })
+    );
+
+    // 3. Cào bổ sung danh mục Phim Bộ chuyên biệt (20 trang x 24 = ~480 phim bộ)
+    const seriesPages = Array.from({ length: 20 }, (_, i) => i + 1);
+    await Promise.allSettled(
+        seriesPages.map(async (page) => {
+            try {
+                const res = await axios.get(`https://phimapi.com/v1/api/danh-sach/phim-bo?page=${page}&limit=24`, {
+                    timeout: 6000,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-SEO-Crawler/3.0' }
+                });
+                (res.data?.data?.items || []).forEach(m => extractMovie(m, 'series'));
+            } catch (err) { }
+        })
+    );
+
+    // 4. Cào bổ sung Hoạt Hình Anime (15 trang x 24 = ~360 phim)
+    const animePages = Array.from({ length: 15 }, (_, i) => i + 1);
+    await Promise.allSettled(
+        animePages.map(async (page) => {
+            try {
+                const res = await axios.get(`https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=${page}&limit=24`, {
+                    timeout: 6000,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-SEO-Crawler/3.0' }
+                });
+                (res.data?.data?.items || []).forEach(m => extractMovie(m));
+            } catch (err) { }
+        })
+    );
+
+    // 5. Cào bổ sung TV Shows (10 trang x 24 = ~240 phim)
+    const tvPages = Array.from({ length: 10 }, (_, i) => i + 1);
+    await Promise.allSettled(
+        tvPages.map(async (page) => {
+            try {
+                const res = await axios.get(`https://phimapi.com/v1/api/danh-sach/tv-shows?page=${page}&limit=24`, {
+                    timeout: 6000,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-SEO-Crawler/3.0' }
+                });
+                (res.data?.data?.items || []).forEach(m => extractMovie(m, 'series'));
+            } catch (err) { }
         })
     );
 
@@ -104,24 +281,26 @@ async function fetchMoviesForSitemap() {
 }
 
 /**
- * Tạo tất cả sitemaps và lưu vào cache
+ * Xây dựng nội dung toàn bộ XML Sitemaps
  */
-async function generateAllSitemaps() {
-    if (sitemapCache.index && (Date.now() - sitemapCache.lastFetched < SITEMAP_CACHE_TTL)) {
-        return sitemapCache;
-    }
-
+async function buildSitemapsXml() {
     const todayStr = new Date().toISOString().split('T')[0];
     const movies = await fetchMoviesForSitemap();
 
-    // 1. MASTER SITEMAP INDEX (/sitemap.xml)
+    const singleMovies = movies.filter(m => m.isSingle);
+    const seriesMovies = movies.filter(m => !m.isSingle);
+
+    // 1. MASTER SITEMAP INDEX (/sitemap-index.xml)
+    // LOẠI BỎ TRÙNG LẶP: Không đưa sitemap-movies.xml vào đây vì nó đã chứa các URLs của 3 sitemap con
     let indexXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     indexXml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    
+
     const sitemapsList = [
         `${BASE_URL}/sitemap-main.xml`,
         `${BASE_URL}/sitemap-categories.xml`,
-        `${BASE_URL}/sitemap-movies.xml`,
+        `${BASE_URL}/sitemap-movies-single.xml`,
+        `${BASE_URL}/sitemap-movies-series.xml`,
+        `${BASE_URL}/sitemap-episodes-series.xml`,
         `${BASE_URL}/sitemap-images.xml`,
         `${BASE_URL}/sitemap-reels.xml`,
         `${BASE_URL}/sitemap-phim-ngan.xml`
@@ -142,6 +321,9 @@ async function generateAllSitemaps() {
         { loc: `${BASE_URL}/phim-ngan/de-xuat`, priority: '0.90', changefreq: 'daily' },
         { loc: `${BASE_URL}/reels`, priority: '0.90', changefreq: 'always' },
         { loc: `${BASE_URL}/danh-sach`, priority: '0.9', changefreq: 'daily' },
+        { loc: `${BASE_URL}/danh-sach?list=phim-le`, priority: '0.95', changefreq: 'daily' },
+        { loc: `${BASE_URL}/danh-sach?list=phim-bo`, priority: '0.95', changefreq: 'daily' },
+        { loc: `${BASE_URL}/danh-sach?list=hoat-hinh`, priority: '0.90', changefreq: 'daily' },
         { loc: `${BASE_URL}/tat-ca`, priority: '0.9', changefreq: 'daily' },
         { loc: `${BASE_URL}/categories`, priority: '0.9', changefreq: 'daily' },
         { loc: `${BASE_URL}/phim-theo-quoc-gia`, priority: '0.9', changefreq: 'daily' },
@@ -168,7 +350,7 @@ async function generateAllSitemaps() {
     // 3. CATEGORIES & COUNTRIES SITEMAP (/sitemap-categories.xml)
     let catXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     catXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-    
+
     CATEGORIES.forEach(c => {
         catXml += `  <url>\n`;
         catXml += `    <loc>${BASE_URL}/categories?category=${c}</loc>\n`;
@@ -188,49 +370,151 @@ async function generateAllSitemaps() {
     });
     catXml += `</urlset>`;
 
-    // 4. MOVIES SITEMAP (/sitemap-movies.xml) — Tối ưu chi tiết phim & trang xem phim
+    // 4. SITEMAP CHUYÊN BIỆT PHIM LẺ (/sitemap-movies-single.xml)
+    let singleXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    singleXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
+    singleMovies.forEach(m => {
+        singleXml += `  <url>\n`;
+        singleXml += `    <loc>${BASE_URL}/phim/${m.slug}</loc>\n`;
+        singleXml += `    <lastmod>${m.modified}</lastmod>\n`;
+        singleXml += `    <changefreq>daily</changefreq>\n`;
+        singleXml += `    <priority>0.85</priority>\n`;
+        if (m.poster_url || m.thumb_url) {
+            singleXml += `    <image:image>\n`;
+            singleXml += `      <image:loc>${escapeXml(m.poster_url || m.thumb_url)}</image:loc>\n`;
+            singleXml += `      <image:title>Phim Lẻ ${escapeXml(m.name)} Full HD Vietsub - APhim Super</image:title>\n`;
+            singleXml += `    </image:image>\n`;
+        }
+        singleXml += `  </url>\n`;
+
+        // URL xem phim lẻ chuẩn Top 1 Google: /xem-phim/:slug/full
+        singleXml += `  <url>\n`;
+        singleXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/full</loc>\n`;
+        singleXml += `    <lastmod>${m.modified}</lastmod>\n`;
+        singleXml += `    <changefreq>daily</changefreq>\n`;
+        singleXml += `    <priority>0.95</priority>\n`;
+        singleXml += `  </url>\n`;
+
+        // Biến thể Thuyết Minh cho Phim Lẻ
+        singleXml += `  <url>\n`;
+        singleXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/full-thuyet-minh</loc>\n`;
+        singleXml += `    <lastmod>${m.modified}</lastmod>\n`;
+        singleXml += `    <changefreq>daily</changefreq>\n`;
+        singleXml += `    <priority>0.85</priority>\n`;
+        singleXml += `  </url>\n`;
+    });
+    singleXml += `</urlset>`;
+
+    // 5. SITEMAP CHUYÊN BIỆT PHIM BỘ (/sitemap-movies-series.xml)
+    let seriesXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    seriesXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
+    seriesMovies.forEach(m => {
+        seriesXml += `  <url>\n`;
+        seriesXml += `    <loc>${BASE_URL}/phim/${m.slug}</loc>\n`;
+        seriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
+        seriesXml += `    <changefreq>daily</changefreq>\n`;
+        seriesXml += `    <priority>0.90</priority>\n`;
+        if (m.poster_url || m.thumb_url) {
+            seriesXml += `    <image:image>\n`;
+            seriesXml += `      <image:loc>${escapeXml(m.poster_url || m.thumb_url)}</image:loc>\n`;
+            seriesXml += `      <image:title>Phim Bộ ${escapeXml(m.name)} Trọn Bộ Full HD - APhim Super</image:title>\n`;
+            seriesXml += `    </image:image>\n`;
+        }
+        seriesXml += `  </url>\n`;
+
+        // Tập 1 mặc định của phim bộ
+        seriesXml += `  <url>\n`;
+        seriesXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-1</loc>\n`;
+        seriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
+        seriesXml += `    <changefreq>daily</changefreq>\n`;
+        seriesXml += `    <priority>0.90</priority>\n`;
+        seriesXml += `  </url>\n`;
+    });
+    seriesXml += `</urlset>`;
+
+    // 6. SITEMAP CÁC TẬP PHIM BỘ (/sitemap-episodes-series.xml)
+    // GIẢI QUYẾT TRIỆT ĐỂ: Sinh đủ từ Tập 1 đến Tập N theo đúng con số bóc tách từ episode_current / episode_total
+    let epSeriesXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    epSeriesXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    seriesMovies.forEach(m => {
+        const maxEp = parseMaxEpisodes(m.episode_current, m.episode_total);
+        for (let ep = 1; ep <= maxEp; ep++) {
+            epSeriesXml += `  <url>\n`;
+            epSeriesXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-${ep}</loc>\n`;
+            epSeriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            epSeriesXml += `    <changefreq>daily</changefreq>\n`;
+            epSeriesXml += `    <priority>${ep === 1 ? '0.90' : '0.80'}</priority>\n`;
+            epSeriesXml += `  </url>\n`;
+
+            // Bổ sung tập thuyết minh cho 3 tập đầu hoặc tập mới nhất
+            if (ep <= 3 || ep === maxEp) {
+                epSeriesXml += `  <url>\n`;
+                epSeriesXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-${ep}-thuyet-minh</loc>\n`;
+                epSeriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
+                epSeriesXml += `    <changefreq>daily</changefreq>\n`;
+                epSeriesXml += `    <priority>0.75</priority>\n`;
+                epSeriesXml += `  </url>\n`;
+            }
+        }
+    });
+    epSeriesXml += `</urlset>`;
+
+    // 7. SITEMAP MOVIES TỔNG HỢP (/sitemap-movies.xml) — Phục vụ Google Search Console với URL chuẩn hóa 100%
     let movieXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     movieXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
-    
+
     movies.forEach(m => {
-        // Link chi tiết phim: /phim/:slug
+        // Trang chi tiết phim: /phim/:slug
         movieXml += `  <url>\n`;
         movieXml += `    <loc>${BASE_URL}/phim/${m.slug}</loc>\n`;
         movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
         movieXml += `    <changefreq>daily</changefreq>\n`;
         movieXml += `    <priority>0.85</priority>\n`;
-        
         if (m.poster_url || m.thumb_url) {
-            const imgUrl = m.poster_url || m.thumb_url;
             movieXml += `    <image:image>\n`;
-            movieXml += `      <image:loc>${escapeXml(imgUrl)}</image:loc>\n`;
+            movieXml += `      <image:loc>${escapeXml(m.poster_url || m.thumb_url)}</image:loc>\n`;
             movieXml += `      <image:title>Xem phim ${escapeXml(m.name)} Full HD Vietsub - APhim Super</image:title>\n`;
             movieXml += `    </image:image>\n`;
         }
         movieXml += `  </url>\n`;
 
-        // Link xem phim: /xem-phim/:slug
-        movieXml += `  <url>\n`;
-        movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}</loc>\n`;
-        movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
-        movieXml += `    <changefreq>daily</changefreq>\n`;
-        movieXml += `    <priority>0.9</priority>\n`;
-        movieXml += `  </url>\n`;
+        if (m.isSingle) {
+            // Phim Lẻ: Chuẩn hóa tuyệt đối về /full, TUYỆT ĐỐI KHÔNG để /tap-1
+            movieXml += `  <url>\n`;
+            movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/full</loc>\n`;
+            movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            movieXml += `    <changefreq>daily</changefreq>\n`;
+            movieXml += `    <priority>0.95</priority>\n`;
+            movieXml += `  </url>\n`;
 
-        // Biến thể SEO Đa Tầng theo Search Intent: Thuyết Minh
-        movieXml += `  <url>\n`;
-        movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/thuyet-minh</loc>\n`;
-        movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
-        movieXml += `    <changefreq>daily</changefreq>\n`;
-        movieXml += `    <priority>0.85</priority>\n`;
-        movieXml += `  </url>\n`;
+            movieXml += `  <url>\n`;
+            movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/full-thuyet-minh</loc>\n`;
+            movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            movieXml += `    <changefreq>daily</changefreq>\n`;
+            movieXml += `    <priority>0.85</priority>\n`;
+            movieXml += `  </url>\n`;
+        } else {
+            // Phim Bộ: Chuẩn hóa về /tap-1 và /tap-1-thuyet-minh
+            movieXml += `  <url>\n`;
+            movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-1</loc>\n`;
+            movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            movieXml += `    <changefreq>daily</changefreq>\n`;
+            movieXml += `    <priority>0.90</priority>\n`;
+            movieXml += `  </url>\n`;
+
+            movieXml += `  <url>\n`;
+            movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-1-thuyet-minh</loc>\n`;
+            movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            movieXml += `    <changefreq>daily</changefreq>\n`;
+            movieXml += `  </url>\n`;
+        }
     });
     movieXml += `</urlset>`;
 
-    // 5. IMAGES SITEMAP (/sitemap-images.xml) — Dành riêng cho Google Image Index
+    // 8. IMAGES SITEMAP (/sitemap-images.xml) — Dành riêng cho Google Image Index
     let imgXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     imgXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n`;
-    
+
     movies.forEach(m => {
         const imgUrl = m.poster_url || m.thumb_url;
         if (imgUrl) {
@@ -251,11 +535,10 @@ async function generateAllSitemaps() {
     });
     imgXml += `</urlset>`;
 
-    // 6. REELS & REVIEW VIDEO SITEMAP (/sitemap-reels.xml) — Chuẩn Google Video XML
+    // 9. REELS & REVIEW VIDEO SITEMAP (/sitemap-reels.xml) — Chuẩn Google Video XML
     let reelsXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     reelsXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n`;
 
-    // Entry chính: /reels
     reelsXml += `  <url>\n`;
     reelsXml += `    <loc>${BASE_URL}/reels</loc>\n`;
     reelsXml += `    <lastmod>${todayStr}</lastmod>\n`;
@@ -263,7 +546,6 @@ async function generateAllSitemaps() {
     reelsXml += `    <priority>0.95</priority>\n`;
     reelsXml += `  </url>\n`;
 
-    // Entries theo Thể loại & Quốc gia
     const REELS_GENRES = ['hanh-dong', 'tinh-cam', 'co-trang', 'kinh-di', 'hai-huoc', 'vien-tuong', 'tam-ly', 'vo-thuat', 'hoat-hinh'];
     REELS_GENRES.forEach(g => {
         reelsXml += `  <url>\n`;
@@ -326,26 +608,86 @@ async function generateAllSitemaps() {
         }
     });
 
-    // Video review & reels sitemap chuẩn W3C & Google Video Schema (chỉ chứa các video có embed thực thụ)
     reelsXml += `</urlset>`;
 
     // Cập nhật Cache
-    sitemapCache = {
+    const newCacheData = {
         index: indexXml,
         main: mainXml,
         movies: movieXml,
+        moviesSingle: singleXml,
+        moviesSeries: seriesXml,
+        episodesSeries: epSeriesXml,
         categories: catXml,
         images: imgXml,
         reels: reelsXml,
         lastFetched: Date.now()
     };
 
-    console.log(`🚀 [SEO Sitemap] Đã xây dựng thành công bộ Sitemap (${movies.length} phim, ${movies.length * 2 + staticRoutes.length + CATEGORIES.length + COUNTRIES.length + seenReelSlugs.size} URLs)!`);
-    return sitemapCache;
+    console.log(`🚀 [SEO Sitemap] Đã xây dựng thành công bộ Sitemap (${movies.length} phim: ${singleMovies.length} phim lẻ, ${seriesMovies.length} phim bộ)!`);
+    return newCacheData;
 }
 
-// ── GET /sitemap.xml (Master Sitemap Index) ──────────────────────────────────
-router.get(['/sitemap.xml', '/sitemap_index.xml'], async (req, res) => {
+/**
+ * Kích hoạt tiến trình cập nhật sitemap chạy ngầm (Stale-While-Revalidate)
+ * Không bao giờ làm block hoặc gây timeout cho Googlebot
+ */
+function triggerBackgroundSitemapRefresh() {
+    if (isRefreshingSitemaps) return;
+    isRefreshingSitemaps = true;
+
+    setImmediate(async () => {
+        try {
+            console.log('🔄 [SEO SWR] Bắt đầu tiến trình ngầm cập nhật bộ Sitemaps (125 trang API)...');
+            const newCache = await buildSitemapsXml();
+            sitemapCache = Object.assign({}, sitemapCache, newCache);
+
+            try {
+                fs.writeFileSync(SITEMAP_CACHE_FILE, JSON.stringify(sitemapCache), 'utf8');
+                console.log('💾 [SEO SWR] Đã ghi đĩa thành công bộ cache Sitemaps mới!');
+            } catch (errDisk) {
+                console.warn('[SEO SWR] Không thể ghi disk cache:', errDisk.message);
+            }
+        } catch (err) {
+            console.error('[SEO SWR Refresh Failed]:', err.message);
+        } finally {
+            isRefreshingSitemaps = false;
+        }
+    });
+}
+
+/**
+ * Trả về dữ liệu Sitemap ngay lập tức (<20ms) từ RAM hoặc File Cache
+ */
+async function getCachedSitemap(key) {
+    if (sitemapCache && sitemapCache[key]) {
+        // Kiểm tra xem cache có quá hạn 2 tiếng không -> nếu có thì refresh ngầm
+        if (Date.now() - (sitemapCache.lastFetched || 0) > SITEMAP_REFRESH_INTERVAL && !isRefreshingSitemaps) {
+            triggerBackgroundSitemapRefresh();
+        }
+        return sitemapCache[key];
+    }
+
+    // Nếu chưa có cache, build ngay lần đầu
+    if (!isRefreshingSitemaps) {
+        try {
+            isRefreshingSitemaps = true;
+            const newCache = await buildSitemapsXml();
+            sitemapCache = Object.assign({}, sitemapCache, newCache);
+            try {
+                fs.writeFileSync(SITEMAP_CACHE_FILE, JSON.stringify(sitemapCache), 'utf8');
+            } catch (_) {}
+            return sitemapCache[key] || '';
+        } finally {
+            isRefreshingSitemaps = false;
+        }
+    }
+
+    return sitemapCache[key] || '';
+}
+
+// ── GET /sitemap.xml (Bảo tồn 100% Sức Mạnh SEO Cũ từ 21.444 Trang Đã Index trên GSC) ──
+router.get('/sitemap.xml', async (req, res) => {
     try {
         const publicSitemap = path.join(__dirname, '../public/sitemap.xml');
         if (fs.existsSync(publicSitemap)) {
@@ -353,47 +695,96 @@ router.get(['/sitemap.xml', '/sitemap_index.xml'], async (req, res) => {
             res.header('Cache-Control', 'public, max-age=1800');
             return res.sendFile(publicSitemap);
         }
-        const data = await generateAllSitemaps();
+        const xml = await getCachedSitemap('movies');
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
-        res.send(data.index);
+        res.send(xml);
     } catch (err) {
         console.error('[SEO Sitemap Error]:', err.message);
-        res.status(500).send('Error generating master sitemap');
+        res.status(500).send('Error generating sitemap');
+    }
+});
+
+// ── GET /sitemap_index.xml & /sitemap-index.xml (Master Sitemap Index Đa Tầng Mới) ──
+router.get(['/sitemap_index.xml', '/sitemap-index.xml'], async (req, res) => {
+    try {
+        const xml = await getCachedSitemap('index');
+        res.header('Content-Type', 'application/xml; charset=utf-8');
+        res.header('Cache-Control', 'public, max-age=1800');
+        res.send(xml);
+    } catch (err) {
+        console.error('[SEO Master Sitemap Index Error]:', err.message);
+        res.status(500).send('Error generating master sitemap index');
     }
 });
 
 // ── GET /sitemap-main.xml ────────────────────────────────────────────────────
 router.get('/sitemap-main.xml', async (req, res) => {
     try {
-        const data = await generateAllSitemaps();
+        const xml = await getCachedSitemap('main');
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
-        res.send(data.main);
+        res.send(xml);
     } catch (err) {
         res.status(500).send('Error generating main sitemap');
     }
 });
 
-// ── GET /sitemap-movies.xml ──────────────────────────────────────────────────
+// ── GET /sitemap-movies.xml (Sitemap Phim Tổng Hợp Tối Ưu cho GSC) ─────────────
 router.get('/sitemap-movies.xml', async (req, res) => {
     try {
-        const data = await generateAllSitemaps();
+        const xml = await getCachedSitemap('movies');
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
-        res.send(data.movies);
+        res.send(xml);
     } catch (err) {
         res.status(500).send('Error generating movies sitemap');
+    }
+});
+
+// ── GET /sitemap-movies-single.xml (Chuyên Biệt Toàn Bộ Phim Lẻ) ──────────────
+router.get('/sitemap-movies-single.xml', async (req, res) => {
+    try {
+        const xml = await getCachedSitemap('moviesSingle');
+        res.header('Content-Type', 'application/xml; charset=utf-8');
+        res.header('Cache-Control', 'public, max-age=1800');
+        res.send(xml);
+    } catch (err) {
+        res.status(500).send('Error generating single movies sitemap');
+    }
+});
+
+// ── GET /sitemap-movies-series.xml (Chuyên Biệt Toàn Bộ Phim Bộ) ──────────────
+router.get('/sitemap-movies-series.xml', async (req, res) => {
+    try {
+        const xml = await getCachedSitemap('moviesSeries');
+        res.header('Content-Type', 'application/xml; charset=utf-8');
+        res.header('Cache-Control', 'public, max-age=1800');
+        res.send(xml);
+    } catch (err) {
+        res.status(500).send('Error generating series movies sitemap');
+    }
+});
+
+// ── GET /sitemap-episodes-series.xml (Chuyên Biệt Toàn Bộ Tập Phim Bộ) ────────
+router.get('/sitemap-episodes-series.xml', async (req, res) => {
+    try {
+        const xml = await getCachedSitemap('episodesSeries');
+        res.header('Content-Type', 'application/xml; charset=utf-8');
+        res.header('Cache-Control', 'public, max-age=1800');
+        res.send(xml);
+    } catch (err) {
+        res.status(500).send('Error generating episodes sitemap');
     }
 });
 
 // ── GET /sitemap-categories.xml ──────────────────────────────────────────────
 router.get('/sitemap-categories.xml', async (req, res) => {
     try {
-        const data = await generateAllSitemaps();
+        const xml = await getCachedSitemap('categories');
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
-        res.send(data.categories);
+        res.send(xml);
     } catch (err) {
         res.status(500).send('Error generating categories sitemap');
     }
@@ -402,16 +793,10 @@ router.get('/sitemap-categories.xml', async (req, res) => {
 // ── GET /sitemap-images.xml ──────────────────────────────────────────────────
 router.get('/sitemap-images.xml', async (req, res) => {
     try {
-        const publicImagesSitemap = path.join(__dirname, '../public/sitemap-images.xml');
-        if (fs.existsSync(publicImagesSitemap)) {
-            res.header('Content-Type', 'application/xml; charset=utf-8');
-            res.header('Cache-Control', 'public, max-age=1800');
-            return res.sendFile(publicImagesSitemap);
-        }
-        const data = await generateAllSitemaps();
+        const xml = await getCachedSitemap('images');
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
-        res.send(data.images);
+        res.send(xml);
     } catch (err) {
         res.status(500).send('Error generating images sitemap');
     }
@@ -420,10 +805,10 @@ router.get('/sitemap-images.xml', async (req, res) => {
 // ── GET /sitemap-reels.xml (Google Video XML Sitemap) ────────────────────────
 router.get('/sitemap-reels.xml', async (req, res) => {
     try {
-        const data = await generateAllSitemaps();
+        const xml = await getCachedSitemap('reels');
         res.header('Content-Type', 'application/xml; charset=utf-8');
         res.header('Cache-Control', 'public, max-age=1800');
-        res.send(data.reels);
+        res.send(xml);
     } catch (err) {
         console.error('[SEO Sitemap Reels Error]:', err.message);
         res.status(500).send('Error generating reels video sitemap');
@@ -564,14 +949,10 @@ Disallow: /tai-khoan
 Disallow: /reset-password
 Disallow: /*?*keyword=
 
-# Search Engines Master Sitemaps
+# Search Engines Master Sitemaps (Tối ưu tránh crawl trùng lặp 100% URLs)
 Sitemap: ${BASE_URL}/sitemap.xml
-Sitemap: ${BASE_URL}/sitemap-phim-ngan.xml
+Sitemap: ${BASE_URL}/sitemap-index.xml
 Sitemap: ${BASE_URL}/sitemap-movies.xml
-Sitemap: ${BASE_URL}/sitemap-images.xml
-Sitemap: ${BASE_URL}/sitemap-categories.xml
-Sitemap: ${BASE_URL}/sitemap-reels.xml
-Sitemap: ${BASE_URL}/sitemap-main.xml
 `);
 });
 

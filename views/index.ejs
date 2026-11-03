@@ -134,6 +134,17 @@
             const ssrYear = ssrHero0 ? (ssrHero0.year || '2026') : '2026';
             const ssrEp = ssrHero0 ? (ssrHero0.episodeCurrent || ssrHero0.episode_current || 'Tập 30') : 'Tập 30';
             const ssrSlug = ssrHero0 ? (ssrHero0.movieSlug || ssrHero0.slug || 'nhat-au-xuan') : 'nhat-au-xuan';
+            const ssrIsSingle = Boolean(ssrHero0 && (
+                ssrHero0.type === 'single' ||
+                ssrHero0.type === 'movie' ||
+                ssrHero0.chieu_rap === true ||
+                ssrHero0.is_cinema === true ||
+                String(ssrHero0.episode_total || '').trim() === '1' ||
+                String(ssrHero0.episode_total || '').trim() === '01' ||
+                String(ssrHero0.episodeCurrent || ssrHero0.episode_current || '').toLowerCase().includes('full') ||
+                String(ssrHero0.episodeCurrent || ssrHero0.episode_current || '').toLowerCase().includes('chiếu rạp')
+            ));
+            const ssrHeroWatchUrl = `/xem-phim/${ssrSlug}/${ssrIsSingle ? 'full' : 'tap-1'}`;
             const ssrDesc = ssrHero0 ? (ssrHero0.content || '"Người đàn ông sát phạt quyết đoán, thâm sâu mưu mô" Thẩm Nhuận và cô gái "thông minh tỉnh táo như bông sen đen" Tạ Thanh Viên trở thành lưỡi dao của nhau, cùng nhau bước trên con đường báo thù đan xen trong lý trí và tình cảm...') : '"Người đàn ông sát phạt quyết đoán, thâm sâu mưu mô" Thẩm Nhuận và cô gái "thông minh tỉnh táo như bông sen đen" Tạ Thanh Viên trở thành lưỡi dao của nhau, cùng nhau bước trên con đường báo thù đan xen trong lý trí và tình cảm...';
             %>
             <script>
@@ -272,7 +283,7 @@
 
                             <!-- Action Group: Play Button + Translucent Capsule Glass Pill (Heart | Info) -->
                             <div class="hero-action-group flex items-center gap-5">
-                                <a id="heroPlayBtn" href="/xem-phim/<%= ssrSlug %>/tap-1" class="hero-play-circle-btn"
+                                <a id="heroPlayBtn" href="<%= ssrHeroWatchUrl %>" class="hero-play-circle-btn"
                                     title="Xem ngay" aria-label="Xem ngay">
                                     <svg viewBox="0 0 24 24" width="32" height="32">
                                         <path fill="#161922"
@@ -529,7 +540,17 @@
                         const ssrMob0 = (_mobileList && _mobileList.length > 0) ? _mobileList[0] : null;
                         const ssrMobTitle = ssrMob0 ? (ssrMob0.name || 'Đang tải phim...') : 'Đang tải phim...';
                         const ssrMobOrigin = ssrMob0 ? (ssrMob0.origin_name || '') : '';
-                        const ssrMobWatch = ssrMob0 ? `/xem-phim/${ssrMob0.slug}/tap-1` : '#';
+                        const ssrMobIsSingle = Boolean(ssrMob0 && (
+                            ssrMob0.type === 'single' ||
+                            ssrMob0.type === 'movie' ||
+                            ssrMob0.chieu_rap === true ||
+                            ssrMob0.is_cinema === true ||
+                            String(ssrMob0.episode_total || '').trim() === '1' ||
+                            String(ssrMob0.episode_total || '').trim() === '01' ||
+                            String(ssrMob0.episode_current || '').toLowerCase().includes('full') ||
+                            String(ssrMob0.episode_current || '').toLowerCase().includes('chiếu rạp')
+                        ));
+                        const ssrMobWatch = ssrMob0 ? `/xem-phim/${ssrMob0.slug}/${ssrMobIsSingle ? 'full' : 'tap-1'}` : '#';
                         const ssrMobInfo = ssrMob0 ? `/phim/${ssrMob0.slug}` : '#';
                         const ssrMobImdb = ssrMob0 ? (ssrMob0.imdb || ssrMob0.vote_average || '9.2') : '9.2';
                         const ssrMobQuality = ssrMob0 ? (ssrMob0.quality || 'FHD') : 'FHD';
@@ -2971,7 +2992,17 @@
 
                             if (elTitle) elTitle.textContent = current.name || '';
                             if (elOrigin) elOrigin.textContent = current.origin_name || '';
-                            if (elBtnWatch) elBtnWatch.href = `/xem-phim/${current.slug}/tap-1`;
+                            const isCurSingle = Boolean(current && (
+                                current.type === 'single' ||
+                                current.type === 'movie' ||
+                                current.chieu_rap === true ||
+                                current.is_cinema === true ||
+                                String(current.episode_total || '').trim() === '1' ||
+                                String(current.episode_total || '').trim() === '01' ||
+                                String(current.episode_current || '').toLowerCase().includes('full') ||
+                                String(current.episode_current || '').toLowerCase().includes('chiếu rạp')
+                            ));
+                            if (elBtnWatch) elBtnWatch.href = `/xem-phim/${current.slug}/${isCurSingle ? 'full' : 'tap-1'}`;
                             if (elBtnInfo) elBtnInfo.href = `/phim/${current.slug}`;
 
                             // IMDb Badge
@@ -3072,7 +3103,17 @@
                             if (idx === showcase3DIndex) {
                                 const current = showcase3DItems[idx];
                                 if (current && current.slug) {
-                                    window.location.href = `/xem-phim/${current.slug}/tap-1`;
+                                    const isCurSingle = Boolean(
+                                        current.type === 'single' ||
+                                        current.type === 'movie' ||
+                                        current.chieu_rap === true ||
+                                        current.is_cinema === true ||
+                                        String(current.episode_total || '').trim() === '1' ||
+                                        String(current.episode_total || '').trim() === '01' ||
+                                        String(current.episode_current || '').toLowerCase().includes('full') ||
+                                        String(current.episode_current || '').toLowerCase().includes('chiếu rạp')
+                                    );
+                                    window.location.href = `/xem-phim/${current.slug}/${isCurSingle ? 'full' : 'tap-1'}`;
                                 }
                             } else {
                                 goTo3DShowcaseSlide(idx);

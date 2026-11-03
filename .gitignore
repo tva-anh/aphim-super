@@ -16,3 +16,4 @@ scratch/
 *.tmp
 public/uploads/
 data/social_posts_log.json
+data/sitemaps_cache.json

@@ -112,6 +112,9 @@ app.use([ADMIN_SECRET_PATH, '/admin', '/api/admin'], (req, res, next) => {
     next();
 });
 
+// 🚀 Dynamic SEO Sitemaps & Robots.txt (Ưu tiên phục vụ động trước static assets)
+app.use('/', seoRoutes);
+
 // 🚀 Serve static assets with Smart HTTP Caching (Cache-Control & ETag)
 app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: '7d',
@@ -2295,6 +2298,34 @@ app.get([
     const meta = await fetchMovieMetadata(slug);
     const movieEpisodes = meta?.episodes || [];
 
+    const rawType = String(meta?.type || '').trim().toLowerCase();
+    const epTotal = String(meta?.episode_total || '').trim().toLowerCase();
+    const epCurrent = String(meta?.episode_current || '').trim().toLowerCase();
+    const catList = Array.isArray(meta?.category)
+        ? meta.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+        : [];
+
+    const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+    const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+    const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+    const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+    const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+    // Chặn triệt để bẫy nhận diện sai phim bộ mới ra Tập 1 thành Phim Lẻ
+    const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+
+    const isSingleMovie = Boolean(meta && !isDefinitelySeries && (
+        rawType === 'single' ||
+        rawType === 'movie' ||
+        meta.chieu_rap === true ||
+        meta.is_cinema === true ||
+        epTotal === '1' ||
+        epTotal === '01' ||
+        epCurrent.includes('full') ||
+        epCurrent.includes('chiếu rạp') ||
+        catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+    ));
+
     const { cleanEp, variant, isExplicitVariant, serverIndex } = parseWatchParams(
         rawEpisode,
         rawVariant,
@@ -2303,29 +2334,46 @@ app.get([
         movieEpisodes
     );
 
-    const isSingleMovie = meta && (
-        meta.type === 'single' ||
-        meta.chieu_rap === true ||
-        meta.is_cinema === true ||
-        (Array.isArray(meta.category) && meta.category.some(c => {
-            const n = (typeof c === 'string' ? c : (c.name || '')).toLowerCase();
-            return n.includes('chiếu rạp') || n.includes('phim lẻ');
-        })) ||
-        String(meta.episode_total || '').trim() === '1' ||
-        String(meta.episode_current || '').toLowerCase().includes('full') ||
-        String(meta.episode_current || '').toLowerCase().includes('chiếu rạp')
-    );
+    // ==========================================
+    // 🚀 301 PERMANENT REDIRECTS: CHUẨN HÓA SLUG PHIM LẺ VS PHIM BỘ
+    // ==========================================
+    const variantSuffix = (isExplicitVariant && variant !== 'vietsub') ? `-${variant}` : '';
+    const qs = req.query.server ? `?server=${parseInt(req.query.server, 10)}` : '';
+
+    if (isSingleMovie) {
+        // Phim Lẻ: Định dạng URL chuẩn Top 1 Google là /xem-phim/:slug/full (hoặc /full-:variant)
+        const targetSinglePath = `/xem-phim/${slug}/full${variantSuffix}`;
+        const currentReqPath = req.path.toLowerCase().replace(/\/+$/, '');
+
+        // Nếu truy cập /xem-phim/:slug (thiếu /full) hoặc truy cập các đuôi cũ: /tap-1, /tap-01, /tap-full...
+        const isLegacySingleUrl = !rawEpisode ||
+            /^tap-0*1(-.*)?$/i.test(rawEpisode) ||
+            /^tap-full(-.*)?$/i.test(rawEpisode) ||
+            rawEpisode === '1' ||
+            rawEpisode === '01' ||
+            (rawEpisode !== 'full' && !rawEpisode.startsWith('full-') && !isExplicitVariant);
+
+        if (isLegacySingleUrl || currentReqPath !== targetSinglePath.toLowerCase()) {
+            return res.redirect(301, `${targetSinglePath}${qs}`);
+        }
+    } else {
+        // Phim Bộ: Nếu vào /xem-phim/:slug mà không có tập, redirect 301 ngay về Tập 1 (/tap-1)
+        if (!rawEpisode) {
+            const targetSeriesPath = `/xem-phim/${slug}/tap-1${variantSuffix}`;
+            return res.redirect(301, `${targetSeriesPath}${qs}`);
+        }
+    }
 
     let epText = '';
     let epNumber = cleanEp || (isSingleMovie ? 'full' : '1');
     if (isSingleMovie) {
-        epText = '- Full ';
+        epText = '- Bản Full ';
     } else if (cleanEp) {
         epText = cleanEp.toLowerCase() === 'full' ? '- Bản Full ' : `- Tập ${cleanEp} `;
     }
 
     if (meta) {
-        // Dynamic SEO Branding theo từng biến thể ngôn ngữ (gọn gàng, chuẩn SEO Bing & Google)
+        // Dynamic SEO Branding theo từng biến thể ngôn ngữ và server phát
         let variantBadge = '';
         let variantDescText = '';
         let variantKeyword = '';
@@ -2353,8 +2401,10 @@ app.get([
             subtitleSchema = { "@type": "Text", "name": "Phụ đề Tiếng Việt (Vietsub)" };
         }
 
-        // Tạo Title tối ưu CTR và chuẩn SEO Bing & Google (<= 68 ký tự, không bị cắt dấu ...)
-        let candidateWatchTitle = `Xem Phim ${meta.name} ${epText}${variantBadge} Full HD - APhim`;
+        // Tạo Title tối ưu CTR chuẩn SEO Top 1 Google (<= 68 ký tự)
+        let candidateWatchTitle = isSingleMovie
+            ? `Xem Phim ${meta.name} (${meta.year || 2026}) Bản Full HD${variantBadge} - APhim`
+            : `Xem Phim ${meta.name} ${epText}${variantBadge} Full HD - APhim`;
         if (candidateWatchTitle.length > 68) {
             candidateWatchTitle = `Xem Phim ${meta.name} ${epText}${variantBadge} - APhim`;
         }
@@ -2363,12 +2413,18 @@ app.get([
         }
         const title = formatSeoTitle(candidateWatchTitle, 68);
 
-        const rawWatchDesc = `Xem phim ${meta.name} (${meta.origin_name}) ${epText}${variantDescText || 'Full HD Vietsub Thuyết minh'} mới nhất ${meta.year} chất lượng cao, không giật lag. Kho phim hay xem online tốc độ cao tại APhim Super.`;
+        const movieTypeLabel = isSingleMovie ? 'phim lẻ chiếu rạp' : 'trọn bộ';
+        const rawWatchDesc = isSingleMovie
+            ? `Xem phim ${meta.name} (${meta.origin_name || meta.name}) bản Full HD ${variantDescText || 'Vietsub Thuyết minh'} mới nhất ${meta.year}. Phim lẻ chiếu rạp tốc độ cao không giật lag tại APhim Super.`
+            : `Xem phim ${meta.name} (${meta.origin_name || meta.name}) ${epText}${variantDescText || 'Full HD Vietsub Thuyết minh'} mới nhất ${meta.year} chất lượng cao, không giật lag. Kho ${movieTypeLabel} xem online tại APhim Super.`;
         const metaDescription = formatMetaDescription(rawWatchDesc, 155);
         const ogImage = meta.thumb_url || meta.poster_url || 'https://aphim.store/android-chrome-512x512.png';
+        
+        const singleKeywords = isSingleMovie ? [`${meta.name} full`, `${meta.name} ban full`, `${meta.name} chieu rap`] : [];
         const metaKeywords = [
             `xem phim ${meta.name}`,
-            `${meta.name} ${epNumber ? 'tap ' + epNumber : ''}`,
+            `${meta.name} ${epNumber ? (isSingleMovie ? 'full' : 'tap ' + epNumber) : ''}`,
+            ...singleKeywords,
             `${meta.name} ${variantKeyword}`,
             meta.origin_name ? `${meta.origin_name} vietsub` : '',
             `phim ${meta.name} ${meta.year}`,
@@ -2379,40 +2435,87 @@ app.get([
             'aphim store'
         ].filter(Boolean).join(', ');
 
-        // Smart Canonical URL: Phân biệt rõ bản nội dung khác nhau vs server clone kỹ thuật
-        let canonicalUrl = `https://aphim.store/xem-phim/${slug}`;
-        if (cleanEp) {
-            if (isExplicitVariant && variant !== 'vietsub') {
-                canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${cleanEp}-${variant}`;
-            } else {
-                canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${cleanEp}`;
-            }
-        } else if (isExplicitVariant && variant !== 'vietsub') {
-            canonicalUrl = `https://aphim.store/xem-phim/${slug}/${variant}`;
+        // Smart Canonical URL: Tuyệt đối chính xác theo Phim Lẻ (/full) vs Phim Bộ (/tap-:ep)
+        let canonicalUrl = `https://aphim.store/xem-phim/${slug}/full${variantSuffix}`;
+        if (!isSingleMovie) {
+            const seriesEp = cleanEp || '1';
+            canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${seriesEp}${variantSuffix}`;
         }
 
-        const mainCategory = meta.category[0] || 'Phim mới';
+        const mainCategory = isSingleMovie ? 'Phim Lẻ' : (meta.category[0] || 'Phim Bộ');
+        const mainCategoryUrl = isSingleMovie ? 'https://aphim.store/danh-sach?list=phim-le' : 'https://aphim.store/danh-sach?list=phim-bo';
 
-        const videoThumbnails = [meta.thumb_url, meta.poster_url].filter(Boolean);
+        // Chuẩn hóa thumbnailUrl tuyệt đối 100% (https://...) cho Google Rich Snippets
+        const toAbsoluteMediaUrl = (url) => {
+            if (!url) return '';
+            if (url.startsWith('http://') || url.startsWith('https://')) return url;
+            if (url.startsWith('//')) return `https:${url}`;
+            if (url.startsWith('/')) return `https://aphim.store${url}`;
+            return `https://phimimg.com/${url.replace(/^\/+/, '')}`;
+        };
+
+        const videoThumbnails = [toAbsoluteMediaUrl(meta.thumb_url), toAbsoluteMediaUrl(meta.poster_url)].filter(Boolean);
         if (!videoThumbnails.length) videoThumbnails.push('https://aphim.store/android-chrome-512x512.png');
+
+        // Chuẩn hóa uploadDate theo ISO 8601 kèm múi giờ +07:00 (chuẩn Google Video Search)
+        const uploadDate = (() => {
+            const year = meta.year || 2026;
+            let dateObj = meta.modified?.time ? new Date(meta.modified.time) : new Date(`${year}-01-01T00:00:00+07:00`);
+            if (isNaN(dateObj.getTime())) dateObj = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}+07:00`;
+        })();
+
+        let videoDuration = undefined;
+        if (meta.time) {
+            const mins = parseInt(String(meta.time).replace(/[^0-9]/g, ''), 10);
+            if (!isNaN(mins) && mins > 0) videoDuration = `PT${mins}M`;
+        }
 
         const videoObject = {
             "@type": "VideoObject",
             "name": title,
             "description": metaDescription,
             "thumbnailUrl": videoThumbnails,
-            "uploadDate": meta.year ? `${meta.year}-01-01T00:00:00Z` : new Date().toISOString(),
+            "uploadDate": uploadDate,
             "contentUrl": canonicalUrl,
             "embedUrl": canonicalUrl,
             "inLanguage": "vi"
         };
 
+        if (videoDuration) videoObject.duration = videoDuration;
         if (subtitleSchema) videoObject.subtitle = subtitleSchema;
         if (audioSchema) videoObject.audio = audioSchema;
+
+        // Phân tách Schema chuyên sâu: Phim Lẻ dùng Movie + VideoObject; Phim Bộ dùng TVEpisode + VideoObject
+        const mainSchemaItem = isSingleMovie
+            ? {
+                "@type": "Movie",
+                "name": meta.name,
+                "alternateName": meta.origin_name || undefined,
+                "description": metaDescription,
+                "image": videoThumbnails,
+                "dateCreated": meta.year ? `${meta.year}-01-01T00:00:00Z` : undefined,
+                "genre": Array.isArray(meta.category) ? meta.category : [],
+                "director": Array.isArray(meta.director) ? meta.director.map(d => ({ "@type": "Person", "name": d })) : undefined,
+                "actor": Array.isArray(meta.actor) ? meta.actor.map(a => ({ "@type": "Person", "name": a })) : undefined
+            }
+            : {
+                "@type": "TVEpisode",
+                "name": `${meta.name} - Tập ${cleanEp || '1'}`,
+                "episodeNumber": cleanEp || '1',
+                "description": metaDescription,
+                "partOfSeries": {
+                    "@type": "TVSeries",
+                    "name": meta.name,
+                    "url": `https://aphim.store/phim/${slug}`
+                }
+            };
 
         const schemaData = {
             "@context": "https://schema.org",
             "@graph": [
+                mainSchemaItem,
                 videoObject,
                 {
                     "@type": "BreadcrumbList",
@@ -2427,7 +2530,7 @@ app.get([
                             "@type": "ListItem",
                             "position": 2,
                             "name": mainCategory,
-                            "item": "https://aphim.store/categories"
+                            "item": mainCategoryUrl
                         },
                         {
                             "@type": "ListItem",
@@ -2438,7 +2541,7 @@ app.get([
                         {
                             "@type": "ListItem",
                             "position": 4,
-                            "name": `Xem Phim ${epText}${isExplicitVariant ? '(' + variant.toUpperCase() + ')' : ''}`,
+                            "name": isSingleMovie ? `Xem Phim Bản Full HD${variantBadge}` : `Xem Phim Tập ${cleanEp || '1'}${variantBadge}`,
                             "item": canonicalUrl
                         }
                     ]
@@ -2455,8 +2558,8 @@ app.get([
             server_name: server.server_name,
             original_server_name: server.original_server_name || server.server_name,
             server_data: (server.server_data || []).map(ep => ({
-                name: ep.name,
-                slug: ep.slug,
+                name: isSingleMovie && (ep.name === '1' || ep.slug === '1' || ep.slug === 'tap-1') ? 'Full' : ep.name,
+                slug: isSingleMovie && (ep.slug === '1' || ep.slug === 'tap-1') ? 'full' : ep.slug,
                 link_m3u8: ep.link_m3u8 || '',
                 link_embed: ep.link_embed || ''
             }))
@@ -2464,33 +2567,36 @@ app.get([
 
         return res.render('watch', {
             slug: slug,
-            episodeParam: rawEpisode,
+            episodeParam: rawEpisode || (isSingleMovie ? 'full' : 'tap-1'),
             activeVariant: variant,
             requestedServerIndex: serverIndex,
             movie: movieWithoutEpisodes,
             episodes: sanitizedEpisodes,
+            isSingleMovie: isSingleMovie,
             title: title,
             metaDescription: metaDescription,
             metaKeywords: metaKeywords,
             ogImage: ogImage,
-            ogType: 'video.movie',
+            ogType: isSingleMovie ? 'video.movie' : 'video.tv_show',
             canonicalUrl: canonicalUrl,
             schemaData: schemaData
         });
     }
 
     const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
+    const fallbackIsSingle = true;
     res.render('watch', {
         slug: slug,
-        episodeParam: rawEpisode,
+        episodeParam: rawEpisode || 'full',
         activeVariant: variant,
         requestedServerIndex: serverIndex,
         movie: null,
         episodes: [],
-        title: formatSeoTitle(`Xem Phim ${formattedName} ${epText}Full HD - APhim`, 65),
+        isSingleMovie: fallbackIsSingle,
+        title: formatSeoTitle(`Xem Phim ${formattedName} Bản Full HD - APhim`, 65),
         metaDescription: `Xem phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
-        metaKeywords: `xem phim ${formattedName}, ${formattedName} vietsub, xem phim hd, aphim, aphim store`,
-        canonicalUrl: `https://aphim.store/xem-phim/${slug}`
+        metaKeywords: `xem phim ${formattedName}, xem phim ${formattedName} full, ${formattedName} vietsub, xem phim hd, aphim, aphim store`,
+        canonicalUrl: `https://aphim.store/xem-phim/${slug}/full`
     });
 });
 

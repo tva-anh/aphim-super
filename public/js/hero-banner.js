@@ -980,8 +980,35 @@ function updateHeroBannerText(movie) {
 function updateHeroButtons(movie) {
     const heroPlayBtn = document.getElementById('heroPlayBtn');
     const heroInfoBtn = document.getElementById('heroInfoBtn');
-    if (heroPlayBtn) heroPlayBtn.href = `/xem-phim/${movie.slug}/tap-1`;
-    if (heroInfoBtn) heroInfoBtn.href = `/phim/${movie.slug}`;
+    if (heroPlayBtn && movie && movie.slug) {
+        const rawType = String(movie.type || '').trim().toLowerCase();
+        const epTotal = String(movie.episode_total || '').trim().toLowerCase();
+        const epCurrent = String(movie.episodeCurrent || movie.episode_current || '').trim().toLowerCase();
+        const catList = Array.isArray(movie.category)
+            ? movie.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+            : [];
+        const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+        const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+        const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+        const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+        const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+        const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+
+        const isSingle = !isDefinitelySeries && Boolean(
+            rawType === 'single' ||
+            rawType === 'movie' ||
+            movie.chieu_rap === true ||
+            movie.is_cinema === true ||
+            epTotal === '1' ||
+            epTotal === '01' ||
+            epCurrent.includes('full') ||
+            epCurrent.includes('chiếu rạp') ||
+            catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+        );
+        heroPlayBtn.href = `/xem-phim/${movie.slug}/${isSingle ? 'full' : 'tap-1'}`;
+    }
+    if (heroInfoBtn && movie && movie.slug) heroInfoBtn.href = `/phim/${movie.slug}`;
 }
 
 // ================================================================
