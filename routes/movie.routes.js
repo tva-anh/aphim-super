@@ -130,6 +130,25 @@ router.get('/phimapi-proxy', async (req, res) => {
         if (!rawPath) return res.status(400).json({ status: false, message: 'Thiếu tham số path' });
         const cleanPath = rawPath.startsWith('/') ? rawPath : '/' + rawPath;
 
+        // 🌟 Intercept phim-song-ngu (Nguồn nội bộ song ngữ từ ChoPhim + R2)
+        if (cleanPath.includes('phim-song-ngu')) {
+            const pageMatch = cleanPath.match(/page=(\d+)/);
+            const pageNum = pageMatch ? parseInt(pageMatch[1]) : 1;
+            const { fetchBilingualMoviesPage } = require('../lib/bilingual.service');
+            const result = await fetchBilingualMoviesPage(pageNum);
+            const respData = {
+                status: 'success',
+                data: {
+                    items: result.items || [],
+                    titlePage: 'Phim Song Ngữ Chất Lượng Cao',
+                    params: {
+                        pagination: result.pagination || { currentPage: pageNum, totalPages: 25, totalItems: 600 }
+                    }
+                }
+            };
+            return res.json(respData);
+        }
+
         const cached = apiProxyCache.get(cleanPath);
         if (cached && (Date.now() - cached.time < PROXY_CACHE_TTL)) {
             res.setHeader('X-Proxy-Cache', 'HIT');

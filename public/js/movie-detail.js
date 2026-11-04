@@ -1729,11 +1729,13 @@ window.episodeSortOrderDetail = window.episodeSortOrderDetail || 'asc';
 
 function getLangTagDetail(server, movie) {
     const raw = (server.original_server_name || server.server_name || '').toLowerCase();
+    if (raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual')) return 'Song Ngữ';
     if (raw.includes('thuyết minh') || raw.includes('thuyet minh')) return 'Thuyết Minh';
     if (raw.includes('lồng tiếng') || raw.includes('long tieng')) return 'Lồng Tiếng';
     if (raw.includes('vietsub')) return 'Vietsub';
     if (movie && movie.lang) {
         const mLang = movie.lang.toLowerCase();
+        if (mLang.includes('song ngữ') || mLang.includes('song ngu')) return 'Song Ngữ';
         if (mLang.includes('thuyết minh') || mLang.includes('thuyet minh')) return 'Thuyết Minh';
         if (mLang.includes('lồng tiếng') || mLang.includes('long tieng')) return 'Lồng Tiếng';
     }
@@ -1743,6 +1745,44 @@ function getLangTagDetail(server, movie) {
 // Render episodes
 function renderEpisodes(episodes) {
     if (!episodes || episodes.length === 0) return;
+
+    if (currentMovie && currentMovie.slug) {
+        try {
+            let matchedIdx = -1;
+            const prefStr = localStorage.getItem('aphim_server_pref_' + currentMovie.slug);
+            if (prefStr) {
+                const pref = JSON.parse(prefStr);
+                if (pref && pref.name) {
+                    matchedIdx = episodes.findIndex(s => (s.original_server_name || s.server_name || '').toLowerCase() === pref.name.toLowerCase());
+                }
+                if (matchedIdx === -1 && pref && pref.type) {
+                    matchedIdx = episodes.findIndex(s => {
+                        const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                        if (pref.type === 'song-ngu') return sName.includes('song ngữ') || sName.includes('bilingual');
+                        if (pref.type === 'thuyet-minh') return sName.includes('thuyết minh');
+                        if (pref.type === 'long-tieng') return sName.includes('lồng tiếng');
+                        if (pref.type === 'vietsub') return sName.includes('vietsub');
+                        return false;
+                    });
+                }
+                if (matchedIdx === -1 && pref && typeof pref.index === 'number' && pref.index >= 0 && pref.index < episodes.length) {
+                    matchedIdx = pref.index;
+                }
+            }
+            if (matchedIdx === -1) {
+                const savedServer = localStorage.getItem('aphim_server_' + currentMovie.slug);
+                if (savedServer !== null) {
+                    const sIdx = parseInt(savedServer, 10);
+                    if (!isNaN(sIdx) && sIdx >= 0 && sIdx < episodes.length) {
+                        matchedIdx = sIdx;
+                    }
+                }
+            }
+            if (matchedIdx >= 0 && matchedIdx < episodes.length) {
+                currentServerIndexDetail = matchedIdx;
+            }
+        } catch (e) {}
+    }
 
     const desktopContainer = document.getElementById('episodes-desktop');
     const mobileContainer = document.getElementById('episodes-mobile');
@@ -1916,6 +1956,16 @@ window.changeServerDetail = function (index) {
     if (index === currentServerIndexDetail) return;
 
     currentServerIndexDetail = index;
+    try {
+        if (currentMovie && currentMovie.slug) {
+            const sObj = currentMovie.episodes[index];
+            const rawName = sObj ? (sObj.original_server_name || sObj.server_name || '') : '';
+            const type = rawName.toLowerCase().includes('song ngữ') ? 'song-ngu' : (rawName.toLowerCase().includes('thuyết minh') ? 'thuyet-minh' : (rawName.toLowerCase().includes('lồng tiếng') ? 'long-tieng' : 'vietsub'));
+            const pref = { index, name: rawName, type, updatedAt: Date.now() };
+            localStorage.setItem('aphim_server_pref_' + currentMovie.slug, JSON.stringify(pref));
+            localStorage.setItem('aphim_server_' + currentMovie.slug, String(index));
+        }
+    } catch (e) {}
     renderEpisodes(currentMovie.episodes);
     renderVersions(currentMovie);
 

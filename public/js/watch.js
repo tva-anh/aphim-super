@@ -82,39 +82,167 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
-// ─── SEO MULTI-VARIANT HELPERS (Vietsub, Thuyết Minh, Lồng Tiếng) ───
-function resolveServerIndex(episodes, requestedServer, reqVariant, movie) {
-    if (!episodes || episodes.length === 0) return 0;
-
-    // 1. Nếu có yêu cầu phiên bản rõ ràng (Thuyết Minh, Lồng Tiếng, Vietsub)
-    if (reqVariant && episodes.length > 1) {
-        const found = episodes.findIndex(s => {
-            const cat = getLangTag(s, movie).toLowerCase();
-            if (reqVariant === 'thuyet-minh') return cat.includes('thuyết minh') || cat.includes('thuyet minh');
-            if (reqVariant === 'long-tieng') return cat.includes('lồng tiếng') || cat.includes('long tieng');
-            if (reqVariant === 'vietsub') return cat.includes('vietsub');
-            return false;
-        });
-        if (found !== -1) return found;
+// ─── SEO MULTI-VARIANT HELPERS (Vietsub, Thuyết Minh, Lồng Tiếng, Song Ngữ) ───
+function getServerTypeTag(serverOrName, movie) {
+    let raw = '';
+    if (typeof serverOrName === 'string') {
+        raw = serverOrName.toLowerCase();
+    } else if (serverOrName) {
+        raw = (serverOrName.original_server_name || serverOrName.server_name || '').toLowerCase();
     }
-
-    // 2. Nếu có yêu cầu index máy chủ cụ thể qua query parameter (?server=X)
-    if (requestedServer !== null && !isNaN(requestedServer)) {
-        const idx = parseInt(requestedServer);
-        if (idx >= 0 && idx < episodes.length) return idx;
+    if (raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual')) return 'song-ngu';
+    if (raw.includes('thuyết minh') || raw.includes('thuyet minh')) return 'thuyet-minh';
+    if (raw.includes('lồng tiếng') || raw.includes('long tieng')) return 'long-tieng';
+    if (raw.includes('vietsub')) return 'vietsub';
+    if (movie && movie.lang) {
+        const mLang = movie.lang.toLowerCase();
+        if (mLang.includes('song ngữ') || mLang.includes('song ngu')) return 'song-ngu';
+        if (mLang.includes('thuyết minh') || mLang.includes('thuyet minh')) return 'thuyet-minh';
+        if (mLang.includes('lồng tiếng') || mLang.includes('long tieng')) return 'long-tieng';
     }
-
-    return 0;
+    return 'vietsub';
 }
 
-function updateWatchUrlState(movie, episode, serverIndex) {
+function saveServerPreference(movieSlug, serverIndex, serverObj) {
+    if (!movieSlug) return;
+    try {
+        const rawName = serverObj ? (serverObj.original_server_name || serverObj.server_name || '') : '';
+        const pref = {
+            index: serverIndex,
+            name: rawName,
+            type: getServerTypeTag(serverObj),
+            updatedAt: Date.now()
+        };
+        localStorage.setItem('aphim_server_pref_' + movieSlug, JSON.stringify(pref));
+        localStorage.setItem('aphim_server_' + movieSlug, String(serverIndex));
+        sessionStorage.setItem('aphim_server_' + movieSlug, String(serverIndex));
+    } catch (e) { }
+}
+
+function readServerPreference(movieSlug) {
+    if (!movieSlug) return null;
+    try {
+        const prefStr = localStorage.getItem('aphim_server_pref_' + movieSlug);
+        if (prefStr) {
+            const parsed = JSON.parse(prefStr);
+            if (parsed && typeof parsed === 'object') return parsed;
+        }
+        const oldNum = localStorage.getItem('aphim_server_' + movieSlug);
+        if (oldNum !== null && !isNaN(oldNum)) {
+            return { index: parseInt(oldNum, 10), type: null, name: null };
+        }
+    } catch (e) { }
+    return null;
+}
+
+function resolveServerIndex(episodes, requestedServer, reqVariant, movie, requestedEpSlug) {
+    if (!episodes || episodes.length === 0) return 0;
+
+    let targetIndex = -1;
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // 1. ƯU TIÊN 1 (CAO NHẤT): YÊU CẦU TRỰC TIẾP TỪ URL (Search Intent / Direct Link)
+    // ──────────────────────────────────────────────────────────────────────────
+    // 1A. Tham số rõ ràng ?server=X trong URL
+    if (requestedServer !== null && requestedServer !== undefined && requestedServer !== '' && !isNaN(requestedServer)) {
+        const idx = parseInt(requestedServer, 10);
+        if (idx >= 0 && idx < episodes.length) {
+            targetIndex = idx;
+        }
+    }
+
+    // 1B. URL Variant (/full-thuyet-minh, /tap-1-thuyet-minh, /tap-1-song-ngu, /tap-1-long-tieng)
+    // Người dùng tìm kiếm trên Google click vào bản thuyết minh/song ngữ -> Bắt buộc ưu tiên cao nhất!
+    if (targetIndex === -1 && reqVariant && reqVariant !== 'vietsub' && episodes.length > 1) {
+        const foundVariant = episodes.findIndex(s => {
+            const cat = getServerTypeTag(s, movie);
+            return cat === reqVariant;
+        });
+        if (foundVariant !== -1) {
+            targetIndex = foundVariant;
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // 2. ƯU TIÊN 2: LỰA CHỌN CỦA NGƯỜI DÙNG TỪ LOCALSTORAGE
+    // (CHỈ áp dụng khi URL là đường dẫn gốc không có biến thể đặc biệt hay ?server=)
+    // ──────────────────────────────────────────────────────────────────────────
+    if (targetIndex === -1) {
+        const movieSlug = (movie && movie.slug) || (window.initialMovie && window.initialMovie.slug);
+        const pref = readServerPreference(movieSlug);
+
+        if (pref) {
+            // Khớp 1: Khớp theo tên máy chủ gốc (chống lệch index khi merge server phụ)
+            if (pref.name) {
+                const byName = episodes.findIndex(s => {
+                    const sName = s.original_server_name || s.server_name || '';
+                    return sName.trim().toLowerCase() === pref.name.trim().toLowerCase();
+                });
+                if (byName !== -1) targetIndex = byName;
+            }
+
+            // Khớp 2: Khớp theo loại máy chủ (song-ngu, thuyet-minh, long-tieng, vietsub)
+            if (targetIndex === -1 && pref.type) {
+                const byType = episodes.findIndex(s => getServerTypeTag(s, movie) === pref.type);
+                if (byType !== -1) targetIndex = byType;
+            }
+
+            // Khớp 3: Fallback theo index nếu hợp lệ trong phạm vi mảng
+            if (targetIndex === -1 && typeof pref.index === 'number' && pref.index >= 0 && pref.index < episodes.length) {
+                targetIndex = pref.index;
+            }
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // 3. ƯU TIÊN 3: MẶC ĐỊNH HỆ THỐNG
+    // ──────────────────────────────────────────────────────────────────────────
+    if (targetIndex === -1) {
+        targetIndex = 0;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // 4. KIỂM TRA BIÊN AN TOÀN & KIỂM TRA TẬP PHIM TỒN TẠI (CHỐNG LỖI OUT OF BOUNDS)
+    // ──────────────────────────────────────────────────────────────────────────
+    if (targetIndex < 0 || targetIndex >= episodes.length) {
+        targetIndex = 0;
+    }
+
+    // Nếu tập phim được chỉ định (e.g. tập 15), xác nhận server đã chọn có tập này không
+    if (requestedEpSlug && episodes[targetIndex]?.server_data) {
+        const cleanEp = String(requestedEpSlug).replace(/^tap-/, '').toLowerCase();
+        const hasRequestedEp = episodes[targetIndex].server_data.some(ep => {
+            const epSlug = String(ep.slug || '').replace(/^tap-/, '').toLowerCase();
+            return epSlug === cleanEp || (ep.name && ep.name.toLowerCase() === cleanEp);
+        });
+
+        if (!hasRequestedEp) {
+            // Máy chủ đã chọn không có tập này -> Tìm máy chủ nào CÓ tập này
+            const fallbackServerIdx = episodes.findIndex(s => (s.server_data || []).some(ep => {
+                const epSlug = String(ep.slug || '').replace(/^tap-/, '').toLowerCase();
+                return epSlug === cleanEp || (ep.name && ep.name.toLowerCase() === cleanEp);
+            }));
+
+            if (fallbackServerIdx !== -1) {
+                targetIndex = fallbackServerIdx;
+            } else {
+                targetIndex = 0;
+            }
+        }
+    }
+
+    return targetIndex;
+}
+
+function updateWatchUrlState(movie, episode, serverIndex, isReplace = false) {
     if (!movie || !movie.slug) return;
     const episodes = movie.episodes || [];
     const server = episodes[serverIndex];
     let catSlug = '';
     if (server) {
         const cat = getLangTag(server, movie);
-        if (cat === 'Thuyết Minh') catSlug = '-thuyet-minh';
+        if (cat === 'Song Ngữ') catSlug = '-song-ngu';
+        else if (cat === 'Thuyết Minh') catSlug = '-thuyet-minh';
         else if (cat === 'Lồng Tiếng') catSlug = '-long-tieng';
     }
 
@@ -147,7 +275,7 @@ function updateWatchUrlState(movie, episode, serverIndex) {
     );
 
     const cleanEp = (episode && episode.slug) ? episode.slug.replace(/^tap-/, '') : (isSingle ? 'full' : '1');
-    const serverParam = (!catSlug && serverIndex > 0) ? `?server=${serverIndex}` : '';
+    const serverParam = (serverIndex > 0) ? `?server=${serverIndex}` : '';
 
     let newUrl = '';
     let variantTag = catSlug === '-thuyet-minh' ? 'Thuyết Minh Tiếng Việt' : (catSlug === '-long-tieng' ? 'Lồng Tiếng Trọn Bộ' : 'Vietsub Full HD');
@@ -162,7 +290,12 @@ function updateWatchUrlState(movie, episode, serverIndex) {
         document.title = `Xem Phim ${movie.name} ${epStr ? epStr + ' ' : ''}[${variantTag}] - APhim Super`;
     }
 
-    window.history.pushState({}, '', newUrl);
+    // 🛡️ Dùng replaceState khi tự động đổi server lỗi để không làm hỏng nút Back của trình duyệt
+    if (isReplace) {
+        window.history.replaceState({}, '', newUrl);
+    } else {
+        window.history.pushState({}, '', newUrl);
+    }
 
     // Cập nhật breadcrumbs đồng bộ tức thì
     const catBreadcrumb = document.getElementById('breadcrumb-category');
@@ -216,12 +349,14 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         // Chuẩn hóa tên Nguồn 1, Nguồn 2...
         currentMovie.episodes.forEach((server, idx) => {
             if (!server.original_server_name) server.original_server_name = server.server_name;
-            server.server_name = `Nguồn ${idx + 1}`;
+            if (!server.server_name.toLowerCase().includes('song ngữ')) {
+                server.server_name = `Nguồn ${idx + 1}`;
+            }
         });
 
         const urlParams = new URLSearchParams(window.location.search);
         const requestedServer = urlParams.get('server');
-        currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie);
+        currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie, episodeSlug);
 
         const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
         currentEpisode = episodeSlug
@@ -259,12 +394,14 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         if (ssrHasLinks) {
             currentMovie.episodes.forEach((server, idx) => {
                 if (!server.original_server_name) server.original_server_name = server.server_name;
-                server.server_name = `Nguồn ${idx + 1}`;
+                if (!server.server_name.toLowerCase().includes('song ngữ')) {
+                    server.server_name = `Nguồn ${idx + 1}`;
+                }
             });
 
             const urlParams = new URLSearchParams(window.location.search);
             const requestedServer = urlParams.get('server');
-            currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie);
+            currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie, episodeSlug);
 
             const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
             currentEpisode = episodeSlug
@@ -300,7 +437,9 @@ async function loadMovieAndPlay(slug, episodeSlug) {
                 if (currentMovie.episodes && currentMovie.episodes.length > 0) {
                     currentMovie.episodes.forEach((server, idx) => {
                         if (!server.original_server_name) server.original_server_name = server.server_name;
-                        server.server_name = `Nguồn ${idx + 1}`;
+                        if (!server.server_name.toLowerCase().includes('song ngữ')) {
+                            server.server_name = `Nguồn ${idx + 1}`;
+                        }
                     });
                 }
 
@@ -308,7 +447,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
                 if (currentMovie.episodes && currentMovie.episodes.length > 0) {
                     const urlParams = new URLSearchParams(window.location.search);
                     const requestedServer = urlParams.get('server');
-                    currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie);
+                    currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie, episodeSlug);
 
                     const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
 
@@ -456,17 +595,40 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
     }
 
     try {
-        const data = await getSecondaryEpisodes(slug);
+        const qP = new URLSearchParams();
+        if (typeof currentMovie !== 'undefined' && currentMovie) {
+            if (currentMovie.name) qP.set('name', currentMovie.name);
+            if (currentMovie.origin_name) qP.set('origin_name', currentMovie.origin_name);
+            if (currentMovie.year) qP.set('year', currentMovie.year); // 🛡️ Truyền năm để rào chắn tránh ghép nhầm phim khác năm
+        }
+        const qStr = qP.toString() ? `?${qP.toString()}` : '';
 
-        if (!data || !data.status || !data.episodes || data.episodes.length === 0) {
+        const [data, bilingualData] = await Promise.all([
+            getSecondaryEpisodes(slug).catch(function() { return null; }),
+            fetch(`/api/movies/bilingual/${encodeURIComponent(slug)}${qStr}`)
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .catch(function() { return null; })
+        ]);
+
+        if ((!data || !data.status || !data.episodes || data.episodes.length === 0) && (!bilingualData || !bilingualData.server)) {
             console.warn('⚠️ Không có dữ liệu máy chủ phụ');
             if (isPrimary) showError('Phim này chưa có nguồn phát — vui lòng thử lại sau');
             return;
         }
 
         // ── CASE 1: OPhim thất bại → dùng nguồn phụ làm nguồn chính ────
-        if (isPrimary) {
+        if (isPrimary && data && data.episodes) {
             const meta = data.movie || {};
+            const initialMergedEps = data.episodes.map((s, idx) => ({
+                ...s,
+                original_server_name: s.original_server_name || s.server_name,
+                server_name: `Nguồn ${idx + 1}`
+            }));
+
+            if (bilingualData && bilingualData.server) {
+                initialMergedEps.unshift(bilingualData.server);
+            }
+
             currentMovie = {
                 name: meta.name || slug,
                 origin_name: meta.origin_name || '',
@@ -488,11 +650,7 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
                 slug: meta.slug || slug,
                 tmdb: meta.tmdb || {},
                 imdb: meta.imdb || {},
-                episodes: data.episodes.map((s, idx) => ({
-                    ...s,
-                    original_server_name: s.original_server_name || s.server_name,
-                    server_name: `Nguồn ${idx + 1}`
-                }))
+                episodes: initialMergedEps
             };
 
             console.log('✅ [Watch] Dùng nguồn phụ làm nguồn chính:', currentMovie.name);
@@ -518,22 +676,39 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
         // Đổi tên tất cả nguồn chính thành Nguồn 1, Nguồn 2...
         currentMovie.episodes.forEach((s, idx) => {
             if (!s.original_server_name) s.original_server_name = s.server_name;
-            s.server_name = `Nguồn ${idx + 1}`;
+            if (!s.server_name.toLowerCase().includes('song ngữ')) {
+                s.server_name = `Nguồn ${idx + 1}`;
+            }
         });
 
         let added = 0;
-        data.episodes.forEach((server) => {
-            if (server.server_data && server.server_data.length > 0) {
-                const svrNum = currentMovie.episodes.length + 1;
-                const origName = server.original_server_name || server.server_name;
-                currentMovie.episodes.push({
-                    ...server,
-                    original_server_name: origName,
-                    server_name: `Nguồn ${svrNum}`
-                });
+
+        // 🌟 Đồng bộ nguồn Song Ngữ nếu chưa có trong danh sách
+        if (bilingualData && bilingualData.server && currentMovie && currentMovie.episodes) {
+            const hasSongNgu = currentMovie.episodes.some(s => {
+                const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                return sName.includes('song ngữ') || sName.includes('bilingual');
+            });
+            if (!hasSongNgu) {
+                currentMovie.episodes.unshift(bilingualData.server);
                 added++;
             }
-        });
+        }
+
+        if (data && data.episodes) {
+            data.episodes.forEach((server) => {
+                if (server.server_data && server.server_data.length > 0) {
+                    const svrNum = currentMovie.episodes.length + 1;
+                    const origName = server.original_server_name || server.server_name;
+                    currentMovie.episodes.push({
+                        ...server,
+                        original_server_name: origName,
+                        server_name: `Nguồn ${svrNum}`
+                    });
+                    added++;
+                }
+            });
+        }
 
         if (added > 0) {
             console.log(`✅ Đã thêm ${added} máy chủ mới (Tổng: ${currentMovie.episodes.length} nguồn)`);
@@ -1803,11 +1978,13 @@ window.startActualPlayback = function () {
 
 function getLangTag(server, movie) {
     const raw = (server.original_server_name || server.server_name || '').toLowerCase();
+    if (raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual')) return 'Song Ngữ';
     if (raw.includes('thuyết minh') || raw.includes('thuyet minh')) return 'Thuyết Minh';
     if (raw.includes('lồng tiếng') || raw.includes('long tieng')) return 'Lồng Tiếng';
     if (raw.includes('vietsub')) return 'Vietsub';
     if (movie && movie.lang) {
         const mLang = movie.lang.toLowerCase();
+        if (mLang.includes('song ngữ') || mLang.includes('song ngu')) return 'Song Ngữ';
         if (mLang.includes('thuyết minh') || mLang.includes('thuyet minh')) return 'Thuyết Minh';
         if (mLang.includes('lồng tiếng') || mLang.includes('long tieng')) return 'Lồng Tiếng';
     }
@@ -1846,7 +2023,9 @@ function __legacyRenderServerList_UNUSED(episodes) {
     episodes.forEach((server, index) => {
         const langTag = getLangTag(server, currentMovie);
         let category = 'Vietsub';
-        if (langTag.toLowerCase().includes('thuyết minh') || langTag.toLowerCase().includes('thuyet minh')) {
+        if (langTag === 'Song Ngữ') {
+            category = 'Song Ngữ';
+        } else if (langTag.toLowerCase().includes('thuyết minh') || langTag.toLowerCase().includes('thuyet minh')) {
             category = 'Thuyết Minh';
         } else if (langTag.toLowerCase().includes('lồng tiếng') || langTag.toLowerCase().includes('long tieng')) {
             category = 'Lồng Tiếng';
@@ -1857,30 +2036,49 @@ function __legacyRenderServerList_UNUSED(episodes) {
     });
 
     // Render HTML for each group row
-    const groupOrder = ['Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
+    const groupOrder = ['Song Ngữ', 'Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
     let html = '';
 
     groupOrder.forEach(category => {
         const items = groups[category];
         if (!items || items.length === 0) return;
 
-        let categoryIcon = category === 'Vietsub'
-            ? '<span style="background: rgba(255,255,255,0.12); color: #e2e8f0; font-size: 10px; font-weight: 900; padding: 2px 5px; border-radius: 4px; letter-spacing: 0.5px;">CC</span>'
-            : category === 'Thuyết Minh'
-                ? '<span style="font-size: 13px; line-height: 1;">🎙️</span>'
-                : '<span style="font-size: 13px; line-height: 1;">🗣️</span>';
+        let categoryIcon = category === 'Song Ngữ'
+            ? '<span style="background: rgba(168,85,247,0.2); color: #c084fc; font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; border: 1px solid rgba(168,85,247,0.35); display: inline-flex; align-items: center; justify-content: center;">文A</span>'
+            : category === 'Vietsub'
+                ? '<span style="background: rgba(255,255,255,0.12); color: #e2e8f0; font-size: 10px; font-weight: 900; padding: 2px 5px; border-radius: 4px; letter-spacing: 0.5px;">CC</span>'
+                : category === 'Thuyết Minh'
+                    ? '<span style="font-size: 13px; line-height: 1;">🎙️</span>'
+                    : '<span style="font-size: 13px; line-height: 1;">🗣️</span>';
 
         const buttonsInGroup = items.map(({ server, index }) => {
             const isActive = index === currentServerIndex;
             const totalEps = server.server_data ? server.server_data.length : 0;
             const epText = totalEps === 1 ? 'Full' : `${totalEps} tập`;
 
+            let isSongNgu = category === 'Song Ngữ';
             let isFirstInGroup = items[0].index === index;
             let groupSubIndex = items.findIndex(item => item.index === index);
-            let displayTitle = isFirstInGroup ? category : `${category} #${groupSubIndex}`;
-            let catSlug = category === 'Vietsub' ? 'vietsub' : category === 'Thuyết Minh' ? 'thuyet-minh' : 'long-tieng';
+            let rawTitle = server.original_server_name || server.server_name || '';
+            let displayTitle = isSongNgu
+                ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (isFirstInGroup ? 'Song Ngữ' : `Song Ngữ #${groupSubIndex}`))
+                : (isFirstInGroup ? category : `${category} #${groupSubIndex}`);
+            let catSlug = isSongNgu ? 'song-ngu' : (category === 'Vietsub' ? 'vietsub' : category === 'Thuyết Minh' ? 'thuyet-minh' : 'long-tieng');
 
             if (isActive) {
+                if (isSongNgu) {
+                    return `
+                        <button onclick="changeServer(${index})"
+                            data-category="${category}"
+                            style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; border-radius: 7px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 0 14px rgba(168,85,247,0.5); transition: all 0.2s;"
+                            class="select-none server-tab-btn active server-cat-song-ngu">
+                            <span style="font-weight: 900; font-size: 12px; color: #ffffff;">文A</span>
+                            <span class="server-tab-title" style="font-weight: 800; font-size: 12.5px; color: #ffffff;">${displayTitle}</span>
+                            <span class="server-tab-badge" style="background: #ffffff; color: #581c87; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px;">${totalEps}</span>
+                        </button>
+                    `;
+                }
+
                 // Active Pill (Dark Mode Base Colors)
                 let activeBg = category === 'Vietsub' ? '#9bb0ff' : category === 'Thuyết Minh' ? '#d8b4fe' : '#86efac';
                 let activeText = category === 'Vietsub' ? '#0a0c10' : category === 'Thuyết Minh' ? '#2e1065' : '#052e16';
@@ -1899,6 +2097,19 @@ function __legacyRenderServerList_UNUSED(episodes) {
                     </button>
                 `;
             } else {
+                if (isSongNgu) {
+                    return `
+                        <button onclick="changeServer(${index})"
+                            data-category="${category}"
+                            style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.25); color: #f8fafc; font-weight: 700; border-radius: 7px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s;"
+                            class="hover:brightness-125 select-none server-tab-btn server-cat-song-ngu">
+                            <span style="font-weight: 900; font-size: 12px; color: #cbd5e1;">文A</span>
+                            <span class="server-tab-title" style="color: #f8fafc; font-weight: 700; font-size: 12.5px;">${displayTitle}</span>
+                            <span class="server-tab-badge" style="background: #ffffff; color: #000000; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px;">${totalEps}</span>
+                        </button>
+                    `;
+                }
+
                 // Inactive Pill (Dark Mode Base Colors)
                 let inactiveBg = category === 'Vietsub' ? '#1e293b' : category === 'Thuyết Minh' ? '#2c2236' : '#143126';
                 let inactiveText = category === 'Vietsub' ? '#94a3b8' : category === 'Thuyết Minh' ? '#e9d5ff' : '#6ee7b7';
@@ -1955,6 +2166,20 @@ window.changeServer = function (index) {
     if (index === currentServerIndex) return;
 
     currentServerIndex = index;
+    window.currentServerIndex = index;
+    window.requestedServerIndex = index;
+
+    // Khi người dùng chủ động chọn server, xóa vết các server lỗi trước đó để thử lại
+    if (window._failedServersForEpisode) {
+        window._failedServersForEpisode.clear();
+    }
+
+    // Lưu máy chủ người dùng chọn (cả type, name và index) vào localStorage để khi tải lại không bị nhảy
+    try {
+        if (currentMovie && currentMovie.slug) {
+            saveServerPreference(currentMovie.slug, index, currentMovie.episodes[index]);
+        }
+    } catch (e) { }
 
     // Tìm tập tương ứng bên server mới nếu có (dựa theo tên tập)
     const newServerData = currentMovie.episodes[currentServerIndex].server_data;
@@ -2262,6 +2487,12 @@ function initializePlayer(episode) {
                 Trình duyệt của bạn không hỗ trợ video.
             </video>
 
+            <!-- Dual Subtitles Overlay (Vietnamese Top White + Korean Bottom Yellow) -->
+            <div id="aphim-dual-subtitles-overlay" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end items-center px-4 transition-all duration-200">
+                <div id="aphim-sub-top" class="text-center font-bold mb-1 leading-snug tracking-wide" style="display: none; color: #ffffff; font-size: clamp(17px, 2.3vw, 26px); -webkit-text-stroke: 2.2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
+                <div id="aphim-sub-bottom" class="text-center font-bold leading-snug tracking-wide" style="display: none; color: #ffd215; font-size: clamp(16px, 2.1vw, 24px); -webkit-text-stroke: 2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
+            </div>
+
             <!-- Clickable Center Video Zone (Tap/Click to Play/Pause) -->
             <div id="aphim-clickzone" class="absolute inset-0 z-10 cursor-pointer"></div>
 
@@ -2332,6 +2563,42 @@ function initializePlayer(episode) {
                         <button type="button" id="aphim-btn-next" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Tập tiếp theo (N)">
                             <span class="material-icons-round">skip_next</span>
                         </button>
+
+                        <!-- Nguồn âm thanh / Song Ngữ Button (Matching Image 2) -->
+                        <div id="aphim-audio-wrapper" class="relative inline-flex items-center">
+                            <button type="button" id="aphim-btn-audio" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Nguồn âm thanh / Phụ đề Song ngữ">
+                                <svg viewBox="0 0 24 24" class="aphim-btn-icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                    <line x1="12" y1="19" x2="12" y2="22" />
+                                </svg>
+                                <span id="aphim-song-badge" style="
+                                    position: absolute;
+                                    top: 1px;
+                                    right: -2px;
+                                    background: #ffffff;
+                                    color: #000000;
+                                    font-size: 8px;
+                                    font-weight: 800;
+                                    line-height: 1;
+                                    padding: 1.5px 3.5px;
+                                    border-radius: 4px;
+                                    letter-spacing: -0.2px;
+                                    box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+                                    pointer-events: none;
+                                    font-family: system-ui, -apple-system, sans-serif;
+                                ">Song</span>
+                            </button>
+
+                            <!-- Nguồn âm thanh Flyout Menu (Đồng bộ chuẩn kính mờ trong suốt CÀI ĐẶT) -->
+                            <div id="aphim-audio-menu" class="hidden">
+                                <div class="aphim-settings-header">
+                                    <span>NGUỒN ÂM THANH</span>
+                                </div>
+                                <div class="aphim-settings-list" id="aphim-audio-options-list">
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Settings Button & Multi-Level Flyout Menu (Hexagon Settings) -->
                         <div id="aphim-settings-wrapper" class="relative inline-flex items-center">
@@ -2531,6 +2798,9 @@ function initializePlayer(episode) {
     const hoverTime = document.getElementById('aphim-hover-time');
     const btnSettings = document.getElementById('aphim-btn-settings');
     const settingsMenu = document.getElementById('aphim-settings-menu');
+    const btnAudio = document.getElementById('aphim-btn-audio');
+    const audioMenu = document.getElementById('aphim-audio-menu');
+    const audioOptionsList = document.getElementById('aphim-audio-options-list');
     const valServer = document.getElementById('aphim-val-server');
     const valSpeed = document.getElementById('aphim-val-speed');
     const valQuality = document.getElementById('aphim-val-quality');
@@ -3020,6 +3290,7 @@ function initializePlayer(episode) {
             e.stopPropagation();
             const isHidden = settingsMenu.classList.contains('hidden');
             if (isHidden) {
+                if (audioMenu) audioMenu.classList.add('hidden');
                 showSettingsPanel('aphim-settings-main-panel');
                 refreshSettingsServers();
                 refreshSettingsQuality();
@@ -3130,6 +3401,251 @@ function initializePlayer(episode) {
             }, { passive: true });
         });
     }
+
+    // 🎧 NGUỒN ÂM THANH & PHỤ ĐỀ SONG NGỮ (VIỆT - HÀN / DUAL SUBTITLES)
+    function parseWebVTT(vttText) {
+        if (!vttText || typeof vttText !== 'string') return [];
+        const cues = [];
+        function parseTime(tStr) {
+            if (!tStr) return 0;
+            const p = tStr.trim().split(':');
+            if (p.length === 3) {
+                return (parseFloat(p[0]) || 0) * 3600 + (parseFloat(p[1]) || 0) * 60 + (parseFloat(p[2]) || 0);
+            } else if (p.length === 2) {
+                return (parseFloat(p[0]) || 0) * 60 + (parseFloat(p[1]) || 0);
+            }
+            return 0;
+        }
+        const blocks = vttText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split(/\n\s*\n/);
+        for (const block of blocks) {
+            const lines = block.trim().split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].includes('-->')) {
+                    const [startStr, endStr] = lines[i].split('-->');
+                    const start = parseTime(startStr);
+                    const end = parseTime(endStr ? endStr.trim().split(/\s+/)[0] : '');
+                    const text = lines.slice(i + 1).map(l => l.replace(/<[^>]*>/g, '').trim()).filter(Boolean).join('\n');
+                    if (end > start && text) {
+                        cues.push({ start, end, text });
+                    }
+                    break;
+                }
+            }
+        }
+        return cues;
+    }
+
+    function setupDualSubtitles(ep, videoEl) {
+        const subTopEl = document.getElementById('aphim-sub-top');
+        const subBottomEl = document.getElementById('aphim-sub-bottom');
+        if (!subTopEl || !subBottomEl || !videoEl) return;
+
+        subTopEl.textContent = '';
+        subTopEl.style.display = 'none';
+        subBottomEl.textContent = '';
+        subBottomEl.style.display = 'none';
+
+        const subtitles = (ep && ep.subtitles) ? ep.subtitles : [];
+        if (!subtitles || subtitles.length === 0) return;
+
+        const vietSub = subtitles.find(s => (s.language === 'vi' || (s.label || '').toLowerCase().includes('việt')));
+        // Tìm phụ đề ngoại ngữ (Trung, Hàn, Anh, Nhật... bất kỳ phụ đề nào khác Tiếng Việt)
+        const foreignSub = subtitles.find(s => {
+            if (s === vietSub) return false;
+            const l = (s.language || '').toLowerCase();
+            const lbl = (s.label || '').toLowerCase();
+            return l !== 'vi' && !lbl.includes('việt');
+        });
+
+        let topCues = [];
+        let bottomCues = [];
+
+        // 🇻🇳 Dòng TRÊN: Phụ đề Tiếng Việt (Chữ Trắng sắc nét)
+        if (vietSub && vietSub.url) {
+            const vUrl = vietSub.url.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(vietSub.url)}` : vietSub.url;
+            fetch(vUrl)
+                .then(r => r.text())
+                .then(t => {
+                    topCues = parseWebVTT(t);
+                    console.log(`[DualSub] Loaded ${topCues.length} Vietnamese cues (Top - White)`);
+                })
+                .catch(err => console.warn('[DualSub Viet Error]:', err));
+        }
+
+        // 🇰🇷 Dòng DƯỚI: Phụ đề Tiếng Hàn / Ngoại ngữ (Chữ Vàng rực rỡ chuẩn ảnh mẫu)
+        if (foreignSub && foreignSub.url) {
+            const fUrl = foreignSub.url.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(foreignSub.url)}` : foreignSub.url;
+            fetch(fUrl)
+                .then(r => r.text())
+                .then(t => {
+                    bottomCues = parseWebVTT(t);
+                    console.log(`[DualSub] Loaded ${bottomCues.length} foreign cues (${foreignSub.label}) (Bottom - Yellow)`);
+                })
+                .catch(err => console.warn('[DualSub Foreign Error]:', err));
+        }
+
+        const onTimeUpdate = () => {
+            const t = videoEl.currentTime;
+
+            if (topCues.length > 0) {
+                const cue = topCues.find(c => t >= c.start && t <= c.end);
+                if (cue && cue.text) {
+                    subTopEl.textContent = cue.text;
+                    subTopEl.style.display = 'block';
+                } else {
+                    subTopEl.style.display = 'none';
+                }
+            } else {
+                subTopEl.style.display = 'none';
+            }
+
+            if (bottomCues.length > 0) {
+                const cue = bottomCues.find(c => t >= c.start && t <= c.end);
+                if (cue && cue.text) {
+                    subBottomEl.textContent = cue.text;
+                    subBottomEl.style.display = 'block';
+                } else {
+                    subBottomEl.style.display = 'none';
+                }
+            } else {
+                subBottomEl.style.display = 'none';
+            }
+        };
+
+        if (videoEl._dualSubHandler) {
+            videoEl.removeEventListener('timeupdate', videoEl._dualSubHandler);
+        }
+        videoEl._dualSubHandler = onTimeUpdate;
+        videoEl.addEventListener('timeupdate', onTimeUpdate);
+    }
+
+    function setupAudioSourceMenu() {
+        if (!btnAudio || !audioMenu || !audioOptionsList) return;
+
+        const servers = (currentMovie && currentMovie.episodes) ? currentMovie.episodes : [];
+        const hasSongNgu = servers.some(s => (s.server_name || '').toLowerCase().includes('song ngữ'));
+        const songBadge = document.getElementById('aphim-song-badge');
+
+        if (!hasSongNgu && servers.length <= 1) {
+            btnAudio.style.display = 'none';
+            return;
+        } else {
+            btnAudio.style.display = 'flex';
+        }
+
+        const curServer = servers[currentServerIndex];
+        const isCurSongNgu = curServer && (curServer.server_name || '').toLowerCase().includes('song ngữ');
+        
+        // Cập nhật trạng thái màu sắc nút Audio Icon chuẩn hình số 2 & 3
+        if (isCurSongNgu) {
+            btnAudio.style.color = '#fcd576';
+            if (songBadge) {
+                songBadge.style.display = 'inline-block';
+                songBadge.style.background = '#ffffff';
+                songBadge.style.color = '#000000';
+            }
+        } else {
+            btnAudio.style.color = '#ffffff';
+            if (songBadge) {
+                songBadge.style.display = 'none';
+            }
+        }
+
+        function renderAudioOptions() {
+            audioOptionsList.innerHTML = '';
+            servers.forEach((srv, sIdx) => {
+                const isSongNgu = (srv.server_name || '').toLowerCase().includes('song ngữ');
+                const isActive = sIdx === currentServerIndex;
+
+                const opt = document.createElement('div');
+                opt.className = `aphim-audio-opt ${isActive ? 'active' : ''}`;
+
+                let labelText = '';
+                if (isSongNgu) {
+                    labelText = srv.server_name || srv.original_server_name || 'Song Ngữ';
+                    // Định dạng khoảng cách gạch nối chuẩn đẹp: Việt-Trung-Anh -> Việt - Trung - Anh
+                    labelText = labelText.replace(/([^\s])-([^\s])/g, '$1 - $2');
+                } else {
+                    const origName = srv.original_server_name || srv.server_name || `Nguồn ${sIdx + 1}`;
+                    if (origName.toLowerCase().includes('vietsub') || origName.toLowerCase().includes('thuyết minh') || origName.toLowerCase().includes('lồng tiếng')) {
+                        labelText = origName;
+                    } else {
+                        labelText = `Vietsub (${srv.server_name || `Nguồn ${sIdx + 1}`})`;
+                    }
+                }
+
+                opt.innerHTML = `
+                    <span style="
+                        width: 9px;
+                        height: 9px;
+                        border-radius: 50%;
+                        ${isActive ? 'background: #fcd576; box-shadow: 0 0 10px #f59e0b; border: none;' : 'background: transparent; border: 1.5px solid rgba(255, 255, 255, 0.4);'}
+                        flex-shrink: 0;
+                        display: inline-block;
+                        transition: all 0.15s ease;
+                    "></span>
+                    <span style="
+                        font-size: 13.5px;
+                        font-weight: ${isActive ? '700' : '500'};
+                        color: ${isActive ? '#fcd576' : 'rgba(255, 255, 255, 0.88)'};
+                        letter-spacing: -0.15px;
+                        white-space: nowrap;
+                        flex: 1;
+                    ">${labelText}</span>
+                    ${isActive ? `
+                    <svg style="width: 15px; height: 15px; color: #fcd576; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>` : ''}
+                `;
+
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    audioMenu.classList.add('hidden');
+                    if (sIdx !== currentServerIndex) {
+                        currentServerIndex = sIdx;
+                        const serverData = servers[sIdx].server_data || [];
+                        const currentEpSlug = currentEpisode ? currentEpisode.slug : 'tap-1';
+                        const targetEp = serverData.find(e => e.slug.replace(/^tap-/, '') === currentEpSlug.replace(/^tap-/, '')) || serverData[0];
+                        if (targetEp) {
+                            currentEpisode = targetEp;
+                            _isInitializingPlayer = false;
+                            initializePlayer(currentEpisode);
+                            renderServerList(servers);
+                            renderEpisodeList(servers);
+                        }
+                    }
+                };
+
+                audioOptionsList.appendChild(opt);
+            });
+        }
+
+        btnAudio.onclick = (e) => {
+            e.stopPropagation();
+            const isHidden = audioMenu.classList.contains('hidden');
+            if (settingsMenu) {
+                settingsMenu.classList.add('hidden');
+                if (btnSettings) btnSettings.classList.remove('is-active');
+            }
+            if (isHidden) {
+                renderAudioOptions();
+                audioMenu.classList.remove('hidden');
+            } else {
+                audioMenu.classList.add('hidden');
+            }
+        };
+
+        ['click', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, (e) => {
+                if (audioMenu && !audioMenu.classList.contains('hidden') && !audioMenu.contains(e.target) && e.target !== btnAudio && !btnAudio.contains(e.target)) {
+                    audioMenu.classList.add('hidden');
+                }
+            }, { passive: true });
+        });
+    }
+
+    setupAudioSourceMenu();
+    setupDualSubtitles(episode, player);
 
     // Picture-in-Picture
     if (btnPip) {
@@ -4064,9 +4580,13 @@ function initializePlayer(episode) {
     document.addEventListener('keydown', window._watchKeydownHandler, true);
 
     player.addEventListener('error', (e) => {
-        console.error('❌ Video element error:', e);
-        _isInitializingPlayer = false;
-        handleStreamError();
+        // Chỉ kích hoạt handleStreamError nếu lỗi thực sự và KHÔNG dùng Hls (vì Hls đã có bộ xử lý hls.on(Hls.Events.ERROR) riêng)
+        // Tránh video element bắn lỗi giả lúc vừa mount khi src đang chờ Hls attach
+        if (!window.hls && player.src && player.src !== window.location.href) {
+            console.error('❌ Video element error:', e);
+            _isInitializingPlayer = false;
+            handleStreamError();
+        }
     });
 
     player.addEventListener('loadstart', () => {
@@ -4076,8 +4596,36 @@ function initializePlayer(episode) {
 
 // Server error handler
 function handleStreamError() {
-    if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length <= 1) {
+    if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0) {
         showError('Không thể phát video từ máy chủ này. Vui lòng thử lại sau.');
+        return;
+    }
+
+    // 🛡️ CHỐNG VÒNG LẶP VÔ TẬN: Lưu vết các server đã thử trong phiên phát
+    window._failedServersForEpisode = window._failedServersForEpisode || new Set();
+    window._failedServersForEpisode.add(currentServerIndex);
+
+    const totalServers = currentMovie.episodes.length;
+
+    // Kiểm tra nếu tất cả máy chủ đều đã thử và thất bại -> Dừng ngay, không quay vòng lặp vô tận
+    if (window._failedServersForEpisode.size >= totalServers) {
+        console.error('❌ Toàn bộ máy chủ đều không phát được (Dead servers):', Array.from(window._failedServersForEpisode));
+        showError('Tất cả máy chủ đều đang bảo trì hoặc gặp sự cố đường truyền. Vui lòng bấm Báo Lỗi để Admin xử lý ngay nhé!');
+        return;
+    }
+
+    // Tìm máy chủ tiếp theo CHƯA từng bị lỗi (tránh nhảy vào server chết đã biết)
+    let nextServerIndex = -1;
+    for (let i = 1; i < totalServers; i++) {
+        const candidate = (currentServerIndex + i) % totalServers;
+        if (!window._failedServersForEpisode.has(candidate)) {
+            nextServerIndex = candidate;
+            break;
+        }
+    }
+
+    if (nextServerIndex === -1) {
+        showError('Tất cả máy chủ đều đang bảo trì hoặc gặp sự cố đường truyền. Vui lòng bấm Báo Lỗi để Admin xử lý ngay nhé!');
         return;
     }
 
@@ -4093,37 +4641,43 @@ function handleStreamError() {
         }
 
         // 2. Chuyển sang MÁY CHỦ TIẾP THEO (Tự động nhảy nguồn trên Mobile luôn)
-        const nextServerIndex = currentServerIndex + 1;
-        if (nextServerIndex < currentMovie.episodes.length) {
-            currentServerIndex = nextServerIndex;
-            const nextServer = currentMovie.episodes[nextServerIndex];
-            console.warn(`🔄 Mobile switching to backup server: ${nextServer.server_name}`);
+        currentServerIndex = nextServerIndex;
+        window.currentServerIndex = nextServerIndex;
+        window.requestedServerIndex = nextServerIndex;
+        const nextServer = currentMovie.episodes[nextServerIndex];
+        console.warn(`🔄 Mobile switching to backup server: ${nextServer.server_name}`);
 
-            const matchingEpisode = nextServer.server_data.find(ep => ep.name === currentEpisode.name) || nextServer.server_data[0];
-            if (matchingEpisode) {
-                currentEpisode = matchingEpisode;
-                renderEpisodeList(currentMovie.episodes);
+        // 🛡️ CHỐNG DEAD SERVER LOOP: Ghi đè ngay máy chủ sống mới vào localStorage
+        if (currentMovie && currentMovie.slug) {
+            saveServerPreference(currentMovie.slug, nextServerIndex, nextServer);
+        }
 
-                // Nếu nguồn mới (VSMOV) có iframe, NÊN ưu tiên dùng iframe trên Mobile để tránh lỗi "Require User Gesture" khi auto-play
-                if (currentEpisode.link_embed && !currentEpisode.link_embed.includes('opstream')) {
-                    console.log('🔄 Mobile loading backup iframe:', currentEpisode.link_embed);
-                    loadIframeFallback(currentEpisode.link_embed);
-                } else {
-                    // Nếu phải dùng HLS, load nhưng không auto-play (để người dùng bấm)
-                    showSeekOverlay(`Chuyển sang: ${nextServer.server_name}... Vui lòng bấm Phát!`, true);
-                    setTimeout(() => {
-                        initializePlayer(currentEpisode);
-                        // Force pause to wait for user gesture
-                        if (player) {
-                            player.pause();
-                            // Show play button overlay
-                            const mobCtrl = document.getElementById('mob-player-ctrl');
-                            if (mobCtrl) mobCtrl.style.display = 'flex';
-                        }
-                    }, 500);
-                }
-                return;
+        const matchingEpisode = nextServer.server_data.find(ep => ep.name === currentEpisode.name) || nextServer.server_data[0];
+        if (matchingEpisode) {
+            currentEpisode = matchingEpisode;
+            // 🛡️ DÙNG replaceState: Không làm ô nhiễm lịch sử nút Back của trình duyệt
+            updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex, true);
+            renderEpisodeList(currentMovie.episodes);
+
+            // Nếu nguồn mới (VSMOV) có iframe, NÊN ưu tiên dùng iframe trên Mobile để tránh lỗi "Require User Gesture" khi auto-play
+            if (currentEpisode.link_embed && !currentEpisode.link_embed.includes('opstream')) {
+                console.log('🔄 Mobile loading backup iframe:', currentEpisode.link_embed);
+                loadIframeFallback(currentEpisode.link_embed);
+            } else {
+                // Nếu phải dùng HLS, load nhưng không auto-play (để người dùng bấm)
+                showSeekOverlay(`Chuyển sang: ${nextServer.server_name}... Vui lòng bấm Phát!`, true);
+                setTimeout(() => {
+                    initializePlayer(currentEpisode);
+                    // Force pause to wait for user gesture
+                    if (player) {
+                        player.pause();
+                        // Show play button overlay
+                        const mobCtrl = document.getElementById('mob-player-ctrl');
+                        if (mobCtrl) mobCtrl.style.display = 'flex';
+                    }
+                }, 500);
             }
+            return;
         }
 
         showError('Không thể phát video từ máy chủ này. Vui lòng chọn máy chủ khác.');
@@ -4138,25 +4692,29 @@ function handleStreamError() {
     }
 
     // Trên PC: Tự động nhảy sang máy chủ tiếp theo
-    const nextServerIndex = currentServerIndex + 1;
-    if (nextServerIndex < currentMovie.episodes.length) {
-        currentServerIndex = nextServerIndex;
-        const nextServer = currentMovie.episodes[nextServerIndex];
-        console.warn(`🔄 Stream error detected. Switching to backup server: ${nextServer.server_name}`);
+    currentServerIndex = nextServerIndex;
+    window.currentServerIndex = nextServerIndex;
+    window.requestedServerIndex = nextServerIndex;
+    const nextServer = currentMovie.episodes[nextServerIndex];
+    console.warn(`🔄 Stream error detected. Switching to backup server: ${nextServer.server_name}`);
 
-        const matchingEpisode = nextServer.server_data.find(ep => ep.name === currentEpisode.name) || nextServer.server_data[0];
-        if (matchingEpisode) {
-            currentEpisode = matchingEpisode;
-            renderEpisodeList(currentMovie.episodes);
-            showSeekOverlay(`Đang chuyển: ${nextServer.server_name}...`, true);
-            setTimeout(() => {
-                initializePlayer(currentEpisode);
-            }, 1200);
-        } else {
-            showError('Không tìm thấy tập phim trên server dự phòng.');
-        }
+    // 🛡️ CHỐNG DEAD SERVER LOOP: Ghi đè ngay máy chủ sống mới vào localStorage
+    if (currentMovie && currentMovie.slug) {
+        saveServerPreference(currentMovie.slug, nextServerIndex, nextServer);
+    }
+
+    const matchingEpisode = nextServer.server_data.find(ep => ep.name === currentEpisode.name) || nextServer.server_data[0];
+    if (matchingEpisode) {
+        currentEpisode = matchingEpisode;
+        // 🛡️ DÙNG replaceState: Không làm ô nhiễm lịch sử nút Back của trình duyệt
+        updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex, true);
+        renderEpisodeList(currentMovie.episodes);
+        showSeekOverlay(`Đang chuyển: ${nextServer.server_name}...`, true);
+        setTimeout(() => {
+            initializePlayer(currentEpisode);
+        }, 1200);
     } else {
-        showError('Không thể phát video từ tất cả các máy chủ. Vui lòng thử lại sau.');
+        showError('Không tìm thấy tập phim trên server dự phòng.');
     }
 }
 
@@ -4411,24 +4969,51 @@ function showError(message) {
     }
 
     let altServerHTML = '';
-    if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.episodes && currentMovie.episodes.length > 1) {
-        const targetIndex = (currentServerIndex + 1) % currentMovie.episodes.length;
-        const targetServer = currentMovie.episodes[targetIndex];
-        const targetName = `Nguồn ${targetIndex + 1}`;
+    const totalServers = (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.episodes) ? currentMovie.episodes.length : 0;
+    const isAllServersDead = window._failedServersForEpisode && totalServers > 0 && window._failedServersForEpisode.size >= totalServers;
 
+    if (isAllServersDead) {
+        // 🛡️ Khi TẤT CẢ máy chủ đều sập: Dừng lại và hiện nút BÁO LỖI PHIM
         altServerHTML = `
-            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);" class="mt-4 p-3.5 rounded-xl max-w-md flex flex-col items-center gap-2 shadow-xl backdrop-blur-md">
-                <div class="flex items-center gap-1.5 text-emerald-400 font-bold text-xs sm:text-sm">
-                    <span class="material-icons-round text-sm">info</span>
-                    <span>Gợi ý: Thử đổi sang máy chủ dự phòng</span>
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4);" class="mt-4 p-4 rounded-xl max-w-md flex flex-col items-center gap-3 shadow-xl backdrop-blur-md">
+                <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
+                    <span class="material-icons-round text-base">warning</span>
+                    <span>Tất cả máy chủ đều đang bảo trì</span>
                 </div>
-                <p class="text-gray-300 text-xs">Máy chủ hiện tại không phát được. Bạn hãy bấm nút bên dưới để đổi sang <b>${targetName}</b> nhé!</p>
-                <button onclick="changeServer(${targetIndex})" class="px-5 py-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white text-xs sm:text-sm font-bold rounded-lg shadow-md hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer">
-                    <span class="material-icons-round text-base">swap_horiz</span>
-                    Chuyển sang ${targetName} ngay
+                <p class="text-gray-300 text-xs text-center leading-relaxed">Toàn bộ các nguồn phát hiện tại đang gặp sự cố đường truyền hoặc bản quyền. Bạn vui lòng bấm nút Báo Lỗi để Admin kiểm tra và khắc phục sớm nhất nhé!</p>
+                <button onclick="reportError()" class="px-5 py-2.5 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white text-xs sm:text-sm font-bold rounded-lg shadow-md hover:scale-105 transition-all flex items-center gap-2 cursor-pointer">
+                    <span class="material-icons-round text-base">report_problem</span>
+                    Báo lỗi cho Admin ngay
                 </button>
             </div>
         `;
+    } else if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.episodes && currentMovie.episodes.length > 1) {
+        let targetIndex = -1;
+        for (let i = 1; i < totalServers; i++) {
+            const candidate = (currentServerIndex + i) % totalServers;
+            if (!window._failedServersForEpisode || !window._failedServersForEpisode.has(candidate)) {
+                targetIndex = candidate;
+                break;
+            }
+        }
+        if (targetIndex !== -1) {
+            const targetServer = currentMovie.episodes[targetIndex];
+            const targetName = targetServer.original_server_name || targetServer.server_name || `Nguồn ${targetIndex + 1}`;
+
+            altServerHTML = `
+                <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);" class="mt-4 p-3.5 rounded-xl max-w-md flex flex-col items-center gap-2 shadow-xl backdrop-blur-md">
+                    <div class="flex items-center gap-1.5 text-emerald-400 font-bold text-xs sm:text-sm">
+                        <span class="material-icons-round text-sm">info</span>
+                        <span>Gợi ý: Thử đổi sang máy chủ dự phòng</span>
+                    </div>
+                    <p class="text-gray-300 text-xs">Máy chủ hiện tại không phát được. Bạn hãy bấm nút bên dưới để đổi sang <b>${targetName}</b> nhé!</p>
+                    <button onclick="changeServer(${targetIndex})" class="px-5 py-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white text-xs sm:text-sm font-bold rounded-lg shadow-md hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-icons-round text-base">swap_horiz</span>
+                        Chuyển sang ${targetName} ngay
+                    </button>
+                </div>
+            `;
+        }
     }
 
     const playerContainer = document.querySelector('.aspect-video');
@@ -4865,6 +5450,9 @@ window.changeEpisode = function (episodeSlug) {
 
     // 1. Update active state variables
     currentEpisode = foundEp;
+    if (window._failedServersForEpisode) {
+        window._failedServersForEpisode.clear();
+    }
 
     // 2. Update URL query parameter cleanly without page reload
     updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);

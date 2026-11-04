@@ -151,10 +151,16 @@
 
         // Phân loại ngôn ngữ
         let cat = 'Vietsub';
-        if (rawName.toLowerCase().includes('thuyết minh') || rawName.toLowerCase().includes('thuyet minh')) {
+        if (rawName.toLowerCase().includes('song ngữ') || rawName.toLowerCase().includes('song ngu') || rawName.toLowerCase().includes('bilingual')) {
+            cat = 'Song Ngữ';
+        } else if (rawName.toLowerCase().includes('thuyết minh') || rawName.toLowerCase().includes('thuyet minh')) {
             cat = 'Thuyết Minh';
         } else if (rawName.toLowerCase().includes('lồng tiếng') || rawName.toLowerCase().includes('long tieng')) {
             cat = 'Lồng Tiếng';
+        }
+
+        if (cat === 'Song Ngữ') {
+            return rawName.toLowerCase().includes('song ngữ') ? rawName : 'Song Ngữ';
         }
 
         // Đếm xem trong cùng nhóm ngôn ngữ có bao nhiêu server
@@ -162,7 +168,7 @@
             const n = (s.original_server_name || s.server_name || '').toLowerCase();
             if (cat === 'Thuyết Minh') return n.includes('thuyết minh') || n.includes('thuyet minh');
             if (cat === 'Lồng Tiếng') return n.includes('lồng tiếng') || n.includes('long tieng');
-            return !n.includes('thuyết minh') && !n.includes('thuyet minh') && !n.includes('lồng tiếng') && !n.includes('long tieng');
+            return !n.includes('song ngữ') && !n.includes('song ngu') && !n.includes('bilingual') && !n.includes('thuyết minh') && !n.includes('thuyet minh') && !n.includes('lồng tiếng') && !n.includes('long tieng');
         });
 
         if (sameCatServers.length <= 1) {

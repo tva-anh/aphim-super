@@ -2058,7 +2058,8 @@
                 transform: rotate(30deg) scale(1.08) translateZ(0) !important;
             }
 
-            #aphim-settings-menu {
+            #aphim-settings-menu,
+            #aphim-audio-menu {
                 position: absolute !important;
                 bottom: calc(100% + 30px) !important;
                 right: 0 !important;
@@ -2079,6 +2080,11 @@
                 animation: aphimMenuFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
             }
 
+            #aphim-audio-menu {
+                width: 265px !important;
+                right: -20px !important;
+            }
+
             @keyframes aphimMenuFadeIn {
                 from {
                     opacity: 0;
@@ -2090,8 +2096,54 @@
                 }
             }
 
-            #aphim-settings-menu.hidden {
+            #aphim-settings-menu.hidden,
+            #aphim-audio-menu.hidden {
                 display: none !important;
+            }
+
+            .aphim-audio-opt {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 12px !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                margin: 2px 8px !important;
+                padding: 10px 14px !important;
+                border-radius: 9px !important;
+                cursor: pointer !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
+                transition: background 0.12s ease, color 0.12s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                font-size: 13.5px !important;
+                font-weight: 500 !important;
+                color: rgba(255, 255, 255, 0.88) !important;
+                white-space: nowrap !important;
+                border: 1px solid transparent !important;
+                background: transparent !important;
+                will-change: transform;
+            }
+
+            .aphim-audio-opt:hover {
+                background: rgba(255, 255, 255, 0.10) !important;
+                color: #ffffff !important;
+                transform: translateX(3px) translateZ(0) !important;
+            }
+
+            .aphim-audio-opt.active {
+                background: rgba(255, 255, 255, 0.12) !important;
+                color: #fcd576 !important;
+                font-weight: 600 !important;
+            }
+
+            .aphim-audio-opt:active {
+                transform: scale(0.97) translateZ(0) !important;
+                background: rgba(252, 213, 118, 0.22) !important;
+                transition: transform 0.03s ease-out !important;
             }
 
             .aphim-settings-panel {
@@ -2431,6 +2483,62 @@
                 border-radius: 9999px !important;
             }
 
+            /* ─── DUAL SUBTITLES OVERLAY (SONG NGỮ CHUẨN ẢNH GỐC) ─── */
+            #aphim-dual-subtitles-overlay {
+                position: absolute !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                z-index: 20 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-end !important;
+                align-items: center !important;
+                pointer-events: none !important;
+                user-select: none !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+                padding-bottom: 78px !important;
+                transition: padding-bottom 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+
+            /* Khi controls bar đang hiển thị, nhấc nhẹ phụ đề lên trên timeline để không bị che khuất */
+            #aphim-player-wrapper:not(:has(#aphim-controls.aphim-controls-hidden)) #aphim-dual-subtitles-overlay,
+            #aphim-player-wrapper:has(#aphim-controls:not(.aphim-controls-hidden)) #aphim-dual-subtitles-overlay {
+                padding-bottom: 108px !important;
+            }
+
+            #aphim-sub-top {
+                color: #ffffff !important;
+                font-size: clamp(17px, 2.3vw, 26px) !important;
+                font-weight: 700 !important;
+                line-height: 1.35 !important;
+                -webkit-text-stroke: 2.2px #000000 !important;
+                paint-order: stroke fill !important;
+                text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0, 0, 0, 0.95) !important;
+                -webkit-font-smoothing: antialiased !important;
+                text-rendering: optimizeLegibility !important;
+                margin-bottom: 3px !important;
+                text-align: center !important;
+                max-width: 90% !important;
+                letter-spacing: 0.2px !important;
+            }
+
+            #aphim-sub-bottom {
+                color: #ffd215 !important;
+                font-size: clamp(16px, 2.1vw, 24px) !important;
+                font-weight: 700 !important;
+                line-height: 1.35 !important;
+                -webkit-text-stroke: 2px #000000 !important;
+                paint-order: stroke fill !important;
+                text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0, 0, 0, 0.95) !important;
+                -webkit-font-smoothing: antialiased !important;
+                text-rendering: optimizeLegibility !important;
+                text-align: center !important;
+                max-width: 90% !important;
+                letter-spacing: 0.2px !important;
+            }
+
             /* ==========================================================================
                MOBILE VIDEO PLAYER CONTROLS BALANCING & CRISP VISIBILITY (MASTER RULES)
                ========================================================================== */
@@ -2542,23 +2650,21 @@
                     display: none !important;
                 }
 
-                /* ⚡ Khắc phục dứt điểm menu cài đặt mobile: neo trực tiếp theo player wrapper, cách mép an toàn, không bao giờ bị cắt đỉnh */
-                #aphim-settings-wrapper {
+                /* ⚡ Khắc phục dứt điểm menu cài đặt & menu nguồn âm thanh mobile: neo trực tiếp theo player wrapper, cách mép an toàn, không bao giờ bị cắt đỉnh */
+                #aphim-settings-wrapper,
+                #aphim-audio-wrapper {
                     position: static !important;
                 }
-                /* ⚡ Khắc phục dứt điểm menu cài đặt mobile: neo trực tiếp theo player wrapper, cách mép an toàn, không bao giờ bị cắt đỉnh */
-                #aphim-settings-wrapper {
-                    position: static !important;
-                }
-                #aphim-settings-menu {
+                #aphim-settings-menu,
+                #aphim-audio-menu {
                     position: absolute !important;
                     bottom: 46px !important;
                     right: 8px !important;
                     width: 265px !important;
                     max-width: calc(100% - 16px) !important;
-                    /* ⚡ Menu chính giữ chiều cao tự nhiên thoải mái ~185px, thấy đủ cả 4 mục không bị cắt cụt */
+                    /* ⚡ Giữ chiều cao tự nhiên thoải mái, không bị cắt cụt */
                     height: auto !important;
-                    max-height: 185px !important;
+                    max-height: 220px !important;
                     overflow: hidden !important;
                     display: flex !important;
                     flex-direction: column !important;
@@ -2760,6 +2866,20 @@
                     color: #ffffff !important;
                     text-shadow: 0 1px 2px rgba(0, 0, 0, 1) !important;
                     line: -3 !important;
+                }
+
+                #aphim-dual-subtitles-overlay {
+                    padding-bottom: 58px !important;
+                }
+                #aphim-player-wrapper:not(:has(#aphim-controls.aphim-controls-hidden)) #aphim-dual-subtitles-overlay,
+                #aphim-player-wrapper:has(#aphim-controls:not(.aphim-controls-hidden)) #aphim-dual-subtitles-overlay {
+                    padding-bottom: 84px !important;
+                }
+                #aphim-sub-top {
+                    font-size: 15px !important;
+                }
+                #aphim-sub-bottom {
+                    font-size: 14.5px !important;
                 }
             }
 

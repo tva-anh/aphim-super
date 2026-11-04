@@ -167,11 +167,18 @@
         return;
     };
 
-    // 🎯 5. EXACT BADGE & EPISODE PARSER MATCHING HOMEPAGE INDEX.EJS
+    // 🎯 5. EXACT BADGE & EPISODE PARSER MATCHING HOMEPAGE INDEX.EJS & SONG NGU IMAGE 2
     window.APhimCore.renderBadges = function(movie) {
         const lang = (movie.lang || 'Vietsub').toLowerCase();
         let ep = (movie.episode_current || movie.episode || '').trim();
         const type = movie.type || '';
+        const isSongNgu = movie.is_song_ngu || 
+                          lang.includes('song ngữ') || 
+                          lang.includes('song ngu') || 
+                          (typeof window !== 'undefined' && (
+                              window.location.pathname.includes('/phim-song-ngu') || 
+                              new URLSearchParams(window.location.search).get('list') === 'phim-song-ngu'
+                          ));
 
         if (!ep) {
             ep = (type === 'single' || type === 'phim-le') ? 'Full' : 'Tập 1';
@@ -182,27 +189,42 @@
                        ep.toLowerCase().includes('hoan tat') || 
                        type === 'single';
 
-        // 1. Language Top Badges (P.Đề / Vietsub / T.Minh / L.Tiếng / Song Ngữ)
+        // 1. Purple Song Ngữ Top-Right Badge (Image 2 exact match)
+        let purpleSongNguHTML = '';
+        if (isSongNgu) {
+            purpleSongNguHTML = `
+                <div class="grid-badge-song-ngu-purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path>
+                    </svg>
+                    <span>Song Ngữ</span>
+                </div>
+            `;
+        }
+
+        // 2. Language Top Badges (Left)
         let topBadgesHTML = '';
         const hasSn = lang.includes('song ngữ') || lang.includes('song ngu');
         const hasSub = lang.includes('sub') || lang.includes('phụ đề') || lang.includes('phu de') || lang.includes('vietsub') || lang.includes('p.đề');
         const hasTm = lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh');
         const hasLt = lang.includes('lồng tiếng') || lang.includes('long tieng') || lang.includes('l.tiếng');
 
-        if (hasSn) {
-            topBadgesHTML += `<span class="badge-tag badge-tag-sn">Song ngữ</span>`;
-        }
-        if (hasSub) {
-            topBadgesHTML += `<span class="badge-tag badge-tag-pd">${(hasTm || hasLt) ? 'P.Đề' : 'Vietsub'}</span>`;
-        }
-        if (hasTm) {
-            topBadgesHTML += `<span class="badge-tag badge-tag-tm">T.Minh</span>`;
-        }
-        if (hasLt) {
-            topBadgesHTML += `<span class="badge-tag badge-tag-lt">L.Tiếng</span>`;
-        }
-        if (!hasSn && !hasSub && !hasTm && !hasLt) {
-            topBadgesHTML += `<span class="badge-tag badge-tag-pd">Vietsub</span>`;
+        if (!isSongNgu) {
+            if (hasSn) {
+                topBadgesHTML += `<span class="badge-tag badge-tag-sn">Song ngữ</span>`;
+            }
+            if (hasSub) {
+                topBadgesHTML += `<span class="badge-tag badge-tag-pd">${(hasTm || hasLt) ? 'P.Đề' : 'Vietsub'}</span>`;
+            }
+            if (hasTm) {
+                topBadgesHTML += `<span class="badge-tag badge-tag-tm">T.Minh</span>`;
+            }
+            if (hasLt) {
+                topBadgesHTML += `<span class="badge-tag badge-tag-lt">L.Tiếng</span>`;
+            }
+            if (!hasSn && !hasSub && !hasTm && !hasLt) {
+                topBadgesHTML += `<span class="badge-tag badge-tag-pd">Vietsub</span>`;
+            }
         }
 
         // Quality Badge
@@ -211,11 +233,34 @@
             topBadgesHTML += `<span class="badge-fhd">${quality}</span>`;
         }
 
-        // 2. Episode Bottom Badge (Yellow badge for Full / Orange for Episodes like "Tập 11")
-        const epBadgeClass = isFull ? 'badge-ep-yellow' : 'badge-ep-orange';
-        let bottomBadgesHTML = `<span class="${epBadgeClass}">${ep}</span>`;
+        // 3. Episode Bottom Badge (Image 2 multi-badge style for PĐ / TM / LT, or classic yellow/orange)
+        let bottomBadgesHTML = '';
+        if (isSongNgu && ep && (ep.includes('PĐ') || ep.includes('TM') || ep.includes('LT'))) {
+            const rawTokens = ep.split(/\s+/);
+            const badgeItems = [];
+            for (let i = 0; i < rawTokens.length; i++) {
+                const tok = rawTokens[i];
+                if (tok.startsWith('PĐ') || tok.startsWith('TM') || tok.startsWith('LT')) {
+                    const nextTok = rawTokens[i + 1];
+                    let val = (nextTok && !nextTok.startsWith('PĐ') && !nextTok.startsWith('TM') && !nextTok.startsWith('LT')) ? nextTok : '';
+                    if (val) i++;
+                    badgeItems.push(`${tok} ${val}`.trim());
+                }
+            }
+            if (badgeItems.length > 0) {
+                bottomBadgesHTML = badgeItems.map(item => {
+                    const cls = item.startsWith('TM') ? 'badge-pill-tm' : (item.startsWith('LT') ? 'badge-pill-lt' : 'badge-pill-pd');
+                    return `<span class="${cls}">${item}</span>`;
+                }).join('');
+            } else {
+                bottomBadgesHTML = `<span class="badge-pill-pd">${ep}</span>`;
+            }
+        } else {
+            const epBadgeClass = isFull ? 'badge-ep-yellow' : 'badge-ep-orange';
+            bottomBadgesHTML = `<span class="${epBadgeClass}">${ep}</span>`;
+        }
 
-        return { topBadgesHTML, bottomBadgesHTML };
+        return { topBadgesHTML, bottomBadgesHTML, purpleSongNguHTML };
     };
 
     // 🎯 6. UNIVERSAL MOVIE CARD RENDERER MATCHING HOMEPAGE INDEX.EJS (INSTANT DIRECT SRC LOADING)
@@ -223,7 +268,7 @@
         // Với thẻ dọc 2:3, poster_url là poster chuẩn, thumb_url là dự phòng
         const primaryImg = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
         const fallbackImg = window.APhimCore.getImgUrl(movie.thumb_url || movie.poster_url);
-        const { topBadgesHTML, bottomBadgesHTML } = window.APhimCore.renderBadges(movie);
+        const { topBadgesHTML, bottomBadgesHTML, purpleSongNguHTML } = window.APhimCore.renderBadges(movie);
 
         // Chỉ eager 2 card đầu tiên nếu là hàng trên cùng, còn lại lazy để trình duyệt kích hoạt xong onload ngay lập tức
         const isPriority = index < 2;
@@ -233,6 +278,7 @@
         return `
             <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
                 <div class="grid-poster-wrap">
+                    ${purpleSongNguHTML || ''}
                     <div class="grid-top-badges">
                         ${topBadgesHTML || ''}
                     </div>
@@ -259,9 +305,9 @@
     window.APhimCore.fetchMovieGridData = async function(type, paramValue, page = 1) {
         let endpointPath = '';
 
-        if (typeof type === 'string' && (type.startsWith('http://') || type.startsWith('https://') || type.startsWith('/v1/api/'))) {
+        if (typeof type === 'string' && (type.startsWith('http://') || type.startsWith('https://') || type.startsWith('/v1/api/') || type.startsWith('/api/'))) {
             let fullUrlStr = type;
-            if (fullUrlStr.startsWith('/v1/api/')) {
+            if (fullUrlStr.startsWith('/v1/api/') || fullUrlStr.startsWith('/api/')) {
                 endpointPath = fullUrlStr;
             } else {
                 try {
@@ -274,10 +320,15 @@
         } else if (type === 'list') {
             if (paramValue === 'phim-moi-cap-nhat') {
                 endpointPath = '/v1/api/danh-sach/phim-moi-cap-nhat?page=' + page;
+            } else if (paramValue === 'phim-song-ngu') {
+                endpointPath = '/api/phim-song-ngu?page=' + page;
             } else {
                 endpointPath = '/v1/api/danh-sach/' + paramValue + '?page=' + page;
             }
+        } else if (type === 'phim-song-ngu' || type === 'song-ngu') {
+            endpointPath = '/api/phim-song-ngu?page=' + page;
         } else if (type === 'category' || type === 'the-loai') {
+
             if (paramValue && paramValue.startsWith('phim-18')) {
                 endpointPath = paramValue.includes('?') 
                     ? `/api/the-loai/${paramValue}` 

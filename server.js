@@ -229,6 +229,49 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// 🎯 API LẤY DANH SÁCH PHIM SONG NGỮ (Phục vụ trang Song Ngữ và đồng bộ phụ đề)
+app.get(['/api/phim-song-ngu', '/v1/api/danh-sach/phim-song-ngu'], async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    try {
+        const { fetchBilingualMoviesPage } = require('./lib/bilingual.service');
+        const result = await fetchBilingualMoviesPage(page);
+        return res.json({
+            status: 'success',
+            data: {
+                items: result.items || [],
+                titlePage: 'Phim Song Ngữ Chất Lượng Cao',
+                params: {
+                    pagination: result.pagination || { currentPage: page, totalPages: 25, totalItems: 600 }
+                }
+            }
+        });
+    } catch (err) {
+        console.error('[API /api/phim-song-ngu] Lỗi:', err.message);
+        return res.status(500).json({
+            status: 'error',
+            message: err.message,
+            data: { items: [], params: { pagination: { currentPage: page, totalPages: 1, totalItems: 0 } } }
+        });
+    }
+});
+
+// 🎯 API LẤY NGUỒN SONG NGỮ CỦA PHIM (Hỗ trợ Client-side fallback & Background merge)
+app.get('/api/movies/bilingual/:slug', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    try {
+        const { getBilingualServer } = require('./lib/bilingual.service');
+        const songNguServer = await getBilingualServer(req.params.slug, req.query.name || '', req.query.origin_name || '', req.query.year || null);
+        return res.json({
+            status: !!songNguServer,
+            server: songNguServer || null
+        });
+    } catch (err) {
+        return res.status(500).json({ status: false, server: null, error: err.message });
+    }
+});
+
+
 
 // ==========================================
 // 🎯 HERO BANNERS API (Curated Real Data + TMDB Logos)
@@ -956,6 +999,10 @@ app.get('/api/vsmov/:slug', async (req, res) => {
 
     const mirrors = [
         {
+            url: `https://chophim.lat/api/movie/${slug}`,
+            parse: d => ({ episodes: d?.episodes, movie: d?.movie })
+        },
+        {
             url: `https://vsmov.com/api/phim/${slug}`,
             parse: d => ({ episodes: d?.episodes, movie: d?.movie })
         },
@@ -1262,6 +1309,55 @@ app.get('/api/the-loai/phim-18', async (req, res) => {
                 params: { pagination: { totalItems: 0, totalItemsPerPage: 20, currentPage: page, totalPages: 1 } }
             }
         });
+    }
+});
+
+// ==========================================
+// 🚀 CORS PROXY CHO LUỒNG PHIM & PHỤ ĐỀ SONG NGỮ (CHOPHIM / UPSTREAM)
+// ==========================================
+app.get('/api/proxy/m3u8', async (req, res) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl || !targetUrl.startsWith('http')) {
+        return res.status(400).send('Invalid url');
+    }
+    try {
+        const response = await axios.get(targetUrl, {
+            timeout: 8000,
+            responseType: 'text',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+        res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.send(response.data);
+    } catch (err) {
+        console.error('[Proxy M3U8 Error]:', err.message);
+        res.status(502).send('Error proxying m3u8');
+    }
+});
+
+app.get('/api/proxy/vtt', async (req, res) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl || !targetUrl.startsWith('http')) {
+        return res.status(400).send('Invalid url');
+    }
+    try {
+        const response = await axios.get(targetUrl, {
+            timeout: 8000,
+            responseType: 'text',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+        res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.send(response.data);
+    } catch (err) {
+        console.error('[Proxy VTT Error]:', err.message);
+        res.status(502).send('Error proxying vtt');
     }
 });
 
@@ -1859,6 +1955,20 @@ async function fetchMovieMetadata(slug) {
     try {
         const primaryResult = await Promise.any([fetchPhimApiPromise(), fetchOPhimPromise()]);
         if (primaryResult) {
+            // Tự động tích hợp nguồn Song Ngữ & đồng bộ phụ đề Cloudflare R2
+            try {
+                const { getBilingualServer } = require('./lib/bilingual.service');
+                const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null);
+                if (songNguServer) {
+                    primaryResult.episodes = [
+                        songNguServer,
+                        ...(primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'))
+                    ];
+                }
+            } catch (bErr) {
+                console.warn('[Bilingual Service Error]:', bErr.message);
+            }
+
             movieMetadataCache.set(cleanSlug, { data: primaryResult, ts: Date.now() });
             return primaryResult;
         }
@@ -1925,6 +2035,18 @@ async function fetchMovieMetadata(slug) {
         }
     } catch (err2) {}
 
+    // 2.5 🌟 Fallback to ChoPhim / Bilingual Service (cho các phim song ngữ độc quyền)
+    try {
+        const { getBilingualFullMovie } = require('./lib/bilingual.service');
+        const bilingualMovie = await getBilingualFullMovie(cleanSlug);
+        if (bilingualMovie && bilingualMovie.episodes && bilingualMovie.episodes.length > 0) {
+            movieMetadataCache.set(cleanSlug, { data: bilingualMovie, ts: Date.now() });
+            return bilingualMovie;
+        }
+    } catch (bErr) {
+        console.warn('[fetchMovieMetadata] ChoPhim fallback error:', bErr.message);
+    }
+
     // 3. 🎬 Dynamic TMDB fallback: Tự động tra cứu phim đang chiếu rạp hoặc chưa có bản lậu từ TMDB
     try {
         const queryText = cleanSlug.replace(/-/g, ' ');
@@ -1982,6 +2104,17 @@ async function fetchMovieMetadata(slug) {
 app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1800');
     const slug = req.params.slug;
+
+    // 🔀 SEO: 301 redirect nếu slug là alias ChoPhim → slug chuẩn (tránh Duplicate Content)
+    try {
+        const { getCanonicalSlug } = require('./lib/bilingual.service');
+        const canonicalSlug = getCanonicalSlug(slug);
+        if (canonicalSlug && canonicalSlug !== slug) {
+            const target = req.originalUrl.replace(`/phim/${slug}`, `/phim/${canonicalSlug}`);
+            return res.redirect(301, target);
+        }
+    } catch (_e) {}
+
     const meta = await fetchMovieMetadata(slug);
 
     if (meta) {
@@ -2295,6 +2428,18 @@ app.get([
     const queryServer = req.query.server || '';
     const queryVersion = req.query.version || '';
 
+    // 🔀 SEO: 301 Permanent Redirect nếu slug là alias ChoPhim → canonical slug chính
+    // Tránh Google phạt Duplicate Content: /xem-phim/bac-si-x-mafia-ao-trang → /xem-phim/bac-si-x
+    try {
+        const { getCanonicalSlug } = require('./lib/bilingual.service');
+        const canonicalSlug = getCanonicalSlug(slug);
+        if (canonicalSlug && canonicalSlug !== slug) {
+            const target = req.originalUrl.replace(`/xem-phim/${slug}`, `/xem-phim/${canonicalSlug}`);
+            console.log(`[SEO 301] /xem-phim/${slug} → /xem-phim/${canonicalSlug}`);
+            return res.redirect(301, target);
+        }
+    } catch (_e) {}
+
     const meta = await fetchMovieMetadata(slug);
     const movieEpisodes = meta?.episodes || [];
 
@@ -2561,7 +2706,8 @@ app.get([
                 name: isSingleMovie && (ep.name === '1' || ep.slug === '1' || ep.slug === 'tap-1') ? 'Full' : ep.name,
                 slug: isSingleMovie && (ep.slug === '1' || ep.slug === 'tap-1') ? 'full' : ep.slug,
                 link_m3u8: ep.link_m3u8 || '',
-                link_embed: ep.link_embed || ''
+                link_embed: ep.link_embed || '',
+                subtitles: ep.subtitles || []
             }))
         }));
 
@@ -2623,11 +2769,28 @@ app.get(['/danh-sach', '/tat-ca'], (req, res) => {
     if (listType === 'phim-bo') listTitle = 'Phim Bộ Mới Nhất 2026';
     else if (listType === 'phim-le') listTitle = 'Phim Lẻ Chiếu Rạp Mới Nhất 2026';
     else if (listType === 'hoat-hinh') listTitle = 'Phim Hoạt Hình Anime Mới Nhất';
+    else if (listType === 'phim-song-ngu') listTitle = 'Phim Song Ngữ Chất Lượng Cao';
 
     res.render('danh-sach', {
         title: formatSeoTitle(`${listTitle} Full HD Vietsub - APhim`, 65),
         metaDescription: `Danh sách ${listTitle.toLowerCase()} vietsub thuyết minh chất lượng cao, cập nhật liên tục 24/7 xem nhanh không giật lag tại APhim Super.`,
-        canonicalUrl: `https://aphim.store/danh-sach${listType ? '?list=' + listType : ''}`
+        canonicalUrl: `https://aphim.store/danh-sach${listType ? '?list=' + listType : ''}`,
+        listTitle: listTitle,
+        listType: listType || 'phim-moi-cap-nhat'
+    });
+});
+
+// 3.1 Phim Song Ngữ Dedicated Page: /phim-song-ngu (Đúng giao diện Image 2)
+app.get('/phim-song-ngu', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
+    const page = parseInt(req.query.page) || 1;
+    res.render('danh-sach', {
+        title: formatSeoTitle('Phim Song Ngữ Chất Lượng Cao Full HD - APhim Super', 65),
+        metaDescription: 'Danh sách phim song ngữ Anh - Việt, Hàn - Việt, Trung - Việt chất lượng cao full HD có phụ đề kép vietsub thuyết minh mới nhất, cập nhật liên tục 24/7 xem nhanh không giật lag tại APhim Super.',
+        canonicalUrl: `https://aphim.store/phim-song-ngu${page > 1 ? '?page=' + page : ''}`,
+        activePage: 'phim-song-ngu',
+        listType: 'phim-song-ngu',
+        listTitle: 'Phim Song Ngữ Chất Lượng Cao'
     });
 });
 
@@ -3033,6 +3196,28 @@ server.listen(PORT, () => {
     console.log(`🟢 Firebase: ✅ Client-side (aphim-super-new)`);
     console.log(`⚡ IndexNow: ✅ Tự động lập chỉ mục Bing & Yandex`);
 
+    // 🔄 TỰ ĐỘNG ĐỒNG BỘ DANH MỤC PHIM SONG NGỮ (tránh catalog bị lỗi thời)
+    // Lần 1: sau 30 giây kể từ khi server khởi động (tránh làm nặng lúc start)
+    setTimeout(async () => {
+        try {
+            const { syncBilingualCatalog } = require('./lib/bilingual.service');
+            const count = await syncBilingualCatalog();
+            console.log(`[Auto Sync Bilingual] ✅ Đồng bộ lần đầu thành công: ${count} phim song ngữ.`);
+        } catch (e) {
+            console.warn('[Auto Sync Bilingual] ⚠️ Lỗi đồng bộ lần đầu:', e.message);
+        }
+    }, 30 * 1000);
+
+    // Lần tiếp theo: mỗi 12 tiếng (giữ catalog luôn mới nhất)
+    setInterval(async () => {
+        try {
+            const { syncBilingualCatalog } = require('./lib/bilingual.service');
+            const count = await syncBilingualCatalog();
+            console.log(`[Auto Sync Bilingual] 🔄 Cập nhật định kỳ: ${count} phim song ngữ.`);
+        } catch (e) {
+            console.warn('[Auto Sync Bilingual] ⚠️ Lỗi cập nhật định kỳ:', e.message);
+        }
+    }, 12 * 60 * 60 * 1000);
 
 });
 

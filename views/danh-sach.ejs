@@ -14,7 +14,7 @@
             <div class="flex items-center justify-between gap-3 flex-nowrap">
                 <!-- Title Left (Gold Color as requested) -->
                 <h1 id="pageTitle" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#fcd576] tracking-tight truncate max-w-[60%] sm:max-w-[75%]">
-                    Phim Bộ
+                    <%= typeof listTitle !== 'undefined' ? listTitle : 'Phim Bộ' %>
                 </h1>
 
                 <!-- Quick Pagination Right (Image 4 exact design: Trang 1 / 52 < >) -->
@@ -91,6 +91,7 @@
     (function() {
         const titleMap = {
             'phim-moi-cap-nhat': 'Phim Mới Cập Nhật',
+            'phim-song-ngu': 'Phim Song Ngữ Chất Lượng Cao',
             'phim-bo': 'Phim Bộ',
             'phim-le': 'Phim Lẻ',
             'tv-shows': 'TV Shows',
@@ -106,7 +107,8 @@
         };
 
         const urlParams = new URLSearchParams(window.location.search);
-        let listType = urlParams.get('list') || 'phim-bo';
+        const isSongNguPath = window.location.pathname.includes('/phim-song-ngu');
+        let listType = isSongNguPath ? 'phim-song-ngu' : (urlParams.get('list') || 'phim-bo');
         let currentPage = parseInt(urlParams.get('page')) || 1;
         let totalPages = 1;
 
@@ -176,7 +178,11 @@
             let res = null;
             for (let attempt = 0; attempt < 3; attempt++) {
                 try {
-                    res = await core.fetchMovieGridData('list', listType, page);
+                    if (listType === 'phim-song-ngu' || isSongNguPath) {
+                        res = await core.fetchMovieGridData('/api/phim-song-ngu?page=' + page);
+                    } else {
+                        res = await core.fetchMovieGridData('list', listType, page);
+                    }
                     if (res && res.items && res.items.length) break;
                 } catch (fetchErr) {
                     if (attempt < 2) await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
@@ -234,6 +240,11 @@
         window.changePage = function(delta) {
             const newPage = currentPage + delta;
             if (newPage >= 1 && newPage <= totalPages) {
+                try {
+                    const u = new URL(window.location.href);
+                    u.searchParams.set('page', newPage);
+                    window.history.pushState({}, '', u.toString());
+                } catch (_) {}
                 loadMovies(newPage);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -243,6 +254,11 @@
             let p = parseInt(val) || 1;
             if (p < 1) p = 1;
             if (p > totalPages) p = totalPages;
+            try {
+                const u = new URL(window.location.href);
+                u.searchParams.set('page', p);
+                window.history.pushState({}, '', u.toString());
+            } catch (_) {}
             loadMovies(p);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };

@@ -2609,6 +2609,53 @@ html.light-mode .server-cat-long-tieng:not(.active) .server-tab-count {
     font-weight: 700 !important;
 }
 
+/* --- 4. SONG NGỮ (Royal Violet & Contrast Dark Pill Theme - Chuẩn Hình 2) --- */
+html.light-mode .server-cat-song-ngu.active,
+html.light-mode #server-list button.server-cat-song-ngu.active {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+    background-color: #9333ea !important;
+    border: 1px solid #c084fc !important;
+    box-shadow: 0 3px 12px rgba(168, 85, 247, 0.35) !important;
+    color: #ffffff !important;
+    transform: none !important;
+}
+
+html.light-mode .server-cat-song-ngu.active .server-tab-title {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .server-cat-song-ngu.active .server-tab-badge {
+    background: #ffffff !important;
+    color: #581c87 !important;
+    font-weight: 800 !important;
+}
+
+/* Inactive Song Ngữ in Light Mode: Giữ phong cách Dark Slate sang trọng nổi bật như Hình 2 */
+html.light-mode .server-cat-song-ngu:not(.active),
+html.light-mode #server-list button.server-cat-song-ngu:not(.active) {
+    background: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    color: #f8fafc !important;
+}
+
+html.light-mode .server-cat-song-ngu:not(.active):hover {
+    background: #1f2937 !important;
+    border-color: #c084fc !important;
+}
+
+html.light-mode .server-cat-song-ngu:not(.active) .server-tab-title {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode .server-cat-song-ngu:not(.active) .server-tab-badge {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+
 /* Episode List Grid Buttons in Light Mode */
 html.light-mode #episode-list button:not(.active) {
     background: #ffffff !important;
@@ -8133,8 +8180,10 @@ html.light-mode .phim18-pill.is-active {
    ═══════════════════════════════════════════════════════════════════ */
 #serverPingModalCard,
 #aphim-settings-menu,
+#aphim-audio-menu,
 html.light-mode #serverPingModalCard,
-html.light-mode #aphim-settings-menu {
+html.light-mode #aphim-settings-menu,
+html.light-mode #aphim-audio-menu {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.12) 100%), rgba(22, 28, 42, 0.45) !important;
     backdrop-filter: blur(28px) saturate(190%) !important;
     -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
@@ -8144,7 +8193,9 @@ html.light-mode #aphim-settings-menu {
 }
 
 #aphim-settings-menu .aphim-settings-header,
-html.light-mode #aphim-settings-menu .aphim-settings-header {
+#aphim-audio-menu .aphim-settings-header,
+html.light-mode #aphim-settings-menu .aphim-settings-header,
+html.light-mode #aphim-audio-menu .aphim-settings-header {
     border: none !important;
     border-bottom: none !important;
     color: #ffffff !important;
@@ -8154,7 +8205,9 @@ html.light-mode #aphim-settings-menu .aphim-settings-header {
 
 @media (min-width: 641px) {
     #aphim-settings-menu,
-    html.light-mode #aphim-settings-menu {
+    #aphim-audio-menu,
+    html.light-mode #aphim-settings-menu,
+    html.light-mode #aphim-audio-menu {
         bottom: calc(100% + 30px) !important;
     }
 }
