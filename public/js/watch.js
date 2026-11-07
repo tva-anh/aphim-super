@@ -4096,7 +4096,7 @@ function initializePlayer(episode) {
                 fontSize = Math.max(12, Math.min(13.5, Math.round(actualVideoH * 0.055)));
             } else {
                 // 🖥️ / 📱 Màn hình ngang (Landscape Fullscreen) & Desktop: Giữ nguyên 100% tỷ lệ chuẩn cao cấp
-                subClearance = Math.max(46, Math.round(actualVideoH * 0.115));
+                subClearance = Math.max(72, Math.round(actualVideoH * 0.14));
                 fontSize = Math.max(15, Math.min(26, Math.round(actualVideoH * 0.042)));
             }
 
@@ -4410,21 +4410,7 @@ function initializePlayer(episode) {
                             if (newTxt) { subBottomEl.textContent = newTxt; subBottomEl.style.display = 'block'; }
                             else { subBottomEl.style.display = 'none'; }
                         }
-                    
-
-                // 🧠 Tự động nhận diện khoảng cách: Nếu Vietsub ở đáy đang có 2 hàng chữ -> tự động đẩy phụ đề song ngữ lên cao
-                if (overlayEl && topCues.length > 0) {
-                    const activeViet = findActiveCue(topCues, t, syncOffset);
-                    let lift = 0;
-                    if (activeViet && activeViet.text) {
-                        const lines = activeViet.text.split('\n').map(s => s.trim()).filter(Boolean);
-                        if (lines.length >= 2 || activeViet.text.length >= 35) {
-                            lift = 22; // Đẩy lên 22px nhường chỗ cho hàng Vietsub thứ 2
-                        }
-                    }
-                    overlayEl.style.setProperty('transform', lift > 0 ? `translateY(-${lift}px)` : 'none', 'important');
-                }
-            } else if (currentBottomText !== '') {
+                    } else if (currentBottomText !== '') {
                         currentBottomText = '';
                         subBottomEl.style.display = 'none';
                     }
@@ -4448,14 +4434,27 @@ function initializePlayer(episode) {
                         subBottomEl.style.display = 'none';
                     }
                 }
+
+                // 🧠 Tự động nhận diện khoảng cách (cả Desktop lẫn Mobile):
+                // Nếu Vietsub ở đáy đang có 2 hàng chữ -> tự động đẩy phụ đề song ngữ lên cao để không bao giờ bị đè chữ!
+                if (overlayEl && topCues.length > 0) {
+                    const activeViet = findActiveCue(topCues, t, syncOffset);
+                    let lift = 0;
+                    if (activeViet && activeViet.text) {
+                        const lines = activeViet.text.split('\n').map(s => s.trim()).filter(Boolean);
+                        if (lines.length >= 2 || activeViet.text.length >= 35) {
+                            // Desktop: đẩy lên 35px; Mobile dọc: đẩy lên 20px
+                            lift = isMobilePortrait ? 20 : 35;
+                        }
+                    }
+                    overlayEl.style.setProperty('transform', lift > 0 ? `translateY(-${lift}px)` : 'none', 'important');
+                }
             } else if (currentBottomText !== '') {
                 currentBottomText = '';
                 subBottomEl.style.display = 'none';
+                if (overlayEl) overlayEl.style.setProperty('transform', 'none', 'important');
             }
 
-            // Dòng 1: Phụ đề 1 (Chính)
-            // 🛡️ Nếu Phụ đề 1 là tiếng Việt mà video đã có Vietsub in cứng to đùng -> ẨN DÒNG TIẾNG VIỆT CỦA WEB
-            // để KHÔNG BAO GIỜ bị 2 dòng tiếng Việt đè chồng lên nhau gây lem nhem rác màn hình!
             // 🌟 Ẩn hoàn toàn subTopEl ở chế độ song ngữ vì phim đã có sẵn Vietsub in cứng ở đáy
             // để người dùng chỉ thấy duy nhất 1 dòng dịch song ngữ chạy theo phim!
             if (currentTopText !== '') {
