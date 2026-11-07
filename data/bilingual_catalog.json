@@ -628,21 +628,6 @@
     "source": "homepage"
   },
   {
-    "slug": "thoa-thuan-hoc-duong",
-    "name": "Thỏa Thuận Học Đường",
-    "origin_name": "Off Campus",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/TGJ34SvYJ2ZgzsOgAaXzSx3o7E.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/tcPc5ZMBO4y2BtCJMe3o2nwZb2B.jpg",
-    "episode_current": "Hoàn tất (8/8)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:8",
-      "SN:8"
-    ],
-    "source": "homepage"
-  },
-  {
     "slug": "nguoi-nhen-khoi-dau-moi",
     "name": "Người Nhện: Khởi Đầu Mới",
     "origin_name": "Spider-Man: Brand New Day",
@@ -659,18 +644,17 @@
     "source": "homepage"
   },
   {
-    "slug": "chu-tich-tap-su",
-    "name": "Chủ Tịch Tập Sự",
-    "origin_name": "Reborn Rookie",
+    "slug": "thoa-thuan-hoc-duong",
+    "name": "Thỏa Thuận Học Đường",
+    "origin_name": "Off Campus",
     "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/nxOsQE8UrifZpQ9hcZ7xjMHEbmn.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/kPHv37XVpyWCsae3gtHujw1wPyW.jpg",
-    "episode_current": "Hoàn tất (12/12)",
+    "thumb_url": "https://image.tmdb.org/t/p/original/TGJ34SvYJ2ZgzsOgAaXzSx3o7E.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/tcPc5ZMBO4y2BtCJMe3o2nwZb2B.jpg",
+    "episode_current": "Hoàn tất (8/8)",
     "lang": "Vietsub",
     "available_languages": [
-      "PD:12",
-      "SN:12",
-      "TM:12"
+      "PD:8",
+      "SN:8"
     ],
     "source": "homepage"
   },
@@ -688,6 +672,22 @@
       "SN:32",
       "TM:32",
       "LT:32"
+    ],
+    "source": "homepage"
+  },
+  {
+    "slug": "chu-tich-tap-su",
+    "name": "Chủ Tịch Tập Sự",
+    "origin_name": "Reborn Rookie",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/nxOsQE8UrifZpQ9hcZ7xjMHEbmn.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/kPHv37XVpyWCsae3gtHujw1wPyW.jpg",
+    "episode_current": "Hoàn tất (12/12)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:12",
+      "SN:12",
+      "TM:12"
     ],
     "source": "homepage"
   },
@@ -798,6 +798,22 @@
     "source": "homepage"
   },
   {
+    "slug": "tuoc-cot",
+    "name": "Tước Cốt",
+    "origin_name": "Key to the Phoenix Heart",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/xbMj9yV2UWjPcQUPkbDLDLJnB9q.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/44ixm38SHC5HAbuaD7Mq2dakWk9.jpg",
+    "episode_current": "Hoàn tất (28/28)",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:28",
+      "SN:28",
+      "TM:28"
+    ],
+    "source": "homepage"
+  },
+  {
     "slug": "hau-due-mat-troi",
     "name": "Hậu duệ mặt trời",
     "origin_name": "Descendants of the Sun",
@@ -814,18 +830,17 @@
     "source": "homepage"
   },
   {
-    "slug": "tuoc-cot",
-    "name": "Tước Cốt",
-    "origin_name": "Key to the Phoenix Heart",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/xbMj9yV2UWjPcQUPkbDLDLJnB9q.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/44ixm38SHC5HAbuaD7Mq2dakWk9.jpg",
-    "episode_current": "Hoàn tất (28/28)",
-    "lang": "Vietsub + Thuyết Minh",
+    "slug": "harry-potter-va-hon-da-phu-thuy",
+    "name": "Harry Potter và Hòn Đá Phù Thủy",
+    "origin_name": "Harry Potter 1: Harry Potter and the Sorcerer's Stone",
+    "type": "single",
+    "thumb_url": "https://image.tmdb.org/t/p/original/1XAC6RPT01UX9EQGy2JVn5c8pgy.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/wuMc08IPKEatf9rnMNXvIDxqP4W.jpg",
+    "episode_current": "Tập 1",
+    "lang": "Vietsub",
     "available_languages": [
-      "PD:28",
-      "SN:28",
-      "TM:28"
+      "PD",
+      "SN"
     ],
     "source": "homepage"
   },
@@ -846,21 +861,6 @@
     "source": "homepage"
   },
   {
-    "slug": "harry-potter-va-hon-da-phu-thuy",
-    "name": "Harry Potter và Hòn Đá Phù Thủy",
-    "origin_name": "Harry Potter 1: Harry Potter and the Sorcerer's Stone",
-    "type": "single",
-    "thumb_url": "https://image.tmdb.org/t/p/original/1XAC6RPT01UX9EQGy2JVn5c8pgy.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/wuMc08IPKEatf9rnMNXvIDxqP4W.jpg",
-    "episode_current": "Tập 1",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD",
-      "SN"
-    ],
-    "source": "homepage"
-  },
-  {
     "slug": "toa-sang-nhu-nhung-vi-sao",
     "name": "Tỏa Sáng Như Những Vì Sao",
     "origin_name": "Road to Success",
@@ -873,6 +873,21 @@
       "PD:32",
       "SN:32",
       "TM:32"
+    ],
+    "source": "homepage"
+  },
+  {
+    "slug": "bi-mat-noi-goc-toi",
+    "name": "Bí Mật Nơi Góc Tối",
+    "origin_name": "Secrets in The Lattice",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/vE8OPTULzuyvgrM0yoFbn2VYisq.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/gg7Z57buTLxhshathhfza8Lkt57.jpg",
+    "episode_current": "Hoàn tất (24/24)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:24",
+      "SN"
     ],
     "source": "homepage"
   },
@@ -892,21 +907,6 @@
     "source": "homepage"
   },
   {
-    "slug": "nhung-nguoi-ban",
-    "name": "Những người bạn",
-    "origin_name": "Friends",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
-    "episode_current": "Hoàn Tất (24/24)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:24",
-      "SN"
-    ],
-    "source": "homepage"
-  },
-  {
     "slug": "dragon-ball-super-beerus",
     "name": "Dragon Ball Super: Beerus",
     "origin_name": "Dragon Ball Super: Beerus",
@@ -918,6 +918,21 @@
     "available_languages": [
       "PD:4",
       "SN:1"
+    ],
+    "source": "homepage"
+  },
+  {
+    "slug": "phap-su-gian-lan-bi-sa-thai-tan-huong-cuoc-song-thu-hai",
+    "name": "Pháp Sư Gian Lận Bị Sa Thải Tận Hưởng Cuộc Sống Thứ Hai",
+    "origin_name": "The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life",
+    "type": "hoathinh",
+    "thumb_url": "https://image.tmdb.org/t/p/original/msusxF6ZPGnQmTGXU9iC4UJOohs.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/rncb111IIBmIIO9I9ENW0Xc8mca.jpg",
+    "episode_current": "Tập 5",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:5",
+      "SN:5"
     ],
     "source": "homepage"
   },
@@ -965,21 +980,6 @@
       "SN",
       "TM:10"
     ]
-  },
-  {
-    "slug": "bi-mat-noi-goc-toi",
-    "name": "Bí Mật Nơi Góc Tối",
-    "origin_name": "Secrets in The Lattice",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/vE8OPTULzuyvgrM0yoFbn2VYisq.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/gg7Z57buTLxhshathhfza8Lkt57.jpg",
-    "episode_current": "Hoàn tất (24/24)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:24",
-      "SN"
-    ],
-    "source": "/phim-song-ngu?page=1"
   },
   {
     "slug": "cau-be-mat-tich-phan-5",
@@ -1499,6 +1499,21 @@
       "SN",
       "TM:10"
     ]
+  },
+  {
+    "slug": "nhung-nguoi-ban",
+    "name": "Những người bạn",
+    "origin_name": "Friends",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
+    "episode_current": "Hoàn Tất (24/24)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:24",
+      "SN"
+    ],
+    "source": "/phim-song-ngu?page=3"
   },
   {
     "slug": "cho-san-cong-ly-phan-2",
@@ -2701,21 +2716,6 @@
     "source": "/phim-song-ngu?page=7"
   },
   {
-    "slug": "luc-do-toi-da-chuyen-sinh-thanh-slime-phan-4",
-    "name": "Lúc Đó Tôi Đã Chuyển Sinh Thành Slime (Phần 4)",
-    "origin_name": "That Time I Got Reincarnated as a Slime (Season 4)",
-    "type": "hoathinh",
-    "thumb_url": "https://image.tmdb.org/t/p/original/eJOy7YWAHgOS3V477sdTsq4v9jp.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/pzujcdPAoH361NObVrtbA7zACE7.jpg",
-    "episode_current": "Tập 24",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:24",
-      "SN:24"
-    ],
-    "source": "/phim-song-ngu?page=7"
-  },
-  {
     "slug": "am-ha-truyen-2025",
     "name": "Ám Hà Truyện",
     "origin_name": "Blood River",
@@ -2728,6 +2728,21 @@
       "PD:38",
       "SN:38",
       "TM:38"
+    ],
+    "source": "/phim-song-ngu?page=7"
+  },
+  {
+    "slug": "luc-do-toi-da-chuyen-sinh-thanh-slime-phan-4",
+    "name": "Lúc Đó Tôi Đã Chuyển Sinh Thành Slime (Phần 4)",
+    "origin_name": "That Time I Got Reincarnated as a Slime (Season 4)",
+    "type": "hoathinh",
+    "thumb_url": "https://image.tmdb.org/t/p/original/eJOy7YWAHgOS3V477sdTsq4v9jp.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/pzujcdPAoH361NObVrtbA7zACE7.jpg",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:24",
+      "SN:24"
     ],
     "source": "/phim-song-ngu?page=7"
   },
@@ -5330,21 +5345,6 @@
     "source": "/phim-song-ngu?page=16"
   },
   {
-    "slug": "love-phobia",
-    "name": "Hội Chứng Sợ Yêu",
-    "origin_name": "Love Phobia",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/SYzF7EFhhKTspLDzogpel2HHDl.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/3hsCoGDAceyh1FnFHHLkozPNlSS.jpg",
-    "episode_current": "Hoàn tất (8/8)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:8",
-      "SN:8"
-    ],
-    "source": "/phim-song-ngu?page=16"
-  },
-  {
     "slug": "never-forget-your-enemy",
     "name": "Never Forget Your Enemy",
     "origin_name": "Never Forget Your Enemy",
@@ -5447,6 +5447,21 @@
     "available_languages": [
       "PD:19",
       "SN:2"
+    ],
+    "source": "/phim-song-ngu?page=16"
+  },
+  {
+    "slug": "love-phobia",
+    "name": "Hội Chứng Sợ Yêu",
+    "origin_name": "Love Phobia",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/SYzF7EFhhKTspLDzogpel2HHDl.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/3hsCoGDAceyh1FnFHHLkozPNlSS.jpg",
+    "episode_current": "Hoàn tất (8/8)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:8",
+      "SN:8"
     ],
     "source": "/phim-song-ngu?page=16"
   },
@@ -7757,18 +7772,18 @@
     "source": "/phim-song-ngu?page=25"
   },
   {
-    "slug": "phap-su-gian-lan-bi-sa-thai-tan-huong-cuoc-song-thu-hai",
-    "name": "Pháp Sư Gian Lận Bị Sa Thải Tận Hưởng Cuộc Sống Thứ Hai",
-    "origin_name": "The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life",
-    "poster_url": "https://image.tmdb.org/t/p/original/rncb111IIBmIIO9I9ENW0Xc8mca.jpg",
-    "thumb_url": "https://image.tmdb.org/t/p/original/rncb111IIBmIIO9I9ENW0Xc8mca.jpg",
-    "source": "/quoc-gia/nhat-ban?page=3",
-    "episode_current": "Tập 12",
+    "slug": "sieu-sao-hay-sieu-xit",
+    "name": "Siêu Sao Hay Siêu Xịt",
+    "origin_name": "Lost to Light",
+    "poster_url": "https://image.tmdb.org/t/p/original/3wHsb2h7bUEu1cOuzn4NzE5mHym.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/3wHsb2h7bUEu1cOuzn4NzE5mHym.jpg",
+    "source": "/quoc-gia/thai-lan?page=5",
+    "episode_current": "Tập 8",
     "lang": "Vietsub + Thuyết Minh",
     "available_languages": [
-      "PD:12",
+      "PD:8",
       "SN",
-      "TM:12"
+      "TM:8"
     ]
   }
 ]

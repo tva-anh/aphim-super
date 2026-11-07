@@ -5269,7 +5269,7 @@ function initializePlayer(episode) {
         return isMobileUA || isIPadOS || isSmallTouchScreen;
     }
 
-    // Fullscreen Toggle Controller (Desktop Custom Fullscreen vs. Mobile Native Video Fullscreen)
+    // Fullscreen Toggle Controller (Universal: Desktop, Android, iPad & iPhone)
     function isCurrentlyFullscreen() {
         return !!(
             document.fullscreenElement ||
@@ -5277,7 +5277,7 @@ function initializePlayer(episode) {
             document.mozFullScreenElement ||
             document.msFullscreenElement ||
             (player && player.webkitDisplayingFullscreen) ||
-            (!isMobileDevice() && wrapper && wrapper.classList.contains('aphim-web-fullscreen'))
+            (wrapper && wrapper.classList.contains('aphim-web-fullscreen'))
         );
     }
 
@@ -5291,13 +5291,10 @@ function initializePlayer(episode) {
 
     async function enterFullscreen() {
         if (!player) return;
-
-        // ─── UNIFIED FLOW: Always fullscreen on wrapper to keep custom controls ───
-        // (Mobile + Desktop both use wrapper fullscreen so custom CC/Song/settings remain visible)
         if (!wrapper) return;
         let nativeSuccess = false;
 
-        // 1. Try Native Fullscreen API on wrapper
+        // 1. Thử Native Fullscreen API trên wrapper (Desktop Chrome/Firefox/Safari + Android + iPad)
         try {
             if (wrapper.requestFullscreen) {
                 await wrapper.requestFullscreen();
@@ -5316,10 +5313,30 @@ function initializePlayer(episode) {
             console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
         }
 
-        // 2. Web Fullscreen (CSS Fullscreen) ONLY as fallback on Desktop (Never on mobile)
-        if (!nativeSuccess && !isMobileDevice() && !document.fullscreenElement && !document.webkitFullscreenElement) {
-            wrapper.classList.add('aphim-web-fullscreen');
-            document.body.classList.add('aphim-body-fullscreen');
+        // 2. Tự động xoay ngang màn hình trên Mobile khi vào Fullscreen (nếu thiết bị hỗ trợ)
+        if (screen.orientation && screen.orientation.lock) {
+            try {
+                screen.orientation.lock('landscape').catch(() => {});
+            } catch (_) {}
+        }
+
+        // 3. Fallback cho Mobile / iOS Safari (iPhone không hỗ trợ Element.requestFullscreen):
+        if (!nativeSuccess && !document.fullscreenElement && !document.webkitFullscreenElement) {
+            // 3a. Thử native video fullscreen trên iOS Safari (iPhone)
+            if (typeof player.webkitEnterFullscreen === 'function') {
+                try {
+                    player.webkitEnterFullscreen();
+                    nativeSuccess = true;
+                } catch (iosErr) {
+                    console.warn('iOS player.webkitEnterFullscreen fallback error:', iosErr);
+                }
+            }
+
+            // 3b. Web Fullscreen (CSS Fullscreen 100vw x 100dvh cho toàn bộ Mobile & Desktop)
+            if (!nativeSuccess) {
+                wrapper.classList.add('aphim-web-fullscreen');
+                document.body.classList.add('aphim-body-fullscreen');
+            }
         }
 
         updateFullscreenIcons(true);
@@ -5327,9 +5344,14 @@ function initializePlayer(episode) {
     }
 
     async function exitFullscreen() {
-        // 1. Reset player.controls (always keep custom controls)
+        // 1. Reset player.controls & thoát iOS native video player nếu có
         if (player) {
             player.controls = false;
+            if (typeof player.webkitExitFullscreen === 'function') {
+                try {
+                    player.webkitExitFullscreen();
+                } catch (_) {}
+            }
         }
 
         // 2. Exit native browser fullscreen
@@ -5347,14 +5369,14 @@ function initializePlayer(episode) {
             console.warn('Exit fullscreen error:', e);
         }
 
-        // 3. Unlock screen orientation
+        // 3. Mở khóa hướng xoay màn hình (orientation)
         if (screen.orientation && screen.orientation.unlock) {
             try {
                 screen.orientation.unlock();
             } catch (e) {}
         }
 
-        // 4. Remove Web Fullscreen classes
+        // 4. Xóa các class Web Fullscreen
         if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
         document.body.classList.remove('aphim-body-fullscreen');
 
@@ -5372,10 +5394,20 @@ function initializePlayer(episode) {
     window.toggleFullscreen = toggleFullscreen;
 
     if (btnFs) {
-        btnFs.onclick = (e) => {
-            e.stopPropagation();
+        let lastFsTap = 0;
+        const handleFsTrigger = (e) => {
+            if (e) {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+            }
+            const now = Date.now();
+            if (now - lastFsTap < 250) return; // Debounce 250ms chống double trigger
+            lastFsTap = now;
             toggleFullscreen();
         };
+
+        btnFs.onclick = handleFsTrigger;
+        btnFs.addEventListener('touchend', handleFsTrigger, { passive: false });
     }
 
     const handleFsChange = () => {
