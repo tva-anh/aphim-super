@@ -194,6 +194,12 @@ app.use((req, res, next) => {
     } catch (e) {
         res.locals.seoTrendsList = [];
     }
+    try {
+        const { getBilingualSlugs } = require('./lib/bilingual.service');
+        res.locals.bilingualSlugs = getBilingualSlugs();
+    } catch (e) {
+        res.locals.bilingualSlugs = [];
+    }
     next();
 });
 
@@ -256,7 +262,34 @@ app.get(['/api/phim-song-ngu', '/v1/api/danh-sach/phim-song-ngu'], async (req, r
     }
 });
 
+// 🎯 API PHIM SONG NGỮ THEO QUỐC GIA (mục trang chủ: Hàn / Trung / Âu Mỹ)
+app.get('/api/phim-song-ngu/quoc-gia/:country', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=600, stale-while-revalidate=1800');
+    try {
+        const { fetchBilingualByCountry } = require('./lib/bilingual.service');
+        const result = await fetchBilingualByCountry(req.params.country, parseInt(req.query.limit) || 18);
+        return res.json({
+            status: result.status === 'success' ? 'success' : 'error',
+            country: result.country,
+            data: { items: result.items || [] }
+        });
+    } catch (err) {
+        console.error('[API /api/phim-song-ngu/quoc-gia] Lỗi:', err.message);
+        return res.status(500).json({ status: 'error', data: { items: [] }, message: err.message });
+    }
+});
+
 // 🎯 API LẤY NGUỒN SONG NGỮ CỦA PHIM (Hỗ trợ Client-side fallback & Background merge)
+app.get(['/api/bilingual/slugs', '/api/bilingual-slugs'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=3600');
+    try {
+        const { getBilingualSlugs } = require('./lib/bilingual.service');
+        return res.json(getBilingualSlugs());
+    } catch (e) {
+        return res.json([]);
+    }
+});
+
 app.get('/api/movies/bilingual/:slug', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     try {
@@ -1814,6 +1847,69 @@ function checkBlockedSlug(req, res, next) {
 // ==========================================
 // 🚀 ENTERPRISE MOVIE SEO & METADATA CACHE
 // ==========================================
+// 🖼️ Tra cứu và nạp ảnh nền TMDB Backdrop 4K sắc nét trực tiếp từ Server-Side
+async function enrichMovieBackdrop(movie) {
+    if (!movie) return;
+    if (movie.backdrop_url && movie.backdrop_url.includes('image.tmdb.org')) return;
+
+    try {
+        let tmdbId = movie.tmdb?.id;
+        let tmdbType = movie.tmdb?.type === 'tv' ? 'tv' : (movie.type === 'series' ? 'tv' : 'movie');
+
+        // 1. Nếu có sẵn tmdb.id từ API PhimAPI/Ophim -> gọi trực tiếp chi tiết TMDB
+        if (tmdbId && String(tmdbId).trim() !== '') {
+            try {
+                const res = await axios.get(`${TMDB_BASE_URL}/${tmdbType}/${tmdbId}`, {
+                    params: { api_key: TMDB_API_KEY, language: 'vi-VN' },
+                    timeout: 2000
+                });
+                if (res.data?.backdrop_path) {
+                    movie.backdrop_url = `https://image.tmdb.org/t/p/original${res.data.backdrop_path}`;
+                    return;
+                }
+            } catch (err) {
+                if (err.response?.status === 404) {
+                    const altType = tmdbType === 'tv' ? 'movie' : 'tv';
+                    try {
+                        const altRes = await axios.get(`${TMDB_BASE_URL}/${altType}/${tmdbId}`, {
+                            params: { api_key: TMDB_API_KEY, language: 'vi-VN' },
+                            timeout: 1500
+                        });
+                        if (altRes.data?.backdrop_path) {
+                            movie.backdrop_url = `https://image.tmdb.org/t/p/original${altRes.data.backdrop_path}`;
+                            return;
+                        }
+                    } catch (_) {}
+                }
+            }
+        }
+
+        // 2. Tra cứu bằng tên nếu chưa có tmdbId
+        const searchQueries = [movie.origin_name, movie.name].filter(Boolean);
+        for (const q of searchQueries) {
+            try {
+                const sRes = await axios.get(`${TMDB_BASE_URL}/search/multi`, {
+                    params: {
+                        api_key: TMDB_API_KEY,
+                        query: q,
+                        year: movie.year || undefined,
+                        language: 'vi-VN'
+                    },
+                    timeout: 1800
+                });
+                if (sRes.data?.results && sRes.data.results.length > 0) {
+                    const match = sRes.data.results.find(r => r.backdrop_path);
+                    if (match && match.backdrop_path) {
+                        movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
+                        if (!movie.tmdb) movie.tmdb = { id: match.id, type: match.media_type };
+                        return;
+                    }
+                }
+            } catch (_) {}
+        }
+    } catch (_) {}
+}
+
 const movieMetadataCache = new Map();
 const MOVIE_CACHE_TTL = 60 * 60 * 1000; // 1 giờ
 
@@ -1847,6 +1943,7 @@ async function fetchMovieMetadata(slug) {
             tmdb: custom.tmdb || null,
             episodes: custom.episodes
         };
+        await enrichMovieBackdrop(customResult);
         movieMetadataCache.set(cleanSlug, { data: customResult, ts: Date.now() });
         return customResult;
     }
@@ -1957,9 +2054,11 @@ async function fetchMovieMetadata(slug) {
         if (primaryResult) {
             // Tự động tích hợp nguồn Song Ngữ & đồng bộ phụ đề Cloudflare R2
             try {
-                const { getBilingualServer } = require('./lib/bilingual.service');
+                const { getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
                 const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null);
-                if (songNguServer) {
+                if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
+                    // 🛡️ Tự động ghép link m3u8 đang chạy mượt từ primaryResult sang songNguServer (khắc phục 404/WASM ChoPhim)
+                    attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
                     primaryResult.episodes = [
                         songNguServer,
                         ...(primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'))
@@ -1969,6 +2068,7 @@ async function fetchMovieMetadata(slug) {
                 console.warn('[Bilingual Service Error]:', bErr.message);
             }
 
+            await enrichMovieBackdrop(primaryResult);
             movieMetadataCache.set(cleanSlug, { data: primaryResult, ts: Date.now() });
             return primaryResult;
         }
@@ -2030,6 +2130,7 @@ async function fetchMovieMetadata(slug) {
                 episodes: mappedEps
             };
 
+            await enrichMovieBackdrop(result);
             movieMetadataCache.set(cleanSlug, { data: result, ts: Date.now() });
             return result;
         }
@@ -2040,6 +2141,7 @@ async function fetchMovieMetadata(slug) {
         const { getBilingualFullMovie } = require('./lib/bilingual.service');
         const bilingualMovie = await getBilingualFullMovie(cleanSlug);
         if (bilingualMovie && bilingualMovie.episodes && bilingualMovie.episodes.length > 0) {
+            await enrichMovieBackdrop(bilingualMovie);
             movieMetadataCache.set(cleanSlug, { data: bilingualMovie, ts: Date.now() });
             return bilingualMovie;
         }

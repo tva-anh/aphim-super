@@ -2426,234 +2426,417 @@ html.light-mode .server-tab-title {
     font-size: 12.5px !important;
 }
 
-/* --- 1. VIETSUB (Warm Amber / Gold Theme) --- */
-html.light-mode .server-cat-vietsub.active,
-html.light-mode #server-list button.server-cat-vietsub.active {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
-    background-color: #fde68a !important;
-    border: 1px solid #d97706 !important;
-    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.15) !important;
-    transform: none !important;
+/* ========================================================================== */
+/* 🌟 HỆ THỐNG MÀU Ô NHÃN SERVER TRANG XEM PHIM (LIGHT MODE - NỀN KEM SÁNG)   */
+/* ========================================================================== */
+
+/* 1. Category Tag bên trái ([文A] Song Ngữ, [CC] Vietsub...) */
+html.light-mode .server-group-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 8px !important;
 }
 
-html.light-mode .server-cat-vietsub.active .server-tab-title {
-    color: #78350f !important;
+html.light-mode .server-group-label {
+    min-width: 82px !important;
+    font-size: 13px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+    user-select: none !important;
+}
+
+html.light-mode .server-cat-tag {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    padding: 2px 6px !important;
+    border-radius: 5px !important;
+    letter-spacing: 0.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.2 !important;
+}
+
+html.light-mode .server-cat-tag-song-ngu {
+    background: #f3e8ff !important;
+    border: 1px solid #d8b4fe !important;
+    color: #7c3aed !important;
+}
+
+html.light-mode .server-group-label-song-ngu .server-group-name {
+    color: #581c87 !important;
     font-weight: 800 !important;
 }
 
-html.light-mode .server-cat-vietsub.active .server-tab-badge {
-    background: #ffffff !important;
-    border: 1px solid #f59e0b !important;
+html.light-mode .server-cat-tag-vietsub {
+    background: #fef3c7 !important;
+    border: 1px solid #fde68a !important;
+    color: #b45309 !important;
 }
 
-html.light-mode .server-cat-vietsub.active .server-tab-dot {
+html.light-mode .server-group-label-vietsub .server-group-name {
+    color: #451a03 !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .server-cat-tag-thuyet-minh {
+    background: #e0f2fe !important;
+    border: 1px solid #bae6fd !important;
+    color: #0284c7 !important;
+}
+
+html.light-mode .server-group-label-thuyet-minh .server-group-name {
+    color: #082f49 !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .server-cat-tag-long-tieng {
+    background: #dcfce7 !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #16a34a !important;
+}
+
+html.light-mode .server-group-label-long-tieng .server-group-name {
+    color: #052e16 !important;
+    font-weight: 800 !important;
+}
+
+/* 2. Base Server Tab Button trong Light Mode */
+html.light-mode .server-tab-btn,
+html.light-mode #server-list .server-tab-btn {
+    border-radius: 8px !important;
+    padding: 4px 11px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    border-width: 1.5px !important;
+    border-style: solid !important;
+    line-height: 1.3 !important;
+    transform: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+html.light-mode .server-tab-badge,
+html.light-mode #server-list .server-tab-badge {
+    border-radius: 9999px !important;
+    padding: 1px 7px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .server-tab-dot,
+html.light-mode #server-list .server-tab-dot {
+    width: 6px !important;
+    height: 6px !important;
+    min-width: 6px !important;
+    min-height: 6px !important;
+    border-radius: 50% !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+/* 3. NHÃN SONG NGỮ (LIGHT MODE) */
+/* --- Khi ĐANG CHỌN (Active) --- */
+html.light-mode .server-tab-btn.server-cat-song-ngu.active,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu.active {
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+    border-color: #9333ea !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(124, 58, 237, 0.35) !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu.active *,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu.active * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu.active .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu.active .server-tab-badge {
+    background: #ffffff !important;
+    color: #6b21a8 !important;
+    -webkit-text-fill-color: #6b21a8 !important;
+    font-weight: 900 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu.active .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu.active .server-tab-badge * {
+    color: #6b21a8 !important;
+    -webkit-text-fill-color: #6b21a8 !important;
+}
+
+/* --- Khi KHÔNG CHỌN (Inactive) - Tím Pastel thanh lịch, KHÔNG nền đen --- */
+html.light-mode .server-tab-btn.server-cat-song-ngu:not(.active),
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) {
+    background: #faf5ff !important;
+    border-color: #d8b4fe !important;
+    color: #7c3aed !important;
+    -webkit-text-fill-color: #7c3aed !important;
+    box-shadow: 0 1px 3px rgba(124, 58, 237, 0.08) !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu:not(.active) *,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) * {
+    color: #7c3aed !important;
+    -webkit-text-fill-color: #7c3aed !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu:not(.active):hover,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active):hover {
+    background: #f3e8ff !important;
+    border-color: #a855f7 !important;
+    color: #581c87 !important;
+    -webkit-text-fill-color: #581c87 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge {
+    background: #ede9fe !important;
+    color: #6b21a8 !important;
+    -webkit-text-fill-color: #6b21a8 !important;
+    font-weight: 800 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge * {
+    color: #6b21a8 !important;
+    -webkit-text-fill-color: #6b21a8 !important;
+}
+
+/* 4. NHÃN VIETSUB (LIGHT MODE) */
+/* --- Khi ĐANG CHỌN (Active) - Cam Vàng rực rỡ chữ trắng --- */
+html.light-mode .server-tab-btn.server-cat-vietsub.active,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    border-color: #b45309 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(217, 119, 6, 0.3) !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-vietsub.active *,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub.active * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-vietsub.active .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub.active .server-tab-badge {
+    background: #ffffff !important;
+    color: #b45309 !important;
+    -webkit-text-fill-color: #b45309 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-vietsub.active .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub.active .server-tab-badge * {
+    color: #b45309 !important;
+    -webkit-text-fill-color: #b45309 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-vietsub.active .server-tab-dot,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub.active .server-tab-dot {
     background: #d97706 !important;
 }
 
-html.light-mode .server-cat-vietsub.active .server-tab-count {
-    color: #92400e !important;
-    font-weight: 800 !important;
-}
-
-/* Inactive Vietsub */
-html.light-mode .server-cat-vietsub:not(.active),
-html.light-mode #server-list button.server-cat-vietsub:not(.active) {
+/* --- Khi KHÔNG CHỌN (Inactive) - Trắng viền slate nhã nhặn, KHÔNG gây nhầm lẫn --- */
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active),
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) {
     background: #ffffff !important;
-    border: 1px solid #fde68a !important;
-    box-shadow: 0 1px 3px rgba(120, 53, 15, 0.05) !important;
+    border-color: #e2e8f0 !important;
+    color: #334155 !important;
+    -webkit-text-fill-color: #334155 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-html.light-mode .server-cat-vietsub:not(.active):hover {
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active) *,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) * {
+    color: #334155 !important;
+    -webkit-text-fill-color: #334155 !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active):hover,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover {
     background: #fffbeb !important;
     border-color: #f59e0b !important;
+    color: #b45309 !important;
+    -webkit-text-fill-color: #b45309 !important;
 }
 
-html.light-mode .server-cat-vietsub:not(.active) .server-tab-title {
-    color: #78350f !important;
-    font-weight: 700 !important;
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active):hover *,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover * {
+    color: #b45309 !important;
+    -webkit-text-fill-color: #b45309 !important;
 }
 
-html.light-mode .server-cat-vietsub:not(.active) .server-tab-badge {
-    background: #fef3c7 !important;
-    border: 1px solid #fde68a !important;
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
 }
 
-html.light-mode .server-cat-vietsub:not(.active) .server-tab-dot {
-    background: #f59e0b !important;
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge * {
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
 }
 
-html.light-mode .server-cat-vietsub:not(.active) .server-tab-count {
-    color: #92400e !important;
-    font-weight: 700 !important;
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-dot,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-dot {
+    background: #94a3b8 !important;
 }
 
-/* --- 2. THUYẾT MINH (Soft Lavender / Purple Theme) --- */
-html.light-mode .server-cat-thuyet-minh.active,
-html.light-mode #server-list button.server-cat-thuyet-minh.active {
-    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
-    background-color: #e9d5ff !important;
-    border: 1px solid #9333ea !important;
-    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.15) !important;
-    transform: none !important;
+html.light-mode .server-tab-btn.server-cat-vietsub:not(.active):hover .server-tab-dot,
+html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover .server-tab-dot {
+    background: #d97706 !important;
 }
 
-html.light-mode .server-cat-thuyet-minh.active .server-tab-title {
-    color: #581c87 !important;
-    font-weight: 800 !important;
+/* 5. NHÃN THUYẾT MINH (LIGHT MODE) */
+html.light-mode .server-tab-btn.server-cat-thuyet-minh.active,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh.active {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    border-color: #0369a1 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(2, 132, 199, 0.3) !important;
 }
 
-html.light-mode .server-cat-thuyet-minh.active .server-tab-badge {
+html.light-mode .server-tab-btn.server-cat-thuyet-minh.active *,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh.active * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-thuyet-minh.active .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh.active .server-tab-badge {
     background: #ffffff !important;
-    border: 1px solid #c084fc !important;
+    color: #0369a1 !important;
+    -webkit-text-fill-color: #0369a1 !important;
 }
 
-html.light-mode .server-cat-thuyet-minh.active .server-tab-dot {
-    background: #9333ea !important;
+html.light-mode .server-tab-btn.server-cat-thuyet-minh.active .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh.active .server-tab-badge * {
+    color: #0369a1 !important;
+    -webkit-text-fill-color: #0369a1 !important;
 }
 
-html.light-mode .server-cat-thuyet-minh.active .server-tab-count {
-    color: #6b21a8 !important;
-    font-weight: 800 !important;
+html.light-mode .server-tab-btn.server-cat-thuyet-minh.active .server-tab-dot,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh.active .server-tab-dot {
+    background: #0284c7 !important;
 }
 
-/* Inactive Thuyết Minh */
-html.light-mode .server-cat-thuyet-minh:not(.active),
-html.light-mode #server-list button.server-cat-thuyet-minh:not(.active) {
+html.light-mode .server-tab-btn.server-cat-thuyet-minh:not(.active),
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) {
     background: #ffffff !important;
-    border: 1px solid #e9d5ff !important;
-    box-shadow: 0 1px 3px rgba(88, 28, 135, 0.05) !important;
+    border-color: #e2e8f0 !important;
+    color: #0284c7 !important;
+    -webkit-text-fill-color: #0284c7 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-html.light-mode .server-cat-thuyet-minh:not(.active):hover {
-    background: #faf5ff !important;
-    border-color: #c084fc !important;
-}
-
-html.light-mode .server-cat-thuyet-minh:not(.active) .server-tab-title {
-    color: #581c87 !important;
+html.light-mode .server-tab-btn.server-cat-thuyet-minh:not(.active) *,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) * {
+    color: #0284c7 !important;
+    -webkit-text-fill-color: #0284c7 !important;
     font-weight: 700 !important;
 }
 
-html.light-mode .server-cat-thuyet-minh:not(.active) .server-tab-badge {
-    background: #f3e8ff !important;
-    border: 1px solid #e9d5ff !important;
+html.light-mode .server-tab-btn.server-cat-thuyet-minh:not(.active):hover,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active):hover {
+    background: #f0f9ff !important;
+    border-color: #0284c7 !important;
 }
 
-html.light-mode .server-cat-thuyet-minh:not(.active) .server-tab-dot {
-    background: #a855f7 !important;
+html.light-mode .server-tab-btn.server-cat-thuyet-minh:not(.active) .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) .server-tab-badge {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    -webkit-text-fill-color: #0369a1 !important;
 }
 
-html.light-mode .server-cat-thuyet-minh:not(.active) .server-tab-count {
-    color: #6b21a8 !important;
-    font-weight: 700 !important;
+html.light-mode .server-tab-btn.server-cat-thuyet-minh:not(.active) .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) .server-tab-badge * {
+    color: #0369a1 !important;
+    -webkit-text-fill-color: #0369a1 !important;
 }
 
-/* --- 3. LỒNG TIẾNG (Fresh Emerald / Mint Green Theme) --- */
-html.light-mode .server-cat-long-tieng.active,
-html.light-mode #server-list button.server-cat-long-tieng.active {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
-    background-color: #bbf7d0 !important;
-    border: 1px solid #16a34a !important;
-    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15) !important;
-    transform: none !important;
+/* 6. NHÃN LỒNG TIẾNG (LIGHT MODE) */
+html.light-mode .server-tab-btn.server-cat-long-tieng.active,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng.active {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    border-color: #15803d !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(22, 163, 74, 0.3) !important;
 }
 
-html.light-mode .server-cat-long-tieng.active .server-tab-title {
-    color: #14532d !important;
-    font-weight: 800 !important;
+html.light-mode .server-tab-btn.server-cat-long-tieng.active *,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng.active * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 
-html.light-mode .server-cat-long-tieng.active .server-tab-badge {
+html.light-mode .server-tab-btn.server-cat-long-tieng.active .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng.active .server-tab-badge {
     background: #ffffff !important;
-    border: 1px solid #4ade80 !important;
-}
-
-html.light-mode .server-cat-long-tieng.active .server-tab-dot {
-    background: #16a34a !important;
-}
-
-html.light-mode .server-cat-long-tieng.active .server-tab-count {
     color: #15803d !important;
-    font-weight: 800 !important;
+    -webkit-text-fill-color: #15803d !important;
 }
 
-/* Inactive Lồng Tiếng */
-html.light-mode .server-cat-long-tieng:not(.active),
-html.light-mode #server-list button.server-cat-long-tieng:not(.active) {
+html.light-mode .server-tab-btn.server-cat-long-tieng.active .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng.active .server-tab-badge * {
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-long-tieng:not(.active),
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active) {
     background: #ffffff !important;
-    border: 1px solid #bbf7d0 !important;
-    box-shadow: 0 1px 3px rgba(20, 83, 45, 0.05) !important;
+    border-color: #e2e8f0 !important;
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-html.light-mode .server-cat-long-tieng:not(.active):hover {
+html.light-mode .server-tab-btn.server-cat-long-tieng:not(.active) *,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active) * {
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
+    font-weight: 700 !important;
+}
+
+html.light-mode .server-tab-btn.server-cat-long-tieng:not(.active):hover,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active):hover {
     background: #f0fdf4 !important;
-    border-color: #4ade80 !important;
+    border-color: #16a34a !important;
 }
 
-html.light-mode .server-cat-long-tieng:not(.active) .server-tab-title {
-    color: #14532d !important;
-    font-weight: 700 !important;
-}
-
-html.light-mode .server-cat-long-tieng:not(.active) .server-tab-badge {
+html.light-mode .server-tab-btn.server-cat-long-tieng:not(.active) .server-tab-badge,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active) .server-tab-badge {
     background: #dcfce7 !important;
-    border: 1px solid #bbf7d0 !important;
-}
-
-html.light-mode .server-cat-long-tieng:not(.active) .server-tab-dot {
-    background: #22c55e !important;
-}
-
-html.light-mode .server-cat-long-tieng:not(.active) .server-tab-count {
     color: #15803d !important;
-    font-weight: 700 !important;
+    -webkit-text-fill-color: #15803d !important;
 }
 
-/* --- 4. SONG NGỮ (Royal Violet & Contrast Dark Pill Theme - Chuẩn Hình 2) --- */
-html.light-mode .server-cat-song-ngu.active,
-html.light-mode #server-list button.server-cat-song-ngu.active {
-    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
-    background-color: #9333ea !important;
-    border: 1px solid #c084fc !important;
-    box-shadow: 0 3px 12px rgba(168, 85, 247, 0.35) !important;
-    color: #ffffff !important;
-    transform: none !important;
-}
-
-html.light-mode .server-cat-song-ngu.active .server-tab-title {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-}
-
-html.light-mode .server-cat-song-ngu.active .server-tab-badge {
-    background: #ffffff !important;
-    color: #581c87 !important;
-    font-weight: 800 !important;
-}
-
-/* Inactive Song Ngữ in Light Mode: Giữ phong cách Dark Slate sang trọng nổi bật như Hình 2 */
-html.light-mode .server-cat-song-ngu:not(.active),
-html.light-mode #server-list button.server-cat-song-ngu:not(.active) {
-    background: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
-    color: #f8fafc !important;
-}
-
-html.light-mode .server-cat-song-ngu:not(.active):hover {
-    background: #1f2937 !important;
-    border-color: #c084fc !important;
-}
-
-html.light-mode .server-cat-song-ngu:not(.active) .server-tab-title {
-    color: #f8fafc !important;
-    font-weight: 700 !important;
-}
-
-html.light-mode .server-cat-song-ngu:not(.active) .server-tab-badge {
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-weight: 800 !important;
+html.light-mode .server-tab-btn.server-cat-long-tieng:not(.active) .server-tab-badge *,
+html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active) .server-tab-badge * {
+    color: #15803d !important;
+    -webkit-text-fill-color: #15803d !important;
 }
 
 /* Episode List Grid Buttons in Light Mode */
@@ -2826,6 +3009,8 @@ html.light-mode #sidebar-description-text,
 html.light-mode p#sidebar-description-text {
     color: #44403c !important;
     text-shadow: none !important;
+    text-align: justify !important;
+    text-justify: inter-word !important;
 }
 
 /* Badge ⭐ Đang chiếu: Đồng bộ tone màu pastel/amber hài hoà với các ô tag thể loại */
@@ -8208,7 +8393,7 @@ html.light-mode #aphim-audio-menu .aphim-settings-header {
     #aphim-audio-menu,
     html.light-mode #aphim-settings-menu,
     html.light-mode #aphim-audio-menu {
-        bottom: calc(100% + 30px) !important;
+        bottom: calc(100% + 14px) !important;
     }
 }
 
@@ -8266,4 +8451,86 @@ html.light-mode #serverPingModalCard button svg {
 #serverPingModalCard button:hover svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
+}
+
+/* ==========================================================================
+   🎬 DESKTOP ONLY DETAIL PAGE HERO ACTION BUTTONS (NO PILL BOX, CLEAN MODERN ICONS)
+   ========================================================================== */
+@media (min-width: 768px) {
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn),
+    html.light-mode body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn),
+    body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn),
+    body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border-radius: 0 !important;
+        padding: 4px 6px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover,
+    html.light-mode body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn):hover,
+    body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover,
+    body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn):hover {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: #ffffff !important;
+    }
+
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) span,
+    html.light-mode body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) span,
+    body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) span,
+    body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) span {
+        color: rgba(255, 255, 255, 0.9) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500 !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
+    }
+
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg,
+    html.light-mode body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg,
+    body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg,
+    body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg {
+        color: rgba(255, 255, 255, 0.9) !important;
+        fill: currentColor !important;
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.85)) !important;
+    }
+
+    /* Lucide stroke icons */
+    body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg[fill="none"],
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg[fill="none"] {
+        fill: none !important;
+        stroke: currentColor !important;
+    }
+
+    /* 🌟 Path-level: ép icon TRẮNG (override rule fill tối ở light mode nhắm vào svg path) */
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg path,
+    html.light-mode body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg path,
+    body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg path,
+    body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg path {
+        fill: #ffffff !important;
+        stroke: #ffffff !important;
+    }
+
+    /* Icon nét viền (Thêm vào / Chia sẻ / Bình luận): giữ dạng outline, nét trắng */
+    html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg[fill="none"] path,
+    html.light-mode body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg[fill="none"] path,
+    html:not(.light-mode) body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg[fill="none"] path,
+    html:not(.light-mode) body.page-phim-detail .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg[fill="none"] path {
+        fill: none !important;
+        stroke: #ffffff !important;
+    }
+
+    /* Giữ trái tim đỏ khi người dùng đã lưu phim */
+    html.light-mode body.page-phim-detail .movie-actions-container #favoriteMovieBtn.is-favorite-active svg path,
+    body.page-phim-detail .movie-actions-container #favoriteMovieBtn.is-favorite-active svg path {
+        fill: #ef4444 !important;
+        stroke: #ef4444 !important;
+    }
 }

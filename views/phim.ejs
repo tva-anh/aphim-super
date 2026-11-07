@@ -606,47 +606,118 @@
                 box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
             }
 
-            /* 🎨 DEFAULT: HORIZONTAL BACKDROP GRADIENT (Fades lower, shows more image) 🎨 */
+            /* 🎨 CHUYÊN NGHIỆP: NỀN MỜ HÒA TRỘN TỰ NHIÊN (MỜ KEM TRÊN NỀN KEM, MỜ ĐEN TRÊN NỀN ĐEN - TUYỆT ĐỐI KHÔNG CỘM) 🎨 */
             .backdrop-gradient,
             html:not(.light-mode) .backdrop-gradient {
                 background: linear-gradient(180deg,
-                        rgba(15, 23, 42, 0.35) 0%,
-                        rgba(15, 23, 42, 0.05) 40%,
-                        rgba(31, 35, 49, 0.4) 70%,
-                        rgba(31, 35, 49, 0.95) 90%,
+                        rgba(31, 35, 49, 0.40) 0%,
+                        rgba(31, 35, 49, 0.06) 18%,
+                        rgba(31, 35, 49, 0.25) 45%,
+                        rgba(31, 35, 49, 0.65) 65%,
+                        rgba(31, 35, 49, 0.92) 85%,
                         #1f2331 100%) !important;
             }
 
             html.light-mode .backdrop-gradient {
                 background: linear-gradient(180deg,
-                        rgba(30, 25, 20, 0.25) 0%,
-                        rgba(30, 25, 20, 0.02) 40%,
-                        rgba(245, 240, 230, 0.4) 70%,
-                        rgba(245, 240, 230, 0.95) 90%,
+                        rgba(245, 240, 230, 0) 0%,
+                        rgba(245, 240, 230, 0) 58%,
+                        rgba(245, 240, 230, 0.15) 70%,
+                        rgba(245, 240, 230, 0.60) 84%,
+                        rgba(245, 240, 230, 0.95) 95%,
                         #f5f0e6 100%) !important;
             }
 
-            /* 🎨 AGGRESSIVE: VERTICAL BACKDROP GRADIENT (Fades earlier to cover stretched image) 🎨 */
+            /* Khi là ảnh dọc thì phủ gradient sớm hơn để không bị lộ ảnh kéo giãn */
             .is-vertical-bg .backdrop-gradient,
             html:not(.light-mode) .is-vertical-bg .backdrop-gradient {
                 background: linear-gradient(180deg,
-                        rgba(15, 23, 42, 0.35) 0%,
-                        rgba(15, 23, 42, 0.05) 20%,
-                        rgba(31, 35, 49, 0.98) 45%,
-                        #1f2331 60%,
+                        rgba(31, 35, 49, 0.35) 0%,
+                        rgba(31, 35, 49, 0.12) 18%,
+                        rgba(31, 35, 49, 0.75) 45%,
+                        rgba(31, 35, 49, 0.96) 65%,
+                        #1f2331 80%,
                         #1f2331 100%) !important;
             }
 
             html.light-mode .is-vertical-bg .backdrop-gradient {
                 background: linear-gradient(180deg,
-                        rgba(30, 25, 20, 0.25) 0%,
-                        rgba(30, 25, 20, 0.02) 20%,
-                        rgba(245, 240, 230, 0.98) 45%,
-                        #f5f0e6 60%,
+                        rgba(245, 240, 230, 0.35) 0%,
+                        rgba(245, 240, 230, 0.12) 18%,
+                        rgba(245, 240, 230, 0.75) 45%,
+                        rgba(245, 240, 230, 0.96) 65%,
+                        #f5f0e6 80%,
                         #f5f0e6 100%) !important;
             }
 
+            @media (min-width: 1024px) {
+                .backdrop-gradient,
+                html:not(.light-mode) .backdrop-gradient {
+                    background:
+                        linear-gradient(90deg, rgba(31, 35, 49, 0.70) 0%, rgba(31, 35, 49, 0.25) 28%, transparent 60%),
+                        linear-gradient(180deg,
+                            rgba(31, 35, 49, 0.40) 0%,
+                            rgba(31, 35, 49, 0.06) 18%,
+                            rgba(31, 35, 49, 0.25) 45%,
+                            rgba(31, 35, 49, 0.65) 65%,
+                            rgba(31, 35, 49, 0.92) 85%,
+                            #1f2331 100%) !important;
+                }
+
+                html.light-mode .backdrop-gradient {
+                    background: linear-gradient(180deg,
+                            rgba(245, 240, 230, 0) 0%,
+                            rgba(245, 240, 230, 0) 58%,
+                            rgba(245, 240, 230, 0.15) 70%,
+                            rgba(245, 240, 230, 0.60) 84%,
+                            rgba(245, 240, 230, 0.95) 95%,
+                            #f5f0e6 100%) !important;
+                }
+
+                /* Lớp kem phủ ngang bên trái: hạ xuống thấp, không phủ lên cổ và mặt của poster lớn phía sau */
+                html.light-mode .backdrop-gradient::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(90deg,
+                            rgba(245, 240, 230, 0.35) 0%,
+                            rgba(245, 240, 230, 0.10) 25%,
+                            transparent 50%);
+                    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 52%, black 75%);
+                    mask-image: linear-gradient(to bottom, transparent 0%, transparent 52%, black 75%);
+                }
+
+                .movie-hero-backdrop-wrap {
+                    /* Cắt dưới dịu: giữ nét tới 55%, mờ dần đều và hết hẳn ở 82% — khu MÁY CHỦ hòa trộn mềm, không đập */
+                    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 82%) !important;
+                    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 82%) !important;
+                }
+            }
+
             /* Removed #movieHeroBackdrop explicit filters to allow Tailwind blur classes to work */
+
+            /* 🎬 Công thức ChợPhim: ảnh giữ nét + gradient chuyển màu nền + lớp chấm li ti
+               (radial-gradient dots, không blur) */
+            .hero-dot-overlay {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background-image: radial-gradient(rgba(0, 0, 0, 0.22) 0.25px, transparent 0.75px);
+                background-size: 2px 2px;
+                /* Cắt ngang dịu: chấm phủ nửa trên hero, mờ dần đều theo cùng nhịp backdrop */
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 85%);
+                mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 85%);
+            }
+
+            /* ✨ CHỈ TRÊN MÀN HÌNH DESKTOP (>= 1024px): Tăng độ đậm & độ sắc nét của chấm bi nhỏ li ti trên nền kem theo yêu cầu */
+            @media (min-width: 1024px) {
+                html.light-mode .hero-dot-overlay {
+                    background-image: radial-gradient(rgba(0, 0, 0, 0.48) 0.35px, transparent 0.85px) !important;
+                    background-size: 2.2px 2.2px !important;
+                    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 92%) !important;
+                    mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 92%) !important;
+                }
+            }
 
             /* 📱 Mobile Movie Detail Backdrop: Extend long down across poster, title and buttons */
             @media (max-width: 768px) {
@@ -661,14 +732,38 @@
 
                 #movieHeroBackdrop {
                     object-position: top center !important;
+                    display: block !important;
+                    opacity: 0.55 !important;
+                }
+
+                html.light-mode #movieHeroBackdrop {
+                    opacity: 0.85 !important;
+                }
+
+                /* Nền kem: ảnh phải ĐẬM hơn (0.85) để màu kem của body không làm bạc cả màn */
+                html.light-mode #movieHeroBackdrop {
+                    opacity: 0.85 !important;
+                }
+
+                /* 🎬 Giữ nguyên 100% như cũ trên Mobile: chấm bi li ti dịu nhẹ gốc (0.22, 2px), không thay đổi */
+                .hero-dot-overlay,
+                html.light-mode .hero-dot-overlay {
+                    position: absolute;
+                    inset: 0;
+                    pointer-events: none;
+                    background-image: radial-gradient(rgba(0, 0, 0, 0.22) 0.25px, transparent 0.75px) !important;
+                    background-size: 2px 2px !important;
+                    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 88%) !important;
+                    mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 88%) !important;
                 }
 
                 html.light-mode .backdrop-gradient {
                     background: linear-gradient(180deg,
-                            rgba(30, 25, 20, 0.22) 0%,
-                            rgba(30, 25, 20, 0.04) 30%,
-                            rgba(245, 240, 230, 0.85) 75%,
-                            #f5f0e6 90%,
+                            rgba(245, 240, 230, 0) 0%,
+                            rgba(245, 240, 230, 0) 55%,
+                            rgba(245, 240, 230, 0.18) 70%,
+                            rgba(245, 240, 230, 0.70) 85%,
+                            #f5f0e6 96%,
                             #f5f0e6 100%) !important;
                 }
 
@@ -694,8 +789,8 @@
                 -ms-overflow-style: none !important;
             }
 
-            /* Mobile Action Buttons Symmetrical 3x2 Grid Alignment */
-            @media (max-width: 639px) {
+            /* 📱 Mobile Action Buttons: Symmetrical 3x2 Grid Alignment (Preserved Exactly as Before) */
+            @media (max-width: 767px) {
                 .movie-actions-container {
                     display: grid !important;
                     grid-template-columns: repeat(3, 1fr) !important;
@@ -705,8 +800,8 @@
                     margin-bottom: 16px !important;
                 }
 
-                .movie-actions-container>div:first-child,
-                .movie-actions-container>div.ml-auto {
+                .movie-actions-container > div:first-child,
+                .movie-actions-container > div.ml-auto {
                     display: contents !important;
                 }
 
@@ -719,12 +814,51 @@
                     margin-left: 0 !important;
                     height: 40px !important;
                     padding: 0 4px !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
                     justify-content: center !important;
+                    gap: 4px !important;
                     font-size: 11.5px !important;
                     box-sizing: border-box !important;
+                    border-radius: 9999px !important;
                 }
 
-                /* Thứ tự hàng nút 1 trên mobile: Lưu phim (trái) -> XEM NGAY (giữa) -> Thêm vào (phải) */
+                /* Mobile button pills in Dark Mode */
+                html:not(.light-mode) .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn),
+                html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) {
+                    background: rgba(13, 18, 30, 0.6) !important;
+                    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+                    color: #ffffff !important;
+                    -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+                    backdrop-filter: blur(14px) saturate(150%) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+                }
+
+                /* Mobile button pills in Light Mode */
+                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn),
+                html.light-mode .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) {
+                    background-color: #ffffff !important;
+                    border: 1.5px solid #d6cebf !important;
+                    color: #1c1917 !important;
+                    box-shadow: 0 2px 8px rgba(78, 64, 45, 0.08) !important;
+                }
+
+                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) span,
+                html.light-mode .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) span {
+                    color: #1c1917 !important;
+                    -webkit-text-fill-color: #1c1917 !important;
+                    font-weight: 700 !important;
+                    text-shadow: none !important;
+                }
+
+                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg {
+                    color: #1c1917 !important;
+                    fill: currentColor !important;
+                    filter: none !important;
+                }
+
+                /* Thứ tự hàng nút trên mobile: Lưu phim (1) -> XEM NGAY (2) -> Thêm vào (3) -> Chia sẻ (4) -> Bình luận (5) -> Xem Review (6) */
                 .movie-actions-container #favoriteMovieBtn {
                     order: 1 !important;
                 }
@@ -737,16 +871,23 @@
                     order: 3 !important;
                 }
 
-                .movie-actions-container>div:first-child>button:nth-child(4) {
+                .movie-actions-container #shareMovieBtn {
                     order: 4 !important;
                 }
 
-                .movie-actions-container>div:first-child>button:nth-child(5) {
+                .movie-actions-container #commentMovieBtn {
                     order: 5 !important;
                 }
 
                 .movie-actions-container #headerRatingBtn {
                     order: 6 !important;
+                }
+
+                .movie-actions-container button svg,
+                .movie-actions-container a svg {
+                    width: 15px !important;
+                    height: 15px !important;
+                    flex-shrink: 0 !important;
                 }
             }
 
@@ -977,50 +1118,62 @@
 </head>
 
 <body class="page-phim-detail bg-[#1f2331] text-gray-100 font-display min-h-screen w-full">
-    <!-- Ambient Background (7 Orbs for Full Coverage) -->
-    <div class="ambient-bg">
-        <div class="ambient-orb ambient-orb-1"></div>
-        <div class="ambient-orb ambient-orb-2"></div>
-        <div class="ambient-orb ambient-orb-3"></div>
-        <div class="ambient-orb ambient-orb-4"></div>
-        <div class="ambient-orb ambient-orb-5"></div>
-        <div class="ambient-orb ambient-orb-6"></div>
-        <div class="ambient-orb ambient-orb-7"></div>
-        <div class="ambient-noise"></div>
-        <div class="ambient-grain"></div>
-    </div>
     <!-- Full-Bleed Movie Backdrop Hero Image Behind Header (Top 0 Pinned to Viewport Top) -->
-    <div class="movie-hero-backdrop-wrap absolute top-0 left-0 right-0 w-full h-[620px] sm:h-[680px] lg:h-[750px] z-0 overflow-hidden pointer-events-none"
-        style="-webkit-mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%); mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);">
+    <div class="movie-hero-backdrop-wrap absolute top-0 left-0 right-0 w-full h-[620px] sm:h-[680px] lg:h-[980px] xl:h-[1040px] 2xl:h-[1100px] z-0 overflow-hidden pointer-events-none">
         <div class="relative w-full h-full bg-transparent">
             <%
                 let ssrBackdropUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 let rawOriginBd = '';
                 if (typeof movie !== 'undefined' && movie) {
-                    let rawBd = (movie.thumb_url || movie.poster_url || '').trim();
-                    if (rawBd) {
-                        rawBd = rawBd.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
-                        if (rawBd.startsWith('http://') || rawBd.startsWith('https://')) {
-                            rawOriginBd = rawBd;
-                        } else {
-                            let cleanBd = rawBd.replace(/^\//, '');
-                            if (cleanBd.startsWith('upload/') || cleanBd.startsWith('uploads/')) {
-                                rawOriginBd = 'https://phimimg.com/' + cleanBd;
+                    if (movie.backdrop_url) {
+                        ssrBackdropUrl = movie.backdrop_url;
+                        rawOriginBd = movie.backdrop_url;
+                    } else {
+                        let rawBd = (movie.thumb_url || movie.poster_url || '').trim();
+                        if (rawBd) {
+                            rawBd = rawBd.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
+                            if (rawBd.startsWith('http://') || rawBd.startsWith('https://')) {
+                                rawOriginBd = rawBd;
                             } else {
-                                rawOriginBd = 'https://phimimg.com/uploads/movies/' + cleanBd;
+                                let cleanBd = rawBd.replace(/^\//, '');
+                                if (cleanBd.startsWith('upload/') || cleanBd.startsWith('uploads/')) {
+                                    rawOriginBd = 'https://phimimg.com/' + cleanBd;
+                                } else {
+                                    rawOriginBd = 'https://phimimg.com/uploads/movies/' + cleanBd;
+                                }
                             }
+                            ssrBackdropUrl = rawOriginBd;
                         }
-                        ssrBackdropUrl = rawOriginBd;
                     }
                 }
             %>
             <img id="movieHeroBackdrop" alt="Background"
-                class="w-full h-full object-cover object-top transition-opacity duration-700 opacity-70 lg:opacity-40 blur-xl lg:blur-2xl"
+                class="w-full h-full object-cover object-top transition-opacity duration-700 opacity-70 lg:opacity-40"
                 src="<%= ssrBackdropUrl %>"
                 data-fallback="<%= rawOriginBd %>"
                 onerror="if(!this.dataset.tried && this.dataset.fallback){this.dataset.tried='1';this.src=this.dataset.fallback;}"
                 fetchpriority="high" />
+
+            <!-- ⚡ Zero-Latency Hydration: Nếu đã có ảnh sắc nét trong cache thì nạp tức thì 0ms không phải chờ -->
+            <script>
+                (function(){
+                    try {
+                        var slug = '<%= slug %>';
+                        var el = document.getElementById('movieHeroBackdrop');
+                        if (el && el.src && el.src.indexOf('image.tmdb.org') !== -1) return;
+                        var c = sessionStorage.getItem('tmdb_hero_v4_' + slug) || localStorage.getItem('tmdb_hero_v4_' + slug);
+                        if (c) {
+                            var d = JSON.parse(c);
+                            if (d && d.backdrop && el) {
+                                el.src = d.backdrop;
+                            }
+                        }
+                    } catch(e) {}
+                })();
+            </script>
+
             <div class="absolute inset-0 backdrop-gradient"></div>
+            <div class="absolute inset-0 hero-dot-overlay" aria-hidden="true"></div>
         </div>
     </div>
 
@@ -1304,7 +1457,7 @@
                         <div
                             class="movie-actions-container flex flex-wrap items-center justify-between gap-3 sm:gap-4 mt-4 md:mt-6 lg:mt-7 mb-4 md:mb-6 lg:mb-7 w-full">
                             <!-- Nhóm các nút hành động bên trái (Xem ngay, Yêu thích, Thêm vào, Chia sẻ, Bình luận) -->
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
                                 <%
                                     let directWatchUrl = `/xem-phim/${typeof slug !== 'undefined' ? slug : ''}`;
                                     if (typeof movie !== 'undefined' && movie) {
@@ -1345,50 +1498,52 @@
                                     }
                                 %>
                                 <a href="<%= directWatchUrl %>" id="watchNowBtn"
-                                    class="group relative px-6 h-11 sm:h-12 lg:px-7 rounded-full transition-all duration-300 flex items-center justify-center gap-2 flex-shrink-0 cinematic-gold-btn shadow-xl hover:scale-105 active:scale-95">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-white flex-shrink-0"
-                                        style="fill: #ffffff !important;" viewBox="0 0 24 24">
-                                        <path d="M8 5v14l11-7z" />
+                                    class="group relative px-6 md:px-7 h-11 sm:h-12 rounded-full transition-all duration-200 flex items-center justify-center gap-2 flex-shrink-0 hover:scale-105 active:scale-95 shadow-lg shadow-[rgba(254,207,89,0.35)]"
+                                    style="background: #fecf59; background-image: linear-gradient(39deg, rgba(254, 207, 89, 1), rgba(255, 241, 204, 1)) !important;">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="#0f1115" viewBox="0 0 24 24">
+                                        <path d="M8 5c0-.8.9-1.3 1.6-.9l9 6c.6.4.6 1.4 0 1.8l-9 6c-.7.4-1.6-.1-1.6-.9V5z"></path>
                                     </svg>
-                                    <span
-                                        class="text-xs sm:text-sm whitespace-nowrap uppercase tracking-wider font-bold text-white">XEM
-                                        NGAY</span>
+                                    <span class="text-xs sm:text-base font-bold text-[#0f1115] tracking-wide whitespace-nowrap">Xem ngay</span>
                                 </a>
 
+                                <div class="hidden md:block w-px h-7 bg-white/20 mx-1 flex-shrink-0"></div>
+
                                 <button id="favoriteMovieBtn"
-                                    class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                        <path
-                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                    class="h-11 sm:h-12 px-3 sm:px-4 md:px-2 rounded-full transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer select-none"
+                                    title="Lưu phim">
+                                    <svg class="w-4 h-4 sm:w-6 sm:h-6 shrink-0 transition-transform duration-200" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
                                     </svg>
-                                    <span class="text-xs sm:text-sm whitespace-nowrap">Lưu phim</span>
+                                    <span class="text-xs sm:text-[13px] font-medium whitespace-nowrap">Lưu phim</span>
                                 </button>
 
                                 <button id="saveMovieBtn"
-                                    class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                                    class="h-11 sm:h-12 px-3 sm:px-4 md:px-2 rounded-full transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer select-none"
+                                    title="Thêm vào danh sách">
+                                    <svg class="w-4 h-4 sm:w-6 sm:h-6 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
                                     </svg>
-                                    <span class="text-xs sm:text-sm whitespace-nowrap">Thêm vào</span>
+                                    <span class="text-xs sm:text-[13px] font-medium whitespace-nowrap">Thêm vào</span>
                                 </button>
 
-                                <button
+                                <button id="shareMovieBtn"
                                     onclick="if(typeof shareMovie==='function'){shareMovie();}else if(navigator.clipboard){navigator.clipboard.writeText(location.href);alert('Đã sao chép liên kết phim!');}"
-                                    class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                                    class="h-11 sm:h-12 px-3 sm:px-4 md:px-2 rounded-full transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer select-none"
+                                    title="Chia sẻ">
+                                    <svg class="w-4 h-4 sm:w-6 sm:h-6 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
                                     </svg>
-                                    <span class="text-xs sm:text-sm whitespace-nowrap">Chia sẻ</span>
+                                    <span class="text-xs sm:text-[13px] font-medium whitespace-nowrap">Chia sẻ</span>
                                 </button>
 
-                                <button
+                                <button id="commentMovieBtn"
                                     onclick="document.getElementById('comments-section')?.scrollIntoView({behavior:'smooth'})"
-                                    class="h-11 sm:h-12 px-4 sm:px-5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white font-medium rounded-full backdrop-blur-md border border-white/10 hover:border-white/30 transition-all duration-300 flex items-center gap-2 shadow-md flex-shrink-0 cursor-pointer">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                                        <path
-                                            d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+                                    class="h-11 sm:h-12 px-3 sm:px-4 md:px-2 rounded-full transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer select-none"
+                                    title="Bình luận">
+                                    <svg class="lucide lucide-message-circle transition-all duration-300 w-4 h-4 sm:w-6 sm:h-6 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path>
                                     </svg>
-                                    <span class="text-xs sm:text-sm whitespace-nowrap">Bình luận</span>
+                                    <span class="text-xs sm:text-[13px] font-medium whitespace-nowrap">Bình luận</span>
                                 </button>
                             </div>
 
@@ -1396,102 +1551,160 @@
                             <% var reviewSlug=(typeof movie !=='undefined' && movie && movie.slug) ? movie.slug :
                                 (typeof slug !=='undefined' ? slug : '' ); var reviewUrl='/reels/review/' + reviewSlug
                                 + '?return=' + encodeURIComponent('/phim/' + reviewSlug); %>
-                                <style>
-                                    /* -- Review phim button: GORGEOUS RED GRADIENT ON BOTH LIGHT & DARK MODE -- */
-                                    .movie-actions-container #headerRatingBtn,
-                                    html.light-mode .movie-actions-container #headerRatingBtn,
-                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn,
-                                    #headerRatingBtn {
-                                        background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
-                                        border: none !important;
-                                        box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45) !important;
-                                        color: #ffffff !important;
-                                        -webkit-text-fill-color: #ffffff !important;
-                                        text-decoration: none !important;
-                                    }
-
-                                    .movie-actions-container #headerRatingBtn:hover,
-                                    html.light-mode .movie-actions-container #headerRatingBtn:hover,
-                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn:hover,
-                                    #headerRatingBtn:hover {
-                                        background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
-                                        box-shadow: 0 8px 24px rgba(225, 29, 72, 0.6) !important;
-                                        transform: scale(1.05) translateY(-1px) !important;
-                                    }
-
-                                    /* Label: WHITE on both dark mode and light mode */
-                                    .movie-actions-container #headerRatingBtn span,
-                                    html.light-mode .movie-actions-container #headerRatingBtn span,
-                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn span,
-                                    #headerRatingBtn span {
-                                        color: #ffffff !important;
-                                        -webkit-text-fill-color: #ffffff !important;
-                                        font-weight: 700 !important;
-                                        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
-                                    }
-
-                                    /* Icon: soft white plate + rose play triangle */
-                                    .movie-actions-container #headerRatingBtn rect,
-                                    html.light-mode .movie-actions-container #headerRatingBtn rect,
-                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn rect,
-                                    #headerRatingBtn rect {
-                                        fill: #ffffff !important;
-                                    }
-
-                                    .movie-actions-container #headerRatingBtn path,
-                                    html.light-mode .movie-actions-container #headerRatingBtn path,
-                                    html:not(.light-mode) .movie-actions-container #headerRatingBtn path,
-                                    #headerRatingBtn path {
-                                        fill: #f43f5e !important;
-                                    }
-
-                                    /* -- Dark mode: hero action buttons (Luu phim / Them vao / Chia se / Binh luan) readable over bright backdrops -- */
-                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn),
-                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) {
-                                        background: rgba(13, 18, 30, 0.58) !important;
-                                        border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
-                                        color: #ffffff !important;
-                                        -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
-                                        backdrop-filter: blur(14px) saturate(150%) !important;
-                                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
-                                    }
-
-                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn):hover,
-                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn):hover {
-                                        background: rgba(13, 18, 30, 0.8) !important;
-                                        border-color: rgba(255, 255, 255, 0.45) !important;
-                                    }
-
-                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) span,
-                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) span {
-                                        color: #ffffff !important;
-                                        font-weight: 600 !important;
-                                        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65) !important;
-                                    }
-
-                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg,
-                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg,
-                                    html:not(.light-mode) .movie-actions-container button:not(.cinematic-gold-btn):not(#headerRatingBtn) svg path,
-                                    html:not(.light-mode) .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg path {
-                                        fill: #ffffff !important;
-                                        color: #ffffff !important;
-                                    }
-                                </style>
-                                <div class="ml-auto flex-shrink-0">
-                                    <a id="headerRatingBtn" href="<%= reviewUrl %>"
-                                        title="Xem video review tóm tắt phim <%= (typeof movie !=='undefined' && movie && movie.name) ? movie.name : '' %>"
-                                        class="h-11 sm:h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer no-underline">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24"
-                                            aria-hidden="true">
-                                            <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
-                                            <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
-                                        </svg>
-                                        <span class="text-xs sm:text-sm font-bold tracking-wide">Xem Review</span>
-                                    </a>
-                                </div>
+                            <div class="ml-auto flex-shrink-0">
+                                <a id="headerRatingBtn" href="<%= reviewUrl %>"
+                                    title="Xem video review tóm tắt phim <%= (typeof movie !=='undefined' && movie && movie.name) ? movie.name : '' %>"
+                                    class="h-11 sm:h-12 px-5 sm:px-6 rounded-full text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer no-underline">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="2.5" y="4.5" width="19" height="15" rx="4" fill="#ffffff"></rect>
+                                        <path d="M10 9.1v5.8l5.2-2.9L10 9.1z" fill="#f43f5e"></path>
+                                    </svg>
+                                    <span class="text-xs sm:text-sm font-bold tracking-wide whitespace-nowrap">Xem Review</span>
+                                </a>
+                            </div>
                         </div>
 
-                        <!-- HỆ THỐNG TAB THÔNG TIN PHIM (Match Hình 1 - 5) -->
+                        <style>
+                            /* -- Review phim button: GORGEOUS RED GRADIENT ON BOTH LIGHT & DARK MODE -- */
+                            .movie-actions-container #headerRatingBtn,
+                            html.light-mode .movie-actions-container #headerRatingBtn,
+                            html:not(.light-mode) .movie-actions-container #headerRatingBtn,
+                            #headerRatingBtn {
+                                background: linear-gradient(135deg, #f43f5e 0%, #ef4444 55%, #e11d48 100%) !important;
+                                border: none !important;
+                                box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45) !important;
+                                color: #ffffff !important;
+                                -webkit-text-fill-color: #ffffff !important;
+                                text-decoration: none !important;
+                            }
+
+                            .movie-actions-container #headerRatingBtn:hover,
+                            html.light-mode .movie-actions-container #headerRatingBtn:hover,
+                            html:not(.light-mode) .movie-actions-container #headerRatingBtn:hover,
+                            #headerRatingBtn:hover {
+                                background: linear-gradient(135deg, #fb7185 0%, #f43f5e 55%, #e11d48 100%) !important;
+                                box-shadow: 0 8px 24px rgba(225, 29, 72, 0.6) !important;
+                                transform: scale(1.05) translateY(-1px) !important;
+                            }
+
+                            .movie-actions-container #headerRatingBtn span,
+                            html.light-mode .movie-actions-container #headerRatingBtn span,
+                            html:not(.light-mode) .movie-actions-container #headerRatingBtn span,
+                            #headerRatingBtn span {
+                                color: #ffffff !important;
+                                -webkit-text-fill-color: #ffffff !important;
+                                font-weight: 700 !important;
+                                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+                            }
+
+                            .movie-actions-container #headerRatingBtn rect,
+                            html.light-mode .movie-actions-container #headerRatingBtn rect,
+                            html:not(.light-mode) .movie-actions-container #headerRatingBtn rect,
+                            #headerRatingBtn rect {
+                                fill: #ffffff !important;
+                            }
+
+                            .movie-actions-container #headerRatingBtn path,
+                            html.light-mode .movie-actions-container #headerRatingBtn path,
+                            html:not(.light-mode) .movie-actions-container #headerRatingBtn path,
+                            #headerRatingBtn path {
+                                fill: #f43f5e !important;
+                            }
+
+                            /* ─── DESKTOP ONLY (>= 768px): 4 NÚT HÀNH ĐỘNG BỎ VIỀN BỌC, ICON TRÊN CHỮ DƯỚI ─── */
+                            @media (min-width: 768px) {
+                                .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn),
+                                .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn),
+                                html.light-mode body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn),
+                                html:not(.light-mode) body.page-phim-detail .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) {
+                                    background: transparent !important;
+                                    background-color: transparent !important;
+                                    border: none !important;
+                                    outline: none !important;
+                                    box-shadow: none !important;
+                                    backdrop-filter: none !important;
+                                    -webkit-backdrop-filter: none !important;
+                                    border-radius: 0 !important;
+                                    color: rgba(255, 255, 255, 0.88) !important;
+                                    padding: 4px 8px !important;
+                                    display: flex !important;
+                                    flex-direction: column !important;
+                                    align-items: center !important;
+                                    justify-content: center !important;
+                                    gap: 4px !important;
+                                }
+
+                                .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover,
+                                .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn):hover,
+                                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover,
+                                html:not(.light-mode) .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover {
+                                    background: transparent !important;
+                                    background-color: transparent !important;
+                                    border: none !important;
+                                    color: #ffffff !important;
+                                }
+
+                                .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) span,
+                                .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) span,
+                                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) span,
+                                html:not(.light-mode) .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) span {
+                                    color: rgba(255, 255, 255, 0.88) !important;
+                                    font-weight: 500 !important;
+                                    font-size: 13px !important;
+                                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+                                    white-space: nowrap !important;
+                                }
+
+                                .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover span,
+                                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover span,
+                                html:not(.light-mode) .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover span {
+                                    color: #ffffff !important;
+                                }
+
+                                .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg,
+                                .movie-actions-container a:not(#watchNowBtn):not(#headerRatingBtn) svg,
+                                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg,
+                                html:not(.light-mode) .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn) svg {
+                                    width: 24px !important;
+                                    height: 24px !important;
+                                    color: rgba(255, 255, 255, 0.88) !important;
+                                    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)) !important;
+                                    transition: transform 0.25s ease, color 0.25s ease !important;
+                                }
+
+                                .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover svg,
+                                html.light-mode .movie-actions-container button:not(#watchNowBtn):not(#headerRatingBtn):hover svg {
+                                    color: #ffffff !important;
+                                    transform: scale(1.1) !important;
+                                }
+                            }
+
+                            /* Khi đã yêu thích (Favorite Active) */
+                            #favoriteMovieBtn.is-favorite-active svg,
+                            html.light-mode #favoriteMovieBtn.is-favorite-active svg,
+                            html:not(.light-mode) #favoriteMovieBtn.is-favorite-active svg {
+                                color: #ef4444 !important;
+                                fill: #ef4444 !important;
+                            }
+
+                            #favoriteMovieBtn.is-favorite-active span,
+                            html.light-mode #favoriteMovieBtn.is-favorite-active span,
+                            html:not(.light-mode) #favoriteMovieBtn.is-favorite-active span {
+                                color: #ef4444 !important;
+                            }
+
+                            /* Chữ "Xem ngay" trên nút vàng: MÀU ĐEN trong dark mode.
+                               (Lớp Tailwind text-[#0f1115] không tồn tại trong tailwind.min.css
+                               nên chữ bị kế thừa màu trắng của nền tối) */
+                            html:not(.light-mode) #watchNowBtn span,
+                            html:not(.light-mode) .movie-actions-container #watchNowBtn span {
+                                color: #0f1115 !important;
+                                -webkit-text-fill-color: #0f1115 !important;
+                                text-shadow: none !important;
+                            }
+                        </style>
+
+                        <!-- HỆ THỐNG TAB THÔNG TIN PHIM -->
                         <div class="ap-movie-tab-system w-full mb-8">
                             <!-- Thanh chuyển Tab Navigation -->
                             <div
@@ -1574,7 +1787,7 @@
                                 </div>
                             </div>
 
-                            <!-- Tab 2: Gallery (Match Hình 2) -->
+                        <!-- Tab 2: Gallery (Match Hình 2) -->
                             <div id="tab-panel-gallery" class="ap-tab-panel w-full hidden space-y-6">
                                 <div>
                                     <h3 class="text-white font-bold text-base md:text-lg mb-3">Videos</h3>
@@ -1652,25 +1865,6 @@
                                 }
                             }
 
-                            function toggleMobileMoreMovieInfo() {
-                                var details = document.getElementById('movie-expandable-details');
-                                var text = document.getElementById('toggleMoreMovieInfoText');
-                                var icon = document.getElementById('toggleMoreMovieInfoIcon');
-                                if (!details) return;
-                                var isHidden = details.classList.contains('hidden');
-                                if (isHidden) {
-                                    details.classList.remove('hidden');
-                                    details.classList.add('flex');
-                                    if (text) text.textContent = 'Thu gọn';
-                                    if (icon) icon.style.transform = 'rotate(180deg)';
-                                } else {
-                                    details.classList.add('hidden');
-                                    details.classList.remove('flex');
-                                    if (text) text.textContent = 'Xem thêm';
-                                    if (icon) icon.style.transform = 'rotate(0deg)';
-                                }
-                            }
-
                             // Toggle 6 ô metadata trên Desktop (Xem thêm / Thu gọn)
                             function toggleDesktopMeta() {
                                 var container = document.getElementById('movie-metadata-container');
@@ -1702,26 +1896,10 @@
                                     class="text-gray-300 leading-relaxed text-sm md:text-[14.5px] font-light text-justify px-0 break-words">
                                     Đang tải nội dung phim...
                                 </div>
-                                <!-- Nút Xem thêm / Thu gọn cho mobile (bên phải góc dưới) -->
-                                <div class="w-full flex justify-end items-center mt-2 lg:hidden"
-                                    style="display: flex; justify-content: flex-end; width: 100%;">
-                                    <button id="toggleMoreMovieInfoBtn" onclick="toggleMobileMoreMovieInfo()"
-                                        type="button"
-                                        style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 10px; font-size: 11px; font-weight: 600; line-height: 1.2; border-radius: 9999px; margin-left: auto; width: auto; max-width: max-content; flex-shrink: 0;"
-                                        class="text-[#fcd576] hover:text-[#fbbf24] bg-white/5 hover:bg-white/10 border border-[#fcd576]/30 transition-all duration-200 active:scale-95 cursor-pointer shadow-sm whitespace-nowrap">
-                                        <span id="toggleMoreMovieInfoText">Xem thêm</span>
-                                        <svg id="toggleMoreMovieInfoIcon"
-                                            style="width: 12px; height: 12px; min-width: 12px; min-height: 12px; flex-shrink: 0; transition: transform 0.3s ease;"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="m6 9 6 6 6-6" />
-                                        </svg>
-                                    </button>
-                                </div>
                             </div>
 
-                            <!-- Khối bọc Diễn viên & Metadata (Mặc định ẩn trên Mobile, bấm nút xem thêm để mở; luôn hiện trên Desktop) -->
-                            <div id="movie-expandable-details" class="hidden lg:flex flex-col gap-8 w-full">
+                            <!-- Khối bọc Diễn viên & Metadata (Luôn hiện trên mọi màn hình) -->
+                            <div id="movie-expandable-details" class="flex flex-col gap-8 w-full">
                                 <!-- Khối 2: Diễn viên (Hình tròn lướt ngang) -->
                                 <div id="movie-cast-side-section" class="w-full text-left pt-2">
                                     <div class="flex items-center justify-between mb-3">

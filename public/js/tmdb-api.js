@@ -48,7 +48,13 @@ async function loadActorImagesFromTMDB(movie) {
         }
 
         // Try multiple search strategies (Fallback if TMDB ID is missing)
-        const searchStrategies = [
+        const isVNForActor = typeof isVietnameseMovie === 'function' ? isVietnameseMovie(movie) : false;
+        const searchStrategies = isVNForActor ? [
+            { query: movie.name, year: movie.year, label: 'VN name + year' },
+            { query: movie.name, year: null, label: 'VN name only' },
+            { query: removeVietnameseAccents(movie.name), year: movie.year, label: 'No-accent VN name + year' },
+            { query: removeVietnameseAccents(movie.name), year: null, label: 'No-accent VN name only' }
+        ] : [
             { query: movie.origin_name, year: movie.year, label: 'origin name + year' },
             { query: movie.name, year: movie.year, label: 'VN name + year' },
             { query: movie.origin_name, year: null, label: 'origin name only' },
@@ -341,6 +347,7 @@ function updateActorAvatars(localActors, tmdbCast) {
 
 // Helper function to remove Vietnamese accents for better name matching
 function removeVietnameseAccents(str) {
+    if (!str) return '';
     return str
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -348,20 +355,102 @@ function removeVietnameseAccents(str) {
         .replace(/Đ/g, 'D');
 }
 
+// 🛡️ Helper to reliably detect if a movie is Vietnamese
+function isVietnameseMovie(movie) {
+    if (!movie) return false;
+    const countries = Array.isArray(movie.country)
+        ? movie.country.map(c => (typeof c === 'object' ? (c.name || c.slug || '') : String(c)).toLowerCase())
+        : [String(movie.country || '').toLowerCase()];
+
+    const isVNCountry = countries.some(c =>
+        c.includes('việt nam') || c.includes('viet nam') || c === 'vn' || c === 'viet-nam'
+    );
+    if (isVNCountry) return true;
+
+    // Ký tự tiếng Việt có dấu
+    const vnCharRegex = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+    const hasVnChar = vnCharRegex.test(movie.name || '');
+    if (hasVnChar) {
+        const isOtherCountry = countries.some(c =>
+            c.includes('trung quốc') || c.includes('hàn quốc') || c.includes('nhật bản') ||
+            c.includes('mỹ') || c.includes('thái lan') || c.includes('anh') || c.includes('pháp') ||
+            c.includes('âu mỹ') || c.includes('hong kong') || c.includes('đài loan') ||
+            c.includes('tây ban nha') || c.includes('thổ nhĩ kỳ') || c.includes('ấn độ')
+        );
+        if (!isOtherCountry) return true;
+    }
+    return false;
+}
+
+// 🛡️ Strict validation guard for TMDB search results to prevent mismatching (e.g. Vietnamese movie matching Turkish Hamlet)
+function isValidTMDBResult(cand, movie, isVN) {
+    if (!cand) return false;
+    if (!cand.backdrop_path && !cand.poster_path) return false;
+
+    const candTitle = (cand.title || cand.name || cand.original_title || cand.original_name || '').toLowerCase().trim();
+    const candNorm = removeVietnameseAccents(candTitle);
+    const movieNameNorm = removeVietnameseAccents((movie.name || '').toLowerCase().trim());
+    const movieOriginNorm = removeVietnameseAccents((movie.origin_name || '').toLowerCase().trim());
+
+    if (isVN) {
+        // Phim Việt Nam: BẮT BUỘC có original_language là 'vi' HOẶC origin_country chứa 'VN'
+        const isVnLang = cand.original_language === 'vi';
+        const isVnCountry = Array.isArray(cand.origin_country) && cand.origin_country.includes('VN');
+        if (!isVnLang && !isVnCountry) {
+            // TUYỆT ĐỐI KHÔNG nhận phim nước ngoài cho phim Việt Nam!
+            return false;
+        }
+
+        // Tên ứng viên phải tương đồng với tên tiếng Việt của phim
+        const matchName = candNorm === movieNameNorm ||
+            (candNorm.length >= 3 && movieNameNorm.includes(candNorm)) ||
+            (movieNameNorm.length >= 3 && candNorm.includes(movieNameNorm));
+        if (!matchName) return false;
+
+        return true;
+    }
+
+    // Đối với phim quốc tế:
+    if (movie.year) {
+        const dateStr = cand.release_date || cand.first_air_date || '';
+        if (dateStr && dateStr.length >= 4) {
+            const candYear = parseInt(dateStr.substring(0, 4), 10);
+            const mYear = parseInt(movie.year, 10);
+            if (!isNaN(candYear) && !isNaN(mYear)) {
+                if (Math.abs(candYear - mYear) > 2) {
+                    const exactMatch = (candNorm === movieOriginNorm || candNorm === movieNameNorm);
+                    if (!exactMatch) return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 // --- HERO BANNER IMAGE FETCHING ---
 async function getHeroImagesFromTMDB(movie) {
     if (!movie) return null;
 
-    const cacheKey = `tmdb_hero_${movie.slug}`;
+    // Dùng v4 cache key để xóa sạch các cache cũ bị load nhầm trước đây
+    const cacheKey = `tmdb_hero_v4_${movie.slug}`;
+    try {
+        sessionStorage.removeItem(`tmdb_hero_${movie.slug}`);
+        sessionStorage.removeItem(`tmdb_hero_v2_${movie.slug}`);
+        sessionStorage.removeItem(`tmdb_hero_v3_${movie.slug}`);
+    } catch (e) {}
+
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
         return JSON.parse(cached);
     }
 
+    const isVN = isVietnameseMovie(movie);
+
     try {
         let tmdbMovie = null;
 
-        // Ưu tiên tải ảnh từ PhimAPI images endpoint vì rất nhanh và chính xác
+        // Ưu tiên tải ảnh từ PhimAPI images endpoint nếu có
         try {
             const imagesUrl = `https://ophim1.com/v1/api/phim/${movie.slug}/images`;
             const response = await fetch(imagesUrl);
@@ -380,11 +469,9 @@ async function getHeroImagesFromTMDB(movie) {
                     }
                 }
             }
-        } catch (err) {
-            console.warn('Failed to load images from PhimAPI, trying TMDB API...', err);
-        }
+        } catch (err) {}
 
-        // 1. Exact ID match (if Ophim provides tmdb.id)
+        // 1. Exact ID match (nếu Ophim cung cấp tmdb.id)
         if (movie.tmdb && movie.tmdb.id && String(movie.tmdb.id).trim() !== '') {
             try {
                 const tmdbType = movie.tmdb.type === 'tv' ? 'tv' : 'movie';
@@ -392,23 +479,37 @@ async function getHeroImagesFromTMDB(movie) {
                 const detailUrl = `${TMDB_PROXY_BASE}/${tmdbType}/${tmdbId}?language=vi-VN`;
                 const response = await fetchWithProxy(detailUrl);
                 if (response.ok) {
-                    tmdbMovie = await response.json();
+                    const detailData = await response.json();
+                    if (isValidTMDBResult(detailData, movie, isVN)) {
+                        tmdbMovie = detailData;
+                    }
                 }
             } catch (err) {}
         }
 
-        // 2. Fallback to Search
+        // 2. Fallback to Search with Strict Language & Country Guard
         if (!tmdbMovie) {
-            const searchStrategies = [
-                { query: movie.origin_name, year: movie.year },
-                { query: movie.name, year: movie.year },
-                { query: movie.origin_name, year: null },
-                { query: movie.name, year: null }
-            ];
+            let searchStrategies = [];
+            if (isVN) {
+                // Phim Việt Nam: TUYỆT ĐỐI KHÔNG tìm origin_name do Google dịch tiếng Anh (ví dụ 'Hamlet')
+                searchStrategies = [
+                    { query: movie.name, year: movie.year },
+                    { query: movie.name, year: null },
+                    { query: removeVietnameseAccents(movie.name), year: movie.year },
+                    { query: removeVietnameseAccents(movie.name), year: null }
+                ];
+            } else {
+                searchStrategies = [
+                    { query: movie.origin_name, year: movie.year },
+                    { query: movie.name, year: movie.year },
+                    { query: movie.origin_name, year: null },
+                    { query: movie.name, year: null }
+                ];
+            }
 
             for (const strategy of searchStrategies) {
-                if (!strategy.query) continue;
-                const query = encodeURIComponent(strategy.query);
+                if (!strategy.query || strategy.query.trim().length === 0) continue;
+                const query = encodeURIComponent(strategy.query.trim());
                 const yearParam = strategy.year ? `&year=${strategy.year}` : '';
                 const searchUrl = `${TMDB_PROXY_BASE}/search/multi?query=${query}${yearParam}&language=vi-VN`;
 
@@ -417,8 +518,12 @@ async function getHeroImagesFromTMDB(movie) {
                     if (res.ok) {
                         const data = await res.json();
                         if (data.results && data.results.length > 0) {
-                            tmdbMovie = data.results[0];
-                            break;
+                            // Lọc qua các ứng viên theo guard an toàn
+                            const matched = data.results.find(cand => isValidTMDBResult(cand, movie, isVN));
+                            if (matched) {
+                                tmdbMovie = matched;
+                                break;
+                            }
                         }
                     }
                 } catch (err) { continue; }
@@ -435,7 +540,7 @@ async function getHeroImagesFromTMDB(movie) {
             return result;
         }
     } catch (e) {}
-    
+
     // Cache null so we don't retry failed movies
     sessionStorage.setItem(cacheKey, JSON.stringify(null));
     return null;

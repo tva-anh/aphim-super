@@ -1,16 +1,37 @@
+/**
+ * APhim Super — Production Clean Console (Triệt tiêu 100% log rác)
+ */
+(function() {
+    if (typeof window !== 'undefined' && !window.__APHIM_DEBUG__) {
+        const _empty = function() {};
+        window._consoleLog = console.log;
+        window._consoleWarn = console.warn;
+        console.log = _empty;
+        console.info = _empty;
+        console.debug = _empty;
+        console.warn = _empty;
+    }
+})();
+
 // Watch Page Script
 let currentMovie = null;
 let currentEpisode = null;
 let player = null;
 let currentServerIndex = 0; // Track the current server index for failover
-let requestedVariant = null; // SEO variant: 'thuyet-minh', 'long-tieng', 'vietsub'
+let requestedVariant = null; // SEO variant: 'thuyet-minh', 'long-tieng', 'vietsub', 'song-ngu'
 let _isInitializingPlayer = false; // Guard: chỉ cho phép 1 lần initializePlayer chạy cùng lúc
+
+// ── Trạng thái ý định người dùng (dùng lại sau khi gộp nguồn phụ 1.2s) ──
+let requestedServerParam = null;   // ?server=X trên URL (null nếu không có)
+let _userPickedServer = false;     // người dùng TỰ bấm đổi máy chủ ⇒ không được tự ý nhảy luồng
+let _playbackStarted = false;      // đã thực sự nạp player (phát hoặc auto-resume) hay mới chỉ là placeholder
 
 document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     let slug = urlParams.get('slug');
     let episodeSlug = urlParams.get('episode');
     let serverIndex = urlParams.get('server');
+    requestedServerParam = serverIndex;
     requestedVariant = urlParams.get('version') || urlParams.get('variant') || null;
 
     const pathname = window.location.pathname.toLowerCase();
@@ -26,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             if (rawEp) {
-                const knownVariants = ['thuyet-minh', 'long-tieng', 'vietsub', 'ban-cam', 'raw'];
+                const knownVariants = ['thuyet-minh', 'long-tieng', 'vietsub', 'song-ngu', 'ban-cam', 'raw'];
                 if (knownVariants.includes(rawEp.toLowerCase())) {
                     requestedVariant = rawEp.toLowerCase();
                     rawEp = null;
@@ -35,6 +56,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                         { suffix: '-thuyet-minh', key: 'thuyet-minh' },
                         { suffix: '-long-tieng', key: 'long-tieng' },
                         { suffix: '-vietsub', key: 'vietsub' },
+                        // updateWatchUrlState SINH RA hậu tố '-song-ngu' nhưng trước đây parser không đọc
+                        // lại được ⇒ ý định "xem Song Ngữ" mất ngay từ URL, episodeSlug còn dính hậu tố
+                        // ("1-song-ngu") nên không khớp tập nào, rơi về Nguồn 1 (embed bị chặn → khung xám).
+                        { suffix: '-song-ngu', key: 'song-ngu' },
                         { suffix: '-ban-cam', key: 'ban-cam' }
                     ];
                     for (const v of variantSuffixes) {
@@ -107,15 +132,21 @@ function saveServerPreference(movieSlug, serverIndex, serverObj) {
     if (!movieSlug) return;
     try {
         const rawName = serverObj ? (serverObj.original_server_name || serverObj.server_name || '') : '';
+        const prefType = getServerTypeTag(serverObj);
         const pref = {
             index: serverIndex,
             name: rawName,
-            type: getServerTypeTag(serverObj),
+            type: prefType,
             updatedAt: Date.now()
         };
         localStorage.setItem('aphim_server_pref_' + movieSlug, JSON.stringify(pref));
         localStorage.setItem('aphim_server_' + movieSlug, String(serverIndex));
         sessionStorage.setItem('aphim_server_' + movieSlug, String(serverIndex));
+        if (prefType === 'song-ngu') {
+            localStorage.setItem('aphim_preferred_variant', 'song-ngu');
+        } else if (prefType === 'thuyet-minh' || prefType === 'long-tieng') {
+            localStorage.setItem('aphim_preferred_variant', prefType);
+        }
     } catch (e) { }
 }
 
@@ -131,8 +162,212 @@ function readServerPreference(movieSlug) {
         if (oldNum !== null && !isNaN(oldNum)) {
             return { index: parseInt(oldNum, 10), type: null, name: null };
         }
+        // Ghi nhớ sở thích toàn cục: Nếu người dùng đã chọn Song Ngữ ở phim trước
+        const globalPref = localStorage.getItem('aphim_preferred_variant');
+        if (globalPref === 'song-ngu') {
+            return { index: -1, type: 'song-ngu', name: null };
+        }
     } catch (e) { }
     return null;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// CHẤM ĐIỂM CHẤT LƯỢNG NGUỒN PHÁT (dùng cho mọi phim khi chưa chỉ định server)
+//   4 = mọi tập có link_m3u8 (HLS tự quản lý buffer, không bị chặn Cloudflare)
+//   3 = một phần tập có link_m3u8
+//   2 = chỉ có embed, nhưng embed KHÔNG nằm trong danh sách bị chặn
+//   1 = chỉ có embed bị chặn (embed*.streamc.xyz → trả 403, trình duyệt hiện khung xám)
+//   0 = không có link nào
+// ──────────────────────────────────────────────────────────────────────────────
+const BLOCKED_EMBED_HOSTS = ['streamc.xyz'];
+
+function getEmbedHost(link) {
+    if (!link || typeof link !== 'string') return '';
+    try {
+        return new URL(link, window.location.origin).hostname.toLowerCase();
+    } catch (e) {
+        return '';
+    }
+}
+
+function isBlockedEmbedLink(link) {
+    const host = getEmbedHost(link);
+    if (!host) return false;
+    return BLOCKED_EMBED_HOSTS.some(b => host === b || host.endsWith('.' + b));
+}
+
+function serverLinkQuality(server) {
+    const eps = (server && Array.isArray(server.server_data)) ? server.server_data.filter(Boolean) : [];
+    if (eps.length === 0) return 0;
+
+    let m3u8 = 0, embedOk = 0, embedBlocked = 0;
+    eps.forEach(ep => {
+        const linkM3u8 = typeof ep.link_m3u8 === 'string' ? ep.link_m3u8.trim() : '';
+        const linkEmbed = typeof ep.link_embed === 'string' ? ep.link_embed.trim() : '';
+        if (linkM3u8) m3u8++;
+        else if (linkEmbed) {
+            if (isBlockedEmbedLink(linkEmbed)) embedBlocked++;
+            else embedOk++;
+        }
+    });
+
+    if (m3u8 === eps.length) return 4;
+    if (m3u8 > 0) return 3;
+    if (embedOk > 0) return 2;
+    if (embedBlocked > 0) return 1;
+    return 0;
+}
+
+// "tap-1" / "1" / "Tap 1" → "1"
+function cleanEpKey(value) {
+    return String(value || '').trim().toLowerCase().replace(/^tap-/, '').replace(/\s+/g, '');
+}
+
+// "Tập 01" / "tap-1" / "phim-nay-tap-07" → 1 / 1 / 7  (so sánh SỐ để không lệch vì 0 đứng trước)
+function epNumber(value) {
+    const digits = String(value || '').replace(/[^0-9]/g, '');
+    if (!digits) return null;
+    const n = parseInt(digits, 10);
+    return isNaN(n) ? null : n;
+}
+
+function findEpisodeInServer(server, epSlugOrName) {
+    const list = (server && Array.isArray(server.server_data)) ? server.server_data.filter(Boolean) : [];
+    if (!epSlugOrName || list.length === 0) return null;
+
+    const key = cleanEpKey(epSlugOrName);
+    // Chỉ dùng quy tắc "so sánh số" khi key chỉ gồm số (vd "1", "tập1") —
+    // tránh nhầm "Full HD 1080" hay tiêu đề có chữ thành một con số.
+    const keyNum = !/[a-z]/i.test(key.replace(/[0-9]/g, '')) ? epNumber(key) : null;
+
+    return list.find(ep => {
+        if (cleanEpKey(ep.slug) === key || cleanEpKey(ep.name) === key) return true;
+        if (keyNum !== null && (epNumber(ep.slug) === keyNum || epNumber(ep.name) === keyNum)) return true;
+        return false;
+    }) || null;
+}
+
+function serverHasEpisode(server, epSlugOrName) {
+    if (!epSlugOrName) return true;
+    return Boolean(findEpisodeInServer(server, epSlugOrName));
+}
+
+// Chọn tập tương ứng trong server đích khi phải đổi máy chủ (giữ NGUYÊN tập đang xem)
+function pickEpisodeForServer(server, prevEpisode, epSlug) {
+    const list = (server && Array.isArray(server.server_data)) ? server.server_data.filter(Boolean) : [];
+    if (list.length === 0) return null;
+
+    if (prevEpisode) {
+        const byPrev = findEpisodeInServer(server, prevEpisode.name) || findEpisodeInServer(server, prevEpisode.slug);
+        if (byPrev) return byPrev;
+    }
+    if (epSlug) {
+        const byReq = findEpisodeInServer(server, epSlug);
+        if (byReq) return byReq;
+    }
+    return list[0];
+}
+
+// Server mang tên Song Ngữ (không dấu / có dấu / bilingual)
+function isBilingualServer(server) {
+    const raw = String((server && (server.original_server_name || server.server_name)) || '').toLowerCase();
+    return raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual');
+}
+
+// 🛡️ Tự động ghép link stream video khả dụng sang server Song Ngữ (Ưu tiên bản video sạch: Thuyết minh / Lồng tiếng / Raw)
+function attachWorkingStreamsToBilingual(bilingualServer, referenceEpisodes) {
+    if (!bilingualServer || !Array.isArray(bilingualServer.server_data) || bilingualServer.server_data.length === 0) return;
+
+    // 🌟 ƯU TIÊN 1: Tìm server có video sạch (không Vietsub in cứng): Thuyết minh, Lồng tiếng, Raw, Bản gốc
+    let refServer = (referenceEpisodes || []).find(s => {
+        if (!s || !Array.isArray(s.server_data) || s.server_data.length === 0 || isBilingualServer(s)) return false;
+        if (serverLinkQuality(s) < 2) return false;
+        const name = (s.original_server_name || s.server_name || '').toLowerCase();
+        return name.includes('thuyết minh') || name.includes('lồng tiếng') || name.includes('raw') || name.includes('bản gốc');
+    });
+
+    // 🌟 ƯU TIÊN 2: Fallback về server khác nếu không có bản sạch
+    if (!refServer) {
+        refServer = (referenceEpisodes || []).find(s => s && Array.isArray(s.server_data) && s.server_data.length > 0 && !isBilingualServer(s) && serverLinkQuality(s) >= 2);
+    }
+    if (!refServer || !refServer.server_data || refServer.server_data.length === 0) return;
+
+    function getEpNum(val) {
+        if (!val) return null;
+        const str = String(val).toLowerCase().trim();
+        if (str === 'full' || str.includes('full')) return 'full';
+        const match = str.match(/(\d+)/);
+        return match ? parseInt(match[1], 10) : str;
+    }
+
+    const refMap = new Map();
+    refServer.server_data.forEach(ep => {
+        const n1 = getEpNum(ep.slug);
+        const n2 = getEpNum(ep.name);
+        if (n1 !== null && !refMap.has(n1)) refMap.set(n1, ep);
+        if (n2 !== null && !refMap.has(n2)) refMap.set(n2, ep);
+    });
+
+    bilingualServer.server_data.forEach((bEp, idx) => {
+        const n1 = getEpNum(bEp.slug);
+        const n2 = getEpNum(bEp.name);
+        const refEp = (n1 !== null && refMap.get(n1)) || (n2 !== null && refMap.get(n2)) || refServer.server_data[idx] || refServer.server_data[0];
+        if (refEp) {
+            const isBroken = !bEp.link_m3u8 || bEp.link_m3u8.includes('chophim') || bEp.link_m3u8.includes('/api/proxy/m3u8');
+            if (isBroken && refEp.link_m3u8) {
+                bEp.link_m3u8 = refEp.link_m3u8;
+            }
+            if (!bEp.link_embed && refEp.link_embed) {
+                bEp.link_embed = refEp.link_embed;
+            }
+        }
+    });
+}
+
+// Đánh lại nhãn "Nguồn 1, 2, 3..." LIÊN TỤC sau khi đã gộp & lọc (không nhảy bậc 1,2,4,5)
+function normalizeServerNames(episodes) {
+    if (!Array.isArray(episodes)) return;
+    let n = 0;
+    episodes.forEach((s) => {
+        if (!s) return;
+        if (!s.original_server_name) s.original_server_name = s.server_name || '';
+        if (!isBilingualServer(s)) {
+            n++;
+            s.server_name = `Nguồn ${n}`;
+        } else {
+            attachWorkingStreamsToBilingual(s, episodes);
+        }
+    });
+}
+
+// Server tốt nhất theo thứ tự ưu tiên đã duyệt:
+//   1) Khớp chủ đích (Song Ngữ / Thuyết Minh / Lồng Tiếng) → +100
+//   2) Có link_m3u8 (4/3) > 3) embed không bị chặn (2) > 4) embed streamc.xyz (1)
+//   * Khi người dùng KHÔNG có chủ đích Song Ngữ, nguồn Song Ngữ bị trừ 2.5 điểm để
+//     không tự ý đổi ngôn ngữ nếu vẫn còn nguồn khác chạy được; nhưng vẫn luôn thắng
+//     nhóm embed bị chặn (1) — đúng ca "khung xám" của Sếp Chính Là Thần Tượng.
+function pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug) {
+    if (!Array.isArray(episodes) || episodes.length === 0) return 0;
+
+    const all = episodes.map((s, i) => ({ s, i }));
+    const pool = requestedEpSlug ? all.filter(x => serverHasEpisode(x.s, requestedEpSlug)) : all;
+    const candidates = pool.length ? pool : all;
+
+    let bestIndex = candidates[0].i;
+    let bestScore = -Infinity;
+
+    candidates.forEach(({ s, i }) => {
+        let score = serverLinkQuality(s);
+        const type = getServerTypeTag(s, movie);
+        if (reqVariant && reqVariant !== 'vietsub' && type === reqVariant) score += 100;
+        else if (type === 'song-ngu') score -= 2.5;
+        if (score > bestScore) {
+            bestScore = score;
+            bestIndex = i;
+        }
+    });
+
+    return bestIndex;
 }
 
 function resolveServerIndex(episodes, requestedServer, reqVariant, movie, requestedEpSlug) {
@@ -153,7 +388,8 @@ function resolveServerIndex(episodes, requestedServer, reqVariant, movie, reques
 
     // 1B. URL Variant (/full-thuyet-minh, /tap-1-thuyet-minh, /tap-1-song-ngu, /tap-1-long-tieng)
     // Người dùng tìm kiếm trên Google click vào bản thuyết minh/song ngữ -> Bắt buộc ưu tiên cao nhất!
-    if (targetIndex === -1 && reqVariant && reqVariant !== 'vietsub' && episodes.length > 1) {
+    // (Bỏ điều kiện episodes.length > 1: chủ đích vẫn đúng khi tạm thời mới chỉ merge được 1 nguồn)
+    if (targetIndex === -1 && reqVariant && reqVariant !== 'vietsub') {
         const foundVariant = episodes.findIndex(s => {
             const cat = getServerTypeTag(s, movie);
             return cat === reqVariant;
@@ -195,40 +431,25 @@ function resolveServerIndex(episodes, requestedServer, reqVariant, movie, reques
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // 3. ƯU TIÊN 3: MẶC ĐỊNH HỆ THỐNG
+    // 3. ƯU TIÊN 3: MẶC ĐỊNH HỆ THỐNG — chấm điểm chất lượng link (áp dụng MỌI phim)
     // ──────────────────────────────────────────────────────────────────────────
     if (targetIndex === -1) {
-        targetIndex = 0;
+        targetIndex = pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug);
     }
 
     // ──────────────────────────────────────────────────────────────────────────
     // 4. KIỂM TRA BIÊN AN TOÀN & KIỂM TRA TẬP PHIM TỒN TẠI (CHỐNG LỖI OUT OF BOUNDS)
     // ──────────────────────────────────────────────────────────────────────────
     if (targetIndex < 0 || targetIndex >= episodes.length) {
-        targetIndex = 0;
-    }
-
-    // Nếu tập phim được chỉ định (e.g. tập 15), xác nhận server đã chọn có tập này không
-    if (requestedEpSlug && episodes[targetIndex]?.server_data) {
-        const cleanEp = String(requestedEpSlug).replace(/^tap-/, '').toLowerCase();
-        const hasRequestedEp = episodes[targetIndex].server_data.some(ep => {
-            const epSlug = String(ep.slug || '').replace(/^tap-/, '').toLowerCase();
-            return epSlug === cleanEp || (ep.name && ep.name.toLowerCase() === cleanEp);
-        });
-
-        if (!hasRequestedEp) {
-            // Máy chủ đã chọn không có tập này -> Tìm máy chủ nào CÓ tập này
-            const fallbackServerIdx = episodes.findIndex(s => (s.server_data || []).some(ep => {
-                const epSlug = String(ep.slug || '').replace(/^tap-/, '').toLowerCase();
-                return epSlug === cleanEp || (ep.name && ep.name.toLowerCase() === cleanEp);
-            }));
-
-            if (fallbackServerIdx !== -1) {
-                targetIndex = fallbackServerIdx;
-            } else {
-                targetIndex = 0;
-            }
-        }
+        targetIndex = pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug);
+    } else if (serverLinkQuality(episodes[targetIndex]) === 0) {
+        // Server được chọn (theo lịch sử/index cũ) KHÔNG có link phát nào → quay lại xếp hạng
+        targetIndex = pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug);
+    } else if (requestedEpSlug && !serverHasEpisode(episodes[targetIndex], requestedEpSlug)) {
+        // Máy chủ đã chọn (theo URL hoặc lịch sử) không có tập này
+        // → chỉ nhảy sang server KHÁC khi server đó thật sự có tập & tốt nhất trong số có tập.
+        const better = pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug);
+        targetIndex = serverHasEpisode(episodes[better], requestedEpSlug) ? better : 0;
     }
 
     return targetIndex;
@@ -337,6 +558,12 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         if (checkHasStreamLinks(window.initialEpisodes)) {
             console.log('🔄 [Watch] Đồng bộ streaming links mới nhất từ SSR vào Preloaded Data');
             preloaded.episodes = window.initialEpisodes;
+        } else if (window.initialEpisodes && Array.isArray(window.initialEpisodes)) {
+            // Nếu SSR có server Song Ngữ mà preloaded chưa có -> bổ sung ngay server Song Ngữ vào preloaded!
+            const ssrSongNgu = window.initialEpisodes.find(s => isBilingualServer(s));
+            if (ssrSongNgu && preloaded.episodes && !preloaded.episodes.some(s => isBilingualServer(s))) {
+                preloaded.episodes.unshift(ssrSongNgu);
+            }
         }
     }
 
@@ -346,22 +573,17 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         console.log('⚡ [Watch] Khởi chạy tức thì từ Preloaded Data (0ms, 0 Network Request)!', preloaded.name);
         currentMovie = preloaded;
 
-        // Chuẩn hóa tên Nguồn 1, Nguồn 2...
-        currentMovie.episodes.forEach((server, idx) => {
-            if (!server.original_server_name) server.original_server_name = server.server_name;
-            if (!server.server_name.toLowerCase().includes('song ngữ')) {
-                server.server_name = `Nguồn ${idx + 1}`;
-            }
-        });
+        // Chuẩn hóa tên Nguồn 1, Nguồn 2... (đánh số LIÊN TỤC, bỏ qua server giữ tên riêng như Song Ngữ)
+        normalizeServerNames(currentMovie.episodes);
 
         const urlParams = new URLSearchParams(window.location.search);
         const requestedServer = urlParams.get('server');
         currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie, episodeSlug);
 
         const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-        currentEpisode = episodeSlug
-            ? serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, ''))
-            : serverData[0];
+        currentEpisode = (episodeSlug && findEpisodeInServer(currentMovie.episodes[currentServerIndex], episodeSlug))
+            || serverData.find(ep => ep.slug && ep.slug.replace(/^tap-/, '') === String(episodeSlug || '').replace(/^tap-/, ''))
+            || serverData[0];
 
         if (!currentEpisode) currentEpisode = serverData[0];
 
@@ -375,10 +597,17 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         if (window._apInitComment) window._apInitComment();
         ophimOk = true;
 
-        // ⚡ Nguồn phụ được fetch ngầm sau 1.2s, hoàn toàn KHÔNG chặn Player phát video!
+        // ⚡ Nguồn phụ: Nếu có chủ đích xem Song Ngữ -> nạp ngay lập tức (0ms delay), nếu không chờ 1.2s
+        const isSongNguIntent1 = requestedVariant === 'song-ngu' || (function() {
+            try {
+                const pref = readServerPreference(slug);
+                return pref && (pref.type === 'song-ngu' || (pref.name && pref.name.toLowerCase().includes('song ngữ')));
+            } catch(e) { return false; }
+        })();
+        const secDelay1 = isSongNguIntent1 ? 0 : 1200;
         setTimeout(() => {
             fetchAndMergeSecondaryServers(slug, false, episodeSlug).catch(err => console.warn('Background secondary fetch:', err));
-        }, 1200);
+        }, secDelay1);
 
         return;
     }
@@ -392,21 +621,16 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
         const ssrHasLinks = checkHasStreamLinks(currentMovie.episodes);
         if (ssrHasLinks) {
-            currentMovie.episodes.forEach((server, idx) => {
-                if (!server.original_server_name) server.original_server_name = server.server_name;
-                if (!server.server_name.toLowerCase().includes('song ngữ')) {
-                    server.server_name = `Nguồn ${idx + 1}`;
-                }
-            });
+            normalizeServerNames(currentMovie.episodes);
 
             const urlParams = new URLSearchParams(window.location.search);
             const requestedServer = urlParams.get('server');
             currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServer, requestedVariant, currentMovie, episodeSlug);
 
             const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-            currentEpisode = episodeSlug
-                ? serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, ''))
-                : serverData[0];
+            currentEpisode = (episodeSlug && findEpisodeInServer(currentMovie.episodes[currentServerIndex], episodeSlug))
+                || serverData.find(ep => ep.slug && ep.slug.replace(/^tap-/, '') === String(episodeSlug || '').replace(/^tap-/, ''))
+                || serverData[0];
 
             if (!currentEpisode) currentEpisode = serverData[0];
 
@@ -434,14 +658,7 @@ async function loadMovieAndPlay(slug, episodeSlug) {
                 console.log('📺 Episodes:', currentMovie.episodes);
 
                 // Tự động chuẩn hóa tên tất cả các nguồn thành Nguồn 1, Nguồn 2...
-                if (currentMovie.episodes && currentMovie.episodes.length > 0) {
-                    currentMovie.episodes.forEach((server, idx) => {
-                        if (!server.original_server_name) server.original_server_name = server.server_name;
-                        if (!server.server_name.toLowerCase().includes('song ngữ')) {
-                            server.server_name = `Nguồn ${idx + 1}`;
-                        }
-                    });
-                }
+                normalizeServerNames(currentMovie.episodes);
 
                 // Find episode
                 if (currentMovie.episodes && currentMovie.episodes.length > 0) {
@@ -451,9 +668,8 @@ async function loadMovieAndPlay(slug, episodeSlug) {
 
                     const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
 
-                    currentEpisode = episodeSlug
-                        ? serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, ''))
-                        : serverData[0];
+                    currentEpisode = (episodeSlug && findEpisodeInServer(currentMovie.episodes[currentServerIndex], episodeSlug))
+                        || serverData[0];
 
                     if (!currentEpisode) currentEpisode = serverData[0];
                 }
@@ -476,11 +692,18 @@ async function loadMovieAndPlay(slug, episodeSlug) {
     }
 
     // ⚡ Tối ưu luồng: Nếu nguồn chính (OPhim) đã OK, không await nguồn phụ làm chậm player!
-    // Chạy ngầm fetchAndMergeSecondaryServers ở chế độ non-blocking để player phát ngay lập tức
+    // Chạy ngầm fetchAndMergeSecondaryServers: Nếu là Song Ngữ gọi ngay 0ms, phim thường chờ 1.2s
     if (ophimOk) {
+        const isSongNguIntent2 = requestedVariant === 'song-ngu' || (function() {
+            try {
+                const pref = readServerPreference(slug);
+                return pref && (pref.type === 'song-ngu' || (pref.name && pref.name.toLowerCase().includes('song ngữ')));
+            } catch(e) { return false; }
+        })();
+        const secDelay2 = isSongNguIntent2 ? 0 : 1200;
         setTimeout(() => {
             fetchAndMergeSecondaryServers(slug, false, episodeSlug).catch(err => console.warn('Background secondary fetch error:', err));
-        }, 1200);
+        }, secDelay2);
     } else {
         // Chỉ bắt buộc await nếu nguồn chính lỗi hoàn toàn
         await fetchAndMergeSecondaryServers(slug, true, episodeSlug);
@@ -626,6 +849,7 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
             }));
 
             if (bilingualData && bilingualData.server) {
+                attachWorkingStreamsToBilingual(bilingualData.server, initialMergedEps);
                 initialMergedEps.unshift(bilingualData.server);
             }
 
@@ -655,10 +879,17 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
 
             console.log('✅ [Watch] Dùng nguồn phụ làm nguồn chính:', currentMovie.name);
 
-            const serverData = currentMovie.episodes[0]?.server_data || [];
-            currentEpisode = episodeSlug
-                ? serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, '')) || serverData[0]
-                : serverData[0];
+            // Đánh số Nguồn 1, 2, 3... LIÊN TỤC sau khi đã unshift nguồn Song Ngữ,
+            // rồi chọn server theo đúng thứ tự ưu tiên (chủ đích URL > m3u8 > embed sạch > embed bị chặn)
+            normalizeServerNames(currentMovie.episodes);
+            currentServerIndex = resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, episodeSlug);
+            window.currentServerIndex = currentServerIndex;
+
+            const activeServer = currentMovie.episodes[currentServerIndex] || currentMovie.episodes[0] || {};
+            const serverData = activeServer.server_data || [];
+            currentEpisode = (episodeSlug && findEpisodeInServer(activeServer, episodeSlug))
+                || serverData.find(ep => ep.slug && ep.slug.replace(/^tap-/, '') === String(episodeSlug || '').replace(/^tap-/, ''))
+                || serverData[0];
 
             renderMovieInfo(currentMovie, currentEpisode);
             renderEpisodeList(currentMovie.episodes);
@@ -673,25 +904,26 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
         if (!currentMovie) return;
         if (!currentMovie.episodes) currentMovie.episodes = [];
 
-        // Đổi tên tất cả nguồn chính thành Nguồn 1, Nguồn 2...
-        currentMovie.episodes.forEach((s, idx) => {
-            if (!s.original_server_name) s.original_server_name = s.server_name;
-            if (!s.server_name.toLowerCase().includes('song ngữ')) {
-                s.server_name = `Nguồn ${idx + 1}`;
-            }
-        });
+        // Giữ lại ĐỐI TƯỢNG server đang thực sự phát TRƯỚC khi merge:
+        // unshift() nguồn Song Ngữ làm lệch toàn bộ index ⇒ không còn dùng index cũ được nữa.
+        const prevServerObj = currentMovie.episodes[currentServerIndex] || null;
+        const prevEpisode = currentEpisode || null;
+        const prevQuality = serverLinkQuality(prevServerObj);
 
         let added = 0;
 
         // 🌟 Đồng bộ nguồn Song Ngữ nếu chưa có trong danh sách
         if (bilingualData && bilingualData.server && currentMovie && currentMovie.episodes) {
-            const hasSongNgu = currentMovie.episodes.some(s => {
-                const sName = (s.original_server_name || s.server_name || '').toLowerCase();
-                return sName.includes('song ngữ') || sName.includes('bilingual');
-            });
+            const hasSongNgu = currentMovie.episodes.some(s => isBilingualServer(s));
             if (!hasSongNgu) {
+                attachWorkingStreamsToBilingual(bilingualData.server, currentMovie.episodes);
                 currentMovie.episodes.unshift(bilingualData.server);
                 added++;
+            } else {
+                const existingBilingual = currentMovie.episodes.find(s => isBilingualServer(s));
+                if (existingBilingual) {
+                    attachWorkingStreamsToBilingual(existingBilingual, currentMovie.episodes);
+                }
             }
         }
 
@@ -712,9 +944,80 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
 
         if (added > 0) {
             console.log(`✅ Đã thêm ${added} máy chủ mới (Tổng: ${currentMovie.episodes.length} nguồn)`);
-            renderServerList(currentMovie.episodes);
-            // ❌ KHÔNG tự động gọi changeServer hay initializePlayer ở đây
-            // → tránh gọi player nhiều lần gây xung đột luồng video
+
+            // (3) Sau khi GỘP + LỌC xong mới đánh lại số → Nguồn 1, 2, 3... liên tục, không nhảy bậc
+            normalizeServerNames(currentMovie.episodes);
+
+            const epKey = (prevEpisode && (prevEpisode.slug || prevEpisode.name)) || episodeSlug;
+
+            // ── (1)+(2) Xếp hạng lại server NÊN PHÁT sau khi đã có đủ nguồn ──
+            let wantedIndex;
+            if (_userPickedServer && prevServerObj) {
+                // Người dùng ĐÃ tự bấm đổi máy chủ trong 1.2s đầu → giữ đúng server đó, chỉ sửa index bị lệch
+                const keepIdx = currentMovie.episodes.indexOf(prevServerObj);
+                wantedIndex = keepIdx !== -1
+                    ? keepIdx
+                    : resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
+            } else {
+                // Chưa chỉ định gì (hoặc chủ đích Song Ngữ/Thuyết Minh từ URL & lịch sử) → xếp hạng lại toàn bộ
+                wantedIndex = resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
+            }
+            if (wantedIndex < 0 || wantedIndex >= currentMovie.episodes.length) wantedIndex = 0;
+
+            const wantedServer = currentMovie.episodes[wantedIndex];
+            const wantedEpisode = pickEpisodeForServer(wantedServer, prevEpisode, epKey);
+
+            // ── (1) Chỉ tự NẠP LẠI player khi: ──
+            //     • người dùng CHƯA bấm play (đang placeholder → đổi nguồn im lặng, KHÔNG tự phát), hoặc
+            //     • luồng cũ là embed bị chặn (chất lượng ≤ 1 = khung xám) → buộc phải nhảy sang nguồn chạy được, hoặc
+            //     • đang có CHỦ ĐÍCH biến thể (URL -song-ngu/-thuyet-minh/-long-tieng hoặc ?version=...) mà
+            //       người dùng CHƯA tự bấm đổi server → phải phục vụ đúng chủ đích đó.
+            //   Ngoài ra (đang xem bình thường, không có chủ đích) thì KHÔNG cắt luồng giữa chừng.
+            const variantIntent = Boolean(requestedVariant && requestedVariant !== 'vietsub');
+            const intentNotServed = variantIntent && !_userPickedServer && wantedServer !== prevServerObj;
+            const streamChanged = Boolean(wantedEpisode) && (wantedServer !== prevServerObj || wantedEpisode !== prevEpisode);
+            const mustRebind = streamChanged && (!_playbackStarted || prevQuality <= 1 || intentNotServed);
+
+            // Nếu không cắt luồng: server được highlight PHẢI là server đang phát thật
+            // (unshift làm lệch index cũ → đây chính là lỗi "sáng Song Ngữ nhưng phát Nguồn 1")
+            let nextIndex = wantedIndex;
+            if (!mustRebind && prevServerObj) {
+                const keepIdx = currentMovie.episodes.indexOf(prevServerObj);
+                if (keepIdx !== -1) nextIndex = keepIdx;
+            }
+            if (nextIndex < 0 || nextIndex >= currentMovie.episodes.length) nextIndex = 0;
+
+            const nextServer = currentMovie.episodes[nextIndex];
+
+            currentServerIndex = nextIndex;
+            window.currentServerIndex = nextIndex;
+            window.requestedServerIndex = nextIndex;
+
+            if (mustRebind && wantedEpisode) {
+                currentEpisode = wantedEpisode;
+                console.log(`🔄 [Watch] Merge xong → nạp lại player sang "${nextServer.server_name}" (chất lượng nguồn cũ ${prevQuality}/4, chủ đích: ${requestedVariant || 'không'})`);
+                if (_playbackStarted) {
+                    // Guard trong initializePlayer giữ _isInitializingPlayer tới 5s → thử lại nhẹ nhàng,
+                    // nhưng chỉ khi người dùng chưa tự chuyển server/tập khác trong lúc chờ.
+                    const tryInit = (attempt) => {
+                        if (currentServerIndex !== nextIndex) return;
+                        if (_isInitializingPlayer && attempt < 6) {
+                            setTimeout(() => tryInit(attempt + 1), 500);
+                            return;
+                        }
+                        initializePlayer(currentEpisode);
+                    };
+                    tryInit(0);
+                } else {
+                    renderPlayerPlaceholder(currentEpisode);
+                }
+            }
+
+            // Cập nhật highlight + số thứ tự Nguồn + danh sách tập của server mới
+            renderEpisodeList(currentMovie.episodes);
+            if (typeof window._aphimUpdateAudioMenu === 'function') {
+                window._aphimUpdateAudioMenu();
+            }
         }
     } catch (err) {
         console.warn('⚠️ Nguồn phụ thất bại:', err.message);
@@ -1093,19 +1396,96 @@ function renderMovieInfo(movie, episode) {
         }
     }
 
+    // 🚫 Removed FHD quality badge as per design request
     const sidebarQualityBadge = document.getElementById('sidebar-quality-badge');
-    if (sidebarQualityBadge) sidebarQualityBadge.textContent = movie.quality || 'FHD';
+    if (sidebarQualityBadge) sidebarQualityBadge.style.display = 'none';
 
     const sidebarYearBadge = document.getElementById('sidebar-year-badge');
     if (sidebarYearBadge) sidebarYearBadge.textContent = movie.year || '2026';
 
+    const sidebarLangBadge = document.getElementById('sidebar-lang-badge');
     const sidebarLangText = document.getElementById('sidebar-lang-text');
     if (sidebarLangText) {
-        let langVal = movie.lang || 'Vietsub';
-        if (langVal.toLowerCase().includes('vietsub')) langVal = 'VS.1';
-        else if (langVal.toLowerCase().includes('thuyết minh')) langVal = 'TM';
-        else if (langVal.toLowerCase().includes('lồng tiếng')) langVal = 'LT';
-        sidebarLangText.textContent = langVal;
+        let rawLang = (movie.lang || '').toLowerCase();
+        let displayLang = 'Vietsub';
+        let bg = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
+        let color = '#18181b';
+
+        if (rawLang.includes('song ngữ') || rawLang.includes('bilingual')) {
+            displayLang = 'Song Ngữ';
+            bg = 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)';
+            color = '#ffffff';
+        } else if (rawLang.includes('thuyết minh') && rawLang.includes('vietsub')) {
+            displayLang = 'Vietsub + TM';
+            bg = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
+            color = '#18181b';
+        } else if (rawLang.includes('thuyết minh')) {
+            displayLang = 'Thuyết Minh';
+            bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            color = '#ffffff';
+        } else if (rawLang.includes('lồng tiếng')) {
+            displayLang = 'Lồng Tiếng';
+            bg = 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)';
+            color = '#ffffff';
+        } else {
+            displayLang = 'Vietsub';
+            bg = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
+            color = '#18181b';
+        }
+        sidebarLangText.textContent = displayLang;
+        if (sidebarLangBadge) {
+            sidebarLangBadge.style.background = bg;
+            sidebarLangBadge.style.color = color;
+        }
+    }
+
+    // 🌟 Poster Badges: Song Ngữ top-right (purple) & Bottom glued pills
+    const sidebarPosterBadge = document.getElementById('sidebar-poster-badge');
+    if (sidebarPosterBadge) {
+        const catList = Array.isArray(movie.category) ? movie.category : [];
+        const isBilingual = catList.some(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase().includes('song ngữ')) ||
+            (movie.lang || '').toLowerCase().includes('song ngữ') ||
+            (movie.name || '').toLowerCase().includes('song ngữ') ||
+            (Array.isArray(movie.episodes) && movie.episodes.some(e => (e.server_name || '').toLowerCase().includes('song ngữ')));
+        
+        if (isBilingual) {
+            sidebarPosterBadge.style.display = 'inline-flex';
+            sidebarPosterBadge.style.background = 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)';
+            sidebarPosterBadge.style.color = '#ffffff';
+            sidebarPosterBadge.style.whiteSpace = 'nowrap';
+            sidebarPosterBadge.style.lineHeight = '1.1';
+            sidebarPosterBadge.style.fontSize = '9px';
+            sidebarPosterBadge.style.padding = '2px 5.5px';
+            sidebarPosterBadge.style.borderRadius = '4px';
+            sidebarPosterBadge.textContent = 'Song Ngữ';
+        } else {
+            sidebarPosterBadge.style.display = 'none';
+        }
+    }
+
+    const sidebarPosterBottomPills = document.getElementById('sidebar-poster-bottom-pills');
+    if (sidebarPosterBottomPills) {
+        const epCur = String(movie.episode_current || '').trim();
+        const epNumMatch = epCur.match(/(\d+)/);
+        const epNum = epNumMatch ? epNumMatch[1] : '';
+        const rawLang = (movie.lang || '').toLowerCase();
+        
+        let bottomHtml = '';
+        if (rawLang.includes('song ngữ') || (rawLang.includes('thuyết minh') && rawLang.includes('vietsub'))) {
+            const subText = epNum ? `PĐ. ${epNum}` : 'PĐ';
+            const tmText = epNum ? `TM. ${epNum}` : 'TM';
+            bottomHtml = `<span class="badge-seg-sub">${subText}</span><span class="badge-seg-tm">${tmText}</span>`;
+        } else if (rawLang.includes('thuyết minh')) {
+            const tmText = epNum ? `TM. ${epNum}` : 'TM';
+            bottomHtml = `<span class="badge-seg-tm">${tmText}</span>`;
+        } else if (rawLang.includes('lồng tiếng')) {
+            const ltText = epNum ? `LT. ${epNum}` : 'LT';
+            bottomHtml = `<span class="badge-seg-lt">${ltText}</span>`;
+        } else {
+            const subText = epNum ? `PĐ. ${epNum}` : 'PĐ';
+            bottomHtml = `<span class="badge-seg-sub">${subText}</span>`;
+        }
+        sidebarPosterBottomPills.innerHTML = bottomHtml;
     }
 
     const sidebarEpBadge = document.getElementById('sidebar-ep-badge');
@@ -1682,6 +2062,9 @@ function renderPlayerPlaceholder(episode) {
     const playerContainer = document.querySelector('.aspect-video');
     if (!playerContainer) return;
 
+    // Placeholder = chưa nạp player thật → merge nguồn phụ được phép đổi nguồn im lặng
+    _playbackStarted = false;
+
     if (!currentMovie) {
         playerContainer.innerHTML = `
             <div id="playerPlaceholder" class="absolute inset-0 w-full h-full flex flex-col items-center justify-center cursor-pointer overflow-hidden group/overlay" style="border-radius: 12px; background: #0a0c10;">
@@ -2037,114 +2420,84 @@ function __legacyRenderServerList_UNUSED(episodes) {
 
     // Render HTML for each group row
     const groupOrder = ['Song Ngữ', 'Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
-    let html = '';
+        let html = '';
 
-    groupOrder.forEach(category => {
-        const items = groups[category];
-        if (!items || items.length === 0) return;
+        groupOrder.forEach(category => {
+            let items = groups[category];
+            if (!items || items.length === 0) return;
 
-        let categoryIcon = category === 'Song Ngữ'
-            ? '<span style="background: rgba(168,85,247,0.2); color: #c084fc; font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; border: 1px solid rgba(168,85,247,0.35); display: inline-flex; align-items: center; justify-content: center;">文A</span>'
-            : category === 'Vietsub'
-                ? '<span style="background: rgba(255,255,255,0.12); color: #e2e8f0; font-size: 10px; font-weight: 900; padding: 2px 5px; border-radius: 4px; letter-spacing: 0.5px;">CC</span>'
-                : category === 'Thuyết Minh'
-                    ? '<span style="font-size: 13px; line-height: 1;">🎙️</span>'
-                    : '<span style="font-size: 13px; line-height: 1;">🗣️</span>';
+            let catSlug = category === 'Song Ngữ'
+                ? 'song-ngu'
+                : (category === 'Vietsub'
+                    ? 'vietsub'
+                    : (category === 'Thuyết Minh'
+                        ? 'thuyet-minh'
+                        : (category === 'Lồng Tiếng' ? 'long-tieng' : 'khac')));
 
-        const buttonsInGroup = items.map(({ server, index }) => {
-            const isActive = index === currentServerIndex;
-            const totalEps = server.server_data ? server.server_data.length : 0;
-            const epText = totalEps === 1 ? 'Full' : `${totalEps} tập`;
+            let categoryTag = category === 'Song Ngữ'
+                ? '<span class="server-cat-tag server-cat-tag-song-ngu">文A</span>'
+                : category === 'Vietsub'
+                    ? '<span class="server-cat-tag server-cat-tag-vietsub">CC</span>'
+                    : category === 'Thuyết Minh'
+                        ? '<span class="server-cat-tag server-cat-tag-thuyet-minh">🎙️</span>'
+                        : '<span class="server-cat-tag server-cat-tag-long-tieng">🗣️</span>';
 
-            let isSongNgu = category === 'Song Ngữ';
-            let isFirstInGroup = items[0].index === index;
-            let groupSubIndex = items.findIndex(item => item.index === index);
-            let rawTitle = server.original_server_name || server.server_name || '';
-            let displayTitle = isSongNgu
-                ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (isFirstInGroup ? 'Song Ngữ' : `Song Ngữ #${groupSubIndex}`))
-                : (isFirstInGroup ? category : `${category} #${groupSubIndex}`);
-            let catSlug = isSongNgu ? 'song-ngu' : (category === 'Vietsub' ? 'vietsub' : category === 'Thuyết Minh' ? 'thuyet-minh' : 'long-tieng');
+            let buttonsInGroup = items.map(item => {
+                let server = item.server;
+                let index = item.index;
+                let isActive = index === currentServerIndex;
+                let totalEps = server.server_data ? server.server_data.length : 0;
+                let epText = totalEps === 1 ? 'Full' : `${totalEps} tập`;
 
-            if (isActive) {
+                let isSongNgu = category === 'Song Ngữ';
+                let isFirstInGroup = items[0].index === index;
+                let groupSubIndex = items.findIndex(it => it.index === index);
+                let rawTitle = server.original_server_name || server.server_name || '';
+                let displayTitle = isSongNgu
+                    ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (isFirstInGroup ? 'Song Ngữ' : `Song Ngữ #${groupSubIndex}`))
+                    : (isFirstInGroup ? category : `${category} #${groupSubIndex}`);
+
                 if (isSongNgu) {
                     return `
                         <button onclick="changeServer(${index})"
                             data-category="${category}"
-                            style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; border-radius: 7px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 0 14px rgba(168,85,247,0.5); transition: all 0.2s;"
-                            class="select-none server-tab-btn active server-cat-song-ngu">
-                            <span style="font-weight: 900; font-size: 12px; color: #ffffff;">文A</span>
-                            <span class="server-tab-title" style="font-weight: 800; font-size: 12.5px; color: #ffffff;">${displayTitle}</span>
-                            <span class="server-tab-badge" style="background: #ffffff; color: #581c87; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px;">${totalEps}</span>
+                            class="select-none server-tab-btn server-cat-song-ngu${isActive ? ' active' : ''}">
+                            <span class="server-tab-prefix">文A</span>
+                            <span class="server-tab-title">${displayTitle}</span>
+                            <span class="server-tab-badge">
+                                <span class="server-tab-count">${totalEps === 1 ? '1' : totalEps}</span>
+                            </span>
                         </button>
                     `;
                 }
 
-                // Active Pill (Dark Mode Base Colors)
-                let activeBg = category === 'Vietsub' ? '#9bb0ff' : category === 'Thuyết Minh' ? '#d8b4fe' : '#86efac';
-                let activeText = category === 'Vietsub' ? '#0a0c10' : category === 'Thuyết Minh' ? '#2e1065' : '#052e16';
-                let dotColor = category === 'Vietsub' ? '#2563eb' : category === 'Thuyết Minh' ? '#9333ea' : '#16a34a';
-
                 return `
                     <button onclick="changeServer(${index})"
                         data-category="${category}"
-                        style="background: ${activeBg}; border: none; color: ${activeText}; font-weight: 800; border-radius: 6px; padding: 3.5px 8.5px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;"
-                        class="select-none server-tab-btn active server-cat-${catSlug}">
-                        <span class="server-tab-title" style="font-weight: 800; font-size: 12.5px; color: ${activeText};">${displayTitle}</span>
-                        <span class="server-tab-badge" style="background: rgba(0, 0, 0, 0.15); font-weight: 800; font-size: 11px; padding: 1px 6.5px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3.5px;">
-                            <span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block; flex-shrink: 0; border: none;"></span>
+                        class="select-none server-tab-btn server-cat-${catSlug}${isActive ? ' active' : ''}">
+                        <span class="server-tab-title">${displayTitle}</span>
+                        <span class="server-tab-badge">
+                            <span class="server-tab-dot"></span>
                             <span class="server-tab-count">${epText}</span>
                         </span>
                     </button>
                 `;
-            } else {
-                if (isSongNgu) {
-                    return `
-                        <button onclick="changeServer(${index})"
-                            data-category="${category}"
-                            style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.25); color: #f8fafc; font-weight: 700; border-radius: 7px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s;"
-                            class="hover:brightness-125 select-none server-tab-btn server-cat-song-ngu">
-                            <span style="font-weight: 900; font-size: 12px; color: #cbd5e1;">文A</span>
-                            <span class="server-tab-title" style="color: #f8fafc; font-weight: 700; font-size: 12.5px;">${displayTitle}</span>
-                            <span class="server-tab-badge" style="background: #ffffff; color: #000000; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px;">${totalEps}</span>
-                        </button>
-                    `;
-                }
+            }).join('');
 
-                // Inactive Pill (Dark Mode Base Colors)
-                let inactiveBg = category === 'Vietsub' ? '#1e293b' : category === 'Thuyết Minh' ? '#2c2236' : '#143126';
-                let inactiveText = category === 'Vietsub' ? '#94a3b8' : category === 'Thuyết Minh' ? '#e9d5ff' : '#6ee7b7';
-                let badgeBg = category === 'Vietsub' ? '#0f172a' : category === 'Thuyết Minh' ? '#3d2552' : '#0d231b';
-                let dotColor = category === 'Vietsub' ? '#64748b' : category === 'Thuyết Minh' ? '#c084fc' : '#34d399';
-
-                return `
-                    <button onclick="changeServer(${index})"
-                        data-category="${category}"
-                        style="background: ${inactiveBg}; border: none; color: ${inactiveText}; font-weight: 700; border-radius: 6px; padding: 3.5px 8.5px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;"
-                        class="hover:brightness-125 select-none server-tab-btn server-cat-${catSlug}">
-                        <span class="server-tab-title" style="color: ${inactiveText}; font-weight: 700; font-size: 12.5px;">${displayTitle}</span>
-                        <span class="server-tab-badge" style="background: ${badgeBg}; color: ${inactiveText}; font-weight: 700; font-size: 11px; padding: 1px 6.5px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3.5px;">
-                            <span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ${dotColor}; display: inline-block; flex-shrink: 0; border: none;"></span>
-                            <span class="server-tab-count">${epText}</span>
-                        </span>
-                    </button>
-                `;
-            }
-        }).join('');
-
-        html += `
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;" class="server-group-row">
-                <div style="display: flex; align-items: center; gap: 5px; color: #e2e8f0; font-weight: 700; font-size: 13px; min-width: 76px; user-select: none;" class="server-group-label">
-                    ${categoryIcon}
-                    <span>${category}</span>
+            html += `
+                <div class="server-group-row">
+                    <div class="server-group-label server-group-label-${catSlug}">
+                        ${categoryTag}
+                        <span class="server-group-name">${category}</span>
+                    </div>
+                    <div class="server-buttons-wrap">
+                        ${buttonsInGroup}
+                    </div>
                 </div>
-                <div class="server-buttons-wrap" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    ${buttonsInGroup}
-                </div>
-            </div>
-        `;
-    });
+            `;
+        });
 
-    container.innerHTML = html;
+        container.innerHTML = html;
     container.className = "w-full space-y-2";
 }
 
@@ -2164,6 +2517,9 @@ window.toggleRutGonEpisodes = function (isRutGon) {
 window.changeServer = function (index) {
     if (!currentMovie || !currentMovie.episodes || index < 0 || index >= currentMovie.episodes.length) return;
     if (index === currentServerIndex) return;
+
+    // Từ đây người dùng ĐÃ tự chọn máy chủ → merge nguồn phụ không được tự ý nhảy luồng nữa
+    _userPickedServer = true;
 
     currentServerIndex = index;
     window.currentServerIndex = index;
@@ -2410,6 +2766,10 @@ function initializePlayer(episode) {
         return;
     }
 
+    // Từ thời điểm này là ĐÃ nạp player thật (không còn placeholder) → merge sau 1.2s không được cắt luồng
+    // trừ khi luồng đang phát là nguồn bị chặn.
+    _playbackStarted = true;
+
     // Load watch progress
     const progress = userService.getWatchProgress(currentMovie.slug, episode.slug);
 
@@ -2488,13 +2848,173 @@ function initializePlayer(episode) {
             </video>
 
             <!-- Dual Subtitles Overlay (Vietnamese Top White + Korean Bottom Yellow) -->
-            <div id="aphim-dual-subtitles-overlay" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end items-center px-4 transition-all duration-200">
+            <div id="aphim-dual-subtitles-overlay" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end items-center px-4 ">
                 <div id="aphim-sub-top" class="text-center font-bold mb-1 leading-snug tracking-wide" style="display: none; color: #ffffff; font-size: clamp(17px, 2.3vw, 26px); -webkit-text-stroke: 2.2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
                 <div id="aphim-sub-bottom" class="text-center font-bold leading-snug tracking-wide" style="display: none; color: #ffd215; font-size: clamp(16px, 2.1vw, 24px); -webkit-text-stroke: 2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
             </div>
 
             <!-- Clickable Center Video Zone (Tap/Click to Play/Pause) -->
             <div id="aphim-clickzone" class="absolute inset-0 z-10 cursor-pointer"></div>
+
+            <!-- Subtitle Customizer Modal (Desktop & Tablet Popup - Images 1, 2, 3) -->
+            <div id="aphim-sub-modal" class="hidden">
+                <div class="asm-head">
+                    <div class="asm-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span>Phụ đề</span>
+                    </div>
+                    <div class="asm-mode-pills" id="asmModePills">
+                        <button type="button" class="asm-mode-pill active" data-mode="dual">Song ngữ</button>
+                        <button type="button" class="asm-mode-pill" data-mode="on">Đơn ngữ</button>
+                        <button type="button" class="asm-mode-pill" data-mode="off">Tắt</button>
+                    </div>
+                    <div class="asm-head-actions">
+                        <button type="button" class="asm-icon-btn" id="asmBtnReset" title="Đặt lại mặc định">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="asm-icon-btn" id="asmBtnClose" title="Đóng">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="asm-body">
+                    <div class="asm-lang-select-row">
+                        <div class="asm-lang-select-col">
+                            <div class="asm-field-label">Phụ đề 1 (Chính)</div>
+                            <div class="asm-custom-select" id="asmLangDrop1">
+                                <button type="button" class="asm-select-trigger" id="asmLangTrigger1">
+                                    <span id="asmLangTriggerText1">Tiếng Việt</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                                <div class="asm-select-menu hidden" id="asmLangList1"></div>
+                            </div>
+                        </div>
+                        <div class="asm-lang-select-col">
+                            <div class="asm-field-label">Phụ đề 2 (Song ngữ)</div>
+                            <div class="asm-custom-select" id="asmLangDrop2">
+                                <button type="button" class="asm-select-trigger" id="asmLangTrigger2">
+                                    <span id="asmLangTriggerText2">Tiếng Hàn</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                                <div class="asm-select-menu hidden" id="asmLangList2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="asm-preview-card">
+                        <div class="asm-preview-head">
+                            <span class="asm-preview-tag">Xem trước</span>
+                            <span class="asm-preview-active-hint" id="asmPreviewHint">Đang chỉnh: <b>Song ngữ</b></span>
+                        </div>
+                        <div class="asm-preview-lines">
+                            <div class="asm-preview-sub2" id="asmPreviewSub2">Sample Secondary Subtitle (Song ngữ)</div>
+                            <div class="asm-preview-sub1" id="asmPreviewSub1">Mẫu hiển thị phụ đề xem trước</div>
+                        </div>
+                    </div>
+
+                    <div class="asm-tabs" id="asmTabs">
+                        <button type="button" class="asm-tab-btn active" data-tab="sub1">Chính</button>
+                        <button type="button" class="asm-tab-btn" data-tab="sub2">Song ngữ</button>
+                    </div>
+
+                    <div class="asm-field-group">
+                        <div class="asm-field-item">
+                            <div class="asm-field-label">Màu chữ</div>
+                            <div class="asm-swatches" id="asmColorSwatches">
+                                <button type="button" class="asm-swatch active" data-color="#ffffff" style="background:#ffffff;"></button>
+                                <button type="button" class="asm-swatch" data-color="#ffd215" style="background:#ffd215;"></button>
+                                <button type="button" class="asm-swatch" data-color="#34d399" style="background:#34d399;"></button>
+                                <button type="button" class="asm-swatch" data-color="#38bdf8" style="background:#38bdf8;"></button>
+                                <button type="button" class="asm-swatch" data-color="#f472b6" style="background:#f472b6;"></button>
+                                <button type="button" class="asm-swatch" data-color="#0a0a0a" style="background:#0a0a0a;"></button>
+                            </div>
+                        </div>
+
+                        <div class="asm-field-item">
+                            <div class="asm-field-label">Font chữ</div>
+                            <div class="asm-custom-select" id="asmFontDropdown">
+                                <button type="button" class="asm-select-trigger" id="asmFontTrigger">
+                                    <span id="asmFontTriggerText">Inter (Chuẩn)</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="asm-select-menu hidden" id="asmFontMenu">
+                                    <div class="asm-select-opt active" data-val="'Inter', system-ui, sans-serif" data-label="Inter (Chuẩn)">
+                                        <span>Inter (Chuẩn)</span>
+                                        <svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                    <div class="asm-select-opt" data-val="'Montserrat', system-ui, sans-serif" data-label="Montserrat (Hiện đại)">
+                                        <span>Montserrat (Hiện đại)</span>
+                                        <svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                    <div class="asm-select-opt" data-val="'Be Vietnam Pro', system-ui, sans-serif" data-label="Be Vietnam Pro (Việt)">
+                                        <span>Be Vietnam Pro (Việt)</span>
+                                        <svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                    <div class="asm-select-opt" data-val="'Roboto', system-ui, sans-serif" data-label="Roboto">
+                                        <span>Roboto</span>
+                                        <svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                    <div class="asm-select-opt" data-val="Arial, sans-serif" data-label="Arial">
+                                        <span>Arial</span>
+                                        <svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="asm-field-item">
+                            <div class="asm-field-label flex justify-between items-center">
+                                <span>Vị trí nâng</span>
+                                <span class="asm-field-val" id="asmPosVal">+0px</span>
+                            </div>
+                            <input type="range" class="asm-slider" id="asmPosSlider" min="-20" max="100" step="1" value="0">
+                        </div>
+
+                        <div class="asm-field-item">
+                            <div class="asm-field-label flex justify-between items-center">
+                                <span>Cỡ chữ</span>
+                                <span class="asm-field-val" id="asmSizeVal">18px</span>
+                            </div>
+                            <input type="range" class="asm-slider" id="asmSizeSlider" min="12" max="36" step="1" value="18">
+                        </div>
+
+                        <div class="asm-field-item">
+                            <div class="asm-field-label flex justify-between items-center">
+                                <span>Lệch thời gian (Sync)</span>
+                                <span class="asm-field-val" id="asmSyncVal">0.0s</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <button type="button" class="asm-sync-btn" id="asmSyncMinus" title="Nhanh hơn 0.5s">-0.5s</button>
+                                <input type="range" class="asm-slider flex-1" id="asmSyncSlider" min="-10" max="10" step="0.5" value="0">
+                                <button type="button" class="asm-sync-btn" id="asmSyncPlus" title="Chậm hơn 0.5s">+0.5s</button>
+                            </div>
+                        </div>
+
+                        <div class="asm-field-item">
+                            <div class="asm-field-label">Nền phụ đề</div>
+                            <div class="asm-seg" id="asmBgSeg">
+                                <button type="button" class="asm-seg-btn active" data-bg="shadow">Bóng viền</button>
+                                <button type="button" class="asm-seg-btn" data-bg="none">Không</button>
+                                <button type="button" class="asm-seg-btn" data-bg="gray">Hộp xám</button>
+                                <button type="button" class="asm-seg-btn" data-bg="black">Hộp đen</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Center Animated Play/Pause Indicator -->
             <div id="aphim-center-indicator">
@@ -2564,6 +3084,13 @@ function initializePlayer(episode) {
                             <span class="material-icons-round">skip_next</span>
                         </button>
 
+                        <!-- Subtitle Customizer Button (Matching Images 1, 2, 3) -->
+                        <div id="aphim-cc-wrapper" class="relative inline-flex items-center" style="display: none;">
+                            <button type="button" id="aphim-btn-cc" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Cấu hình phụ đề (CC)">
+                                <span class="aphim-cc-badge">CC</span>
+                            </button>
+                        </div>
+
                         <!-- Nguồn âm thanh / Song Ngữ Button (Matching Image 2) -->
                         <div id="aphim-audio-wrapper" class="relative inline-flex items-center">
                             <button type="button" id="aphim-btn-audio" class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Nguồn âm thanh / Phụ đề Song ngữ">
@@ -2590,10 +3117,11 @@ function initializePlayer(episode) {
                                 ">Song</span>
                             </button>
 
-                            <!-- Nguồn âm thanh Flyout Menu (Đồng bộ chuẩn kính mờ trong suốt CÀI ĐẶT) -->
+                            <!-- Nguồn âm thanh Flyout Menu (Thiết kế chuẩn Ảnh 1) -->
                             <div id="aphim-audio-menu" class="hidden">
-                                <div class="aphim-settings-header">
-                                    <span>NGUỒN ÂM THANH</span>
+                                <div class="aphim-settings-header aphim-audio-header">
+                                    <span>Nguồn âm thanh</span>
+                                    <span class="aphim-audio-badge">Audio</span>
                                 </div>
                                 <div class="aphim-settings-list" id="aphim-audio-options-list">
                                 </div>
@@ -2764,7 +3292,7 @@ function initializePlayer(episode) {
 
                         <!-- Fullscreen Button -->
                         <button type="button" id="aphim-btn-fs" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Toàn màn hình (F)">
-                            <span class="material-icons-round aphim-btn-icon" id="aphim-icon-fs">fullscreen</span>
+                            <span class="material-icons-round aphim-fs-icon" id="aphim-icon-fs">fullscreen</span>
                         </button>
                     </div>
                 </div>
@@ -2900,12 +3428,53 @@ function initializePlayer(episode) {
         }
     }
 
+    // Nhận diện màn hình di động, tablet, xoay ngang hoặc mở toàn màn hình (Fullscreen)
+    function isMobileOrFullscreenMode() {
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return true;
+        if (window.innerWidth <= 1024 || window.innerHeight <= 600) return true;
+        if (wrapper && (wrapper.clientWidth <= 1024 || wrapper.clientHeight <= 600)) return true;
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || (wrapper && wrapper.classList.contains('aphim-web-fullscreen')));
+        if (isFullscreen) return true;
+        return false;
+    }
+
+    // Bật / Tắt thanh tiến trình và thanh điều khiển controls (Hiện khi đang ẩn, Ẩn khi đang hiện)
+    let lastTouchActionTime = 0;
+    function toggleControlsVisibility() {
+        if (!controls) return;
+        const isHidden = controls.classList.contains('aphim-controls-hidden') || 
+                         controls.style.opacity === '0' || 
+                         controls.style.visibility === 'hidden';
+        if (isHidden) {
+            showControls(3800);
+        } else {
+            if (typeof isAnyPopupOpen === 'function' && isAnyPopupOpen()) {
+                const sMenu = document.getElementById('aphim-settings-menu');
+                const aMenu = document.getElementById('aphim-audio-menu');
+                const subM = document.getElementById('aphim-sub-modal');
+                if (sMenu) sMenu.classList.add('hidden');
+                if (aMenu) aMenu.classList.add('hidden');
+                if (subM) subM.classList.add('hidden');
+            }
+            hideControls(true);
+        }
+    }
+
     if (btnPlay) btnPlay.onclick = togglePlayPause;
     if (clickzone) {
         clickzone.onclick = (e) => {
-            if (window.innerWidth <= 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+            // Chống xung đột nếu vừa chạm ngón tay trên màn hình trong vòng 450ms
+            if (Date.now() - lastTouchActionTime < 450) return;
+
+            // 📱 Mobile (Dọc & Xoay Ngang) & Mở toàn màn hình Fullscreen (như YouTube, Netflix...):
+            // Ấn vào giữa màn hình thì BẬT / TẮT thanh tiến trình controls, TUYỆT ĐỐI KHÔNG DỪNG PHIM!
+            // Khi muốn dừng phim thì người dùng ấn trực tiếp nút Play/Pause (btnPlay).
+            if (isMobileOrFullscreenMode()) {
+                toggleControlsVisibility();
                 return;
             }
+
+            // 🖥️ Desktop xem ở cửa sổ nhỏ/vừa: Click để Play/Pause
             togglePlayPause();
         };
     }
@@ -2919,6 +3488,7 @@ function initializePlayer(episode) {
             setTimeout(() => { icon.style.transform = 'none'; }, 130);
             
             player.currentTime = Math.max(0, player.currentTime - 10);
+            if (player._dualSubHandler) player._dualSubHandler();
             showSeekOverlay('-10s', false);
         };
     }
@@ -2930,6 +3500,7 @@ function initializePlayer(episode) {
             setTimeout(() => { icon.style.transform = 'none'; }, 130);
 
             player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+            if (player._dualSubHandler) player._dualSubHandler();
             showSeekOverlay('+10s', true);
         };
     }
@@ -3291,6 +3862,11 @@ function initializePlayer(episode) {
             const isHidden = settingsMenu.classList.contains('hidden');
             if (isHidden) {
                 if (audioMenu) audioMenu.classList.add('hidden');
+                const modal = document.getElementById('aphim-sub-modal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    if (wrapper) wrapper.classList.remove('aphim-sub-open');
+                }
                 showSettingsPanel('aphim-settings-main-panel');
                 refreshSettingsServers();
                 refreshSettingsQuality();
@@ -3432,186 +4008,590 @@ function initializePlayer(episode) {
                 }
             }
         }
+        cues.sort((a, b) => a.start - b.start);
         return cues;
     }
 
     function setupDualSubtitles(ep, videoEl) {
         const subTopEl = document.getElementById('aphim-sub-top');
         const subBottomEl = document.getElementById('aphim-sub-bottom');
+        const overlayEl = document.getElementById('aphim-dual-subtitles-overlay');
         if (!subTopEl || !subBottomEl || !videoEl) return;
+
+        // 🛡️ Kiểm tra xem tập phim / máy chủ hiện tại có phụ đề song ngữ hay không
+        let srvListForDual = [];
+        if (currentMovie && Array.isArray(currentMovie.episodes) && currentMovie.episodes.length > 0) {
+            srvListForDual = currentMovie.episodes;
+        } else if (window.initialEpisodes && Array.isArray(window.initialEpisodes) && window.initialEpisodes.length > 0) {
+            srvListForDual = window.initialEpisodes;
+        }
+        const curSrvForDual = srvListForDual[currentServerIndex] || srvListForDual[0];
+        const sNameForDual = (curSrvForDual?.server_name || curSrvForDual?.original_server_name || '').toLowerCase();
+        const hasSnNameForDual = sNameForDual.includes('song ngữ') || sNameForDual.includes('song ngu') || sNameForDual.includes('bilingual');
+        const hasSubForDual = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ||
+                             (ep && Array.isArray(ep.subTracks) && ep.subTracks.length > 0);
+        const isSongNguForDual = hasSnNameForDual || hasSubForDual;
+
+        if (!isSongNguForDual) {
+            // Không có song ngữ -> ẩn sạch overlay, dọn dẹp text và gỡ handler để tránh lag tối đa
+            subTopEl.textContent = '';
+            subTopEl.style.display = 'none';
+            subBottomEl.textContent = '';
+            subBottomEl.style.display = 'none';
+            if (overlayEl) overlayEl.style.display = 'none';
+            if (videoEl._dualSubHandler) {
+                videoEl.removeEventListener('timeupdate', videoEl._dualSubHandler);
+            }
+            return;
+        }
+        if (overlayEl) overlayEl.style.display = 'flex';
+
+        const savedSubPos = localStorage.getItem('aphim_sub_pos') || 'bottom';
+        if (overlayEl) {
+            overlayEl.classList.toggle('aphim-sub-pos-top', savedSubPos === 'top');
+        }
 
         subTopEl.textContent = '';
         subTopEl.style.display = 'none';
         subBottomEl.textContent = '';
         subBottomEl.style.display = 'none';
 
+        function updateSubResponsiveMetrics() {
+            const wrapper = document.getElementById('aphim-player-wrapper');
+            const overlay = document.getElementById('aphim-dual-subtitles-overlay');
+            if (!wrapper || !videoEl) return;
+            const wRect = wrapper.getBoundingClientRect();
+            if (wRect.width === 0 || wRect.height === 0) return;
+
+            const wW = wRect.width;
+            const wH = wRect.height;
+
+            const vW = videoEl.videoWidth || 16;
+            const vH = videoEl.videoHeight || 9;
+            const videoRatio = vW / vH;
+            const containerRatio = wW / wH;
+
+            let actualVideoH, barBottom;
+            if (containerRatio > videoRatio) {
+                // Video chạm cạnh trên & cạnh dưới wrapper (letterbox 2 bên)
+                actualVideoH = wH;
+                barBottom = 0;
+            } else {
+                // Video chạm cạnh trái & cạnh phải wrapper (letterbox trên & dưới)
+                actualVideoH = wW / videoRatio;
+                barBottom = Math.max(0, (wH - actualVideoH) / 2);
+            }
+
+            const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('aphim-web-fullscreen'));
+            const isMobilePortrait = !isFullscreen && (wW <= 580 || (window.innerWidth <= 640 && window.innerHeight > window.innerWidth));
+
+            let subClearance;
+            let fontSize;
+
+            if (isMobilePortrait) {
+                // 📱 Màn hình mobile dọc: Khung video nhỏ (~200px - 250px), Vietsub in cứng nằm sát mép đáy video.
+                // Hạ phụ đề xuống gần hơn (26px - 28px) và font ~13px để vừa khít, thanh thoát ngay trên đầu dòng Vietsub in cứng
+                subClearance = Math.max(24, Math.min(30, Math.round(actualVideoH * 0.11)));
+                fontSize = Math.max(12, Math.min(13.5, Math.round(actualVideoH * 0.055)));
+            } else {
+                // 🖥️ / 📱 Màn hình ngang (Landscape Fullscreen) & Desktop: Giữ nguyên 100% tỷ lệ chuẩn cao cấp
+                subClearance = Math.max(46, Math.round(actualVideoH * 0.115));
+                fontSize = Math.max(15, Math.min(26, Math.round(actualVideoH * 0.042)));
+            }
+
+            const baselineOffset = Math.round(barBottom + subClearance);
+
+            wrapper.style.setProperty('--aphim-sub-offset', baselineOffset + 'px');
+            wrapper.style.setProperty('--aphim-sub-font-size', fontSize + 'px');
+
+            // Đọc userOffset từ config đã lưu
+            let uOffset = 0;
+            try {
+                const s = localStorage.getItem('aphim_sub_custom_config');
+                if (s) {
+                    const parsed = JSON.parse(s);
+                    if (typeof parsed.userOffset === 'number') {
+                        uOffset = parsed.userOffset;
+                    }
+                }
+            } catch(e) {}
+            wrapper.style.setProperty('--aphim-sub-user-offset', uOffset + 'px');
+
+            if (overlay) {
+                overlay.style.setProperty('padding-bottom', (baselineOffset + uOffset) + 'px', 'important');
+            }
+        }
+
+        updateSubResponsiveMetrics();
+        if (videoEl._subResizeHandler) {
+            window.removeEventListener('resize', videoEl._subResizeHandler);
+            document.removeEventListener('fullscreenchange', videoEl._subResizeHandler);
+            document.removeEventListener('webkitfullscreenchange', videoEl._subResizeHandler);
+        }
+        videoEl._subResizeHandler = updateSubResponsiveMetrics;
+        window.addEventListener('resize', updateSubResponsiveMetrics, { passive: true });
+        document.addEventListener('fullscreenchange', updateSubResponsiveMetrics);
+        document.addEventListener('webkitfullscreenchange', updateSubResponsiveMetrics);
+        videoEl.addEventListener('loadedmetadata', updateSubResponsiveMetrics);
+        videoEl.addEventListener('resize', updateSubResponsiveMetrics);
+
+        if (window.ResizeObserver) {
+            const wrapper = document.getElementById('aphim-player-wrapper');
+            if (wrapper) {
+                if (wrapper._subRO) wrapper._subRO.disconnect();
+                wrapper._subRO = new ResizeObserver(updateSubResponsiveMetrics);
+                wrapper._subRO.observe(wrapper);
+            }
+        }
+
         const subtitles = (ep && ep.subtitles) ? ep.subtitles : [];
         if (!subtitles || subtitles.length === 0) return;
 
-        const vietSub = subtitles.find(s => (s.language === 'vi' || (s.label || '').toLowerCase().includes('việt')));
-        // Tìm phụ đề ngoại ngữ (Trung, Hàn, Anh, Nhật... bất kỳ phụ đề nào khác Tiếng Việt)
-        const foreignSub = subtitles.find(s => {
-            if (s === vietSub) return false;
-            const l = (s.language || '').toLowerCase();
-            const lbl = (s.label || '').toLowerCase();
-            return l !== 'vi' && !lbl.includes('việt');
-        });
+        // ⚡ BỘ NHỚ ĐỆM RAM CACHE CUES (0ms tức thì khi thoát ra vào lại hoặc chuyển phim/tập)
+        if (!window._aphimVttCueCache) {
+            window._aphimVttCueCache = new Map();
+        }
 
         let topCues = [];
         let bottomCues = [];
+        let currentBottomText = '';
+        let currentTopText = '';
+        const lastTopIdx = { val: 0 };
+        const lastBottomIdx = { val: 0 };
 
-        // 🇻🇳 Dòng TRÊN: Phụ đề Tiếng Việt (Chữ Trắng sắc nét)
-        if (vietSub && vietSub.url) {
-            const vUrl = vietSub.url.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(vietSub.url)}` : vietSub.url;
-            fetch(vUrl)
-                .then(r => r.text())
-                .then(t => {
-                    topCues = parseWebVTT(t);
-                    console.log(`[DualSub] Loaded ${topCues.length} Vietnamese cues (Top - White)`);
-                })
-                .catch(err => console.warn('[DualSub Viet Error]:', err));
+        // ⚡ Thuật toán tìm kiếm active cue chuẩn xác 100%, 0ms giật lag, hỗ trợ tua, lệch thời gian & đối thoại chồng lấn
+        function findActiveCue(cues, t, syncOffset = 0) {
+            if (!cues || cues.length === 0) return null;
+            const targetTime = t + (syncOffset || 0);
+
+            // 1. Binary search để tìm cue chính xác O(log N)
+            let low = 0, high = cues.length - 1;
+            while (low <= high) {
+                const mid = (low + high) >> 1;
+                const c = cues[mid];
+                if (targetTime >= c.start && targetTime <= c.end) {
+                    return c;
+                }
+                if (targetTime < c.start) {
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+            }
+
+            // 2. Linear scan dự phòng nếu có lời thoại chồng lấn (overlapping dialogue)
+            for (let i = 0; i < cues.length; i++) {
+                if (targetTime >= cues[i].start && targetTime <= cues[i].end) {
+                    return cues[i];
+                }
+            }
+            return null;
         }
 
-        // 🇰🇷 Dòng DƯỚI: Phụ đề Tiếng Hàn / Ngoại ngữ (Chữ Vàng rực rỡ chuẩn ảnh mẫu)
-        if (foreignSub && foreignSub.url) {
-            const fUrl = foreignSub.url.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(foreignSub.url)}` : foreignSub.url;
-            fetch(fUrl)
-                .then(r => r.text())
-                .then(t => {
-                    bottomCues = parseWebVTT(t);
-                    console.log(`[DualSub] Loaded ${bottomCues.length} foreign cues (${foreignSub.label}) (Bottom - Yellow)`);
+        function loadTrack(subItem, isTop) {
+            if (!subItem || !subItem.url) {
+                if (isTop) { topCues = []; lastTopIdx.val = 0; } else { bottomCues = []; lastBottomIdx.val = 0; }
+                return;
+            }
+            const sUrl = subItem.url.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(subItem.url)}` : subItem.url;
+
+            // ⚡ KIỂM TRA RAM CACHE TRƯỚC (Nạp ngay trong 0ms nếu đã từng xem hoặc vừa thoát ra vào lại)
+            if (window._aphimVttCueCache.has(sUrl)) {
+                const cachedCues = window._aphimVttCueCache.get(sUrl);
+                if (isTop) {
+                    topCues = cachedCues;
+                    lastTopIdx.val = 0;
+                } else {
+                    bottomCues = cachedCues;
+                    lastBottomIdx.val = 0;
+                }
+                if (videoEl._dualSubHandler) videoEl._dualSubHandler();
+                return;
+            }
+
+            fetch(sUrl)
+                .then(r => {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.text();
                 })
-                .catch(err => console.warn('[DualSub Foreign Error]:', err));
+                .then(t => {
+                    const cues = parseWebVTT(t);
+                    window._aphimVttCueCache.set(sUrl, cues);
+                    if (isTop) {
+                        topCues = cues;
+                        lastTopIdx.val = 0;
+                    } else {
+                        bottomCues = cues;
+                        lastBottomIdx.val = 0;
+                    }
+                    if (videoEl._dualSubHandler) videoEl._dualSubHandler();
+                })
+                .catch(err => {
+                    if (subItem.direct_url && subItem.direct_url !== subItem.url) {
+                        fetch(subItem.direct_url)
+                            .then(r => r.text())
+                            .then(t => {
+                                const cues = parseWebVTT(t);
+                                window._aphimVttCueCache.set(sUrl, cues);
+                                if (isTop) {
+                                    topCues = cues;
+                                    lastTopIdx.val = 0;
+                                } else {
+                                    bottomCues = cues;
+                                    lastBottomIdx.val = 0;
+                                }
+                                if (videoEl._dualSubHandler) videoEl._dualSubHandler();
+                            })
+                            .catch(e => console.warn('[DualSub Direct Fallback Error]:', e));
+                    } else {
+                        console.warn('[DualSub Fetch Error]:', err);
+                    }
+                });
         }
+
+        // Đọc cài đặt ngôn ngữ từ localStorage nếu có
+        let curCfg = { sub1Lang: 'vi', sub2Lang: 'ko' };
+        try {
+            const s = localStorage.getItem('aphim_sub_custom_config');
+            if (s) curCfg = Object.assign({}, curCfg, JSON.parse(s));
+        } catch (e) {}
+
+        const vietSub = subtitles.find(s => (s.language === (curCfg.sub1Lang || 'vi') || (s.label || '').toLowerCase().includes('việt'))) || subtitles[0];
+        const foreignSub = subtitles.find(s => (s.language === (curCfg.sub2Lang || 'ko'))) || subtitles.find(s => s !== vietSub) || subtitles[1] || subtitles[0];
+
+        if (vietSub) loadTrack(vietSub, true);
+        if (foreignSub) loadTrack(foreignSub, false);
+
+        // Đăng ký API để Subtitle Customizer gọi khi người dùng đổi ngôn ngữ trong danh sách
+        window._aphimSwitchSubLanguage = function(lang, isTop) {
+            const target = subtitles.find(s => s.language === lang);
+            if (target) loadTrack(target, isTop);
+        };
 
         const onTimeUpdate = () => {
             const t = videoEl.currentTime;
 
-            if (topCues.length > 0) {
-                const cue = topCues.find(c => t >= c.start && t <= c.end);
-                if (cue && cue.text) {
-                    subTopEl.textContent = cue.text;
-                    subTopEl.style.display = 'block';
-                } else {
-                    subTopEl.style.display = 'none';
-                }
-            } else {
-                subTopEl.style.display = 'none';
+            // ⚡ Tối ưu 0ms: Đọc trực tiếp từ bộ nhớ RAM (0 I/O)
+            let subCfg = window._aphimSubConfigCache;
+            if (!subCfg) {
+                subCfg = { mode: 'dual', syncOffset: 0 };
+                try {
+                    const saved = localStorage.getItem('aphim_sub_custom_config');
+                    if (saved) subCfg = Object.assign({}, subCfg, JSON.parse(saved));
+                } catch (e) {}
+                window._aphimSubConfigCache = subCfg;
             }
 
-            if (bottomCues.length > 0) {
-                const cue = bottomCues.find(c => t >= c.start && t <= c.end);
-                if (cue && cue.text) {
-                    subBottomEl.textContent = cue.text;
-                    subBottomEl.style.display = 'block';
+            if (subCfg.mode === 'off') {
+                if (currentTopText !== '') { subTopEl.textContent = ''; subTopEl.style.display = 'none'; currentTopText = ''; }
+                if (currentBottomText !== '') { subBottomEl.textContent = ''; subBottomEl.style.display = 'none'; currentBottomText = ''; }
+                return;
+            }
+
+            const syncOffset = Number(subCfg.syncOffset) || 0;
+
+            if (subCfg.mode === 'on') { // Đơn ngữ: Chỉ hiện 1 phụ đề
+                if (subCfg.activeTab === 'sub1') {
+                    if (topCues.length > 0) {
+                        const cue = findActiveCue(topCues, t, syncOffset);
+                        const newTxt = (cue && cue.text) ? cue.text : '';
+                        if (newTxt !== currentTopText) {
+                            currentTopText = newTxt;
+                            if (newTxt) { subTopEl.textContent = newTxt; subTopEl.style.display = 'block'; }
+                            else { subTopEl.style.display = 'none'; }
+                        }
+                    } else if (currentTopText !== '') {
+                        currentTopText = '';
+                        subTopEl.style.display = 'none';
+                    }
+                    if (currentBottomText !== '') { currentBottomText = ''; subBottomEl.style.display = 'none'; }
                 } else {
-                    subBottomEl.style.display = 'none';
+                    if (bottomCues.length > 0) {
+                        const cue = findActiveCue(bottomCues, t, syncOffset);
+                        const newTxt = (cue && cue.text) ? cue.text : '';
+                        if (newTxt !== currentBottomText) {
+                            currentBottomText = newTxt;
+                            if (newTxt) { subBottomEl.textContent = newTxt; subBottomEl.style.display = 'block'; }
+                            else { subBottomEl.style.display = 'none'; }
+                        }
+                    } else if (currentBottomText !== '') {
+                        currentBottomText = '';
+                        subBottomEl.style.display = 'none';
+                    }
+                    if (currentTopText !== '') { currentTopText = ''; subTopEl.style.display = 'none'; }
                 }
-            } else {
+                return;
+            }
+
+            // Chế độ 'dual' (Song ngữ)
+            // Dòng 2: Phụ đề 2 (Song ngữ - ví dụ Tiếng Hàn / Tiếng Anh)
+            if (bottomCues.length > 0) {
+                const cue = findActiveCue(bottomCues, t, syncOffset);
+                const newTxt = (cue && cue.text) ? cue.text : '';
+                // ⚡ Chống DOM Reflow/Repaint dư thừa: CHỈ cập nhật DOM khi text thực sự thay đổi!
+                if (newTxt !== currentBottomText) {
+                    currentBottomText = newTxt;
+                    if (newTxt) {
+                        subBottomEl.textContent = newTxt;
+                        subBottomEl.style.display = 'block';
+                    } else {
+                        subBottomEl.style.display = 'none';
+                    }
+                }
+            } else if (currentBottomText !== '') {
+                currentBottomText = '';
                 subBottomEl.style.display = 'none';
             }
+
+            // Dòng 1: Phụ đề 1 (Chính)
+            // 🛡️ Nếu Phụ đề 1 là tiếng Việt mà video đã có Vietsub in cứng to đùng -> ẨN DÒNG TIẾNG VIỆT CỦA WEB
+            // để KHÔNG BAO GIỜ bị 2 dòng tiếng Việt đè chồng lên nhau gây lem nhem rác màn hình!
+            const isSub1Viet = (curCfg.sub1Lang === 'vi' || (vietSub && (vietSub.label || '').toLowerCase().includes('việt')));
+            if (topCues.length > 0 && !isSub1Viet) {
+                const cue1 = findActiveCue(topCues, t, syncOffset);
+                const newTxt1 = (cue1 && cue1.text) ? cue1.text : '';
+                if (newTxt1 !== currentTopText) {
+                    currentTopText = newTxt1;
+                    if (newTxt1) {
+                        subTopEl.textContent = newTxt1;
+                        subTopEl.style.display = 'block';
+                    } else {
+                        subTopEl.style.display = 'none';
+                    }
+                }
+            } else if (currentTopText !== '') {
+                currentTopText = '';
+                subTopEl.style.display = 'none';
+            }
         };
+
+        // 🚀 CƠ CHẾ VÒNG LẶP REAL-TIME 60FPS (0MS LATENCY - BÁM SÁT SUB CHÍNH TỪNG KHUNG HÌNH)
+        let isSyncRunning = false;
+        let subRafId = null;
+
+        function runSyncLoop() {
+            if (!isSyncRunning) return;
+            onTimeUpdate();
+            if (typeof videoEl.requestVideoFrameCallback === 'function') {
+                videoEl.requestVideoFrameCallback(() => {
+                    if (isSyncRunning) runSyncLoop();
+                });
+            } else {
+                subRafId = requestAnimationFrame(runSyncLoop);
+            }
+        }
+
+        function startSyncLoop() {
+            if (isSyncRunning) return;
+            isSyncRunning = true;
+            runSyncLoop();
+        }
+
+        function stopSyncLoop() {
+            isSyncRunning = false;
+            if (subRafId) {
+                cancelAnimationFrame(subRafId);
+                subRafId = null;
+            }
+        }
+
+        // Hủy vòng lặp cũ nếu player mount lại
+        if (videoEl._stopSubLoop) {
+            videoEl._stopSubLoop();
+        }
+        videoEl._stopSubLoop = stopSyncLoop;
+
+        videoEl.addEventListener('play', startSyncLoop);
+        videoEl.addEventListener('playing', startSyncLoop);
+        videoEl.addEventListener('pause', () => { stopSyncLoop(); onTimeUpdate(); });
+        videoEl.addEventListener('ended', () => { stopSyncLoop(); onTimeUpdate(); });
+        videoEl.addEventListener('seeking', onTimeUpdate, { passive: true });
+        videoEl.addEventListener('seeked', onTimeUpdate, { passive: true });
 
         if (videoEl._dualSubHandler) {
             videoEl.removeEventListener('timeupdate', videoEl._dualSubHandler);
         }
         videoEl._dualSubHandler = onTimeUpdate;
-        videoEl.addEventListener('timeupdate', onTimeUpdate);
+        videoEl.addEventListener('timeupdate', onTimeUpdate, { passive: true });
+
+        // Tự động kích hoạt ngay nếu video đang phát
+        if (!videoEl.paused && !videoEl.ended) {
+            startSyncLoop();
+        } else {
+            onTimeUpdate();
+        }
     }
 
     function setupAudioSourceMenu() {
         if (!btnAudio || !audioMenu || !audioOptionsList) return;
 
-        const servers = (currentMovie && currentMovie.episodes) ? currentMovie.episodes : [];
-        const hasSongNgu = servers.some(s => (s.server_name || '').toLowerCase().includes('song ngữ'));
-        const songBadge = document.getElementById('aphim-song-badge');
-
-        if (!hasSongNgu && servers.length <= 1) {
-            btnAudio.style.display = 'none';
-            return;
-        } else {
-            btnAudio.style.display = 'flex';
+        function getMovieServers() {
+            if (currentMovie && Array.isArray(currentMovie.episodes) && currentMovie.episodes.length > 0) {
+                return currentMovie.episodes;
+            }
+            if (window.initialEpisodes && Array.isArray(window.initialEpisodes) && window.initialEpisodes.length > 0) {
+                return window.initialEpisodes;
+            }
+            return [];
         }
 
-        const curServer = servers[currentServerIndex];
-        const isCurSongNgu = curServer && (curServer.server_name || '').toLowerCase().includes('song ngữ');
-        
-        // Cập nhật trạng thái màu sắc nút Audio Icon chuẩn hình số 2 & 3
-        if (isCurSongNgu) {
-            btnAudio.style.color = '#fcd576';
+        const servers = getMovieServers();
+        const songBadge = document.getElementById('aphim-song-badge');
+        const ccWrapper = document.getElementById('aphim-cc-wrapper');
+
+        // Nút Nguồn âm thanh LUÔN HIỂN THỊ để người dùng biết và chuyển đổi nguồn
+        btnAudio.style.setProperty('display', 'flex', 'important');
+
+        function updateAudioBadgeAndControls(servers) {
+            const upServers = servers || getMovieServers();
+            const curServer = upServers[currentServerIndex] || upServers[0];
+            const rawName = (curServer?.server_name || curServer?.original_server_name || '').toLowerCase();
+            const isSongNgu = rawName.includes('song ngữ') || rawName.includes('song ngu') || rawName.includes('bilingual');
+
+            // Cập nhật hiển thị nút CC (CHỈ hiện khi có Song Ngữ)
+            if (ccWrapper) {
+                if (isSongNgu || (currentEpisode && currentEpisode.subtitles && currentEpisode.subtitles.length > 0)) {
+                    ccWrapper.style.setProperty('display', 'inline-flex', 'important');
+                } else {
+                    ccWrapper.style.setProperty('display', 'none', 'important');
+                    const modal = document.getElementById('aphim-sub-modal');
+                    if (modal) modal.classList.add('hidden');
+                    const wrapper = document.getElementById('aphim-player-wrapper');
+                    if (wrapper) wrapper.classList.remove('aphim-sub-open');
+                }
+            }
+
+            // Cập nhật Badge trên nút Micro chuẩn theo Ảnh 1
             if (songBadge) {
                 songBadge.style.display = 'inline-block';
-                songBadge.style.background = '#ffffff';
-                songBadge.style.color = '#000000';
-            }
-        } else {
-            btnAudio.style.color = '#ffffff';
-            if (songBadge) {
-                songBadge.style.display = 'none';
+                if (isSongNgu) {
+                    songBadge.textContent = 'Song';
+                    songBadge.style.background = '#ffffff';
+                    songBadge.style.color = '#000000';
+                    btnAudio.style.color = '#fcd576';
+                } else if (rawName.includes('thuyết minh')) {
+                    songBadge.textContent = 'TM';
+                    songBadge.style.background = 'rgba(255, 255, 255, 0.95)';
+                    songBadge.style.color = '#000000';
+                    btnAudio.style.color = '#ffffff';
+                } else if (rawName.includes('lồng tiếng')) {
+                    songBadge.textContent = 'LT';
+                    songBadge.style.background = 'rgba(255, 255, 255, 0.95)';
+                    songBadge.style.color = '#000000';
+                    btnAudio.style.color = '#ffffff';
+                } else if (rawName.includes('bản gốc') || rawName.includes('raw') || rawName.includes('tiếng gốc') || rawName.includes('audio gốc') || rawName.includes('gốc')) {
+                    songBadge.textContent = 'Gốc';
+                    songBadge.style.background = 'rgba(255, 255, 255, 0.95)';
+                    songBadge.style.color = '#000000';
+                    btnAudio.style.color = '#ffffff';
+                } else {
+                    // Vietsub / Phụ đề mặc định (chữ 'Phụ' chuẩn như Ảnh 1)
+                    songBadge.textContent = 'Phụ';
+                    songBadge.style.background = 'rgba(255, 255, 255, 0.95)';
+                    songBadge.style.color = '#000000';
+                    btnAudio.style.color = '#ffffff';
+                }
             }
         }
 
         function renderAudioOptions() {
             audioOptionsList.innerHTML = '';
-            servers.forEach((srv, sIdx) => {
-                const isSongNgu = (srv.server_name || '').toLowerCase().includes('song ngữ');
-                const isActive = sIdx === currentServerIndex;
+            const liveServers = getMovieServers();
+            if (!liveServers || liveServers.length === 0) {
+                audioOptionsList.innerHTML = '<div style="padding: 16px; text-align: center; font-size: 13px; color: rgba(255,255,255,0.7);">Đang nạp nguồn âm thanh...</div>';
+                return;
+            }
 
-                const opt = document.createElement('div');
-                opt.className = `aphim-audio-opt ${isActive ? 'active' : ''}`;
+            liveServers.forEach((srv, sIdx) => {
+                const rawName = (srv.server_name || srv.original_server_name || '').toLowerCase();
+                const isSongNgu = rawName.includes('song ngữ') || rawName.includes('song ngu') || rawName.includes('bilingual');
+                const isActive = sIdx === currentServerIndex;
 
                 let labelText = '';
                 if (isSongNgu) {
                     labelText = srv.server_name || srv.original_server_name || 'Song Ngữ';
-                    // Định dạng khoảng cách gạch nối chuẩn đẹp: Việt-Trung-Anh -> Việt - Trung - Anh
                     labelText = labelText.replace(/([^\s])-([^\s])/g, '$1 - $2');
                 } else {
-                    const origName = srv.original_server_name || srv.server_name || `Nguồn ${sIdx + 1}`;
-                    if (origName.toLowerCase().includes('vietsub') || origName.toLowerCase().includes('thuyết minh') || origName.toLowerCase().includes('lồng tiếng')) {
-                        labelText = origName;
+                    const origName = (srv.original_server_name || srv.server_name || '').trim();
+                    const lower = origName.toLowerCase();
+                    if (lower.includes('vietsub') || lower.includes('phụ đề') || lower.includes('sub')) {
+                        labelText = liveServers.length > 1 ? (origName || `Phụ Đề #${sIdx + 1}`) : 'Phụ Đề';
+                    } else if (lower.includes('thuyết minh')) {
+                        labelText = origName || 'Thuyết minh';
+                    } else if (lower.includes('lồng tiếng')) {
+                        labelText = origName || 'Lồng tiếng';
+                    } else if (lower.includes('bản gốc') || lower.includes('raw') || lower.includes('tiếng gốc') || lower.includes('gốc')) {
+                        labelText = origName || 'Bản Gốc';
                     } else {
-                        labelText = `Vietsub (${srv.server_name || `Nguồn ${sIdx + 1}`})`;
+                        labelText = origName || `Nguồn ${sIdx + 1}`;
                     }
                 }
 
+                const opt = document.createElement('div');
+                opt.className = `aphim-audio-opt ${isActive ? 'active' : ''}`;
+                opt.style.cssText = `
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 12px !important;
+                    padding: 10px 14px !important;
+                    margin: 2px 0 !important;
+                    border-radius: 12px !important;
+                    cursor: pointer !important;
+                    transition: all 0.16s ease !important;
+                    border: 1.5px solid ${isActive ? '#d4a34b' : 'transparent'} !important;
+                    background: ${isActive ? 'rgba(212, 163, 75, 0.08)' : 'rgba(255, 255, 255, 0.02)'} !important;
+                    box-sizing: border-box !important;
+                    width: 100% !important;
+                `;
+
+                // Radio Circle (Ảnh 1: viền vàng + chấm tròn giữa nếu active; vòng rỗng mảnh nếu inactive)
+                const radioHtml = isActive 
+                    ? `<div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #eab308; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #eab308; box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);"></div></div>`
+                    : `<div style="width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.35); flex-shrink: 0;"></div>`;
+
+                // Check icon (Ảnh 1: hình tròn màu vàng có dấu tick đen bên trong)
+                const checkHtml = isActive 
+                    ? `<div style="width: 20px; height: 20px; border-radius: 50%; background: #eab308; display: flex; align-items: center; justify-content: center; margin-left: auto; flex-shrink: 0;"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; color: #111827; stroke-width: 3.5; stroke: currentColor; fill: none;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`
+                    : '';
+
                 opt.innerHTML = `
+                    ${radioHtml}
                     <span style="
-                        width: 9px;
-                        height: 9px;
-                        border-radius: 50%;
-                        ${isActive ? 'background: #fcd576; box-shadow: 0 0 10px #f59e0b; border: none;' : 'background: transparent; border: 1.5px solid rgba(255, 255, 255, 0.4);'}
-                        flex-shrink: 0;
-                        display: inline-block;
-                        transition: all 0.15s ease;
-                    "></span>
-                    <span style="
-                        font-size: 13.5px;
-                        font-weight: ${isActive ? '700' : '500'};
-                        color: ${isActive ? '#fcd576' : 'rgba(255, 255, 255, 0.88)'};
+                        font-size: 14px;
+                        font-weight: ${isActive ? '600' : '500'};
+                        color: ${isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.88)'};
                         letter-spacing: -0.15px;
                         white-space: nowrap;
                         flex: 1;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     ">${labelText}</span>
-                    ${isActive ? `
-                    <svg style="width: 15px; height: 15px; color: #fcd576; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>` : ''}
+                    ${checkHtml}
                 `;
+
+                opt.onmouseenter = () => {
+                    if (!isActive) opt.style.background = 'rgba(255, 255, 255, 0.06)';
+                };
+                opt.onmouseleave = () => {
+                    if (!isActive) opt.style.background = 'rgba(255, 255, 255, 0.02)';
+                };
 
                 opt.onclick = (e) => {
                     e.stopPropagation();
                     audioMenu.classList.add('hidden');
                     if (sIdx !== currentServerIndex) {
                         currentServerIndex = sIdx;
-                        const serverData = servers[sIdx].server_data || [];
+                        window.currentServerIndex = sIdx;
+                        const serverData = liveServers[sIdx].server_data || [];
                         const currentEpSlug = currentEpisode ? currentEpisode.slug : 'tap-1';
                         const targetEp = serverData.find(e => e.slug.replace(/^tap-/, '') === currentEpSlug.replace(/^tap-/, '')) || serverData[0];
                         if (targetEp) {
                             currentEpisode = targetEp;
                             _isInitializingPlayer = false;
                             initializePlayer(currentEpisode);
-                            renderServerList(servers);
-                            renderEpisodeList(servers);
+                            renderServerList(liveServers);
+                            renderEpisodeList(liveServers);
+                            updateAudioBadgeAndControls(liveServers);
                         }
                     }
                 };
@@ -3620,12 +4600,28 @@ function initializePlayer(episode) {
             });
         }
 
+        window._aphimUpdateAudioMenu = () => {
+            const upServers = getMovieServers();
+            updateAudioBadgeAndControls(upServers);
+            if (!audioMenu.classList.contains('hidden')) {
+                renderAudioOptions();
+            }
+        };
+
+        // Khởi tạo ban đầu
+        updateAudioBadgeAndControls(servers);
+
         btnAudio.onclick = (e) => {
             e.stopPropagation();
             const isHidden = audioMenu.classList.contains('hidden');
             if (settingsMenu) {
                 settingsMenu.classList.add('hidden');
                 if (btnSettings) btnSettings.classList.remove('is-active');
+            }
+            const modal = document.getElementById('aphim-sub-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                if (wrapper) wrapper.classList.remove('aphim-sub-open');
             }
             if (isHidden) {
                 renderAudioOptions();
@@ -3644,8 +4640,605 @@ function initializePlayer(episode) {
         });
     }
 
+
+    // ==========================================================================
+    // 🎨 SUBTITLE & BILINGUAL CUSTOMIZER LOGIC (IMAGES 1, 2, 3)
+    // ==========================================================================
+    function setupSubtitleCustomizer(ep, player) {
+        const btnCc = document.getElementById('aphim-btn-cc');
+        const modal = document.getElementById('aphim-sub-modal');
+        const wrapper = document.getElementById('aphim-player-wrapper');
+        const overlay = document.getElementById('aphim-dual-subtitles-overlay');
+        const subTopEl = document.getElementById('aphim-sub-top');
+        const subBottomEl = document.getElementById('aphim-sub-bottom');
+        const ccWrapper = document.getElementById('aphim-cc-wrapper');
+        if (!btnCc || !modal || !wrapper) return;
+
+        // 🛡️ Kiểm tra xem tập phim và server hiện tại có thực sự hỗ trợ Song Ngữ không
+        function checkIsSongNgu() {
+            let srvList = [];
+            if (currentMovie && Array.isArray(currentMovie.episodes) && currentMovie.episodes.length > 0) {
+                srvList = currentMovie.episodes;
+            } else if (window.initialEpisodes && Array.isArray(window.initialEpisodes) && window.initialEpisodes.length > 0) {
+                srvList = window.initialEpisodes;
+            }
+            const curServer = srvList[currentServerIndex] || srvList[0];
+            const sName = (curServer?.server_name || curServer?.original_server_name || '').toLowerCase();
+            const hasSnName = sName.includes('song ngữ') || sName.includes('song ngu') || sName.includes('bilingual');
+            const hasSub = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ||
+                           (ep && Array.isArray(ep.subTracks) && ep.subTracks.length > 0);
+            return hasSnName || hasSub;
+        }
+
+        const isSongNguMovie = checkIsSongNgu();
+        if (ccWrapper) {
+            if (isSongNguMovie) {
+                ccWrapper.style.setProperty('display', 'inline-flex', 'important');
+            } else {
+                ccWrapper.style.setProperty('display', 'none', 'important');
+                modal.classList.add('hidden');
+                wrapper.classList.remove('aphim-sub-open');
+                // Phim không có song ngữ -> THOÁT SỚM, không chạy modal/customizer để xem phim mượt nhất
+                return;
+            }
+        }
+
+        // Default Config Store
+        const DEFAULT_CONFIG = {
+            mode: 'dual', // 'dual' (cả cặp realtime), 'on' (đơn ngữ), 'off' (tắt)
+            activeTab: 'sub2', // Mặc định chỉnh Song Ngữ
+            sub1Lang: 'vi',
+            sub2Lang: 'ko',
+            font: "'Inter', system-ui, sans-serif",
+            userOffset: 0,
+            syncOffset: 0,
+            sub1: { color: '#ffffff', size: 18, bg: 'shadow' },
+            sub2: { color: '#ffd215', size: 17, bg: 'shadow' }
+        };
+
+        let cfg = DEFAULT_CONFIG;
+        try {
+            const saved = localStorage.getItem('aphim_sub_custom_config');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                cfg = Object.assign({}, DEFAULT_CONFIG, parsed);
+                if (!cfg.sub1) cfg.sub1 = Object.assign({}, DEFAULT_CONFIG.sub1);
+                if (!cfg.sub2) cfg.sub2 = Object.assign({}, DEFAULT_CONFIG.sub2);
+            }
+        } catch (e) {}
+
+        // Áp dụng kiểu dáng đồng bộ tức thì cho cả 2 dòng phụ đề realtime
+        function applySubStyles() {
+            if (!wrapper) return;
+            wrapper.style.setProperty('--aphim-sub-font-family', cfg.font);
+
+            const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('aphim-web-fullscreen'));
+            const isMobilePortrait = !isFullscreen && (wrapper.clientWidth <= 580 || (window.innerWidth <= 640 && window.innerHeight > window.innerWidth));
+
+            const sub1FontSize = isMobilePortrait ? Math.min(14, Math.round(cfg.sub1.size * 0.8)) : cfg.sub1.size;
+            const sub2FontSize = isMobilePortrait ? Math.min(13.5, Math.round(cfg.sub2.size * 0.78)) : cfg.sub2.size;
+
+            // Sub 1 (Phụ đề 1 / Chính - Dòng trên)
+            wrapper.style.setProperty('--aphim-sub-top-color', cfg.sub1.color);
+            wrapper.style.setProperty('--aphim-sub-top-size', sub1FontSize + 'px');
+            if (subTopEl) {
+                subTopEl.style.setProperty('color', cfg.sub1.color, 'important');
+                subTopEl.style.setProperty('font-size', sub1FontSize + 'px', 'important');
+                subTopEl.style.setProperty('font-family', cfg.font, 'important');
+                if (cfg.sub1.bg === 'none') {
+                    subTopEl.style.setProperty('background', 'transparent', 'important');
+                    subTopEl.style.setProperty('padding', '0px', 'important');
+                } else if (cfg.sub1.bg === 'gray') {
+                    subTopEl.style.setProperty('background', 'rgba(30, 41, 59, 0.85)', 'important');
+                    subTopEl.style.setProperty('padding', '2px 8px', 'important');
+                    subTopEl.style.setProperty('border-radius', '4px', 'important');
+                } else if (cfg.sub1.bg === 'black') {
+                    subTopEl.style.setProperty('background', 'rgba(0, 0, 0, 0.9)', 'important');
+                    subTopEl.style.setProperty('padding', '2px 8px', 'important');
+                    subTopEl.style.setProperty('border-radius', '4px', 'important');
+                } else {
+                    subTopEl.style.setProperty('background', 'transparent', 'important');
+                    subTopEl.style.setProperty('padding', '0px 4px', 'important');
+                }
+            }
+
+            // Sub 2 (Phụ đề 2 / Song ngữ - Dòng dưới)
+            wrapper.style.setProperty('--aphim-sub-bottom-color', cfg.sub2.color);
+            wrapper.style.setProperty('--aphim-sub-bottom-size', sub2FontSize + 'px');
+            if (subBottomEl) {
+                subBottomEl.style.setProperty('color', cfg.sub2.color, 'important');
+                subBottomEl.style.setProperty('font-size', sub2FontSize + 'px', 'important');
+                subBottomEl.style.setProperty('font-family', cfg.font, 'important');
+                if (cfg.sub2.bg === 'none') {
+                    subBottomEl.style.setProperty('background', 'transparent', 'important');
+                    subBottomEl.style.setProperty('padding', '0px', 'important');
+                } else if (cfg.sub2.bg === 'gray') {
+                    subBottomEl.style.setProperty('background', 'rgba(30, 41, 59, 0.85)', 'important');
+                    subBottomEl.style.setProperty('padding', '2px 8px', 'important');
+                    subBottomEl.style.setProperty('border-radius', '4px', 'important');
+                } else if (cfg.sub2.bg === 'black') {
+                    subBottomEl.style.setProperty('background', 'rgba(0, 0, 0, 0.9)', 'important');
+                    subBottomEl.style.setProperty('padding', '2px 8px', 'important');
+                    subBottomEl.style.setProperty('border-radius', '4px', 'important');
+                } else {
+                    subBottomEl.style.setProperty('background', 'transparent', 'important');
+                    subBottomEl.style.setProperty('padding', '0px 4px', 'important');
+                }
+            }
+
+            // Dynamic User Vertical Position Offset
+            const baseOffset = parseInt(wrapper.style.getPropertyValue('--aphim-sub-offset') || '50', 10);
+            const uOffset = cfg.userOffset || 0;
+            const totalOffset = Math.max(20, baseOffset + uOffset);
+            wrapper.style.setProperty('--aphim-sub-user-offset', uOffset + 'px');
+            if (overlay) {
+                overlay.style.setProperty('padding-bottom', totalOffset + 'px', 'important');
+            }
+
+            // Visibility according to mode (Song ngữ: Hiện cả Sub chính và Song ngữ trực tiếp)
+            if (cfg.mode === 'off') {
+                if (subTopEl) subTopEl.style.display = 'none';
+                if (subBottomEl) subBottomEl.style.display = 'none';
+                btnCc.style.color = 'rgba(255, 255, 255, 0.5)';
+            } else if (cfg.mode === 'on') { // Đơn ngữ: Chỉ hiện 1 dòng
+                if (cfg.activeTab === 'sub1') {
+                    if (subTopEl) subTopEl.style.display = 'block';
+                    if (subBottomEl) subBottomEl.style.display = 'none';
+                } else {
+                    if (subTopEl) subTopEl.style.display = 'none';
+                    if (subBottomEl) subBottomEl.style.display = 'block';
+                }
+                btnCc.style.color = '#ffffff';
+            } else { // 'dual': Song ngữ
+                if (subTopEl) subTopEl.style.display = 'none'; // Ẩn sub tiếng Việt mềm ở trên
+                if (subBottomEl) subBottomEl.style.display = 'block';
+                btnCc.style.color = '#fcd576';
+            }
+
+            // Update Preview Card - Tự động dãn và hiển thị tỷ lệ kích thước tương ứng
+            const prev1 = document.getElementById('asmPreviewSub1');
+            const prev2 = document.getElementById('asmPreviewSub2');
+            const hintEl = document.getElementById('asmPreviewHint');
+            if (hintEl) {
+                hintEl.innerHTML = 'Đang chỉnh: <b>' + (cfg.activeTab === 'sub2' ? 'Song ngữ' : 'Chính') + '</b>';
+            }
+
+            if (prev1) {
+                prev1.style.setProperty('color', cfg.sub1.color, 'important');
+                prev1.style.setProperty('font-size', Math.min(22, Math.max(12, Math.round(cfg.sub1.size * 0.9))) + 'px', 'important');
+                prev1.style.setProperty('font-family', cfg.font, 'important');
+                prev1.classList.toggle('asm-preview-line-active', cfg.activeTab === 'sub1');
+                if (cfg.sub1.bg === 'gray') {
+                    prev1.style.setProperty('background', 'rgba(30,41,59,0.85)', 'important');
+                } else if (cfg.sub1.bg === 'black') {
+                    prev1.style.setProperty('background', 'rgba(0,0,0,0.9)', 'important');
+                } else {
+                    prev1.style.setProperty('background', cfg.activeTab === 'sub1' ? 'rgba(255,255,255,0.06)' : 'transparent', 'important');
+                }
+                prev1.style.setProperty('display', cfg.mode === 'off' ? 'none' : 'block', 'important');
+            }
+            if (prev2) {
+                prev2.style.setProperty('color', cfg.sub2.color, 'important');
+                prev2.style.setProperty('font-size', Math.min(22, Math.max(12, Math.round(cfg.sub2.size * 0.9))) + 'px', 'important');
+                prev2.style.setProperty('font-family', cfg.font, 'important');
+                prev2.classList.toggle('asm-preview-line-active', cfg.activeTab === 'sub2');
+                if (cfg.sub2.bg === 'gray') {
+                    prev2.style.setProperty('background', 'rgba(30,41,59,0.85)', 'important');
+                } else if (cfg.sub2.bg === 'black') {
+                    prev2.style.setProperty('background', 'rgba(0,0,0,0.9)', 'important');
+                } else {
+                    prev2.style.setProperty('background', cfg.activeTab === 'sub2' ? 'rgba(252,213,118,0.08)' : 'transparent', 'important');
+                }
+                prev2.style.setProperty('display', (cfg.mode === 'dual' || cfg.activeTab === 'sub2') ? 'block' : 'none', 'important');
+            }
+
+            try {
+                localStorage.setItem('aphim_sub_custom_config', JSON.stringify(cfg));
+                window._aphimSubConfigCache = Object.assign({}, cfg);
+                if (typeof onTimeUpdate === 'function') onTimeUpdate();
+            } catch (e) {}
+        }
+
+        // Sync Modal Controls UI with current state
+        function syncModalUI() {
+            // Mode pills
+            document.querySelectorAll('#asmModePills .asm-mode-pill').forEach(b => {
+                b.classList.toggle('active', b.dataset.mode === cfg.mode);
+            });
+
+            // Tabs
+            document.querySelectorAll('#asmTabs .asm-tab-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.tab === cfg.activeTab);
+            });
+
+            const curSubCfg = (cfg.activeTab === 'sub2') ? cfg.sub2 : cfg.sub1;
+
+            // Swatches with checkmark icon inside active
+            document.querySelectorAll('#asmColorSwatches .asm-swatch').forEach(b => {
+                const isAct = b.dataset.color.toLowerCase() === curSubCfg.color.toLowerCase();
+                b.classList.toggle('active', isAct);
+                if (isAct) {
+                    const checkColor = (curSubCfg.color === '#ffffff' || curSubCfg.color === '#ffd215' || curSubCfg.color === '#34d399' || curSubCfg.color === '#38bdf8') ? '#0b0f19' : '#ffffff';
+                    b.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="' + checkColor + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                } else {
+                    b.innerHTML = '';
+                }
+            });
+
+            // Custom Font Dropdown Sync
+            const fontOpts = document.querySelectorAll('#asmFontMenu .asm-select-opt');
+            let activeLabel = 'Inter (Chuẩn)';
+            fontOpts.forEach(opt => {
+                const isAct = (opt.dataset.val === cfg.font);
+                opt.classList.toggle('active', isAct);
+                if (isAct && opt.dataset.label) activeLabel = opt.dataset.label;
+            });
+            const fontTriggerText = document.getElementById('asmFontTriggerText');
+            if (fontTriggerText) fontTriggerText.textContent = activeLabel;
+
+            // Position Slider
+            const posSlider = document.getElementById('asmPosSlider');
+            const posVal = document.getElementById('asmPosVal');
+            if (posSlider) posSlider.value = cfg.userOffset || 0;
+            if (posVal) posVal.textContent = (cfg.userOffset > 0 ? '+' : '') + (cfg.userOffset || 0) + 'px';
+
+            // Size Slider
+            const sizeSlider = document.getElementById('asmSizeSlider');
+            const sizeVal = document.getElementById('asmSizeVal');
+            if (sizeSlider) sizeSlider.value = curSubCfg.size;
+            if (sizeVal) sizeVal.textContent = curSubCfg.size + 'px';
+
+            // Timing Sync Slider
+            const syncSlider = document.getElementById('asmSyncSlider');
+            const syncVal = document.getElementById('asmSyncVal');
+            const sOff = Number(cfg.syncOffset) || 0;
+            if (syncSlider) syncSlider.value = sOff;
+            if (syncVal) syncVal.textContent = (sOff > 0 ? '+' : '') + sOff.toFixed(1) + 's';
+
+            // Background Seg
+            document.querySelectorAll('#asmBgSeg .asm-seg-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.bg === curSubCfg.bg);
+            });
+
+            renderLanguagesLists();
+
+
+        }
+
+        // Populate Languages lists for Phụ đề 1 and Phụ đề 2 as clean dropdown menus
+        function renderLanguagesLists() {
+            const list1 = document.getElementById('asmLangList1');
+            const list2 = document.getElementById('asmLangList2');
+            const trigText1 = document.getElementById('asmLangTriggerText1');
+            const trigText2 = document.getElementById('asmLangTriggerText2');
+            if (!list1 || !list2) return;
+
+            const subtitles = (ep && ep.subtitles) ? ep.subtitles : [];
+            const defaultSubs = subtitles.length > 0 ? subtitles : [
+                { language: 'vi', label: 'Tiếng Việt' },
+                { language: 'ko', label: 'Tiếng Hàn' }
+            ];
+
+            const cur1 = defaultSubs.find(s => s.language === cfg.sub1Lang) || defaultSubs[0];
+            const cur2 = defaultSubs.find(s => s.language === cfg.sub2Lang) || (defaultSubs.length > 1 ? defaultSubs[1] : defaultSubs[0]);
+            if (trigText1 && cur1) trigText1.textContent = cur1.label || cur1.language;
+            if (trigText2 && cur2) trigText2.textContent = cur2.label || cur2.language;
+
+            list1.innerHTML = defaultSubs.map((s, idx) => {
+                const isActive = (cfg.sub1Lang ? s.language === cfg.sub1Lang : idx === 0);
+                return '<div class="asm-select-opt ' + (isActive ? 'active' : '') + '" data-lang="' + s.language + '" data-label="' + (s.label || s.language) + '">' +
+                    '<span>' + (s.label || s.language) + '</span>' +
+                    (isActive ? '<svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
+                '</div>';
+            }).join('');
+
+            list2.innerHTML = defaultSubs.map((s, idx) => {
+                const isActive = (cfg.sub2Lang ? s.language === cfg.sub2Lang : (idx === 1 || (defaultSubs.length === 1 && idx === 0)));
+                return '<div class="asm-select-opt ' + (isActive ? 'active' : '') + '" data-lang="' + s.language + '" data-label="' + (s.label || s.language) + '">' +
+                    '<span>' + (s.label || s.language) + '</span>' +
+                    (isActive ? '<svg class="asm-opt-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
+                '</div>';
+            }).join('');
+
+            const drop1 = document.getElementById('asmLangDrop1');
+            const trig1 = document.getElementById('asmLangTrigger1');
+            const drop2 = document.getElementById('asmLangDrop2');
+            const trig2 = document.getElementById('asmLangTrigger2');
+
+            if (trig1 && !trig1._hasBind) {
+                trig1._hasBind = true;
+                trig1.onclick = (e) => {
+                    e.stopPropagation();
+                    const isOpen = drop1.classList.contains('open');
+                    if (drop2) { drop2.classList.remove('open'); list2.classList.add('hidden'); }
+                    if (fontDropdown) { fontDropdown.classList.remove('open'); fontMenu.classList.add('hidden'); }
+                    if (isOpen) {
+                        drop1.classList.remove('open');
+                        list1.classList.add('hidden');
+                    } else {
+                        drop1.classList.add('open');
+                        list1.classList.remove('hidden');
+                    }
+                };
+            }
+
+            if (trig2 && !trig2._hasBind) {
+                trig2._hasBind = true;
+                trig2.onclick = (e) => {
+                    e.stopPropagation();
+                    const isOpen = drop2.classList.contains('open');
+                    if (drop1) { drop1.classList.remove('open'); list1.classList.add('hidden'); }
+                    if (fontDropdown) { fontDropdown.classList.remove('open'); fontMenu.classList.add('hidden'); }
+                    if (isOpen) {
+                        drop2.classList.remove('open');
+                        list2.classList.add('hidden');
+                    } else {
+                        drop2.classList.add('open');
+                        list2.classList.remove('hidden');
+                    }
+                };
+            }
+
+            list1.querySelectorAll('.asm-select-opt').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    cfg.sub1Lang = item.dataset.lang;
+                    cfg.activeTab = 'sub1';
+                    if (drop1) drop1.classList.remove('open');
+                    list1.classList.add('hidden');
+                    if (window._aphimSwitchSubLanguage) window._aphimSwitchSubLanguage(cfg.sub1Lang, true);
+                    syncModalUI();
+                    applySubStyles();
+                };
+            });
+
+            list2.querySelectorAll('.asm-select-opt').forEach(item => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    cfg.sub2Lang = item.dataset.lang;
+                    cfg.activeTab = 'sub2';
+                    if (drop2) drop2.classList.remove('open');
+                    list2.classList.add('hidden');
+                    if (window._aphimSwitchSubLanguage) window._aphimSwitchSubLanguage(cfg.sub2Lang, false);
+                    syncModalUI();
+                    applySubStyles();
+                };
+            });
+        }
+
+        // Custom Font Dropdown Logic
+        const fontDropdown = document.getElementById('asmFontDropdown');
+        const fontTrigger = document.getElementById('asmFontTrigger');
+        const fontMenu = document.getElementById('asmFontMenu');
+        if (fontTrigger && fontMenu) {
+            fontTrigger.onclick = (e) => {
+                e.stopPropagation();
+                const isOpen = fontDropdown.classList.contains('open');
+                if (isOpen) {
+                    fontDropdown.classList.remove('open');
+                    fontMenu.classList.add('hidden');
+                } else {
+                    fontDropdown.classList.add('open');
+                    fontMenu.classList.remove('hidden');
+                }
+            };
+
+            fontMenu.querySelectorAll('.asm-select-opt').forEach(opt => {
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    cfg.font = opt.dataset.val;
+                    fontDropdown.classList.remove('open');
+                    fontMenu.classList.add('hidden');
+                    syncModalUI();
+                    applySubStyles();
+                };
+            });
+        }
+
+
+
+        // Event Listeners for Modal
+        btnCc.onclick = (e) => {
+            e.stopPropagation();
+            const isHidden = modal.classList.contains('hidden');
+            const settingsMenu = document.getElementById('aphim-settings-menu');
+            const audioMenu = document.getElementById('aphim-audio-menu');
+            if (settingsMenu) settingsMenu.classList.add('hidden');
+            if (audioMenu) audioMenu.classList.add('hidden');
+
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                wrapper.classList.add('aphim-sub-open');
+                syncModalUI();
+                applySubStyles();
+            } else {
+                modal.classList.add('hidden');
+                wrapper.classList.remove('aphim-sub-open');
+                if (fontDropdown) fontDropdown.classList.remove('open');
+                if (fontMenu) fontMenu.classList.add('hidden');
+            }
+        };
+
+        const btnClose = document.getElementById('asmBtnClose');
+        if (btnClose) {
+            btnClose.onclick = (e) => {
+                e.stopPropagation();
+                modal.classList.add('hidden');
+                wrapper.classList.remove('aphim-sub-open');
+                if (fontDropdown) fontDropdown.classList.remove('open');
+                if (fontMenu) fontMenu.classList.add('hidden');
+            };
+        }
+
+        const btnReset = document.getElementById('asmBtnReset');
+        if (btnReset) {
+            btnReset.onclick = (e) => {
+                e.stopPropagation();
+                cfg = Object.assign({}, DEFAULT_CONFIG);
+                syncModalUI();
+                applySubStyles();
+            };
+        }
+
+        // Mode Pills: [ Song ngữ ] [ Đơn ngữ ] [ Tắt ]
+        document.querySelectorAll('#asmModePills .asm-mode-pill').forEach(b => {
+            b.onclick = (e) => {
+                e.stopPropagation();
+                cfg.mode = b.dataset.mode;
+                syncModalUI();
+                applySubStyles();
+            };
+        });
+
+        // Tabs: [ Chính ] [ Song ngữ ]
+        document.querySelectorAll('#asmTabs .asm-tab-btn').forEach(b => {
+            b.onclick = (e) => {
+                e.stopPropagation();
+                cfg.activeTab = b.dataset.tab;
+                syncModalUI();
+                applySubStyles();
+            };
+        });
+
+        // Bấm vào dòng chữ mẫu trong khung Xem trước để chuyển nhanh tab tương ứng
+        const prev1El = document.getElementById('asmPreviewSub1');
+        const prev2El = document.getElementById('asmPreviewSub2');
+        if (prev1El) {
+            prev1El.style.cursor = 'pointer';
+            prev1El.onclick = (e) => {
+                e.stopPropagation();
+                cfg.activeTab = 'sub1';
+                syncModalUI();
+                applySubStyles();
+            };
+        }
+        if (prev2El) {
+            prev2El.style.cursor = 'pointer';
+            prev2El.onclick = (e) => {
+                e.stopPropagation();
+                cfg.activeTab = 'sub2';
+                syncModalUI();
+                applySubStyles();
+            };
+        }
+
+        // Swatches
+        document.querySelectorAll('#asmColorSwatches .asm-swatch').forEach(b => {
+            b.onclick = (e) => {
+                e.stopPropagation();
+                const curSub = (cfg.activeTab === 'sub2') ? cfg.sub2 : cfg.sub1;
+                curSub.color = b.dataset.color;
+                syncModalUI();
+                applySubStyles();
+            };
+        });
+
+        // Position Slider
+        const posSlider = document.getElementById('asmPosSlider');
+        if (posSlider) {
+            posSlider.oninput = () => {
+                cfg.userOffset = parseInt(posSlider.value, 10);
+                const posVal = document.getElementById('asmPosVal');
+                if (posVal) posVal.textContent = (cfg.userOffset > 0 ? '+' : '') + cfg.userOffset + 'px';
+                applySubStyles();
+            };
+        }
+
+        // Size Slider
+        const sizeSlider = document.getElementById('asmSizeSlider');
+        if (sizeSlider) {
+            sizeSlider.oninput = () => {
+                const curSub = (cfg.activeTab === 'sub2') ? cfg.sub2 : cfg.sub1;
+                curSub.size = parseInt(sizeSlider.value, 10);
+                const sizeVal = document.getElementById('asmSizeVal');
+                if (sizeVal) sizeVal.textContent = curSub.size + 'px';
+                applySubStyles();
+            };
+        }
+
+        // Subtitle Sync Offset Slider & Buttons (-0.5s / +0.5s)
+        const syncSlider = document.getElementById('asmSyncSlider');
+        const syncVal = document.getElementById('asmSyncVal');
+        const syncMinus = document.getElementById('asmSyncMinus');
+        const syncPlus = document.getElementById('asmSyncPlus');
+
+        function updateSyncOffset(val) {
+            cfg.syncOffset = Math.round(parseFloat(val) * 10) / 10;
+            if (syncSlider) syncSlider.value = cfg.syncOffset;
+            if (syncVal) syncVal.textContent = (cfg.syncOffset > 0 ? '+' : '') + cfg.syncOffset.toFixed(1) + 's';
+            applySubStyles();
+        }
+
+        if (syncSlider) {
+            syncSlider.oninput = () => updateSyncOffset(syncSlider.value);
+        }
+        if (syncMinus) {
+            syncMinus.onclick = (e) => {
+                e.stopPropagation();
+                updateSyncOffset((cfg.syncOffset || 0) - 0.5);
+            };
+        }
+        if (syncPlus) {
+            syncPlus.onclick = (e) => {
+                e.stopPropagation();
+                updateSyncOffset((cfg.syncOffset || 0) + 0.5);
+            };
+        }
+
+        // Background Seg
+        document.querySelectorAll('#asmBgSeg .asm-seg-btn').forEach(b => {
+            b.onclick = (e) => {
+                e.stopPropagation();
+                const curSub = (cfg.activeTab === 'sub2') ? cfg.sub2 : cfg.sub1;
+                curSub.bg = b.dataset.bg;
+                syncModalUI();
+                applySubStyles();
+            };
+        });
+
+        // Bảo vệ modal khỏi bị auto-hide hoặc chớp cursor khi rê chuột
+        modal.addEventListener('mousemove', (e) => {
+            e.stopPropagation();
+            if (wrapper) {
+                wrapper.classList.remove('aphim-hide-cursor');
+                wrapper.style.cursor = 'default';
+            }
+        });
+        modal.addEventListener('mouseenter', () => {
+            if (wrapper) {
+                wrapper.classList.remove('aphim-hide-cursor');
+                wrapper.style.cursor = 'default';
+            }
+        });
+
+        // Prevent clicking inside modal from closing or pausing player
+        modal.onclick = (e) => {
+            e.stopPropagation();
+            if (fontDropdown && !fontDropdown.contains(e.target)) {
+                fontDropdown.classList.remove('open');
+                if (fontMenu) fontMenu.classList.add('hidden');
+            }
+        };
+
+        // Close on clicking outside player controls
+        document.addEventListener('click', (e) => {
+            if (!modal.classList.contains('hidden') && !modal.contains(e.target) && e.target !== btnCc) {
+                modal.classList.add('hidden');
+                wrapper.classList.remove('aphim-sub-open');
+                if (fontDropdown) fontDropdown.classList.remove('open');
+                if (fontMenu) fontMenu.classList.add('hidden');
+            }
+        });
+
+        // Initialize styles
+        syncModalUI();
+        applySubStyles();
+    }
+
+
     setupAudioSourceMenu();
     setupDualSubtitles(episode, player);
+    setupSubtitleCustomizer(episode, player);
 
     // Picture-in-Picture
     if (btnPip) {
@@ -3699,38 +5292,8 @@ function initializePlayer(episode) {
     async function enterFullscreen() {
         if (!player) return;
 
-        // ─── A. MOBILE FLOW (iOS & Android: Native OS Video Fullscreen - Exactly Image 3) ───
-        if (isMobileDevice()) {
-            // 1. iOS Safari (iPhone / iPad) -> Direct native webkitEnterFullscreen on video element
-            if (player.webkitEnterFullscreen) {
-                try {
-                    player.webkitEnterFullscreen();
-                    updateFullscreenIcons(true);
-                    return;
-                } catch (e) {
-                    console.warn('iOS webkitEnterFullscreen error:', e);
-                }
-            }
-
-            // 2. Android / Other Mobile -> Native Fullscreen on <video> with native media controls
-            if (player.requestFullscreen || player.webkitRequestFullscreen) {
-                try {
-                    player.controls = true; // Show native OS controls (Image 3)
-                    if (player.requestFullscreen) {
-                        await player.requestFullscreen();
-                    } else if (player.webkitRequestFullscreen) {
-                        await player.webkitRequestFullscreen();
-                    }
-                    updateFullscreenIcons(true);
-                    return;
-                } catch (e) {
-                    console.warn('Mobile native video requestFullscreen error:', e);
-                    player.controls = false;
-                }
-            }
-        }
-
-        // ─── B. DESKTOP FLOW (PC / Laptop: Custom Player Fullscreen) ───
+        // ─── UNIFIED FLOW: Always fullscreen on wrapper to keep custom controls ───
+        // (Mobile + Desktop both use wrapper fullscreen so custom CC/Song/settings remain visible)
         if (!wrapper) return;
         let nativeSuccess = false;
 
@@ -3764,12 +5327,9 @@ function initializePlayer(episode) {
     }
 
     async function exitFullscreen() {
-        // 1. Reset mobile native player state
-        if (isMobileDevice() && player) {
-            player.controls = false; // Restore custom inline controls for outside viewing
-            if (player.webkitExitFullscreen) {
-                try { player.webkitExitFullscreen(); } catch (e) {}
-            }
+        // 1. Reset player.controls (always keep custom controls)
+        if (player) {
+            player.controls = false;
         }
 
         // 2. Exit native browser fullscreen
@@ -3822,8 +5382,8 @@ function initializePlayer(episode) {
         const isFs = isCurrentlyFullscreen();
         updateFullscreenIcons(isFs);
         if (!isFs) {
-            if (player && isMobileDevice()) {
-                player.controls = false; // Switch back to custom tools outside fullscreen
+            if (player) {
+                player.controls = false; // Always use custom controls
             }
             if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
             document.body.classList.remove('aphim-body-fullscreen');
@@ -3888,11 +5448,21 @@ function initializePlayer(episode) {
         scheduleHideControls(delay);
     }
 
+    function isAnyPopupOpen() {
+        const sMenu = document.getElementById('aphim-settings-menu');
+        const aMenu = document.getElementById('aphim-audio-menu');
+        const subM = document.getElementById('aphim-sub-modal');
+        if (sMenu && !sMenu.classList.contains('hidden')) return true;
+        if (aMenu && !aMenu.classList.contains('hidden')) return true;
+        if (subM && !subM.classList.contains('hidden')) return true;
+        return false;
+    }
+
     function hideControls(force = false) {
         if (!controls) return;
         if (!force) {
             if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
-            if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
+            if (isAnyPopupOpen()) return;
         }
 
         if (hideTimeout) {
@@ -3919,8 +5489,9 @@ function initializePlayer(episode) {
             clearTimeout(hideTimeout);
             hideTimeout = null;
         }
-        // Khi video đang tạm dừng (paused), hoặc đang kéo timeline, hoặc đang chạm/rê chuột trên thanh điều khiển: KHÔNG bao giờ tự ẩn!
+        // Khi video đang tạm dừng (paused), hoặc đang kéo timeline, hoặc popup/modal đang mở: KHÔNG bao giờ tự ẩn!
         if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
+        if (typeof isAnyPopupOpen === 'function' && isAnyPopupOpen()) return;
         if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
 
         const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768);
@@ -4002,6 +5573,18 @@ function initializePlayer(episode) {
         const topExitThreshold = isFs
             ? Math.max(height * 0.64, height - 250)
             : Math.max(height * 0.58, height - 170);
+
+        // Nếu có bất kỳ popup/modal nào đang mở (Phụ đề, Cài đặt, Nguồn âm), KHÔNG tự ẩn controls hoặc ẩn cursor
+        if (typeof isAnyPopupOpen === 'function' && isAnyPopupOpen()) {
+            if (controls && controls.classList.contains('aphim-controls-hidden')) {
+                showControls(2800);
+            }
+            if (wrapper) {
+                wrapper.classList.remove('aphim-hide-cursor');
+                wrapper.style.cursor = 'default';
+            }
+            return;
+        }
 
         if (relativeY >= bottomTriggerThreshold) {
             // Chuột đang ở VÙNG DƯỚI:
@@ -4157,6 +5740,24 @@ function initializePlayer(episode) {
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
             console.log('🚀 Manifest parsed, ready to play');
+
+            // ⚡ Tắt hoàn toàn native subtitle tracks để không đè lên custom overlay
+            setTimeout(() => {
+                try {
+                    for (let i = 0; i < player.textTracks.length; i++) {
+                        player.textTracks[i].mode = 'hidden';
+                    }
+                } catch(e) {}
+            }, 300);
+            // Track listener để tắt bất kỳ track nào được thêm sau
+            if (!player._trackAddedListener) {
+                player._trackAddedListener = () => {
+                    for (let i = 0; i < player.textTracks.length; i++) {
+                        player.textTracks[i].mode = 'hidden';
+                    }
+                };
+                player.textTracks.addEventListener('addtrack', player._trackAddedListener);
+            }
             if (window._isTvcActive) {
                 console.log('⚡ TVC is playing -> Pre-buffering main stream in background (muted)...');
                 player.muted = true;
@@ -4475,7 +6076,6 @@ function initializePlayer(episode) {
                 }, 650);
 
             } else if (timeSinceLastTap < DOUBLE_TAP_THRESHOLD && currentSide === 'center') {
-                // Chạm đúp ở giữa màn hình -> Tạm dừng / Tiếp tục
                 if (singleTapTimer) {
                     clearTimeout(singleTapTimer);
                     singleTapTimer = null;
@@ -4483,27 +6083,41 @@ function initializePlayer(episode) {
                 lastTapTime = 0;
                 accumulatedSeekSec = 0;
                 lastTapSide = null;
-                togglePlayPause();
-                showControls(3800);
+
+                // 📱 Mobile (Dọc, Xoay Ngang) & Mở Full màn hình: Chạm ở giữa luôn là Bật / Tắt controls, KHÔNG DỪNG PHIM!
+                if (isMobileOrFullscreenMode()) {
+                    lastTouchActionTime = Date.now();
+                    toggleControlsVisibility();
+                } else {
+                    // Desktop chuột thông thường: Play/Pause
+                    togglePlayPause();
+                    showControls(3800);
+                }
             } else {
-                // ─── CHẠM LẦN 1 (SINGLE TAP) - CÓ DEBOUNCE 240MS CHỐNG CHỚP MÀN HÌNH ───
+                // ─── CHẠM VÀO MÀN HÌNH (SINGLE TAP) ───
                 lastTapTime = now;
                 lastTapSide = currentSide;
                 accumulatedSeekSec = 0;
 
                 if (singleTapTimer) clearTimeout(singleTapTimer);
 
-                // Chờ 240ms: Nếu người dùng không chạm lần 2 (để tua 5s) thì mới chuyển đổi bật/tắt controls
+                // 📱 Mobile (Dọc, Xoay Ngang) & Mở Full màn hình (như YouTube, Netflix...):
+                // Phản hồi tức thì Realtime 0ms: Bật/Tắt thanh controls ngay khi ngón tay vừa nhấc lên, TUYỆT ĐỐI KHÔNG DỪNG PHIM!
+                if (isMobileOrFullscreenMode()) {
+                    lastTouchActionTime = Date.now();
+                    toggleControlsVisibility();
+                    return;
+                }
+
+                // Chế độ Desktop xem ở cửa sổ:
                 singleTapTimer = setTimeout(() => {
                     singleTapTimer = null;
                     lastTapSide = null;
                     if (!controls) return;
 
                     if (!wasControlsVisibleOnTouchStart) {
-                        // Nếu đang ẩn -> Hiện thanh điều khiển trong 3.8s
                         showControls(3800);
                     } else {
-                        // Nếu đang hiện -> Ẩn ngay lập tức
                         if (settingsMenu && !settingsMenu.classList.contains('hidden')) {
                             settingsMenu.classList.add('hidden');
                         } else {
@@ -5913,3 +7527,70 @@ const style = document.createElement('style');
 style.innerHTML = '#mpbFs, #mab-fs, #fullscreenBtn { display: none !important; }';
 document.head.appendChild(style);
 
+
+// =========================================================================
+// 🎦 COLLAPSE SIDEBAR & EXPAND PLAYER FULL-WIDTH (HÌNH SỐ 1)
+// =========================================================================
+window.isSidebarCollapsed = false;
+
+window.toggleSidebarCollapse = function (forceState) {
+    const grid = document.getElementById('watch-main-grid');
+    const dockBtn = document.getElementById('aphim-restore-sidebar-dock');
+    const topText = document.getElementById('topExpandBtnText');
+    const topBtn = document.getElementById('btnTopToggleSidebar');
+    if (!grid) return;
+
+    if (typeof forceState === 'boolean') {
+        window.isSidebarCollapsed = forceState;
+    } else {
+        window.isSidebarCollapsed = !grid.classList.contains('aphim-sidebar-collapsed');
+    }
+
+    grid.classList.toggle('aphim-sidebar-collapsed', window.isSidebarCollapsed);
+    if (document.body) {
+        document.body.classList.toggle('aphim-sidebar-is-collapsed', window.isSidebarCollapsed);
+    }
+
+    try {
+        localStorage.setItem('aphim_sidebar_collapsed', window.isSidebarCollapsed ? 'true' : 'false');
+    } catch (e) {}
+
+    if (dockBtn) {
+        dockBtn.classList.toggle('hidden', !window.isSidebarCollapsed);
+        dockBtn.style.setProperty('display', window.isSidebarCollapsed ? 'inline-flex' : 'none', 'important');
+    }
+    if (topText) {
+        topText.textContent = window.isSidebarCollapsed ? 'Hiện ô thông tin' : 'Mở rộng màn chiếu';
+    }
+    if (topBtn) {
+        topBtn.classList.toggle('is-active', window.isSidebarCollapsed);
+        topBtn.title = window.isSidebarCollapsed ? 'Thu nhỏ lại & hiện ô thông tin bên phải' : 'Thu gọn ô bên phải & mở rộng màn chiếu';
+    }
+
+    // Trigger video player responsive metrics update
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 150);
+};
+
+// Tự động khôi phục trạng thái từ localStorage khi tải trang
+if (typeof document !== 'undefined') {
+    const initSidebarState = () => {
+        try {
+            const dockBtn = document.getElementById('aphim-restore-sidebar-dock');
+            if (localStorage.getItem('aphim_sidebar_collapsed') === 'true') {
+                window.toggleSidebarCollapse(true);
+            } else {
+                if (dockBtn) {
+                    dockBtn.classList.add('hidden');
+                    dockBtn.style.setProperty('display', 'none', 'important');
+                }
+            }
+        } catch (e) {}
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarState);
+    } else {
+        initSidebarState();
+    }
+}

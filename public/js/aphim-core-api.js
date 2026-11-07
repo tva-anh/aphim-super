@@ -167,110 +167,164 @@
         return;
     };
 
-    // 🎯 5. EXACT BADGE & EPISODE PARSER MATCHING HOMEPAGE INDEX.EJS & SONG NGU IMAGE 2
-    window.APhimCore.renderBadges = function(movie) {
-        const lang = (movie.lang || 'Vietsub').toLowerCase();
-        let ep = (movie.episode_current || movie.episode || '').trim();
-        const type = movie.type || '';
+    // 🎯 4.1 BILINGUAL BACKGROUND SYNC
+    if (typeof window !== 'undefined' && (!window.__BILINGUAL_SLUGS__ || window.__BILINGUAL_SLUGS__.size === 0)) {
+        try {
+            fetch('/api/bilingual-slugs')
+                .then(r => r.json())
+                .then(list => {
+                    if (Array.isArray(list)) window.__BILINGUAL_SLUGS__ = new Set(list);
+                })
+                .catch(() => {});
+        } catch (_) {}
+    }
+
+    window.APhimCore.isBilingualSlug = function(slug) {
+        if (!slug) return false;
+        const clean = String(slug).trim().toLowerCase();
+        return !!(window.__BILINGUAL_SLUGS__ && window.__BILINGUAL_SLUGS__.has(clean));
+    };
+
+    // 🎯 5. LUXURY BADGE HEADER RENDERER (CHẤT NHƯ SONG NGỮ, KHÔNG CHE POSTER)
+    window.APhimCore.renderCardBadgesHeader = function(movie, options = {}) {
+        const slug = (movie.slug || '').toLowerCase().trim();
         const isSongNgu = movie.is_song_ngu || 
-                          lang.includes('song ngữ') || 
-                          lang.includes('song ngu') || 
+                          movie.has_bilingual ||
+                          (movie.lang && (movie.lang.toLowerCase().includes('song ngữ') || movie.lang.toLowerCase().includes('song ngu'))) ||
+                          (window.__BILINGUAL_SLUGS__ && window.__BILINGUAL_SLUGS__.has(slug)) ||
                           (typeof window !== 'undefined' && (
                               window.location.pathname.includes('/phim-song-ngu') || 
                               new URLSearchParams(window.location.search).get('list') === 'phim-song-ngu'
                           ));
 
-        if (!ep) {
-            ep = (type === 'single' || type === 'phim-le') ? 'Full' : 'Tập 1';
-        }
+        // 🌟 1. Nhãn Song Ngữ tím độc lập góc trên bên phải
+        const songNguHTML = isSongNgu ? `
+            <div class="badge-song-ngu-pill" title="Phim có phụ đề song ngữ chất lượng cao">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+                    <path d="m12.87 15.07-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7 1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+                <span>Song Ngữ</span>
+            </div>
+        ` : '';
 
-        const isFull = ep.toLowerCase().includes('full') || 
-                       ep.toLowerCase().includes('hoàn tất') || 
-                       ep.toLowerCase().includes('hoan tat') || 
-                       type === 'single';
+        const lang = (movie.lang || 'Vietsub').toLowerCase();
+        const epRaw = (movie.episode_current || movie.episode || '').trim();
+        const type = movie.type || '';
 
-        // 1. Purple Song Ngữ Top-Right Badge (Image 2 exact match)
-        let purpleSongNguHTML = '';
-        if (isSongNgu) {
-            purpleSongNguHTML = `
-                <div class="grid-badge-song-ngu-purple">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path>
-                    </svg>
-                    <span>Song Ngữ</span>
-                </div>
-            `;
-        }
+        const isPlaceholder = epRaw.toLowerCase().includes('song ngữ') || 
+                             epRaw.toLowerCase().includes('song ngu') || 
+                             epRaw.toLowerCase() === 'fhd' || 
+                             epRaw.toLowerCase() === 'hd';
+        const cleanEpRaw = isPlaceholder ? '' : epRaw;
 
-        // 2. Language Top Badges (Left)
-        let topBadgesHTML = '';
-        const hasSn = lang.includes('song ngữ') || lang.includes('song ngu');
-        const hasSub = lang.includes('sub') || lang.includes('phụ đề') || lang.includes('phu de') || lang.includes('vietsub') || lang.includes('p.đề');
+        const hasSub = lang.includes('sub') || lang.includes('phụ đề') || lang.includes('phu de') || lang.includes('vietsub') || (!lang.includes('thuyết minh') && !lang.includes('lồng tiếng'));
         const hasTm = lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh');
         const hasLt = lang.includes('lồng tiếng') || lang.includes('long tieng') || lang.includes('l.tiếng');
 
-        if (!isSongNgu) {
-            if (hasSn) {
-                topBadgesHTML += `<span class="badge-tag badge-tag-sn">Song ngữ</span>`;
-            }
-            if (hasSub) {
-                topBadgesHTML += `<span class="badge-tag badge-tag-pd">${(hasTm || hasLt) ? 'P.Đề' : 'Vietsub'}</span>`;
-            }
-            if (hasTm) {
-                topBadgesHTML += `<span class="badge-tag badge-tag-tm">T.Minh</span>`;
-            }
-            if (hasLt) {
-                topBadgesHTML += `<span class="badge-tag badge-tag-lt">L.Tiếng</span>`;
-            }
-            if (!hasSn && !hasSub && !hasTm && !hasLt) {
-                topBadgesHTML += `<span class="badge-tag badge-tag-pd">Vietsub</span>`;
-            }
-        }
-
-        // Quality Badge
-        const quality = (movie.quality || 'FHD').toUpperCase();
-        if (quality && quality !== 'SD') {
-            topBadgesHTML += `<span class="badge-fhd">${quality}</span>`;
-        }
-
-        // 3. Episode Bottom Badge (Image 2 multi-badge style for PĐ / TM / LT, or classic yellow/orange)
-        let bottomBadgesHTML = '';
-        if (isSongNgu && ep && (ep.includes('PĐ') || ep.includes('TM') || ep.includes('LT'))) {
-            const rawTokens = ep.split(/\s+/);
-            const badgeItems = [];
-            for (let i = 0; i < rawTokens.length; i++) {
-                const tok = rawTokens[i];
-                if (tok.startsWith('PĐ') || tok.startsWith('TM') || tok.startsWith('LT')) {
-                    const nextTok = rawTokens[i + 1];
-                    let val = (nextTok && !nextTok.startsWith('PĐ') && !nextTok.startsWith('TM') && !nextTok.startsWith('LT')) ? nextTok : '';
-                    if (val) i++;
-                    badgeItems.push(`${tok} ${val}`.trim());
+        let num = '';
+        if (cleanEpRaw) {
+            const numMatch = cleanEpRaw.match(/(\d+)\s*\/\s*(\d+)/);
+            if (numMatch) {
+                num = numMatch[1];
+            } else {
+                const singleNumMatch = cleanEpRaw.match(/(?:tập|tap)?\s*(\d+)/i);
+                if (singleNumMatch) {
+                    num = singleNumMatch[1];
                 }
             }
-            if (badgeItems.length > 0) {
-                bottomBadgesHTML = badgeItems.map(item => {
-                    const cls = item.startsWith('TM') ? 'badge-pill-tm' : (item.startsWith('LT') ? 'badge-pill-lt' : 'badge-pill-pd');
-                    return `<span class="${cls}">${item}</span>`;
-                }).join('');
-            } else {
-                bottomBadgesHTML = `<span class="badge-pill-pd">${ep}</span>`;
-            }
-        } else {
-            const epBadgeClass = isFull ? 'badge-ep-yellow' : 'badge-ep-orange';
-            bottomBadgesHTML = `<span class="${epBadgeClass}">${ep}</span>`;
         }
 
-        return { topBadgesHTML, bottomBadgesHTML, purpleSongNguHTML };
+        const isFull = !num && (
+            cleanEpRaw.toLowerCase().includes('full') || 
+            cleanEpRaw.toLowerCase().includes('hoàn tất') || 
+            cleanEpRaw.toLowerCase().includes('hoan tat') || 
+            type === 'single' || 
+            type === 'phim-le'
+        );
+
+        const epSuffix = num ? `. ${num}` : '';
+
+        // 🌟 2. CỤM NHÃN VIẾT TẮT ĐẶT DƯỚI CHÂN POSTER (PĐ. 8, TM. 8, LT. 8, Full...)
+        let bottomBadges = [];
+
+        // Nếu phim có sẵn mảng available_languages chuẩn từ catalog/nguồn
+        if (Array.isArray(movie.available_languages) && movie.available_languages.length > 0) {
+            movie.available_languages.forEach(item => {
+                const parts = String(item).split(':');
+                const tag = parts[0].toUpperCase().trim();
+                const val = (parts[1] || '').trim();
+                const isSingleEp = val === '1' || val.toLowerCase() === 'full' || cleanEpRaw.includes('1/1') || type === 'single' || type === 'phim-le';
+                const epVal = (!isSingleEp && val && val.toLowerCase() !== 'full') ? `. ${val}` : (!isSingleEp && num ? `. ${num}` : '');
+                if (tag === 'PD') {
+                    bottomBadges.push(`<span class="badge-seg-sub">${isSingleEp ? 'Full' : 'PĐ' + epVal}</span>`);
+                } else if (tag === 'TM') {
+                    bottomBadges.push(`<span class="badge-seg-tm">TM${epVal}</span>`);
+                } else if (tag === 'LT') {
+                    bottomBadges.push(`<span class="badge-seg-lt">LT${epVal}</span>`);
+                }
+            });
+        }
+
+        // Fallback theo lang và epSuffix
+        if (bottomBadges.length === 0) {
+            if (hasSub) {
+                bottomBadges.push(`<span class="badge-seg-sub">PĐ${epSuffix}</span>`);
+            }
+            if (hasTm) {
+                bottomBadges.push(`<span class="badge-seg-tm">TM${epSuffix}</span>`);
+            }
+            if (hasLt && bottomBadges.length < 3) {
+                bottomBadges.push(`<span class="badge-seg-lt">LT${epSuffix}</span>`);
+            }
+        }
+
+        // Nếu không có sub/tm mà là phim hoàn tất/tập
+        if (bottomBadges.length === 0) {
+            const fallbackLabel = isFull ? 'Full' : (num ? `Tập ${num}` : 'PĐ');
+            bottomBadges.push(`<span class="badge-seg-sub">${fallbackLabel}</span>`);
+        }
+
+        const bottomPillsHTML = `
+            <div class="card-bottom-pills-center">
+                ${bottomBadges.join('')}
+            </div>
+        `;
+
+        // 🌟 3. Góc trên bên trái: Chỉ hiện nếu có #Rank và ⭐ Điểm (Top 10), hoàn toàn thoáng cho poster
+        let topPills = [];
+        if (options.rank) {
+            topPills.push(`<span class="ap-badge-rank">#${options.rank}</span>`);
+        }
+        if (options.starRating) {
+            topPills.push(`
+                <span class="ap-badge-score">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <span>${options.starRating}</span>
+                </span>
+            `);
+        }
+
+        const topPillsHTML = topPills.length > 0 ? `
+            <div class="card-top-badges ${isSongNgu ? 'has-song-ngu' : ''}">
+                <div class="card-pills-left">
+                    ${topPills.join('')}
+                </div>
+            </div>
+        ` : '';
+
+        return `
+            ${topPillsHTML}
+            ${songNguHTML}
+            ${bottomPillsHTML}
+        `;
     };
 
-    // 🎯 6. UNIVERSAL MOVIE CARD RENDERER MATCHING HOMEPAGE INDEX.EJS (INSTANT DIRECT SRC LOADING)
+    // 🎯 6. UNIVERSAL MOVIE CARD RENDERER MATCHING HOMEPAGE INDEX.EJS
     window.APhimCore.createGridCardHTML = function(movie, index = 0) {
-        // Với thẻ dọc 2:3, poster_url là poster chuẩn, thumb_url là dự phòng
         const primaryImg = window.APhimCore.getImgUrl(movie.poster_url || movie.thumb_url);
         const fallbackImg = window.APhimCore.getImgUrl(movie.thumb_url || movie.poster_url);
-        const { topBadgesHTML, bottomBadgesHTML, purpleSongNguHTML } = window.APhimCore.renderBadges(movie);
+        const badgesHeaderHTML = window.APhimCore.renderCardBadgesHeader(movie);
 
-        // Chỉ eager 2 card đầu tiên nếu là hàng trên cùng, còn lại lazy để trình duyệt kích hoạt xong onload ngay lập tức
         const isPriority = index < 2;
         const loadingAttr = isPriority ? 'loading="eager"' : 'loading="lazy"';
         const priorityAttr = index < 2 ? 'fetchpriority="high"' : 'fetchpriority="low"';
@@ -278,17 +332,13 @@
         return `
             <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
                 <div class="grid-poster-wrap">
-                    ${purpleSongNguHTML || ''}
-                    <div class="grid-top-badges">
-                        ${topBadgesHTML || ''}
-                    </div>
+                    ${badgesHeaderHTML}
                     <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" ${loadingAttr} ${priorityAttr} decoding="async" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />
                     <div class="phimmoi-play-overlay">
                         <div class="phimmoi-play-btn">
                             <svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>
                         </div>
                     </div>
-                    ${bottomBadgesHTML ? `<div class="grid-bottom-badges">${bottomBadgesHTML}</div>` : ''}
                 </div>
                 <div class="grid-title-wrap">
                     <div class="grid-title-vi">${movie.name}</div>

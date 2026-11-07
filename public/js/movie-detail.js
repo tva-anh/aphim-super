@@ -275,16 +275,54 @@ async function loadMovieDetail(slug) {
 
         ophimOk = true;
 
-        // Fetch secondary servers in background to append to SSR data / update episodes
+        // Fetch secondary servers in background: UPSERT — giữ nguyên server SSR (đặc biệt Song Ngữ ở đầu),
+        // cập nhật tập cho server trùng tên (bên nào nhiều tập hơn thì lấy bên đó), nối thêm server mới.
         movieAPI.getMovieDetail(slug).then(fullData => {
             const fetchedItem = fullData?.data?.item || fullData?.movie || fullData?.data?.movie;
             const fetchedEps = fetchedItem?.episodes || fullData?.episodes;
             if (fetchedEps && Array.isArray(fetchedEps) && fetchedEps.length > 0) {
-                const currentEpCount = (currentMovie.episodes || []).reduce((acc, s) => acc + (s.server_data?.length || 0), 0);
-                const newEpCount = fetchedEps.reduce((acc, s) => acc + (s.server_data?.length || 0), 0);
+                const currentEps = Array.isArray(currentMovie.episodes) ? currentMovie.episodes : [];
+                // Fallback an toàn khi original_server_name bị undefined
+                const getServerKey = (s) => ((s && (s.original_server_name || s.server_name)) || '').trim().toLowerCase();
 
-                if (newEpCount > currentEpCount || !currentMovie.episodes || currentMovie.episodes.length === 0) {
-                    currentMovie.episodes = fetchedEps;
+                // Map khóa -> server nhiều tập nhất trong fetchedEps
+                const keyToFetched = new Map();
+                for (const s of fetchedEps) {
+                    const key = getServerKey(s);
+                    if (!key) continue;
+                    const prev = keyToFetched.get(key);
+                    const prevCount = prev ? (prev.server_data || []).length : -1;
+                    const newCount = (s.server_data || []).length;
+                    if (newCount > prevCount) keyToFetched.set(key, s);
+                }
+
+                // 1. Giữ nguyên thứ tự SSR; nếu fetched có server trùng khóa và nhiều tập hơn thì lấy bản fetched
+                const merged = [];
+                const usedKeys = new Set();
+                for (const s of currentEps) {
+                    const key = getServerKey(s);
+                    const better = key ? keyToFetched.get(key) : null;
+                    if (better && (better.server_data || []).length > (s.server_data || []).length) {
+                        merged.push(better);
+                    } else {
+                        merged.push(s);
+                    }
+                    if (key) usedKeys.add(key);
+                }
+
+                // 2. Nối thêm các server chỉ có trong fetchedEps (không trùng khóa với SSR)
+                for (const s of fetchedEps) {
+                    const key = getServerKey(s);
+                    if (key && usedKeys.has(key)) continue;
+                    if (key) usedKeys.add(key);
+                    merged.push(s);
+                }
+
+                const currentEpCount = currentEps.reduce((acc, s) => acc + (s.server_data?.length || 0), 0);
+                const mergedEpCount = merged.reduce((acc, s) => acc + (s.server_data?.length || 0), 0);
+
+                if (mergedEpCount > currentEpCount || merged.length > currentEps.length || currentEps.length === 0) {
+                    currentMovie.episodes = merged;
 
                     // Cập nhật lại nội dung nếu trước đó là text giữ chỗ chiếu rạp
                     if (fetchedItem.content && (!currentMovie.content || currentMovie.content.includes('công chiếu tại các cụm rạp'))) {
@@ -902,6 +940,42 @@ function renderMovieDetail(movie) {
 
     // Tích hợp Các bản chiếu
     renderVersions(movie);
+
+    // 🖼️ Ảnh nền hero sắc nét từ TMDB: Chuyển đổi êm dịu (Smooth Fade-transition), tuyệt đối không giật cục
+    if (typeof getHeroImagesFromTMDB === 'function') {
+        getHeroImagesFromTMDB(movie).then(function (result) {
+            if (!result || !result.backdrop) return;
+            var heroBackdrop = document.getElementById('movieHeroBackdrop');
+            if (!heroBackdrop) return;
+
+            // Kiểm tra nếu ảnh hiện tại đã là ảnh TMDB sắc nét này rồi thì dừng ngay (0ms, không reload, không giật)
+            var currentFile = (heroBackdrop.src || '').split('?')[0].split('/').pop();
+            var newFile = (result.backdrop || '').split('?')[0].split('/').pop();
+            if (currentFile && newFile && currentFile === newFile) return;
+
+            var probe = new Image();
+            probe.onload = function () {
+                if (!heroBackdrop) return;
+                const wrap = document.querySelector('.movie-hero-backdrop-wrap');
+                if (probe.naturalHeight >= probe.naturalWidth) {
+                    if (wrap) wrap.classList.add('is-vertical-bg');
+                } else {
+                    if (wrap) wrap.classList.remove('is-vertical-bg');
+                }
+
+                // Ảnh mới đã nạp sẵn 100% vào bộ nhớ RAM trình duyệt thông qua probe -> đổi src tức thì 0ms
+                heroBackdrop.src = result.backdrop;
+                const isLight = document.documentElement.classList.contains('light-mode');
+                const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+                heroBackdrop.style.opacity = isLight ? '0.85' : (isDesktop ? '0.45' : '0.65');
+
+                try {
+                    localStorage.setItem('tmdb_hero_v4_' + movie.slug, JSON.stringify(result));
+                } catch(e) {}
+            };
+            probe.src = result.backdrop;
+        }).catch(function () {});
+    }
 }
 
 // 🎬 Setup & đồng bộ hóa nút Xem Ngay thông minh - Tuyệt đối không chặn navigation nếu có tập
@@ -1810,6 +1884,19 @@ function renderEpisodes(episodes) {
             const langTag = getLangTagDetail(server, currentMovie);
             const serverName = `${langTag} N${index + 1}`;
 
+            // Icon đứng trước nhãn ngôn ngữ (giống trang xem phim): 文A / phụ đề / mic / loa
+            const iconAttrs = 'width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"';
+            let langIconHTML;
+            if (langTag === 'Song Ngữ') {
+                langIconHTML = '<span style="font-size:11px;font-weight:800;line-height:1;letter-spacing:-0.5px;">文A</span>';
+            } else if (langTag === 'Thuyết Minh') {
+                langIconHTML = `<svg ${iconAttrs}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
+            } else if (langTag === 'Lồng Tiếng') {
+                langIconHTML = `<svg ${iconAttrs}><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+            } else {
+                langIconHTML = `<svg ${iconAttrs}><rect width="18" height="14" x="3" y="5" rx="2"/><path d="M7 13h4"/><path d="M15 13h2"/><path d="M7 16h2"/><path d="M13 16h4"/></svg>`;
+            }
+
             let borderColor = 'border-blue-500';
             let activeBg = 'bg-blue-500/20';
             let sepColor = 'text-blue-400';
@@ -1834,6 +1921,7 @@ function renderEpisodes(episodes) {
                 return `
                     <button onclick="changeServerDetail(${index})"
                         class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 border-2 ${borderColor} ${activeBg} text-white ${glowShadow} cursor-pointer hover:brightness-110">
+                        ${langIconHTML}
                         <span class="text-white font-bold">${serverName}</span>
                         <span class="${sepColor} font-bold">|</span>
                         <span class="text-gray-200 font-medium">${epText}</span>
@@ -1843,6 +1931,7 @@ function renderEpisodes(episodes) {
                 return `
                     <button onclick="changeServerDetail(${index})"
                         class="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 border border-white/10 bg-[#323447] hover:bg-white/20 text-gray-300 hover:text-white cursor-pointer">
+                        ${langIconHTML}
                         <span>${serverName}</span>
                         <span class="text-gray-500">|</span>
                         <span class="text-gray-400">${epText}</span>

@@ -1665,6 +1665,7 @@
       });
       const data = await res.json();
       if (data && data.success && Array.isArray(data.items)) {
+        modalCurrentTrends = data.items;
         const lines = data.items.map(it => {
           const q = it.query || it.title || '';
           const t = it.traffic ? ` | ${it.traffic}` : '';
@@ -1704,6 +1705,19 @@
       const parts = line.split('|').map(p => p.trim());
       const query = parts[0] || '';
       const traffic = parts[1] || 'Thịnh hành';
+      const cleanQ = query.toLowerCase().replace(/^(xem phim|phim)\\s+/i, '').trim();
+      const existing = (modalCurrentTrends || []).find(it => {
+        const itQ = (it.query || '').toLowerCase();
+        const itT = (it.title || '').toLowerCase();
+        return itQ === query.toLowerCase() || itT === cleanQ || itQ === cleanQ;
+      });
+      if (existing) {
+        return {
+          ...existing,
+          query,
+          traffic: traffic || existing.traffic || 'Thịnh hành'
+        };
+      }
       return { query, traffic };
     }).filter(it => it.query.length > 0);
 

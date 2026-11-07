@@ -170,6 +170,430 @@
                 background: #e2e8f0 !important;
                 color: #0f172a !important;
             }
+        
+            /* ========================================================================== */
+            /* 🌟 HỆ THỐNG PHỐI MÀU Ô NHÃN SERVER CHUẨN THẨM MỸ CAO CẤP (DARK & LIGHT)   */
+            /* ========================================================================== */
+
+            /* 1. NÚT SERVER CHUNG (BASE) */
+            #server-list .server-tab-btn,
+            .server-tab-btn {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                padding: 4px 11px !important;
+                font-size: 12.5px !important;
+                font-weight: 700 !important;
+                border-radius: 8px !important;
+                cursor: pointer !important;
+                user-select: none !important;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                border-width: 1.5px !important;
+                border-style: solid !important;
+                line-height: 1.3 !important;
+                outline: none !important;
+            }
+
+            #server-list .server-tab-badge,
+            .server-tab-badge {
+                border-radius: 9999px !important;
+                padding: 1px 7px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 4px !important;
+                font-size: 11px !important;
+                font-weight: 800 !important;
+                line-height: 1.3 !important;
+            }
+
+            #server-list .server-tab-dot,
+            .server-tab-dot {
+                width: 6px !important;
+                height: 6px !important;
+                min-width: 6px !important;
+                min-height: 6px !important;
+                border-radius: 50% !important;
+                display: inline-block !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Tag Icon Danh Mục Bên Trái */
+            #server-list .server-group-row {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                flex-wrap: wrap !important;
+                margin-bottom: 8px !important;
+            }
+            #server-list .server-group-label {
+                min-width: 82px !important;
+                font-size: 13px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                flex-shrink: 0 !important;
+                user-select: none !important;
+            }
+            #server-list .server-cat-tag {
+                font-size: 11px !important;
+                font-weight: 900 !important;
+                padding: 2px 6px !important;
+                border-radius: 5px !important;
+                letter-spacing: 0.5px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                line-height: 1.2 !important;
+            }
+
+            /* 2. NHÃN SONG NGỮ (TÍM THỜI THƯỢNG) */
+            /* --- Khi CHỌN (Active) - Cả 2 Theme --- */
+            #server-list .server-tab-btn.server-cat-song-ngu.active {
+                background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+                border-color: #c084fc !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                box-shadow: 0 4px 14px rgba(168, 85, 247, 0.45) !important;
+            }
+            #server-list .server-tab-btn.server-cat-song-ngu.active * {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+            #server-list .server-tab-btn.server-cat-song-ngu.active .server-tab-badge {
+                background: #ffffff !important;
+                color: #6b21a8 !important;
+                -webkit-text-fill-color: #6b21a8 !important;
+                font-weight: 900 !important;
+            }
+            #server-list .server-tab-btn.server-cat-song-ngu.active .server-tab-badge * {
+                color: #6b21a8 !important;
+                -webkit-text-fill-color: #6b21a8 !important;
+            }
+
+            /* --- Khi KHÔNG CHỌN (Inactive) - DARK MODE --- */
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-song-ngu:not(.active) {
+                background: rgba(168, 85, 247, 0.12) !important;
+                border-color: rgba(168, 85, 247, 0.35) !important;
+                color: #e9d5ff !important;
+                -webkit-text-fill-color: #e9d5ff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-song-ngu:not(.active):hover {
+                background: rgba(168, 85, 247, 0.22) !important;
+                border-color: rgba(168, 85, 247, 0.6) !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-song-ngu:not(.active) * {
+                color: #e9d5ff !important;
+                -webkit-text-fill-color: #e9d5ff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-song-ngu:not(.active):hover * {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge {
+                background: rgba(168, 85, 247, 0.25) !important;
+                color: #f3e8ff !important;
+                -webkit-text-fill-color: #f3e8ff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge * {
+                color: #f3e8ff !important;
+                -webkit-text-fill-color: #f3e8ff !important;
+            }
+            html:not(.light-mode) #server-list .server-cat-tag-song-ngu {
+                background: rgba(168, 85, 247, 0.2) !important;
+                border: 1px solid rgba(168, 85, 247, 0.4) !important;
+                color: #c084fc !important;
+            }
+            html:not(.light-mode) #server-list .server-group-label-song-ngu .server-group-name {
+                color: #e9d5ff !important;
+                font-weight: 700 !important;
+            }
+
+            /* --- Khi KHÔNG CHỌN (Inactive) - LIGHT MODE (Nền Kem) --- */
+            html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) {
+                background: #faf5ff !important;
+                border-color: #d8b4fe !important;
+                color: #7c3aed !important;
+                -webkit-text-fill-color: #7c3aed !important;
+                box-shadow: 0 1px 3px rgba(124, 58, 237, 0.08) !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active):hover {
+                background: #f3e8ff !important;
+                border-color: #a855f7 !important;
+                color: #581c87 !important;
+                -webkit-text-fill-color: #581c87 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) * {
+                color: #7c3aed !important;
+                -webkit-text-fill-color: #7c3aed !important;
+                font-weight: 700 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active):hover * {
+                color: #581c87 !important;
+                -webkit-text-fill-color: #581c87 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge {
+                background: #ede9fe !important;
+                color: #6b21a8 !important;
+                -webkit-text-fill-color: #6b21a8 !important;
+                font-weight: 800 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-song-ngu:not(.active) .server-tab-badge * {
+                color: #6b21a8 !important;
+                -webkit-text-fill-color: #6b21a8 !important;
+            }
+            html.light-mode #server-list .server-cat-tag-song-ngu {
+                background: #f3e8ff !important;
+                border: 1px solid #d8b4fe !important;
+                color: #7c3aed !important;
+            }
+            html.light-mode #server-list .server-group-label-song-ngu .server-group-name {
+                color: #581c87 !important;
+                font-weight: 800 !important;
+            }
+
+            /* 3. NHÃN VIETSUB (CAM VÀNG THƯƠNG HIỆU APHIM) */
+            /* --- Khi CHỌN (Active) --- */
+            #server-list .server-tab-btn.server-cat-vietsub.active {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+                border-color: #fbbf24 !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45) !important;
+            }
+            #server-list .server-tab-btn.server-cat-vietsub.active * {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+            #server-list .server-tab-btn.server-cat-vietsub.active .server-tab-badge {
+                background: #ffffff !important;
+                color: #b45309 !important;
+                -webkit-text-fill-color: #b45309 !important;
+                font-weight: 900 !important;
+            }
+            #server-list .server-tab-btn.server-cat-vietsub.active .server-tab-badge * {
+                color: #b45309 !important;
+                -webkit-text-fill-color: #b45309 !important;
+            }
+            #server-list .server-tab-btn.server-cat-vietsub.active .server-tab-dot {
+                background: #d97706 !important;
+            }
+
+            /* --- Khi KHÔNG CHỌN (Inactive) - DARK MODE --- */
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active) {
+                background: rgba(255, 255, 255, 0.05) !important;
+                border-color: rgba(255, 255, 255, 0.15) !important;
+                color: #cbd5e1 !important;
+                -webkit-text-fill-color: #cbd5e1 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover {
+                background: rgba(255, 255, 255, 0.12) !important;
+                border-color: rgba(245, 158, 11, 0.5) !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active) * {
+                color: #cbd5e1 !important;
+                -webkit-text-fill-color: #cbd5e1 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover * {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge {
+                background: rgba(255, 255, 255, 0.08) !important;
+                color: #94a3b8 !important;
+                -webkit-text-fill-color: #94a3b8 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge * {
+                color: #94a3b8 !important;
+                -webkit-text-fill-color: #94a3b8 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-dot {
+                background: #94a3b8 !important;
+            }
+            html:not(.light-mode) #server-list .server-cat-tag-vietsub {
+                background: rgba(245, 158, 11, 0.2) !important;
+                border: 1px solid rgba(245, 158, 11, 0.4) !important;
+                color: #fbbf24 !important;
+            }
+            html:not(.light-mode) #server-list .server-group-label-vietsub .server-group-name {
+                color: #e2e8f0 !important;
+                font-weight: 700 !important;
+            }
+
+            /* --- Khi KHÔNG CHỌN (Inactive) - LIGHT MODE (Nền Kem) --- */
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) {
+                background: #ffffff !important;
+                border-color: #e2e8f0 !important;
+                color: #334155 !important;
+                -webkit-text-fill-color: #334155 !important;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover {
+                background: #fffbeb !important;
+                border-color: #f59e0b !important;
+                color: #b45309 !important;
+                -webkit-text-fill-color: #b45309 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) * {
+                color: #334155 !important;
+                -webkit-text-fill-color: #334155 !important;
+                font-weight: 700 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover * {
+                color: #b45309 !important;
+                -webkit-text-fill-color: #b45309 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge {
+                background: #f1f5f9 !important;
+                color: #64748b !important;
+                -webkit-text-fill-color: #64748b !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-badge * {
+                color: #64748b !important;
+                -webkit-text-fill-color: #64748b !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active) .server-tab-dot {
+                background: #94a3b8 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-vietsub:not(.active):hover .server-tab-dot {
+                background: #d97706 !important;
+            }
+            html.light-mode #server-list .server-cat-tag-vietsub {
+                background: #fef3c7 !important;
+                border: 1px solid #fde68a !important;
+                color: #b45309 !important;
+            }
+            html.light-mode #server-list .server-group-label-vietsub .server-group-name {
+                color: #451a03 !important;
+                font-weight: 800 !important;
+            }
+
+            /* 4. NHÃN THUYẾT MINH (XANH DƯƠNG OCEAN) */
+            #server-list .server-tab-btn.server-cat-thuyet-minh.active {
+                background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+                border-color: #38bdf8 !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                box-shadow: 0 4px 14px rgba(14, 165, 233, 0.45) !important;
+            }
+            #server-list .server-tab-btn.server-cat-thuyet-minh.active * {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+            #server-list .server-tab-btn.server-cat-thuyet-minh.active .server-tab-badge {
+                background: #ffffff !important;
+                color: #0369a1 !important;
+                -webkit-text-fill-color: #0369a1 !important;
+                font-weight: 900 !important;
+            }
+            #server-list .server-tab-btn.server-cat-thuyet-minh.active .server-tab-badge * {
+                color: #0369a1 !important;
+                -webkit-text-fill-color: #0369a1 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) {
+                background: rgba(14, 165, 233, 0.1) !important;
+                border-color: rgba(14, 165, 233, 0.3) !important;
+                color: #bae6fd !important;
+                -webkit-text-fill-color: #bae6fd !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) * {
+                color: #bae6fd !important;
+                -webkit-text-fill-color: #bae6fd !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) {
+                background: #ffffff !important;
+                border-color: #e2e8f0 !important;
+                color: #0284c7 !important;
+                -webkit-text-fill-color: #0284c7 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-thuyet-minh:not(.active) * {
+                color: #0284c7 !important;
+                -webkit-text-fill-color: #0284c7 !important;
+            }
+
+            /* 5. NHÃN LỒNG TIẾNG (XANH LÁ EMERALD) */
+            #server-list .server-tab-btn.server-cat-long-tieng.active {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+                border-color: #34d399 !important;
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+            }
+            #server-list .server-tab-btn.server-cat-long-tieng.active * {
+                color: #ffffff !important;
+                -webkit-text-fill-color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+            #server-list .server-tab-btn.server-cat-long-tieng.active .server-tab-badge {
+                background: #ffffff !important;
+                color: #047857 !important;
+                -webkit-text-fill-color: #047857 !important;
+                font-weight: 900 !important;
+            }
+            #server-list .server-tab-btn.server-cat-long-tieng.active .server-tab-badge * {
+                color: #047857 !important;
+                -webkit-text-fill-color: #047857 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-long-tieng:not(.active) {
+                background: rgba(16, 185, 129, 0.1) !important;
+                border-color: rgba(16, 185, 129, 0.3) !important;
+                color: #a7f3d0 !important;
+                -webkit-text-fill-color: #a7f3d0 !important;
+            }
+            html:not(.light-mode) #server-list .server-tab-btn.server-cat-long-tieng:not(.active) * {
+                color: #a7f3d0 !important;
+                -webkit-text-fill-color: #a7f3d0 !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active) {
+                background: #ffffff !important;
+                border-color: #e2e8f0 !important;
+                color: #15803d !important;
+                -webkit-text-fill-color: #15803d !important;
+            }
+            html.light-mode #server-list .server-tab-btn.server-cat-long-tieng:not(.active) * {
+                color: #15803d !important;
+                -webkit-text-fill-color: #15803d !important;
+            }
+
+            html.light-mode h2#episode-list-title,
+            html.light-mode .page-watch h2 {
+                color: #1e293b !important;
+                -webkit-text-fill-color: #1e293b !important;
+            }
+
+            /* Canh đều 2 bên cho nội dung tóm tắt phim */
+            #sidebar-description-text,
+            p#sidebar-description-text {
+                text-align: justify !important;
+                text-justify: inter-word !important;
+            }
+
+            /* Nhãn Song Ngữ nhỏ gọn gàng góc trên phải poster sidebar */
+            #sidebar-poster-badge {
+                position: absolute !important;
+                top: 5px !important;
+                right: 5px !important;
+                left: auto !important;
+                font-size: 9px !important;
+                font-weight: 800 !important;
+                padding: 2px 6px !important;
+                border-radius: 4px !important;
+                white-space: nowrap !important;
+                line-height: 1.1 !important;
+                max-width: fit-content !important;
+                width: auto !important;
+                height: auto !important;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+                z-index: 20 !important;
+            }
+
         </style>
 </head>
 
@@ -213,6 +637,18 @@
                             class="text-[#fcd576] font-extrabold flex-shrink-0 whitespace-nowrap"><%= (typeof isSingleMovie !== 'undefined' && isSingleMovie) ? '- Bản Full' : (typeof episodeParam !== 'undefined' && episodeParam ? `- Tập ${String(episodeParam).replace(/^tap-/, '')}` : '') %></span>
                     </div>
 
+                    <button type="button" id="btnTopToggleSidebar" onclick="window.toggleSidebarCollapse()"
+                        class="aphim-top-expand-btn items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold select-none cursor-pointer transition-all flex-shrink-0 shadow-sm hidden sm:inline-flex"
+                        title="Thu gọn ô bên phải & mở rộng màn chiếu ngang dài">
+                        <svg class="w-3.5 h-3.5 aphim-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <polyline points="9 21 3 21 3 15"></polyline>
+                            <line x1="21" y1="3" x2="14" y2="10"></line>
+                            <line x1="3" y1="21" x2="10" y2="14"></line>
+                        </svg>
+                        <span id="topExpandBtnText">Mở rộng màn chiếu</span>
+                    </button>
+
                     <div id="watchToEarnPill"
                         class="watch-to-earn-pill items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold select-none cursor-pointer transition-all flex-shrink-0 shadow-sm"
                         style="display: none;"
@@ -244,7 +680,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start mb-24 pb-16">
+            <div id="watch-main-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start mb-24 pb-16">
 
                 <div class="lg:col-span-8 space-y-6" id="player-and-controls">
 
@@ -751,13 +1187,26 @@
                     <div id="desktop-movie-info-slot" class="w-full">
                         <div id="main-movie-info-card"
                             style="background-color: #151722; border: none; box-sizing: border-box;"
-                            class="rounded-2xl p-5 md:p-6 pb-6 md:pb-7 flex flex-col justify-between space-y-5 shadow-xl">
+                            class="rounded-2xl p-5 md:p-6 pb-6 md:pb-7 flex flex-col justify-between space-y-5 shadow-xl relative">
+                            <!-- Nút thu gọn góc trên phải card - chỉ hiện khi hover -->
+                            <button type="button" onclick="window.toggleSidebarCollapse()" 
+                                class="aphim-collapse-card-btn"
+                                title="Thu gọn ô để mở rộng màn chiếu">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <polyline points="9 21 3 21 3 15"></polyline>
+                                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                                </svg>
+                                <span>Thu gọn</span>
+                            </button>
                             <div class="flex gap-4 items-start">
                                 <div style="border: 1px solid rgba(255, 255, 255, 0.1);"
                                     class="relative w-24 sm:w-28 aspect-[2/3] rounded-xl overflow-hidden flex-shrink-0 bg-gray-800 shadow-md">
                                     <% 
                                         let ssrWatchPoster = '';
                                         let rawOriginWatchP = '';
+                                        let isBilingualWatchMovie = false;
                                         if (typeof movie !== 'undefined' && movie) {
                                             let rawP = (movie.poster_url || movie.thumb_url || '').trim();
                                             if (rawP) {
@@ -774,12 +1223,17 @@
                                                 }
                                                 ssrWatchPoster = rawOriginWatchP;
                                             }
+                                            let catList = Array.isArray(movie.category) ? movie.category : [];
+                                            isBilingualWatchMovie = catList.some(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase().includes('song ngữ')) ||
+                                                (movie.lang || '').toLowerCase().includes('song ngữ') ||
+                                                (movie.name || '').toLowerCase().includes('song ngữ') ||
+                                                (Array.isArray(movie.episodes) && movie.episodes.some(e => (e.server_name || '').toLowerCase().includes('song ngữ')));
                                         }
                                     %>
                                     <img id="sidebar-poster" src="<%= ssrWatchPoster %>" data-fallback="<%= rawOriginWatchP %>" onerror="if(!this.dataset.tried && this.dataset.fallback){this.dataset.tried='1';this.src=this.dataset.fallback;}" alt="<%= (typeof movie !== 'undefined' && movie && movie.name) ? movie.name : 'Poster' %>" class="w-full h-full object-cover" />
-                                    <span id="sidebar-poster-badge" style="background-color: #38bdf8; color: #ffffff;"
-                                        class="absolute top-1.5 left-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md shadow">Song
-                                        ngữ</span>
+                                    <span id="sidebar-poster-badge"
+                                        style="<%= isBilingualWatchMovie ? 'background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #ffffff;' : 'display: none;' %>"
+                                        class="absolute top-1 right-1 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow-md z-10 inline-flex items-center whitespace-nowrap leading-none select-none pointer-events-none">Song Ngữ</span>
                                 </div>
 
                                 <div class="flex flex-col gap-2 min-w-0 flex-1">
@@ -800,24 +1254,17 @@
 
                                         <div
                                             class="inline-flex items-center rounded-lg overflow-hidden text-xs font-bold shadow-md">
-                                            <span id="sidebar-quality-badge"
-                                                style="background-color: #a5b4fc; color: #0f172a;"
-                                                class="px-2.5 py-1 font-extrabold">FHD</span>
                                             <span id="sidebar-lang-badge"
-                                                style="background-color: #a7f3d0; color: #064e3b;"
+                                                style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #18181b;"
                                                 class="px-2.5 py-1 font-extrabold inline-flex items-center gap-1">
-                                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                                                    <path
-                                                        d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" />
-                                                </svg>
-                                                <span id="sidebar-lang-text">VS.1</span>
+                                                <span id="sidebar-lang-text">Vietsub</span>
                                             </span>
                                             <span id="sidebar-ep-badge"
-                                                style="background-color: #374151; color: #ffffff;"
+                                                style="background-color: #1e293b; color: #ffffff;"
                                                 class="px-2.5 py-1 font-bold"><%= (movie && (movie.type === 'single' || (movie.category && movie.category.some(c => (typeof c === 'string' ? c : (c.name || '')).toLowerCase().includes('chiếu rạp') || (typeof c === 'string' ? c : (c.name || '')).toLowerCase().includes('phim lẻ'))) || (movie.episode_total && String(movie.episode_total) === '1') || (movie.episode_current && String(movie.episode_current).toLowerCase().includes('full')))) ? 'Full' : ((movie && movie.episode_total && !isNaN(movie.episode_total) && Number(movie.episode_total) > 1) ? (movie.episode_total + ' Tập') : ((movie && movie.episode_current) ? movie.episode_current : 'Full')) %></span>
                                             <span id="sidebar-year-badge"
                                                 style="background-color: #ffffff; color: #000000;"
-                                                class="px-2.5 py-1 font-extrabold">2026</span>
+                                                class="px-2.5 py-1 font-extrabold"><%= (movie && movie.year) ? movie.year : '2026' %></span>
                                         </div>
                                     </div>
 
@@ -842,7 +1289,7 @@
                             <div style="border-top: none; margin-top: 14px;"
                                 class="space-y-2 flex-1 flex flex-col justify-between min-h-0">
                                 <p id="sidebar-description-text"
-                                    style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; margin-top: 0;"
+                                    style="color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.6; text-align: justify !important; text-justify: inter-word !important; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; margin-top: 0;"
                                     class="line-clamp-3">
                                     Tóm tắt nội dung phim đang được tải...
                                 </p>
@@ -987,7 +1434,7 @@
                  nên file này (rất nhẹ) chạy ngay khi HTML parse xong ⇒ nút Vietsub / Lồng Tiếng
                  + lưới tập hiện ra tức thì, KHÔNG phải chờ hls.js / lottie / watch.js (233KB)...
                  Lưu ý: watch.js gọi lại ApWatchEarlyRender.* để không lệch giao diện. %>
-            <script src="/js/watch-early-render.js?v=1" defer></script>
+            <script src="/js/watch-early-render.js?v=<%= Date.now() %>" defer></script>
             <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" defer></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
             <script src="/js/api.js?v=106" defer></script>
@@ -1188,6 +1635,15 @@
                     </div>
                 </div>
             </div>
+
+    <!-- Floating Restore Sidebar Dock Tab (Hiện khi ô bên phải bị thu gọn) -->
+    <button type="button" id="aphim-restore-sidebar-dock" onclick="window.toggleSidebarCollapse()" 
+        class="aphim-restore-sidebar-dock hidden" title="Mở lại ô thông tin" style="display: none !important;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Thông tin</span>
+    </button>
 
 </body>
 

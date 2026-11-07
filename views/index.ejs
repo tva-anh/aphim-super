@@ -660,9 +660,6 @@
                     <div class="section-header">
                         <div class="section-header-left flex items-center gap-2.5">
                             <h2 class="section-header-title">PHIM MỚI ĐỀ CỬ</h2>
-                            <span class="trends-24h-badge inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold text-orange-400 bg-orange-500/10 tracking-wide">
-                                <span class="text-xs">🔥</span> Trends 24h
-                            </span>
                         </div>
                         <div class="flex items-center gap-2 section-header-nav">
                             <button onclick="scrollSlider(-350)"
@@ -689,6 +686,225 @@
                             </div>
                         </div>
                         <% } %>
+                    </div>
+                </section>
+
+                <!-- ==============================================
+             SECTION 0.1: PHIM SONG NGỮ THEO QUỐC GIA (3 HÀNG: HÀN QUỐC / TRUNG QUỐC / ÂU MỸ)
+             ============================================== -->
+                <style>
+                    /* ---- Khung chung: KHÔNG có nền bọc riêng, nằm trực tiếp trên nền trang như các mục khác ---- */
+                    .sn-country-section { width: 100%; margin-top: 18px; }
+                    .sn-country-frame { position: relative; padding: 0; background: none; border: none; box-shadow: none; }
+
+                    /* ---- Đầu khung: 2 dòng chữ, KHÔNG icon / KHÔNG pill / KHÔNG gạch ngang ---- */
+                    .sn-frame-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 2px 2px 14px; }
+                    .sn-frame-title { display: flex; flex-direction: column; gap: 3px; }
+                    .sn-frame-line1 { font-size: 20.5px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; line-height: 1.2; color: #fff; text-shadow: none !important; filter: none !important; }
+                    html.light-mode .sn-frame-line1 { color: #1c1917; text-shadow: none !important; }
+                    /* Dòng 2: chữ trộn màu */
+                    .sn-frame-line2 {
+                        font-size: 15px; font-weight: 800; letter-spacing: .2px; line-height: 1.25;
+                        background: linear-gradient(92deg, #a78bfa 0%, #fbbf24 48%, #22d3ee 100%);
+                        -webkit-background-clip: text; background-clip: text;
+                        -webkit-text-fill-color: transparent; color: transparent;
+                        text-shadow: none !important; filter: none !important;
+                    }
+                    html.light-mode .sn-frame-line2 {
+                        background: linear-gradient(92deg, #7c3aed 0%, #b45309 48%, #0e7490 100%);
+                        -webkit-background-clip: text; background-clip: text;
+                        text-shadow: none !important; filter: none !important;
+                    }
+                    .sn-frame-link { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 700; opacity: .72; transition: opacity .2s ease; text-shadow: none !important; }
+                    .sn-frame-link:hover { opacity: 1; }
+
+                    /* ---- Từng hàng quốc gia: ĐÃ XÓA đường kẻ ngang giữa các hàng + vạch nhỏ dưới tên nước (cả 2 màn) ---- */
+                    .sn-country-row { display: flex; align-items: flex-start; gap: 18px; padding: 14px 0; }
+                    .sn-country-row + .sn-country-row { padding-top: 14px; }
+                    .sn-title-col { flex: 0 0 128px; width: 128px; padding-top: 4px; }
+                    .sn-title { font-size: 17px; line-height: 1.22; font-weight: 900; margin-bottom: 6px; text-shadow: none !important; filter: none !important; }
+                    .sn-title-bar { display: none; }
+                    .sn-more { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; opacity: .6; transition: opacity .2s ease; text-shadow: none !important; }
+                    .sn-more:hover { opacity: 1; }
+                    .sn-korea .sn-title-col { color: #a78bfa; }
+                    .sn-china .sn-title-col { color: #fbbf24; }
+                    .sn-usuk .sn-title-col { color: #22d3ee; }
+                    /* Tiêu đề là thẻ h2 nên phải thắng các quy định h2 set mau !important;
+                       dung -webkit-text-fill-color !important de khong mau chu nao de duoc phan to chu */
+                    .sn-korea .sn-title-col .sn-title {
+                        background: linear-gradient(92deg, #a78bfa 0%, #c084fc 52%, #f0abfc 100%);
+                        -webkit-background-clip: text; background-clip: text;
+                        -webkit-text-fill-color: transparent !important; color: transparent !important;
+                        text-shadow: none !important; filter: none !important;
+                    }
+                    .sn-china .sn-title-col .sn-title {
+                        background: linear-gradient(92deg, #fde68a 0%, #fbbf24 55%, #fb923c 100%);
+                        -webkit-background-clip: text; background-clip: text;
+                        -webkit-text-fill-color: transparent !important; color: transparent !important;
+                        text-shadow: none !important; filter: none !important;
+                    }
+                    .sn-usuk .sn-title-col .sn-title {
+                        background: linear-gradient(92deg, #67e8f9 0%, #22d3ee 52%, #818cf8 100%);
+                        -webkit-background-clip: text; background-clip: text;
+                        -webkit-text-fill-color: transparent !important; color: transparent !important;
+                        text-shadow: none !important; filter: none !important;
+                    }
+                    html.light-mode .sn-korea .sn-title-col { color: #7c3aed; }
+                    html.light-mode .sn-china .sn-title-col { color: #b45309; }
+                    html.light-mode .sn-usuk .sn-title-col { color: #0e7490; }
+                    html.light-mode .sn-korea .sn-title-col .sn-title { background: linear-gradient(92deg, #7c3aed 0%, #a21caf 55%, #c026d3 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent !important; color: transparent !important; text-shadow: none !important; filter: none !important; }
+                    html.light-mode .sn-china .sn-title-col .sn-title { background: linear-gradient(92deg, #d97706 0%, #b45309 55%, #be123c 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent !important; color: transparent !important; text-shadow: none !important; filter: none !important; }
+                    html.light-mode .sn-usuk .sn-title-col .sn-title { background: linear-gradient(92deg, #0891b2 0%, #0e7490 52%, #4338ca 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent !important; color: transparent !important; text-shadow: none !important; filter: none !important; }
+
+                    /* ---- Hàng thẻ ngang ---- */
+                    .sn-body { position: relative; flex: 1; min-width: 0; }
+                    .sn-track { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+                    .sn-track::-webkit-scrollbar { display: none; }
+                    /* ---- RỘNG THẺ DESKTOP (chỉ desktop; mobile giữ nguyên) ----
+                       Phóng to thêm ~15% so với bản đầu (232/200/258) vì ảnh ngang TMDB
+                       hiển thị 16:9 cần bản lớn hơn để rõ mặt diễn viên + chữ overlay. */
+                    .sn-country-frame .sn-track .sn-row-card { flex: 0 0 auto !important; width: 268px !important; }
+                    @media (min-width: 1024px) and (max-width: 1279px) { .sn-country-frame .sn-track .sn-row-card { width: 232px !important; } }
+                    @media (min-width: 1600px) { .sn-country-frame .sn-track .sn-row-card { width: 300px !important; } }
+                    @media (min-width: 1900px) { .sn-country-frame .sn-track .sn-row-card { width: 324px !important; } }
+
+                    /* ---- Mũi tên điều hướng (hiện khi hover, ẩn trên màn cảm ứng) ---- */
+                    .sn-nav {
+                        position: absolute; top: 42%; transform: translateY(-50%) scale(.85); z-index: 6;
+                        width: 34px; height: 34px; border-radius: 50%;
+                        display: flex; align-items: center; justify-content: center;
+                        background: rgba(15, 17, 23, .72); border: 1px solid rgba(255, 255, 255, .14); color: #fff;
+                        cursor: pointer; opacity: 0;
+                        transition: opacity .25s ease, transform .25s ease, background .2s ease;
+                    }
+                    .sn-nav:hover { background: #a855f7; border-color: #a855f7; }
+                    .sn-nav-left { left: -8px; }
+                    .sn-nav-right { right: -8px; }
+                    .sn-country-row:hover .sn-nav { opacity: 1; transform: translateY(-50%) scale(1); }
+                    html.light-mode .sn-nav { background: rgba(255, 255, 255, .88); border-color: rgba(0, 0, 0, .12); color: #1c1917; box-shadow: 0 4px 14px rgba(120, 100, 70, .18); }
+                    @media (hover: none) { .sn-nav { display: none; } }
+
+                    /* ---- MOBILE (≤1023px): hiện đầy đủ, đổi sang kiểu TIÊU ĐỀ Ở TRÊN – HÀNG TRƯỢT NGANG DƯỚI
+                       (không còn cột tiêu đề 128px bên trái vì màn dọc quá hẹp) ---- */
+                    @media (max-width: 1023px) {
+                        .sn-country-section { margin-top: 10px; }
+                        /* "Xem tất cả >" dời lên NGANG DÒNG với chữ PHIM SONG NGỮ (dòng 1) để thoáng đầu mục */
+                        .sn-frame-head { padding: 0 0 8px; gap: 10px; align-items: flex-start; }
+                        .sn-frame-line1 { font-size: 18px; }
+                        .sn-frame-line2 { font-size: 13px; }
+                        .sn-frame-link { font-size: 12.5px; line-height: 1.72; }
+
+                        .sn-country-row { flex-direction: column; align-items: stretch; gap: 4px; padding: 9px 0; }
+                        .sn-country-row + .sn-country-row { padding-top: 9px; }
+
+                        /* Tiêu đề quốc gia + "Xem toàn bộ >" nằm trên cùng 1 dòng */
+                        .sn-title-col {
+                            flex: 0 0 auto; width: 100%; padding-top: 0;
+                            display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+                        }
+                        .sn-title { margin-bottom: 0; font-size: 15px; }
+                        .sn-title-bar { display: none; }
+                        .sn-more { flex: 0 0 auto; font-size: 11.5px; opacity: .72; }
+
+                        .sn-body { width: 100%; min-width: 0; }
+                        .sn-track { gap: 10px; padding: 2px 0 6px; scroll-snap-type: x proximity; }
+                        .sn-country-frame .sn-track .sn-row-card { width: 198px !important; scroll-snap-align: start; }
+                        .sn-nav { display: none !important; }
+                    }
+
+                    /* Thu nhỏ dần theo cỡ màn điện thoại, giống .section-header-title của các mục khác */
+                    @media (max-width: 639px) {
+                        .sn-frame-line1 { font-size: 16px; }
+                        .sn-frame-line2 { font-size: 12px; }
+                        .sn-title { font-size: 14px; }
+                    }
+                    @media (max-width: 430px) {
+                        .sn-country-frame .sn-track .sn-row-card { width: 176px !important; }
+                    }
+                    @media (max-width: 390px) {
+                        .sn-frame-line1 { font-size: 14.5px; }
+                        .sn-frame-line2 { font-size: 11.5px; }
+                        .sn-title { font-size: 13.5px; }
+                        .sn-country-frame .sn-track .sn-row-card { width: 164px !important; }
+                    }
+                    @media (max-width: 360px) {
+                        .sn-frame-line1 { font-size: 13.5px; }
+                        .sn-title { font-size: 13px; }
+                        .sn-country-frame .sn-track .sn-row-card { width: 152px !important; }
+                    }
+
+                    /* ---- Bỏ lớp phủ nền đen loang lổ và bóng nhòe quanh tên phim theo yêu cầu ---- */
+                    .sn-country-frame .sn-row-card .landscape-poster-wrap img {
+                        filter: brightness(1.08) contrast(1.03) !important;
+                    }
+                    .sn-country-frame .sn-row-card .card-bottom-overlay,
+                    html.light-mode .sn-country-frame .sn-row-card .card-bottom-overlay {
+                        background: transparent !important;
+                    }
+                    .sn-country-frame .sn-row-card .card-title-vi,
+                    html.light-mode .sn-country-frame .sn-row-card .card-title-vi {
+                        text-shadow: none !important;
+                        filter: none !important;
+                    }
+                    .sn-country-frame .sn-row-card .card-title-en,
+                    html.light-mode .sn-country-frame .sn-row-card .card-title-en {
+                        text-shadow: none !important;
+                        filter: none !important;
+                    }
+                </style>
+
+                <% const SN_ROWS = [
+                        { key: 'han-quoc', cls: 'sn-korea', title: 'Phim Hàn Quốc mới' },
+                        { key: 'trung-quoc', cls: 'sn-china', title: 'Phim Trung Quốc mới' },
+                        { key: 'au-my', cls: 'sn-usuk', title: 'Phim Âu Mỹ mới' }
+                    ]; %>
+                <section class="sn-country-section" id="snCountrySection">
+                    <div class="sn-country-frame">
+                        <div class="sn-frame-head">
+                            <div class="sn-frame-title">
+                                <span class="sn-frame-line1">Phim Song Ngữ</span>
+                                <span class="sn-frame-line2">hai phụ đề, một mạch xem</span>
+                            </div>
+                            <a href="/phim-song-ngu" class="sn-frame-link" title="Xem tất cả phim Song Ngữ">
+                                Xem tất cả
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <% SN_ROWS.forEach(function (r) { %>
+                        <div class="sn-country-row <%= r.cls %>" id="snRow-<%= r.key %>">
+                            <div class="sn-title-col">
+                                <h2 class="sn-title"><%= r.title %></h2>
+                                <span class="sn-title-bar" aria-hidden="true"></span>
+                                <a href="/phim-theo-quoc-gia?country=<%= r.key %>" class="sn-more">
+                                    Xem toàn bộ
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+
+                            <div class="sn-body">
+                                <button type="button" class="sn-nav sn-nav-left" onclick="scrollSnCountryRow('<%= r.key %>', -1)" aria-label="Xem phim phía trước">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                                <button type="button" class="sn-nav sn-nav-right" onclick="scrollSnCountryRow('<%= r.key %>', 1)" aria-label="Xem phim tiếp theo">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="sn-track" id="snTrack-<%= r.key %>">
+                                    <% for (let i = 0; i < 6; i++) { %>
+                                        <div class="normal-card-item sn-row-card" aria-hidden="true"><div class="landscape-poster-wrap"></div></div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
                     </div>
                 </section>
 
@@ -1077,9 +1293,245 @@
 
 
                 <!-- ==============================================
-             SECTION 2: PHIM CHIẾU RẠP MỚI
+             SECTION 2: PHIM CHIẾU RẠP MỚI (SHOWCASE HERO + DẢI POSTER, kiểu "Thế giới Anime")
              ============================================== -->
-                <section>
+                <style>
+                    /* ============ SHOWCASE PHIM CHIẾU RẠP MỚI ============ */
+                    .rap-showcase { position: relative; width: 100%; }
+
+                    /* ---- Hero ---- */
+                    .rap-hero {
+                        position: relative; border-radius: 16px; overflow: hidden;
+                        background: #0f1115; box-shadow: 0 10px 28px rgba(0, 0, 0, .30);
+                    }
+                    html.light-mode .rap-hero { background: #f5f0e6; box-shadow: 0 8px 22px rgba(150, 120, 70, .16); }
+                    .rap-hero-media { display: block; position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; text-decoration: none; }
+                    .rap-hero-media img {
+                        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 28%;
+                        display: block; transition: opacity .3s ease, transform 6s ease;
+                    }
+                    /* MOBILE ONLY (desktop ≥1024px ghi đè .rap-hero-fade trong media query):
+                       user đòi giảm tiếp lần 3 ("mờ nền kem ở mục này trên mobile bạn giảm xuống thêm") →
+                       dải tan chỉ còn 10% chiều cao ảnh và alpha nhẹ hơn hẳn. */
+                    .rap-hero-fade {
+                        position: absolute; inset: 0; pointer-events: none;
+                        background: linear-gradient(to top, #0f1115 0%, rgba(15, 17, 21, .55) 3%, rgba(15, 17, 21, .14) 6%, transparent 10%);
+                    }
+                    html.light-mode .rap-hero-fade {
+                        background: linear-gradient(to top, #f5f0e6 0%, rgba(245, 240, 230, .55) 3%, rgba(245, 240, 230, .14) 6%, transparent 10%);
+                    }
+                    .rap-hero-body { position: relative; z-index: 3; padding: 0 16px 18px; color: #1c1917; }
+                    html:not(.light-mode) .rap-hero-body { color: #f5f5f4; }
+                    .rap-hero-title { font-family: 'Nunito', 'Be Vietnam Pro', sans-serif; font-size: 21px; font-weight: 900; line-height: 1.3; letter-spacing: 0; margin: 0; }
+                    .rap-hero-title a { color: inherit; text-decoration: none; }
+                    .rap-hero-origin { font-family: 'Nunito', 'Be Vietnam Pro', sans-serif; font-size: 14px; font-weight: 800; color: #ea580c; margin-top: 6px; }
+                    html:not(.light-mode) .rap-hero-origin { color: #fbbf24; }
+                    .rap-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 14px; }
+                    .rap-chip {
+                        font-family: 'Nunito', 'Be Vietnam Pro', sans-serif;
+                        display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800;
+                        padding: 4px 11px; border-radius: 7px; border: 1.5px solid rgba(28, 25, 23, .55); color: inherit; line-height: 1.4;
+                    }
+                    html:not(.light-mode) .rap-chip { border-color: rgba(245, 245, 244, .55); }
+                    /* Chip TMDB 2 mảnh trên mobile: wrapper phải padding:0 (rule này đứng SAU .rap-chip nên thắng)
+                       + stretch để 2 mảnh cao bằng nhau + tự bo góc từng mảnh, không nhờ overflow:hidden. */
+                    .rap-chip.rap-chip-tmdb { border: none; padding: 0; gap: 0; overflow: hidden; background: none; border-radius: 7px; align-items: stretch; }
+                    .rap-chip.rap-chip-tmdb .tmdb-k { display: flex; align-items: center; background: linear-gradient(90deg, #0284c7, #22d3ee); color: #fff; font-weight: 900; padding: 4px 10px; border-radius: 7px 0 0 7px; }
+                    .rap-chip.rap-chip-tmdb .tmdb-v { display: flex; align-items: center; background: rgba(2, 10, 18, .72); color: #fff; font-weight: 900; padding: 4px 11px; border: 1.5px solid rgba(255, 255, 255, .38); border-left: none; border-radius: 0 7px 7px 0; }
+                    .rap-chip.rap-chip-tmdb b { font-weight: 900; }
+                    .rap-hero-genres { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+                    .rap-genre {
+                        font-family: 'Nunito', 'Be Vietnam Pro', sans-serif;
+                        font-size: 12px; font-weight: 700; padding: 5px 13px; border-radius: 8px;
+                        background: rgba(120, 113, 108, .16); color: #57534e;
+                    }
+                    html:not(.light-mode) .rap-genre { background: rgba(255, 255, 255, .12); color: #e7e5e4; }
+                    .rap-hero-desc {
+                        font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
+                        margin: 14px 0 0; font-size: 13.5px; line-height: 1.7; color: #44403c;
+                        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+                    }
+                    html:not(.light-mode) .rap-hero-desc { color: rgba(245, 245, 244, .82); }
+                    .rap-hero-actions { display: none; align-items: center; gap: 12px; margin-top: 18px; }
+                    .rap-play {
+                        width: 54px; height: 54px; border-radius: 50%; flex: 0 0 auto;
+                        display: flex; align-items: center; justify-content: center; text-decoration: none;
+                        background: radial-gradient(circle at 32% 28%, #fde68a, #f59e0b 62%, #d97706);
+                        box-shadow: 0 8px 22px rgba(245, 158, 11, .42); transition: transform .2s ease, box-shadow .2s ease;
+                    }
+                    .rap-play:hover { transform: scale(1.07); box-shadow: 0 12px 28px rgba(245, 158, 11, .55); }
+                    .rap-play svg { width: 22px; height: 22px; fill: #291a05; margin-left: 3px; }
+                    .rap-soft-btns {
+                        display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 999px;
+                        background: rgba(255, 255, 255, .10); border: 1px solid rgba(255, 255, 255, .18);
+                    }
+                    .rap-soft-btn {
+                        width: 34px; height: 30px; display: flex; align-items: center; justify-content: center;
+                        background: none; border: none; color: #fff; cursor: pointer; text-decoration: none; opacity: .9;
+                    }
+                    .rap-soft-btn:hover { opacity: 1; }
+                    .rap-soft-btn svg { width: 17px; height: 17px; }
+                    .rap-soft-divider { width: 1px; height: 18px; background: rgba(255, 255, 255, .22); }
+                    .rap-hero.is-swapping .rap-hero-media img,
+                    .rap-hero.is-swapping .rap-hero-body { opacity: .25; }
+
+                    /* ---- Dải poster (desktop) + dots (mobile) ---- */
+                    .rap-strip { display: none; }
+                    .rap-thumb {
+                        flex: 0 0 auto; width: 88px; border-radius: 10px; overflow: hidden; cursor: pointer;
+                        opacity: .52; transition: opacity .25s ease, transform .25s ease, box-shadow .25s ease; background: #14161b;
+                    }
+                    .rap-thumb img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+                    .rap-thumb:hover { opacity: .85; }
+                    .rap-thumb.active { opacity: 1; transform: translateY(-6px) scale(1.05); box-shadow: 0 0 0 2px rgba(255, 255, 255, .92), 0 12px 24px rgba(0, 0, 0, .42); }
+                    .rap-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 12px; padding: 0 8px; }
+                    .rap-dot { width: 8px; height: 8px; border-radius: 999px; background: rgba(120, 113, 108, .35); border: none; padding: 0; cursor: pointer; transition: all .25s ease; }
+                    html:not(.light-mode) .rap-dot:not(.active) { background: rgba(255, 255, 255, .22); }
+                    .rap-dot.active { width: 20px; background: #f59e0b; }
+
+                    /* ---- Lớp trang trí nền (chỉ bật ở desktop, mobile ẩn hoàn toàn) ---- */
+                    /* .rap-hero-grain = lớp chấm li ti trên ẢNH NỀN (user yêu cầu bật lại cho lớp ảnh này) */
+                    .rap-hero-grain, .rap-hero-orbs { display: none; }
+                    .rap-hero-grain {
+                        position: absolute; inset: 0; z-index: 2; pointer-events: none;
+                        background-image: radial-gradient(rgba(255, 255, 255, .5) .6px, transparent .85px);
+                        background-size: 3px 3px; opacity: .085;
+                    }
+                    .rap-hero-orbs { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+                    .rap-hero-orb {
+                        position: absolute; border-radius: 50%; filter: blur(10px); opacity: .34;
+                        background: radial-gradient(circle at 35% 30%, rgba(253, 230, 138, .95), rgba(245, 158, 11, .34) 58%, transparent 74%);
+                        animation: rapOrbFloat 15s ease-in-out infinite;
+                    }
+                    .rap-hero-orb:nth-child(1) { width: 54px; height: 54px; left: 52%; top: 18%; animation-duration: 16s; }
+                    .rap-hero-orb:nth-child(2) { width: 30px; height: 30px; left: 68%; top: 44%; animation-duration: 12s; animation-delay: -4s; }
+                    .rap-hero-orb:nth-child(3) { width: 22px; height: 22px; left: 40%; top: 66%; animation-duration: 19s; animation-delay: -8s; }
+                    .rap-hero-orb:nth-child(4) { width: 38px; height: 38px; left: 82%; top: 24%; animation-duration: 14s; animation-delay: -2s; }
+                    .rap-hero-orb:nth-child(5) { width: 16px; height: 16px; left: 62%; top: 74%; animation-duration: 11s; animation-delay: -6s; }
+                    @keyframes rapOrbFloat {
+                        0%, 100% { transform: translate3d(0, 0, 0); opacity: .20; }
+                        50%      { transform: translate3d(-22px, -30px, 0); opacity: .42; }
+                    }
+                    @media (prefers-reduced-motion: reduce) { .rap-hero-orb { animation: none; } }
+
+                    /* ---- DESKTOP ≥1024px: ảnh phủ toàn khung, chữ đè nửa trái, có nút Play + dải poster ---- */
+                    @media (min-width: 1024px) {
+                        /* Khung là ô bo góc GỌN GÀNG, ảnh cắt thẳng ở mép dưới (KHÔNG mask tan ra nền):
+                           vệt tan tối màu trên nền kem bị user gọi là "mờ đen lan xuống dưới mép" → đã bỏ hẳn.
+                           Dải poster vẫn nhô ra ngoài vì .rap-hero để overflow:visible, chỉ .rap-hero-media mới clip. */
+                        .rap-hero, html.light-mode .rap-hero {
+                            height: 540px; overflow: visible; background: transparent; box-shadow: none; border-radius: 0;
+                        }
+                        .rap-showcase { padding-bottom: 52px; }
+                        .rap-hero-media {
+                            position: absolute; inset: 0; aspect-ratio: auto; overflow: hidden; border-radius: 22px;
+                        }
+                        .rap-hero-media img {
+                            filter: brightness(.74) saturate(1.06) contrast(1.03);
+                            object-position: center 34%;
+                        }
+                        .rap-hero-grain, .rap-hero-orbs { display: block; }
+                        .rap-hero-fade,
+                        html.light-mode .rap-hero-fade {
+                            background:
+                                linear-gradient(90deg, rgba(6, 8, 13, .95) 0%, rgba(6, 8, 13, .87) 28%, rgba(6, 8, 13, .56) 50%, rgba(6, 8, 13, .16) 72%, rgba(6, 8, 13, .04) 100%),
+                                linear-gradient(to top, rgba(6, 8, 13, .82) 0%, rgba(6, 8, 13, .30) 32%, rgba(6, 8, 13, .06) 58%, transparent 80%);
+                        }
+                        /* User: "vẫn còn ở trên nhiều, canh từ cái khung lớn" → vùng chữ = TOÀN BỘ khung (540px),
+                           justify-content:center đặt tâm cụm chữ đúng tâm khung (không trừ dải poster nữa). */
+                        .rap-hero-body {
+                            position: absolute; inset: 0; left: 0; width: min(52%, 680px);
+                            display: flex; flex-direction: column; justify-content: center;
+                            padding: 0 46px 44px; color: #fff;
+                        }
+                        /* Font RIÊNG cho khối nội dung này (theo ảnh mẫu): Nunito 900/800 cho tiêu đề + chip,
+                           Be Vietnam Pro 500 cho mô tả. Cả hai đã load sẵn ở partials/head.ejs → không thêm request.
+                           "cho dãn ra" = tăng khoảng cách giữa các hàng + line-height mô tả. */
+                        .rap-hero-title {
+                            font-family: 'Nunito', 'Be Vietnam Pro', sans-serif;
+                            font-size: 29px; font-weight: 900; line-height: 1.22; letter-spacing: 0;
+                            text-shadow: 0 2px 20px rgba(0, 0, 0, .6);
+                        }
+                        .rap-hero-origin { font-family: 'Nunito', 'Be Vietnam Pro', sans-serif; font-size: 15px; font-weight: 800; color: #fbbf24; margin-top: 8px; text-shadow: 0 1px 14px rgba(0, 0, 0, .55); }
+                        .rap-hero-meta { margin-top: 18px; gap: 10px; }
+                        .rap-chip { font-family: 'Nunito', 'Be Vietnam Pro', sans-serif; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 7px; border-width: 1.5px; border-color: rgba(255, 255, 255, .45); }
+                        /* Chip TMDB 2 mảnh: wrapper MANG CẢ class .rap-chip nên ăn luôn padding 4px/12px của rule
+                           .rap-chip phía trên (độ đặc hiệu bằng nhau, rule sau thắng) → 2 mảnh bị đẩy vào trong hộp
+                           vô hình, góc vẫn VUÔNG và không sát mép trái. Sửa = dùng selector 2 lớp .rap-chip.rap-chip-tmdb
+                           (đặc hiệu cao hơn) để trả padding:0 + tự bo góc từng mảnh + stretch cho đều chiều cao. */
+                        .rap-chip.rap-chip-tmdb { padding: 0; gap: 0; border: none; border-radius: 7px; align-items: stretch; overflow: hidden; }
+                        .rap-chip.rap-chip-tmdb .tmdb-k { display: flex; align-items: center; background: #22b6de; padding: 4px 10px; border-radius: 7px 0 0 7px; }
+                        .rap-chip.rap-chip-tmdb .tmdb-v { display: flex; align-items: center; background: rgba(4, 12, 20, .82); padding: 4px 11px; border: 1.5px solid rgba(255, 255, 255, .42); border-left: none; border-radius: 0 7px 7px 0; }
+                        .rap-hero-genres { margin-top: 16px; gap: 10px; }
+                        .rap-genre {
+                            font-family: 'Nunito', 'Be Vietnam Pro', sans-serif;
+                            font-size: 12px; font-weight: 700; padding: 6px 15px; border-radius: 8px;
+                            background: rgba(255, 255, 255, .08); border: none; color: #a8a29e;
+                        }
+                        .rap-hero-desc {
+                            font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
+                            margin-top: 18px; font-size: 14px; font-weight: 400; line-height: 1.75;
+                            -webkit-line-clamp: 3; color: rgba(255, 255, 255, .88);
+                            text-shadow: 0 1px 16px rgba(0, 0, 0, .5);
+                        }
+                        .rap-hero-actions { display: flex; gap: 16px; margin-top: 26px; align-items: center; }
+                        /* Nút Play: bỏ hẳn vòng ring lan tỏa (0 0 0 Npx) vì nó hiện thành "viền chói tròn" trên nền tối,
+                           chỉ còn quầng vàng tan mờ; mặt là gradient vàng kem trộn. Mũi tên bo góc bằng stroke-linejoin. */
+                        .rap-play {
+                            width: 52px; height: 52px;
+                            background: radial-gradient(circle at 34% 28%, #fff4cd 0%, #ffe49a 38%, #f8ce6d 70%, #efbc4e 100%);
+                            box-shadow: 0 0 16px rgba(250, 208, 110, .26);
+                        }
+                        .rap-play:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(250, 208, 110, .34); }
+                        .rap-play svg { width: 21px; height: 21px; fill: #1f2937; margin-left: 3px; }
+                        .rap-play svg polygon { stroke: #1f2937; stroke-width: 3.2; stroke-linejoin: round; }
+                        .rap-soft-btns { padding: 7px 14px; gap: 10px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .18); }
+                        .rap-soft-btn { width: 32px; height: 32px; }
+                        .rap-soft-btn svg { width: 18px; height: 18px; }
+                        .rap-soft-divider { height: 22px; background: rgba(255, 255, 255, .22); }
+                        /* Dải poster: NHỎ hơn và nằm NGANG mép dưới khung (nửa trên trong ảnh, nửa dưới nhô ra nền trang).
+                           overflow-x:auto cũng cắt luôn chiều dọc, mà bản đang chiếu bị lift(-6px)+scale(1.05)
+                           → vòng viền trắng bị cụt trên đầu. Bù bằng padding trong box và đẩy box thấp xuống 4px. */
+                        .rap-strip {
+                            position: absolute; z-index: 4; left: 46px; right: 46px; bottom: -38px;
+                            display: flex; gap: 14px; margin-top: 0; padding: 16px 0 4px;
+                            justify-content: center; justify-content: safe center;
+                            overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior-x: contain;
+                        }
+                        .rap-strip::-webkit-scrollbar { display: none; }
+                        /* Không box-shadow ở poster: 12 bóng đen chồng nhau thành vệt mờ lan ra nền kem.
+                           Poster để opacity 1 (user: "hình phim nhỏ đang bị mờ") → phân biệt bản đang chiếu bằng viền trắng + nâng. */
+                        .rap-thumb { width: 64px; border-radius: 10px; opacity: 1; box-shadow: none; }
+                        /* Dọc poster (10:16 ≈ 102px) — nhỏ ngang nhưng vẫn cao, giãn cách 14px */
+                        .rap-strip .rap-thumb img { aspect-ratio: 10 / 16; }
+                        .rap-thumb:hover { opacity: 1; }
+                        .rap-thumb.active { box-shadow: 0 0 0 2px rgba(255, 255, 255, .95); }
+                        .rap-dots { display: none; }
+
+                        /* Desktop: chữ ĐÈ TRÊN ẢNH nên cả 2 theme phải là chữ sáng.
+                           light-mode.css có "html.light-mode main h3 / main p { color:#...!important }"
+                           nên phải đè lại bằng selector 3 lớp + !important. */
+                        html.light-mode .rap-hero .rap-hero-title,
+                        html.light-mode .rap-hero .rap-hero-title a { color: #fff !important; }
+                        html.light-mode .rap-hero .rap-hero-origin { color: #fbbf24 !important; }
+                        html.light-mode .rap-hero .rap-hero-desc { color: rgba(255, 255, 255, .88) !important; }
+                        html.light-mode .rap-hero .rap-chip { color: #fff !important; border-color: rgba(255, 255, 255, .45) !important; }
+                        html.light-mode .rap-hero .rap-chip-tmdb .tmdb-k { background: #22b6de !important; color: #fff !important; }
+                        html.light-mode .rap-hero .rap-chip-tmdb .tmdb-v { background: rgba(4, 12, 20, .82) !important; color: #fff !important; border-color: rgba(255, 255, 255, .42) !important; }
+                        html.light-mode .rap-hero .rap-genre { color: #a8a29e !important; background: rgba(255, 255, 255, .08) !important; }
+                        html.light-mode .rap-hero .rap-play svg { fill: #1f2937 !important; }
+                    }
+
+                    /* ---- Skeleton lúc chờ dữ liệu ---- */
+                    .rap-hero-skeleton .rap-hero-media { background: rgba(120, 113, 108, .12); }
+                    .rap-hero-desc-skel { margin-top: 10px; }
+                    .rap-skel-line { height: 14px; border-radius: 6px; margin-top: 10px; overflow: hidden; }
+                    .rap-skel-line.w60 { width: 60%; }
+                    .rap-skel-line.w35 { width: 35%; }
+                    .rap-skel-line.w85 { width: 85%; }
+                </style>
+
+                <section class="rap-showcase-section" style="margin-top: 26px;">
                     <div class="section-header">
                         <div class="section-header-left">
                             <h2 class="section-header-title">PHIM CHIẾU RẠP MỚI</h2>
@@ -1089,55 +1541,23 @@
                         </div>
                     </div>
 
-                    <div id="grid-chieu-rap" class="phimmoi-section-grid">
-                        <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
-                    </div>
-                </section>
-
-
-
-
-
-                <!-- ==============================================
-             SECTION 4: PHIM MỚI THỊNH HÀNH
-             ============================================== -->
-                <section>
-                    <div class="section-header">
-                        <div class="section-header-left">
-                            <h2 class="section-header-title">PHIM MỚI THỊNH HÀNH</h2>
-                            <div class="section-header-tabs">
-                                <button type="button"
-                                    onclick="switchSectionTab(this, 'grid-trending', 'https://phimapi.com/v1/api/danh-sach/phim-bo?page=1')"
-                                    class="section-header-tab active">Phim Bộ</button>
-                                <button type="button"
-                                    onclick="switchSectionTab(this, 'grid-trending', 'https://phimapi.com/v1/api/danh-sach/phim-le?page=1')"
-                                    class="section-header-tab inactive">Phim Lẻ</button>
+                    <div id="rapShowcase" class="rap-showcase">
+                        <div class="rap-hero rap-hero-skeleton" aria-hidden="true">
+                            <div class="rap-hero-media"><div class="skeleton-shimmer-bar"></div></div>
+                            <div class="rap-hero-body">
+                                <div class="rap-skel-line w60"><div class="skeleton-shimmer-bar"></div></div>
+                                <div class="rap-skel-line w35"><div class="skeleton-shimmer-bar"></div></div>
+                                <div class="rap-skel-line w85"><div class="skeleton-shimmer-bar"></div></div>
                             </div>
                         </div>
                     </div>
-
-                    <div id="grid-trending" class="phimmoi-section-grid">
-                        <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
-                    </div>
                 </section>
 
 
-                <!-- ==============================================
-             SECTION 5: PHIM HOẠT HÌNH & ANIME
-             ============================================== -->
-                <section>
-                    <div class="section-header">
-                        <div class="section-header-left">
-                            <h2 class="section-header-title">PHIM HOẠT HÌNH & ANIME</h2>
-                            <div class="section-header-tabs">
-                                <a href="#" class="section-header-tab active">Mới cập nhật</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="grid-anime" class="phimmoi-section-grid">
-                        <div class="animate-pulse bg-gray-800 w-full h-[210px] rounded-lg"></div>
-                    </div>
-                </section>
+
+
+
+                <!-- SECTION 5 was removed on 2026-11-06 (user request) together with its loader. -->
 
 
                 <!-- ==============================================
@@ -1450,69 +1870,215 @@
                         // 🎯 ICONIC PHIMMOI HOLLOW STROKE PLAY TRIANGLE
                         const PLAY_SVG_HTML = `<svg viewBox="0 0 24 24"><polygon points="7,4 19,12 7,20"/></svg>`;
 
-                        // Helper to format language badges matching Photo 2
-                        function formatLangBadges(lang, isCompact = false) {
-                            if (!lang) return `<span class="badge-tag badge-tag-pd">Vietsub</span>`;
-                            const str = lang.toLowerCase();
-                            let badges = [];
+                        // 🌟 CHECK XEM PHIM CÓ PHỤ ĐỀ SONG NGỮ KHÔNG
+                        function isMovieBilingual(movie) {
+                            if (!movie) return false;
+                            if (movie.is_song_ngu || movie.has_bilingual) return true;
+                            const lang = (movie.lang || '').toLowerCase();
+                            if (lang.includes('song ngữ') || lang.includes('song ngu')) return true;
+                            const slug = (movie.slug || '').toLowerCase().trim();
+                            if (window.__BILINGUAL_SLUGS__ && window.__BILINGUAL_SLUGS__.has(slug)) return true;
+                            if (window.APhimCore && typeof window.APhimCore.isBilingualSlug === 'function' && window.APhimCore.isBilingualSlug(slug)) return true;
+                            return false;
+                        }
 
-                            const hasSn = str.includes('song ngữ') || str.includes('song ngu');
-                            const hasSub = str.includes('sub') || str.includes('phụ đề') || str.includes('phu de') || str.includes('p.đề');
-                            const hasTm = str.includes('thuyết minh') || str.includes('thuyet minh') || str.includes('t.minh');
-                            const hasLt = str.includes('lồng tiếng') || str.includes('long tieng') || str.includes('l.tiếng');
+                        // 🌟 BỘ NHÃN CAO CẤP MỚI (CHUẨN CHẤT NHƯ SONG NGỮ, KHÔNG CHE POSTER)
+                        // 🌟 1. BADGES CHO CARD NGANG (PHIM BỘ MỚI CẬP NHẬT, PHIM CHIẾU RẠP, TOP 10, PHIM LẺ...)
+                        // Hiển thị đầy đủ nhãn Tập, Vietsub, Thuyết minh, Lồng tiếng chuyên nghiệp ở góc trên bên trái
+                        function renderCardBadgesHeader(movie, options = {}) {
+                            const isSongNgu = isMovieBilingual(movie);
+                            
+                            // Nhãn Song Ngữ tím độc lập ở góc trên bên phải
+                            const songNguHTML = isSongNgu ? `
+                                <div class="badge-song-ngu-pill" title="Phim có phụ đề song ngữ chất lượng cao">
+                                    <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+                                        <path d="m12.87 15.07-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7 1.62-4.33L19.12 17h-3.24z"/>
+                                    </svg>
+                                    <span>Song Ngữ</span>
+                                </div>
+                            ` : '';
 
-                            if (hasSn) {
-                                badges.push(`<span class="badge-tag badge-tag-sn">Song ngữ</span>`);
+                            const lang = (movie.lang || 'Vietsub').toLowerCase();
+                            const epRaw = (movie.episode_current || movie.episode || '').trim();
+                            const type = movie.type || '';
+
+                            // Lọc bỏ placeholder "Song Ngữ", "FHD", "HD" để không bị lỗi "Tập Song Ngữ"
+                            const isPlaceholder = epRaw.toLowerCase().includes('song ngữ') || 
+                                                 epRaw.toLowerCase().includes('song ngu') || 
+                                                 epRaw.toLowerCase() === 'fhd' || 
+                                                 epRaw.toLowerCase() === 'hd';
+                            const cleanEpRaw = isPlaceholder ? '' : epRaw;
+
+                            const hasSub = lang.includes('sub') || lang.includes('phụ đề') || lang.includes('phu de') || lang.includes('vietsub') || (!lang.includes('thuyết minh') && !lang.includes('lồng tiếng'));
+                            const hasTm = lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh');
+                            const hasLt = lang.includes('lồng tiếng') || lang.includes('long tieng') || lang.includes('l.tiếng');
+
+                            let leftPills = [];
+
+                            // 1. Rank #1..10 nếu có (Top 10)
+                            if (options.rank) {
+                                leftPills.push(`<span class="ap-badge-rank">#${options.rank}</span>`);
                             }
-                            if (hasSub) {
-                                badges.push(`<span class="badge-tag badge-tag-pd">${(hasTm || hasLt) ? 'P.Đề' : 'Vietsub'}</span>`);
+
+                            // 2. Star Score nếu có (Top 10)
+                            if (options.starRating) {
+                                leftPills.push(`
+                                    <span class="ap-badge-score">
+                                        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        <span>${options.starRating}</span>
+                                    </span>
+                                `);
                             }
+
+                            // 3. Nhãn số tập / Full (Vàng Hoàng Kim) - Chống tuyệt đối lỗi "Tập Song Ngữ"
+                            let num = '';
+                            if (cleanEpRaw) {
+                                const numMatch = cleanEpRaw.match(/(\d+)\s*\/\s*(\d+)/);
+                                if (numMatch) {
+                                    num = numMatch[1];
+                                } else {
+                                    const singleNumMatch = cleanEpRaw.match(/(?:tập|tap)?\s*(\d+)/i);
+                                    if (singleNumMatch) {
+                                        num = singleNumMatch[1];
+                                    }
+                                }
+                            }
+
+                            const isFull = !num && (
+                                !cleanEpRaw ||
+                                cleanEpRaw.toLowerCase().includes('full') || 
+                                cleanEpRaw.toLowerCase().includes('hoàn tất') || 
+                                cleanEpRaw.toLowerCase().includes('hoan tat') || 
+                                type === 'single' || 
+                                type === 'phim-le' ||
+                                isPlaceholder
+                            );
+
+                            const epLabel = isFull ? 'Full' : (num ? `Tập ${num}` : (cleanEpRaw ? (cleanEpRaw.toLowerCase().startsWith('tập') ? cleanEpRaw : `Tập ${cleanEpRaw}`) : 'Full'));
+                            leftPills.push(`<span class="ap-badge-gold">${epLabel}</span>`);
+
+                            // 4. Nhãn Phụ đề / Vietsub (Xanh Mint Ngọc Lục Bảo) - nếu chưa có nhãn Song Ngữ hoặc muốn hiển thị
+                            if (hasSub && !isSongNgu) {
+                                leftPills.push(`<span class="ap-badge-mint">Vietsub</span>`);
+                            }
+
+                            // 5. Bổ sung Nhãn Thuyết minh nếu phim có (Xanh Cyan Điện Quang)
                             if (hasTm) {
-                                badges.push(`<span class="badge-tag badge-tag-tm">T.Minh</span>`);
-                            }
-                            // Trên các ô nhỏ (isCompact = true), giới hạn tối đa 2 tag ngôn ngữ để không bị tràn dính chùm
-                            if (hasLt && (!isCompact || badges.length < 2)) {
-                                badges.push(`<span class="badge-tag badge-tag-lt">L.Tiếng</span>`);
+                                leftPills.push(`<span class="ap-badge-cyan">T.Minh</span>`);
                             }
 
-                            if (badges.length === 0) {
-                                badges.push(`<span class="badge-tag badge-tag-pd">${lang}</span>`);
+                            // 6. Bổ sung Nhãn Lồng tiếng nếu phim có (Hồng San Hô)
+                            if (hasLt && leftPills.length < 5) {
+                                leftPills.push(`<span class="ap-badge-rose">L.Tiếng</span>`);
                             }
 
-                            return badges.join('');
+                            return `
+                                <div class="card-top-badges ${isSongNgu ? 'has-song-ngu' : ''}">
+                                    <div class="card-pills-left">
+                                        ${leftPills.join('')}
+                                    </div>
+                                </div>
+                                ${songNguHTML}
+                            `;
                         }
 
-                        // Helper to format episode badge (Yellow for Full / Hoàn Tất)
-                        function getEpBadgeHTML(epText) {
-                            const text = epText || 'Full';
-                            const str = text.toLowerCase();
-                            const isFull = str.includes('full') || str.includes('hoàn tất') || str.includes('hoan tat');
-                            const badgeClass = isFull ? 'badge-ep-yellow' : 'badge-ep-orange';
-                            return `<span class="${badgeClass}">${text}</span>`;
+                        // 🌟 2. BADGES CHO SLIDER DỌC ĐỀ CỬ (PHIM MỚI ĐỀ CỬ TRÊN CÙNG)
+                        // Hiển thị thanh ghép PĐ.X / TM.X dính sát đáy poster theo Hình 1
+                        function renderDeCuBadgesHeader(movie) {
+                            const isSongNgu = isMovieBilingual(movie);
+                            const songNguHTML = isSongNgu ? `
+                                <div class="badge-song-ngu-pill" title="Phim có phụ đề song ngữ chất lượng cao">
+                                    <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+                                        <path d="m12.87 15.07-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7 1.62-4.33L19.12 17h-3.24z"/>
+                                    </svg>
+                                    <span>Song Ngữ</span>
+                                </div>
+                            ` : '';
+
+                            const lang = (movie.lang || 'Vietsub').toLowerCase();
+                            const epRaw = (movie.episode_current || movie.episode || '').trim();
+                            const type = movie.type || '';
+
+                            const hasSub = lang.includes('sub') || lang.includes('phụ đề') || lang.includes('phu de') || lang.includes('vietsub') || (!lang.includes('thuyết minh') && !lang.includes('lồng tiếng'));
+                            const hasTm = lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh');
+                            const hasLt = lang.includes('lồng tiếng') || lang.includes('long tieng') || lang.includes('l.tiếng');
+
+                            let num = '';
+                            const numMatch = epRaw.match(/(\d+)\s*\/\s*(\d+)/);
+                            if (numMatch) {
+                                num = numMatch[1];
+                            } else {
+                                const singleNumMatch = epRaw.match(/(?:tập|tap)?\s*(\d+)/i);
+                                if (singleNumMatch) {
+                                    num = singleNumMatch[1];
+                                }
+                            }
+
+                            const isFull = !num && (
+                                epRaw.toLowerCase().includes('full') || 
+                                epRaw.toLowerCase().includes('hoàn tất') || 
+                                epRaw.toLowerCase().includes('hoan tat') || 
+                                type === 'single' || 
+                                type === 'phim-le'
+                            );
+
+                            const epSuffix = num ? `. ${num}` : '';
+
+                            let bottomBadges = [];
+
+                            if (Array.isArray(movie.available_languages) && movie.available_languages.length > 0) {
+                                movie.available_languages.forEach(item => {
+                                    const parts = String(item).split(':');
+                                    const tag = parts[0].toUpperCase().trim();
+                                    const val = (parts[1] || '').trim();
+                                    const isSingleEp = val === '1' || val.toLowerCase() === 'full' || epRaw.includes('1/1') || type === 'single' || type === 'phim-le';
+                                    const epVal = (!isSingleEp && val && val.toLowerCase() !== 'full') ? `. ${val}` : (!isSingleEp && num ? `. ${num}` : '');
+                                    if (tag === 'PD') {
+                                        bottomBadges.push(`<span class="badge-seg-sub">${isSingleEp ? 'Full' : 'PĐ' + epVal}</span>`);
+                                    } else if (tag === 'TM') {
+                                        bottomBadges.push(`<span class="badge-seg-tm">TM${epVal}</span>`);
+                                    } else if (tag === 'LT') {
+                                        bottomBadges.push(`<span class="badge-seg-lt">LT${epVal}</span>`);
+                                    }
+                                });
+                            }
+
+                            if (bottomBadges.length === 0) {
+                                if (hasSub) {
+                                    bottomBadges.push(`<span class="badge-seg-sub">PĐ${epSuffix}</span>`);
+                                }
+                                if (hasTm) {
+                                    bottomBadges.push(`<span class="badge-seg-tm">TM${epSuffix}</span>`);
+                                }
+                                if (hasLt && bottomBadges.length < 3) {
+                                    bottomBadges.push(`<span class="badge-seg-lt">LT${epSuffix}</span>`);
+                                }
+                            }
+
+                            if (bottomBadges.length === 0) {
+                                const fallbackLabel = isFull ? 'Full' : (num ? `Tập ${num}` : 'HD');
+                                bottomBadges.push(`<span class="badge-seg-sub">${fallbackLabel}</span>`);
+                            }
+
+                            return `
+                                ${songNguHTML}
+                                <div class="card-bottom-pills-center">
+                                    ${bottomBadges.join('')}
+                                </div>
+                            `;
                         }
 
-                        // 1. Render Vertical 2:3 Movie Card (For PHIM MỚI ĐỀ CỬ Slider Only)
                         function createDeCuCardHTML(movie, idx = 0) {
                             const watchUrl = '/phim/' + movie.slug;
                             const primaryImg = getImgUrl(movie.poster_url || movie.thumb_url, null, 420, 85);
                             const fallbackImg = getImgUrl(movie.thumb_url || movie.poster_url, null, 420, 85);
-                            const epText = movie.episode_current || 'Tập 1';
-                            const langBadges = formatLangBadges(movie.lang || 'Vietsub');
-                            const isFull = epText.toLowerCase().includes('full') || epText.toLowerCase().includes('hoàn tất');
-
-                            const trendBadge = movie.is_google_trend 
-                                ? `<span class="badge-trend" title="Trends 24h: ${movie.trend_keyword || ''}">TRENDS</span>`
-                                : '';
+                            const badgesHeaderHTML = renderDeCuBadgesHeader(movie);
 
                             return `
                 <div class="de-cu-card">
                     <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block">
                         <div class="de-cu-poster-wrap">
-                            <div class="de-cu-top-badges">
-                                ${trendBadge}
-                                ${langBadges}
-                                <span class="badge-fhd">FHD</span>
-                            </div>
+                            ${badgesHeaderHTML}
 
                             <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" ${idx < 2 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
@@ -1521,8 +2087,6 @@
                                     ${PLAY_SVG_HTML}
                                 </div>
                             </div>
-
-                            <div class="de-cu-bottom-badge ${isFull ? 'badge-ep-yellow' : ''}">${epText}</div>
                         </div>
 
                         <div class="de-cu-title-wrap">
@@ -1534,23 +2098,18 @@
             `;
                         }
 
-                        // 2. Render Featured Card (Large 2x2 16:9 HD Display)
+                        // 2. Render Featured Card (Large 2x2 16:9 HD Display - Chuẩn hiện đại không che ảnh)
                         function createFeaturedCardHTML(movie) {
                             const watchUrl = '/phim/' + movie.slug;
                             const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url, null, 720, 85);
                             const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url, null, 720, 85);
-                            const epText = movie.episode_current || 'Tập 1';
-                            const epBadgeHTML = getEpBadgeHTML(epText);
-                            const langBadges = formatLangBadges(movie.lang || 'Vietsub');
+                            const badgesHeaderHTML = renderCardBadgesHeader(movie);
 
                             return `
                 <div class="featured-card-item">
                     <a href="${watchUrl}" title="${movie.name}" class="block w-full h-full relative" style="text-decoration:none;">
                         <div class="landscape-poster-wrap">
-                            <div class="card-top-badges">
-                                ${epBadgeHTML}
-                                ${langBadges}
-                            </div>
+                            ${badgesHeaderHTML}
 
                             <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="lazy" fetchpriority="auto" decoding="async" referrerpolicy="no-referrer" class="single-feature-img" onerror="window.handleCardImgError(this)" />
 
@@ -1575,18 +2134,13 @@
                             const watchUrl = '/phim/' + movie.slug;
                             const primaryImg = getImgUrl(movie.thumb_url || movie.poster_url, null, 500, 85);
                             const fallbackImg = getImgUrl(movie.poster_url || movie.thumb_url, null, 500, 85);
-                            const epText = movie.episode_current || 'Full';
-                            const epBadgeHTML = getEpBadgeHTML(epText);
-                            const langBadges = formatLangBadges(movie.lang || 'Vietsub', true);
+                            const badgesHeaderHTML = renderCardBadgesHeader(movie);
 
                             return `
                 <div class="normal-card-item">
                     <a href="${watchUrl}" title="${movie.name}" class="block" style="text-decoration:none;">
                         <div class="landscape-poster-wrap">
-                            <div class="card-top-badges">
-                                ${epBadgeHTML}
-                                ${langBadges}
-                            </div>
+                            ${badgesHeaderHTML}
 
                             <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
 
@@ -1726,6 +2280,376 @@
                         }
 
 
+                        // ==========================================
+                        // 🎬 SHOWCASE "PHIM CHIẾU RẠP MỚI" — hero lớn + dải poster (desktop) / dots (mobile)
+                        // ==========================================
+                        // 15 poster cho dải desktop; mobile vẫn 12 chấm (giữ đúng như cũ)
+                        const RAP_LIMIT_DESKTOP = 15;
+                        const RAP_LIMIT_MOBILE = 12;
+                        const rapLimit = function () {
+                            try { return window.matchMedia('(min-width: 1024px)').matches ? RAP_LIMIT_DESKTOP : RAP_LIMIT_MOBILE; }
+                            catch (e) { return RAP_LIMIT_DESKTOP; }
+                        };
+                        const RAP_ROTATE_MS = 7000;
+                        const RAP_DESC_CACHE_KEY = 'aphim_rap_desc_v1';
+                        let rapItems = [];
+                        let rapIndex = 0;
+                        let rapTimer = null;
+                        let rapHoverPause = false;
+                        const rapDescMemory = new Map();
+                        // tmdb.id → URL backdrop lớn (1280px). phimimg chỉ có thumb 780×439 nên ảnh nền bị nhòe khi phóng ~1.8x
+                        const rapBackdropMemory = new Map();
+
+                        // Bỏ HTML trong mô tả phimapi → text thuần gọn để đè lên hero
+                        function rapPlainHtml(html) {
+                            return String(html || '')
+                                .replace(/<\s*br\s*\/?\s*>/gi, ' ')
+                                .replace(/<\/\s*p\s*>/gi, ' ')
+                                .replace(/<[^>]+>/g, ' ')
+                                .replace(/\s+/g, ' ')
+                                .trim();
+                        }
+
+                        function rapEpisodeSlug(movie) {
+                            const ep = String(movie.episode_current || '').trim();
+                            if (!ep || /full|trọn\s*bộ|1080|480p|720p|hd\b/i.test(ep)) return 'full';
+                            const num = ep.replace(/[^0-9]/g, '');
+                            return num ? 'tap-' + num : 'full';
+                        }
+
+                        function rapWatchUrl(movie) {
+                            return '/xem-phim/' + movie.slug + '/' + rapEpisodeSlug(movie);
+                        }
+
+                        function rapReadDescCache() {
+                            try {
+                                const raw = sessionStorage.getItem(RAP_DESC_CACHE_KEY);
+                                if (!raw) return {};
+                                const obj = JSON.parse(raw);
+                                return (obj && typeof obj === 'object') ? obj : {};
+                            } catch (e) { return {}; }
+                        }
+
+                        function rapWriteDescCache(slug, text) {
+                            try {
+                                const obj = rapReadDescCache();
+                                obj[slug] = text || '';
+                                sessionStorage.setItem(RAP_DESC_CACHE_KEY, JSON.stringify(obj));
+                            } catch (e) { }
+                        }
+
+                        // Mô tả KHÔNG có trong payload danh sách ⇒ xin chi tiết cho riêng phim đang hiện (cache lại)
+                        async function rapEnsureDesc(movie) {
+                            if (!movie || !movie.slug) return '';
+                            if (rapDescMemory.has(movie.slug)) return rapDescMemory.get(movie.slug);
+                            const cached = rapReadDescCache();
+                            if (typeof cached[movie.slug] === 'string') {
+                                rapDescMemory.set(movie.slug, cached[movie.slug]);
+                                return cached[movie.slug];
+                            }
+                            try {
+                                const res = await fetch('/api/movie-merged/' + encodeURIComponent(movie.slug));
+                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                const json = await res.json();
+                                const raw = (json && json.movie && (json.movie.content || json.movie.overview)) || '';
+                                const text = rapPlainHtml(raw).slice(0, 320);
+                                rapDescMemory.set(movie.slug, text);
+                                rapWriteDescCache(movie.slug, text);
+                                return text;
+                            } catch (err) {
+                                rapDescMemory.set(movie.slug, '');
+                                return '';
+                            }
+                        }
+
+                        // Lấy backdrop 1280px của TMDB (qua proxy /api/tmdb đã cache 15 phút ở server).
+                        // Không có tmdb.id / không có backdrop_path → trả '' và giữ ảnh phimimg 780px.
+                        async function rapEnsureBackdrop(movie) {
+                            const t = movie && movie.tmdb;
+                            const id = t && t.id;
+                            if (!id) return '';
+                            const key = String(id);
+                            if (rapBackdropMemory.has(key)) return rapBackdropMemory.get(key);
+                            try {
+                                const res = await fetch('/api/tmdb/' + (t.type === 'tv' ? 'tv' : 'movie') + '/' + encodeURIComponent(id));
+                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                const json = await res.json();
+                                const bp = json && json.backdrop_path;
+                                const url = bp ? 'https://image.tmdb.org/t/p/w1280' + bp : '';
+                                rapBackdropMemory.set(key, url);
+                                return url;
+                            } catch (err) {
+                                rapBackdropMemory.set(key, '');
+                                return '';
+                            }
+                        }
+
+                        // Đổi src khi ảnh mới đã tải xong để không bị nháy/trắng giữa chừng
+                        function rapApplyBackdrop(movie, hero) {
+                            if (!hero) return;
+                            const img = hero.querySelector('.rap-hero-media img');
+                            if (!img) return;
+                            const t = movie && movie.tmdb;
+                            const key = t && t.id ? String(t.id) : '';
+                            const use = function (url) {
+                                if (!url || img.getAttribute('data-original-src') === url) return;
+                                img.setAttribute('data-original-src', url);
+                                img.setAttribute('data-src', url);
+                                img.src = url;
+                            };
+                            if (key && rapBackdropMemory.has(key)) { use(rapBackdropMemory.get(key)); return; }
+                            rapEnsureBackdrop(movie).then(function (url) {
+                                if (!url) return;
+                                if (!rapItems[rapIndex] || rapItems[rapIndex].slug !== movie.slug) return;
+                                const pre = new Image();
+                                pre.onload = function () {
+                                    const cur = hero.querySelector('.rap-hero-media img');
+                                    if (cur && rapItems[rapIndex] && rapItems[rapIndex].slug === movie.slug) use(url);
+                                };
+                                pre.src = url;
+                            });
+                        }
+
+                        function rapHeroMetaHTML(movie) {
+                            const chips = [];
+                            const vote = movie.tmdb && Number(movie.tmdb.vote_average);
+                            if (vote > 0) {
+                                chips.push('<span class="rap-chip rap-chip-tmdb"><span class="tmdb-k">TMDB</span><span class="tmdb-v">' + vote.toFixed(1) + '</span></span>');
+                            }
+                            if (movie.year) chips.push('<span class="rap-chip">' + movie.year + '</span>');
+                            const epLabel = String(movie.episode_current || '').trim() || 'Full';
+                            chips.push('<span class="rap-chip">' + epLabel + '</span>');
+                            if (movie.time) chips.push('<span class="rap-chip">' + movie.time + '</span>');
+                            return chips.join('');
+                        }
+
+                        function rapHeroGenresHTML(movie) {
+                            const cats = Array.isArray(movie.category) ? movie.category : [];
+                            return cats.slice(0, 4).map(function (c) {
+                                return '<span class="rap-genre">' + (c.name || '') + '</span>';
+                            }).join('');
+                        }
+
+                        // desc = chuỗi mô tả;  desc = null → đặt skeleton 3 dòng trong lúc chờ API chi tiết
+                        function rapHeroBodyHTML(movie, desc) {
+                            const viTitle = movie.name || '';
+                            const origin = movie.origin_name || '';
+                            const descBlock = (desc === null)
+                                ? '<div class="rap-hero-desc-skel">' + rapSkeletonDescHTML() + '</div>'
+                                : '<p class="rap-hero-desc">' + (desc || '') + '</p>';
+                            return '' +
+                                '<h3 class="rap-hero-title"><a href="/phim/' + movie.slug + '" title="' + viTitle.replace(/"/g, '&quot;') + '">' + viTitle + '</a></h3>' +
+                                (origin ? '<div class="rap-hero-origin">' + origin + '</div>' : '') +
+                                '<div class="rap-hero-meta">' + rapHeroMetaHTML(movie) + '</div>' +
+                                '<div class="rap-hero-genres">' + rapHeroGenresHTML(movie) + '</div>' +
+                                descBlock +
+                                '<div class="rap-hero-actions">' +
+                                    '<a class="rap-play" href="' + rapWatchUrl(movie) + '" title="Xem ngay ' + viTitle.replace(/"/g, '&quot;') + '">' + PLAY_SVG_HTML + '</a>' +
+                                    '<div class="rap-soft-btns">' +
+                                        '<button type="button" class="rap-soft-btn" data-rap-fav aria-label="Thêm vào yêu thích">' +
+                                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>' +
+                                        '</button>' +
+                                        '<span class="rap-soft-divider"></span>' +
+                                        '<a class="rap-soft-btn" href="/phim/' + movie.slug + '" aria-label="Thông tin phim">' +
+                                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><line x1="12" y1="7.5" x2="12" y2="7.6"></line></svg>' +
+                                        '</a>' +
+                                    '</div>' +
+                                '</div>';
+                        }
+
+                        // 5 đốm sáng vàng lơ lửng trên nền hero (chỉ hiện ở desktop)
+                        function rapOrbsHTML() {
+                            return '<i class="rap-hero-orb"></i><i class="rap-hero-orb"></i><i class="rap-hero-orb"></i>' +
+                                '<i class="rap-hero-orb"></i><i class="rap-hero-orb"></i>';
+                        }
+
+                        function rapSkeletonDescHTML() {
+                            return '<div class="rap-skel-line w85"><div class="skeleton-shimmer-bar"></div></div>' +
+                                '<div class="rap-skel-line w85" style="width:72%"><div class="skeleton-shimmer-bar"></div></div>' +
+                                '<div class="rap-skel-line w35"><div class="skeleton-shimmer-bar"></div></div>';
+                        }
+
+                        function rapRenderHero() {
+                            const host = document.getElementById('rapShowcase');
+                            if (!host || !rapItems.length) return;
+                            const movie = rapItems[rapIndex];
+                            let hero = host.querySelector('.rap-hero');
+                            if (!hero) {
+                                hero = document.createElement('div');
+                                hero.className = 'rap-hero';
+                                host.insertBefore(hero, host.firstChild);
+                            }
+                            const img = getImgUrl(movie.thumb_url || movie.poster_url);
+                            const fallback = getImgUrl(movie.poster_url || movie.thumb_url);
+                            const cachedDesc = rapDescMemory.has(movie.slug) ? (rapDescMemory.get(movie.slug) || '') : null;
+                            // Dải poster nằm BÊN TRONG ô hero, mà innerHTML sẽ xóa sạch con → giữ lại rồi gắn lại sau
+                            const strip = host.querySelector('#rapStrip');
+                            hero.innerHTML =
+                                '<a class="rap-hero-media" href="/phim/' + movie.slug + '" title="' + String(movie.name || '').replace(/"/g, '&quot;') + '">' +
+                                    '<img src="' + img + '" data-original-src="' + img + '" data-fallback="' + fallback + '" data-slug="' + (movie.slug || '') + '" data-title="' + String(movie.name || '').replace(/"/g, '&quot;') + '" data-origin="' + String(movie.origin_name || '').replace(/"/g, '&quot;') + '" alt="' + movie.name + '" loading="eager" fetchpriority="' + (rapIndex === 0 ? 'high' : 'auto') + '" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />' +
+                                    '<span class="rap-hero-fade"></span>' +
+                                    '<span class="rap-hero-grain"></span>' +
+                                    '<span class="rap-hero-orbs">' + rapOrbsHTML() + '</span>' +
+                                '</a>' +
+                                '<div class="rap-hero-body">' + rapHeroBodyHTML(movie, cachedDesc) + '</div>';
+                            if (strip) hero.appendChild(strip);
+                            rapApplyBackdrop(movie, hero);
+
+                            if (cachedDesc !== null) return;
+                            rapEnsureDesc(movie).then(function (text) {
+                                // Chỉ điền nếu người xem vẫn đang ở đúng phim (đừng ghi đè sau khi đã chuyển)
+                                if (!rapItems[rapIndex] || rapItems[rapIndex].slug !== movie.slug) return;
+                                const body = host.querySelector('.rap-hero-body');
+                                if (body) body.innerHTML = rapHeroBodyHTML(movie, text || '');
+                            });
+                        }
+
+                        function rapRenderStrip() {
+                            const strip = document.getElementById('rapStrip');
+                            if (!strip) return;
+                            strip.innerHTML = rapItems.map(function (m, i) {
+                                const poster = getImgUrl(m.poster_url || m.thumb_url);
+                                return '<div class="rap-thumb' + (i === rapIndex ? ' active' : '') + '" data-rap-idx="' + i + '" title="' + String(m.name || '').replace(/"/g, '&quot;') + '">' +
+                                    '<img src="' + poster + '" alt="' + m.name + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" />' +
+                                '</div>';
+                            }).join('');
+                        }
+
+                        function rapRenderDots() {
+                            const dots = document.getElementById('rapDots');
+                            if (!dots) return;
+                            dots.innerHTML = rapItems.map(function (m, i) {
+                                return '<button type="button" class="rap-dot' + (i === rapIndex ? ' active' : '') + '" data-rap-idx="' + i + '" aria-label="' + String(m.name || '').replace(/"/g, '&quot;') + '"></button>';
+                            }).join('');
+                        }
+
+                        function rapMarkActive() {
+                            document.querySelectorAll('#rapStrip .rap-thumb, #rapDots .rap-dot').forEach(function (el) {
+                                el.classList.toggle('active', Number(el.getAttribute('data-rap-idx')) === rapIndex);
+                            });
+                        }
+
+                        function rapGo(nextIdx, byUser) {
+                            if (!rapItems.length) return;
+                            const n = rapItems.length;
+                            rapIndex = ((nextIdx % n) + n) % n;
+                            const host = document.getElementById('rapShowcase');
+                            const hero = host && host.querySelector('.rap-hero');
+                            if (hero) hero.classList.add('is-swapping');
+                            setTimeout(function () {
+                                rapRenderHero();
+                                rapMarkActive();
+                                const h2 = host && host.querySelector('.rap-hero');
+                                if (h2) h2.classList.remove('is-swapping');
+                            }, hero ? 180 : 0);
+                            if (byUser) rapRestartRotate();
+                        }
+
+                        function rapRestartRotate() {
+                            if (rapTimer) clearInterval(rapTimer);
+                            rapTimer = setInterval(function () {
+                                if (rapHoverPause || document.hidden) return;
+                                rapGo(rapIndex + 1, false);
+                            }, RAP_ROTATE_MS);
+                        }
+
+                        function rapToggleFav(btn, movie) {
+                            if (!movie) return;
+                            if (typeof authService !== 'undefined' && !authService.isLoggedIn()) {
+                                if (typeof showAuthModal === 'function') showAuthModal('login');
+                                return;
+                            }
+                            if (typeof userService === 'undefined') return;
+                            if (userService.isFavorite(movie.slug)) {
+                                userService.removeFromFavorites(movie.slug);
+                                if (typeof showNotification === 'function') showNotification('Đã xóa khỏi danh sách yêu thích', 'info');
+                            } else {
+                                userService.addToFavorites({ slug: movie.slug, name: movie.name, thumb_url: movie.thumb_url, year: movie.year || '' });
+                                if (typeof showNotification === 'function') showNotification('Đã thêm vào danh sách yêu thích', 'success');
+                            }
+                            const svg = btn.querySelector('svg');
+                            const on = userService.isFavorite(movie.slug);
+                            if (svg) {
+                                svg.setAttribute('fill', on ? '#ef4444' : 'none');
+                                svg.style.color = on ? '#ef4444' : '#fff';
+                            }
+                        }
+
+                        async function loadRapShowcase() {
+                            const host = document.getElementById('rapShowcase');
+                            if (!host || rapItems.length) return;
+                            try {
+                                const core = await getAPhimCore();
+                                const res = await core.fetchMovieGridData('list', 'phim-chieu-rap', 1);
+                                const items = (res && res.items) ? res.items.slice(0, rapLimit()) : [];
+                                if (!items.length) return;
+                                rapItems = items;
+                                rapIndex = 0;
+
+                                if (!host.querySelector('#rapStrip')) {
+                                    const strip = document.createElement('div');
+                                    strip.id = 'rapStrip';
+                                    strip.className = 'rap-strip';
+                                    host.appendChild(strip);
+                                }
+                                if (!host.querySelector('#rapDots')) {
+                                    const dots = document.createElement('div');
+                                    dots.id = 'rapDots';
+                                    dots.className = 'rap-dots';
+                                    host.appendChild(dots);
+                                }
+
+                                rapRenderHero();
+                                rapRenderStrip();
+                                rapRenderDots();
+                                rapRestartRotate();
+
+                                // Warm sẵn mô tả + backdrop 2 phim kế tiếp để chuyển hero là có nội dung/ảnh nét ngay
+                                (async function () {
+                                    for (let k = 1; k <= 2 && k < rapItems.length; k++) {
+                                        await rapEnsureDesc(rapItems[k]);
+                                        rapEnsureBackdrop(rapItems[k]);
+                                    }
+                                })();
+
+                                // Desktop: hover vào hero thì tạm dừng tự xoay
+                                host.addEventListener('mouseenter', function () { rapHoverPause = true; });
+                                host.addEventListener('mouseleave', function () { rapHoverPause = false; });
+
+                                // 1 chạm: poster / dot / nút yêu thích (delegated, không cần onclick inline)
+                                host.addEventListener('click', function (ev) {
+                                    const pick = ev.target.closest('[data-rap-idx]');
+                                    if (pick) {
+                                        ev.preventDefault();
+                                        rapGo(Number(pick.getAttribute('data-rap-idx')), true);
+                                        return;
+                                    }
+                                    const fav = ev.target.closest('[data-rap-fav]');
+                                    if (fav) {
+                                        ev.preventDefault();
+                                        rapToggleFav(fav, rapItems[rapIndex]);
+                                    }
+                                });
+
+                                // Mobile: vuốt trái/phải trên hero để đổi phim
+                                let rapTouchX = null;
+                                host.addEventListener('touchstart', function (ev) {
+                                    rapTouchX = ev.touches[0].clientX;
+                                    rapHoverPause = true;
+                                }, { passive: true });
+                                host.addEventListener('touchend', function (ev) {
+                                    if (rapTouchX === null) return;
+                                    const dx = (ev.changedTouches[0] || {}).clientX - rapTouchX;
+                                    rapTouchX = null;
+                                    rapHoverPause = false;
+                                    if (Math.abs(dx) > 48) rapGo(rapIndex + (dx < 0 ? 1 : -1), true);
+                                }, { passive: true });
+                            } catch (err) {
+                                console.warn('Lỗi showcase phim chiếu rạp:', err);
+                            }
+                        }
+
+
                         // 🎯 RENDER TOP #10 CARD (LANDSCAPE 16:9 WITH STAR RATING & PLATFORM RANK BADGES)
                         function createTop10CardHTML(movie, index) {
                             const watchUrl = '/phim/' + movie.slug;
@@ -1734,51 +2658,19 @@
                             const rank = index + 1;
                             const isFirst = (index === 0);
 
-                            const lang = (movie.lang || 'Vietsub').toLowerCase();
-                            const epText = (movie.episode_current || movie.episode || 'Full').trim();
-                            const isFull = epText.toLowerCase().includes('full') || epText.toLowerCase().includes('hoàn tất') || epText.toLowerCase().includes('hoan tat');
-
-                            let badgeLang = '';
-                            if (isFull) {
-                                badgeLang = `<span class="badge-ep-yellow">${epText || 'Full'}</span>`;
-                            } else {
-                                badgeLang = `<span class="badge-ep-orange">${epText.length > 8 ? epText.slice(0, 8) : (epText || 'Tập 1')}</span>`;
-                            }
-
-                            let badgeSub = '';
-                            if (lang.includes('thuyết minh') || lang.includes('thuyet minh') || lang.includes('t.minh')) {
-                                badgeSub = `<span class="badge-sub-dark">T.Minh</span>`;
-                            } else if (lang.includes('lồng tiếng') || lang.includes('long tieng') || lang.includes('l.tiếng')) {
-                                badgeSub = `<span class="badge-sub-dark">L.Tiếng</span>`;
-                            } else {
-                                badgeSub = `<span class="badge-sub-dark">Vietsub</span>`;
-                            }
-
-                            // Star Rating Calculation (Từ TMDB / Rating / Multi-factor index)
                             let starVal = movie.starRating;
                             if (!starVal) {
                                 const base = 9.8 - (index * 0.12);
                                 starVal = base.toFixed(1);
                             }
 
-                            const starBadge = `
-                <span class="badge-star-score">
-                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <span>${starVal}</span>
-                </span>
-            `;
-
+                            const badgesHeaderHTML = renderCardBadgesHeader(movie, { rank, starRating: starVal });
                             const enTitle = movie.origin_name || movie.name || '';
 
                             return `
                 <a href="${watchUrl}" title="${movie.name}" class="top10-card normal-card-item ${isFirst ? 'top10-card-first' : ''}">
                     <div class="landscape-poster-wrap">
-                        <div class="card-top-badges">
-                            <span class="top10-rank-badge">#${rank}</span>
-                            ${starBadge}
-                            ${badgeLang}
-                            ${badgeSub}
-                        </div>
+                        ${badgesHeaderHTML}
                         <img src="${img}" data-original-src="${img}" data-fallback="${fallbackImg}" alt="${movie.name}" loading="eager" ${index < 4 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
                         <div class="card-bottom-overlay">
                             <div class="card-title-vi" title="${movie.name}">${movie.name}</div>
@@ -2602,6 +3494,102 @@
                             } catch (err) { }
                         }
 
+                        // ==========================================
+                        // 🌐 SECTION 0.1: 3 HÀNG PHIM SONG NGỮ THEO QUỐC GIA (HÀN / HOA / ÂU MỸ)
+                        // ==========================================
+                        const SN_COUNTRY_ROWS = [
+                            { key: 'han-quoc', limit: 15 },
+                            { key: 'trung-quoc', limit: 15 },
+                            { key: 'au-my', limit: 15 }
+                        ];
+                        const SN_FETCH_LIMIT = 20; // Lấy dư một chút để luôn hiển thị đủ SN_COUNTRY_ROWS.limit
+                        // Mobile: nạp ít hơn (12 về server, hiển thị 10 thẻ) để nhẹ mạng + đỡ tràn hàng
+                        const snIsNarrow = () => {
+                            try { return window.matchMedia('(max-width: 1023px)').matches; } catch (e) { return false; }
+                        };
+
+                        function createSnCountryCardHTML(movie, idx) {
+                            const watchUrl = '/phim/' + movie.slug;
+                            // Ảnh ngang TMDB: desktop thẻ đã to 268-324px (DPR 2 ~650px) nên lấy w780 cho nét,
+                            // mobile thẻ 172px giữ w500 cho nhẹ. getImgUrl không đổi URL TMDB nên phải thay tay.
+                            const snImg = function (u) {
+                                const src = getImgUrl(u, null, 640, 85);
+                                return snIsNarrow() ? src : src.replace('/t/p/w500/', '/t/p/w780/');
+                            };
+                            const primaryImg = snImg(movie.thumb_url || movie.poster_url);
+                            const fallbackImg = snImg(movie.poster_url || movie.thumb_url);
+                            const badgesHeaderHTML = renderCardBadgesHeader(movie);
+
+                            return `
+                <div class="normal-card-item sn-row-card">
+                    <a href="${watchUrl}" title="${(movie.name || '').replace(/"/g, '&quot;')}" class="block" style="text-decoration:none;">
+                        <div class="landscape-poster-wrap">
+                            ${badgesHeaderHTML}
+
+                            <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="${idx < 4 ? 'eager' : 'lazy'}" decoding="async" referrerpolicy="no-referrer" onerror="window.handleCardImgError(this)" />
+
+                            <div class="phimmoi-play-overlay">
+                                <div class="phimmoi-play-btn">
+                                    ${PLAY_SVG_HTML}
+                                </div>
+                            </div>
+
+                            <div class="card-bottom-overlay">
+                                <div class="card-title-vi">${movie.name}</div>
+                                ${movie.origin_name ? `<div class="card-title-en">${movie.origin_name}</div>` : ''}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `;
+                        }
+
+                        async function loadSnCountryRow(row) {
+                            const track = document.getElementById('snTrack-' + row.key);
+                            const rowEl = document.getElementById('snRow-' + row.key);
+                            if (!track || !rowEl) return;
+
+                            const narrow = snIsNarrow();
+                            const showLimit = narrow ? 10 : (row.limit || 15);
+
+                            try {
+                                const res = await fetch('/api/phim-song-ngu/quoc-gia/' + row.key + '?limit=' + (narrow ? 12 : SN_FETCH_LIMIT));
+                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                const json = await res.json();
+                                const items = (json && json.data && json.data.items) || [];
+
+                                if (!items.length) {
+                                    rowEl.style.display = 'none';
+                                    return;
+                                }
+
+                                track.innerHTML = items.slice(0, showLimit).map(createSnCountryCardHTML).join('');
+                            } catch (err) {
+                                console.warn('Lỗi hàng Song Ngữ ' + row.key + ':', err);
+                                rowEl.style.display = 'none';
+                            }
+                        }
+
+                        window.scrollSnCountryRow = function (key, direction) {
+                            const track = document.getElementById('snTrack-' + key);
+                            if (!track) return;
+                            track.scrollBy({
+                                left: direction * Math.max(360, track.clientWidth * 0.85),
+                                behavior: 'smooth'
+                            });
+                        };
+
+                        // ⚡ Nạp cả Desktop lẫn Mobile, trễ nhẹ để ưu tiên Hero + hàng Đề Cử
+                        const snRowsLoaded = new Set();
+                        function loadSnCountryRows() {
+                            SN_COUNTRY_ROWS.forEach(function (row) {
+                                if (snRowsLoaded.has(row.key)) return;
+                                snRowsLoaded.add(row.key);
+                                loadSnCountryRow(row);
+                            });
+                        }
+                        setTimeout(loadSnCountryRows, 320);
+
                         // ⚡ NẠP NGAY LẬP TỨC 0MS KHÔNG CHỜ DOMCONTENTLOADED
                         loadDeCuSlider();
                         loadCinemaHotSlider();
@@ -3208,9 +4196,7 @@
                             // ✅ Các section dưới màn dùng IntersectionObserver + hard-timeout 4s
                             loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
                             loadWhenNearViewport('grid-top-10', loadTop10Section);
-                            loadWhenNearViewport('grid-chieu-rap', () => loadUnifiedSection('list', 'phim-chieu-rap', 'grid-chieu-rap', 12));
-                            loadWhenNearViewport('grid-trending', () => loadUnifiedSection('list', 'phim-moi-cap-nhat', 'grid-trending', 12));
-                            loadWhenNearViewport('grid-anime', () => loadUnifiedSection('list', 'hoat-hinh', 'grid-anime', 12));
+                            loadWhenNearViewport('rapShowcase', loadRapShowcase);
                         });
                     })();
                 </script>

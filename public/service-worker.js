@@ -4,7 +4,7 @@
  * Features: Static Assets Cache + Ultra-Fast Movie Poster & Image Caching (Cache-First 0ms)
  */
 
-const STATIC_CACHE = 'aphim-static-v18';
+const STATIC_CACHE = 'aphim-static-v20';
 const IMAGE_CACHE = 'aphim-images-v1';
 const MAX_IMAGE_ENTRIES = 350;
 
@@ -77,7 +77,16 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
+  // Bỏ qua các scheme lạ và Range request (video streaming / audio chunks để trình duyệt tự xử lý)
+  if (!req.url.startsWith('http://') && !req.url.startsWith('https://')) return;
+  if (req.headers && req.headers.has('range')) return;
+
   const url = new URL(req.url);
+
+  // Bỏ qua các file media streaming
+  if (/\.(?:m3u8|ts|mp4|m4s|webm|mp3|aac)(?:\?.*)?$/i.test(url.pathname)) {
+    return;
+  }
 
   // 🚀 PIPELINE 1: MOVIE POSTER & THUMBNAIL IMAGES (Cache-First with Background Fallback)
   const isImageHost = IMAGE_HOSTS.some(host => url.hostname.includes(host));
@@ -102,7 +111,8 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         } catch (fetchErr) {
           // Nếu mất mạng hoặc server CDN lỗi, thử tìm lại cache
-          return cachedResponse || new Response('', { status: 408, statusText: 'Request Timeout' });
+          const fallback = await cache.match(req);
+          return fallback || new Response('', { status: 408, statusText: 'Request Timeout' });
         }
       })
     );
@@ -131,8 +141,10 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       })
-      .catch(() => {
-        return caches.match(req);
+      .catch(async () => {
+        const cachedResponse = await caches.match(req);
+        // QUAN TRỌNG: Phải luôn trả về một đối tượng Response hợp lệ, KHÔNG ĐƯỢC trả về undefined
+        return cachedResponse || new Response('', { status: 504, statusText: 'Network Unavailable' });
       })
   );
 });

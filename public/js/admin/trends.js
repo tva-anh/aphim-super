@@ -209,8 +209,40 @@
     const removedJunk = [];
     const removedDuplicates = [];
 
+    // 🛡️ Map các phim Admin đã kỳ công gán từ trước để không bao giờ bị mất
+    const existingByQuery = new Map();
+    const existingByClean = new Map();
+    const existingBySlug = new Map();
+    if (Array.isArray(currentItems)) {
+      for (const cur of currentItems) {
+        if (cur.movie_slug) existingBySlug.set(cur.movie_slug.toLowerCase().trim(), cur);
+        const qSlug = toSlug(cur.query || '');
+        if (qSlug) existingByQuery.set(qSlug, cur);
+        const cSlug = toSlug(cleanKeyword(cur.query || cur.title || ''));
+        if (cSlug) existingByClean.set(cSlug, cur);
+      }
+    }
+
     for (const item of rawItems) {
       const q = item.query || item.title || '';
+
+      // Tự động bảo lưu thông tin phim đã gán nếu từ khóa này từng được gán
+      if (!item.movie_slug) {
+        const qKey = toSlug(q);
+        const cKey = toSlug(cleanKeyword(q));
+        const matchedOld = existingByQuery.get(qKey) || existingByClean.get(cKey);
+        if (matchedOld && matchedOld.movie_slug) {
+          item.movie_slug = matchedOld.movie_slug;
+          item.movie_name = matchedOld.movie_name;
+          item.poster_url = matchedOld.poster_url;
+          item.thumb_url = matchedOld.thumb_url;
+          item.year = matchedOld.year;
+          item.quality = matchedOld.quality;
+          item.lang = matchedOld.lang;
+          item.is_custom = !!matchedOld.is_custom;
+          item.is_momo = !!matchedOld.is_momo;
+        }
+      }
 
       // 1. Kiểm tra từ khóa rác / từ khóa tìm kiếm chung chung
       if (isJunkKeyword(q) && !item.movie_slug) {

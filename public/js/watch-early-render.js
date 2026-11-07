@@ -56,13 +56,21 @@
                 var items = groups[category];
                 if (!items || items.length === 0) return;
 
-                var categoryIcon = category === 'Song Ngữ'
-                    ? '<span style="background: rgba(168,85,247,0.2); color: #c084fc; font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; border: 1px solid rgba(168,85,247,0.35); display: inline-flex; align-items: center; justify-content: center;">文A</span>'
+                var catSlug = category === 'Song Ngữ'
+                    ? 'song-ngu'
+                    : (category === 'Vietsub'
+                        ? 'vietsub'
+                        : (category === 'Thuyết Minh'
+                            ? 'thuyet-minh'
+                            : (category === 'Lồng Tiếng' ? 'long-tieng' : 'khac')));
+
+                var categoryTag = category === 'Song Ngữ'
+                    ? '<span class="server-cat-tag server-cat-tag-song-ngu">文A</span>'
                     : category === 'Vietsub'
-                        ? '<span style="background: rgba(255,255,255,0.12); color: #e2e8f0; font-size: 10px; font-weight: 900; padding: 2px 5px; border-radius: 4px; letter-spacing: 0.5px;">CC</span>'
+                        ? '<span class="server-cat-tag server-cat-tag-vietsub">CC</span>'
                         : category === 'Thuyết Minh'
-                            ? '<span style="font-size: 13px; line-height: 1;">🎙️</span>'
-                            : '<span style="font-size: 13px; line-height: 1;">🗣️</span>';
+                            ? '<span class="server-cat-tag server-cat-tag-thuyet-minh">🎙️</span>'
+                            : '<span class="server-cat-tag server-cat-tag-long-tieng">🗣️</span>';
 
                 var buttonsInGroup = items.map(function(item) {
                     var server = item.server;
@@ -78,68 +86,36 @@
                     var displayTitle = isSongNgu
                         ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (isFirstInGroup ? 'Song Ngữ' : 'Song Ngữ #' + groupSubIndex))
                         : (isFirstInGroup ? category : category + ' #' + groupSubIndex);
-                    var catSlug = isSongNgu ? 'song-ngu' : (category === 'Vietsub' ? 'vietsub' : (category === 'Thuyết Minh' ? 'thuyet-minh' : 'long-tieng'));
 
-                    if (isActive) {
-                        if (isSongNgu) {
-                            return '<button onclick="changeServer(' + index + ')"' +
-                                ' data-category="' + category + '"' +
-                                ' style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); border: 1px solid #c084fc; color: #ffffff; font-weight: 800; border-radius: 7px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 0 14px rgba(168,85,247,0.5); transition: all 0.2s;"' +
-                                ' class="select-none server-tab-btn active server-cat-song-ngu">' +
-                                '<span style="font-weight: 900; font-size: 12px; color: #ffffff;">文A</span>' +
-                                '<span class="server-tab-title" style="font-weight: 800; font-size: 12.5px; color: #ffffff;">' + displayTitle + '</span>' +
-                                '<span class="server-tab-badge" style="background: #ffffff; color: #581c87; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px;">' + totalEps + '</span>' +
-                            '</button>';
-                        }
-                        var activeBg = category === 'Vietsub' ? '#9bb0ff' : category === 'Thuyết Minh' ? '#d8b4fe' : '#86efac';
-                        var activeText = category === 'Vietsub' ? '#0a0c10' : category === 'Thuyết Minh' ? '#2e1065' : '#052e16';
-                        var dotColor = category === 'Vietsub' ? '#2563eb' : category === 'Thuyết Minh' ? '#9333ea' : '#16a34a';
-
+                    if (isSongNgu) {
                         return '<button onclick="changeServer(' + index + ')"' +
                             ' data-category="' + category + '"' +
-                            ' style="background: ' + activeBg + '; border: none; color: ' + activeText + '; font-weight: 800; border-radius: 6px; padding: 3.5px 8.5px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;"' +
-                            ' class="select-none server-tab-btn active server-cat-' + catSlug + '">' +
-                            '<span class="server-tab-title" style="font-weight: 800; font-size: 12.5px; color: ' + activeText + ';">' + displayTitle + '</span>' +
-                            '<span class="server-tab-badge" style="background: rgba(0, 0, 0, 0.15); font-weight: 800; font-size: 11px; padding: 1px 6.5px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3.5px;">' +
-                                '<span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ' + dotColor + '; display: inline-block; flex-shrink: 0; border: none;"></span>' +
-                                '<span class="server-tab-count">' + epText + '</span>' +
-                            '</span>' +
-                        '</button>';
-                    } else {
-                        if (isSongNgu) {
-                            return '<button onclick="changeServer(' + index + ')"' +
-                                ' data-category="' + category + '"' +
-                                ' style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.25); color: #f8fafc; font-weight: 700; border-radius: 7px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s;"' +
-                                ' class="hover:brightness-125 select-none server-tab-btn server-cat-song-ngu">' +
-                                '<span style="font-weight: 900; font-size: 12px; color: #cbd5e1;">文A</span>' +
-                                '<span class="server-tab-title" style="color: #f8fafc; font-weight: 700; font-size: 12.5px;">' + displayTitle + '</span>' +
-                                '<span class="server-tab-badge" style="background: #ffffff; color: #000000; font-weight: 800; font-size: 11px; padding: 1px 7px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px;">' + totalEps + '</span>' +
-                            '</button>';
-                        }
-                        var inactiveBg = category === 'Vietsub' ? '#1e293b' : category === 'Thuyết Minh' ? '#2c2236' : '#143126';
-                        var inactiveText = category === 'Vietsub' ? '#94a3b8' : category === 'Thuyết Minh' ? '#e9d5ff' : '#6ee7b7';
-                        var badgeBg = category === 'Vietsub' ? '#0f172a' : category === 'Thuyết Minh' ? '#3d2552' : '#0d231b';
-                        var dotColor = category === 'Vietsub' ? '#64748b' : category === 'Thuyết Minh' ? '#c084fc' : '#34d399';
-
-                        return '<button onclick="changeServer(' + index + ')"' +
-                            ' data-category="' + category + '"' +
-                            ' style="background: ' + inactiveBg + '; border: none; color: ' + inactiveText + '; font-weight: 700; border-radius: 6px; padding: 3.5px 8.5px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;"' +
-                            ' class="hover:brightness-125 select-none server-tab-btn server-cat-' + catSlug + '">' +
-                            '<span class="server-tab-title" style="color: ' + inactiveText + '; font-weight: 700; font-size: 12.5px;">' + displayTitle + '</span>' +
-                            '<span class="server-tab-badge" style="background: ' + badgeBg + '; color: ' + inactiveText + '; font-weight: 700; font-size: 11px; padding: 1px 6.5px; border-radius: 10px; display: inline-flex; align-items: center; gap: 3.5px;">' +
-                                '<span class="server-tab-dot" style="width: 6px; height: 6px; min-width: 6px; min-height: 6px; max-width: 6px; max-height: 6px; border-radius: 50%; background: ' + dotColor + '; display: inline-block; flex-shrink: 0; border: none;"></span>' +
-                                '<span class="server-tab-count">' + epText + '</span>' +
+                            ' class="select-none server-tab-btn server-cat-song-ngu' + (isActive ? ' active' : '') + '">' +
+                            '<span class="server-tab-prefix">文A</span>' +
+                            '<span class="server-tab-title">' + displayTitle + '</span>' +
+                            '<span class="server-tab-badge">' +
+                                '<span class="server-tab-count">' + (totalEps === 1 ? '1' : totalEps) + '</span>' +
                             '</span>' +
                         '</button>';
                     }
+
+                    return '<button onclick="changeServer(' + index + ')"' +
+                        ' data-category="' + category + '"' +
+                        ' class="select-none server-tab-btn server-cat-' + catSlug + (isActive ? ' active' : '') + '">' +
+                        '<span class="server-tab-title">' + displayTitle + '</span>' +
+                        '<span class="server-tab-badge">' +
+                            '<span class="server-tab-dot"></span>' +
+                            '<span class="server-tab-count">' + epText + '</span>' +
+                        '</span>' +
+                    '</button>';
                 }).join('');
 
-                html += '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;" class="server-group-row">' +
-                    '<div style="display: flex; align-items: center; gap: 5px; color: #e2e8f0; font-weight: 700; font-size: 13px; min-width: 76px; user-select: none;" class="server-group-label">' +
-                        categoryIcon +
-                        '<span>' + category + '</span>' +
+                html += '<div class="server-group-row">' +
+                    '<div class="server-group-label server-group-label-' + catSlug + '">' +
+                        categoryTag +
+                        '<span class="server-group-name">' + category + '</span>' +
                     '</div>' +
-                    '<div class="server-buttons-wrap" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">' +
+                    '<div class="server-buttons-wrap">' +
                         buttonsInGroup +
                     '</div>' +
                 '</div>';
