@@ -4188,6 +4188,114 @@ function initializePlayer(episode) {
             return null;
         }
 
+        // 🎬 Helper: Định dạng chuẩn thời gian WebVTT (hh:mm:ss.mmm)
+        function formatVttTime(seconds) {
+            const pad = (n, z = 2) => String(n).padStart(z, '0');
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            const ms = Math.floor(Math.round((seconds % 1) * 1000));
+            return pad(h) + ':' + pad(m) + ':' + pad(s) + '.' + pad(ms, 3);
+        }
+
+        // 🎬 Helper: Ghép 2 luồng phụ đề (Tiếng Hàn/Ngoại ngữ trên, Tiếng Việt dưới) thành 1 track Native WebVTT chuẩn xác
+        function mergeDualCuesClean(tCues = [], bCues = []) {
+            if (!tCues?.length && !bCues?.length) return 'WEBVTT\n\n';
+            if (!tCues?.length) {
+                let v = 'WEBVTT - Subtitles\n\n';
+                (bCues || []).forEach((m, idx) => {
+                    v += (idx + 1) + '\n' + formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n' + m.text.trim() + '\n\n';
+                });
+                return v;
+            }
+            if (!bCues?.length) {
+                let v = 'WEBVTT - Subtitles\n\n';
+                (tCues || []).forEach((m, idx) => {
+                    v += (idx + 1) + '\n' + formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n' + m.text.trim() + '\n\n';
+                });
+                return v;
+            }
+
+            const merged = [];
+            const usedBottom = new Set();
+
+            tCues.forEach(tc => {
+                let bestB = null;
+                let maxOverlap = 0;
+
+                bCues.forEach((bc, idx) => {
+                    if (usedBottom.has(idx)) return;
+                    const overlap = Math.min(tc.end, bc.end) - Math.max(tc.start, bc.start);
+                    if (overlap > 0.2 && overlap > maxOverlap) {
+                        maxOverlap = overlap;
+                        bestB = { cue: bc, idx };
+                    }
+                });
+
+                if (bestB) {
+                    usedBottom.add(bestB.idx);
+                    merged.push({
+                        start: Math.min(tc.start, bestB.cue.start),
+                        end: Math.max(tc.end, bestB.cue.end),
+                        text: bestB.cue.text.trim() + '\n' + tc.text.trim()
+                    });
+                } else {
+                    merged.push({ start: tc.start, end: tc.end, text: tc.text.trim() });
+                }
+            });
+
+            bCues.forEach((bc, idx) => {
+                if (!usedBottom.has(idx)) {
+                    merged.push({ start: bc.start, end: bc.end, text: bc.text.trim() });
+                }
+            });
+
+            merged.sort((a, b) => a.start - b.start);
+
+            let vtt = 'WEBVTT - Song Ngu\n\n';
+            merged.forEach((m, idx) => {
+                vtt += (idx + 1) + '\n';
+                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n';
+                vtt += m.text + '\n\n';
+            });
+            return vtt;
+        }
+
+        // 🌟 Đồng bộ Native Dual Subtitle Track vào thẻ <video> của thiết bị (cho iPhone / Android Fullscreen)
+        function syncNativeDeviceSubtitleTracks() {
+            if (!videoEl || typeof Blob === 'undefined' || typeof URL === 'undefined') return;
+            try {
+                if ((!topCues || !topCues.length) && (!bottomCues || !bottomCues.length)) return;
+                const mergedVtt = mergeDualCuesClean(topCues, bottomCues);
+                const blob = new Blob([mergedVtt], { type: 'text/vtt;charset=utf-8' });
+                const trackUrl = URL.createObjectURL(blob);
+
+                let trackEl = videoEl.querySelector('track[data-native-dual="true"]');
+                if (!trackEl) {
+                    trackEl = document.createElement('track');
+                    trackEl.kind = 'subtitles';
+                    trackEl.label = 'Song Ngữ (Việt - Hàn)';
+                    trackEl.srclang = 'vi';
+                    trackEl.setAttribute('data-native-dual', 'true');
+                    trackEl.default = true;
+                    videoEl.appendChild(trackEl);
+                } else if (trackEl._prevBlobUrl) {
+                    URL.revokeObjectURL(trackEl._prevBlobUrl);
+                }
+                trackEl._prevBlobUrl = trackUrl;
+                trackEl.src = trackUrl;
+
+                // Khi ở ngoài màn hình dọc web, ẩn track native để custom DOM overlay hiển thị đẹp mắt
+                // Khi vào fullscreen native của máy (Hình 1), bật mode = 'showing'
+                const isFs = !!(videoEl.webkitDisplayingFullscreen || document.fullscreenElement || document.webkitFullscreenElement);
+                if (trackEl.track) {
+                    trackEl.track.mode = isFs ? 'showing' : 'hidden';
+                }
+            } catch (err) {
+                console.warn('[Sync Native Subtitle Track Error]:', err);
+            }
+        }
+
         function loadTrack(subItem, isTop) {
             if (!subItem || !subItem.url) {
                 if (isTop) { topCues = []; lastTopIdx.val = 0; } else { bottomCues = []; lastBottomIdx.val = 0; }
@@ -4206,6 +4314,7 @@ function initializePlayer(episode) {
                     lastBottomIdx.val = 0;
                 }
                 if (videoEl._dualSubHandler) videoEl._dualSubHandler();
+                syncNativeDeviceSubtitleTracks();
                 return;
             }
 
@@ -4225,6 +4334,7 @@ function initializePlayer(episode) {
                         lastBottomIdx.val = 0;
                     }
                     if (videoEl._dualSubHandler) videoEl._dualSubHandler();
+                    syncNativeDeviceSubtitleTracks();
                 })
                 .catch(err => {
                     if (subItem.direct_url && subItem.direct_url !== subItem.url) {
@@ -5450,13 +5560,35 @@ function initializePlayer(episode) {
         }
     });
 
-    // iOS native video fullscreen change events (Direct Native Player - Image 3)
+    // iOS native video fullscreen change events (Direct Native Player - Image 1)
     if (player) {
         player.addEventListener('webkitbeginfullscreen', () => {
             updateFullscreenIcons(true);
+            // 🌟 Tự động BẬT Native Dual Subtitle Track trên màn hình máy của Apple (Hình 1)
+            try {
+                const trackEl = player.querySelector('track[data-native-dual="true"]');
+                if (trackEl && trackEl.track) {
+                    trackEl.track.mode = 'showing';
+                }
+                for (let i = 0; i < player.textTracks.length; i++) {
+                    const t = player.textTracks[i];
+                    if (t.label && t.label.includes('Song Ngữ')) {
+                        t.mode = 'showing';
+                    }
+                }
+            } catch(e) {}
         });
         player.addEventListener('webkitendfullscreen', () => {
-            if (player) player.controls = false;
+            if (player) {
+                player.controls = false;
+                // Ẩn Native Track khi quay về màn hình dọc để custom HTML overlay tiếp quản
+                try {
+                    const trackEl = player.querySelector('track[data-native-dual="true"]');
+                    if (trackEl && trackEl.track) {
+                        trackEl.track.mode = 'hidden';
+                    }
+                } catch(e) {}
+            }
             if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
             document.body.classList.remove('aphim-body-fullscreen');
             updateFullscreenIcons(false);
