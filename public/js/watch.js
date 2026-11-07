@@ -4091,13 +4091,20 @@ function initializePlayer(episode) {
 
             if (isMobilePortrait) {
                 // 📱 Màn hình mobile dọc: Khung video nhỏ (~200px - 250px), Vietsub in cứng nằm sát mép đáy video.
-                // Hạ phụ đề xuống gần hơn (26px - 28px) và font ~13px để vừa khít, thanh thoát ngay trên đầu dòng Vietsub in cứng
-                subClearance = Math.max(24, Math.min(30, Math.round(actualVideoH * 0.11)));
+                // Đặt subClearance 26px - 32px và font ~13px để vừa khít, thanh thoát ngay trên đầu dòng Vietsub in cứng
+                subClearance = Math.max(26, Math.min(32, Math.round(actualVideoH * 0.11)));
                 fontSize = Math.max(12, Math.min(13.5, Math.round(actualVideoH * 0.055)));
+            } else if (actualVideoH <= 500) {
+                // 📱 Màn hình ngang trên Mobile (Landscape Fullscreen): Chiều cao ~375px - 430px
+                // Đặt khoảng cách an toàn 78px - 85px để nổi hẳn lên trên 2 dòng Vietsub in cứng
+                subClearance = Math.max(78, Math.round(actualVideoH * 0.20));
+                fontSize = Math.max(13, Math.min(16, Math.round(actualVideoH * 0.042)));
             } else {
-                // 🖥️ / 📱 Màn hình ngang (Landscape Fullscreen) & Desktop: Giữ nguyên 100% tỷ lệ chuẩn cao cấp
-                subClearance = Math.max(72, Math.round(actualVideoH * 0.14));
-                fontSize = Math.max(15, Math.min(26, Math.round(actualVideoH * 0.042)));
+                // 🖥️ Desktop (thường & Fullscreen):
+                // Vietsub in sẵn 2 hàng chiếm từ đáy lên ~16-17% chiều cao video (~95px - 105px).
+                // Đặt subClearance tối thiểu 118px (~21% chiều cao video) để phụ đề song ngữ LUÔN NẰM TRÊN ĐỈNH dòng 1 Vietsub!
+                subClearance = Math.max(118, Math.round(actualVideoH * 0.21));
+                fontSize = Math.max(15, Math.min(24, Math.round(actualVideoH * 0.038)));
             }
 
             const baselineOffset = Math.round(barBottom + subClearance);
@@ -4143,6 +4150,27 @@ function initializePlayer(episode) {
                 wrapper._subRO = new ResizeObserver(updateSubResponsiveMetrics);
                 wrapper._subRO.observe(wrapper);
             }
+        }
+
+        // 🎬 Helper: Kiểm tra thiết bị có đang ở chế độ Portrait hay không
+        function getIsPortrait() {
+            const wrapper = document.getElementById('aphim-player-wrapper');
+            if (!wrapper) return false;
+            const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('aphim-web-fullscreen'));
+            return !isFullscreen && (wrapper.clientWidth <= 580 || (window.innerWidth <= 640 && window.innerHeight > window.innerWidth));
+        }
+
+        // 🎬 Helper: Dọn dẹp text phụ đề, loại bỏ trùng lặp câu liên tiếp (chống lặp 2 dòng như ảnh 6)
+        function cleanSubText(rawText) {
+            if (!rawText) return '';
+            const lines = rawText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+            const deduped = [];
+            for (const line of lines) {
+                if (deduped.length === 0 || deduped[deduped.length - 1] !== line) {
+                    deduped.push(line);
+                }
+            }
+            return deduped.join('\n');
         }
 
         const subtitles = (ep && ep.subtitles) ? ep.subtitles : [];
@@ -4423,7 +4451,8 @@ function initializePlayer(episode) {
             // Dòng 2: Phụ đề 2 (Song ngữ - ví dụ Tiếng Hàn / Tiếng Anh)
             if (bottomCues.length > 0) {
                 const cue = findActiveCue(bottomCues, t, syncOffset);
-                const newTxt = (cue && cue.text) ? cue.text : '';
+                const rawTxt = (cue && cue.text) ? cue.text : '';
+                const newTxt = cleanSubText(rawTxt);
                 // ⚡ Chống DOM Reflow/Repaint dư thừa: CHỈ cập nhật DOM khi text thực sự thay đổi!
                 if (newTxt !== currentBottomText) {
                     currentBottomText = newTxt;
@@ -4443,8 +4472,8 @@ function initializePlayer(episode) {
                     if (activeViet && activeViet.text) {
                         const lines = activeViet.text.split('\n').map(s => s.trim()).filter(Boolean);
                         if (lines.length >= 2 || activeViet.text.length >= 35) {
-                            // Desktop: đẩy lên 35px; Mobile dọc: đẩy lên 20px
-                            lift = isMobilePortrait ? 20 : 35;
+                            const isPortrait = getIsPortrait();
+                            lift = isPortrait ? 18 : 32;
                         }
                     }
                     overlayEl.style.setProperty('transform', lift > 0 ? `translateY(-${lift}px)` : 'none', 'important');
@@ -4792,8 +4821,8 @@ function initializePlayer(episode) {
             font: "'Inter', system-ui, sans-serif",
             userOffset: 0,
             syncOffset: 0,
-            sub1: { color: '#ffffff', size: 18, bg: 'shadow' },
-            sub2: { color: '#ffd215', size: 17, bg: 'shadow' }
+            sub1: { color: '#ffffff', size: 18, bg: 'none' },
+            sub2: { color: '#ffffff', size: 17, bg: 'none' }
         };
 
         let cfg = DEFAULT_CONFIG;
@@ -4804,6 +4833,9 @@ function initializePlayer(episode) {
                 cfg = Object.assign({}, DEFAULT_CONFIG, parsed);
                 if (!cfg.sub1) cfg.sub1 = Object.assign({}, DEFAULT_CONFIG.sub1);
                 if (!cfg.sub2) cfg.sub2 = Object.assign({}, DEFAULT_CONFIG.sub2);
+                if (cfg.sub2.bg === 'black' && !parsed._userExplicitBg) {
+                    cfg.sub2.bg = 'none';
+                }
             }
         } catch (e) {}
 
@@ -4846,13 +4878,10 @@ function initializePlayer(episode) {
             wrapper.style.setProperty('--aphim-sub-bottom-color', cfg.sub2.color);
             wrapper.style.setProperty('--aphim-sub-bottom-size', sub2FontSize + 'px');
             if (subBottomEl) {
-                subBottomEl.style.setProperty('color', cfg.sub2.color, 'important');
+                subBottomEl.style.setProperty('color', cfg.sub2.color || '#ffffff', 'important');
                 subBottomEl.style.setProperty('font-size', sub2FontSize + 'px', 'important');
                 subBottomEl.style.setProperty('font-family', cfg.font, 'important');
-                if (cfg.sub2.bg === 'none') {
-                    subBottomEl.style.setProperty('background', 'transparent', 'important');
-                    subBottomEl.style.setProperty('padding', '0px', 'important');
-                } else if (cfg.sub2.bg === 'gray') {
+                if (cfg.sub2.bg === 'gray') {
                     subBottomEl.style.setProperty('background', 'rgba(30, 41, 59, 0.85)', 'important');
                     subBottomEl.style.setProperty('padding', '2px 8px', 'important');
                     subBottomEl.style.setProperty('border-radius', '4px', 'important');
@@ -4862,7 +4891,8 @@ function initializePlayer(episode) {
                     subBottomEl.style.setProperty('border-radius', '4px', 'important');
                 } else {
                     subBottomEl.style.setProperty('background', 'transparent', 'important');
-                    subBottomEl.style.setProperty('padding', '0px 4px', 'important');
+                    subBottomEl.style.setProperty('padding', '0px', 'important');
+                    subBottomEl.style.setProperty('border-radius', '0px', 'important');
                 }
             }
 
