@@ -1372,26 +1372,45 @@ app.get('/api/proxy/m3u8', async (req, res) => {
 });
 
 app.get('/api/proxy/vtt', async (req, res) => {
-    const targetUrl = req.query.url;
-    if (!targetUrl || !targetUrl.startsWith('http')) {
+    let targetUrl = req.query.url;
+    if (!targetUrl) {
         return res.status(400).send('Invalid url');
     }
-    try {
-        const response = await axios.get(targetUrl, {
-            timeout: 8000,
-            responseType: 'text',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-        });
-        res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Cache-Control', 'public, max-age=86400');
-        res.send(response.data);
-    } catch (err) {
-        console.error('[Proxy VTT Error]:', err.message);
-        res.status(502).send('Error proxying vtt');
+    // Tự động phân giải đường dẫn tương đối từ ChoPhim (ví dụ /api/storage/subtitles?file=...)
+    if (!targetUrl.startsWith('http')) {
+        targetUrl = 'https://chophim.cam' + (targetUrl.startsWith('/') ? '' : '/') + targetUrl;
     }
+
+    const mirrors = [
+        targetUrl,
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.cam'),
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.lat'),
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.app'),
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.fun')
+    ];
+
+    let lastError = null;
+    for (const urlToFetch of mirrors) {
+        try {
+            const response = await axios.get(urlToFetch, {
+                timeout: 8000,
+                responseType: 'text',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+            });
+            if (response.data && typeof response.data === 'string' && response.data.length > 5) {
+                res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+                return res.send(response.data);
+            }
+        } catch (err) {
+            lastError = err;
+        }
+    }
+    console.error('[Proxy VTT Error]:', lastError ? lastError.message : 'No mirror responded');
+    res.status(502).send('Error proxying vtt');
 });
 
 // ==========================================
