@@ -4,7 +4,7 @@
  * Features: Static Assets Cache + Ultra-Fast Movie Poster & Image Caching (Cache-First 0ms)
  */
 
-const STATIC_CACHE = 'aphim-static-v23';
+const STATIC_CACHE = 'aphim-static-v25';
 const IMAGE_CACHE = 'aphim-images-v1';
 const MAX_IMAGE_ENTRIES = 350;
 

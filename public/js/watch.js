@@ -4199,83 +4199,58 @@ function initializePlayer(episode) {
         }
 
         // 🎬 Helper: Ghép 2 luồng phụ đề (Tiếng Hàn/Ngoại ngữ trên, Tiếng Việt dưới) thành 1 track Native WebVTT chuẩn xác
-        function mergeDualCuesClean(tCues = [], bCues = []) {
-            if (!tCues?.length && !bCues?.length) return 'WEBVTT\n\n';
-            if (!tCues?.length) {
-                let v = 'WEBVTT - Subtitles\n\n';
-                (bCues || []).forEach((m, idx) => {
-                    v += (idx + 1) + '\n' + formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n' + m.text.trim() + '\n\n';
-                });
-                return v;
-            }
-            if (!bCues?.length) {
-                let v = 'WEBVTT - Subtitles\n\n';
-                (tCues || []).forEach((m, idx) => {
-                    v += (idx + 1) + '\n' + formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n' + m.text.trim() + '\n\n';
-                });
-                return v;
-            }
-
-            const merged = [];
-            const usedBottom = new Set();
-
-            tCues.forEach(tc => {
-                let bestB = null;
-                let maxOverlap = 0;
-
-                bCues.forEach((bc, idx) => {
-                    if (usedBottom.has(idx)) return;
-                    const overlap = Math.min(tc.end, bc.end) - Math.max(tc.start, bc.start);
-                    if (overlap > 0.2 && overlap > maxOverlap) {
-                        maxOverlap = overlap;
-                        bestB = { cue: bc, idx };
-                    }
-                });
-
-                if (bestB) {
-                    usedBottom.add(bestB.idx);
-                    merged.push({
-                        start: Math.min(tc.start, bestB.cue.start),
-                        end: Math.max(tc.end, bestB.cue.end),
-                        text: bestB.cue.text.trim() + '\n' + tc.text.trim()
-                    });
-                } else {
-                    merged.push({ start: tc.start, end: tc.end, text: tc.text.trim() });
-                }
-            });
-
-            bCues.forEach((bc, idx) => {
-                if (!usedBottom.has(idx)) {
-                    merged.push({ start: bc.start, end: bc.end, text: bc.text.trim() });
-                }
-            });
-
-            merged.sort((a, b) => a.start - b.start);
+        // 🎬 Helper: Tạo track WebVTT Native cho chế độ Song Ngữ trên thiết bị (iOS AVPlayer / Android Fullscreen)
+        // 🌟 Chỉ lấy duy nhất 1 luồng Song Ngữ (tiếng Hàn/ngoại ngữ), KHÔNG ghép thêm tiếng Việt để không bị đè lặp lại Vietsub in cứng của phim.
+        // 🌟 Đặt cue setting "line:74% position:50% align:center" để dòng Song Ngữ nổi lên trên đỉnh của Vietsub chính.
+        function generateBilingualNativeVtt(bCues = [], tCues = []) {
+            const cues = (bCues && bCues.length > 0) ? bCues : (tCues || []);
+            if (!cues || !cues.length) return 'WEBVTT\n\n';
 
             let vtt = 'WEBVTT - Song Ngu\n\n';
-            merged.forEach((m, idx) => {
+            cues.forEach((m, idx) => {
+                let cleanTxt = (m.text || '').trim();
+                if (!cleanTxt) return;
+                cleanTxt = cleanTxt.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n');
                 vtt += (idx + 1) + '\n';
-                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n';
-                vtt += m.text + '\n\n';
+                // 🌟 line:74% neo dòng phụ đề dịch song ngữ nằm ngay trên đầu phụ đề chính của phim
+                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + ' line:74% position:50% align:center\n';
+                vtt += cleanTxt + '\n\n';
             });
             return vtt;
         }
 
-        // 🌟 Đồng bộ Native Dual Subtitle Track vào thẻ <video> của thiết bị (cho iPhone / Android Fullscreen)
+        // 🌟 Đồng bộ Native Subtitle Track vào thẻ <video> của thiết bị (cho iPhone / Android Fullscreen)
         function syncNativeDeviceSubtitleTracks() {
             if (!videoEl || typeof Blob === 'undefined' || typeof URL === 'undefined') return;
             try {
                 if ((!topCues || !topCues.length) && (!bottomCues || !bottomCues.length)) return;
-                const mergedVtt = mergeDualCuesClean(topCues, bottomCues);
-                const blob = new Blob([mergedVtt], { type: 'text/vtt;charset=utf-8' });
+
+                // Lấy cấu hình sub hiện tại
+                let subCfg = window._aphimSubConfigCache || { mode: 'dual', activeTab: 'sub2' };
+                let targetCues = [];
+
+                if (subCfg.mode === 'off') {
+                    targetCues = [];
+                } else if (subCfg.mode === 'on') {
+                    // Đơn ngữ: Lấy tab đang chọn
+                    targetCues = (subCfg.activeTab === 'sub1') ? topCues : (bottomCues.length ? bottomCues : topCues);
+                } else {
+                    // Song ngữ: CHỈ hiển thị ngôn ngữ phụ/dịch (tiếng Hàn/ngoại ngữ) nằm trên Vietsub chính
+                    targetCues = (bottomCues && bottomCues.length) ? bottomCues : topCues;
+                }
+
+                if (!targetCues || !targetCues.length) return;
+
+                const vttContent = generateBilingualNativeVtt(targetCues);
+                const blob = new Blob([vttContent], { type: 'text/vtt;charset=utf-8' });
                 const trackUrl = URL.createObjectURL(blob);
 
                 let trackEl = videoEl.querySelector('track[data-native-dual="true"]');
                 if (!trackEl) {
                     trackEl = document.createElement('track');
                     trackEl.kind = 'subtitles';
-                    trackEl.label = 'Song Ngữ (Việt - Hàn)';
-                    trackEl.srclang = 'vi';
+                    trackEl.label = 'Song Ngữ';
+                    trackEl.srclang = 'ko';
                     trackEl.setAttribute('data-native-dual', 'true');
                     trackEl.default = true;
                     videoEl.appendChild(trackEl);
@@ -4285,8 +4260,6 @@ function initializePlayer(episode) {
                 trackEl._prevBlobUrl = trackUrl;
                 trackEl.src = trackUrl;
 
-                // Khi ở ngoài màn hình dọc web, ẩn track native để custom DOM overlay hiển thị đẹp mắt
-                // Khi vào fullscreen native của máy (Hình 1), bật mode = 'showing'
                 const isFs = !!(videoEl.webkitDisplayingFullscreen || document.fullscreenElement || document.webkitFullscreenElement);
                 if (trackEl.track) {
                     trackEl.track.mode = isFs ? 'showing' : 'hidden';
@@ -4456,21 +4429,11 @@ function initializePlayer(episode) {
             // Dòng 1: Phụ đề 1 (Chính)
             // 🛡️ Nếu Phụ đề 1 là tiếng Việt mà video đã có Vietsub in cứng to đùng -> ẨN DÒNG TIẾNG VIỆT CỦA WEB
             // để KHÔNG BAO GIỜ bị 2 dòng tiếng Việt đè chồng lên nhau gây lem nhem rác màn hình!
-            const isSub1Viet = (curCfg.sub1Lang === 'vi' || (vietSub && (vietSub.label || '').toLowerCase().includes('việt')));
-            if (topCues.length > 0 && !isSub1Viet) {
-                const cue1 = findActiveCue(topCues, t, syncOffset);
-                const newTxt1 = (cue1 && cue1.text) ? cue1.text : '';
-                if (newTxt1 !== currentTopText) {
-                    currentTopText = newTxt1;
-                    if (newTxt1) {
-                        subTopEl.textContent = newTxt1;
-                        subTopEl.style.display = 'block';
-                    } else {
-                        subTopEl.style.display = 'none';
-                    }
-                }
-            } else if (currentTopText !== '') {
+            // 🌟 Ẩn hoàn toàn subTopEl ở chế độ song ngữ vì phim đã có sẵn Vietsub in cứng ở đáy
+            // để người dùng chỉ thấy duy nhất 1 dòng dịch song ngữ chạy theo phim!
+            if (currentTopText !== '') {
                 currentTopText = '';
+                subTopEl.textContent = '';
                 subTopEl.style.display = 'none';
             }
         };
@@ -5405,6 +5368,14 @@ function initializePlayer(episode) {
         // ─── A. MOBILE FLOW (iOS & Android: Chuyển về trình chiếu video native của máy theo chuẩn các dự án lớn) ───
         if (isMobileDevice()) {
             // 1. iOS Safari (iPhone / iPad): Gọi trực tiếp webkitEnterFullscreen ngay lập tức trong user gesture tick (không await)
+            // Bật track native trước khi bung
+            try {
+                const trackEl = player.querySelector('track[data-native-dual="true"]');
+                if (trackEl && trackEl.track) {
+                    trackEl.track.mode = 'showing';
+                }
+            } catch(e) {}
+
             if (typeof player.webkitEnterFullscreen === 'function') {
                 try {
                     player.webkitEnterFullscreen();
