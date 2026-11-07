@@ -5400,74 +5400,59 @@ function initializePlayer(episode) {
     }
 
     function enterFullscreen() {
-        if (!player) return;
+        if (!player || !wrapper) return;
 
-        // ─── A. MOBILE FLOW (iOS & Android: Chuyển về trình chiếu video native của máy theo chuẩn các dự án lớn) ───
-        if (isMobileDevice()) {
-            // 1. iOS Safari (iPhone / iPad): Gọi trực tiếp webkitEnterFullscreen ngay lập tức trong user gesture tick (không await)
-            if (typeof player.webkitEnterFullscreen === 'function') {
-                try {
-                    player.webkitEnterFullscreen();
-                    updateFullscreenIcons(true);
-                    return;
-                } catch (e) {
-                    console.warn('iOS player.webkitEnterFullscreen error:', e);
-                }
-            }
-
-            // 2. Android / Other Mobile: Kích hoạt Native Video Player trên chính thẻ <video> của thiết bị
-            if (player.requestFullscreen || player.webkitRequestFullscreen) {
-                try {
-                    player.controls = true; // Bật thanh điều khiển native của máy
-                    const req = player.requestFullscreen ? player.requestFullscreen() : player.webkitRequestFullscreen();
-                    if (req && req.catch) {
-                        req.catch(() => { player.controls = false; });
-                    }
-                    if (screen.orientation && screen.orientation.lock) {
-                        screen.orientation.lock('landscape').catch(() => {});
-                    }
-                    updateFullscreenIcons(true);
-                    return;
-                } catch (e) {
-                    console.warn('Mobile native video requestFullscreen error:', e);
-                    player.controls = false;
-                }
-            }
+        // 🌟 1. Tự động xoay ngang màn hình (Landscape) nếu thiết bị di động hỗ trợ API
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
         }
 
-        // ─── B. DESKTOP FLOW (PC / Laptop: Custom Player Fullscreen trên wrapper) ───
-        if (!wrapper) return;
-        let nativeSuccess = false;
-
+        // 🌟 2. Kích hoạt Standard Fullscreen API trên wrapper nếu trình duyệt hỗ trợ (Android Chrome, Desktop PC...)
         try {
             if (wrapper.requestFullscreen) {
-                wrapper.requestFullscreen();
-                nativeSuccess = true;
+                const p = wrapper.requestFullscreen();
+                if (p && p.catch) p.catch(() => {});
             } else if (wrapper.webkitRequestFullscreen) {
                 wrapper.webkitRequestFullscreen();
-                nativeSuccess = true;
             } else if (wrapper.mozRequestFullScreen) {
                 wrapper.mozRequestFullScreen();
-                nativeSuccess = true;
             } else if (wrapper.msRequestFullscreen) {
                 wrapper.msRequestFullscreen();
-                nativeSuccess = true;
             }
         } catch (e) {
-            console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
+            console.warn('Native wrapper fullscreen request rejected, using web fullscreen fallback:', e);
         }
 
-        if (!nativeSuccess && !document.fullscreenElement && !document.webkitFullscreenElement) {
-            wrapper.classList.add('aphim-web-fullscreen');
-            document.body.classList.add('aphim-body-fullscreen');
-        }
+        // 🌟 3. Luôn kích hoạt Cinema Web Fullscreen Class (bung tràn 100vw x 100dvh)
+        // Đảm bảo:
+        // - Trên iPhone / iPad (iOS Safari không cho gọi wrapper.requestFullscreen): Bung tràn toàn màn hình web rạp chiếu,
+        //   KHÔNG gọi player.webkitEnterFullscreen() để tránh bị hộp đen thô của Apple đè lên Vietsub in cứng của video!
+        // - Toàn bộ phụ đề Song Ngữ HTML (vàng gold nghệ thuật + font Inter sắc nét) được giữ nguyên tuyệt mỹ.
+        wrapper.classList.add('aphim-web-fullscreen');
+        document.body.classList.add('aphim-body-fullscreen');
+        document.documentElement.classList.add('aphim-html-fullscreen');
+
+        // Luôn giữ giao diện điều khiển rạp chiếu & ẩn track native để không bị chồng phụ đề
+        player.controls = false;
+        try {
+            const trackEl = player.querySelector('track[data-native-dual="true"]');
+            if (trackEl && trackEl.track) {
+                trackEl.track.mode = 'hidden';
+            }
+        } catch(e) {}
 
         updateFullscreenIcons(true);
         showControls();
+        scheduleHideControls(2500);
+
+        // Đồng bộ và tính toán lại vị trí phụ đề Song Ngữ theo tỷ lệ khung hình màn ảnh rộng
+        if (typeof updateSubResponsiveMetrics === 'function') {
+            setTimeout(updateSubResponsiveMetrics, 60);
+            setTimeout(updateSubResponsiveMetrics, 250);
+        }
     }
 
     function exitFullscreen() {
-        // 1. Khôi phục trạng thái mobile: tắt native controls của máy, chuyển lại custom controls
         if (player) {
             player.controls = false;
             if (typeof player.webkitExitFullscreen === 'function') {
@@ -5475,34 +5460,44 @@ function initializePlayer(episode) {
             }
         }
 
-        // 2. Thoát native browser fullscreen
+        // 1. Thoát native browser fullscreen nếu đang bật
         try {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
             }
         } catch (e) {
             console.warn('Exit fullscreen error:', e);
         }
 
-        // 3. Mở khóa hướng xoay màn hình (orientation)
+        // 2. Mở khóa hướng xoay màn hình (orientation)
         if (screen.orientation && screen.orientation.unlock) {
             try {
                 screen.orientation.unlock();
             } catch (e) {}
         }
 
-        // 4. Xóa các class Web Fullscreen
+        // 3. Xóa các class Web Fullscreen để trở về khung phát dọc ban đầu
         if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
         document.body.classList.remove('aphim-body-fullscreen');
+        document.documentElement.classList.remove('aphim-html-fullscreen');
 
         updateFullscreenIcons(false);
         showControls();
+        scheduleHideControls(2500);
+
+        // Tính toán lại vị trí phụ đề cho khung hình dọc ban đầu
+        if (typeof updateSubResponsiveMetrics === 'function') {
+            setTimeout(updateSubResponsiveMetrics, 60);
+            setTimeout(updateSubResponsiveMetrics, 250);
+        }
     }
 
     function toggleFullscreen() {
@@ -5532,6 +5527,22 @@ function initializePlayer(episode) {
     }
 
     const handleFsChange = () => {
+        const hasNativeFs = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement ||
+            (player && player.webkitDisplayingFullscreen)
+        );
+        // Khi native fullscreen vừa thoát (người dùng bấm ESC hoặc nút Back của thiết bị)
+        if (!hasNativeFs && wrapper && wrapper.classList.contains('aphim-web-fullscreen')) {
+            wrapper.classList.remove('aphim-web-fullscreen');
+            document.body.classList.remove('aphim-body-fullscreen');
+            document.documentElement.classList.remove('aphim-html-fullscreen');
+            if (screen.orientation && screen.orientation.unlock) {
+                try { screen.orientation.unlock(); } catch (e) {}
+            }
+        }
         const isFs = isCurrentlyFullscreen();
         updateFullscreenIcons(isFs);
         if (!isFs) {
@@ -5540,12 +5551,16 @@ function initializePlayer(episode) {
             }
             if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
             document.body.classList.remove('aphim-body-fullscreen');
+            document.documentElement.classList.remove('aphim-html-fullscreen');
             if (screen.orientation && screen.orientation.unlock) {
                 try { screen.orientation.unlock(); } catch (e) {}
             }
         }
         showControls();
         scheduleHideControls(2400);
+        if (typeof updateSubResponsiveMetrics === 'function') {
+            setTimeout(updateSubResponsiveMetrics, 60);
+        }
     };
 
     document.addEventListener('fullscreenchange', handleFsChange);
@@ -5954,6 +5969,9 @@ function initializePlayer(episode) {
                     player.play().catch(e => {
                         console.log('Auto-play unmuted prevented, falling back to muted autoplay:', e);
                         player.muted = true;
+                        updateVolumeIcon(0, true);
+                        updateVolumeSliderFill(0);
+                        armAutoUnmute(player);
                         player.play().catch(() => {});
                     });
                 }, 150);
@@ -6011,6 +6029,9 @@ function initializePlayer(episode) {
                     player.currentTime = progress.currentTime;
                     player.play().catch(e => {
                         player.muted = true;
+                        updateVolumeIcon(0, true);
+                        updateVolumeSliderFill(0);
+                        armAutoUnmute(player);
                         player.play().catch(() => {});
                     });
                 }, 200);
@@ -6019,6 +6040,39 @@ function initializePlayer(episode) {
                 player.play().catch(e => console.log('Auto-play prevented:', e));
             }
         }, { once: true });
+    }
+
+    // 🔊 Tự bật tiếng lại ngay khi người dùng tương tác lần đầu
+    // (sau khi buộc phải fallback mute để autoplay vì trình duyệt chặn autoplay có tiếng)
+    function armAutoUnmute(videoEl) {
+        if (!videoEl || videoEl._aphimAutoUnmuteArmed) return;
+        videoEl._aphimAutoUnmuteArmed = true;
+
+        const restore = (e) => {
+            try {
+                const t = e && e.target;
+                const onVolumeUi = t && t.closest && t.closest('#aphim-volume-wrapper');
+                const isMKey = e && (e.code === 'KeyM' || e.key === 'm' || e.key === 'M');
+                if (!onVolumeUi && !isMKey && videoEl.muted) {
+                    videoEl.muted = false;
+                    videoEl.volume = 0.9;
+                    if (volumeSlider) volumeSlider.value = 0.9;
+                    updateVolumeIcon(0.9, false);
+                    updateVolumeSliderFill(0.9);
+                }
+            } catch (err) {
+                console.warn('⚠️ Auto-unmute thất bại:', err);
+            }
+            cleanup();
+        };
+        const cleanup = () => {
+            ['pointerdown', 'touchstart', 'keydown', 'click'].forEach((ev) => {
+                document.removeEventListener(ev, restore, true);
+            });
+        };
+        ['pointerdown', 'touchstart', 'keydown', 'click'].forEach((ev) => {
+            document.addEventListener(ev, restore, { once: true, capture: true });
+        });
     }
 
     // Video State Synchronizations
@@ -6564,12 +6618,10 @@ function addSpeedControl() {
 function addFullscreenButton() {
     if (!player) return;
 
-    // Fullscreen functionality
+    // Fullscreen functionality (unified toggle)
     player.addEventListener('dblclick', () => {
-        if (document.fullscreenElement) {
-            document.exitFullscreen();
-        } else {
-            player.requestFullscreen();
+        if (typeof toggleFullscreen === 'function') {
+            toggleFullscreen();
         }
     });
 }
