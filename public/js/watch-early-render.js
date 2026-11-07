@@ -14,7 +14,6 @@
         if (raw.includes('vietsub')) return 'Vietsub';
         if (movie && movie.lang) {
             const mLang = movie.lang.toLowerCase();
-            if (mLang.includes('song ngữ') || mLang.includes('song ngu')) return 'Song Ngữ';
             if (mLang.includes('thuyết minh') || mLang.includes('thuyet minh')) return 'Thuyết Minh';
             if (mLang.includes('lồng tiếng') || mLang.includes('long tieng')) return 'Lồng Tiếng';
         }
@@ -49,7 +48,7 @@
                 groups[category].push({ server: server, index: index, langTag: langTag });
             });
 
-            var groupOrder = ['Song Ngữ', 'Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
+            var groupOrder = ['Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Song Ngữ', 'Khác'];
             var html = '';
 
             groupOrder.forEach(function(category) {
@@ -146,10 +145,11 @@
                     // 1B. URL Variant (/full-thuyet-minh, /tap-1-thuyet-minh, /tap-1-song-ngu)
                     if (serverIdx === -1 && typeof window.location !== 'undefined') {
                         var path = window.location.pathname.toLowerCase();
+                        var qVer = new URLSearchParams(window.location.search).get('version');
                         var reqVar = '';
-                        if (path.includes('-thuyet-minh')) reqVar = 'thuyet-minh';
-                        else if (path.includes('-long-tieng')) reqVar = 'long-tieng';
-                        else if (path.includes('-song-ngu')) reqVar = 'song-ngu';
+                        if (path.includes('-thuyet-minh') || qVer === 'thuyet-minh') reqVar = 'thuyet-minh';
+                        else if (path.includes('-long-tieng') || qVer === 'long-tieng') reqVar = 'long-tieng';
+                        else if (path.includes('-song-ngu') || qVer === 'song-ngu') reqVar = 'song-ngu';
 
                         if (reqVar && eps.length > 1) {
                             var vIdx = eps.findIndex(function(s) {

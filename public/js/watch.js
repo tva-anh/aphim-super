@@ -278,15 +278,14 @@ function isBilingualServer(server) {
 function attachWorkingStreamsToBilingual(bilingualServer, referenceEpisodes) {
     if (!bilingualServer || !Array.isArray(bilingualServer.server_data) || bilingualServer.server_data.length === 0) return;
 
-    // 🌟 ƯU TIÊN 1: Tìm server có video sạch (không Vietsub in cứng): Thuyết minh, Lồng tiếng, Raw, Bản gốc
+    // 🌟 ƯU TIÊN TRỰC TIẾP: Dùng server Vietsub chuẩn của phim để kèm Song Ngữ
     let refServer = (referenceEpisodes || []).find(s => {
         if (!s || !Array.isArray(s.server_data) || s.server_data.length === 0 || isBilingualServer(s)) return false;
         if (serverLinkQuality(s) < 2) return false;
         const name = (s.original_server_name || s.server_name || '').toLowerCase();
-        return name.includes('thuyết minh') || name.includes('lồng tiếng') || name.includes('raw') || name.includes('bản gốc');
+        return name.includes('vietsub') || name.includes('phụ đề') || name.includes('sub');
     });
 
-    // 🌟 ƯU TIÊN 2: Fallback về server khác nếu không có bản sạch
     if (!refServer) {
         refServer = (referenceEpisodes || []).find(s => s && Array.isArray(s.server_data) && s.server_data.length > 0 && !isBilingualServer(s) && serverLinkQuality(s) >= 2);
     }
@@ -2367,7 +2366,6 @@ function getLangTag(server, movie) {
     if (raw.includes('vietsub')) return 'Vietsub';
     if (movie && movie.lang) {
         const mLang = movie.lang.toLowerCase();
-        if (mLang.includes('song ngữ') || mLang.includes('song ngu')) return 'Song Ngữ';
         if (mLang.includes('thuyết minh') || mLang.includes('thuyet minh')) return 'Thuyết Minh';
         if (mLang.includes('lồng tiếng') || mLang.includes('long tieng')) return 'Lồng Tiếng';
     }
@@ -2419,7 +2417,7 @@ function __legacyRenderServerList_UNUSED(episodes) {
     });
 
     // Render HTML for each group row
-    const groupOrder = ['Song Ngữ', 'Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
+    const groupOrder = ['Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Song Ngữ', 'Khác'];
         let html = '';
 
         groupOrder.forEach(category => {
@@ -2993,13 +2991,37 @@ function initializePlayer(episode) {
 
                         <div class="asm-field-item">
                             <div class="asm-field-label flex justify-between items-center">
-                                <span>Lệch thời gian (Sync)</span>
-                                <span class="asm-field-val" id="asmSyncVal">0.0s</span>
+                                <span>⏱️ Canh thời gian video (Sync)</span>
+                                <span class="asm-field-val" id="asmSyncVal" style="color: #fcd576; font-weight: 800;">+0.0s</span>
                             </div>
+
+                            <!-- Nút nhảy nhanh -->
+                            <div class="asm-sync-grid-presets">
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="-10">-10s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="-5">-5s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="-1">-1s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="-0.5">-0.5s</button>
+                                <button type="button" class="asm-sync-preset-btn reset-btn" id="asmSyncResetBtn" title="Đặt lại về 0s">0s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="0.5">+0.5s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="1">+1s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="5">+5s</button>
+                                <button type="button" class="asm-sync-preset-btn" data-nudge="10">+10s</button>
+                            </div>
+
+                            <!-- Thanh trượt dải rộng (-180s đến +180s) và ô nhập trực tiếp -->
                             <div class="flex items-center gap-1.5 mt-1">
-                                <button type="button" class="asm-sync-btn" id="asmSyncMinus" title="Nhanh hơn 0.5s">-0.5s</button>
-                                <input type="range" class="asm-slider flex-1" id="asmSyncSlider" min="-10" max="10" step="0.5" value="0">
-                                <button type="button" class="asm-sync-btn" id="asmSyncPlus" title="Chậm hơn 0.5s">+0.5s</button>
+                                <input type="range" class="asm-slider flex-1" id="asmSyncSlider" min="-180" max="180" step="0.5" value="0">
+                                <input type="number" id="asmSyncNumInput" class="asm-sync-num-input" step="0.5" value="0" title="Nhập số giây lệch trực tiếp">
+                            </div>
+
+                            <!-- Nút tự động canh theo câu thoại tại giây hiện tại -->
+                            <button type="button" class="asm-sync-auto-btn" id="asmSyncAutoCurrentBtn" title="Tự động đồng bộ câu thoại gần nhất với giây video hiện tại">
+                                <span class="material-icons-round" style="font-size: 15px;">gps_fixed</span>
+                                <span>Khớp câu thoại tại giây này</span>
+                            </button>
+
+                            <div class="asm-sync-hint-text">
+                                💡 Phím tắt nhanh: bấm <b>[</b> để lùi 0.5s, <b>]</b> để tiến 0.5s, <b>\</b> để reset về 0s.
                             </div>
                         </div>
 
@@ -3572,6 +3594,7 @@ function initializePlayer(episode) {
     function getTimelinePercentage(e) {
         if (!timelineContainer) return 0;
         const rect = timelineContainer.getBoundingClientRect();
+        if (!rect || !rect.width) return 0;
         let clientX = 0;
         if (e.touches && e.touches.length > 0) {
             clientX = e.touches[0].clientX;
@@ -3594,7 +3617,8 @@ function initializePlayer(episode) {
         if (progressBar) progressBar.style.width = pctStr;
         if (scrubberDot) scrubberDot.style.left = pctStr;
         if (hoverTime) {
-            hoverTime.style.left = pctStr;
+            const clampLeft = Math.max(3.5, Math.min(96.5, pct * 100));
+            hoverTime.style.left = `${clampLeft.toFixed(2)}%`;
             hoverTime.textContent = formatPlayerTime(targetTime, hasHours);
             hoverTime.style.opacity = '1';
         }
@@ -3605,20 +3629,19 @@ function initializePlayer(episode) {
 
     function handleScrubStart(e) {
         if (!player || !player.duration || !timelineContainer) return;
+        if (e.cancelable && e.type === 'touchstart') e.preventDefault();
+        e.stopPropagation();
         isDraggingTimeline = true;
         wasPlayingBeforeDrag = !player.paused;
+        
+        // ⚡ Tạm dừng video để chống nghẽn giải mã HLS trong lúc kéo
+        if (wasPlayingBeforeDrag) {
+            try { player.pause(); } catch(pErr) {}
+        }
         timelineContainer.classList.add('is-scrubbing');
         
         const pct = getTimelinePercentage(e);
         renderScrubUI(pct);
-        
-        // Instant snappy jump on click
-        const targetTime = pct * player.duration;
-        if (player.fastSeek) {
-            player.fastSeek(targetTime);
-        } else {
-            player.currentTime = targetTime;
-        }
         
         showControls();
     }
@@ -3626,26 +3649,26 @@ function initializePlayer(episode) {
     function handleScrubMove(e) {
         if (!isDraggingTimeline || !player || !player.duration) return;
         if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
         const pct = getTimelinePercentage(e);
         
-        if (rafScrubId) cancelAnimationFrame(rafScrubId);
-        rafScrubId = requestAnimationFrame(() => {
-            renderScrubUI(pct);
-        });
+        // ⚡ Phản hồi giao diện tức thì 0ms (60/120fps) theo chuyển động ngón tay/chuột
+        renderScrubUI(pct);
 
-        if (!throttledSeekTimer) {
-            throttledSeekTimer = setTimeout(() => {
-                throttledSeekTimer = null;
-                if (isDraggingTimeline && player && player.duration) {
-                    const targetTime = pct * player.duration;
-                    if (player.fastSeek) {
-                        player.fastSeek(targetTime);
-                    } else {
-                        player.currentTime = targetTime;
-                    }
+        // ⚡ Tua video mượt mà (debounce 120ms): Tránh spam currentTime liên tục làm đơ HLS stream
+        if (throttledSeekTimer) clearTimeout(throttledSeekTimer);
+        throttledSeekTimer = setTimeout(() => {
+            throttledSeekTimer = null;
+            if (isDraggingTimeline && player && player.duration) {
+                const targetTime = pct * player.duration;
+                if (typeof player.fastSeek === 'function') {
+                    player.fastSeek(targetTime);
+                } else {
+                    player.currentTime = targetTime;
                 }
-            }, 35); // 35ms ultra-smooth fluid live scrub
-        }
+            }
+        }, 120);
+
         showControls();
     }
 
@@ -3660,8 +3683,11 @@ function initializePlayer(episode) {
         }
 
         const pct = getTimelinePercentage(e);
+        renderScrubUI(pct);
+
         if (player && player.duration) {
-            player.currentTime = pct * player.duration;
+            const targetTime = pct * player.duration;
+            player.currentTime = targetTime;
         }
         if (hoverTime) {
             hoverTime.style.opacity = '0';
@@ -3683,7 +3709,8 @@ function initializePlayer(episode) {
             const targetTime = pct * player.duration;
             const hasHours = (player.duration >= 3600);
             if (hoverTime) {
-                hoverTime.style.left = `${(pct * 100).toFixed(2)}%`;
+                const clampLeft = Math.max(3.5, Math.min(96.5, pct * 100));
+                hoverTime.style.left = `${clampLeft.toFixed(2)}%`;
                 hoverTime.textContent = formatPlayerTime(targetTime, hasHours);
                 hoverTime.style.opacity = '1';
             }
@@ -3993,7 +4020,7 @@ function initializePlayer(episode) {
             }
             return 0;
         }
-        const blocks = vttText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split(/\n\s*\n/);
+        const blocks = vttText.replace(/\n/g, '\n').replace(/\r/g, '\n').split(/\n\s*\n/);
         for (const block of blocks) {
             const lines = block.trim().split('\n');
             for (let i = 0; i < lines.length; i++) {
@@ -4019,27 +4046,45 @@ function initializePlayer(episode) {
         const overlayEl = document.getElementById('aphim-dual-subtitles-overlay');
         if (!subTopEl || !subBottomEl || !videoEl) return;
 
-        // 🛡️ Kiểm tra xem tập phim / máy chủ hiện tại có phụ đề song ngữ hay không
+        // 🛡️ Tự động tìm kiếm nguồn phụ đề song ngữ từ mọi máy chủ của phim (khắc phục triệt để khi đổi sang Server 2, 3...)
         let srvListForDual = [];
         if (currentMovie && Array.isArray(currentMovie.episodes) && currentMovie.episodes.length > 0) {
             srvListForDual = currentMovie.episodes;
         } else if (window.initialEpisodes && Array.isArray(window.initialEpisodes) && window.initialEpisodes.length > 0) {
             srvListForDual = window.initialEpisodes;
         }
-        const curSrvForDual = srvListForDual[currentServerIndex] || srvListForDual[0];
-        const sNameForDual = (curSrvForDual?.server_name || curSrvForDual?.original_server_name || '').toLowerCase();
-        const hasSnNameForDual = sNameForDual.includes('song ngữ') || sNameForDual.includes('song ngu') || sNameForDual.includes('bilingual');
-        const hasSubForDual = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ||
-                             (ep && Array.isArray(ep.subTracks) && ep.subTracks.length > 0);
-        const isSongNguForDual = hasSnNameForDual || hasSubForDual;
+
+        // Tự động kế thừa subtitles từ Server Song Ngữ nếu máy chủ hiện tại chưa có
+        let availableSubs = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ? ep.subtitles : [];
+        if (availableSubs.length === 0) {
+            const epNum = (typeof extractEpNum === 'function') ? (extractEpNum(ep?.slug) || extractEpNum(ep?.name)) : null;
+            for (const srv of srvListForDual) {
+                if (srv && Array.isArray(srv.server_data)) {
+                    const match = srv.server_data.find(e => {
+                        const n = (typeof extractEpNum === 'function') ? (extractEpNum(e.slug) || extractEpNum(e.name)) : null;
+                        return (epNum !== null && n === epNum) && Array.isArray(e.subtitles) && e.subtitles.length > 0;
+                    }) || srv.server_data.find(e => Array.isArray(e.subtitles) && e.subtitles.length > 0);
+                    if (match && Array.isArray(match.subtitles) && match.subtitles.length > 0) {
+                        availableSubs = match.subtitles;
+                        if (ep) ep.subtitles = match.subtitles;
+                        break;
+                    }
+                }
+            }
+        }
+
+        const curSrv = (currentMovie && currentMovie.episodes && currentMovie.episodes[currentServerIndex]) || null;
+        const curSrvName = curSrv ? (curSrv.original_server_name || curSrv.server_name || '').toLowerCase() : '';
+        const isSongNguForDual = curSrvName.includes('song ngữ') || curSrvName.includes('song ngu') || curSrvName.includes('bilingual') || (requestedVariant === 'song-ngu');
 
         if (!isSongNguForDual) {
-            // Không có song ngữ -> ẩn sạch overlay, dọn dẹp text và gỡ handler để tránh lag tối đa
+            // Không phải máy chủ Song Ngữ -> ẩn sạch overlay và tắt vòng lặp phụ đề
             subTopEl.textContent = '';
             subTopEl.style.display = 'none';
             subBottomEl.textContent = '';
             subBottomEl.style.display = 'none';
             if (overlayEl) overlayEl.style.display = 'none';
+            if (videoEl._stopSubLoop) videoEl._stopSubLoop();
             if (videoEl._dualSubHandler) {
                 videoEl.removeEventListener('timeupdate', videoEl._dualSubHandler);
             }
@@ -4090,21 +4135,18 @@ function initializePlayer(episode) {
             let fontSize;
 
             if (isMobilePortrait) {
-                // 📱 Màn hình mobile dọc: Khung video nhỏ (~200px - 250px), Vietsub in cứng nằm sát mép đáy video.
-                // Đặt subClearance 26px - 32px và font ~13px để vừa khít, thanh thoát ngay trên đầu dòng Vietsub in cứng
-                subClearance = Math.max(26, Math.min(32, Math.round(actualVideoH * 0.11)));
-                fontSize = Math.max(12, Math.min(13.5, Math.round(actualVideoH * 0.055)));
+                // 📱 Màn hình mobile dọc: Khung video nhỏ, phụ đề ngoại ngữ nằm thanh thoát ngay trên dòng Vietsub in sẵn (Chuẩn ảnh)
+                subClearance = Math.max(28, Math.min(38, Math.round(actualVideoH * 0.115)));
+                fontSize = Math.max(12, Math.min(13.5, Math.round(actualVideoH * 0.052)));
             } else if (actualVideoH <= 500) {
-                // 📱 Màn hình ngang trên Mobile (Landscape Fullscreen): Chiều cao ~375px - 430px
-                // Đặt khoảng cách an toàn 78px - 85px để nổi hẳn lên trên 2 dòng Vietsub in cứng
-                subClearance = Math.max(78, Math.round(actualVideoH * 0.20));
-                fontSize = Math.max(13, Math.min(16, Math.round(actualVideoH * 0.042)));
+                // 📱 Màn hình ngang trên Mobile (Landscape Fullscreen):
+                subClearance = Math.max(50, Math.min(65, Math.round(actualVideoH * 0.125)));
+                fontSize = Math.max(13, Math.min(15.5, Math.round(actualVideoH * 0.040)));
             } else {
                 // 🖥️ Desktop (thường & Fullscreen):
-                // Vietsub in sẵn 2 hàng chiếm từ đáy lên ~16-17% chiều cao video (~95px - 105px).
-                // Đặt subClearance tối thiểu 118px (~21% chiều cao video) để phụ đề song ngữ LUÔN NẰM TRÊN ĐỈNH dòng 1 Vietsub!
-                subClearance = Math.max(118, Math.round(actualVideoH * 0.21));
-                fontSize = Math.max(15, Math.min(24, Math.round(actualVideoH * 0.038)));
+                // Phụ đề ngoại ngữ (Tiếng Hàn/Anh) màu trắng viền đen nằm tự nhiên ngay trên đỉnh dòng Vietsub in sẵn (Chuẩn ảnh người dùng)
+                subClearance = Math.max(72, Math.min(92, Math.round(actualVideoH * 0.12)));
+                fontSize = Math.max(16, Math.min(22, Math.round(actualVideoH * 0.035)));
             }
 
             const baselineOffset = Math.round(barBottom + subClearance);
@@ -4163,7 +4205,8 @@ function initializePlayer(episode) {
         // 🎬 Helper: Dọn dẹp text phụ đề, loại bỏ trùng lặp câu liên tiếp (chống lặp 2 dòng như ảnh 6)
         function cleanSubText(rawText) {
             if (!rawText) return '';
-            const lines = rawText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+            const stripped = rawText.replace(/<[^>]+>/g, '');
+            const lines = stripped.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
             const deduped = [];
             for (const line of lines) {
                 if (deduped.length === 0 || deduped[deduped.length - 1] !== line) {
@@ -4173,7 +4216,7 @@ function initializePlayer(episode) {
             return deduped.join('\n');
         }
 
-        const subtitles = (ep && ep.subtitles) ? ep.subtitles : [];
+        const subtitles = (availableSubs && availableSubs.length > 0) ? availableSubs : ((ep && ep.subtitles) ? ep.subtitles : []);
         if (!subtitles || subtitles.length === 0) return;
 
         // ⚡ BỘ NHỚ ĐỆM RAM CACHE CUES (0ms tức thì khi thoát ra vào lại hoặc chuyển phim/tập)
@@ -4256,7 +4299,7 @@ function initializePlayer(episode) {
             cues.forEach((m, idx) => {
                 let cleanTxt = (m.text || '').trim();
                 if (!cleanTxt) return;
-                cleanTxt = cleanTxt.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n');
+                cleanTxt = cleanTxt.replace(/\n/g, '\n').replace(/\n{3,}/g, '\n');
 
                 // 🧠 Tự động nhận diện khoảng cách theo số hàng chữ:
                 let isViet2Lines = false;
@@ -4471,9 +4514,9 @@ function initializePlayer(episode) {
                     let lift = 0;
                     if (activeViet && activeViet.text) {
                         const lines = activeViet.text.split('\n').map(s => s.trim()).filter(Boolean);
-                        if (lines.length >= 2 || activeViet.text.length >= 35) {
+                        if (lines.length >= 2 || activeViet.text.length >= 38) {
                             const isPortrait = getIsPortrait();
-                            lift = isPortrait ? 18 : 32;
+                            lift = isPortrait ? 14 : 22;
                         }
                     }
                     overlayEl.style.setProperty('transform', lift > 0 ? `translateY(-${lift}px)` : 'none', 'important');
@@ -4493,15 +4536,16 @@ function initializePlayer(episode) {
             }
         };
 
-        // 🚀 CƠ CHẾ VÒNG LẶP REAL-TIME 60FPS (0MS LATENCY - BÁM SÁT SUB CHÍNH TỪNG KHUNG HÌNH)
+        // 🚀 CƠ CHẾ VÒNG LẶP REAL-TIME 60FPS SIÊU TỐC (0MS LATENCY - TỰ ĐỘNG KHÔI PHỤC KHI TUA ĐẾN BẤT CỨ ĐÂU)
         let isSyncRunning = false;
         let subRafId = null;
-
         let lastSyncTime = 0;
+
         function runSyncLoop(timestamp) {
             if (!isSyncRunning) return;
             const now = timestamp || performance.now();
-            if (now - lastSyncTime >= 65) {
+            // Tối ưu chu kỳ 20ms (~50fps) cực kỳ mượt mà, 0ms trễ phản hồi
+            if (now - lastSyncTime >= 20) {
                 lastSyncTime = now;
                 onTimeUpdate();
             }
@@ -4513,6 +4557,7 @@ function initializePlayer(episode) {
         function startSyncLoop() {
             if (isSyncRunning) return;
             isSyncRunning = true;
+            lastSyncTime = performance.now();
             runSyncLoop();
         }
 
@@ -4524,31 +4569,51 @@ function initializePlayer(episode) {
             }
         }
 
+        function ensureSyncLoop() {
+            if (videoEl && !videoEl.paused && !videoEl.ended) {
+                if (!isSyncRunning) {
+                    startSyncLoop();
+                }
+            } else if (isSyncRunning && (videoEl && videoEl.paused)) {
+                stopSyncLoop();
+            }
+        }
+
         // Hủy vòng lặp cũ nếu player mount lại
         if (videoEl._stopSubLoop) {
             videoEl._stopSubLoop();
         }
         videoEl._stopSubLoop = stopSyncLoop;
 
-        videoEl.addEventListener('play', startSyncLoop);
-        videoEl.addEventListener('playing', startSyncLoop);
+        // 🛡️ Lắng nghe toàn bộ trạng thái để đảm bảo 0ms độ trễ cả khi tua, buffer hoặc chuyển mốc thời gian
+        videoEl.addEventListener('play', () => { onTimeUpdate(); ensureSyncLoop(); });
+        videoEl.addEventListener('playing', () => { onTimeUpdate(); ensureSyncLoop(); });
+        videoEl.addEventListener('canplay', () => { onTimeUpdate(); ensureSyncLoop(); });
+        videoEl.addEventListener('canplaythrough', () => { onTimeUpdate(); ensureSyncLoop(); });
         videoEl.addEventListener('pause', () => { stopSyncLoop(); onTimeUpdate(); });
         videoEl.addEventListener('ended', () => { stopSyncLoop(); onTimeUpdate(); });
-        videoEl.addEventListener('seeking', onTimeUpdate, { passive: true });
-        videoEl.addEventListener('seeked', onTimeUpdate, { passive: true });
+
+        videoEl.addEventListener('seeking', () => {
+            onTimeUpdate();
+        }, { passive: true });
+
+        videoEl.addEventListener('seeked', () => {
+            onTimeUpdate();
+            ensureSyncLoop();
+        }, { passive: true });
 
         if (videoEl._dualSubHandler) {
             videoEl.removeEventListener('timeupdate', videoEl._dualSubHandler);
         }
-        videoEl._dualSubHandler = onTimeUpdate;
-        videoEl.addEventListener('timeupdate', onTimeUpdate, { passive: true });
-
-        // Tự động kích hoạt ngay nếu video đang phát
-        if (!videoEl.paused && !videoEl.ended) {
-            startSyncLoop();
-        } else {
+        videoEl._dualSubHandler = () => {
             onTimeUpdate();
-        }
+            ensureSyncLoop();
+        };
+        videoEl.addEventListener('timeupdate', videoEl._dualSubHandler, { passive: true });
+
+        // Tự động kích hoạt ngay lập tức
+        onTimeUpdate();
+        ensureSyncLoop();
     }
 
     function setupAudioSourceMenu() {
@@ -4833,8 +4898,14 @@ function initializePlayer(episode) {
                 cfg = Object.assign({}, DEFAULT_CONFIG, parsed);
                 if (!cfg.sub1) cfg.sub1 = Object.assign({}, DEFAULT_CONFIG.sub1);
                 if (!cfg.sub2) cfg.sub2 = Object.assign({}, DEFAULT_CONFIG.sub2);
-                if (cfg.sub2.bg === 'black' && !parsed._userExplicitBg) {
+                if (!parsed._userExplicitBg) {
                     cfg.sub2.bg = 'none';
+                }
+                if (!parsed._userExplicitColor) {
+                    cfg.sub2.color = '#ffffff';
+                }
+                if (!parsed._userExplicitSync) {
+                    cfg.syncOffset = 0;
                 }
             }
         } catch (e) {}
@@ -5286,32 +5357,123 @@ function initializePlayer(episode) {
             };
         }
 
-        // Subtitle Sync Offset Slider & Buttons (-0.5s / +0.5s)
+        // ⏱️ QUẢN LÝ ĐỒNG BỘ THỜI GIAN VIDEO & PHỤ ĐỀ (TIME ALIGNMENT ENGINE)
         const syncSlider = document.getElementById('asmSyncSlider');
         const syncVal = document.getElementById('asmSyncVal');
-        const syncMinus = document.getElementById('asmSyncMinus');
-        const syncPlus = document.getElementById('asmSyncPlus');
+        const syncNumInput = document.getElementById('asmSyncNumInput');
+        const syncResetBtn = document.getElementById('asmSyncResetBtn');
+        const syncAutoBtn = document.getElementById('asmSyncAutoCurrentBtn');
 
-        function updateSyncOffset(val) {
+        const movieSlugForSync = (currentMovie && currentMovie.slug) || (window.initialMovie && window.initialMovie.slug) || '';
+        const epSlugForSync = (currentEpisode && currentEpisode.slug) || '';
+        const epSyncKey = 'aphim_sub_sync_' + movieSlugForSync + '_' + epSlugForSync;
+
+        // Tự động tải độ lệch đã lưu riêng cho tập phim này nếu có
+        try {
+            const savedEpOffset = localStorage.getItem(epSyncKey);
+            if (savedEpOffset !== null && !isNaN(parseFloat(savedEpOffset))) {
+                cfg.syncOffset = parseFloat(savedEpOffset);
+            }
+        } catch (e) {}
+
+        // Helper hiển thị Toast Pill nổi trên màn hình video
+        function showSyncToast(offset) {
+            let toast = document.getElementById('aphim-sync-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'aphim-sync-toast';
+                wrapper.appendChild(toast);
+            }
+            const sign = offset > 0 ? '+' : '';
+            const dir = offset < 0 ? ' (Phụ đề chậm lại)' : (offset > 0 ? ' (Phụ đề sớm hơn)' : ' (Chuẩn 0s)');
+            toast.innerHTML = '<span class="material-icons-round text-amber-400" style="font-size:16px;">timer</span> Canh thời gian: <b style="color:#fcd576;">' + sign + offset.toFixed(1) + 's</b>' + dir;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 1800);
+        }
+
+        window._aphimShowSyncToast = showSyncToast;
+
+        function updateSyncOffset(val, showToast = false) {
             cfg.syncOffset = Math.round(parseFloat(val) * 10) / 10;
             if (syncSlider) syncSlider.value = cfg.syncOffset;
-            if (syncVal) syncVal.textContent = (cfg.syncOffset > 0 ? '+' : '') + cfg.syncOffset.toFixed(1) + 's';
+            if (syncNumInput) syncNumInput.value = cfg.syncOffset;
+            if (syncVal) {
+                syncVal.textContent = (cfg.syncOffset > 0 ? '+' : '') + cfg.syncOffset.toFixed(1) + 's';
+            }
+            try {
+                localStorage.setItem(epSyncKey, String(cfg.syncOffset));
+            } catch (e) {}
+
             applySubStyles();
+            if (showToast) showSyncToast(cfg.syncOffset);
         }
 
+        window._aphimNudgeSyncOffset = function(delta) {
+            updateSyncOffset((cfg.syncOffset || 0) + delta, true);
+        };
+        window._aphimResetSyncOffset = function() {
+            updateSyncOffset(0, true);
+        };
+
         if (syncSlider) {
-            syncSlider.oninput = () => updateSyncOffset(syncSlider.value);
+            syncSlider.oninput = () => updateSyncOffset(syncSlider.value, false);
+            syncSlider.onchange = () => updateSyncOffset(syncSlider.value, true);
         }
-        if (syncMinus) {
-            syncMinus.onclick = (e) => {
+        if (syncNumInput) {
+            syncNumInput.onchange = () => updateSyncOffset(syncNumInput.value, true);
+        }
+        if (syncResetBtn) {
+            syncResetBtn.onclick = (e) => {
                 e.stopPropagation();
-                updateSyncOffset((cfg.syncOffset || 0) - 0.5);
+                updateSyncOffset(0, true);
             };
         }
-        if (syncPlus) {
-            syncPlus.onclick = (e) => {
+
+        // Bắt sự kiện các nút nhảy nhanh [-10s], [-5s], [-1s], [-0.5s]...
+        document.querySelectorAll('.asm-sync-preset-btn[data-nudge]').forEach(btn => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
-                updateSyncOffset((cfg.syncOffset || 0) + 0.5);
+                const delta = parseFloat(btn.dataset.nudge) || 0;
+                updateSyncOffset((cfg.syncOffset || 0) + delta, true);
+            };
+        });
+
+        // 🎯 Tự động canh theo câu thoại tại giây hiện tại
+        if (syncAutoBtn) {
+            syncAutoBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (!player) return;
+                const curT = player.currentTime;
+                // Lấy mảng cues từ cache
+                let activeCues = null;
+                if (window._aphimVttCueCache) {
+                    for (const cues of window._aphimVttCueCache.values()) {
+                        if (Array.isArray(cues) && cues.length > 0) {
+                            activeCues = cues;
+                            break;
+                        }
+                    }
+                }
+                if (!activeCues || activeCues.length === 0) {
+                    showSyncToast(cfg.syncOffset);
+                    return;
+                }
+                // Tìm cue có khoảng cách gần nhất với curT
+                let nearest = activeCues[0];
+                let minDiff = Math.abs(curT - nearest.start);
+                for (let i = 1; i < activeCues.length; i++) {
+                    const diff = Math.abs(curT - activeCues[i].start);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        nearest = activeCues[i];
+                    }
+                }
+                // targetTime = curT + syncOffset => syncOffset = nearest.start - curT
+                const reqOffset = Math.round((nearest.start - curT) * 10) / 10;
+                updateSyncOffset(reqOffset, true);
             };
         }
 
@@ -6362,6 +6524,29 @@ function initializePlayer(episode) {
             active.isContentEditable ||
             active.closest('input, textarea, select, [contenteditable], .ap-auth-input, .ap-cmt-textarea')
         )) {
+            return;
+        }
+
+        // ⏱️ Phím tắt canh thời gian video phụ đề: [ (lùi 0.5s/5s), ] (tiến 0.5s/5s), \ (reset)
+        if (e.key === '[' || e.code === 'BracketLeft') {
+            e.preventDefault();
+            const step = e.shiftKey ? -5.0 : -0.5;
+            if (typeof window._aphimNudgeSyncOffset === 'function') {
+                window._aphimNudgeSyncOffset(step);
+            }
+            return;
+        } else if (e.key === ']' || e.code === 'BracketRight') {
+            e.preventDefault();
+            const step = e.shiftKey ? 5.0 : 0.5;
+            if (typeof window._aphimNudgeSyncOffset === 'function') {
+                window._aphimNudgeSyncOffset(step);
+            }
+            return;
+        } else if (e.key === '\\' || e.code === 'Backslash') {
+            e.preventDefault();
+            if (typeof window._aphimResetSyncOffset === 'function') {
+                window._aphimResetSyncOffset();
+            }
             return;
         }
 

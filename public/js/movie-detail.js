@@ -649,106 +649,48 @@ function renderMovieDetail(movie) {
     // Update hero background image (Full bleed backdrop image)
     const bgImg = document.getElementById('movieHeroBackdrop') || document.querySelector('.absolute.top-0 img');
     if (bgImg) {
-        bgImg.style.opacity = '1';
-        const backdropUrl = movie.thumb_url || movie.poster_url;
-        const defaultBgUrl = movieAPI.getImageURL(backdropUrl, 1200, 90, true);
+        const wrap = document.querySelector('.movie-hero-backdrop-wrap');
         const handleBgAspectRatio = (imgElement) => {
-            const wrap = document.querySelector('.movie-hero-backdrop-wrap');
+            if (!wrap || !imgElement.naturalWidth || !imgElement.naturalHeight) return;
             if (imgElement.naturalHeight >= imgElement.naturalWidth) {
                 // Vertical image (poster): stretch & heavy blur to act as frosted glass
-                imgElement.classList.add('blur-xl', 'lg:blur-2xl', 'opacity-70', 'lg:opacity-40');
-                imgElement.classList.remove('opacity-100', 'lg:opacity-100', 'blur-none', 'lg:blur-none');
-                if (wrap) wrap.classList.add('is-vertical-bg');
+                imgElement.classList.add('blur-xl', 'lg:blur-2xl');
+                imgElement.classList.remove('blur-none', 'lg:blur-none');
+                wrap.classList.add('is-vertical-bg');
             } else {
                 // Horizontal image (backdrop): crisp & clear
-                imgElement.classList.remove('blur-xl', 'blur-2xl', 'lg:blur-2xl', 'lg:blur-3xl', 'opacity-70', 'lg:opacity-40');
-                imgElement.classList.add('opacity-100', 'lg:opacity-100');
-                if (wrap) wrap.classList.remove('is-vertical-bg');
+                imgElement.classList.remove('blur-xl', 'blur-2xl', 'lg:blur-2xl', 'lg:blur-3xl');
+                wrap.classList.remove('is-vertical-bg');
             }
         };
 
-        const currentBgSrc = bgImg.getAttribute('src') || '';
-        const isBgValid = bgImg.complete && bgImg.naturalWidth > 0 && !currentBgSrc.startsWith('data:image/gif');
+        const currentBgSrc = (bgImg.getAttribute('src') || '').trim();
+        const hasValidSrc = currentBgSrc && !currentBgSrc.startsWith('data:image/gif') && !currentBgSrc.includes('placeholder');
+        const isTmdbImage = currentBgSrc.includes('image.tmdb.org');
 
-        if (isBgValid) {
-            handleBgAspectRatio(bgImg);
-        }
-
-        // Bắt lỗi ảnh nền: chỉ khi ảnh 1 lỗi hoặc 404 mới fallback sang TMDB hoặc poster_url
+        // Bắt lỗi ảnh nền: chỉ khi ảnh 1 lỗi hoặc 404 mới fallback sang poster
         bgImg.onerror = () => {
-            console.warn('⚠️ [Detail] Ảnh nền gốc bị lỗi hoặc 404, kích hoạt fallback TMDB/poster...');
             bgImg.onerror = null;
-            if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
-                imageOptimizer.getTMDBImageUrl({
-                    dataset: {
-                        tmdbSlug: movie.slug,
-                        tmdbId: movie.tmdb.id,
-                        tmdbName: movie.name,
-                        tmdbOriginName: movie.origin_name || '',
-                        tmdbYear: movie.year,
-                        tmdbType: 'backdrop',
-                        tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
-                    }
-                }).then(url => {
-                    if (url) {
-                        bgImg.src = url;
-                    } else if (movie.poster_url) {
-                        bgImg.src = movieAPI.getImageURL(movie.poster_url, 1200, 90, true);
-                    }
-                }).catch(() => {});
-            } else if (movie.poster_url) {
-                bgImg.src = movieAPI.getImageURL(movie.poster_url, 1200, 90, true);
+            if (movie.poster_url) {
+                const fallbackUrl = movieAPI.getImageURL(movie.poster_url, 1200, 90, true);
+                if (bgImg.src !== fallbackUrl) {
+                    bgImg.src = fallbackUrl;
+                }
             }
         };
 
-        // Nếu ảnh nền chưa tải xong hoặc đang là placeholder thì mới gán defaultBgUrl
-        if (!isBgValid || (!currentBgSrc.includes(movie.thumb_url) && !currentBgSrc.includes(movie.poster_url))) {
-            bgImg.onload = () => handleBgAspectRatio(bgImg);
-            bgImg.src = defaultBgUrl;
+        if (bgImg.complete && bgImg.naturalWidth > 0) {
+            handleBgAspectRatio(bgImg);
+        } else {
+            bgImg.addEventListener('load', () => handleBgAspectRatio(bgImg), { once: true });
         }
 
-        // ⚡ Anti-Stall Watchdog: Nếu ảnh nền từ nguồn chính bị treo (>1.2s chưa xong), chuyển sang TMDB backdrop
-        if (movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
-            setTimeout(() => {
-                if (!bgImg.complete || bgImg.naturalWidth === 0) {
-                    console.warn('⚡ [Detail] Ảnh nền từ nguồn chính phản hồi lâu (>1.2s), kích hoạt tăng tốc TMDB...');
-                    imageOptimizer.getTMDBImageUrl({
-                        dataset: {
-                            tmdbSlug: movie.slug,
-                            tmdbId: movie.tmdb.id,
-                            tmdbName: movie.name,
-                            tmdbOriginName: movie.origin_name || '',
-                            tmdbYear: movie.year,
-                            tmdbType: 'backdrop',
-                            tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
-                        }
-                    }).then(url => {
-                        if (url && (!bgImg.complete || bgImg.naturalWidth === 0)) {
-                            bgImg.src = url;
-                            handleBgAspectRatio(bgImg);
-                        }
-                    }).catch(() => {});
-                }
-            }, 3500);
-        }
-
-        // 🛡️ CHỈ tìm ảnh TMDB thay thế NẾU ảnh thumb_url hoàn toàn không có hoặc là placeholder
-        const isThumbMissing = !movie.thumb_url || movie.thumb_url.includes('placeholder') || currentBgSrc.startsWith('data:image/gif');
-        if (isThumbMissing && movie.tmdb && movie.tmdb.id && typeof imageOptimizer !== 'undefined') {
-            imageOptimizer.getTMDBImageUrl({
-                dataset: {
-                    tmdbSlug: movie.slug,
-                    tmdbId: movie.tmdb.id,
-                    tmdbName: movie.name,
-                    tmdbYear: movie.year,
-                    tmdbType: 'backdrop',
-                    tmdbMediaType: movie.tmdb.type || (movie.type === 'series' ? 'tv' : 'movie')
-                }
-            }).then(url => {
-                if (url) {
-                    bgImg.src = url;
-                }
-            }).catch(() => {});
+        // 🛡️ CHỈ gán defaultBgUrl nếu trên trang HOÀN TOÀN chưa có ảnh nền hợp lệ (tránh chớp / giật / load lại đè lên TMDB)
+        if (!hasValidSrc) {
+            const backdropUrl = movie.thumb_url || movie.poster_url;
+            if (backdropUrl) {
+                bgImg.src = movieAPI.getImageURL(backdropUrl, 1200, 90, true);
+            }
         }
     }
 
@@ -949,25 +891,30 @@ function renderMovieDetail(movie) {
             if (!heroBackdrop) return;
 
             // Kiểm tra nếu ảnh hiện tại đã là ảnh TMDB sắc nét này rồi thì dừng ngay (0ms, không reload, không giật)
-            var currentFile = (heroBackdrop.src || '').split('?')[0].split('/').pop();
+            var currentSrc = heroBackdrop.getAttribute('src') || heroBackdrop.src || '';
+            var currentFile = currentSrc.split('?')[0].split('/').pop();
             var newFile = (result.backdrop || '').split('?')[0].split('/').pop();
-            if (currentFile && newFile && currentFile === newFile) return;
+            if (currentSrc.includes('image.tmdb.org') || (currentFile && newFile && currentFile === newFile)) {
+                try {
+                    localStorage.setItem('tmdb_hero_v4_' + movie.slug, JSON.stringify(result));
+                } catch(e) {}
+                return;
+            }
 
             var probe = new Image();
             probe.onload = function () {
                 if (!heroBackdrop) return;
                 const wrap = document.querySelector('.movie-hero-backdrop-wrap');
                 if (probe.naturalHeight >= probe.naturalWidth) {
+                    heroBackdrop.classList.add('blur-xl', 'lg:blur-2xl');
                     if (wrap) wrap.classList.add('is-vertical-bg');
                 } else {
+                    heroBackdrop.classList.remove('blur-xl', 'blur-2xl', 'lg:blur-2xl', 'lg:blur-3xl');
                     if (wrap) wrap.classList.remove('is-vertical-bg');
                 }
 
-                // Ảnh mới đã nạp sẵn 100% vào bộ nhớ RAM trình duyệt thông qua probe -> đổi src tức thì 0ms
+                // Ảnh mới đã nạp sẵn 100% vào bộ nhớ RAM trình duyệt thông qua probe -> đổi src tức thì 0ms, không nhấp nháy
                 heroBackdrop.src = result.backdrop;
-                const isLight = document.documentElement.classList.contains('light-mode');
-                const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-                heroBackdrop.style.opacity = isLight ? '0.85' : (isDesktop ? '0.45' : '0.65');
 
                 try {
                     localStorage.setItem('tmdb_hero_v4_' + movie.slug, JSON.stringify(result));
@@ -1823,7 +1770,15 @@ function renderEpisodes(episodes) {
     if (currentMovie && currentMovie.slug) {
         try {
             let matchedIdx = -1;
-            const prefStr = localStorage.getItem('aphim_server_pref_' + currentMovie.slug);
+            const urlVer = (typeof window !== 'undefined' && window.location) ? new URLSearchParams(window.location.search).get('version') : '';
+            if (urlVer === 'song-ngu') {
+                const snIdx = episodes.findIndex(s => {
+                    const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                    return sName.includes('song ngữ') || sName.includes('bilingual');
+                });
+                if (snIdx !== -1) matchedIdx = snIdx;
+            }
+            const prefStr = matchedIdx === -1 ? localStorage.getItem('aphim_server_pref_' + currentMovie.slug) : null;
             if (prefStr) {
                 const pref = JSON.parse(prefStr);
                 if (pref && pref.name) {
@@ -2016,7 +1971,8 @@ function renderEpisodes(episodes) {
         let catSlug = '';
         if (currentServer) {
             const sName = (currentServer.original_server_name || currentServer.server_name || '').toLowerCase();
-            if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+            if (sName.includes('song ngữ') || sName.includes('bilingual')) catSlug = '-song-ngu';
+            else if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
             else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
         }
         const sParam = (currentServerIndexDetail > 0 && !catSlug) ? `?server=${currentServerIndexDetail}` : '';

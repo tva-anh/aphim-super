@@ -1364,7 +1364,22 @@ app.get('/api/proxy/m3u8', async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Cache-Control', 'public, max-age=3600');
-        res.send(response.data);
+        // 🛡️ Tự động rewrite các đường dẫn tương đối sang tuyệt đối (chống lỗi 404 levelLoadError)
+        let m3u8Content = response.data;
+        if (typeof m3u8Content === 'string' && m3u8Content.includes('#EXTM3U')) {
+            const base = new URL(targetUrl);
+            m3u8Content = m3u8Content.split('\n').map(line => {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) return line;
+                if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return line;
+                try {
+                    return new URL(trimmed, base).href;
+                } catch (e) {
+                    return line;
+                }
+            }).join('\n');
+        }
+        res.send(m3u8Content);
     } catch (err) {
         console.error('[Proxy M3U8 Error]:', err.message);
         res.status(502).send('Error proxying m3u8');
@@ -2078,9 +2093,10 @@ async function fetchMovieMetadata(slug) {
                 if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
                     // 🛡️ Tự động ghép link m3u8 đang chạy mượt từ primaryResult sang songNguServer (khắc phục 404/WASM ChoPhim)
                     attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
+                    const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
                     primaryResult.episodes = [
-                        songNguServer,
-                        ...(primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'))
+                        ...vietsubAndOtherServers,
+                        songNguServer
                     ];
                 }
             } catch (bErr) {
@@ -2382,6 +2398,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
 
         return res.render('phim', {
             slug: slug,
+            reqVersion: req.query.version || '',
             movie: movieWithoutEpisodes,
             episodes: detailEpisodes,
             title: title,
@@ -2416,18 +2433,19 @@ function parseWatchParams(rawEp = '', rawVariant = '', queryServer = '', queryVe
         variant = String(queryVersion).toLowerCase().trim();
     }
 
-    // 1. Nếu rawEp là biến thể ngôn ngữ (ví dụ /xem-phim/:slug/thuyet-minh hoặc /xem-phim/:slug/vietsub)
-    const knownVariants = ['thuyet-minh', 'long-tieng', 'vietsub', 'ban-cam', 'raw'];
+    // 1. Nếu rawEp là biến thể ngôn ngữ (ví dụ /xem-phim/:slug/thuyet-minh hoặc /xem-phim/:slug/vietsub hoặc /xem-phim/:slug/song-ngu)
+    const knownVariants = ['thuyet-minh', 'long-tieng', 'vietsub', 'song-ngu', 'ban-cam', 'raw'];
     if (knownVariants.includes(cleanEp.toLowerCase())) {
         variant = cleanEp.toLowerCase();
         cleanEp = '';
     }
 
-    // 2. Nếu rawEp chứa đuôi biến thể (ví dụ: tap-1-thuyet-minh, tap-full-long-tieng, tap-01-vietsub)
+    // 2. Nếu rawEp chứa đuôi biến thể (ví dụ: tap-1-thuyet-minh, tap-full-long-tieng, tap-01-vietsub, tap-1-song-ngu)
     const variantSuffixes = [
         { suffix: '-thuyet-minh', key: 'thuyet-minh' },
         { suffix: '-long-tieng', key: 'long-tieng' },
         { suffix: '-vietsub', key: 'vietsub' },
+        { suffix: '-song-ngu', key: 'song-ngu' },
         { suffix: '-ban-cam', key: 'ban-cam' }
     ];
     for (const v of variantSuffixes) {
@@ -2444,7 +2462,8 @@ function parseWatchParams(rawEp = '', rawVariant = '', queryServer = '', queryVe
     // 4. Nếu chưa có biến thể rõ ràng nhưng có query server=X, kiểm tra tên máy chủ tương ứng trong mảng episodes
     if (!variant && serverIndex !== null && Array.isArray(movieEpisodes) && movieEpisodes[serverIndex]) {
         const sName = (movieEpisodes[serverIndex].original_server_name || movieEpisodes[serverIndex].server_name || '').toLowerCase();
-        if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) variant = 'thuyet-minh';
+        if (sName.includes('song ngữ') || sName.includes('bilingual')) variant = 'song-ngu';
+        else if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) variant = 'thuyet-minh';
         else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) variant = 'long-tieng';
         else if (sName.includes('vietsub')) variant = 'vietsub';
     }
@@ -2646,7 +2665,12 @@ app.get([
         let subtitleSchema = null;
         let audioSchema = null;
 
-        if (variant === 'thuyet-minh') {
+        if (variant === 'song-ngu') {
+            variantBadge = ' [Song Ngữ]';
+            variantDescText = 'bản Song Ngữ phụ đề kép chất lượng cao';
+            variantKeyword = 'song ngu, phu de kep, song ngu anh viet, song ngu han viet';
+            subtitleSchema = { "@type": "Text", "name": "Phụ đề Song Ngữ" };
+        } else if (variant === 'thuyet-minh') {
             variantBadge = ' [Thuyết Minh]';
             variantDescText = 'bản Thuyết Minh tiếng Việt giọng đọc hay mượt mà, âm thanh sống động';
             variantKeyword = 'thuyet minh, long tieng giong chuan, thuyet minh tieng viet';

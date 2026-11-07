@@ -756,39 +756,68 @@
                     html.light-mode .sn-china .sn-title-col .sn-title { background: linear-gradient(92deg, #d97706 0%, #b45309 55%, #be123c 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent !important; color: transparent !important; text-shadow: none !important; filter: none !important; }
                     html.light-mode .sn-usuk .sn-title-col .sn-title { background: linear-gradient(92deg, #0891b2 0%, #0e7490 52%, #4338ca 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent !important; color: transparent !important; text-shadow: none !important; filter: none !important; }
 
-                    /* ---- Hàng thẻ ngang ---- */
+                    /* ---- Nút bấm chuyển hướng < > trên thanh tiêu đề hàng (Đồng bộ chuẩn như Phim Rạp & Phim Đề Cử) ---- */
+                    .sn-title-right { display: inline-flex; align-items: center; gap: 10px; }
+                    .sn-header-nav { display: inline-flex; align-items: center; gap: 6px; }
+                    .sn-nav-arrow-btn {
+                        width: 28px; height: 28px; border-radius: 9999px;
+                        display: inline-flex; align-items: center; justify-content: center;
+                        border: none; outline: none; cursor: pointer;
+                        background: rgba(255, 255, 255, 0.12); color: #ffffff;
+                        transition: all 0.2s ease; flex-shrink: 0;
+                    }
+                    .sn-nav-arrow-btn:hover { background: #ff6a00; color: #ffffff; transform: scale(1.08); }
+                    .sn-korea .sn-nav-arrow-btn:hover { background: #a855f7; }
+                    .sn-china .sn-nav-arrow-btn:hover { background: #fbbf24; color: #18181b; }
+                    .sn-usuk .sn-nav-arrow-btn:hover { background: #22d3ee; color: #18181b; }
+                    .sn-nav-arrow-btn svg { width: 14px; height: 14px; display: block; }
+                    html.light-mode .sn-nav-arrow-btn { background: rgba(0, 0, 0, 0.07); color: #18181b; }
+                    html.light-mode .sn-korea .sn-nav-arrow-btn:hover { background: #7c3aed; color: #fff; }
+                    html.light-mode .sn-china .sn-nav-arrow-btn:hover { background: #b45309; color: #fff; }
+                    html.light-mode .sn-usuk .sn-nav-arrow-btn:hover { background: #0e7490; color: #fff; }
+
+                    /* ---- Hàng thẻ ngang (120FPS Native Hardware Glide Chuẩn như Phim Đề Cử & Phim Rạp) ---- */
                     .sn-body { position: relative; flex: 1; min-width: 0; }
-                    .sn-track { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
-                    .sn-track::-webkit-scrollbar { display: none; }
-                    /* ---- RỘNG THẺ DESKTOP (chỉ desktop; mobile giữ nguyên) ----
-                       Phóng to thêm ~15% so với bản đầu (232/200/258) vì ảnh ngang TMDB
-                       hiển thị 16:9 cần bản lớn hơn để rõ mặt diễn viên + chữ overlay. */
-                    .sn-country-frame .sn-track .sn-row-card { flex: 0 0 auto !important; width: 268px !important; }
+                    .sn-track {
+                        display: flex !important;
+                        flex-wrap: nowrap !important;
+                        gap: 12px !important;
+                        overflow-x: auto !important;
+                        overflow-y: hidden !important;
+                        padding: 4px 2px 10px !important;
+                        scrollbar-width: none !important;
+                        -ms-overflow-style: none !important;
+                        overscroll-behavior-x: contain !important;
+                        -webkit-overflow-scrolling: touch !important;
+                        touch-action: pan-x pan-y !important;
+                        scroll-behavior: auto !important;
+                        cursor: grab;
+                        user-select: none !important;
+                        -webkit-user-select: none !important;
+                    }
+                    .sn-track:active { cursor: grabbing; }
+                    .sn-track::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+
+                    /* Khóa kéo ảnh trên Mobile để vuốt lướt ngang mượt mà 100% không bị vấp */
+                    .sn-country-frame .sn-track .sn-row-card img {
+                        pointer-events: none !important;
+                        -webkit-user-drag: none !important;
+                        user-select: none !important;
+                    }
+
+                    /* ---- RỘNG THẺ DESKTOP ---- */
+                    .sn-country-frame .sn-track .sn-row-card { flex: 0 0 auto !important; width: 268px !important; flex-shrink: 0 !important; }
                     @media (min-width: 1024px) and (max-width: 1279px) { .sn-country-frame .sn-track .sn-row-card { width: 232px !important; } }
                     @media (min-width: 1600px) { .sn-country-frame .sn-track .sn-row-card { width: 300px !important; } }
                     @media (min-width: 1900px) { .sn-country-frame .sn-track .sn-row-card { width: 324px !important; } }
 
-                    /* ---- Mũi tên điều hướng (hiện khi hover, ẩn trên màn cảm ứng) ---- */
-                    .sn-nav {
-                        position: absolute; top: 42%; transform: translateY(-50%) scale(.85); z-index: 6;
-                        width: 34px; height: 34px; border-radius: 50%;
-                        display: flex; align-items: center; justify-content: center;
-                        background: rgba(15, 17, 23, .72); border: 1px solid rgba(255, 255, 255, .14); color: #fff;
-                        cursor: pointer; opacity: 0;
-                        transition: opacity .25s ease, transform .25s ease, background .2s ease;
-                    }
-                    .sn-nav:hover { background: #a855f7; border-color: #a855f7; }
-                    .sn-nav-left { left: -8px; }
-                    .sn-nav-right { right: -8px; }
-                    .sn-country-row:hover .sn-nav { opacity: 1; transform: translateY(-50%) scale(1); }
-                    html.light-mode .sn-nav { background: rgba(255, 255, 255, .88); border-color: rgba(0, 0, 0, .12); color: #1c1917; box-shadow: 0 4px 14px rgba(120, 100, 70, .18); }
-                    @media (hover: none) { .sn-nav { display: none; } }
+                    /* ---- Mũi tên điều hướng nổi (desktop hover) ---- */
+                    /* Đã hợp nhất nút chuyển hướng < > lên thanh tiêu đề chuẩn như Phim Rạp & Phim Đề Cử */
+                    .sn-nav { display: none !important; }
 
-                    /* ---- MOBILE (≤1023px): hiện đầy đủ, đổi sang kiểu TIÊU ĐỀ Ở TRÊN – HÀNG TRƯỢT NGANG DƯỚI
-                       (không còn cột tiêu đề 128px bên trái vì màn dọc quá hẹp) ---- */
+                    /* ---- MOBILE (≤1023px): TIÊU ĐỀ Ở TRÊN + NÚT < > + HÀNG TRƯỢT NGANG LƯỚT ÊM KHÔNG SNAP ---- */
                     @media (max-width: 1023px) {
                         .sn-country-section { margin-top: 10px; }
-                        /* "Xem tất cả >" dời lên NGANG DÒNG với chữ PHIM SONG NGỮ (dòng 1) để thoáng đầu mục */
                         .sn-frame-head { padding: 0 0 8px; gap: 10px; align-items: flex-start; }
                         .sn-frame-line1 { font-size: 18px; }
                         .sn-frame-line2 { font-size: 13px; }
@@ -797,40 +826,67 @@
                         .sn-country-row { flex-direction: column; align-items: stretch; gap: 4px; padding: 9px 0; }
                         .sn-country-row + .sn-country-row { padding-top: 9px; }
 
-                        /* Tiêu đề quốc gia + "Xem toàn bộ >" nằm trên cùng 1 dòng */
+                        /* Tiêu đề quốc gia + "Xem toàn bộ >" + Nút < > nằm trên cùng 1 dòng */
                         .sn-title-col {
                             flex: 0 0 auto; width: 100%; padding-top: 0;
-                            display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+                            display: flex; align-items: center; justify-content: space-between; gap: 8px;
                         }
                         .sn-title { margin-bottom: 0; font-size: 15px; }
                         .sn-title-bar { display: none; }
+                        .sn-title-right { display: inline-flex; align-items: center; gap: 8px; }
                         .sn-more { flex: 0 0 auto; font-size: 11.5px; opacity: .72; }
 
                         .sn-body { width: 100%; min-width: 0; }
-                        .sn-track { gap: 10px; padding: 2px 0 6px; scroll-snap-type: x proximity; }
-                        .sn-country-frame .sn-track .sn-row-card { width: 198px !important; scroll-snap-align: start; }
+                        /* Bỏ scroll-snap để lướt ngang tự nhiên 120fps chuẩn như mục Phim Đề Cử */
+                        .sn-track {
+                            gap: 10px !important;
+                            padding: 4px 2px 8px !important;
+                            scroll-snap-type: none !important;
+                            -webkit-overflow-scrolling: touch !important;
+                            touch-action: pan-x pan-y !important;
+                            overscroll-behavior-x: contain !important;
+                        }
+                        /* Kích thước thẻ vừa vặn hiển thị 2.3 thẻ (thẻ thứ 3 nhô ra rõ rệt để báo hiệu lướt ngang) */
+                        .sn-country-frame .sn-track .sn-row-card {
+                            flex: 0 0 188px !important;
+                            width: 188px !important;
+                            max-width: 188px !important;
+                            scroll-snap-align: none !important;
+                        }
                         .sn-nav { display: none !important; }
                     }
 
-                    /* Thu nhỏ dần theo cỡ màn điện thoại, giống .section-header-title của các mục khác */
+                    /* Thu nhỏ dần theo cỡ màn điện thoại */
                     @media (max-width: 639px) {
                         .sn-frame-line1 { font-size: 16px; }
                         .sn-frame-line2 { font-size: 12px; }
                         .sn-title { font-size: 14px; }
                     }
-                    @media (max-width: 430px) {
-                        .sn-country-frame .sn-track .sn-row-card { width: 176px !important; }
+                    @media (max-width: 480px) {
+                        .sn-country-frame .sn-track .sn-row-card {
+                            flex: 0 0 178px !important;
+                            width: 178px !important;
+                            max-width: 178px !important;
+                        }
                     }
                     @media (max-width: 390px) {
                         .sn-frame-line1 { font-size: 14.5px; }
                         .sn-frame-line2 { font-size: 11.5px; }
                         .sn-title { font-size: 13.5px; }
-                        .sn-country-frame .sn-track .sn-row-card { width: 164px !important; }
+                        .sn-country-frame .sn-track .sn-row-card {
+                            flex: 0 0 168px !important;
+                            width: 168px !important;
+                            max-width: 168px !important;
+                        }
                     }
                     @media (max-width: 360px) {
                         .sn-frame-line1 { font-size: 13.5px; }
                         .sn-title { font-size: 13px; }
-                        .sn-country-frame .sn-track .sn-row-card { width: 152px !important; }
+                        .sn-country-frame .sn-track .sn-row-card {
+                            flex: 0 0 156px !important;
+                            width: 156px !important;
+                            max-width: 156px !important;
+                        }
                     }
 
                     /* ---- Bỏ lớp phủ nền đen loang lổ và bóng nhòe quanh tên phim theo yêu cầu ---- */
@@ -878,25 +934,29 @@
                             <div class="sn-title-col">
                                 <h2 class="sn-title"><%= r.title %></h2>
                                 <span class="sn-title-bar" aria-hidden="true"></span>
-                                <a href="/phim-theo-quoc-gia?country=<%= r.key %>" class="sn-more">
-                                    Xem toàn bộ
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
-                                </a>
+                                <div class="sn-title-right">
+                                    <a href="/phim-theo-quoc-gia?country=<%= r.key %>" class="sn-more">
+                                        Xem toàn bộ
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </a>
+                                    <div class="sn-header-nav">
+                                        <button type="button" onclick="scrollSnCountryRow('<%= r.key %>', -1)" class="sn-nav-arrow-btn" aria-label="Phim trước" title="Trước">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="15 18 9 12 15 6"></polyline>
+                                            </svg>
+                                        </button>
+                                        <button type="button" onclick="scrollSnCountryRow('<%= r.key %>', 1)" class="sn-nav-arrow-btn" aria-label="Phim kế tiếp" title="Kế tiếp">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="sn-body">
-                                <button type="button" class="sn-nav sn-nav-left" onclick="scrollSnCountryRow('<%= r.key %>', -1)" aria-label="Xem phim phía trước">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <polyline points="15 18 9 12 15 6"></polyline>
-                                    </svg>
-                                </button>
-                                <button type="button" class="sn-nav sn-nav-right" onclick="scrollSnCountryRow('<%= r.key %>', 1)" aria-label="Xem phim tiếp theo">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
-                                </button>
+                                                        <div class="sn-body">
                                 <div class="sn-track" id="snTrack-<%= r.key %>">
                                     <% for (let i = 0; i < 6; i++) { %>
                                         <div class="normal-card-item sn-row-card" aria-hidden="true"><div class="landscape-poster-wrap"></div></div>
@@ -3573,8 +3633,11 @@
                         window.scrollSnCountryRow = function (key, direction) {
                             const track = document.getElementById('snTrack-' + key);
                             if (!track) return;
+                            const cardEl = track.querySelector('.sn-row-card');
+                            const cardWidth = cardEl ? (cardEl.offsetWidth + 10) : (window.innerWidth < 640 ? 165 : 240);
+                            const scrollStep = direction * (cardWidth * 2);
                             track.scrollBy({
-                                left: direction * Math.max(360, track.clientWidth * 0.85),
+                                left: scrollStep,
                                 behavior: 'smooth'
                             });
                         };

@@ -330,7 +330,7 @@
         const priorityAttr = index < 2 ? 'fetchpriority="high"' : 'fetchpriority="low"';
 
         return `
-            <a href="/phim/${movie.slug}" title="${movie.name}" class="grid-movie-card">
+            <a href="/phim/${movie.slug}${typeof window !== 'undefined' && (window.location.pathname.includes('/phim-song-ngu') || new URLSearchParams(window.location.search).get('list') === 'phim-song-ngu') ? '?version=song-ngu' : ''}" title="${movie.name}" class="grid-movie-card">
                 <div class="grid-poster-wrap">
                     ${badgesHeaderHTML}
                     <img src="${primaryImg}" data-original-src="${primaryImg}" data-fallback="${fallbackImg}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" ${loadingAttr} ${priorityAttr} decoding="async" referrerpolicy="no-referrer" onerror="window.APhimCore.handleImgError(this)" />

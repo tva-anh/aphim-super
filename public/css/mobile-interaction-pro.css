@@ -25,6 +25,7 @@
     /* ─── 2. TỐI ƯU LƯỚT NGANG CÁC DANH SÁCH PHIM (FLUID 120FPS NATIVE GLIDE) ─── */
     /* Trình duyệt di động sử dụng 100% C++ Compositor Thread mượt mà như Native App */
     .de-cu-slider,
+    .sn-track,
     .cs-scroll-container,
     .country-scroll-container,
     .ranking-grid-container,
@@ -72,6 +73,8 @@
     /* Layout Containment chuẩn Netflix/Disney+: Trình duyệt chỉ render thẻ hiển thị,
        hoàn toàn giải phóng CPU/GPU khi lướt tốc độ cao */
     .de-cu-slider > *,
+    .sn-track > *,
+    .sn-row-card,
     .cs-scroll-container > *,
     .country-scroll-container > *,
     .ranking-grid-container > *,
@@ -92,6 +95,8 @@
 
     /* Chống ghost-drag ảnh khi ngón tay vuốt lướt ngang qua poster */
     .de-cu-slider img,
+    .sn-track img,
+    .sn-row-card img,
     .cs-scroll-container img,
     .country-scroll-container img,
     .ranking-grid-container img,

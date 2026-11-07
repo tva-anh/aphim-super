@@ -20,6 +20,7 @@
     const SLIDER_SELECTORS = [
         '#slider-de-cu',
         '.de-cu-slider',
+        '.sn-track',
         '#slider-cinema-hot',
         '.cinema-hot-slider',
         '#homeCommentsTrack',
@@ -504,6 +505,7 @@
             }
 
             #slider-de-cu:active,
+            .sn-track:active,
             .de-cu-slider:active,
             #slider-cinema-hot:active,
             .cinema-hot-slider:active,
@@ -550,6 +552,8 @@
             }
 
             .de-cu-slider img,
+            .sn-track img,
+            .sn-row-card img,
             #slider-de-cu img,
             .cinema-hot-slider img,
             #slider-cinema-hot img,

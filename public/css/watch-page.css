@@ -1819,6 +1819,33 @@
                 will-change: height;
             }
 
+            /* Hitbox mở rộng cho thanh tiến trình (Dễ chạm, không bị trượt tay) */
+            #aphim-timeline-container::before {
+                content: '';
+                position: absolute;
+                top: -12px;
+                bottom: -12px;
+                left: 0;
+                right: 0;
+                z-index: 2;
+                cursor: pointer;
+            }
+
+            /* Khi đang kéo timeline: Tắt toàn bộ transition để thanh trượt và bóng bám sát 100% ngón tay/chuột 60/120fps */
+            #aphim-timeline-container.is-scrubbing,
+            #aphim-timeline-container.is-scrubbing * {
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+            #aphim-timeline-container.is-scrubbing #aphim-progress-bar,
+            #aphim-timeline-container.is-scrubbing #aphim-scrubber-dot {
+                transition: none !important;
+            }
+            #aphim-timeline-container.is-scrubbing #aphim-hover-time {
+                opacity: 1 !important;
+                transition: none !important;
+            }
+
             #aphim-timeline-container:hover #aphim-timeline-rail,
             #aphim-timeline-container.is-scrubbing #aphim-timeline-rail {
                 height: 7px !important;
@@ -2523,13 +2550,13 @@
                 align-items: center !important;
                 pointer-events: none !important;
                 user-select: none !important;
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-                padding-bottom: calc(var(--aphim-sub-offset, 118px) + var(--aphim-sub-user-offset, 0px)) !important;
-                transition: none !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                padding-bottom: calc(var(--aphim-sub-offset, 82px) + var(--aphim-sub-user-offset, 0px)) !important;
+                transition: padding-bottom 0.15s ease !important;
             }
 
-            /* Vị trí ở TRÊN: Đặt phụ đề lên đỉnh khung hình video (tránh đè toàn bộ Vietsub cứng và timeline ở đáy) */
+            /* Vị trí ở TRÊN (nếu người dùng tùy chọn) */
             #aphim-dual-subtitles-overlay.aphim-sub-pos-top {
                 top: 28px !important;
                 bottom: auto !important;
@@ -2538,25 +2565,15 @@
                 justify-content: flex-start !important;
             }
 
+            /* 🌟 Dòng 1 (Tiếng Việt mềm): Ẩn hoàn toàn vì video Vietsub đã in sẵn dòng tiếng Việt ở đáy rồi */
             #aphim-sub-top {
-                color: var(--aphim-sub-top-color, #ffffff) !important;
-                font-size: var(--aphim-sub-top-size, var(--aphim-sub-font-size, clamp(14px, 2.2vw, 24px))) !important;
-                font-weight: 600 !important;
-                line-height: 1.35 !important;
-                -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.7) !important;
-                text-shadow: 0 1px 2px #000000, 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.6) !important;
-                -webkit-font-smoothing: antialiased !important;
-                text-rendering: optimizeLegibility !important;
-                margin-bottom: 3px !important;
-                text-align: center !important;
-                max-width: 92% !important;
-                letter-spacing: 0.25px !important;
-                transition: all 0.12s ease !important;
+                display: none !important;
             }
 
+            /* 🌟 Dòng 2 (Ngoại ngữ - Tiếng Hàn/Anh): Chữ trắng tinh, viền đen sắc nét, nổi tự nhiên phía trên Vietsub (Chuẩn Ảnh người dùng) */
             #aphim-sub-bottom {
                 color: var(--aphim-sub-bottom-color, #ffffff) !important;
-                font-size: var(--aphim-sub-bottom-size, var(--aphim-sub-font-size, clamp(14px, 2.2vw, 24px))) !important;
+                font-size: var(--aphim-sub-bottom-size, var(--aphim-sub-font-size, clamp(16px, 2.2vw, 24px))) !important;
                 font-weight: 700 !important;
                 line-height: 1.35 !important;
                 -webkit-text-stroke: 1.2px #000000 !important;
@@ -2568,7 +2585,18 @@
                 max-width: 92% !important;
                 letter-spacing: 0.25px !important;
                 background: transparent !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
                 transition: all 0.12s ease !important;
+            }
+
+            @media (max-width: 640px) {
+                #aphim-sub-bottom {
+                    font-size: var(--aphim-sub-bottom-size, 14px) !important;
+                    -webkit-text-stroke: 0.8px #000000 !important;
+                    text-shadow: 0 1px 2px #000000, 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+                }
             }
 
             /* ==========================================================================
@@ -4887,12 +4915,14 @@ html.light-mode #serverPingModalCard button svg {
     padding: var(--aphim-sub-top-pad, 0px 4px) !important;
 }
 #aphim-sub-bottom {
-    color: var(--aphim-sub-bottom-color, #ffd215) !important;
+    color: var(--aphim-sub-bottom-color, #ffffff) !important;
     font-family: var(--aphim-sub-font-family, 'Inter', system-ui, sans-serif) !important;
     font-size: var(--aphim-sub-bottom-size, var(--aphim-sub-font-size, clamp(14px, 2.2vw, 24px))) !important;
-    background: var(--aphim-sub-bottom-bg, transparent) !important;
-    border-radius: var(--aphim-sub-bottom-radius, 4px) !important;
-    padding: var(--aphim-sub-bottom-pad, 0px 4px) !important;
+    background: transparent !important;
+    padding: 0 !important;
+    -webkit-text-stroke: 1.2px #000000 !important;
+    paint-order: stroke fill !important;
+    text-shadow: 0 1px 2px #000000, 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* Tùy chọn chống đè Vietsub tích hợp gọn gàng trong bảng [CC] */
@@ -5911,4 +5941,116 @@ html, body, button, a, input, select,
 #aphim-sub-modal {
     transform: translateZ(0) !important;
     will-change: transform, opacity !important;
+}
+
+/* ⏱️ THIẾT KẾ CANH THỜI GIAN VIDEO PHỤ ĐỀ CHUYÊN NGHIỆP */
+.asm-sync-grid-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+.asm-sync-preset-btn {
+    padding: 3px 7px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 5px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.asm-sync-preset-btn:hover {
+    background: rgba(252, 213, 118, 0.22) !important;
+    border-color: #fcd576 !important;
+    color: #fcd576 !important;
+}
+.asm-sync-preset-btn.reset-btn {
+    background: rgba(252, 213, 118, 0.12) !important;
+    border-color: rgba(252, 213, 118, 0.4) !important;
+    color: #fcd576 !important;
+}
+.asm-sync-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+.asm-sync-num-input {
+    width: 68px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 5px !important;
+    color: #fcd576 !important;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    padding: 3px 6px !important;
+    text-align: center !important;
+    outline: none !important;
+}
+.asm-sync-num-input:focus {
+    border-color: #fcd576 !important;
+}
+.asm-sync-auto-btn {
+    width: 100% !important;
+    margin-top: 8px !important;
+    padding: 6px 10px !important;
+    background: linear-gradient(135deg, rgba(252, 213, 118, 0.2), rgba(252, 213, 118, 0.08)) !important;
+    border: 1px solid rgba(252, 213, 118, 0.4) !important;
+    border-radius: 6px !important;
+    color: #fcd576 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transition: all 0.15s ease !important;
+}
+.asm-sync-auto-btn:hover {
+    background: rgba(252, 213, 118, 0.3) !important;
+    border-color: #fcd576 !important;
+    transform: translateY(-1px) !important;
+}
+.asm-sync-hint-text {
+    font-size: 10px !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    margin-top: 5px !important;
+    line-height: 1.3 !important;
+}
+.asm-sync-hint-text b {
+    color: #fcd576 !important;
+}
+
+/* ⏱️ TOAST PILL NỔI TRÊN MÀN HÌNH PLAYER */
+#aphim-sync-toast {
+    position: absolute !important;
+    top: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(-12px) !important;
+    background: rgba(18, 18, 24, 0.94) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(252, 213, 118, 0.4) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 15px rgba(252, 213, 118, 0.15) !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 6px 16px !important;
+    border-radius: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    z-index: 50 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    opacity: 0 !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+#aphim-sync-toast.show {
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0) !important;
 }
