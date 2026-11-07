@@ -3984,7 +3984,8 @@ function initializePlayer(episode) {
         const cues = [];
         function parseTime(tStr) {
             if (!tStr) return 0;
-            const p = tStr.trim().split(':');
+            const cleanStr = tStr.trim().replace(',', '.');
+            const p = cleanStr.split(':');
             if (p.length === 3) {
                 return (parseFloat(p[0]) || 0) * 3600 + (parseFloat(p[1]) || 0) * 60 + (parseFloat(p[2]) || 0);
             } else if (p.length === 2) {
@@ -4164,56 +4165,100 @@ function initializePlayer(episode) {
             if (!cues || cues.length === 0) return null;
             const targetTime = t + (syncOffset || 0);
 
-            // 1. Binary search để tìm cue chính xác O(log N)
+            // ⚡ Binary search O(log N) tìm candidate cue gần nhất: 0ms lag, không tốn CPU trên mobile
             let low = 0, high = cues.length - 1;
+            let candidate = -1;
+
             while (low <= high) {
                 const mid = (low + high) >> 1;
-                const c = cues[mid];
-                if (targetTime >= c.start && targetTime <= c.end) {
-                    return c;
-                }
-                if (targetTime < c.start) {
-                    high = mid - 1;
-                } else {
+                if (cues[mid].start <= targetTime) {
+                    candidate = mid;
                     low = mid + 1;
+                } else {
+                    high = mid - 1;
                 }
             }
 
-            // 2. Linear scan dự phòng nếu có lời thoại chồng lấn (overlapping dialogue)
-            for (let i = 0; i < cues.length; i++) {
-                if (targetTime >= cues[i].start && targetTime <= cues[i].end) {
-                    return cues[i];
+            if (candidate !== -1) {
+                const c = cues[candidate];
+                if (targetTime >= c.start && targetTime <= c.end) {
+                    return c;
+                }
+                // Kiểm tra tối đa 3 cue liền kề trước đó trong trường hợp lời thoại chồng lấn (overlapping dialogue)
+                for (let i = candidate - 1; i >= Math.max(0, candidate - 3); i--) {
+                    const prev = cues[i];
+                    if (targetTime >= prev.start && targetTime <= prev.end) {
+                        return prev;
+                    }
                 }
             }
             return null;
         }
 
-        // 🎬 Helper: Định dạng chuẩn thời gian WebVTT (hh:mm:ss.mmm)
-        function formatVttTime(seconds) {
-            const pad = (n, z = 2) => String(n).padStart(z, '0');
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = Math.floor(seconds % 60);
-            const ms = Math.floor(Math.round((seconds % 1) * 1000));
-            return pad(h) + ':' + pad(m) + ':' + pad(s) + '.' + pad(ms, 3);
+        // 🎬 Helper: Định dạng chuẩn thời gian WebVTT (hh:mm:ss.mmm) - Chuẩn 100% 3 chữ số millisecond, chống lỗi .1000
+        function formatVttTime(totalSeconds) {
+            const totalMs = Math.max(0, Math.round(Number(totalSeconds || 0) * 1000));
+            const h = Math.floor(totalMs / 3600000);
+            const m = Math.floor((totalMs % 3600000) / 60000);
+            const s = Math.floor((totalMs % 60000) / 1000);
+            const ms = totalMs % 1000;
+            return String(h).padStart(2, '0') + ':' +
+                   String(m).padStart(2, '0') + ':' +
+                   String(s).padStart(2, '0') + '.' +
+                   String(ms).padStart(3, '0');
         }
 
-        // 🎬 Helper: Ghép 2 luồng phụ đề (Tiếng Hàn/Ngoại ngữ trên, Tiếng Việt dưới) thành 1 track Native WebVTT chuẩn xác
         // 🎬 Helper: Tạo track WebVTT Native cho chế độ Song Ngữ trên thiết bị (iOS AVPlayer / Android Fullscreen)
-        // 🌟 Chỉ lấy duy nhất 1 luồng Song Ngữ (tiếng Hàn/ngoại ngữ), KHÔNG ghép thêm tiếng Việt để không bị đè lặp lại Vietsub in cứng của phim.
-        // 🌟 Đặt cue setting "line:74% position:50% align:center" để dòng Song Ngữ nổi lên trên đỉnh của Vietsub chính.
+        // 🌟 Bỏ hoàn toàn nền đen, chữ trắng sắc nét có viền bóng đổ y như Vietsub in cứng của phim.
+        // 🌟 Tự động nhận diện khoảng cách: Vietsub 1 hàng -> line:74%; Vietsub 2 hàng -> tự động đẩy lên line:66% hoặc 62% không bao giờ dính chữ!
         function generateBilingualNativeVtt(bCues = [], tCues = []) {
             const cues = (bCues && bCues.length > 0) ? bCues : (tCues || []);
             if (!cues || !cues.length) return 'WEBVTT\n\n';
 
             let vtt = 'WEBVTT - Song Ngu\n\n';
+            vtt += 'STYLE\n';
+            vtt += '::cue {\n';
+            vtt += '  background: transparent !important;\n';
+            vtt += '  background-color: transparent !important;\n';
+            vtt += '  color: #ffffff !important;\n';
+            vtt += '  font-size: 80% !important;\n';
+            vtt += '  text-shadow: 0 1px 2px #000, 0 0 3px #000, 1px 1px 2px #000, -1px -1px 2px #000 !important;\n';
+            vtt += '}\n\n';
+
             cues.forEach((m, idx) => {
                 let cleanTxt = (m.text || '').trim();
                 if (!cleanTxt) return;
                 cleanTxt = cleanTxt.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n');
+
+                // 🧠 Tự động nhận diện khoảng cách theo số hàng chữ:
+                let isViet2Lines = false;
+                if (tCues && tCues.length > 0) {
+                    const midTime = (m.start + m.end) / 2;
+                    const vCue = findActiveCue(tCues, midTime, 0);
+                    if (vCue && vCue.text) {
+                        const vLines = vCue.text.split('\n').map(s => s.trim()).filter(Boolean);
+                        if (vLines.length >= 2 || vCue.text.length >= 35) {
+                            isViet2Lines = true;
+                        }
+                    }
+                }
+
+                const isKorean2Lines = cleanTxt.includes('\n') || cleanTxt.length >= 35;
+
+                // Tự động đẩy vị trí line khi Vietsub phía dưới có 2 hàng
+                let linePercent = 74;
+                if (isViet2Lines && isKorean2Lines) {
+                    linePercent = 62;
+                } else if (isViet2Lines) {
+                    linePercent = 66; // Đẩy lên cao hơn để nhường chỗ cho 2 hàng Vietsub
+                } else if (isKorean2Lines) {
+                    linePercent = 70;
+                } else {
+                    linePercent = 74; // 1 hàng: khoảng cách chuẩn đẹp
+                }
+
                 vtt += (idx + 1) + '\n';
-                // 🌟 line:74% neo dòng phụ đề dịch song ngữ nằm ngay trên đầu phụ đề chính của phim
-                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + ' line:74% position:50% align:center\n';
+                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + ' line:' + linePercent + '% position:50% align:center\n';
                 vtt += cleanTxt + '\n\n';
             });
             return vtt;
@@ -4225,14 +4270,12 @@ function initializePlayer(episode) {
             try {
                 if ((!topCues || !topCues.length) && (!bottomCues || !bottomCues.length)) return;
 
-                // Lấy cấu hình sub hiện tại
                 let subCfg = window._aphimSubConfigCache || { mode: 'dual', activeTab: 'sub2' };
                 let targetCues = [];
 
                 if (subCfg.mode === 'off') {
                     targetCues = [];
                 } else if (subCfg.mode === 'on') {
-                    // Đơn ngữ: Lấy tab đang chọn
                     targetCues = (subCfg.activeTab === 'sub1') ? topCues : (bottomCues.length ? bottomCues : topCues);
                 } else {
                     // Song ngữ: CHỈ hiển thị ngôn ngữ phụ/dịch (tiếng Hàn/ngoại ngữ) nằm trên Vietsub chính
@@ -4241,7 +4284,8 @@ function initializePlayer(episode) {
 
                 if (!targetCues || !targetCues.length) return;
 
-                const vttContent = generateBilingualNativeVtt(targetCues);
+                // Truyền cả targetCues lẫn topCues để thuật toán tự động nhận diện 1 hàng hay 2 hàng
+                const vttContent = generateBilingualNativeVtt(targetCues, topCues);
                 const blob = new Blob([vttContent], { type: 'text/vtt;charset=utf-8' });
                 const trackUrl = URL.createObjectURL(blob);
 
@@ -4442,14 +4486,15 @@ function initializePlayer(episode) {
         let isSyncRunning = false;
         let subRafId = null;
 
-        function runSyncLoop() {
+        let lastSyncTime = 0;
+        function runSyncLoop(timestamp) {
             if (!isSyncRunning) return;
-            onTimeUpdate();
-            if (typeof videoEl.requestVideoFrameCallback === 'function') {
-                videoEl.requestVideoFrameCallback(() => {
-                    if (isSyncRunning) runSyncLoop();
-                });
-            } else {
+            const now = timestamp || performance.now();
+            if (now - lastSyncTime >= 65) {
+                lastSyncTime = now;
+                onTimeUpdate();
+            }
+            if (isSyncRunning) {
                 subRafId = requestAnimationFrame(runSyncLoop);
             }
         }
