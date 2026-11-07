@@ -146,8 +146,8 @@
     "lang": "Vietsub",
     "available_languages": [
       "PD:10",
-      "TM:10",
-      "SN"
+      "SN:10",
+      "TM:10"
     ],
     "source": "homepage"
   },
@@ -877,6 +877,21 @@
     "source": "homepage"
   },
   {
+    "slug": "nhung-nguoi-ban-phan-3",
+    "name": "Những người bạn (Phần 3)",
+    "origin_name": "Friends (Season 3)",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
+    "episode_current": "Hoàn Tất (25/25)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD",
+      "SN"
+    ],
+    "source": "homepage"
+  },
+  {
     "slug": "nhung-nguoi-ban",
     "name": "Những người bạn",
     "origin_name": "Friends",
@@ -884,21 +899,6 @@
     "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
     "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
     "episode_current": "Hoàn Tất (24/24)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:24",
-      "SN"
-    ],
-    "source": "homepage"
-  },
-  {
-    "slug": "bi-mat-noi-goc-toi",
-    "name": "Bí Mật Nơi Góc Tối",
-    "origin_name": "Secrets in The Lattice",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/vE8OPTULzuyvgrM0yoFbn2VYisq.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/gg7Z57buTLxhshathhfza8Lkt57.jpg",
-    "episode_current": "Hoàn tất (24/24)",
     "lang": "Vietsub",
     "available_languages": [
       "PD:24",
@@ -965,6 +965,21 @@
       "SN",
       "TM:10"
     ]
+  },
+  {
+    "slug": "bi-mat-noi-goc-toi",
+    "name": "Bí Mật Nơi Góc Tối",
+    "origin_name": "Secrets in The Lattice",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/vE8OPTULzuyvgrM0yoFbn2VYisq.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/gg7Z57buTLxhshathhfza8Lkt57.jpg",
+    "episode_current": "Hoàn tất (24/24)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:24",
+      "SN"
+    ],
+    "source": "/phim-song-ngu?page=1"
   },
   {
     "slug": "cau-be-mat-tich-phan-5",
@@ -1212,21 +1227,6 @@
       "SN",
       "TM:12"
     ]
-  },
-  {
-    "slug": "nhung-nguoi-ban-phan-3",
-    "name": "Những người bạn (Phần 3)",
-    "origin_name": "Friends (Season 3)",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
-    "episode_current": "Hoàn Tất (25/25)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD",
-      "SN"
-    ],
-    "source": "/phim-song-ngu?page=2"
   },
   {
     "slug": "co-gai-doi-rowing",
@@ -1593,6 +1593,21 @@
     "source": "/phim-song-ngu?page=3"
   },
   {
+    "slug": "nhung-nguoi-ban-phan",
+    "name": "Những người bạn (Phần 7)",
+    "origin_name": "Friends (Season 7)",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
+    "episode_current": "Hoàn Tất (24/24)",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD",
+      "SN"
+    ],
+    "source": "/phim-song-ngu?page=3"
+  },
+  {
     "slug": "hau-phong-vo-tan",
     "name": "Hậu Phòng Vô Tận",
     "origin_name": "Backrooms",
@@ -1620,21 +1635,6 @@
       "PD:8",
       "SN:8",
       "TM:8"
-    ],
-    "source": "/phim-song-ngu?page=3"
-  },
-  {
-    "slug": "nhung-nguoi-ban-phan",
-    "name": "Những người bạn (Phần 7)",
-    "origin_name": "Friends (Season 7)",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/l0qVZIpXtIo7km9u5Yqh0nKPOr5.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
-    "episode_current": "Hoàn Tất (24/24)",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD",
-      "SN"
     ],
     "source": "/phim-song-ngu?page=3"
   },
@@ -1776,6 +1776,21 @@
     "source": "/phim-song-ngu?page=4"
   },
   {
+    "slug": "harry-potter-va-phong-chua-bi-mat",
+    "name": "Harry Potter Và Phòng Chứa Bí Mật",
+    "origin_name": "Harry Potter 2: Harry Potter and the Chamber of Secrets",
+    "type": "single",
+    "thumb_url": "https://image.tmdb.org/t/p/original/1stUIsjawROZxjiCMtqqXqgfZWC.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/sdEOH0992YZ0QSxgXNIGLq1ToUi.jpg",
+    "episode_current": "Tập 1",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD",
+      "SN"
+    ],
+    "source": "/phim-song-ngu?page=4"
+  },
+  {
     "slug": "ke-thu-hoang-gia-cua-toi",
     "name": "Kẻ Thù Hoàng Gia Của Tôi",
     "origin_name": "My Royal Nemesis",
@@ -1788,21 +1803,6 @@
       "PD:14",
       "SN:14",
       "TM:14"
-    ],
-    "source": "/phim-song-ngu?page=4"
-  },
-  {
-    "slug": "harry-potter-va-phong-chua-bi-mat",
-    "name": "Harry Potter Và Phòng Chứa Bí Mật",
-    "origin_name": "Harry Potter 2: Harry Potter and the Chamber of Secrets",
-    "type": "single",
-    "thumb_url": "https://image.tmdb.org/t/p/original/1stUIsjawROZxjiCMtqqXqgfZWC.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/sdEOH0992YZ0QSxgXNIGLq1ToUi.jpg",
-    "episode_current": "Tập 1",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD",
-      "SN"
     ],
     "source": "/phim-song-ngu?page=4"
   },
@@ -3441,21 +3441,6 @@
     "source": "/phim-song-ngu?page=10"
   },
   {
-    "slug": "payback-bao-thu",
-    "name": "PAYBACK: Báo Thù",
-    "origin_name": "Payback",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/4L9sftGH7oQ1bpB0aQHERwyfDVd.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/616HQHGVqEh0ZbQIRdyjIBQfqhU.jpg",
-    "episode_current": "Tập 8",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD:10",
-      "SN:8"
-    ],
-    "source": "/phim-song-ngu?page=10"
-  },
-  {
     "slug": "dien-tinh-2026",
     "name": "Điên Tình",
     "origin_name": "You Maniac",
@@ -3467,6 +3452,21 @@
     "available_languages": [
       "PD:10",
       "SN:10"
+    ],
+    "source": "/phim-song-ngu?page=10"
+  },
+  {
+    "slug": "payback-bao-thu",
+    "name": "PAYBACK: Báo Thù",
+    "origin_name": "Payback",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/4L9sftGH7oQ1bpB0aQHERwyfDVd.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/616HQHGVqEh0ZbQIRdyjIBQfqhU.jpg",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:10",
+      "SN:8"
     ],
     "source": "/phim-song-ngu?page=10"
   },
@@ -3777,21 +3777,6 @@
     "source": "/phim-song-ngu?page=11"
   },
   {
-    "slug": "tinh-yeu-tren-thuc-don",
-    "name": "Tình Yêu Trên Thực Đơn",
-    "origin_name": "Love On The Menu",
-    "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/1tuHcp4IAwBZWK82UtmsdQk98Uw.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/original/6M34aDRWttbjApzgWqYr43xpJzA.jpg",
-    "episode_current": "Tập 8",
-    "lang": "Vietsub",
-    "available_languages": [
-      "PD",
-      "SN:5"
-    ],
-    "source": "/phim-song-ngu?page=11"
-  },
-  {
     "slug": "toi-ac-vo-hinh-cong-ly-mu",
     "name": "Tội Ác Vô Hình (Công Lý Mù)",
     "origin_name": "Blind",
@@ -3818,6 +3803,21 @@
     "available_languages": [
       "PD:40",
       "SN:40"
+    ],
+    "source": "/phim-song-ngu?page=11"
+  },
+  {
+    "slug": "tinh-yeu-tren-thuc-don",
+    "name": "Tình Yêu Trên Thực Đơn",
+    "origin_name": "Love On The Menu",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/1tuHcp4IAwBZWK82UtmsdQk98Uw.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/6M34aDRWttbjApzgWqYr43xpJzA.jpg",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD",
+      "SN:5"
     ],
     "source": "/phim-song-ngu?page=11"
   },
@@ -7757,18 +7757,18 @@
     "source": "/phim-song-ngu?page=25"
   },
   {
-    "slug": "truong-sinh-khe",
-    "name": "Trường Sinh Khế",
-    "origin_name": "Live Forever",
-    "poster_url": "https://image.tmdb.org/t/p/original/ftDlayhSa7qamJtA04BajWOm4lI.jpg",
-    "thumb_url": "https://image.tmdb.org/t/p/original/ftDlayhSa7qamJtA04BajWOm4lI.jpg",
-    "source": "/quoc-gia/trung-quoc?page=4",
-    "episode_current": "Tập 16",
+    "slug": "phap-su-gian-lan-bi-sa-thai-tan-huong-cuoc-song-thu-hai",
+    "name": "Pháp Sư Gian Lận Bị Sa Thải Tận Hưởng Cuộc Sống Thứ Hai",
+    "origin_name": "The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life",
+    "poster_url": "https://image.tmdb.org/t/p/original/rncb111IIBmIIO9I9ENW0Xc8mca.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/rncb111IIBmIIO9I9ENW0Xc8mca.jpg",
+    "source": "/quoc-gia/nhat-ban?page=3",
+    "episode_current": "Tập 12",
     "lang": "Vietsub + Thuyết Minh",
     "available_languages": [
-      "PD:16",
+      "PD:12",
       "SN",
-      "TM:16"
+      "TM:12"
     ]
   }
 ]
