@@ -4266,51 +4266,20 @@ function initializePlayer(episode) {
 
         // 🌟 Đồng bộ Native Subtitle Track vào thẻ <video> của thiết bị (cho iPhone / Android Fullscreen)
         function syncNativeDeviceSubtitleTracks() {
-            if (!videoEl || typeof Blob === 'undefined' || typeof URL === 'undefined') return;
+            if (!videoEl) return;
             try {
-                if ((!topCues || !topCues.length) && (!bottomCues || !bottomCues.length)) return;
-
-                let subCfg = window._aphimSubConfigCache || { mode: 'dual', activeTab: 'sub2' };
-                let targetCues = [];
-
-                if (subCfg.mode === 'off') {
-                    targetCues = [];
-                } else if (subCfg.mode === 'on') {
-                    targetCues = (subCfg.activeTab === 'sub1') ? topCues : (bottomCues.length ? bottomCues : topCues);
-                } else {
-                    // Song ngữ: CHỈ hiển thị ngôn ngữ phụ/dịch (tiếng Hàn/ngoại ngữ) nằm trên Vietsub chính
-                    targetCues = (bottomCues && bottomCues.length) ? bottomCues : topCues;
+                // 🛡️ Xóa bỏ hoàn toàn track native đen để không bao giờ bị spam 2 dòng sub
+                const existingTracks = videoEl.querySelectorAll('track[data-native-dual="true"]');
+                existingTracks.forEach(t => {
+                    if (t._prevBlobUrl) URL.revokeObjectURL(t._prevBlobUrl);
+                    t.remove();
+                });
+                if (videoEl.textTracks) {
+                    for (let i = 0; i < videoEl.textTracks.length; i++) {
+                        videoEl.textTracks[i].mode = 'disabled';
+                    }
                 }
-
-                if (!targetCues || !targetCues.length) return;
-
-                // Truyền cả targetCues lẫn topCues để thuật toán tự động nhận diện 1 hàng hay 2 hàng
-                const vttContent = generateBilingualNativeVtt(targetCues, topCues);
-                const blob = new Blob([vttContent], { type: 'text/vtt;charset=utf-8' });
-                const trackUrl = URL.createObjectURL(blob);
-
-                let trackEl = videoEl.querySelector('track[data-native-dual="true"]');
-                if (!trackEl) {
-                    trackEl = document.createElement('track');
-                    trackEl.kind = 'subtitles';
-                    trackEl.label = 'Song Ngữ';
-                    trackEl.srclang = 'ko';
-                    trackEl.setAttribute('data-native-dual', 'true');
-                    trackEl.default = true;
-                    videoEl.appendChild(trackEl);
-                } else if (trackEl._prevBlobUrl) {
-                    URL.revokeObjectURL(trackEl._prevBlobUrl);
-                }
-                trackEl._prevBlobUrl = trackUrl;
-                trackEl.src = trackUrl;
-
-                const isFs = !!(videoEl.webkitDisplayingFullscreen || document.fullscreenElement || document.webkitFullscreenElement);
-                if (trackEl.track) {
-                    trackEl.track.mode = isFs ? 'showing' : 'hidden';
-                }
-            } catch (err) {
-                console.warn('[Sync Native Subtitle Track Error]:', err);
-            }
+            } catch (err) {}
         }
 
         function loadTrack(subItem, isTop) {
@@ -4441,7 +4410,21 @@ function initializePlayer(episode) {
                             if (newTxt) { subBottomEl.textContent = newTxt; subBottomEl.style.display = 'block'; }
                             else { subBottomEl.style.display = 'none'; }
                         }
-                    } else if (currentBottomText !== '') {
+                    
+
+                // 🧠 Tự động nhận diện khoảng cách: Nếu Vietsub ở đáy đang có 2 hàng chữ -> tự động đẩy phụ đề song ngữ lên cao
+                if (overlayEl && topCues.length > 0) {
+                    const activeViet = findActiveCue(topCues, t, syncOffset);
+                    let lift = 0;
+                    if (activeViet && activeViet.text) {
+                        const lines = activeViet.text.split('\n').map(s => s.trim()).filter(Boolean);
+                        if (lines.length >= 2 || activeViet.text.length >= 35) {
+                            lift = 22; // Đẩy lên 22px nhường chỗ cho hàng Vietsub thứ 2
+                        }
+                    }
+                    overlayEl.style.setProperty('transform', lift > 0 ? `translateY(-${lift}px)` : 'none', 'important');
+                }
+            } else if (currentBottomText !== '') {
                         currentBottomText = '';
                         subBottomEl.style.display = 'none';
                     }
@@ -5417,7 +5400,7 @@ function initializePlayer(episode) {
             try {
                 const trackEl = player.querySelector('track[data-native-dual="true"]');
                 if (trackEl && trackEl.track) {
-                    trackEl.track.mode = 'showing';
+                    trackEl.track.mode = "disabled";
                 }
             } catch(e) {}
 
@@ -5584,12 +5567,12 @@ function initializePlayer(episode) {
             try {
                 const trackEl = player.querySelector('track[data-native-dual="true"]');
                 if (trackEl && trackEl.track) {
-                    trackEl.track.mode = 'showing';
+                    trackEl.track.mode = "disabled";
                 }
                 for (let i = 0; i < player.textTracks.length; i++) {
                     const t = player.textTracks[i];
                     if (t.label && t.label.includes('Song Ngữ')) {
-                        t.mode = 'showing';
+                        t.mode = "disabled";
                     }
                 }
             } catch(e) {}
