@@ -5269,7 +5269,7 @@ function initializePlayer(episode) {
         return isMobileUA || isIPadOS || isSmallTouchScreen;
     }
 
-    // Fullscreen Toggle Controller (Universal: Desktop, Android, iPad & iPhone)
+    // Fullscreen Toggle Controller (Universal: Desktop Custom Fullscreen vs. Mobile Native Device Player)
     function isCurrentlyFullscreen() {
         return !!(
             document.fullscreenElement ||
@@ -5289,81 +5289,92 @@ function initializePlayer(episode) {
         }
     }
 
-    async function enterFullscreen() {
+    function enterFullscreen() {
         if (!player) return;
+
+        // ─── A. MOBILE FLOW (iOS & Android: Chuyển về trình chiếu video native của máy theo chuẩn các dự án lớn) ───
+        if (isMobileDevice()) {
+            // 1. iOS Safari (iPhone / iPad): Gọi trực tiếp webkitEnterFullscreen ngay lập tức trong user gesture tick (không await)
+            if (typeof player.webkitEnterFullscreen === 'function') {
+                try {
+                    player.webkitEnterFullscreen();
+                    updateFullscreenIcons(true);
+                    return;
+                } catch (e) {
+                    console.warn('iOS player.webkitEnterFullscreen error:', e);
+                }
+            }
+
+            // 2. Android / Other Mobile: Kích hoạt Native Video Player trên chính thẻ <video> của thiết bị
+            if (player.requestFullscreen || player.webkitRequestFullscreen) {
+                try {
+                    player.controls = true; // Bật thanh điều khiển native của máy
+                    const req = player.requestFullscreen ? player.requestFullscreen() : player.webkitRequestFullscreen();
+                    if (req && req.catch) {
+                        req.catch(() => { player.controls = false; });
+                    }
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                    updateFullscreenIcons(true);
+                    return;
+                } catch (e) {
+                    console.warn('Mobile native video requestFullscreen error:', e);
+                    player.controls = false;
+                }
+            }
+        }
+
+        // ─── B. DESKTOP FLOW (PC / Laptop: Custom Player Fullscreen trên wrapper) ───
         if (!wrapper) return;
         let nativeSuccess = false;
 
-        // 1. Thử Native Fullscreen API trên wrapper (Desktop Chrome/Firefox/Safari + Android + iPad)
         try {
             if (wrapper.requestFullscreen) {
-                await wrapper.requestFullscreen();
+                wrapper.requestFullscreen();
                 nativeSuccess = true;
             } else if (wrapper.webkitRequestFullscreen) {
-                await wrapper.webkitRequestFullscreen();
+                wrapper.webkitRequestFullscreen();
                 nativeSuccess = true;
             } else if (wrapper.mozRequestFullScreen) {
-                await wrapper.mozRequestFullScreen();
+                wrapper.mozRequestFullScreen();
                 nativeSuccess = true;
             } else if (wrapper.msRequestFullscreen) {
-                await wrapper.msRequestFullscreen();
+                wrapper.msRequestFullscreen();
                 nativeSuccess = true;
             }
         } catch (e) {
             console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
         }
 
-        // 2. Tự động xoay ngang màn hình trên Mobile khi vào Fullscreen (nếu thiết bị hỗ trợ)
-        if (screen.orientation && screen.orientation.lock) {
-            try {
-                screen.orientation.lock('landscape').catch(() => {});
-            } catch (_) {}
-        }
-
-        // 3. Fallback cho Mobile / iOS Safari (iPhone không hỗ trợ Element.requestFullscreen):
         if (!nativeSuccess && !document.fullscreenElement && !document.webkitFullscreenElement) {
-            // 3a. Thử native video fullscreen trên iOS Safari (iPhone)
-            if (typeof player.webkitEnterFullscreen === 'function') {
-                try {
-                    player.webkitEnterFullscreen();
-                    nativeSuccess = true;
-                } catch (iosErr) {
-                    console.warn('iOS player.webkitEnterFullscreen fallback error:', iosErr);
-                }
-            }
-
-            // 3b. Web Fullscreen (CSS Fullscreen 100vw x 100dvh cho toàn bộ Mobile & Desktop)
-            if (!nativeSuccess) {
-                wrapper.classList.add('aphim-web-fullscreen');
-                document.body.classList.add('aphim-body-fullscreen');
-            }
+            wrapper.classList.add('aphim-web-fullscreen');
+            document.body.classList.add('aphim-body-fullscreen');
         }
 
         updateFullscreenIcons(true);
         showControls();
     }
 
-    async function exitFullscreen() {
-        // 1. Reset player.controls & thoát iOS native video player nếu có
+    function exitFullscreen() {
+        // 1. Khôi phục trạng thái mobile: tắt native controls của máy, chuyển lại custom controls
         if (player) {
             player.controls = false;
             if (typeof player.webkitExitFullscreen === 'function') {
-                try {
-                    player.webkitExitFullscreen();
-                } catch (_) {}
+                try { player.webkitExitFullscreen(); } catch (e) {}
             }
         }
 
-        // 2. Exit native browser fullscreen
+        // 2. Thoát native browser fullscreen
         try {
             if (document.exitFullscreen) {
-                await document.exitFullscreen();
+                document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {
-                await document.webkitExitFullscreen();
+                document.webkitExitFullscreen();
             } else if (document.mozCancelFullScreen) {
-                await document.mozCancelFullScreen();
+                document.mozCancelFullScreen();
             } else if (document.msExitFullscreen) {
-                await document.msExitFullscreen();
+                document.msExitFullscreen();
             }
         } catch (e) {
             console.warn('Exit fullscreen error:', e);
