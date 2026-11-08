@@ -4461,75 +4461,106 @@ function initializePlayer(episode) {
         // 🎬 Helper: Tạo track WebVTT Native cho chế độ Song Ngữ trên thiết bị (iOS AVPlayer / Android Fullscreen)
         // 🌟 Bỏ hoàn toàn nền đen, chữ trắng sắc nét có viền bóng đổ y như Vietsub in cứng của phim.
         // 🌟 Tự động nhận diện khoảng cách: Vietsub 1 hàng -> line:74%; Vietsub 2 hàng -> tự động đẩy lên line:66% hoặc 62% không bao giờ dính chữ!
-        function generateBilingualNativeVtt(bCues = [], tCues = []) {
-            const cues = (bCues && bCues.length > 0) ? bCues : (tCues || []);
-            if (!cues || !cues.length) return 'WEBVTT\n\n';
+        // 🎬 Helper: Ghép 2 luồng phụ đề (Tiếng Việt & Ngoại ngữ) thành 1 track Native WebVTT cho Apple AVPlayer & Android
+        function mergeDualCuesClean(tCues = [], bCues = []) {
+            if (!tCues?.length && !bCues?.length) return 'WEBVTT - Song Ngu\n\n';
+            if (!tCues?.length) {
+                let v = 'WEBVTT - Song Ngu\n\n';
+                (bCues || []).forEach((m, idx) => {
+                    v += (idx + 1) + '\n' + formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n' + (m.text || '').trim() + '\n\n';
+                });
+                return v;
+            }
+            if (!bCues?.length) {
+                let v = 'WEBVTT - Song Ngu\n\n';
+                (tCues || []).forEach((m, idx) => {
+                    v += (idx + 1) + '\n' + formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n' + (m.text || '').trim() + '\n\n';
+                });
+                return v;
+            }
+
+            const merged = [];
+            const usedBottom = new Set();
+
+            tCues.forEach(tc => {
+                let bestB = null;
+                let maxOverlap = 0;
+
+                bCues.forEach((bc, idx) => {
+                    if (usedBottom.has(idx)) return;
+                    const overlap = Math.min(tc.end, bc.end) - Math.max(tc.start, bc.start);
+                    if (overlap > 0.2 && overlap > maxOverlap) {
+                        maxOverlap = overlap;
+                        bestB = { cue: bc, idx };
+                    }
+                });
+
+                if (bestB) {
+                    usedBottom.add(bestB.idx);
+                    const line1 = (tc.text || '').trim();
+                    const line2 = (bestB.cue.text || '').trim();
+                    merged.push({
+                        start: Math.min(tc.start, bestB.cue.start),
+                        end: Math.max(tc.end, bestB.cue.end),
+                        text: line1 + '\n' + line2
+                    });
+                } else {
+                    merged.push({ start: tc.start, end: tc.end, text: (tc.text || '').trim() });
+                }
+            });
+
+            bCues.forEach((bc, idx) => {
+                if (!usedBottom.has(idx)) {
+                    merged.push({ start: bc.start, end: bc.end, text: (bc.text || '').trim() });
+                }
+            });
+
+            merged.sort((a, b) => a.start - b.start);
 
             let vtt = 'WEBVTT - Song Ngu\n\n';
-            vtt += 'STYLE\n';
-            vtt += '::cue {\n';
-            vtt += '  background: transparent !important;\n';
-            vtt += '  background-color: transparent !important;\n';
-            vtt += '  color: #ffffff !important;\n';
-            vtt += '  font-size: 80% !important;\n';
-            vtt += '  text-shadow: 0 1px 2px #000, 0 0 3px #000, 1px 1px 2px #000, -1px -1px 2px #000 !important;\n';
-            vtt += '}\n\n';
-
-            cues.forEach((m, idx) => {
-                let cleanTxt = (m.text || '').trim();
-                if (!cleanTxt) return;
-                cleanTxt = cleanTxt.replace(/\n/g, '\n').replace(/\n{3,}/g, '\n');
-
-                // 🧠 Tự động nhận diện khoảng cách theo số hàng chữ:
-                let isViet2Lines = false;
-                if (tCues && tCues.length > 0) {
-                    const midTime = (m.start + m.end) / 2;
-                    const vCue = findActiveCue(tCues, midTime, 0);
-                    if (vCue && vCue.text) {
-                        const vLines = vCue.text.split('\n').map(s => s.trim()).filter(Boolean);
-                        if (vLines.length >= 2 || vCue.text.length >= 35) {
-                            isViet2Lines = true;
-                        }
-                    }
-                }
-
-                const isKorean2Lines = cleanTxt.includes('\n') || cleanTxt.length >= 35;
-
-                // Tự động đẩy vị trí line khi Vietsub phía dưới có 2 hàng
-                let linePercent = 74;
-                if (isViet2Lines && isKorean2Lines) {
-                    linePercent = 62;
-                } else if (isViet2Lines) {
-                    linePercent = 66; // Đẩy lên cao hơn để nhường chỗ cho 2 hàng Vietsub
-                } else if (isKorean2Lines) {
-                    linePercent = 70;
-                } else {
-                    linePercent = 74; // 1 hàng: khoảng cách chuẩn đẹp
-                }
-
+            merged.forEach((m, idx) => {
                 vtt += (idx + 1) + '\n';
-                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + ' line:' + linePercent + '% position:50% align:center\n';
-                vtt += cleanTxt + '\n\n';
+                vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n';
+                vtt += m.text + '\n\n';
             });
             return vtt;
         }
 
         // 🌟 Đồng bộ Native Subtitle Track vào thẻ <video> của thiết bị (cho iPhone / Android Fullscreen)
         function syncNativeDeviceSubtitleTracks() {
-            if (!videoEl) return;
+            if (!videoEl || typeof Blob === 'undefined' || typeof URL === 'undefined') return;
             try {
-                // 🛡️ Xóa bỏ hoàn toàn track native đen để không bao giờ bị spam 2 dòng sub
-                const existingTracks = videoEl.querySelectorAll('track[data-native-dual="true"]');
-                existingTracks.forEach(t => {
-                    if (t._prevBlobUrl) URL.revokeObjectURL(t._prevBlobUrl);
-                    t.remove();
-                });
-                if (videoEl.textTracks) {
-                    for (let i = 0; i < videoEl.textTracks.length; i++) {
-                        videoEl.textTracks[i].mode = 'disabled';
-                    }
+                if ((!topCues || !topCues.length) && (!bottomCues || !bottomCues.length)) return;
+
+                const mergedVtt = mergeDualCuesClean(topCues, bottomCues);
+                const blob = new Blob([mergedVtt], { type: 'text/vtt;charset=utf-8' });
+                const trackUrl = URL.createObjectURL(blob);
+
+                let trackEl = videoEl.querySelector('track[data-native-dual="true"]');
+                if (!trackEl) {
+                    trackEl = document.createElement('track');
+                    trackEl.kind = 'subtitles';
+                    trackEl.label = 'Song Ngữ';
+                    trackEl.srclang = 'vi';
+                    trackEl.setAttribute('data-native-dual', 'true');
+                    trackEl.default = true;
+                    videoEl.appendChild(trackEl);
+                } else if (trackEl._prevBlobUrl) {
+                    URL.revokeObjectURL(trackEl._prevBlobUrl);
                 }
-            } catch (err) {}
+                trackEl._prevBlobUrl = trackUrl;
+                trackEl.src = trackUrl;
+
+                // ⚡ Khi ở ngoài màn hình dọc web (Portrait / Inline): ĐẶT mode = 'hidden' để:
+                // 1) Không bao giờ bị đè trùng 2 dòng sub đen trên web (để custom HTML overlay hiển thị màu vàng/trắng đẹp mắt)
+                // 2) Nhưng track vẫn được nạp sẵn vào Apple AVPlayer / Android media engine!
+                const isFs = !!(videoEl.webkitDisplayingFullscreen || document.fullscreenElement || document.webkitFullscreenElement);
+                if (trackEl.track) {
+                    trackEl.track.mode = isFs ? 'showing' : 'hidden';
+                }
+            } catch (err) {
+                console.warn('[Sync Native Subtitle Track Error]:', err);
+            }
         }
 
         function loadTrack(subItem, isTop) {
@@ -5764,6 +5795,19 @@ function initializePlayer(episode) {
 
         // ─── A. MOBILE FLOW (iOS & Android: Chuyển về trình chiếu video native của máy theo chuẩn các dự án lớn) ───
         if (isMobileDevice()) {
+            // 🌟 Bật Native Dual Subtitle Track trước khi mở Apple AVPlayer / Android Fullscreen
+            try {
+                const trackEl = player.querySelector('track[data-native-dual="true"]');
+                if (trackEl && trackEl.track) {
+                    trackEl.track.mode = 'showing';
+                }
+                for (let i = 0; i < player.textTracks.length; i++) {
+                    const t = player.textTracks[i];
+                    if (t.label && t.label.includes('Song Ngữ')) {
+                        t.mode = 'showing';
+                    }
+                }
+            } catch(e) {}
             // 1. iOS Safari (iPhone / iPad): Gọi trực tiếp webkitEnterFullscreen ngay lập tức trong user gesture tick (không await)
             if (typeof player.webkitEnterFullscreen === 'function') {
                 try {
@@ -5924,16 +5968,16 @@ function initializePlayer(episode) {
     if (player) {
         player.addEventListener('webkitbeginfullscreen', () => {
             updateFullscreenIcons(true);
-            // 🌟 Tự động BẬT Native Dual Subtitle Track trên màn hình máy của Apple (Hình 1)
+            // 🌟 Tự động BẬT Native Dual Subtitle Track trên màn hình máy của Apple (Hình 2)
             try {
                 const trackEl = player.querySelector('track[data-native-dual="true"]');
                 if (trackEl && trackEl.track) {
-                    trackEl.track.mode = "disabled";
+                    trackEl.track.mode = 'showing';
                 }
                 for (let i = 0; i < player.textTracks.length; i++) {
                     const t = player.textTracks[i];
                     if (t.label && t.label.includes('Song Ngữ')) {
-                        t.mode = "disabled";
+                        t.mode = 'showing';
                     }
                 }
             } catch(e) {}
@@ -5941,11 +5985,17 @@ function initializePlayer(episode) {
         player.addEventListener('webkitendfullscreen', () => {
             if (player) {
                 player.controls = false;
-                // Ẩn Native Track khi quay về màn hình dọc để custom HTML overlay tiếp quản
+                // Ẩn Native Track khi quay về màn hình dọc để custom HTML overlay tiếp quản (chống đè 2 dòng phụ đề trên web)
                 try {
                     const trackEl = player.querySelector('track[data-native-dual="true"]');
                     if (trackEl && trackEl.track) {
                         trackEl.track.mode = 'hidden';
+                    }
+                    for (let i = 0; i < player.textTracks.length; i++) {
+                        const t = player.textTracks[i];
+                        if (t.label && t.label.includes('Song Ngữ')) {
+                            t.mode = 'hidden';
+                        }
                     }
                 } catch(e) {}
             }
