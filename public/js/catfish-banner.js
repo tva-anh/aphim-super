@@ -40,13 +40,14 @@
             },
             {
                 img: '/ads/catfish/colatv.gif',
-                url: 'https://colacaica.com/',
+                url: 'http://178.128.49.112/colatv.html',
                 label: 'ColaTV — Xem Phim HD Miễn Phí'
             },
             {
-                img: '/ads/catfish/colascore.gif',
-                url: 'https://colacaibua.com/',
-                label: 'ColaScore — Tỷ Số Bóng Đá Trực Tiếp'
+                img: '/images/ads/ColaScore.mp4?v=1',
+                url: 'http://178.128.49.112/colaapp.html',
+                label: 'ColaScore — Tỷ Số Bóng Đá Trực Tiếp',
+                isVideo: true
             }
         ]
     };
