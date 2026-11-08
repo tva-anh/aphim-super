@@ -5760,54 +5760,66 @@ function initializePlayer(episode) {
     }
 
     function enterFullscreen() {
-        if (!player || !wrapper) return;
+        if (!player) return;
 
-        // 🌟 Luôn ưu tiên Fullscreen trên Wrapper để GIỮ NGUYÊN giao diện APhim, thanh điều khiển cao cấp và Phụ đề Song ngữ (Dual Subtitles)
-        let nativeSuccess = false;
+        // ─── A. MOBILE FLOW (iOS & Android: Chuyển về trình chiếu video native của máy theo chuẩn các dự án lớn) ───
+        if (isMobileDevice()) {
+            // 1. iOS Safari (iPhone / iPad): Gọi trực tiếp webkitEnterFullscreen ngay lập tức trong user gesture tick (không await)
+            if (typeof player.webkitEnterFullscreen === 'function') {
+                try {
+                    player.webkitEnterFullscreen();
+                    updateFullscreenIcons(true);
+                    return;
+                } catch (e) {
+                    console.warn('iOS player.webkitEnterFullscreen error:', e);
+                }
+            }
 
-        const requestWrapperFs = wrapper.requestFullscreen || wrapper.webkitRequestFullscreen || wrapper.mozRequestFullScreen || wrapper.msRequestFullscreen;
-
-        function applyWebFullscreen() {
-            // Cho thiết bị không hỗ trợ Element.requestFullscreen (như Safari trên iPhone):
-            // Dùng Web Fullscreen tràn viền 100vw x 100vh để giữ trọn vẹn Phụ đề Song ngữ 2 dòng và Controls!
-            wrapper.classList.add('aphim-web-fullscreen');
-            document.body.classList.add('aphim-body-fullscreen');
-            updateFullscreenIcons(true);
-            if (videoEl && videoEl._subResizeHandler) {
-                videoEl._subResizeHandler();
+            // 2. Android / Other Mobile: Kích hoạt Native Video Player trên chính thẻ <video> của thiết bị
+            if (player.requestFullscreen || player.webkitRequestFullscreen) {
+                try {
+                    player.controls = true; // Bật thanh điều khiển native của máy
+                    const req = player.requestFullscreen ? player.requestFullscreen() : player.webkitRequestFullscreen();
+                    if (req && req.catch) {
+                        req.catch(() => { player.controls = false; });
+                    }
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                    updateFullscreenIcons(true);
+                    return;
+                } catch (e) {
+                    console.warn('Mobile native video requestFullscreen error:', e);
+                    player.controls = false;
+                }
             }
         }
 
-        if (requestWrapperFs) {
-            try {
-                const p = requestWrapperFs.call(wrapper);
-                if (p && typeof p.then === 'function') {
-                    p.then(() => {
-                        nativeSuccess = true;
-                        if (screen.orientation && screen.orientation.lock) {
-                            try { screen.orientation.lock('landscape').catch(() => {}); } catch(e) {}
-                        }
-                        updateFullscreenIcons(true);
-                        if (videoEl && videoEl._subResizeHandler) videoEl._subResizeHandler();
-                    }).catch(() => {
-                        applyWebFullscreen();
-                    });
-                } else {
-                    nativeSuccess = true;
-                    if (screen.orientation && screen.orientation.lock) {
-                        try { screen.orientation.lock('landscape').catch(() => {}); } catch(e) {}
-                    }
-                    updateFullscreenIcons(true);
-                    if (videoEl && videoEl._subResizeHandler) videoEl._subResizeHandler();
-                }
-            } catch (e) {
-                console.warn('Wrapper requestFullscreen failed, using web fullscreen fallback:', e);
-                applyWebFullscreen();
+        // ─── B. DESKTOP FLOW (PC / Laptop: Custom Player Fullscreen trên wrapper) ───
+        if (!wrapper) return;
+        let nativeSuccess = false;
+
+        try {
+            if (wrapper.requestFullscreen) {
+                wrapper.requestFullscreen();
+                nativeSuccess = true;
+            } else if (wrapper.webkitRequestFullscreen) {
+                wrapper.webkitRequestFullscreen();
+                nativeSuccess = true;
+            } else if (wrapper.mozRequestFullScreen) {
+                wrapper.mozRequestFullScreen();
+                nativeSuccess = true;
+            } else if (wrapper.msRequestFullscreen) {
+                wrapper.msRequestFullscreen();
+                nativeSuccess = true;
             }
+        } catch (e) {
+            console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
         }
 
         if (!nativeSuccess && !document.fullscreenElement && !document.webkitFullscreenElement) {
-            applyWebFullscreen();
+            wrapper.classList.add('aphim-web-fullscreen');
+            document.body.classList.add('aphim-body-fullscreen');
         }
 
         updateFullscreenIcons(true);
