@@ -1212,10 +1212,16 @@
                                             if (rawP) {
                                                 rawP = rawP.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
                                                 if (rawP.startsWith('http://') || rawP.startsWith('https://')) {
-                                                    rawOriginWatchP = rawP;
+                                                    if (rawP.includes('phimimg.com/uploads/movies/img/')) {
+                                                        rawOriginWatchP = rawP.replace('phimimg.com/uploads/movies/img/', 'oncdn.vip/img/');
+                                                    } else {
+                                                        rawOriginWatchP = rawP;
+                                                    }
                                                 } else {
                                                     let cleanP = rawP.replace(/^\//, '');
-                                                    if (cleanP.startsWith('upload/') || cleanP.startsWith('uploads/')) {
+                                                    if (cleanP.startsWith('img/')) {
+                                                        rawOriginWatchP = 'https://oncdn.vip/' + cleanP;
+                                                    } else if (cleanP.startsWith('upload/') || cleanP.startsWith('uploads/')) {
                                                         rawOriginWatchP = 'https://phimimg.com/' + cleanP;
                                                     } else {
                                                         rawOriginWatchP = 'https://phimimg.com/uploads/movies/' + cleanP;
@@ -1437,11 +1443,11 @@
             <script src="/js/watch-early-render.js?v=<%= Date.now() %>" defer></script>
             <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" defer></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
-            <script src="/js/api.js?v=106" defer></script>
+            <script src="/js/api.js?v=107" defer></script>
             <script src="/js/user.js?v=101" defer></script>
             <script src="/js/gamification-core.js?v=107" defer></script>
             <script src="/js/rating.js?v=100" defer></script>
-            <script src="/js/tmdb-api.js?v=100" defer></script>
+            <script src="/js/tmdb-api.js?v=101" defer></script>
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=101" defer></script>

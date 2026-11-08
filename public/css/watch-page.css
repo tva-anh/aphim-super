@@ -2552,7 +2552,7 @@
                 user-select: none !important;
                 padding-left: 16px !important;
                 padding-right: 16px !important;
-                padding-bottom: calc(var(--aphim-sub-offset, 82px) + var(--aphim-sub-user-offset, 0px)) !important;
+                padding-bottom: calc(var(--aphim-sub-offset, 34px) + var(--aphim-sub-user-offset, 0px)) !important;
                 transition: padding-bottom 0.15s ease !important;
             }
 
@@ -2565,12 +2565,38 @@
                 justify-content: flex-start !important;
             }
 
-            /* 🌟 Dòng 1 (Tiếng Việt mềm): Ẩn hoàn toàn vì video Vietsub đã in sẵn dòng tiếng Việt ở đáy rồi */
+            /* 🌟 Dòng 1 (Phụ đề dịch - Tiếng Việt mềm): Hiển thị song hành cùng ngoại ngữ, màu vàng dịu nổi bật */
             #aphim-sub-top {
-                display: none !important;
+                color: var(--aphim-sub-top-color, #ffd54f) !important;
+                font-size: var(--aphim-sub-top-size, var(--aphim-sub-font-size, clamp(16px, 2.2vw, 24px))) !important;
+                font-weight: 700 !important;
+                line-height: 1.35 !important;
+                -webkit-text-stroke: 1.2px #000000 !important;
+                paint-order: stroke fill !important;
+                text-shadow: 0 1px 2px #000000, 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.8) !important;
+                -webkit-font-smoothing: antialiased !important;
+                text-rendering: optimizeLegibility !important;
+                text-align: center !important;
+                max-width: 92% !important;
+                letter-spacing: 0.25px !important;
+                background: transparent !important;
+                padding: 0 !important;
+                margin-bottom: 5px !important;
+                border: none !important;
+                box-shadow: none !important;
+                transition: all 0.12s ease !important;
             }
 
-            /* 🌟 Dòng 2 (Ngoại ngữ - Tiếng Hàn/Anh): Chữ trắng tinh, viền đen sắc nét, nổi tự nhiên phía trên Vietsub (Chuẩn Ảnh người dùng) */
+            @media (max-width: 640px) {
+                #aphim-sub-top {
+                    font-size: var(--aphim-sub-top-size, 14px) !important;
+                    -webkit-text-stroke: 0.8px #000000 !important;
+                    text-shadow: 0 1px 2px #000000, 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+                    margin-bottom: 3px !important;
+                }
+            }
+
+            /* 🌟 Dòng 2 (Ngoại ngữ - Tiếng Hàn/Anh): Chữ trắng tinh, viền đen sắc nét */
             #aphim-sub-bottom {
                 color: var(--aphim-sub-bottom-color, #ffffff) !important;
                 font-size: var(--aphim-sub-bottom-size, var(--aphim-sub-font-size, clamp(16px, 2.2vw, 24px))) !important;
@@ -6053,4 +6079,38 @@ html, body, button, a, input, select,
 #aphim-sync-toast.show {
     opacity: 1 !important;
     transform: translateX(-50%) translateY(0) !important;
+}
+
+/* 🔇 Unmute Pill / Banner (Autoplay Audio Recovery) */
+.aphim-unmute-pill {
+    position: absolute !important;
+    top: 20px !important;
+    left: 20px !important;
+    z-index: 55 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: rgba(15, 17, 23, 0.88) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(252, 213, 118, 0.5) !important;
+    color: #fcd576 !important;
+    padding: 8px 16px !important;
+    border-radius: 9999px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(252, 213, 118, 0.25) !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    animation: aphimUnmutePulse 2s infinite !important;
+}
+.aphim-unmute-pill:hover {
+    background: rgba(252, 213, 118, 0.2) !important;
+    border-color: #fcd576 !important;
+    color: #ffffff !important;
+    transform: scale(1.05) !important;
+}
+@keyframes aphimUnmutePulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(252, 213, 118, 0.25); }
+    50% { box-shadow: 0 8px 28px rgba(0, 0, 0, 0.7), 0 0 25px rgba(252, 213, 118, 0.5); }
 }

@@ -23,7 +23,9 @@ class ImageOptimizer {
 
         if (!resolvedUrl.startsWith('http://') && !resolvedUrl.startsWith('https://')) {
             let filename = resolvedUrl.replace(/^\//, '');
-            if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
+            if (filename.startsWith('img/')) {
+                resolvedUrl = 'https://oncdn.vip/' + filename;
+            } else if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
                 resolvedUrl = "https://phimimg.com/" + filename;
             } else if (filename.match(/^\d{8}-\d+\//)) {
                 resolvedUrl = "https://phimimg.com/upload/vod/" + filename;
@@ -77,8 +79,10 @@ class ImageOptimizer {
         full = full.replace(/^(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
 
         if (!full.startsWith('http://') && !full.startsWith('https://')) {
-            let filename = full.replace(/^\//, "");
-            if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
+            let filename = full.replace(/^\//, '');
+            if (filename.startsWith('img/')) {
+                full = 'https://oncdn.vip/' + filename;
+            } else if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
                 full = "https://phimimg.com/" + filename;
             } else if (filename.match(/^\d{8}-\d+\//)) {
                 full = "https://phimimg.com/upload/vod/" + filename;

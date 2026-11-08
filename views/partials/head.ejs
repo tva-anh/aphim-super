@@ -434,12 +434,46 @@
         <link rel="stylesheet" href="/css/light-mode.css?v=1793816273064">
         <link rel="stylesheet" href="/css/profile-banner-aura.css?v=4" media="print" onload="this.media='all'">
         <link rel="stylesheet" href="/css/playlist-modal.css?v=20261017" media="print" onload="this.media='all'">
-        <link rel="stylesheet" href="/css/mobile-interaction-pro.css?v=20268">
+        <link rel="stylesheet" href="/css/mobile-interaction-pro.css?v=20270">
         <script src="/js/config.js?v=100" defer></script>
         <script src="/js/toast-system.js?v=102" defer></script>
         <script>window.__BILINGUAL_SLUGS__ = new Set(<%- JSON.stringify(typeof bilingualSlugs !== 'undefined' ? bilingualSlugs : []) %>);</script>
         <script src="/js/aphim-core-api.js?v=10029" defer></script>
         <script src="/js/nav-instant-suggest.js?v=10005" defer></script>
+        <!-- ⚡ Next-Gen Speculation Rules API (Chrome / Android 0ms Instant Navigation) -->
+        <script type="speculationrules">
+        {
+          "prefetch": [
+            {
+              "source": "document",
+              "where": {
+                "and": [
+                  { "href_matches": "/phim/*" },
+                  { "not": { "href_matches": "/api/*" } }
+                ]
+              },
+              "eagerness": "moderate"
+            },
+            {
+              "source": "document",
+              "where": {
+                "and": [
+                  { "href_matches": "/xem-phim/*" },
+                  { "not": { "href_matches": "/api/*" } }
+                ]
+              },
+              "eagerness": "moderate"
+            },
+            {
+              "source": "document",
+              "where": {
+                "href_matches": "/phim-song-ngu*"
+              },
+              "eagerness": "moderate"
+            }
+          ]
+        }
+        </script>
         <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function () {

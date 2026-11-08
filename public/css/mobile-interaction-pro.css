@@ -249,3 +249,161 @@
     }
 }
 
+
+
+/* ==========================================================================
+   🌈 TIÊU ĐỀ PHIM SONG NGỮ ĐA SẮC NHIỀU MÀU (CHUẨN ẢNH 2 - 100% FIDELITY)
+   ========================================================================== */
+.sn-multicolor-title,
+#pageTitle.sn-multicolor-title,
+h1#pageTitle.sn-multicolor-title {
+    background: linear-gradient(92deg, #c084fc 0%, #f472b6 22%, #fb923c 48%, #facc15 70%, #2dd4bf 85%, #38bdf8 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    filter: none !important;
+    font-weight: 900 !important;
+    display: inline-block !important;
+}
+
+html.light-mode .sn-multicolor-title,
+html.light-mode #pageTitle.sn-multicolor-title,
+html.light-mode h1#pageTitle.sn-multicolor-title {
+    background: linear-gradient(92deg, #7c3aed 0%, #a855f7 18%, #be185d 34%, #c2410c 52%, #d97706 70%, #0f766e 86%, #0284c7 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    filter: none !important;
+    font-weight: 900 !important;
+    display: inline-block !important;
+}
+
+/* ==========================================================================
+   ⚡ 0MS NATIVE TOUCH & SPECULATIVE HARDWARE ACCELERATION
+   ========================================================================== */
+a, button, [role="button"], .normal-card-item, .sn-row-card, .de-cu-card, .featured-card-item, .movie-card {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ⚡ Phản hồi chạm vật lý tức thì (0ms Haptic Touch Feedback) */
+.normal-card-item:active, .sn-row-card:active, .de-cu-card:active, .featured-card-item:active, .btn:active {
+    transform: scale(0.975);
+    transition: transform 0.06s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ⚡ Hỗ trợ View Transitions API chuyển cảnh siêu mượt giữa /phim và /xem-phim */
+@view-transition {
+    navigation: auto;
+}
+
+
+/* ==========================================================================
+   🎯 CANH GIỮA POSTER TRANG SONG NGỮ & TOÀN BỘ DANH SÁCH (PERFECT CENTERING)
+   ========================================================================== */
+.grid-8-cols,
+#movieGrid.grid-8-cols {
+    display: grid !important;
+    justify-content: center !important;
+    justify-items: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+}
+
+.grid-movie-card {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.grid-poster-wrap {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.grid-poster-wrap img {
+    object-position: center center !important;
+    object-fit: cover !important;
+}
+
+html.light-mode .grid-poster-wrap img,
+html.light-mode .grid-movie-card img {
+    object-position: center center !important;
+    object-fit: cover !important;
+}
+
+/* 🎯 Cân đối tiêu đề và poster trang Song Ngữ (/phim-song-ngu) */
+body:has(#pageTitle.sn-multicolor-title) #movieGrid,
+.page-song-ngu #movieGrid {
+    justify-content: center !important;
+    justify-items: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+
+/* ==========================================================================
+   📱 2 LUỒNG HIỂN THỊ RIÊNG BIỆT CHO MOBILE (GRID 2 CỘT ĐỨNG & LIST THẺ NGANG)
+   ========================================================================== */
+@media (max-width: 639px) {
+    /* Luồng 1: Poster Đứng 2 Cột Chuẩn Điện Ảnh (2:3) */
+    .grid-8-cols:not(.is-list-view) {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px 10px !important;
+    }
+    .grid-8-cols:not(.is-list-view) .grid-poster-wrap {
+        aspect-ratio: 2 / 3 !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+    .grid-8-cols:not(.is-list-view) .grid-poster-wrap img {
+        object-fit: cover !important;
+        object-position: center center !important;
+    }
+
+    /* Luồng 2: Danh Sách Thẻ Ngang (List View 1 Cột) */
+    .grid-8-cols.is-list-view {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    .grid-8-cols.is-list-view .grid-movie-card {
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+        padding: 8px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    .grid-8-cols.is-list-view .grid-poster-wrap {
+        width: 86px !important;
+        min-width: 86px !important;
+        aspect-ratio: 2 / 3 !important;
+        margin: 0 !important;
+        border-radius: 8px !important;
+    }
+    .grid-8-cols.is-list-view .grid-title-wrap {
+        align-items: flex-start !important;
+        text-align: left !important;
+        padding-top: 0 !important;
+        flex: 1 !important;
+        max-height: none !important;
+        min-height: unset !important;
+    }
+    .grid-8-cols.is-list-view .grid-title-vi,
+    .grid-8-cols.is-list-view .grid-title-en {
+        text-align: left !important;
+        white-space: normal !important;
+    }
+}

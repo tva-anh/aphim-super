@@ -139,6 +139,21 @@
         }, 120);
     }
     window.completeNavProgress = completeNavProgress;
+    // ── 5. DESKTOP HOVER PREWARM (35ms Hover Intent -> Tải trước 0ms) ──────────
+    let hoverPreheatTimer = null;
+    document.addEventListener('mouseover', function (e) {
+        const anchor = e.target.closest('a[href^="/phim/"], a[href^="/xem-phim/"], a[href^="/phim-song-ngu"], .sn-row-card a, .de-cu-card a, .normal-card-item a');
+        if (anchor) {
+            const href = anchor.getAttribute('href');
+            if (href && !href.includes('#') && !href.includes('javascript:')) {
+                if (hoverPreheatTimer) clearTimeout(hoverPreheatTimer);
+                hoverPreheatTimer = setTimeout(() => {
+                    preheatUrl(href);
+                }, 35);
+            }
+        }
+    }, { passive: true });
+
 
     // ── 3. MULTI-ENGINE SPECULATIVE PREHEATING (Tăng tốc chuyển trang 300%) ───
     const prefetchedUrls = new Set();
@@ -187,15 +202,13 @@
             preheatTouchTimer = null;
         }
 
-        const anchor = e.target.closest('a[href], .bn-tab, .bn-tab-center, #showcase3DBtnWatch, #showcase3DBtnInfo, .de-cu-card, .normal-card-item, .featured-card-item, .top10-card, .grid-movie-card');
+        const anchor = e.target.closest('a[href], .bn-tab, .bn-tab-center, #showcase3DBtnWatch, #showcase3DBtnInfo, .de-cu-card, .normal-card-item, .featured-card-item, .top10-card, .grid-movie-card, .sn-row-card');
         if (anchor) {
             anchor.classList.add('is-touch-pressed');
             const href = anchor.getAttribute('href') || (anchor.querySelector('a') ? anchor.querySelector('a').getAttribute('href') : null);
-            // Chỉ preheat nếu người dùng chạm giữ > 130ms (ý định click thật, không phải vuốt lướt scroll)
-            if (href && href.startsWith('/') && !href.startsWith('//')) {
-                preheatTouchTimer = setTimeout(() => {
-                    preheatUrl(href);
-                }, 130);
+            // ⚡ 0ms Instant Touch Prewarm: Khởi động nạp trước ngay khi ngón tay vừa chạm vào màn hình (tiết kiệm 150-300ms)
+            if (href && href.startsWith('/') && !href.startsWith('//') && !href.startsWith('/api/')) {
+                preheatUrl(href);
             }
         }
     }, { passive: true });

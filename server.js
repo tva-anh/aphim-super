@@ -290,11 +290,22 @@ app.get(['/api/bilingual/slugs', '/api/bilingual-slugs'], (req, res) => {
     }
 });
 
-app.get('/api/movies/bilingual/:slug', async (req, res) => {
+app.get(['/api/movies/bilingual/:slug', '/api/bilingual/movie/:slug'], async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     try {
-        const { getBilingualServer } = require('./lib/bilingual.service');
+        const { getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
         const songNguServer = await getBilingualServer(req.params.slug, req.query.name || '', req.query.origin_name || '', req.query.year || null);
+        if (songNguServer && Array.isArray(songNguServer.server_data)) {
+            const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim'));
+            if (needsStream) {
+                try {
+                    const originData = await fetchMovieMetadata(req.params.slug);
+                    if (originData && originData.episodes) {
+                        attachWorkingStreamsToBilingual(songNguServer, originData.episodes);
+                    }
+                } catch (e) {}
+            }
+        }
         return res.json({
             status: !!songNguServer,
             server: songNguServer || null
@@ -1235,6 +1246,9 @@ async function getAdultMoviePool(forceRefresh = false) {
                                     .replace('img.ophimimg.com', 'phimimg.com');
                         }
                         const clean = s.replace(/^\//, '');
+                        if (clean.startsWith('img/')) {
+                            return 'https://oncdn.vip/' + clean;
+                        }
                         return clean.startsWith('upload/') || clean.startsWith('uploads/') 
                             ? ('https://phimimg.com/' + clean)
                             : ('https://phimimg.com/uploads/movies/' + clean);
@@ -1346,38 +1360,97 @@ app.get('/api/the-loai/phim-18', async (req, res) => {
 });
 
 // ==========================================
-// 🚀 CORS PROXY CHO LUỒNG PHIM & PHỤ ĐỀ SONG NGỮ (CHOPHIM / UPSTREAM)
+// 🚀 CORS PROXY CHO LUỒNG PHIM & PHỤ ĐỀ SONG NGỮ (TOPHIM / ONCDN / VICDN / CHOPHIM)
 // ==========================================
-app.get('/api/proxy/m3u8', async (req, res) => {
+function decryptVicdnAesGcm(txt) {
+    if (!txt || typeof txt !== 'string' || !txt.includes('#ENC-AESGCM')) return txt;
+    try {
+        const crypto = require('crypto');
+        const ivM = txt.match(/#ENC-AESGCM;iv=([0-9a-fA-F]+)/);
+        if (!ivM) return txt;
+        const iv = Buffer.from(ivM[1], 'hex');
+        const lines = txt.trim().split('\n');
+        const b64 = lines[lines.length - 1];
+        const ciphertext = Buffer.from(b64, 'base64');
+        const key = crypto.createHash('sha256').update('vicdn_cc_key').digest();
+        const authTag = ciphertext.subarray(ciphertext.length - 16);
+        const data = ciphertext.subarray(0, ciphertext.length - 16);
+        const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+        decipher.setAuthTag(authTag);
+        const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
+        return decrypted.toString('utf8');
+    } catch (e) {
+        console.warn('[ViCDN Decrypt Error]:', e.message);
+        return txt;
+    }
+}
+
+app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
     const targetUrl = req.query.url;
     if (!targetUrl || !targetUrl.startsWith('http')) {
         return res.status(400).send('Invalid url');
     }
     try {
+        const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
+        const isVicdn = targetUrl.includes('vicdn.cc');
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': '*/*'
+        };
+        if (isAntiLeech) {
+            headers['Referer'] = 'https://tophim.vip/';
+            headers['Origin'] = 'https://tophim.vip';
+        } else if (isVicdn) {
+            headers['Referer'] = 'https://vicdn.cc/';
+            headers['Origin'] = 'https://vicdn.cc';
+        }
+
         const response = await axios.get(targetUrl, {
-            timeout: 8000,
+            timeout: 12000,
             responseType: 'text',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
+            headers
         });
+
         res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
         res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', '*');
         res.setHeader('Cache-Control', 'public, max-age=3600');
-        // 🛡️ Tự động rewrite các đường dẫn tương đối sang tuyệt đối (chống lỗi 404 levelLoadError)
+
         let m3u8Content = response.data;
+        if (isVicdn && typeof m3u8Content === 'string' && m3u8Content.includes('#ENC-AESGCM')) {
+            m3u8Content = decryptVicdnAesGcm(m3u8Content);
+        }
+
         if (typeof m3u8Content === 'string' && m3u8Content.includes('#EXTM3U')) {
             const base = new URL(targetUrl);
-            m3u8Content = m3u8Content.split('\n').map(line => {
+            const lines = m3u8Content.split('\n');
+            const rewritten = lines.map(line => {
                 const trimmed = line.trim();
-                if (!trimmed || trimmed.startsWith('#')) return line;
-                if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return line;
-                try {
-                    return new URL(trimmed, base).href;
-                } catch (e) {
+                if (!trimmed) return line;
+
+                // 🛡️ Bọc 100% mọi URI trong các thẻ EXT-X-MEDIA, EXT-X-KEY, EXT-X-MAP
+                if (trimmed.startsWith('#')) {
+                    if (trimmed.includes('URI="')) {
+                        return line.replace(/URI="([^"]+)"/g, (match, uri) => {
+                            let absUri;
+                            try { absUri = new URL(uri, base).href; } catch (e) { absUri = uri; }
+                            const isPlaylist = absUri.includes('.m3u8') || absUri.includes('format=m3u8') || absUri.includes('media=');
+                            const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
+                            return `URI="${endpoint}?url=${encodeURIComponent(absUri)}"`;
+                        });
+                    }
                     return line;
                 }
-            }).join('\n');
+
+                // 🛡️ Bọc 100% mọi phân đoạn video .ts, variant playlist và phụ đề .vtt (kể cả dạng ?seg=)
+                let absUrl;
+                try { absUrl = new URL(trimmed, base).href; } catch (e) { absUrl = trimmed; }
+
+                const isPlaylist = absUrl.includes('.m3u8') || absUrl.includes('format=m3u8') || absUrl.includes('media=');
+                const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
+                return `${endpoint}?url=${encodeURIComponent(absUrl)}`;
+            });
+            m3u8Content = rewritten.join('\n');
         }
         res.send(m3u8Content);
     } catch (err) {
@@ -1386,14 +1459,92 @@ app.get('/api/proxy/m3u8', async (req, res) => {
     }
 });
 
-app.get('/api/proxy/vtt', async (req, res) => {
-    let targetUrl = req.query.url;
-    if (!targetUrl) {
+// ⚡ Proxy cho từng phân đoạn video .ts, .png, .m4s và phụ đề .vtt vượt tường lửa Anti-Leech 100%
+app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
+    const targetUrl = req.query.url;
+    if (!targetUrl || !targetUrl.startsWith('http')) {
         return res.status(400).send('Invalid url');
     }
-    // Tự động phân giải đường dẫn tương đối từ ChoPhim (ví dụ /api/storage/subtitles?file=...)
+    try {
+        const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
+        const isVicdn = targetUrl.includes('vicdn.cc');
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': '*/*'
+        };
+        if (isAntiLeech) {
+            headers['Referer'] = 'https://tophim.vip/';
+            headers['Origin'] = 'https://tophim.vip';
+        } else if (isVicdn) {
+            headers['Referer'] = 'https://vicdn.cc/';
+            headers['Origin'] = 'https://vicdn.cc';
+        }
+        if (req.headers.range) {
+            headers['Range'] = req.headers.range;
+        }
+
+        const upstream = await axios({
+            method: 'get',
+            url: targetUrl,
+            headers,
+            responseType: 'stream',
+            timeout: 20000,
+            validateStatus: status => status >= 200 && status < 400
+        });
+
+        res.status(upstream.status);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Accept');
+
+        let contentType = upstream.headers['content-type'] || 'video/mp2t';
+        if (targetUrl.includes('.vtt') || targetUrl.includes('sub_') || targetUrl.includes('seg=') || (upstream.headers['content-type'] && upstream.headers['content-type'].includes('text/vtt'))) {
+            contentType = 'text/vtt; charset=utf-8';
+        }
+        res.setHeader('Content-Type', contentType);
+
+        ['content-length', 'content-range', 'accept-ranges', 'cache-control'].forEach(h => {
+            if (upstream.headers[h]) res.setHeader(h, upstream.headers[h]);
+        });
+
+        upstream.data.pipe(res);
+    } catch (err) {
+        console.error('[Proxy Media Error]:', err.message);
+        res.status(502).send('Error proxying media chunk');
+    }
+});
+
+app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
+    let targetUrl = req.query.url;
+    if (!targetUrl) return res.status(400).send('Invalid url');
     if (!targetUrl.startsWith('http')) {
         targetUrl = 'https://chophim.cam' + (targetUrl.startsWith('/') ? '' : '/') + targetUrl;
+    }
+
+    const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
+    const reqHeaders = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    };
+    if (isAntiLeech) {
+        reqHeaders['Referer'] = 'https://tophim.vip/';
+        reqHeaders['Origin'] = 'https://tophim.vip';
+        try {
+            const response = await axios.get(targetUrl, { timeout: 10000, responseType: 'text', headers: reqHeaders });
+            let data = response.data;
+            if (typeof data === 'string' && data.includes('#EXTM3U')) {
+                const lines = data.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+                if (lines.length > 0) {
+                    const subSegUrl = new URL(lines[0], targetUrl).href;
+                    const segRes = await axios.get(subSegUrl, { timeout: 10000, responseType: 'text', headers: reqHeaders });
+                    data = segRes.data;
+                }
+            }
+            res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.send(data);
+        } catch (err) {
+            console.error('[Proxy VTT oncdn Error]:', err.message);
+        }
     }
 
     const mirrors = [
@@ -1410,9 +1561,7 @@ app.get('/api/proxy/vtt', async (req, res) => {
             const response = await axios.get(urlToFetch, {
                 timeout: 8000,
                 responseType: 'text',
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                }
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
             });
             if (response.data && typeof response.data === 'string' && response.data.length > 5) {
                 res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
@@ -1420,11 +1569,8 @@ app.get('/api/proxy/vtt', async (req, res) => {
                 res.setHeader('Cache-Control', 'public, max-age=86400');
                 return res.send(response.data);
             }
-        } catch (err) {
-            lastError = err;
-        }
+        } catch (err) { lastError = err; }
     }
-    console.error('[Proxy VTT Error]:', lastError ? lastError.message : 'No mirror responded');
     res.status(502).send('Error proxying vtt');
 });
 
@@ -1440,9 +1586,15 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
     }
 
     const cleanSlug = String(slug).toLowerCase().trim();
+    let querySlug = cleanSlug;
+    try {
+        const { getCanonicalSlug } = require('./lib/bilingual.service');
+        const cSlug = getCanonicalSlug(cleanSlug);
+        if (cSlug) querySlug = cSlug;
+    } catch (_) {}
 
     // 🎬 0. Ưu tiên luồng phát tùy biến / R2 nội bộ từ Admin (0ms, không gọi API bên ngoài)
-    const custom = customStreams.getBySlug(cleanSlug);
+    const custom = customStreams.getBySlug(cleanSlug) || customStreams.getBySlug(querySlug);
     if (custom && custom.episodes && custom.episodes.length > 0) {
         return res.json({
             status: true,
@@ -1452,7 +1604,7 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
         });
     }
 
-    const cached = mergedCache.get(cleanSlug);
+    const cached = mergedCache.get(cleanSlug) || mergedCache.get(querySlug);
     if (cached && Date.now() - cached.timestamp < 15 * 60 * 1000) { // 15 phút cache
         return res.json(cached.data);
     }
@@ -1460,9 +1612,9 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
     try {
         // Fetch tất cả các nguồn cùng lúc (PhimAPI + NguonC + VSMov)
         const [phimApiRes, nguonCRes, vsmovRes] = await Promise.allSettled([
-            axios.get(`https://phimapi.com/phim/${slug}`, { timeout: 2500 }),
-            axios.get(`https://phim.nguonc.com/api/film/${slug}`, { timeout: 2500 }),
-            axios.get(`https://vsmov.com/api/phim/${slug}`, { timeout: 2500 })
+            axios.get(`https://phimapi.com/phim/${querySlug}`, { timeout: 2500 }),
+            axios.get(`https://phim.nguonc.com/api/film/${querySlug}`, { timeout: 2500 }),
+            axios.get(`https://vsmov.com/api/phim/${querySlug}`, { timeout: 2500 })
         ]);
 
         let finalData = { status: false, message: 'Không tìm thấy phim ở mọi nguồn' };
@@ -1732,7 +1884,9 @@ function formatMobileShowcaseImg(url) {
     let clean = u.replace(/^\//, '');
     clean = clean.replace(/^(uploads\/movies\/)+/, 'uploads/movies/');
     clean = clean.replace(/^(upload\/vod\/)+/, 'upload/vod/');
-    if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
+    if (clean.startsWith('img/')) {
+        return 'https://oncdn.vip/' + clean;
+    } else if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
         return 'https://phimimg.com/' + clean;
     } else if (clean.match(/^\d{8}-\d+\//)) {
         return 'https://phimimg.com/upload/vod/' + clean;
@@ -1987,11 +2141,25 @@ async function fetchMovieMetadata(slug) {
         return cached.data;
     }
 
+    // ⚡ 0.5. ƯU TIÊN SIÊU TỐC NGUỒN SONG NGỮ ĐÃ CÓ TRONG BILINGUAL SERVICE (0ms)
+    try {
+        const { getBilingualFullMovie, getBilingualSlugs } = require('./lib/bilingual.service');
+        const bSlugs = getBilingualSlugs();
+        if (Array.isArray(bSlugs) && bSlugs.includes(cleanSlug)) {
+            const bilingualMovie = await getBilingualFullMovie(cleanSlug);
+            if (bilingualMovie && bilingualMovie.episodes && bilingualMovie.episodes.length > 0) {
+                movieMetadataCache.set(cleanSlug, { data: bilingualMovie, ts: Date.now() });
+                enrichMovieBackdrop(bilingualMovie).catch(() => {});
+                return bilingualMovie;
+            }
+        }
+    } catch (_) {}
+
     // ⚡ 1. CHẠY SONG SONG (PARALLEL RACE) CẢ PHIMAPI VÀ OPHIM VỚI TIMEOUT 2800ms
     // Nguồn nào phản hồi hợp lệ trước thì nhận ngay, giảm TTFB từ 9.5s xuống còn ~180-350ms!
     const fetchPhimApiPromise = async () => {
         const response = await axios.get(`https://phimapi.com/phim/${cleanSlug}`, {
-            timeout: 2800,
+            timeout: 1400,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
         });
         if (response.data?.status && response.data?.movie) {
@@ -2038,7 +2206,7 @@ async function fetchMovieMetadata(slug) {
 
     const fetchOPhimPromise = async () => {
         const ophimRes = await axios.get(`https://ophim1.com/phim/${cleanSlug}`, {
-            timeout: 2800,
+            timeout: 1400,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
         });
         const oItem = ophimRes.data?.movie || ophimRes.data?.data?.item;
@@ -2086,24 +2254,27 @@ async function fetchMovieMetadata(slug) {
     try {
         const primaryResult = await Promise.any([fetchPhimApiPromise(), fetchOPhimPromise()]);
         if (primaryResult) {
-            // Tự động tích hợp nguồn Song Ngữ & đồng bộ phụ đề Cloudflare R2
+            // Tự động tích hợp nguồn Song Ngữ siêu tốc (chỉ chạy khi phim thực sự có bản Song Ngữ)
             try {
-                const { getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
-                const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null);
-                if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
-                    // 🛡️ Tự động ghép link m3u8 đang chạy mượt từ primaryResult sang songNguServer (khắc phục 404/WASM ChoPhim)
-                    attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
-                    const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
-                    primaryResult.episodes = [
-                        ...vietsubAndOtherServers,
-                        songNguServer
-                    ];
+                const { isBilingualCandidate, getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
+                if (isBilingualCandidate(cleanSlug, primaryResult)) {
+                    const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null);
+                    if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
+                        attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
+                        const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
+                        primaryResult.episodes = [
+                            songNguServer,
+                            ...vietsubAndOtherServers
+                        ];
+                    }
                 }
             } catch (bErr) {
                 console.warn('[Bilingual Service Error]:', bErr.message);
             }
 
-            await enrichMovieBackdrop(primaryResult);
+            try {
+                await Promise.race([enrichMovieBackdrop(primaryResult), new Promise(resolve => setTimeout(resolve, 600))]);
+            } catch (_) {}
             movieMetadataCache.set(cleanSlug, { data: primaryResult, ts: Date.now() });
             return primaryResult;
         }
@@ -2244,6 +2415,9 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
 
     // 🔀 SEO: 301 redirect nếu slug là alias ChoPhim → slug chuẩn (tránh Duplicate Content)
     try {
+        if (slug === 'cuoc-phieu-luu' && req.query.version === 'song-ngu') {
+            return res.redirect(301, req.originalUrl.replace('/phim/cuoc-phieu-luu', '/phim/the-odyssey'));
+        }
         const { getCanonicalSlug } = require('./lib/bilingual.service');
         const canonicalSlug = getCanonicalSlug(slug);
         if (canonicalSlug && canonicalSlug !== slug) {
@@ -2392,7 +2566,8 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
                 name: ep.name,
                 slug: ep.slug,
                 link_m3u8: ep.link_m3u8 || '',
-                link_embed: ep.link_embed || ''
+                link_embed: ep.link_embed || '',
+                subtitles: ep.subtitles || []
             }))
         }));
 
@@ -2466,6 +2641,23 @@ function parseWatchParams(rawEp = '', rawVariant = '', queryServer = '', queryVe
         else if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) variant = 'thuyet-minh';
         else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) variant = 'long-tieng';
         else if (sName.includes('vietsub')) variant = 'vietsub';
+    }
+
+    // 5. 🛡️ Nếu có biến thể rõ ràng (song-ngu, thuyet-minh, long-tieng), đảm bảo serverIndex trỏ đúng server của biến thể đó
+    if (variant && variant !== 'vietsub' && Array.isArray(movieEpisodes) && movieEpisodes.length > 0) {
+        const matchingIdx = movieEpisodes.findIndex(s => {
+            const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+            if (variant === 'song-ngu') return sName.includes('song ngữ') || sName.includes('song ngu') || sName.includes('bilingual');
+            if (variant === 'thuyet-minh') return sName.includes('thuyết minh') || sName.includes('thuyet minh');
+            if (variant === 'long-tieng') return sName.includes('lồng tiếng') || sName.includes('long tieng');
+            return false;
+        });
+        if (matchingIdx !== -1) {
+            // Nếu query server không khớp biến thể (ví dụ ?server=1 trỏ vào Vietsub), sửa lại thành matchingIdx
+            if (serverIndex === null || !movieEpisodes[serverIndex] || !(movieEpisodes[serverIndex].original_server_name || movieEpisodes[serverIndex].server_name || '').toLowerCase().includes(variant.replace('-', ' '))) {
+                serverIndex = matchingIdx;
+            }
+        }
     }
 
     const isExplicitVariant = Boolean(variant && knownVariants.includes(variant));
@@ -2571,6 +2763,9 @@ app.get([
     // 🔀 SEO: 301 Permanent Redirect nếu slug là alias ChoPhim → canonical slug chính
     // Tránh Google phạt Duplicate Content: /xem-phim/bac-si-x-mafia-ao-trang → /xem-phim/bac-si-x
     try {
+        if (slug === 'cuoc-phieu-luu' && (queryVersion === 'song-ngu' || (rawEpisode && rawEpisode.includes('song-ngu')))) {
+            return res.redirect(301, req.originalUrl.replace('/xem-phim/cuoc-phieu-luu', '/xem-phim/the-odyssey'));
+        }
         const { getCanonicalSlug } = require('./lib/bilingual.service');
         const canonicalSlug = getCanonicalSlug(slug);
         if (canonicalSlug && canonicalSlug !== slug) {
@@ -2732,16 +2927,21 @@ app.get([
             canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${seriesEp}${variantSuffix}`;
         }
 
-        const mainCategory = isSingleMovie ? 'Phim Lẻ' : (meta.category[0] || 'Phim Bộ');
+        const mainCategory = isSingleMovie ? 'Phim Lẻ' : ((Array.isArray(meta.category) && meta.category[0]) || 'Phim Bộ');
         const mainCategoryUrl = isSingleMovie ? 'https://aphim.store/danh-sach?list=phim-le' : 'https://aphim.store/danh-sach?list=phim-bo';
 
         // Chuẩn hóa thumbnailUrl tuyệt đối 100% (https://...) cho Google Rich Snippets
         const toAbsoluteMediaUrl = (url) => {
             if (!url) return '';
-            if (url.startsWith('http://') || url.startsWith('https://')) return url;
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                if (url.includes('phimimg.com/uploads/movies/img/')) return url.replace('phimimg.com/uploads/movies/img/', 'oncdn.vip/img/');
+                return url;
+            }
             if (url.startsWith('//')) return `https:${url}`;
+            const clean = url.replace(/^\/+/, '');
+            if (clean.startsWith('img/')) return `https://oncdn.vip/${clean}`;
             if (url.startsWith('/')) return `https://aphim.store${url}`;
-            return `https://phimimg.com/${url.replace(/^\/+/, '')}`;
+            return `https://phimimg.com/${clean}`;
         };
 
         const videoThumbnails = [toAbsoluteMediaUrl(meta.thumb_url), toAbsoluteMediaUrl(meta.poster_url)].filter(Boolean);
@@ -2842,14 +3042,16 @@ app.get([
         // Tối ưu hóa dung lượng HTML: Tách movie và episodes để không bị JSON stringify 2 lần
         const movieWithoutEpisodes = { ...meta };
         delete movieWithoutEpisodes.episodes;
+        if (movieWithoutEpisodes.poster_url) movieWithoutEpisodes.poster_url = toAbsoluteMediaUrl(movieWithoutEpisodes.poster_url);
+        if (movieWithoutEpisodes.thumb_url) movieWithoutEpisodes.thumb_url = toAbsoluteMediaUrl(movieWithoutEpisodes.thumb_url);
 
         // Loại bỏ trường filename dài dư thừa (~50-80 chars mỗi tập x 2400 tập = ~150KB rác)
         const sanitizedEpisodes = (movieEpisodes || []).map(server => ({
             server_name: server.server_name,
             original_server_name: server.original_server_name || server.server_name,
             server_data: (server.server_data || []).map(ep => ({
-                name: isSingleMovie && (ep.name === '1' || ep.slug === '1' || ep.slug === 'tap-1') ? 'Full' : ep.name,
-                slug: isSingleMovie && (ep.slug === '1' || ep.slug === 'tap-1') ? 'full' : ep.slug,
+                name: isSingleMovie && (ep.name === '1' || ep.slug === '1' || ep.slug === 'tap-1' || ep.slug === 'tap-full' || ep.slug === 'tap-01' || ep.name === '01') ? 'Full' : ep.name,
+                slug: isSingleMovie && (ep.slug === '1' || ep.slug === 'tap-1' || ep.slug === 'tap-full' || ep.slug === 'tap-01' || ep.slug === '01' || ep.name === '1' || ep.name === 'Full') ? 'full' : ep.slug,
                 link_m3u8: ep.link_m3u8 || '',
                 link_embed: ep.link_embed || '',
                 subtitles: ep.subtitles || []

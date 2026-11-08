@@ -3,8 +3,7 @@
 
 <head>
     <%- include('partials/head') %>
-        <script id="dotlottie-script" src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.14/dist/dotlottie-wc.js"
-            type="module"></script>
+        <script id="dotlottie-script" defer src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
         <style>
             /* ─── FULL SEAMLESS ZERO-PADDING BODY ON /phim (BACKDROP AT TOP 0) ─── */
@@ -1139,7 +1138,9 @@
                                 rawOriginBd = rawBd;
                             } else {
                                 let cleanBd = rawBd.replace(/^\//, '');
-                                if (cleanBd.startsWith('upload/') || cleanBd.startsWith('uploads/')) {
+                                if (cleanBd.startsWith('img/')) {
+                                    rawOriginBd = 'https://oncdn.vip/' + cleanBd;
+                                } else if (cleanBd.startsWith('upload/') || cleanBd.startsWith('uploads/')) {
                                     rawOriginBd = 'https://phimimg.com/' + cleanBd;
                                 } else {
                                     rawOriginBd = 'https://phimimg.com/uploads/movies/' + cleanBd;
@@ -1266,10 +1267,16 @@
                                     if (rawP) {
                                         rawP = rawP.replace(/(?:https?:\/\/[^\/]+)?\/?(?:uploads\/movies\/)+(upload\/vod\/)/, '$1');
                                         if (rawP.startsWith('http://') || rawP.startsWith('https://')) {
-                                            rawOriginPoster = rawP;
+                                            if (rawP.includes('phimimg.com/uploads/movies/img/')) {
+                                                rawOriginPoster = rawP.replace('phimimg.com/uploads/movies/img/', 'oncdn.vip/img/');
+                                            } else {
+                                                rawOriginPoster = rawP;
+                                            }
                                         } else {
                                             let cleanP = rawP.replace(/^\//, '');
-                                            if (cleanP.startsWith('upload/') || cleanP.startsWith('uploads/')) {
+                                            if (cleanP.startsWith('img/')) {
+                                    rawOriginPoster = 'https://oncdn.vip/' + cleanP;
+                                } else if (cleanP.startsWith('upload/') || cleanP.startsWith('uploads/')) {
                                                 rawOriginPoster = 'https://phimimg.com/' + cleanP;
                                             } else {
                                                 rawOriginPoster = 'https://phimimg.com/uploads/movies/' + cleanP;
@@ -2216,11 +2223,11 @@
             <script src="/js/search-icon-enhance.js?v=99" defer></script>
             <script src="/js/image-optimization.js?v=200" defer></script>
             <script src="/js/seo-optimizer.js?v=100" defer></script>
-            <script src="/js/api.js?v=106" defer></script>
+            <script src="/js/api.js?v=107" defer></script>
             <script src="/js/premium-ad-blocker.js?v=99" defer></script>
             <script src="/js/user.js?v=99" defer></script>
             <script src="/js/rating.js?v=99" defer></script>
-            <script src="/js/tmdb-api.js?v=99" defer></script>
+            <script src="/js/tmdb-api.js?v=101" defer></script>
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script>

@@ -134,24 +134,17 @@
                     var urlParams = new URLSearchParams(window.location.search);
                     var qServer = urlParams.get('server');
 
-                    // 1. ƯU TIÊN 1: ?server=X trong URL
-                    if (qServer !== null && qServer !== '' && !isNaN(qServer)) {
-                        var parsedQ = parseInt(qServer, 10);
-                        if (parsedQ >= 0 && parsedQ < eps.length) {
-                            serverIdx = parsedQ;
-                        }
-                    }
-
-                    // 1B. URL Variant (/full-thuyet-minh, /tap-1-thuyet-minh, /tap-1-song-ngu)
-                    if (serverIdx === -1 && typeof window.location !== 'undefined') {
+                    // 1A. URL Variant (/full-song-ngu, /tap-1-song-ngu, /tap-1-thuyet-minh, ?version=song-ngu)
+                    // 🌟 Ưu tiên số 1: Người dùng tìm kiếm hoặc mở link Song Ngữ/Thuyết Minh -> Bắt buộc nạp đúng biến thể đó!
+                    if (typeof window.location !== 'undefined') {
                         var path = window.location.pathname.toLowerCase();
                         var qVer = new URLSearchParams(window.location.search).get('version');
                         var reqVar = '';
-                        if (path.includes('-thuyet-minh') || qVer === 'thuyet-minh') reqVar = 'thuyet-minh';
-                        else if (path.includes('-long-tieng') || qVer === 'long-tieng') reqVar = 'long-tieng';
-                        else if (path.includes('-song-ngu') || qVer === 'song-ngu') reqVar = 'song-ngu';
+                        if (path.includes('-song-ngu') || qVer === 'song-ngu' || (window.activeVariant === 'song-ngu')) reqVar = 'song-ngu';
+                        else if (path.includes('-thuyet-minh') || qVer === 'thuyet-minh' || (window.activeVariant === 'thuyet-minh')) reqVar = 'thuyet-minh';
+                        else if (path.includes('-long-tieng') || qVer === 'long-tieng' || (window.activeVariant === 'long-tieng')) reqVar = 'long-tieng';
 
-                        if (reqVar && eps.length > 1) {
+                        if (reqVar) {
                             var vIdx = eps.findIndex(function(s) {
                                 var tag = getLangTag(s, movie).toLowerCase();
                                 if (reqVar === 'song-ngu') return tag.includes('song ngữ') || tag.includes('song ngu') || tag.includes('bilingual');
@@ -160,6 +153,14 @@
                                 return false;
                             });
                             if (vIdx !== -1) serverIdx = vIdx;
+                        }
+                    }
+
+                    // 1B. Tham số ?server=X trong URL
+                    if (serverIdx === -1 && qServer !== null && qServer !== '' && !isNaN(qServer)) {
+                        var parsedQ = parseInt(qServer, 10);
+                        if (parsedQ >= 0 && parsedQ < eps.length) {
+                            serverIdx = parsedQ;
                         }
                     }
 

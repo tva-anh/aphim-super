@@ -1021,7 +1021,7 @@ html.light-mode .grid-poster-wrap {
 
     /* Đổi tỉ lệ poster trên mobile thành tỉ lệ ngang 16:10 chuẩn điện ảnh, không bị méo/crop */
     .grid-poster-wrap {
-        aspect-ratio: 16 / 10 !important;
+        aspect-ratio: 2 / 3 !important;
         border-radius: 12px !important;
         overflow: hidden !important;
         background: #1e222d !important;
@@ -1060,6 +1060,7 @@ html.light-mode .grid-poster-wrap {
 
 .grid-poster-wrap img {
     position: absolute !important;
+    object-position: center center !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;

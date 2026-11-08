@@ -161,8 +161,11 @@ function renderMoviesTable(movies, listName, totalItems, totalPages_api) {
         const tmdbRating = movie.tmdb?.vote_average || null;
         const hiddenUI = window.getHiddenMovieOverlay ? window.getHiddenMovieOverlay(movie.slug) : { badge: '', imgClass: '', containerClass: '' };
 
+        const isBilingualList = currentList === "phim-song-ngu" || window.location.pathname.includes("phim-song-ngu");
+        const detailUrl = isBilingualList ? `/phim/${movie.slug}?version=song-ngu` : `/phim/${movie.slug}`;
+
         gridHTML += `
-            <a href="/phim/${movie.slug}" 
+            <a href="${detailUrl}" 
                class="group relative block rounded-xl overflow-hidden bg-surface-dark hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl ${hiddenUI.containerClass}">
                 <!-- Poster -->
                 <div class="relative aspect-[2/3]">

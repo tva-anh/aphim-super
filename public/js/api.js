@@ -841,9 +841,14 @@ class MovieAPI {
                              .replace(/img\.phimapi\.com/g, 'phimimg.com');
         }
 
+        // Tự động sửa các link bị gán sai tiền tố phimimg.com/uploads/movies/img/... về đúng OnCDN
+        fullUrl = fullUrl.replace(/https?:\/\/[^\/]+\/(?:uploads\/movies\/)?img\//g, 'https://oncdn.vip/img/');
+
         if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
             let filename = fullUrl.replace(/^\//, '');
-            if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
+            if (filename.startsWith('img/')) {
+                fullUrl = `https://oncdn.vip/${filename}`;
+            } else if (filename.startsWith('upload/') || filename.startsWith('uploads/')) {
                 fullUrl = `https://phimimg.com/${filename}`;
             } else if (filename.match(/^\d{8}-\d+\//)) {
                 fullUrl = `https://phimimg.com/upload/vod/${filename}`;

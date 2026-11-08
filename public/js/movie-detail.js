@@ -989,7 +989,8 @@ function setupWatchButton(movie) {
             let catSlug = '';
             if (targetServer) {
                 const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
-                if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+                if (sName.includes('song ngữ') || sName.includes('bilingual')) catSlug = '-song-ngu';
+                else if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
                 else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
             }
             const sParam = (sIndex > 0 && !catSlug) ? `?server=${sIndex}` : '';

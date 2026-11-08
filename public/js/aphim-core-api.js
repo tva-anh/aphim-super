@@ -22,13 +22,18 @@
 
         let full = '';
         if (url.startsWith('http://') || url.startsWith('https://')) {
+            if (url.includes('phimimg.com/uploads/movies/img/')) {
+                return url.replace('phimimg.com/uploads/movies/img/', 'oncdn.vip/img/');
+            }
             full = url.replace('img.ophimimg.com', 'phimimg.com')
                       .replace('img.phimapi.com', 'phimimg.com')
                       .replace('ophim1.com/uploads', 'phimimg.com/uploads')
                       .replace('phimapi.com/uploads', 'phimimg.com/uploads');
         } else {
             const clean = url.replace(/^\//, '');
-            if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
+            if (clean.startsWith('img/')) {
+                full = 'https://oncdn.vip/' + clean;
+            } else if (clean.startsWith('upload/') || clean.startsWith('uploads/')) {
                 full = 'https://phimimg.com/' + clean;
             } else if (clean.match(/^\d{8}-\d+\//)) {
                 full = 'https://phimimg.com/upload/vod/' + clean;

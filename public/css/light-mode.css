@@ -1421,13 +1421,28 @@ html.light-mode .trends-24h-badge {
 }
 
 /* Filter & Listing Page Titles in Light Mode (Phim Hành Động, Phim Bộ, Thể Loại Phim) */
-html.light-mode #pageTitle,
-html.light-mode h1#pageTitle,
-html.light-mode h1[style*="fcd576"],
-html.light-mode h1.text-\[\#fcd576\] {
+html.light-mode #pageTitle:not(.sn-multicolor-title),
+html.light-mode h1#pageTitle:not(.sn-multicolor-title),
+html.light-mode h1[style*="fcd576"]:not(.sn-multicolor-title),
+html.light-mode h1.text-\[\#fcd576\]:not(.sn-multicolor-title) {
     color: #b45309 !important;
     text-shadow: none !important;
     font-weight: 900 !important;
+}
+
+/* 🌈 Tiêu đề Phim Song Ngữ đa sắc nhiều màu chuẩn Ảnh 2 (Light Mode) */
+html.light-mode .sn-multicolor-title,
+html.light-mode #pageTitle.sn-multicolor-title,
+html.light-mode h1#pageTitle.sn-multicolor-title {
+    background: linear-gradient(92deg, #7c3aed 0%, #a855f7 18%, #be185d 34%, #c2410c 52%, #d97706 70%, #0f766e 86%, #0284c7 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    filter: none !important;
+    font-weight: 900 !important;
+    display: inline-block !important;
 }
 
 /* "Xem tất cả >" Pill Buttons & Section Links (Excluding Header Links & Footer) */

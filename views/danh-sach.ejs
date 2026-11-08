@@ -9,16 +9,17 @@
     <!-- Main Container: Adjusted Top Padding to match homepage -->
     <main class="app-container pt-4 sm:pt-5 pb-12 min-h-screen">
         
-        <!-- Header Section: Title & Top Quick Pagination (Exact Image 2 & 4 Layout) -->
+        <!-- Header Section: Tách biệt 2 luồng Mobile & Desktop hoàn hảo -->
         <div class="mb-4 sm:mb-6">
-            <div class="flex items-center justify-between gap-3 flex-nowrap">
-                <!-- Title Left (Gold Color as requested) -->
-                <h1 id="pageTitle" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#fcd576] tracking-tight truncate max-w-[60%] sm:max-w-[75%]">
+            <!-- Row 1: Tiêu đề danh sách (Mobile chiếm 100% không bị cắt ba chấm truncate, Desktop nằm cùng hàng) -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                <% const isSongNguTitle = (typeof listType !== 'undefined' && listType === 'phim-song-ngu') || (typeof isSongNguPath !== 'undefined' && isSongNguPath) || (typeof listTitle !== 'undefined' && listTitle.includes('Song Ngữ')); %>
+                <h1 id="pageTitle" class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight w-full sm:max-w-[75%] sm:truncate <%= isSongNguTitle ? 'sn-multicolor-title' : 'text-[#fcd576]' %>">
                     <%= typeof listTitle !== 'undefined' ? listTitle : 'Phim Bộ' %>
                 </h1>
 
-                <!-- Quick Pagination Right (Image 4 exact design: Trang 1 / 52 < >) -->
-                <div id="topQuickPageWrap" class="flex items-center gap-2 text-xs sm:text-sm text-gray-300 font-medium ml-auto flex-shrink-0">
+                <!-- Desktop Quick Pagination (Góc phải trên Desktop) -->
+                <div id="topQuickPageWrap" class="hidden sm:flex items-center gap-2 text-xs sm:text-sm text-gray-300 font-medium ml-auto flex-shrink-0">
                     <span class="text-gray-300 text-xs sm:text-sm font-medium mr-1 whitespace-nowrap">Trang <span id="topCurrentPage" class="text-white font-bold">1</span> / <span id="topTotalPages" class="text-gray-300 font-bold">50</span></span>
                     <button type="button" id="topPrevPageBtn" onclick="changePage(-1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#20222d] hover:bg-[#2a2d3d] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -33,17 +34,48 @@
                 </div>
             </div>
 
-            <!-- Filter Toggle Button (Matching Image 2: Clean Funnel Icon + Bộ lọc + Compact Down Chevron) -->
-            <div class="mt-4 sm:mt-5 mb-4 sm:mb-5">
-                <button type="button" onclick="toggleFilterPanel()" class="inline-flex items-center gap-1.5 text-white font-bold text-sm sm:text-base transition-opacity cursor-pointer hover:opacity-80 select-none">
-                    <svg width="18" height="18" style="width: 18px !important; height: 18px !important; min-width: 18px !important; display: inline-block !important;" class="text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5l-6.75 7.875v5.625l-3 1.5v-7.125L3.75 4.5z" />
-                    </svg>
-                    <span class="whitespace-nowrap">Bộ lọc</span>
-                    <svg width="12" height="12" style="width: 12px !important; height: 12px !important; min-width: 12px !important; display: inline-block !important;" class="text-gray-400 flex-shrink-0 ml-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                </button>
+            <!-- Row 2: Thanh điều khiển phụ (Mobile: Bộ lọc + Chuyển đổi 2 luồng View + Phân trang nhanh) -->
+            <div class="mt-2.5 sm:mt-5 mb-3 sm:mb-5 flex items-center justify-between gap-2 sm:gap-3">
+                <div class="flex items-center gap-2.5">
+                    <button type="button" onclick="toggleFilterPanel()" class="inline-flex items-center gap-1.5 text-white font-bold text-sm sm:text-base transition-opacity cursor-pointer hover:opacity-80 select-none">
+                        <svg width="18" height="18" style="width: 18px !important; height: 18px !important; min-width: 18px !important; display: inline-block !important;" class="text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5l-6.75 7.875v5.625l-3 1.5v-7.125L3.75 4.5z" />
+                        </svg>
+                        <span class="whitespace-nowrap">Bộ lọc</span>
+                        <svg width="12" height="12" style="width: 12px !important; height: 12px !important; min-width: 12px !important; display: inline-block !important;" class="text-gray-400 flex-shrink-0 ml-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+
+                    <!-- Nút chuyển đổi 2 luồng hiển thị trên Mobile: Grid 2 cột đứng (Chuẩn) vs List 1 cột ngang -->
+                    <div class="flex sm:hidden items-center bg-[#20222d] rounded-lg p-0.5 border border-white/10 ml-1">
+                        <button type="button" id="mobileViewGridBtn" onclick="setMobileViewMode('grid')" class="w-7 h-7 rounded-md flex items-center justify-center text-white bg-[#ff9900]/20 text-[#ff9900] transition-colors" title="Luồng 1: Poster đứng 2 cột">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zm-9 9h7v7H4v-7zm9 0h7v7h-7v-7z"/>
+                            </svg>
+                        </button>
+                        <button type="button" id="mobileViewListBtn" onclick="setMobileViewMode('list')" class="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-white transition-colors" title="Luồng 2: Danh sách ngang">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h16v2H4v-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Quick Pagination (Chỉ hiển thị trên Mobile, cùng hàng với nút Bộ Lọc) -->
+                <div id="mobileQuickPageWrap" class="flex sm:hidden items-center gap-1.5 text-xs text-gray-300 font-medium ml-auto flex-shrink-0">
+                    <span class="text-gray-300 text-xs font-medium mr-1 whitespace-nowrap">Trang <span id="mobileCurrentPage" class="text-white font-bold">1</span> / <span id="mobileTotalPages" class="text-gray-300 font-bold">50</span></span>
+                    <button type="button" id="mobilePrevPageBtn" onclick="changePage(-1)" class="w-7 h-7 rounded-lg bg-[#20222d] hover:bg-[#2a2d3d] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <button type="button" id="mobileNextPageBtn" onclick="changePage(1)" class="w-7 h-7 rounded-lg bg-[#20222d] hover:bg-[#2a2d3d] border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Collapsible Filter Panel (Sofaflix Style with Gold Accent) -->
@@ -115,6 +147,11 @@
         const pageTitleEl = document.getElementById('pageTitle');
         if (pageTitleEl) {
             pageTitleEl.textContent = titleMap[listType] || (listType.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+            if (listType === 'phim-song-ngu' || isSongNguPath || (pageTitleEl.textContent && pageTitleEl.textContent.includes('Song Ngữ'))) {
+                pageTitleEl.classList.add('sn-multicolor-title');
+            } else {
+                pageTitleEl.classList.remove('sn-multicolor-title');
+            }
         }
 
         window.toggleFilterPanel = function() {
@@ -235,7 +272,42 @@
             if (topTot) topTot.textContent = total;
             if (topPrev) topPrev.disabled = page <= 1;
             if (topNext) topNext.disabled = page >= total;
+
+            const mobCur = document.getElementById('mobileCurrentPage');
+            const mobTot = document.getElementById('mobileTotalPages');
+            const mobPrev = document.getElementById('mobilePrevPageBtn');
+            const mobNext = document.getElementById('mobileNextPageBtn');
+            if (mobCur) mobCur.textContent = page;
+            if (mobTot) mobTot.textContent = total;
+            if (mobPrev) mobPrev.disabled = page <= 1;
+            if (mobNext) mobNext.disabled = page >= total;
         }
+
+        window.setMobileViewMode = function(mode) {
+            const grid = document.getElementById('movieGrid');
+            const gridBtn = document.getElementById('mobileViewGridBtn');
+            const listBtn = document.getElementById('mobileViewListBtn');
+            if (!grid) return;
+            if (mode === 'list') {
+                grid.classList.add('is-list-view');
+                if (gridBtn) { gridBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-white transition-colors'; }
+                if (listBtn) { listBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-white bg-[#ff9900]/20 text-[#ff9900] transition-colors'; }
+                try { localStorage.setItem('aphim_mobile_view_mode', 'list'); } catch(_) {}
+            } else {
+                grid.classList.remove('is-list-view');
+                if (gridBtn) { gridBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-white bg-[#ff9900]/20 text-[#ff9900] transition-colors'; }
+                if (listBtn) { listBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-white transition-colors'; }
+                try { localStorage.setItem('aphim_mobile_view_mode', 'grid'); } catch(_) {}
+            }
+        };
+
+        // Khởi tạo luồng view đã lưu
+        try {
+            const savedMode = localStorage.getItem('aphim_mobile_view_mode');
+            if (savedMode === 'list') {
+                setTimeout(() => window.setMobileViewMode('list'), 50);
+            }
+        } catch(_) {}
 
         window.changePage = function(delta) {
             const newPage = currentPage + delta;

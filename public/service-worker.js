@@ -4,9 +4,9 @@
  * Features: Static Assets Cache + Ultra-Fast Movie Poster & Image Caching (Cache-First 0ms)
  */
 
-const STATIC_CACHE = 'aphim-static-v29';
-const IMAGE_CACHE = 'aphim-images-v1';
-const MAX_IMAGE_ENTRIES = 350;
+const STATIC_CACHE = 'aphim-static-v46';
+const IMAGE_CACHE = 'aphim-images-v2';
+const MAX_IMAGE_ENTRIES = 60;
 
 const STATIC_ASSETS = [
   '/',
@@ -42,10 +42,14 @@ async function trimCache(cacheName, maxItems) {
 // 1. Install Event
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('[SW] Pre-caching static assets failed:', err);
-      });
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      try {
+        await cache.addAll(STATIC_ASSETS);
+      } catch (err) {
+        if (err && err.name === 'QuotaExceededError') {
+          try { await caches.delete(IMAGE_CACHE); } catch (_) {}
+        }
+      }
     }).then(() => self.skipWaiting())
   );
 });
@@ -119,10 +123,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 🛡️ Bỏ qua API routes, websocket, admin
+  // 🛡️ Bỏ qua API routes, trang chi tiết phim SSR, video player, admin
+  // Giúp trình duyệt trực tiếp nạp từ Server với HTTP Cache siêu tốc, không bao giờ bị lỗi 504
   if (
     url.origin !== self.location.origin ||
     url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/phim') ||
+    url.pathname.startsWith('/xem-phim') ||
+    url.pathname.startsWith('/phim-song-ngu') ||
     url.pathname.startsWith('/aphim-quan-tri') ||
     url.pathname.startsWith('/admin')
   ) {
@@ -143,8 +151,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(async () => {
         const cachedResponse = await caches.match(req);
-        // QUAN TRỌNG: Phải luôn trả về một đối tượng Response hợp lệ, KHÔNG ĐƯỢC trả về undefined
-        return cachedResponse || new Response('', { status: 504, statusText: 'Network Unavailable' });
+        return cachedResponse || Response.error();
       })
   );
 });

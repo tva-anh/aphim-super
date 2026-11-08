@@ -450,26 +450,7 @@ async function getHeroImagesFromTMDB(movie) {
     try {
         let tmdbMovie = null;
 
-        // Ưu tiên tải ảnh từ PhimAPI images endpoint nếu có
-        try {
-            const imagesUrl = `https://ophim1.com/v1/api/phim/${movie.slug}/images`;
-            const response = await fetch(imagesUrl);
-            if (response.ok) {
-                const json = await response.json();
-                if (json.success && json.data && json.data.images && json.data.images.length > 0) {
-                    const backdropImg = json.data.images.find(img => img.type === 'backdrop' || img.aspect_ratio > 1);
-                    const posterImg = json.data.images.find(img => img.type === 'poster' || img.aspect_ratio < 1);
-                    if (backdropImg || posterImg) {
-                        const result = {
-                            backdrop: backdropImg ? `https://image.tmdb.org/t/p/original${backdropImg.file_path}` : null,
-                            poster: posterImg ? `https://image.tmdb.org/t/p/w780${posterImg.file_path}` : null
-                        };
-                        sessionStorage.setItem(cacheKey, JSON.stringify(result));
-                        return result;
-                    }
-                }
-            }
-        } catch (err) {}
+        // (Đã chuyển tra cứu backdrop sang Server-Side và TMDB Proxy để không bị chặn CORS)
 
         // 1. Exact ID match (nếu Ophim cung cấp tmdb.id)
         if (movie.tmdb && movie.tmdb.id && String(movie.tmdb.id).trim() !== '') {

@@ -19,7 +19,8 @@
         margin-right: 0 !important;
         margin-top: 2px;
         margin-bottom: 24px;
-        overflow-x: clip !important;
+        overflow: visible !important;
+        overflow-x: visible !important;
         overflow-y: visible !important;
         max-width: 100vw !important;
         user-select: none;
@@ -94,14 +95,14 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) translateZ(0);
-        width: 320px;
-        height: 320px;
-        max-height: 320px;
-        background: radial-gradient(circle, var(--showcase-ambient-color, rgba(245, 158, 11, 0.45)) 0%, var(--showcase-ambient-sub, rgba(217, 119, 6, 0.15)) 45%, transparent 72%);
-        filter: blur(28px);
+        width: 360px;
+        height: 330px;
+        max-height: 330px;
+        background: radial-gradient(ellipse at 50% 50%, var(--showcase-ambient-color, rgba(245, 158, 11, 0.35)) 0%, var(--showcase-ambient-sub, rgba(217, 119, 6, 0.12)) 46%, transparent 75%);
+        filter: blur(44px) !important;
         pointer-events: none;
         z-index: 0;
-        transition: background 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         opacity: 0.95;
         contain: strict;
     }
@@ -160,36 +161,43 @@
 
     /* State 0: Active / Center Card (Hình lớn nổi bật + Bọc viền mỏng trắng sắc nét + Ánh xạ hào quang) */
     .showcase-3d-card.is-center {
-        transform: translate3d(-50%, -50%, 75px) scale(1.04);
+        transform: translate3d(-50%, -50%, 80px) scale(1.05);
         opacity: 1;
         z-index: 30;
-        border: 2px solid #ffffff !important;
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55), 
-                    0 0 35px var(--showcase-glow-color, rgba(245, 158, 11, 0.65)),
-                    0 0 70px var(--showcase-ambient-color, rgba(245, 158, 11, 0.35));
+        border: 2px solid rgba(255, 255, 255, 0.95) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 26px 54px -10px rgba(0, 0, 0, 0.65), 
+                    0 10px 22px -4px rgba(0, 0, 0, 0.35),
+                    0 0 35px var(--showcase-glow-color, rgba(245, 158, 11, 0.45)),
+                    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95),
+                    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.25) !important;
     }
 
-    /* State -1: Left Card (Cân đều mép lề trái đối xứng hoàn hảo + Viền mỏng trắng) */
+    /* State -1: Left Card (Cân lề 2 bên đối xứng hoàn hảo, độ lồi & lề mép cân bằng tuyệt đối) */
     .showcase-3d-card.is-left {
-        transform: translate3d(calc(-50% - clamp(96px, 26vw, 108px)), -50%, -42px) scale(0.85) rotateY(18deg);
-        opacity: 0.85;
+        transform: translate3d(calc(-50% - 96px), -50%, -42px) scale(0.85) rotateY(7deg);
+        opacity: 0.82;
         z-index: 20;
-        border: 1.8px solid rgba(255, 255, 255, 0.7) !important;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.48), 0 0 1px rgba(255, 255, 255, 0.20);
+        filter: brightness(0.82) contrast(0.95);
     }
 
-    /* State +1: Right Card (Cân đều mép lề phải đối xứng hoàn hảo + Viền mỏng trắng) */
+    /* State +1: Right Card (Cân lề 2 bên đối xứng hoàn hảo, độ lồi & lề mép cân bằng tuyệt đối) */
     .showcase-3d-card.is-right {
-        transform: translate3d(calc(-50% + clamp(96px, 26vw, 108px)), -50%, -42px) scale(0.85) rotateY(-18deg);
-        opacity: 0.85;
+        transform: translate3d(calc(-50% + 96px), -50%, -42px) scale(0.85) rotateY(-7deg);
+        opacity: 0.82;
         z-index: 20;
-        border: 1.8px solid rgba(255, 255, 255, 0.7) !important;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.48), 0 0 1px rgba(255, 255, 255, 0.20);
+        filter: brightness(0.82) contrast(0.95);
     }
 
     /* State -2: Far Left */
     .showcase-3d-card.is-far-left {
-        transform: translate3d(calc(-50% - 220px), -50%, -120px) scale(0.62) rotateY(28deg);
+        transform: translate3d(calc(-50% - 210px), -50%, -120px) scale(0.62) rotateY(16deg);
         opacity: 0;
         z-index: 10;
         pointer-events: none;
@@ -198,67 +206,86 @@
 
     /* State +2: Far Right */
     .showcase-3d-card.is-far-right {
-        transform: translate3d(calc(-50% + 220px), -50%, -120px) scale(0.62) rotateY(-28deg);
+        transform: translate3d(calc(-50% + 210px), -50%, -120px) scale(0.62) rotateY(-16deg);
         opacity: 0;
         z-index: 10;
         pointer-events: none;
         visibility: hidden !important;
     }
 
-    /* Responsive fine-tuning for standard mobile (390px - 430px: iPhone 13/14/15/16 Pro Max, Plus, Standard) */
-    @media (max-width: 430px) {
+    /* Responsive: Large Mobile (410px - 480px: iPhone 16/15/14 Pro Max, Plus, Galaxy Ultra) */
+    @media (max-width: 480px) {
         .showcase-3d-stage {
-            height: 358px;
+            height: 366px;
             overflow: visible !important;
         }
         .showcase-3d-card {
-            width: 196px;
-            height: 304px;
+            width: 204px;
+            height: 314px;
             border-radius: 20px;
         }
         .showcase-3d-card.is-left {
-            transform: translate3d(calc(-50% - 100px), -50%, -40px) scale(0.85) rotateY(18deg);
+            transform: translate3d(calc(-50% - 94px), -50%, -40px) scale(0.85) rotateY(7deg);
         }
         .showcase-3d-card.is-right {
-            transform: translate3d(calc(-50% + 100px), -50%, -40px) scale(0.85) rotateY(-18deg);
+            transform: translate3d(calc(-50% + 94px), -50%, -40px) scale(0.85) rotateY(-7deg);
         }
     }
 
-    /* Responsive fine-tuning for compact mobile (<= 380px: iPhone SE / 12 Mini / Galaxy A) */
-    @media (max-width: 380px) {
+    /* Responsive: Standard Mobile (381px - 410px: iPhone 16/15 Pro, 14/13/12, Galaxy S24/S23) */
+    @media (max-width: 410px) {
         .showcase-3d-stage {
-            height: 336px;
+            height: 352px;
             overflow: visible !important;
         }
         .showcase-3d-card {
-            width: 182px;
-            height: 284px;
+            width: 192px;
+            height: 298px;
+            border-radius: 20px;
+        }
+        .showcase-3d-card.is-left {
+            transform: translate3d(calc(-50% - 88px), -50%, -38px) scale(0.85) rotateY(6deg);
+        }
+        .showcase-3d-card.is-right {
+            transform: translate3d(calc(-50% + 88px), -50%, -38px) scale(0.85) rotateY(-6deg);
+        }
+    }
+
+    /* Responsive: Compact Mobile (345px - 380px: iPhone SE, 12/13 Mini, Galaxy A) */
+    @media (max-width: 380px) {
+        .showcase-3d-stage {
+            height: 334px;
+            overflow: visible !important;
+        }
+        .showcase-3d-card {
+            width: 178px;
+            height: 278px;
             border-radius: 18px;
         }
         .showcase-3d-card.is-left {
-            transform: translate3d(calc(-50% - 92px), -50%, -38px) scale(0.84) rotateY(16deg);
+            transform: translate3d(calc(-50% - 82px), -50%, -36px) scale(0.84) rotateY(6deg);
         }
         .showcase-3d-card.is-right {
-            transform: translate3d(calc(-50% + 92px), -50%, -38px) scale(0.84) rotateY(-16deg);
+            transform: translate3d(calc(-50% + 82px), -50%, -36px) scale(0.84) rotateY(-6deg);
         }
     }
 
-    /* Responsive fine-tuning for ultra-compact mobile (<= 340px) */
-    @media (max-width: 340px) {
+    /* Responsive: Ultra-compact Mobile (<= 344px) */
+    @media (max-width: 344px) {
         .showcase-3d-stage {
-            height: 308px;
+            height: 304px;
             overflow: visible !important;
         }
         .showcase-3d-card {
-            width: 165px;
-            height: 260px;
+            width: 162px;
+            height: 254px;
             border-radius: 16px;
         }
         .showcase-3d-card.is-left {
-            transform: translate3d(calc(-50% - 82px), -50%, -34px) scale(0.82) rotateY(14deg);
+            transform: translate3d(calc(-50% - 82px), -50%, -34px) scale(0.83) rotateY(6deg);
         }
         .showcase-3d-card.is-right {
-            transform: translate3d(calc(-50% + 82px), -50%, -34px) scale(0.82) rotateY(-14deg);
+            transform: translate3d(calc(-50% + 82px), -50%, -34px) scale(0.83) rotateY(-6deg);
         }
     }
 
@@ -658,22 +685,28 @@ html.light-mode .showcase-top-pill {
 }
 
 html.light-mode .showcase-3d-ambient-light {
-    background: radial-gradient(circle, var(--showcase-ambient-color, rgba(245, 158, 11, 0.18)) 0%, var(--showcase-ambient-sub, rgba(252, 213, 118, 0.06)) 45%, transparent 75%) !important;
-    filter: blur(35px) !important;
+    background: radial-gradient(ellipse at 50% 50%, var(--showcase-ambient-color, rgba(217, 119, 6, 0.22)) 0%, var(--showcase-ambient-sub, rgba(217, 119, 6, 0.08)) 48%, transparent 75%) !important;
+    filter: blur(46px) !important;
+    opacity: 0.85 !important;
 }
 
 html.light-mode .showcase-3d-card.is-center {
-    border: 2px solid #ffffff !important;
-    box-shadow: 0 16px 36px rgba(78, 64, 45, 0.22), 
-                0 0 32px var(--showcase-glow-color, rgba(245, 158, 11, 0.5)), 
-                0 0 60px var(--showcase-ambient-color, rgba(245, 158, 11, 0.28)) !important;
+    border: 2px solid rgba(255, 255, 255, 0.98) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 24px 50px -10px rgba(45, 30, 15, 0.24), 
+                0 10px 22px -4px rgba(78, 64, 45, 0.12),
+                0 0 32px var(--showcase-glow-color, rgba(217, 119, 6, 0.25)),
+                inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.98),
+                inset 0 -1.5px 2px 0 rgba(78, 64, 45, 0.15) !important;
 }
 
 html.light-mode .showcase-3d-card.is-left,
 html.light-mode .showcase-3d-card.is-right {
-    border: 1.8px solid #ffffff !important;
-    box-shadow: 0 10px 24px rgba(78, 64, 45, 0.16) !important;
-    opacity: 0.88 !important;
+    border: 1.5px solid rgba(180, 140, 100, 0.28) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 14px 28px rgba(78, 64, 45, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+    opacity: 0.86 !important;
+    filter: brightness(0.90) contrast(0.96) !important;
 }
 
 html.light-mode .showcase-3d-title {
