@@ -47,19 +47,7 @@
                         </svg>
                     </button>
 
-                    <!-- Nút chuyển đổi 2 luồng hiển thị trên Mobile: Grid 2 cột đứng (Chuẩn) vs List 1 cột ngang -->
-                    <div class="flex sm:hidden items-center bg-[#20222d] rounded-lg p-0.5 border border-white/10 ml-1">
-                        <button type="button" id="mobileViewGridBtn" onclick="setMobileViewMode('grid')" class="w-7 h-7 rounded-md flex items-center justify-center text-white bg-[#ff9900]/20 text-[#ff9900] transition-colors" title="Luồng 1: Poster đứng 2 cột">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zm-9 9h7v7H4v-7zm9 0h7v7h-7v-7z"/>
-                            </svg>
-                        </button>
-                        <button type="button" id="mobileViewListBtn" onclick="setMobileViewMode('list')" class="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-white transition-colors" title="Luồng 2: Danh sách ngang">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h16v2H4v-2z"/>
-                            </svg>
-                        </button>
-                    </div>
+
                 </div>
 
                 <!-- Mobile Quick Pagination (Chỉ hiển thị trên Mobile, cùng hàng với nút Bộ Lọc) -->
@@ -282,32 +270,6 @@
             if (mobPrev) mobPrev.disabled = page <= 1;
             if (mobNext) mobNext.disabled = page >= total;
         }
-
-        window.setMobileViewMode = function(mode) {
-            const grid = document.getElementById('movieGrid');
-            const gridBtn = document.getElementById('mobileViewGridBtn');
-            const listBtn = document.getElementById('mobileViewListBtn');
-            if (!grid) return;
-            if (mode === 'list') {
-                grid.classList.add('is-list-view');
-                if (gridBtn) { gridBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-white transition-colors'; }
-                if (listBtn) { listBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-white bg-[#ff9900]/20 text-[#ff9900] transition-colors'; }
-                try { localStorage.setItem('aphim_mobile_view_mode', 'list'); } catch(_) {}
-            } else {
-                grid.classList.remove('is-list-view');
-                if (gridBtn) { gridBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-white bg-[#ff9900]/20 text-[#ff9900] transition-colors'; }
-                if (listBtn) { listBtn.className = 'w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-white transition-colors'; }
-                try { localStorage.setItem('aphim_mobile_view_mode', 'grid'); } catch(_) {}
-            }
-        };
-
-        // Khởi tạo luồng view đã lưu
-        try {
-            const savedMode = localStorage.getItem('aphim_mobile_view_mode');
-            if (savedMode === 'list') {
-                setTimeout(() => window.setMobileViewMode('list'), 50);
-            }
-        } catch(_) {}
 
         window.changePage = function(delta) {
             const newPage = currentPage + delta;

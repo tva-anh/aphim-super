@@ -23,8 +23,8 @@
         const path = window.location.pathname.toLowerCase();
         const search = window.location.search.toLowerCase();
         
-        if (path.includes('reels') || path.includes('shorts')) return 'reels';
         if (path.startsWith('/phim-ngan')) return 'phim-ngan';
+        if (path.includes('danh-sach') || path.includes('tat-ca') || search.includes('phim-moi-cap-nhat') || search.includes('list=')) return 'kham-pha';
         if (path === '/' || path.includes('index') || path === '') return 'home';
         if (path.includes('lich-su') || search.includes('tab=history')) return 'history';
         if (path.includes('profile') || path.includes('tai-khoan') || path.includes('login') || path.includes('register')) return 'account';
@@ -149,19 +149,7 @@
             </svg>
 
             <div class="bn-tabs-container">
-                <!-- 1. Reels (Ultra Modern Instagram/TikTok Clapperboard with Glowing Red Dot) -->
-                <a href="/reels" class="bn-tab ${active === 'reels' ? 'active' : ''}" id="bn-tab-reels" aria-label="Reels">
-                    <svg class="bn-tab-icon bn-reels-icon" viewBox="0 0 24 24" fill="none">
-                        <rect x="2.5" y="2.5" width="19" height="19" rx="5.2" stroke="currentColor" stroke-width="1.4"/>
-                        <path d="M2.5 8.8h19M7.2 2.5l3.2 6.3M13.8 2.5l3.2 6.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                        <path d="M10 12.2l5 2.8-5 2.8v-5.6z" fill="currentColor"/>
-                    </svg>
-                    <span class="bn-tab-label bn-reels-label-wrap">
-                        <span>Reels</span><span class="bn-reels-dot"></span>
-                    </span>
-                </a>
-
-                <!-- 2. Phim ngắn (Biểu tượng Máy quay phim điện ảnh cân đối, đồng đều kích thước với Reels & Lịch sử) -->
+                <!-- 1. Phim ngắn (Dời sang vị trí góc trái thay thế Reels theo yêu cầu) -->
                 <a href="/phim-ngan" class="bn-tab ${active === 'phim-ngan' ? 'active' : ''}" id="bn-tab-phim-ngan" aria-label="Phim ngắn">
                     <svg class="bn-tab-icon bn-phim-ngan-icon" viewBox="0 0 24 24" fill="none">
                         <path class="bn-pn-tail" d="M15.8 10.2l4.8-3.4A1 1 0 0 1 22 7.6v8.8a1 1 0 0 1-1.4.8l-4.8-3.4v-3.8z" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
@@ -170,6 +158,17 @@
                     </svg>
                     <span class="bn-tab-label bn-pn-label-wrap">
                         <span>Phim ngắn</span><span class="bn-pn-dot"></span>
+                    </span>
+                </a>
+
+                <!-- 2. Khám phá (Trỏ về trang Phim mới cập nhật theo yêu cầu) -->
+                <a href="/danh-sach?list=phim-moi-cap-nhat" class="bn-tab ${active === 'kham-pha' ? 'active' : ''}" id="bn-tab-kham-pha" aria-label="Khám phá">
+                    <svg class="bn-tab-icon bn-kham-pha-icon" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.35"/>
+                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity="0.15"/>
+                    </svg>
+                    <span class="bn-tab-label">
+                        <span>Khám phá</span>
                     </span>
                 </a>
 

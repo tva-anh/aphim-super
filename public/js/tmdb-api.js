@@ -433,11 +433,12 @@ async function getHeroImagesFromTMDB(movie) {
     if (!movie) return null;
 
     // Dùng v4 cache key để xóa sạch các cache cũ bị load nhầm trước đây
-    const cacheKey = `tmdb_hero_v4_${movie.slug}`;
+    const cacheKey = `tmdb_hero_v5_${movie.slug}`;
     try {
         sessionStorage.removeItem(`tmdb_hero_${movie.slug}`);
         sessionStorage.removeItem(`tmdb_hero_v2_${movie.slug}`);
         sessionStorage.removeItem(`tmdb_hero_v3_${movie.slug}`);
+        sessionStorage.removeItem(`tmdb_hero_v4_${movie.slug}`);
     } catch (e) {}
 
     const cached = sessionStorage.getItem(cacheKey);

@@ -155,13 +155,23 @@
         display: block !important;
         border-radius: inherit !important;
         -webkit-border-radius: inherit !important;
-        transform: scale(1.02); /* Micro-scale to bleed perfectly into all 4 rounded corners */
+        image-rendering: -webkit-optimize-contrast !important;
+        image-rendering: high-quality !important;
+        filter: brightness(1.08) contrast(1.04) !important;
+        -webkit-transform: translateZ(0) !important;
+        transform: translateZ(0) !important;
         pointer-events: none;
     }
 
     /* State 0: Active / Center Card (Hình lớn nổi bật + Bọc viền mỏng trắng sắc nét + Ánh xạ hào quang) */
     .showcase-3d-card.is-center {
-        transform: translate3d(-50%, -50%, 80px) scale(1.05);
+        transform: translate(-50%, -50%) !important;
+        -webkit-transform: translate(-50%, -50%) !important;
+        transform-style: flat !important;
+        -webkit-transform-style: flat !important;
+        width: clamp(202px, 54vw, 230px) !important;
+        height: clamp(316px, 84vw, 360px) !important;
+        will-change: auto !important;
         opacity: 1;
         z-index: 30;
         border: 2px solid rgba(255, 255, 255, 0.95) !important;

@@ -604,3 +604,51 @@ html.light-mode #bottom-nav-dock #bn-tab-phim-ngan.active .bn-tab-icon polygon {
     stroke: none !important;
 }
 
+
+/* 🧭 KHÁM PHÁ TAB (Trỏ tới Phim Mới Cập Nhật) */
+#bn-tab-kham-pha .bn-kham-pha-icon {
+    width: 24px !important;
+    height: 24px !important;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+#bn-tab-kham-pha.active {
+    color: #fcd576 !important;
+    text-shadow: 0 0 12px rgba(252, 213, 118, 0.6);
+}
+
+#bn-tab-kham-pha.active .bn-tab-label {
+    color: #fcd576 !important;
+    font-weight: 600 !important;
+}
+
+#bn-tab-kham-pha.active .bn-kham-pha-icon {
+    transform: scale(1.12) translateY(-1px);
+    filter: drop-shadow(0 2px 8px rgba(252, 213, 118, 0.45));
+}
+
+#bn-tab-kham-pha.active .bn-kham-pha-icon circle {
+    stroke: #fcd576 !important;
+    stroke-width: 1.6 !important;
+}
+
+#bn-tab-kham-pha.active .bn-kham-pha-icon polygon {
+    stroke: #fcd576 !important;
+    stroke-width: 1.6 !important;
+    fill: #fcd576 !important;
+    fill-opacity: 0.35 !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-kham-pha.active {
+    color: #d97706 !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-kham-pha.active .bn-kham-pha-icon circle {
+    stroke: #d97706 !important;
+}
+
+html.light-mode #bottom-nav-dock #bn-tab-kham-pha.active .bn-kham-pha-icon polygon {
+    stroke: #d97706 !important;
+    fill: #d97706 !important;
+    fill-opacity: 0.25 !important;
+}

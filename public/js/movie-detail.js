@@ -952,8 +952,15 @@ function setupWatchButton(movie) {
         movie.episodes.some(s => (s.server_data || []).length > 0);
 
     if (hasEpisodes) {
-        const sIndex = (typeof currentServerIndexDetail !== 'undefined' && currentServerIndexDetail >= 0 && currentServerIndexDetail < movie.episodes.length)
-            ? currentServerIndexDetail : 0;
+        let sIndex = (typeof currentServerIndexDetail !== 'undefined' && currentServerIndexDetail >= 0 && currentServerIndexDetail < movie.episodes.length)
+            ? currentServerIndexDetail : -1;
+        if (sIndex === -1) {
+            const firstVIdx = movie.episodes.findIndex(s => {
+                const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                return !sName.includes('song ngữ') && !sName.includes('song ngu') && !sName.includes('bilingual') && !sName.includes('thuyết minh') && !sName.includes('lồng tiếng');
+            });
+            sIndex = (firstVIdx !== -1) ? firstVIdx : 0;
+        }
         const targetServer = movie.episodes[sIndex] || movie.episodes[0];
         const firstEpisode = targetServer?.server_data?.[0] || movie.episodes[0]?.server_data?.[0];
 
@@ -989,8 +996,7 @@ function setupWatchButton(movie) {
             let catSlug = '';
             if (targetServer) {
                 const sName = (targetServer.original_server_name || targetServer.server_name || '').toLowerCase();
-                if (sName.includes('song ngữ') || sName.includes('bilingual')) catSlug = '-song-ngu';
-                else if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
+                if (sName.includes('thuyết minh') || sName.includes('thuyet minh')) catSlug = '-thuyet-minh';
                 else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
             }
             const sParam = (sIndex > 0 && !catSlug) ? `?server=${sIndex}` : '';
@@ -1804,9 +1810,19 @@ function renderEpisodes(episodes) {
                 if (savedServer !== null) {
                     const sIdx = parseInt(savedServer, 10);
                     if (!isNaN(sIdx) && sIdx >= 0 && sIdx < episodes.length) {
-                        matchedIdx = sIdx;
+                        const sName = (episodes[sIdx].original_server_name || episodes[sIdx].server_name || '').toLowerCase();
+                        if (!sName.includes('song ngữ') && !sName.includes('song ngu') && !sName.includes('bilingual')) {
+                            matchedIdx = sIdx;
+                        }
                     }
                 }
+            }
+            if (matchedIdx === -1) {
+                const firstVIdx = episodes.findIndex(s => {
+                    const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                    return !sName.includes('song ngữ') && !sName.includes('song ngu') && !sName.includes('bilingual') && !sName.includes('thuyết minh') && !sName.includes('lồng tiếng');
+                });
+                if (firstVIdx !== -1) matchedIdx = firstVIdx;
             }
             if (matchedIdx >= 0 && matchedIdx < episodes.length) {
                 currentServerIndexDetail = matchedIdx;

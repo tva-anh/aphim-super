@@ -1591,6 +1591,31 @@
                 overflow: hidden !important;
             }
 
+            body.aphim-body-fullscreen #bottom-nav,
+            body.aphim-body-fullscreen header,
+            body.aphim-body-fullscreen #main-header,
+            body.aphim-body-fullscreen nav,
+            body.aphim-body-fullscreen .aphim-bottom-nav-container {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+
+            body.aphim-body-fullscreen #main-player-box {
+                transform: none !important;
+                perspective: none !important;
+                overflow: visible !important;
+                border-radius: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                z-index: 99999999 !important;
+            }
+
+            body.aphim-body-fullscreen .aspect-video {
+                overflow: visible !important;
+            }
+
             /* ─── CENTER ANIMATED PLAY / PAUSE INDICATOR (BRILLIANT BRIGHT) ─── */
             #aphim-center-indicator {
                 position: absolute !important;
@@ -3319,7 +3344,7 @@
 }
 
 /* Mobile Fullscreen Support: Cho phép Web Fullscreen mở rộng tràn toàn màn hình chuẩn xác trên Mobile */
-@media (max-width: 768px) {
+@media (max-width: 768px), screen and (orientation: landscape) and (max-height: 520px) {
     #aphim-player-wrapper.aphim-web-fullscreen {
         position: fixed !important;
         top: 0 !important;
@@ -3336,6 +3361,11 @@
         border-radius: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+    .aphim-web-fullscreen #aphim-controls {
+        padding-left: max(16px, env(safe-area-inset-left, 16px)) !important;
+        padding-right: max(16px, env(safe-area-inset-right, 16px)) !important;
+        padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
     }
 }
 

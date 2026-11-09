@@ -1165,7 +1165,7 @@
                         var slug = '<%= slug %>';
                         var el = document.getElementById('movieHeroBackdrop');
                         if (el && el.src && el.src.indexOf('image.tmdb.org') !== -1) return;
-                        var c = sessionStorage.getItem('tmdb_hero_v4_' + slug) || localStorage.getItem('tmdb_hero_v4_' + slug);
+                        var c = sessionStorage.getItem('tmdb_hero_v5_' + slug) || localStorage.getItem('tmdb_hero_v5_' + slug);
                         if (c) {
                             var d = JSON.parse(c);
                             if (d && d.backdrop && el) {
@@ -1492,7 +1492,11 @@
                                         let epClean = '1';
                                         const epList = (typeof episodes !== 'undefined' && episodes && episodes.length > 0) ? episodes : (movie && movie.episodes ? movie.episodes : []);
                                         if (epList && epList.length > 0) {
-                                            let s0 = epList[0];
+                                            const firstVietsub = epList.find(s => {
+                                                const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                                                return !sName.includes('song ngữ') && !sName.includes('song ngu') && !sName.includes('bilingual') && !sName.includes('thuyết minh') && !sName.includes('lồng tiếng');
+                                            });
+                                            let s0 = firstVietsub || epList[0];
                                             if (reqVer === 'song-ngu') {
                                                 const snMatch = epList.find(s => ((s.original_server_name || s.server_name || '').toLowerCase().includes('song ngữ') || (s.original_server_name || s.server_name || '').toLowerCase().includes('bilingual')));
                                                 if (snMatch) { s0 = snMatch; catSlug = '-song-ngu'; }

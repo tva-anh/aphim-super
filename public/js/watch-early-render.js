@@ -48,7 +48,7 @@
                 groups[category].push({ server: server, index: index, langTag: langTag });
             });
 
-            var groupOrder = ['Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Song Ngữ', 'Khác'];
+            var groupOrder = ['Song Ngữ', 'Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
             var html = '';
 
             groupOrder.forEach(function(category) {
@@ -140,8 +140,8 @@
                         var path = window.location.pathname.toLowerCase();
                         var qVer = new URLSearchParams(window.location.search).get('version');
                         var reqVar = '';
-                        if (path.includes('-song-ngu') || qVer === 'song-ngu' || (window.activeVariant === 'song-ngu')) reqVar = 'song-ngu';
-                        else if (path.includes('-thuyet-minh') || qVer === 'thuyet-minh' || (window.activeVariant === 'thuyet-minh')) reqVar = 'thuyet-minh';
+                        // 🌟 Đối với phim Song Ngữ, luôn để Vietsub phát đầu tiên theo yêu cầu, chỉ nạp Thuyết minh / Lồng tiếng nếu có chủ đích
+                        if (path.includes('-thuyet-minh') || qVer === 'thuyet-minh' || (window.activeVariant === 'thuyet-minh')) reqVar = 'thuyet-minh';
                         else if (path.includes('-long-tieng') || qVer === 'long-tieng' || (window.activeVariant === 'long-tieng')) reqVar = 'long-tieng';
 
                         if (reqVar) {
@@ -164,32 +164,30 @@
                         }
                     }
 
-                    // 2. ƯU TIÊN 2: localStorage (CHỈ áp dụng khi URL là đường dẫn gốc không variant)
+                    // 2. ƯU TIÊN 2: localStorage (BỎ QUA nếu là Song Ngữ để luôn phát Vietsub trước)
                     if (serverIdx === -1 && movie && movie.slug) {
                         try {
                             var prefStr = localStorage.getItem('aphim_server_pref_' + movie.slug);
                             if (prefStr) {
                                 var pref = JSON.parse(prefStr);
-                                if (pref && pref.name) {
-                                    var byName = eps.findIndex(function(s) {
-                                        var sName = s.original_server_name || s.server_name || '';
-                                        return sName.trim().toLowerCase() === pref.name.trim().toLowerCase();
-                                    });
-                                    if (byName !== -1) serverIdx = byName;
-                                }
-                                if (serverIdx === -1 && pref && pref.type) {
-                                    var byType = eps.findIndex(function(s) {
-                                        var tag = getLangTag(s, movie).toLowerCase();
-                                        if (pref.type === 'song-ngu') return tag.includes('song ngữ') || tag.includes('song ngu') || tag.includes('bilingual');
-                                        if (pref.type === 'thuyet-minh') return tag.includes('thuyết minh') || tag.includes('thuyet minh');
-                                        if (pref.type === 'long-tieng') return tag.includes('lồng tiếng') || tag.includes('long tieng');
-                                        if (pref.type === 'vietsub') return tag.includes('vietsub');
-                                        return false;
-                                    });
-                                    if (byType !== -1) serverIdx = byType;
-                                }
-                                if (serverIdx === -1 && pref && typeof pref.index === 'number' && pref.index >= 0 && pref.index < eps.length) {
-                                    serverIdx = pref.index;
+                                if (pref && pref.type !== 'song-ngu') {
+                                    if (pref.name && !pref.name.toLowerCase().includes('song ngữ') && !pref.name.toLowerCase().includes('song ngu') && !pref.name.toLowerCase().includes('bilingual')) {
+                                        var byName = eps.findIndex(function(s) {
+                                            var sName = s.original_server_name || s.server_name || '';
+                                            return sName.trim().toLowerCase() === pref.name.trim().toLowerCase();
+                                        });
+                                        if (byName !== -1) serverIdx = byName;
+                                    }
+                                    if (serverIdx === -1 && pref.type) {
+                                        var byType = eps.findIndex(function(s) {
+                                            var tag = getLangTag(s, movie).toLowerCase();
+                                            if (pref.type === 'thuyet-minh') return tag.includes('thuyết minh') || tag.includes('thuyet minh');
+                                            if (pref.type === 'long-tieng') return tag.includes('lồng tiếng') || tag.includes('long tieng');
+                                            if (pref.type === 'vietsub') return tag.includes('vietsub');
+                                            return false;
+                                        });
+                                        if (byType !== -1) serverIdx = byType;
+                                    }
                                 }
                             }
                         } catch (ePref) {}
@@ -198,14 +196,35 @@
                             var saved = localStorage.getItem('aphim_server_' + movie.slug);
                             if (saved !== null && !isNaN(saved)) {
                                 var sOld = parseInt(saved, 10);
-                                if (sOld >= 0 && sOld < eps.length) serverIdx = sOld;
+                                if (sOld >= 0 && sOld < eps.length) {
+                                    var oldTag = getLangTag(eps[sOld], movie).toLowerCase();
+                                    if (!oldTag.includes('song ngữ') && !oldTag.includes('song ngu') && !oldTag.includes('bilingual')) {
+                                        serverIdx = sOld;
+                                    }
+                                }
                             }
                         }
                     }
 
-                    // 3. Fallback window.requestedServerIndex
-                    if (serverIdx === -1 && typeof window.requestedServerIndex === 'number' && window.requestedServerIndex >= 0 && window.requestedServerIndex < eps.length) {
-                        serverIdx = window.requestedServerIndex;
+                    // 3. 🌟 LUÔN LUÔN ƯU TIÊN MÁY CHỦ VIETSUB (API) ĐẦU TIÊN
+                    // Cho dù phim có máy chủ Song Ngữ ở trên đầu, khi mới vào trang luôn chọn máy chủ Vietsub đầu tiên (API) để lên hình tức thì!
+                    var firstVietsub = eps.findIndex(function(s) {
+                        var tag = getLangTag(s, movie).toLowerCase();
+                        return !tag.includes('song ngữ') && !tag.includes('song ngu') && !tag.includes('bilingual') && !tag.includes('thuyết minh') && !tag.includes('thuyet minh') && !tag.includes('lồng tiếng') && !tag.includes('long tieng');
+                    });
+
+                    if (serverIdx === -1) {
+                        if (typeof window.requestedServerIndex === 'number' && window.requestedServerIndex >= 0 && window.requestedServerIndex < eps.length) {
+                            var reqTag = getLangTag(eps[window.requestedServerIndex], movie).toLowerCase();
+                            // Chỉ dùng window.requestedServerIndex nếu nó KHÔNG PHẢI là Song Ngữ
+                            if (!reqTag.includes('song ngữ') && !reqTag.includes('song ngu') && !reqTag.includes('bilingual')) {
+                                serverIdx = window.requestedServerIndex;
+                            }
+                        }
+                    }
+
+                    if (serverIdx === -1) {
+                        serverIdx = (firstVietsub !== -1) ? firstVietsub : 0;
                     }
                 } catch (paramErr) { }
 

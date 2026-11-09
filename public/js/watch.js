@@ -85,6 +85,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (!requestedVariant && window.activeVariant) {
         requestedVariant = window.activeVariant;
     }
+    // 🌟 Khi vào phim, luôn để mặc định Vietsub đầu tiên (API) theo đúng yêu cầu
+    if (requestedVariant === 'song-ngu') {
+        requestedVariant = 'vietsub';
+    }
 
     if (!slug) {
         console.warn('[Watch] No movie slug provided, staying on current page.');
@@ -113,15 +117,16 @@ function getServerTypeTag(serverOrName, movie) {
     if (typeof serverOrName === 'string') {
         raw = serverOrName.toLowerCase();
     } else if (serverOrName) {
-        raw = (serverOrName.original_server_name || serverOrName.server_name || '').toLowerCase();
+        raw = ((serverOrName.server_name || '') + ' ' + (serverOrName.original_server_name || '')).toLowerCase();
     }
     if (raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual')) return 'song-ngu';
     if (raw.includes('thuyết minh') || raw.includes('thuyet minh')) return 'thuyet-minh';
     if (raw.includes('lồng tiếng') || raw.includes('long tieng')) return 'long-tieng';
     if (raw.includes('vietsub')) return 'vietsub';
+    // 🌟 QUAN TRỌNG: Không dùng movie.lang để ép server thường thành song-ngu!
+    // Các server không có chữ 'song ngữ' thì luôn là vietsub để ưu tiên phát tức thì
     if (movie && movie.lang) {
         const mLang = movie.lang.toLowerCase();
-        if (mLang.includes('song ngữ') || mLang.includes('song ngu')) return 'song-ngu';
         if (mLang.includes('thuyết minh') || mLang.includes('thuyet minh')) return 'thuyet-minh';
         if (mLang.includes('lồng tiếng') || mLang.includes('long tieng')) return 'long-tieng';
     }
@@ -162,11 +167,7 @@ function readServerPreference(movieSlug) {
         if (oldNum !== null && !isNaN(oldNum)) {
             return { index: parseInt(oldNum, 10), type: null, name: null };
         }
-        // Ghi nhớ sở thích toàn cục: Nếu người dùng đã chọn Song Ngữ ở phim trước
-        const globalPref = localStorage.getItem('aphim_preferred_variant');
-        if (globalPref === 'song-ngu') {
-            return { index: -1, type: 'song-ngu', name: null };
-        }
+        // Ghi nhớ sở thích toàn cục: Không ép song-ngu cho phim mới, để mặc định Vietsub đầu tiên
     } catch (e) { }
     return null;
 }
@@ -285,8 +286,36 @@ function pickEpisodeForServer(server, prevEpisode, epSlug) {
 }
 
 // Server mang tên Song Ngữ (không dấu / có dấu / bilingual)
+function checkIsSingleMovie(movie) {
+    if (!movie) return false;
+    const rawType = String(movie.type || '').toLowerCase();
+    const epTotal = String(movie.episode_total || '').trim();
+    const epCurrent = String(movie.episode_current || '').toLowerCase();
+    const catList = Array.isArray(movie.category)
+        ? movie.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+        : [];
+    const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+    const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+    const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+    const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+    const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+
+    const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+    return !isDefinitelySeries && Boolean(
+        rawType === 'single' ||
+        rawType === 'movie' ||
+        movie.chieu_rap === true ||
+        movie.is_cinema === true ||
+        epTotal === '1' ||
+        epTotal === '01' ||
+        epCurrent.includes('full') ||
+        epCurrent.includes('chiếu rạp') ||
+        catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+    );
+}
+
 function isBilingualServer(server) {
-    const raw = String((server && (server.original_server_name || server.server_name)) || '').toLowerCase();
+    const raw = String((server && ((server.server_name || '') + ' ' + (server.original_server_name || ''))) || '').toLowerCase();
     return raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual');
 }
 
@@ -372,6 +401,17 @@ function pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug) {
     const pool = requestedEpSlug ? all.filter(x => serverHasEpisode(x.s, requestedEpSlug)) : all;
     const candidates = pool.length ? pool : all;
 
+    // 🌟 MẶC ĐỊNH KHI VÀO TRANG: Luôn luôn tìm máy chủ Vietsub (API) đầu tiên để phát ngay tức thì
+    if (!reqVariant || reqVariant === 'vietsub' || reqVariant === 'song-ngu') {
+        const vietsubCandidate = candidates.find(({ s }) => {
+            const type = getServerTypeTag(s, movie);
+            return type === 'vietsub';
+        });
+        if (vietsubCandidate) {
+            return vietsubCandidate.i;
+        }
+    }
+
     let bestIndex = candidates[0].i;
     let bestScore = -Infinity;
 
@@ -380,9 +420,10 @@ function pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug) {
         const type = getServerTypeTag(s, movie);
         if (reqVariant && reqVariant !== 'vietsub' && type === reqVariant) {
             score += 100;
+        } else if (type === 'vietsub') {
+            score += 50;
         } else if (type === 'song-ngu') {
-            // 🌟 Ưu tiên luồng Song Ngữ OnCDN chất lượng cao, sạch bóng hardsub
-            score += 10;
+            score += 5;
         }
         if (score > bestScore) {
             bestScore = score;
@@ -403,7 +444,9 @@ function resolveServerIndex(episodes, requestedServer, reqVariant, movie, reques
     // ──────────────────────────────────────────────────────────────────────────
     // 1A. URL Variant (/full-song-ngu, /tap-1-song-ngu, /tap-1-thuyet-minh, ?version=song-ngu)
     // 🌟 Người dùng tìm kiếm hoặc mở link Song Ngữ/Thuyết Minh -> Bắt buộc nạp đúng biến thể đó!
-    if (reqVariant && reqVariant !== 'vietsub') {
+    // 1A. URL Variant (Thuyết minh / Lồng tiếng) -> Bắt buộc nạp đúng biến thể đó
+    // 🌟 Với Song Ngữ: Luôn luôn phát Vietsub trước, người dùng muốn xem Song Ngữ thì tự bấm chọn ở danh sách
+    if (reqVariant && reqVariant !== 'vietsub' && reqVariant !== 'song-ngu') {
         const foundVariant = episodes.findIndex(s => {
             const cat = getServerTypeTag(s, movie);
             return cat === reqVariant;
@@ -424,14 +467,15 @@ function resolveServerIndex(episodes, requestedServer, reqVariant, movie, reques
     // ──────────────────────────────────────────────────────────────────────────
     // 2. ƯU TIÊN 2: LỰA CHỌN CỦA NGƯỜI DÙNG TỪ LOCALSTORAGE
     // (CHỈ áp dụng khi URL là đường dẫn gốc không có biến thể đặc biệt hay ?server=)
+    // 🌟 TUYỆT ĐỐI KHÔNG TỰ ĐỘNG KHÔI PHỤC SONG NGỮ KHI VÀO TRANG ĐỂ LUÔN ƯU TIÊN VIETSUB API
     // ──────────────────────────────────────────────────────────────────────────
     if (targetIndex === -1) {
         const movieSlug = (movie && movie.slug) || (window.initialMovie && window.initialMovie.slug);
         const pref = readServerPreference(movieSlug);
 
-        if (pref) {
-            // Khớp 1: Khớp theo tên máy chủ gốc (chống lệch index khi merge server phụ)
-            if (pref.name) {
+        if (pref && pref.type !== 'song-ngu') {
+            // Khớp 1: Khớp theo tên máy chủ gốc (BỎ QUA nếu là máy chủ Song Ngữ)
+            if (pref.name && !pref.name.toLowerCase().includes('song ngữ') && !pref.name.toLowerCase().includes('song ngu') && !pref.name.toLowerCase().includes('bilingual')) {
                 const byName = episodes.findIndex(s => {
                     const sName = s.original_server_name || s.server_name || '';
                     return sName.trim().toLowerCase() === pref.name.trim().toLowerCase();
@@ -439,15 +483,19 @@ function resolveServerIndex(episodes, requestedServer, reqVariant, movie, reques
                 if (byName !== -1) targetIndex = byName;
             }
 
-            // Khớp 2: Khớp theo loại máy chủ (song-ngu, thuyet-minh, long-tieng, vietsub)
-            if (targetIndex === -1 && pref.type) {
+            // Khớp 2: Khớp theo loại máy chủ (chỉ khôi phục Thuyết minh / Lồng tiếng)
+            if (targetIndex === -1 && pref.type && pref.type !== 'song-ngu') {
                 const byType = episodes.findIndex(s => getServerTypeTag(s, movie) === pref.type);
                 if (byType !== -1) targetIndex = byType;
             }
 
-            // Khớp 3: Fallback theo index nếu hợp lệ trong phạm vi mảng
+            // Khớp 3: Fallback theo index (chỉ khi index đó KHÔNG PHẢI là Song Ngữ)
             if (targetIndex === -1 && typeof pref.index === 'number' && pref.index >= 0 && pref.index < episodes.length) {
-                targetIndex = pref.index;
+                const sCandidate = episodes[pref.index];
+                const sType = getServerTypeTag(sCandidate, movie);
+                if (sType !== 'song-ngu') {
+                    targetIndex = pref.index;
+                }
             }
         }
     }
@@ -845,7 +893,11 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
         if (typeof currentMovie !== 'undefined' && currentMovie) {
             if (currentMovie.name) qP.set('name', currentMovie.name);
             if (currentMovie.origin_name) qP.set('origin_name', currentMovie.origin_name);
-            if (currentMovie.year) qP.set('year', currentMovie.year); // 🛡️ Truyền năm để rào chắn tránh ghép nhầm phim khác năm
+            if (currentMovie.year) qP.set('year', currentMovie.year);
+            const isSingle = checkIsSingleMovie(currentMovie);
+            qP.set('type', isSingle ? 'single' : (currentMovie.type || 'series'));
+            const primaryEpCount = (currentMovie.episodes?.[0]?.server_data?.length) || 0;
+            if (primaryEpCount) qP.set('episodes_count', primaryEpCount);
         }
         const qStr = qP.toString() ? `?${qP.toString()}` : '';
 
@@ -937,19 +989,30 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
 
         // 🌟 Đồng bộ nguồn Song Ngữ OnCDN chất lượng cao từ Tophim (sạch bóng hardsub)
         if (bilingualData && bilingualData.server && currentMovie && currentMovie.episodes) {
-            const existingIdx = currentMovie.episodes.findIndex(s => isBilingualServer(s));
-            if (existingIdx !== -1) {
-                const isNewOnCdn = (bilingualData.server.server_data || []).some(ep => ep.link_m3u8 && (ep.link_m3u8.includes('oncdn.vip') || ep.link_m3u8.includes('tophim.vip') || ep.link_m3u8.includes('vicdn.cc') || ep.link_m3u8.startsWith('/api/proxy/')));
-                if (isNewOnCdn) {
-                    currentMovie.episodes[existingIdx] = bilingualData.server;
-                    added++;
-                } else {
-                    attachWorkingStreamsToBilingual(currentMovie.episodes[existingIdx], currentMovie.episodes);
-                }
+            const bSrv = bilingualData.server;
+            const bEpCount = (bSrv.server_data || []).length;
+            const currentEpCount = (currentMovie.episodes[0]?.server_data || []).length;
+            const isSingle = checkIsSingleMovie(currentMovie) || currentEpCount === 1;
+
+            if (isSingle && bEpCount > 1) {
+                console.warn(`[Watch] ⚠️ Từ chối ghép nguồn song ngữ: Phim lẻ (${currentEpCount} tập) nhưng nguồn trả về ${bEpCount} tập!`);
+            } else if (currentEpCount >= 4 && bEpCount === 1) {
+                console.warn(`[Watch] ⚠️ Từ chối ghép nguồn song ngữ: Phim bộ (${currentEpCount} tập) nhưng nguồn trả về ${bEpCount} tập!`);
             } else {
-                attachWorkingStreamsToBilingual(bilingualData.server, currentMovie.episodes);
-                currentMovie.episodes.unshift(bilingualData.server);
-                added++;
+                const existingIdx = currentMovie.episodes.findIndex(s => isBilingualServer(s));
+                if (existingIdx !== -1) {
+                    const isNewOnCdn = (bilingualData.server.server_data || []).some(ep => ep.link_m3u8 && (ep.link_m3u8.includes('oncdn.vip') || ep.link_m3u8.includes('tophim.vip') || ep.link_m3u8.includes('vicdn.cc') || ep.link_m3u8.startsWith('/api/proxy/')));
+                    if (isNewOnCdn) {
+                        currentMovie.episodes[existingIdx] = bilingualData.server;
+                        added++;
+                    } else {
+                        attachWorkingStreamsToBilingual(currentMovie.episodes[existingIdx], currentMovie.episodes);
+                    }
+                } else {
+                    attachWorkingStreamsToBilingual(bilingualData.server, currentMovie.episodes);
+                    currentMovie.episodes.unshift(bilingualData.server);
+                    added++;
+                }
             }
         }
 
@@ -985,29 +1048,27 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
                     ? keepIdx
                     : resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
             } else {
-                // Chưa chỉ định gì (hoặc chủ đích Song Ngữ/Thuyết Minh từ URL & lịch sử) → xếp hạng lại toàn bộ
-                wantedIndex = resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
+                // 🌟 Chưa chỉ định gì (hoặc mới vào phim): Luôn ưu tiên phát máy chủ Vietsub (API) đầu tiên!
+                const firstVietsubIdx = currentMovie.episodes.findIndex(s => getServerTypeTag(s, currentMovie) === 'vietsub');
+                if (firstVietsubIdx !== -1 && (!requestedVariant || requestedVariant === 'vietsub' || requestedVariant === 'song-ngu')) {
+                    wantedIndex = firstVietsubIdx;
+                } else {
+                    wantedIndex = resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
+                }
             }
             if (wantedIndex < 0 || wantedIndex >= currentMovie.episodes.length) wantedIndex = 0;
 
             const wantedServer = currentMovie.episodes[wantedIndex];
             const wantedEpisode = pickEpisodeForServer(wantedServer, prevEpisode, epKey);
 
-            // ── (1) Chỉ tự NẠP LẠI player khi: ──
-            //     • người dùng CHƯA bấm play (đang placeholder → đổi nguồn im lặng, KHÔNG tự phát), hoặc
-            //     • luồng cũ là embed bị chặn (chất lượng ≤ 1 = khung xám) → buộc phải nhảy sang nguồn chạy được, hoặc
-            //     • đang có CHỦ ĐÍCH biến thể (URL -song-ngu/-thuyet-minh/-long-tieng hoặc ?version=...) mà
-            //       người dùng CHƯA tự bấm đổi server → phải phục vụ đúng chủ đích đó.
-            //   Ngoài ra (đang xem bình thường, không có chủ đích) thì KHÔNG cắt luồng giữa chừng.
-            const variantIntent = Boolean(requestedVariant && requestedVariant !== 'vietsub');
+            const variantIntent = Boolean(requestedVariant && requestedVariant !== 'vietsub' && requestedVariant !== 'song-ngu');
             const intentNotServed = variantIntent && !_userPickedServer && wantedServer !== prevServerObj;
             const streamChanged = Boolean(wantedEpisode) && (wantedServer !== prevServerObj || wantedEpisode !== prevEpisode);
-            const mustRebind = streamChanged && (!_playbackStarted || prevQuality <= 1 || intentNotServed);
+            // Khi người dùng chưa bấm chọn server (! _userPickedServer), nếu nguồn đang phát chưa phải Vietsub thì phải rebind về Vietsub
+            const mustRebind = streamChanged && (!_playbackStarted || prevQuality <= 1 || intentNotServed || !_userPickedServer);
 
-            // Nếu không cắt luồng: server được highlight PHẢI là server đang phát thật
-            // (unshift làm lệch index cũ → đây chính là lỗi "sáng Song Ngữ nhưng phát Nguồn 1")
             let nextIndex = wantedIndex;
-            if (!mustRebind && prevServerObj) {
+            if (!mustRebind && prevServerObj && _userPickedServer) {
                 const keepIdx = currentMovie.episodes.indexOf(prevServerObj);
                 if (keepIdx !== -1) nextIndex = keepIdx;
             }
@@ -2444,7 +2505,7 @@ function __legacyRenderServerList_UNUSED(episodes) {
     });
 
     // Render HTML for each group row
-    const groupOrder = ['Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Song Ngữ', 'Khác'];
+    const groupOrder = ['Song Ngữ', 'Vietsub', 'Thuyết Minh', 'Lồng Tiếng', 'Khác'];
         let html = '';
 
         groupOrder.forEach(category => {
@@ -2595,15 +2656,11 @@ window.changeServer = function (index) {
     renderServerList(currentMovie.episodes);
     renderEpisodeList(currentMovie.episodes);
 
-    // Nếu đang xem thì tự động đổi luồng video
+    // Nếu đang xem thì tự động đổi luồng video ngay lập tức trong user-gesture để Safari mobile không chặn autoplay
     if (player && !player.paused) {
         showSeekOverlay(`Đang tải máy chủ: ${currentMovie.episodes[index].server_name}...`, true);
-        setTimeout(() => {
-            initializePlayer(currentEpisode);
-        }, 300);
-    } else {
-        initializePlayer(currentEpisode);
     }
+    initializePlayer(currentEpisode);
 };
 
 // Biến toàn cục cho search/sort
@@ -3747,11 +3804,18 @@ function initializePlayer(episode) {
     player.addEventListener('playing', updateUnmuteBanner);
     player.addEventListener('pause', updateUnmuteBanner);
 
-    const autoUnmuteOnUserInteraction = () => {
-        if (player && player.muted) {
-            player.muted = false;
-            player.volume = lastVolume > 0 ? lastVolume : 0.9;
-        }
+    const autoUnmuteOnUserInteraction = (e) => {
+        try {
+            const t = e && e.target;
+            // Bỏ qua khi thao tác đầu tiên chính là nút loa / banner bật tiếng / phím M
+            // để handler của chúng tự xử lý, tránh bị bật-tắt đôi (bấm loa vẫn câm)
+            const onVolumeUi = t && t.closest && t.closest('#aphim-volume-wrapper, #aphim-unmute-banner');
+            const isMKey = e && (e.code === 'KeyM' || e.key === 'm' || e.key === 'M');
+            if (!onVolumeUi && !isMKey && player && player.muted) {
+                player.muted = false;
+                player.volume = lastVolume > 0 ? lastVolume : 0.9;
+            }
+        } catch (err) {}
         document.removeEventListener('click', autoUnmuteOnUserInteraction);
         document.removeEventListener('keydown', autoUnmuteOnUserInteraction);
         document.removeEventListener('touchstart', autoUnmuteOnUserInteraction);
@@ -4056,6 +4120,14 @@ function initializePlayer(episode) {
                     const qIdx = parseInt(opt.dataset.quality);
                     if (curHls) {
                         curHls.currentLevel = qIdx;
+                        try {
+                            localStorage.setItem('aphim_preferred_quality', qIdx.toString());
+                            // Lưu thêm độ phân giải thật (height) vì index level mỗi phim khác nhau
+                            const lvlHeight = (curHls.levels && curHls.levels[qIdx]) ? (curHls.levels[qIdx].height || 0) : 0;
+                            if (lvlHeight > 0) {
+                                localStorage.setItem('aphim_preferred_quality_height', String(lvlHeight));
+                            }
+                        } catch(err) {}
                     }
                     refreshSettingsQuality();
                     showSettingsPanel('aphim-settings-main-panel');
@@ -4622,7 +4694,13 @@ function initializePlayer(episode) {
             } catch (e) {}
 
             vietSub = subtitles.find(s => (s.language === (curCfg.sub1Lang || 'vi') || (s.label || '').toLowerCase().includes('việt'))) || subtitles[0];
-            foreignSub = subtitles.find(s => (s.language === (curCfg.sub2Lang || 'ko'))) || subtitles.find(s => s !== vietSub) || subtitles[1] || subtitles[0];
+            foreignSub = subtitles.find(s => (s.language === (curCfg.sub2Lang || 'ko'))) ||
+                         subtitles.find(s => s.language === 'en' || (s.label || '').toLowerCase().includes('eng')) ||
+                         subtitles.find(s => s.language === 'zh' || s.language === 'cn' || (s.label || '').toLowerCase().includes('trung')) ||
+                         subtitles.find(s => s.language === 'ko' || (s.label || '').toLowerCase().includes('hàn')) ||
+                         subtitles.find(s => s !== vietSub) ||
+                         subtitles[1] ||
+                         subtitles[0];
         } else {
             // 🌟 TRÌNH PHÁT RIÊNG: MÁY CHỦ VIETSUB (Lấy phụ đề chuẩn từ API, mặc định Vietsub đầu tiên)
             let curSavedVietsubLang = null;
@@ -4681,18 +4759,21 @@ function initializePlayer(episode) {
                 // 🛡️ CHỐNG NHÂN ĐÔI / SPAM SUB (Đặc biệt cho Việc Ma, Lương Quái & iOS AVPlayer):
                 // Vô hiệu hóa toàn bộ các track phụ khác (Forced, Phụ đề KOR, Phụ đề VIE gốc của server)
                 // để tránh sinh thêm box phụ đề thứ 2 bên dưới
-                const isFs = !!(videoEl.webkitDisplayingFullscreen || document.fullscreenElement || document.webkitFullscreenElement);
+                // 🛡️ CHỐNG SUB ĐEN NATIVE TRÊN DESKTOP:
+                // Native Track chỉ được bật DUY NHẤT khi xem trên Apple AVPlayer (iOS Fullscreen webkitDisplayingFullscreen)
+                // Trên Desktop và Android: Luôn dùng Custom HTML Overlay, TUYỆT ĐỐI ẩn toàn bộ Native Track để không sinh sub đen bên dưới
+                const isIosNativeAvPlayer = !!(videoEl.webkitDisplayingFullscreen);
                 for (let i = 0; i < videoEl.textTracks.length; i++) {
                     const t = videoEl.textTracks[i];
-                    if (trackEl && t === trackEl.track) {
-                        t.mode = isFs ? 'showing' : 'hidden';
+                    if (isIosNativeAvPlayer && trackEl && t === trackEl.track) {
+                        t.mode = 'showing';
                     } else {
                         try { t.mode = 'disabled'; } catch(e) {}
                     }
                 }
 
                 if (trackEl && trackEl.track) {
-                    trackEl.track.mode = isFs ? 'showing' : 'hidden';
+                    trackEl.track.mode = isIosNativeAvPlayer ? 'showing' : 'hidden';
                 }
             } catch (err) {
                 console.warn('[Sync Native Subtitle Track Error]:', err);
@@ -4915,7 +4996,7 @@ function initializePlayer(episode) {
             if (!isSyncRunning) return;
             const now = timestamp || performance.now();
             // Tối ưu chu kỳ 20ms (~50fps) cực kỳ mượt mà, 0ms trễ phản hồi
-            if (now - lastSyncTime >= 20) {
+            if (now - lastSyncTime >= 50) {
                 lastSyncTime = now;
                 onTimeUpdate();
             }
@@ -6068,79 +6149,70 @@ function initializePlayer(episode) {
     }
 
     function enterFullscreen() {
-        if (!player) return;
+        if (!player || !wrapper) return;
 
-        // ─── A. MOBILE FLOW (iOS Safari & Android: Mở Full Ngang Native Chuẩn 100%) ───
-        if (isMobileDevice()) {
-            // 🌟 1. Bật duy nhất 1 Native Dual Subtitle Track (chứa cả 2 dòng: Vietsub + Song Ngữ)
-            // Tuyệt đối không bật 2 track song song để tránh spam 2 box phụ đề trên iOS Safari (Hình 2)
+        // ─── A. MOBILE iOS (iPhone / iPad / Safari): Mở Trình phát Toàn màn hình Native của Apple ───
+        // Chuẩn cơ chế máy người dùng: Tự động xoay ngang, che phủ 100% không bị dính Header / Bottom Nav
+        if (typeof player.webkitEnterFullscreen === 'function') {
             try {
+                // Kích hoạt track phụ đề Song Ngữ native cho Apple AVPlayer
                 const trackEl = player.querySelector('track[data-native-dual="true"]');
                 let activatedOne = false;
-                for (let i = 0; i < player.textTracks.length; i++) {
-                    const t = player.textTracks[i];
-                    if (trackEl && t === trackEl.track && !activatedOne) {
-                        t.mode = 'showing';
-                        activatedOne = true;
-                    } else if (!activatedOne && t.label && t.label.includes('Song Ngữ')) {
-                        t.mode = 'showing';
-                        activatedOne = true;
-                    } else {
-                        try { t.mode = 'disabled'; } catch(e) {}
+                if (player.textTracks) {
+                    for (let i = 0; i < player.textTracks.length; i++) {
+                        const t = player.textTracks[i];
+                        if (trackEl && t === trackEl.track && !activatedOne) {
+                            t.mode = 'showing';
+                            activatedOne = true;
+                        } else if (!activatedOne && t.label && t.label.includes('Song Ngữ')) {
+                            t.mode = 'showing';
+                            activatedOne = true;
+                        } else {
+                            try { t.mode = 'disabled'; } catch(e) {}
+                        }
                     }
-                }
-                if (!activatedOne && trackEl && trackEl.track) {
-                    trackEl.track.mode = 'showing';
+                    if (!activatedOne && trackEl && trackEl.track) {
+                        trackEl.track.mode = 'showing';
+                    }
                 }
             } catch(e) {}
 
-            // 🌟 2. iOS Safari (iPhone / iPad): Mở ngay Native Fullscreen xoay ngang máy
-            if (typeof player.webkitEnterFullscreen === 'function') {
-                try {
-                    player.webkitEnterFullscreen();
-                    updateFullscreenIcons(true);
-                    return;
-                } catch (e) {
-                    console.warn('iOS player.webkitEnterFullscreen error:', e);
-                }
+            try {
+                player.webkitEnterFullscreen();
+                updateFullscreenIcons(true);
+                return;
+            } catch (err) {
+                console.warn('[APhim] iOS webkitEnterFullscreen error, using web fullscreen fallback:', err);
             }
+        }
 
-            // 🌟 3. Android / Mobile khác: Kích hoạt Fullscreen API trên chính video
+        // ─── B. ANDROID / OTHER MOBILE ───
+        if (isMobileDevice()) {
             if (player.requestFullscreen || player.webkitRequestFullscreen) {
                 try {
-                    player.controls = true;
                     const req = player.requestFullscreen ? player.requestFullscreen() : player.webkitRequestFullscreen();
-                    if (req && req.catch) {
-                        req.catch(() => { player.controls = false; });
-                    }
+                    if (req && req.catch) req.catch(() => {});
                     if (screen.orientation && screen.orientation.lock) {
                         screen.orientation.lock('landscape').catch(() => {});
                     }
                     updateFullscreenIcons(true);
                     return;
-                } catch (e) {
-                    console.warn('Mobile requestFullscreen error:', e);
-                    player.controls = false;
-                }
+                } catch(e) {}
             }
         }
 
-        // ─── B. DESKTOP FLOW (PC / Laptop) ───
-        if (!wrapper) return;
+        // ─── C. DESKTOP / FALLBACK ───
         let nativeSuccess = false;
-
         try {
             if (wrapper.requestFullscreen) {
-                wrapper.requestFullscreen();
+                const req = wrapper.requestFullscreen();
                 nativeSuccess = true;
+                if (req && req.catch) req.catch(() => {});
             } else if (wrapper.webkitRequestFullscreen) {
                 wrapper.webkitRequestFullscreen();
                 nativeSuccess = true;
-            } else if (wrapper.mozRequestFullScreen) {
-                wrapper.mozRequestFullScreen();
-                nativeSuccess = true;
-            } else if (wrapper.msRequestFullscreen) {
-                wrapper.msRequestFullscreen();
+            } else if (player.requestFullscreen) {
+                player.requestFullscreen();
                 nativeSuccess = true;
             }
         } catch (e) {}
@@ -6152,33 +6224,29 @@ function initializePlayer(episode) {
 
         updateFullscreenIcons(true);
         showControls();
+        if (typeof updateSubResponsiveMetrics === 'function') {
+            setTimeout(updateSubResponsiveMetrics, 80);
+        }
     }
 
     function exitFullscreen() {
-        // 1. Khôi phục trạng thái mobile nếu dùng native video
         if (player) {
             player.controls = false;
             if (typeof player.webkitExitFullscreen === 'function') {
                 try { player.webkitExitFullscreen(); } catch (e) {}
             }
-            try {
-                const trackEl = player.querySelector('track[data-native-dual="true"]');
-                if (trackEl && trackEl.track) {
-                    trackEl.track.mode = 'hidden';
-                }
-                for (let i = 0; i < player.textTracks.length; i++) {
-                    try { player.textTracks[i].mode = 'hidden'; } catch(e) {}
-                }
-            } catch(e) {}
         }
 
-        // 2. Thoát Web Fullscreen (iPhone Safari / Mobile Fallback)
-        if (wrapper && wrapper.classList.contains('aphim-web-fullscreen')) {
+        // Thoát Web Fullscreen & khôi phục kích thước wrapper
+        if (wrapper) {
+            wrapper.classList.remove('aphim-rotate-landscape');
             wrapper.classList.remove('aphim-web-fullscreen');
+            wrapper.style.width = '';
+            wrapper.style.height = '';
             document.body.classList.remove('aphim-body-fullscreen');
         }
 
-        // 3. Thoát native browser fullscreen
+        // Thoát native browser fullscreen
         try {
             if (document.exitFullscreen) {
                 document.exitFullscreen();
@@ -6191,7 +6259,7 @@ function initializePlayer(episode) {
             }
         } catch (e) {}
 
-        // 4. Mở khóa xoay màn hình
+        // Mở khóa xoay màn hình
         if (screen.orientation && screen.orientation.unlock) {
             try { screen.orientation.unlock(); } catch (e) {}
         }
@@ -6216,27 +6284,44 @@ function initializePlayer(episode) {
         let lastFsTap = 0;
         const handleFsTrigger = (e) => {
             if (e) {
-                if (e.cancelable) e.preventDefault();
                 e.stopPropagation();
             }
             const now = Date.now();
-            if (now - lastFsTap < 250) return; // Debounce 250ms chống double trigger
+            if (now - lastFsTap < 300) return; // Debounce 300ms chống double trigger
             lastFsTap = now;
             toggleFullscreen();
         };
 
         btnFs.onclick = handleFsTrigger;
-        btnFs.addEventListener('touchend', handleFsTrigger, { passive: false });
+        btnFs.addEventListener('touchend', handleFsTrigger, { passive: true });
     }
 
     const handleFsChange = () => {
+        const hasNativeFs = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement ||
+            (player && player.webkitDisplayingFullscreen)
+        );
+        // Nếu native fullscreen vừa thoát (người dùng bấm Esc hoặc vuốt thoát của trình duyệt)
+        if (!hasNativeFs && wrapper && wrapper.classList.contains('aphim-web-fullscreen')) {
+            wrapper.classList.remove('aphim-web-fullscreen');
+            document.body.classList.remove('aphim-body-fullscreen');
+        }
+
         const isFs = isCurrentlyFullscreen();
         updateFullscreenIcons(isFs);
         if (!isFs) {
             if (player) {
-                player.controls = false; // Always use custom controls
+                player.controls = false;
             }
-            if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
+            if (wrapper) {
+                wrapper.classList.remove('aphim-rotate-landscape');
+                wrapper.classList.remove('aphim-web-fullscreen');
+                wrapper.style.width = '';
+                wrapper.style.height = '';
+            }
             document.body.classList.remove('aphim-body-fullscreen');
             if (screen.orientation && screen.orientation.unlock) {
                 try { screen.orientation.unlock(); } catch (e) {}
@@ -6245,6 +6330,35 @@ function initializePlayer(episode) {
         showControls();
         scheduleHideControls(2400);
     };
+
+    // Tự động thích ứng toàn màn hình khi người dùng xoay ngang/dọc điện thoại theo cơ chế của máy
+    const handleDeviceOrientationChange = () => {
+        if (isMobileDevice() && player && wrapper) {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            if (isLandscape) {
+                // Khi người dùng xoay ngang máy để xem: tự động mở toàn màn hình mượt mà
+                if (!isCurrentlyFullscreen()) {
+                    enterFullscreen();
+                }
+            } else {
+                // Khi xoay dọc máy lại: tự động thu về giao diện trang web
+                if (isCurrentlyFullscreen() && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                    exitFullscreen();
+                }
+            }
+        }
+        if (typeof updateSubResponsiveMetrics === 'function') {
+            setTimeout(updateSubResponsiveMetrics, 100);
+        }
+    };
+    // Chỉ giữ 1 listener duy nhất (gỡ handler của lần khởi tạo trước để không tích lũy trùng lặp khi đổi tập)
+    if (window._aphimOrientationHandler) {
+        window.removeEventListener('orientationchange', window._aphimOrientationHandler);
+        window.removeEventListener('resize', window._aphimOrientationHandler);
+    }
+    window._aphimOrientationHandler = handleDeviceOrientationChange;
+    window.addEventListener('orientationchange', handleDeviceOrientationChange, { passive: true });
+    window.addEventListener('resize', handleDeviceOrientationChange, { passive: true });
 
     document.addEventListener('fullscreenchange', handleFsChange);
     document.addEventListener('webkitfullscreenchange', handleFsChange);
@@ -6617,13 +6731,33 @@ function initializePlayer(episode) {
             debug: false,
             enableWorker: true,
             lowLatencyMode: false,
-            maxBufferLength: isMobileDevice ? 30 : 60, // ⚡ Mobile buffer 30s tiết kiệm pin & RAM, Desktop buffer 60s
-            maxMaxBufferLength: isMobileDevice ? 60 : 120,
-            startLevel: -1, // ⚡ Auto chọn bitrate thích ứng mạng 4G/Wifi
+            // ⚡ BỘ ĐỆM THÍCH ỨNG SIÊU MƯỢT (Chống khựng khi mạng lag / 4G yếu)
+            backBufferLength: 60, // Giữ 60s dữ liệu quá khứ trong RAM, tua lùi 10s-30s tức thì không cần tải lại
+            maxBufferLength: isMobileDevice ? 25 : 40, // Giữ 25-40s buffer phía trước để phát siêu mượt
+            maxMaxBufferLength: isMobileDevice ? 50 : 80,
+            maxBufferSize: isMobileDevice ? 40 * 1000 * 1000 : 80 * 1000 * 1000,
+            maxBufferHole: 0.5, // Tự động nhảy qua các lỗ hổng buffer nhỏ (0.5s) thay vì treo video
+            highBufferWatchdogPeriod: 2,
+            nudgeOffset: 0.1, // Nudge 0.1s tự động nếu bị kẹt audio/video stall
+            nudgeMaxRetry: 6,
+            maxFragLookUpTolerance: 0.25,
+            startFragPrefetch: true, // ⚡ Tự động tải trước phân đoạn tiếp theo ngay khi phân đoạn trước đang phát (0ms gap)
+            progressive: true, // ⚡ Giải mã luồng phân đoạn theo dạng progressive streaming mượt mà
+            // ⚡ Cơ chế thử lại thông minh khi mạng chập chờn / lag
             fragLoadingTimeOut: 20000,
-            manifestLoadingTimeOut: 15000,
+            fragLoadingMaxRetry: 6,
+            fragLoadingRetryDelay: 400,
+            fragLoadingMaxRetryTimeout: 30000,
             levelLoadingTimeOut: 15000,
-            preload: true
+            levelLoadingMaxRetry: 4,
+            manifestLoadingTimeOut: 15000,
+            manifestLoadingMaxRetry: 4,
+            // ⚡ ABR (Adaptive Bitrate) thông minh ưu tiên mượt mà tuyệt đối
+            startLevel: -1, // Luôn để Auto thích ứng mạng
+            abrEwmaDefaultEstimate: 1500000, // Khởi đầu 1.5 Mbps thực tế cho mạng 3G/4G/Wifi
+            abrBandWidthFactor: 0.85, // Biên an toàn 85% băng thông
+            abrBandWidthUpFactor: 0.7, // Tăng chất lượng có kiểm soát
+            testBandwidth: false // ⚡ Bỏ qua bước kiểm tra băng thông giả lập để bắt đầu phát tức thì
         });
         window.hls = hls;
         window.hlsInstance = hls;
@@ -6634,22 +6768,59 @@ function initializePlayer(episode) {
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
             console.log('🚀 [HLS] Manifest parsed, sẵn sàng phát');
 
-            // 🎯 1. TỰ ĐỘNG BẮT LUỒNG FULL HD 1080P CAO NHẤT
+            // 🎯 1. ABR TỰ ĐỘNG THÍCH ỨNG BĂNG THÔNG MẠNG (ĐẢM BẢO KHÔNG KHỰNG / ĐỨNG HÌNH)
             const allLevels = (data && data.levels && data.levels.length > 0) ? data.levels : (hls.levels || []);
             if (allLevels && allLevels.length > 0) {
-                let bestIdx = -1;
-                let maxHeight = 0;
-                allLevels.forEach((lvl, idx) => {
-                    const h = lvl.height || 0;
-                    if (h >= maxHeight) {
-                        maxHeight = h;
-                        bestIdx = idx;
+                let savedQualityIdx = -1;
+                let savedQualityHeight = 0;
+                try {
+                    const saved = localStorage.getItem('aphim_preferred_quality');
+                    if (saved !== null && saved !== undefined && saved !== '-1') {
+                        savedQualityIdx = parseInt(saved, 10);
                     }
-                });
-                if (bestIdx !== -1) {
-                    hls.startLevel = bestIdx;
-                    hls.nextLevel = bestIdx;
-                    console.log(`🎯 [HLS] Tự động chọn chất lượng cao nhất: ${maxHeight}p (Level ${bestIdx})`);
+                    const savedH = parseInt(localStorage.getItem('aphim_preferred_quality_height') || '0', 10);
+                    if (savedH > 0) savedQualityHeight = savedH;
+                } catch(e) {}
+
+                // Ưu tiên khớp theo độ phân giải thật vì index level mỗi phim khác nhau
+                if (savedQualityHeight > 0) {
+                    const byHeight = allLevels.findIndex(lvl => (lvl.height || 0) === savedQualityHeight);
+                    if (byHeight !== -1) savedQualityIdx = byHeight;
+                }
+
+                if (savedQualityIdx >= 0 && savedQualityIdx < allLevels.length) {
+                    hls.currentLevel = savedQualityIdx;
+                    console.log(`🎯 [HLS] Nạp chất lượng đã lưu: Level ${savedQualityIdx} (${allLevels[savedQualityIdx]?.height}p)`);
+                } else {
+                    // Mặc định Auto thích ứng (ABR): currentLevel / nextLevel = -1
+                    // ABR sẽ tự động hạ độ phân giải khi mạng lag hoặc giật để video chạy mượt 100% không dừng hình
+                    hls.currentLevel = -1;
+                    hls.nextLevel = -1;
+
+                    if (isMobileDevice) {
+                        // Trên mobile: Khởi đầu bằng level 480p - 720p để phát ngay trong 100ms
+                        let fastStartIdx = -1;
+                        for (let i = 0; i < allLevels.length; i++) {
+                            const h = allLevels[i].height || 0;
+                            if (h >= 480 && h <= 720) {
+                                fastStartIdx = i;
+                                break;
+                            }
+                        }
+                        hls.startLevel = (fastStartIdx !== -1) ? fastStartIdx : -1;
+                    } else {
+                        // Desktop: Bắt đầu ở level cao nhất nếu mạng mạnh, nhưng vẫn để nextLevel = -1 để ABR thích ứng
+                        let bestIdx = -1;
+                        let maxHeight = 0;
+                        allLevels.forEach((lvl, idx) => {
+                            const h = lvl.height || 0;
+                            if (h >= maxHeight) {
+                                maxHeight = h;
+                                bestIdx = idx;
+                            }
+                        });
+                        hls.startLevel = (bestIdx !== -1) ? bestIdx : -1;
+                    }
                 }
             }
             if (typeof refreshSettingsQuality === 'function') {
@@ -6745,7 +6916,17 @@ function initializePlayer(episode) {
             }
         });
 
-        // 🛡️ 4. XỬ LÝ LỖI & TỰ ĐỘNG PHỤC HỒI PHÂN ĐOẠN (FRAG LOAD ERROR)
+        // 🛡️ 4. XỬ LÝ LỖI & TỰ ĐỘNG PHỤC HỒI PHÂN ĐOẠN (FRAG LOAD / PARSE ERROR)
+        let mediaRecoveryCount = 0;
+        let lastRecoveryTime = 0;
+
+        hls.on(Hls.Events.FRAG_PARSED, () => {
+            mediaRecoveryCount = 0;
+        });
+        hls.on(Hls.Events.LEVEL_SWITCHED, () => {
+            mediaRecoveryCount = 0;
+        });
+
         hls.on(Hls.Events.ERROR, (event, data) => {
             if (data.fatal) {
                 console.error('❌ HLS Fatal Error:', data.type, data.details);
@@ -6761,12 +6942,42 @@ function initializePlayer(episode) {
                             handleStreamError();
                         }
                         break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        console.log('🔄 Trying to recover media error...');
-                        hls.recoverMediaError();
+                    case Hls.ErrorTypes.MEDIA_ERROR: {
+                        const now = Date.now();
+                        if (now - lastRecoveryTime > 4000) {
+                            mediaRecoveryCount = 0;
+                        }
+                        lastRecoveryTime = now;
+                        mediaRecoveryCount++;
+
+                        console.warn(`🔄 [HLS Recovery] MEDIA_ERROR attempt #${mediaRecoveryCount}: ${data.details}`);
+
+                        if (mediaRecoveryCount === 1) {
+                            hls.recoverMediaError();
+                        } else if (mediaRecoveryCount === 2) {
+                            try { hls.swapAudioCodec(); } catch (e) {}
+                            hls.recoverMediaError();
+                        } else if (mediaRecoveryCount === 3) {
+                            if (hls.currentLevel > 0) {
+                                hls.currentLevel = hls.currentLevel - 1;
+                                hls.recoverMediaError();
+                            } else if (player && typeof player.currentTime === 'number') {
+                                player.currentTime += 0.8;
+                                hls.recoverMediaError();
+                            } else {
+                                hls.destroy();
+                                handleStreamError();
+                            }
+                        } else {
+                            console.error('❌ [HLS] MEDIA_ERROR không thể phục hồi sau nhiều lần thử -> Chuyển máy chủ dự phòng');
+                            hls.destroy();
+                            handleStreamError();
+                        }
                         break;
+                    }
                     default:
                         _isInitializingPlayer = false;
+                        hls.destroy();
                         handleStreamError();
                         break;
                 }
@@ -6790,43 +7001,64 @@ function initializePlayer(episode) {
             }
         });
     } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+        // Hủy hlsInstance cũ nếu có để giải phóng tài nguyên trên Safari
+        if (window.hlsInstance) {
+            try { window.hlsInstance.destroy(); } catch (e) { }
+            window.hlsInstance = null;
+            window.hls = null;
+        }
+
         player.src = videoUrl;
-        player.addEventListener('canplay', () => {
-            if (window._isTvcActive) {
-                console.log('⚡ TVC is playing -> Pre-buffering main stream in background (muted Safari)...');
-                player.muted = true;
-                player.volume = 0;
-                player.play().catch(e => console.log('Preload buffer play muted:', e));
-                return;
-            }
 
-            const shouldResume = !isTimeRestored && 
-                                 progress && 
-                                 progress.currentTime > 5 && 
-                                 !progress.completed &&
-                                 (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
-
-            const attemptSafariPlayback = () => {
-                const playPromise = player.play();
-                if (playPromise && playPromise.catch) {
-                    playPromise.catch(err => {
-                        console.warn('⚠️ [Safari Autoplay] Blocked unmuted -> Chuyển sang Muted Autoplay chạy ngay:', err);
-                        player.muted = true;
-                        if (typeof updateVolumeIcon === 'function') updateVolumeIcon(0, true);
-                        if (typeof updateUnmuteBanner === 'function') updateUnmuteBanner();
-                        player.play().catch(() => {});
-                    });
+        // 🛡️ Vô hiệu hóa toàn bộ native text tracks trên Safari Mobile (chống sub đen đè lên web)
+        const disableSafariNativeTracks = () => {
+            try {
+                for (let i = 0; i < player.textTracks.length; i++) {
+                    player.textTracks[i].mode = 'disabled';
                 }
-            };
+            } catch(e) {}
+        };
+        player.addEventListener('loadedmetadata', disableSafariNativeTracks);
+        if (player.textTracks && player.textTracks.addEventListener) {
+            player.textTracks.addEventListener('addtrack', disableSafariNativeTracks);
+        }
+        disableSafariNativeTracks();
 
-            if (shouldResume) {
+        // ⚡ Bắt buộc gọi player.load() để Safari iOS khởi động pipeline giải mã stream mới ngay
+        try { player.load(); } catch(e) {}
+
+        const shouldResume = !isTimeRestored && 
+                             progress && 
+                             progress.currentTime > 5 && 
+                             !progress.completed &&
+                             (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
+
+        const attemptSafariPlayback = () => {
+            const playPromise = player.play();
+            if (playPromise && playPromise.catch) {
+                playPromise.catch(err => {
+                    console.warn('⚠️ [Safari Autoplay] Blocked unmuted -> Chuyển sang Muted Autoplay chạy ngay:', err);
+                    player.muted = true;
+                    if (typeof updateVolumeIcon === 'function') updateVolumeIcon(0, true);
+                    if (typeof updateUnmuteBanner === 'function') updateUnmuteBanner();
+                    player.play().catch(() => {});
+                });
+            }
+        };
+
+        if (window._isTvcActive) {
+            player.muted = true;
+            player.volume = 0;
+            player.play().catch(() => {});
+        } else {
+            // Kích hoạt phát tức thì trong cùng user-gesture context (chống đen màn hình)
+            attemptSafariPlayback();
+        }
+
+        player.addEventListener('loadedmetadata', () => {
+            if (shouldResume && !isTimeRestored) {
                 isTimeRestored = true;
-                setTimeout(() => {
-                    try { player.currentTime = progress.currentTime; } catch(e) {}
-                    attemptSafariPlayback();
-                }, 100);
-            } else {
-                attemptSafariPlayback();
+                try { player.currentTime = progress.currentTime; } catch(e) {}
             }
         }, { once: true });
     }
@@ -6905,9 +7137,22 @@ function initializePlayer(episode) {
         }
     });
 
+    let waitingStallTimer = null;
     player.addEventListener('waiting', () => {
-        if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
-            try { window.hlsInstance.startLoad(player.currentTime); } catch (e) { }
+        if (waitingStallTimer) clearTimeout(waitingStallTimer);
+        // Tránh huỷ ngang phân đoạn đang tải dở trên mạng chậm: Chỉ nạp lại nếu đợi quá 2.5s mà chưa có dữ liệu
+        waitingStallTimer = setTimeout(() => {
+            if (player.paused) return;
+            if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                try { window.hlsInstance.startLoad(player.currentTime); } catch (e) { }
+            }
+        }, 2500);
+    });
+
+    player.addEventListener('playing', () => {
+        if (waitingStallTimer) {
+            clearTimeout(waitingStallTimer);
+            waitingStallTimer = null;
         }
     });
 
@@ -7068,9 +7313,12 @@ function initializePlayer(episode) {
                         ? Math.min(player.duration || 0, player.currentTime + targetDelta)
                         : Math.max(0, player.currentTime + targetDelta);
                     player.currentTime = newTime;
-                    if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
-                        try { window.hlsInstance.startLoad(newTime); } catch(e) {}
-                    }
+                    if (window._hlsTapSeekTimer) clearTimeout(window._hlsTapSeekTimer);
+                    window._hlsTapSeekTimer = setTimeout(() => {
+                        if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                            try { window.hlsInstance.startLoad(newTime); } catch(e) {}
+                        }
+                    }, 220);
                     if (player.paused) {
                         player.play().catch(() => {});
                     }
@@ -8471,7 +8719,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Toggle browser Fullscreen API on player container
-function toggleFullscreen() {
+function __legacyToggleFullscreen_UNUSED() {
     const playerContainer = document.querySelector('.aspect-video');
     if (!playerContainer) return;
 

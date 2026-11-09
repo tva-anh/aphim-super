@@ -42,6 +42,13 @@ const PORT = process.env.PORT || 3005;
 
 // Socket.IO Setup
 const http = require('http');
+const https = require('https');
+
+// 🚀 CDN Connection Pool: Tái sử dụng socket TCP/TLS giúp tải phân đoạn video siêu tốc (<15ms TTFB)
+const cdnHttpAgent = new http.Agent({ keepAlive: true, maxSockets: 150, maxFreeSockets: 40, timeout: 60000 });
+const cdnHttpsAgent = new https.Agent({ keepAlive: true, maxSockets: 150, maxFreeSockets: 40, timeout: 60000 });
+const m3u8Cache = new Map();
+const MAX_M3U8_CACHE_ITEMS = 600;
 const { Server } = require('socket.io');
 const server = http.createServer({ maxHeaderSize: 65536 }, app);
 const io = new Server(server, {
@@ -294,8 +301,14 @@ app.get(['/api/movies/bilingual/:slug', '/api/bilingual/movie/:slug'], async (re
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     try {
         const { getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
-        const songNguServer = await getBilingualServer(req.params.slug, req.query.name || '', req.query.origin_name || '', req.query.year || null);
+        const movieType = req.query.type || '';
+        const epCount = parseInt(req.query.episodes_count, 10) || 0;
+        const songNguServer = await getBilingualServer(req.params.slug, req.query.name || '', req.query.origin_name || '', req.query.year || null, movieType, epCount);
         if (songNguServer && Array.isArray(songNguServer.server_data)) {
+            const isSingle = movieType === 'single' || movieType === 'movie' || epCount === 1;
+            if (isSingle && songNguServer.server_data.length > 1) {
+                return res.json({ status: false, server: null });
+            }
             const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim'));
             if (needsStream) {
                 try {
@@ -1424,14 +1437,36 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
         if (typeof m3u8Content === 'string' && m3u8Content.includes('#EXTM3U')) {
             const base = new URL(targetUrl);
             const lines = m3u8Content.split('\n');
-            const rewritten = lines.map(line => {
+            const rewritten = [];
+            for (let line of lines) {
                 const trimmed = line.trim();
-                if (!trimmed) return line;
+                if (!trimmed) continue;
 
-                // 🛡️ Bọc 100% mọi URI trong các thẻ EXT-X-MEDIA, EXT-X-KEY, EXT-X-MAP
+                // 🛡️ TRIỆT TIÊU SUB ĐEN & LỖI FRAG PARSING ERROR:
+                // Lược bỏ toàn bộ các track phụ đề nhúng trong stream m3u8.
+                // APhim đã có engine phụ đề Custom HTML Overlay độc lập với API WebVTT riêng.
+                // Để lại phụ đề trong m3u8 sẽ khiến Safari mobile tự động vẽ sub đen native và HLS.js bị lỗi fragParsingError!
+                if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=SUBTITLES')) {
+                    continue;
+                }
+
+                // 🛡️ TRIỆT TIÊU MÀN HÌNH ĐEN TRÊN SAFARI MOBILE:
+                // Lược bỏ #EXT-X-MEDIA:TYPE=AUDIO khi không có URI (audio đã mux sẵn trong TS video)
+                // Nếu để lại thẻ này mà không có URI, Safari CoreMedia trên iPhone sẽ chờ stream audio riêng biệt -> gây đen màn hình!
+                if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=AUDIO') && !trimmed.includes('URI="')) {
+                    continue;
+                }
+
+                // Xóa thuộc tính SUBTITLES="..." và AUDIO="..." trong #EXT-X-STREAM-INF khi audio là muxed
+                if (trimmed.startsWith('#EXT-X-STREAM-INF:')) {
+                    line = line.replace(/,SUBTITLES="[^"]+"/g, '');
+                    line = line.replace(/,AUDIO="[^"]+"/g, '');
+                }
+
+                // 🛡️ Bọc 100% mọi URI trong các thẻ EXT-X-MEDIA (AUDIO), EXT-X-KEY, EXT-X-MAP
                 if (trimmed.startsWith('#')) {
                     if (trimmed.includes('URI="')) {
-                        return line.replace(/URI="([^"]+)"/g, (match, uri) => {
+                        line = line.replace(/URI="([^"]+)"/g, (match, uri) => {
                             let absUri;
                             try { absUri = new URL(uri, base).href; } catch (e) { absUri = uri; }
                             const isPlaylist = absUri.includes('.m3u8') || absUri.includes('format=m3u8') || absUri.includes('media=');
@@ -1439,19 +1474,26 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                             return `URI="${endpoint}?url=${encodeURIComponent(absUri)}"`;
                         });
                     }
-                    return line;
+                    rewritten.push(line);
+                    continue;
                 }
 
-                // 🛡️ Bọc 100% mọi phân đoạn video .ts, variant playlist và phụ đề .vtt (kể cả dạng ?seg=)
+                // 🛡️ Bọc 100% mọi phân đoạn video .ts, variant playlist
                 let absUrl;
                 try { absUrl = new URL(trimmed, base).href; } catch (e) { absUrl = trimmed; }
 
                 const isPlaylist = absUrl.includes('.m3u8') || absUrl.includes('format=m3u8') || absUrl.includes('media=');
                 const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
-                return `${endpoint}?url=${encodeURIComponent(absUrl)}`;
-            });
+                rewritten.push(`${endpoint}?url=${encodeURIComponent(absUrl)}`);
+            }
             m3u8Content = rewritten.join('\n');
         }
+        // Lưu vào RAM Cache
+        if (m3u8Cache.size >= MAX_M3U8_CACHE_ITEMS) {
+            const firstKey = m3u8Cache.keys().next().value;
+            m3u8Cache.delete(firstKey);
+        }
+        m3u8Cache.set(targetUrl, { time: Date.now(), content: m3u8Content });
         res.send(m3u8Content);
     } catch (err) {
         console.error('[Proxy M3U8 Error]:', err.message);
@@ -2019,7 +2061,8 @@ function formatMobileShowcaseImg(url) {
     if (!url) return '';
     let u = String(url).trim();
     if (u.includes('image.tmdb.org')) {
-        return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, 'image.tmdb.org/t/p/w500/');
+        // ⚡ Giữ độ phân giải gốc siêu nét (original) cho mobile showcase Retina
+        return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, 'image.tmdb.org/t/p/original/');
     }
     if (u.startsWith('http://') || u.startsWith('https://')) {
         return u.replace('img.ophimimg.com', 'phimimg.com')
@@ -2180,24 +2223,102 @@ function checkBlockedSlug(req, res, next) {
 // ==========================================
 // 🚀 ENTERPRISE MOVIE SEO & METADATA CACHE
 // ==========================================
+function removeVietnameseAccents(str) {
+    if (!str) return '';
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[đĐ]/g, 'd')
+        .toLowerCase()
+        .trim();
+}
+
+function cleanAlpha(str) {
+    return removeVietnameseAccents(str).replace(/[^a-z0-9]/g, '');
+}
+
+function isVietnameseMovie(movie) {
+    if (!movie) return false;
+    const countries = Array.isArray(movie.country)
+        ? movie.country.map(c => (typeof c === 'object' ? (c.name || c.slug || '') : String(c)).toLowerCase())
+        : [String(movie.country || '').toLowerCase()];
+
+    const isVNCountry = countries.some(c =>
+        c.includes('việt nam') || c.includes('viet nam') || c === 'vn' || c === 'viet-nam'
+    );
+    if (isVNCountry) return true;
+
+    const vnCharRegex = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+    const hasVnChar = vnCharRegex.test(movie.name || '');
+    if (hasVnChar) {
+        const isOtherCountry = countries.some(c =>
+            c.includes('trung quốc') || c.includes('hàn quốc') || c.includes('nhật bản') ||
+            c.includes('mỹ') || c.includes('thái lan') || c.includes('anh') || c.includes('pháp') ||
+            c.includes('âu mỹ') || c.includes('hong kong') || c.includes('đài loan')
+        );
+        if (!isOtherCountry) return true;
+    }
+    return false;
+}
+
+function isValidTMDBMatch(cand, movie, isVN) {
+    if (!cand || !cand.backdrop_path) return false;
+    const candTitle = cand.title || cand.name || '';
+    const candOrig = cand.original_title || cand.original_name || '';
+    const cTitleClean = cleanAlpha(candTitle);
+    const cOrigClean = cleanAlpha(candOrig);
+    const mNameClean = cleanAlpha(movie.name);
+    const mOrigClean = cleanAlpha(movie.origin_name);
+
+    // 1. Kiểm tra năm sản xuất: lệch tối đa <= 2 năm
+    if (movie.year) {
+        const dStr = cand.release_date || cand.first_air_date || '';
+        const cYear = parseInt(dStr.substring(0, 4), 10);
+        const mYear = parseInt(movie.year, 10);
+        if (!isNaN(cYear) && !isNaN(mYear)) {
+            if (Math.abs(cYear - mYear) > 2) return false;
+        }
+    }
+
+    // 2. Rào chắn phim Việt Nam: Bắt buộc là phim Việt Nam (ngôn ngữ 'vi' hoặc quốc gia 'VN') hoặc tên phim tiếng Việt khớp tuyệt đối
+    if (isVN) {
+        const isVnLang = cand.original_language === 'vi';
+        const isVnCountry = Array.isArray(cand.origin_country) && cand.origin_country.includes('VN');
+        const matchVnName = (cTitleClean && mNameClean && (cTitleClean === mNameClean || (mNameClean.length >= 6 && cTitleClean.includes(mNameClean))));
+        if (!isVnLang && !isVnCountry && !matchVnName) return false;
+    }
+
+    // 3. Khớp tên phim
+    const titleMatches = (
+        (mNameClean && (cTitleClean === mNameClean || cOrigClean === mNameClean || (mNameClean.length >= 6 && (cTitleClean.includes(mNameClean) || cOrigClean.includes(mNameClean))))) ||
+        (mOrigClean && (cTitleClean === mOrigClean || cOrigClean === mOrigClean || (mOrigClean.length >= 6 && (cTitleClean.includes(mOrigClean) || cOrigClean.includes(mOrigClean)))))
+    );
+    if (!titleMatches) return false;
+
+    return true;
+}
+
 // 🖼️ Tra cứu và nạp ảnh nền TMDB Backdrop 4K sắc nét trực tiếp từ Server-Side
 async function enrichMovieBackdrop(movie) {
     if (!movie) return;
-    if (movie.backdrop_url && movie.backdrop_url.includes('image.tmdb.org')) return;
+    const isVN = isVietnameseMovie(movie);
+
+    if (movie.backdrop_url && movie.backdrop_url.includes('image.tmdb.org') && movie._backdropVerified) return;
 
     try {
         let tmdbId = movie.tmdb?.id;
         let tmdbType = movie.tmdb?.type === 'tv' ? 'tv' : (movie.type === 'series' ? 'tv' : 'movie');
 
-        // 1. Nếu có sẵn tmdb.id từ API PhimAPI/Ophim -> gọi trực tiếp chi tiết TMDB
+        // 1. Nếu có sẵn tmdb.id từ API PhimAPI/Ophim -> gọi trực tiếp chi tiết TMDB và kiểm tra an toàn
         if (tmdbId && String(tmdbId).trim() !== '') {
             try {
                 const res = await axios.get(`${TMDB_BASE_URL}/${tmdbType}/${tmdbId}`, {
                     params: { api_key: TMDB_API_KEY, language: 'vi-VN' },
                     timeout: 2000
                 });
-                if (res.data?.backdrop_path) {
+                if (res.data?.backdrop_path && isValidTMDBMatch(res.data, movie, isVN)) {
                     movie.backdrop_url = `https://image.tmdb.org/t/p/original${res.data.backdrop_path}`;
+                    movie._backdropVerified = true;
                     return;
                 }
             } catch (err) {
@@ -2208,8 +2329,9 @@ async function enrichMovieBackdrop(movie) {
                             params: { api_key: TMDB_API_KEY, language: 'vi-VN' },
                             timeout: 1500
                         });
-                        if (altRes.data?.backdrop_path) {
+                        if (altRes.data?.backdrop_path && isValidTMDBMatch(altRes.data, movie, isVN)) {
                             movie.backdrop_url = `https://image.tmdb.org/t/p/original${altRes.data.backdrop_path}`;
+                            movie._backdropVerified = true;
                             return;
                         }
                     } catch (_) {}
@@ -2217,28 +2339,89 @@ async function enrichMovieBackdrop(movie) {
             }
         }
 
-        // 2. Tra cứu bằng tên nếu chưa có tmdbId
-        const searchQueries = [movie.origin_name, movie.name].filter(Boolean);
+        // 2. Tra cứu bằng tên với rào chắn ngôn ngữ, quốc gia và năm phát hành chuẩn xác
+        let searchQueries = [];
+        if (isVN) {
+            searchQueries = [movie.name, removeVietnameseAccents(movie.name)].filter(Boolean);
+        } else {
+            searchQueries = [movie.origin_name, movie.name].filter(Boolean);
+        }
+
+        const isSeries = movie.type === 'series';
+        const searchEndpoint = isSeries ? '/search/tv' : '/search/movie';
+        const yearParam = isSeries ? 'first_air_date_year' : 'primary_release_year';
+
         for (const q of searchQueries) {
+            // Lần 1: Tra cứu chính xác với năm sản xuất
+            if (movie.year) {
+                try {
+                    const sRes = await axios.get(`${TMDB_BASE_URL}${searchEndpoint}`, {
+                        params: {
+                            api_key: TMDB_API_KEY,
+                            query: q,
+                            [yearParam]: movie.year,
+                            language: 'vi-VN'
+                        },
+                        timeout: 1800
+                    });
+                    if (sRes.data?.results && sRes.data.results.length > 0) {
+                        const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN));
+                        if (match && match.backdrop_path) {
+                            movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
+                            if (!movie.tmdb) movie.tmdb = { id: match.id, type: isSeries ? 'tv' : 'movie' };
+                            movie._backdropVerified = true;
+                            return;
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            // Lần 2: Tra cứu không có năm (fallback cho phim mới hoặc lệch 1 năm)
             try {
-                const sRes = await axios.get(`${TMDB_BASE_URL}/search/multi`, {
+                const sRes = await axios.get(`${TMDB_BASE_URL}${searchEndpoint}`, {
                     params: {
                         api_key: TMDB_API_KEY,
                         query: q,
-                        year: movie.year || undefined,
                         language: 'vi-VN'
                     },
                     timeout: 1800
                 });
                 if (sRes.data?.results && sRes.data.results.length > 0) {
-                    const match = sRes.data.results.find(r => r.backdrop_path);
+                    const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN));
                     if (match && match.backdrop_path) {
                         movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
-                        if (!movie.tmdb) movie.tmdb = { id: match.id, type: match.media_type };
+                        if (!movie.tmdb) movie.tmdb = { id: match.id, type: isSeries ? 'tv' : 'movie' };
+                        movie._backdropVerified = true;
                         return;
                     }
                 }
             } catch (_) {}
+
+            // Lần 3: Multi-search fallback có kiểm tra nghiêm ngặt
+            try {
+                const sRes = await axios.get(`${TMDB_BASE_URL}/search/multi`, {
+                    params: {
+                        api_key: TMDB_API_KEY,
+                        query: q,
+                        language: 'vi-VN'
+                    },
+                    timeout: 1800
+                });
+                if (sRes.data?.results && sRes.data.results.length > 0) {
+                    const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN));
+                    if (match && match.backdrop_path) {
+                        movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
+                        if (!movie.tmdb) movie.tmdb = { id: match.id, type: match.media_type };
+                        movie._backdropVerified = true;
+                        return;
+                    }
+                }
+            } catch (_) {}
+        }
+
+        // 3. Nếu không tìm thấy backdrop TMDB hợp lệ: fallback về thumb_url gốc của phim
+        if (movie.backdrop_url && movie.backdrop_url.includes('image.tmdb.org') && !movie._backdropVerified) {
+            movie.backdrop_url = (movie.thumb_url || movie.poster_url || '').trim();
         }
     } catch (_) {}
 }
@@ -2283,7 +2466,12 @@ async function fetchMovieMetadata(slug) {
 
     const cached = movieMetadataCache.get(cleanSlug);
     if (cached && (Date.now() - cached.ts < MOVIE_CACHE_TTL)) {
-        return cached.data;
+        // Tự động xóa cache nếu trước đây bị lưu nhầm nội dung placeholder ngắn
+        if (cached.data && cached.data.content && cached.data.content.startsWith('Xem phim ') && cached.data.content.includes('tại APhim Super')) {
+            movieMetadataCache.delete(cleanSlug);
+        } else {
+            return cached.data;
+        }
     }
 
     // ⚡ 0.5. ƯU TIÊN SIÊU TỐC NGUỒN SONG NGỮ ĐÃ CÓ TRONG BILINGUAL SERVICE (0ms)
@@ -2292,7 +2480,9 @@ async function fetchMovieMetadata(slug) {
         const bSlugs = getBilingualSlugs();
         if (Array.isArray(bSlugs) && bSlugs.includes(cleanSlug)) {
             const bilingualMovie = await getBilingualFullMovie(cleanSlug);
-            if (bilingualMovie && bilingualMovie.episodes && bilingualMovie.episodes.length > 0) {
+            // Chỉ trả về nếu có nội dung phim thực sự (không phải placeholder 'Xem phim ...')
+            if (bilingualMovie && bilingualMovie.episodes && bilingualMovie.episodes.length > 0 &&
+                bilingualMovie.content && !bilingualMovie.content.startsWith('Xem phim ')) {
                 movieMetadataCache.set(cleanSlug, { data: bilingualMovie, ts: Date.now() });
                 enrichMovieBackdrop(bilingualMovie).catch(() => {});
                 return bilingualMovie;
@@ -2403,14 +2593,19 @@ async function fetchMovieMetadata(slug) {
             try {
                 const { isBilingualCandidate, getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
                 if (isBilingualCandidate(cleanSlug, primaryResult)) {
-                    const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null);
+                    const isSingle = primaryResult.type === 'single' || primaryResult.chieu_rap === true || (primaryResult.episodes?.[0]?.server_data?.length === 1);
+                    const epCount = primaryResult.episodes?.[0]?.server_data?.length || 0;
+                    const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null, primaryResult.type || (isSingle ? 'single' : 'series'), epCount);
                     if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
-                        attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
-                        const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
-                        primaryResult.episodes = [
-                            songNguServer,
-                            ...vietsubAndOtherServers
-                        ];
+                        const isMismatched = isSingle && songNguServer.server_data.length > 1;
+                        if (!isMismatched) {
+                            attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
+                            const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
+                            primaryResult.episodes = [
+                                songNguServer,
+                                ...vietsubAndOtherServers
+                            ];
+                        }
                     }
                 }
             } catch (bErr) {
@@ -2788,19 +2983,35 @@ function parseWatchParams(rawEp = '', rawVariant = '', queryServer = '', queryVe
         else if (sName.includes('vietsub')) variant = 'vietsub';
     }
 
-    // 5. 🛡️ Nếu có biến thể rõ ràng (song-ngu, thuyet-minh, long-tieng), đảm bảo serverIndex trỏ đúng server của biến thể đó
-    if (variant && variant !== 'vietsub' && Array.isArray(movieEpisodes) && movieEpisodes.length > 0) {
+    // 5. 🛡️ Nếu có biến thể rõ ràng (thuyết minh, lồng tiếng), đảm bảo serverIndex trỏ đúng server của biến thể đó
+    // ĐẶC BIỆT: Đối với Song Ngữ, khi vào phim LUÔN LUÔN ưu tiên phát máy chủ Vietsub đầu tiên (API) để lên hình tức thì, trừ khi có ?server= rõ ràng
+    if (variant && variant !== 'vietsub' && variant !== 'song-ngu' && Array.isArray(movieEpisodes) && movieEpisodes.length > 0) {
         const matchingIdx = movieEpisodes.findIndex(s => {
             const sName = (s.original_server_name || s.server_name || '').toLowerCase();
-            if (variant === 'song-ngu') return sName.includes('song ngữ') || sName.includes('song ngu') || sName.includes('bilingual');
             if (variant === 'thuyet-minh') return sName.includes('thuyết minh') || sName.includes('thuyet minh');
             if (variant === 'long-tieng') return sName.includes('lồng tiếng') || sName.includes('long tieng');
             return false;
         });
         if (matchingIdx !== -1) {
-            // Nếu query server không khớp biến thể (ví dụ ?server=1 trỏ vào Vietsub), sửa lại thành matchingIdx
             if (serverIndex === null || !movieEpisodes[serverIndex] || !(movieEpisodes[serverIndex].original_server_name || movieEpisodes[serverIndex].server_name || '').toLowerCase().includes(variant.replace('-', ' '))) {
                 serverIndex = matchingIdx;
+            }
+        }
+    }
+
+    // 6. 🌟 MẶC ĐỊNH KHI VÀO PHIM: Cho dù là phim có Song Ngữ hay URL chứa -song-ngu, LUÔN LUÔN ưu tiên phát máy chủ Vietsub đầu tiên (API) để nạp tức thì
+    if (serverIndex === null && Array.isArray(movieEpisodes) && movieEpisodes.length > 0) {
+        if (!variant || variant === 'vietsub' || variant === 'song-ngu') {
+            const firstVietsubIdx = movieEpisodes.findIndex(s => {
+                const sName = (s.original_server_name || s.server_name || '').toLowerCase();
+                const isSongNgu = sName.includes('song ngữ') || sName.includes('song ngu') || sName.includes('bilingual');
+                const isThuyetMinh = sName.includes('thuyết minh') || sName.includes('thuyet minh');
+                const isLongTieng = sName.includes('lồng tiếng') || sName.includes('long tieng');
+                return !isSongNgu && !isThuyetMinh && !isLongTieng;
+            });
+            serverIndex = (firstVietsubIdx !== -1) ? firstVietsubIdx : 0;
+            if (firstVietsubIdx !== -1 && variant === 'song-ngu') {
+                variant = 'vietsub';
             }
         }
     }
