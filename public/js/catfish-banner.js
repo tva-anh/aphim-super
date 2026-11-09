@@ -44,10 +44,9 @@
                 label: 'ColaTV — Xem Phim HD Miễn Phí'
             },
             {
-                img: '/images/ads/ColaScore.mp4?v=1',
+                img: '/images/ads/ColaScore.gif?v=4',
                 url: 'http://178.128.49.112/colaapp.html',
-                label: 'ColaScore — Tỷ Số Bóng Đá Trực Tiếp',
-                isVideo: true
+                label: 'ColaScore — Tỷ Số Bóng Đá Trực Tiếp'
             }
         ]
     };
