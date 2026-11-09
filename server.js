@@ -1571,7 +1571,152 @@ app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
             }
         } catch (err) { lastError = err; }
     }
-    res.status(502).send('Error proxying vtt');
+        res.status(502).send('Error proxying vtt');
+});
+
+// ==========================================
+// 🎬 NATIVE DUAL SUBTITLES API (Hỗ trợ Apple AVPlayer & Mobile Fullscreen 100%)
+// ==========================================
+app.get('/api/bilingual/merged-vtt', async (req, res) => {
+    const { top, bottom } = req.query;
+    if (!top && !bottom) return res.status(400).send('Missing subtitle URLs');
+
+    try {
+        const fetchVtt = async (u) => {
+            if (!u) return '';
+            let target = u;
+            if (target.startsWith('/api/proxy/vtt?url=')) {
+                target = decodeURIComponent(target.replace('/api/proxy/vtt?url=', ''));
+            }
+            const r = await axios.get(target, {
+                timeout: 8000,
+                responseType: 'text',
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+            });
+            return (typeof r.data === 'string') ? r.data : '';
+        };
+
+        const [topText, bottomText] = await Promise.all([
+            fetchVtt(top).catch(() => ''),
+            fetchVtt(bottom).catch(() => '')
+        ]);
+
+        const parseCues = (vttStr) => {
+            if (!vttStr) return [];
+            const lines = vttStr.replace(/\r/g, '').split('\n');
+            const cues = [];
+            let i = 0;
+            const timeRegex = /((?:\d{1,2}:)?\d{2}:\d{2}[\.,]\d{3})\s*-->\s*((?:\d{1,2}:)?\d{2}:\d{2}[\.,]\d{3})/;
+
+            const parseSec = (tStr) => {
+                const parts = tStr.replace(',', '.').split(':');
+                if (parts.length === 3) return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+                if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+                return parseFloat(parts[0]) || 0;
+            };
+
+            while (i < lines.length) {
+                const line = lines[i].trim();
+                const match = line.match(timeRegex);
+                if (match) {
+                    const start = parseSec(match[1]);
+                    const end = parseSec(match[2]);
+                    i++;
+                    const textLines = [];
+                    while (i < lines.length && lines[i].trim() !== '') {
+                        textLines.push(lines[i].trim());
+                        i++;
+                    }
+                    const text = textLines.join('\n').replace(/<[^>]+>/g, '').trim();
+                    if (text && end > start) {
+                        cues.push({ start, end, text });
+                    }
+                }
+                i++;
+            }
+            return cues;
+        };
+
+        const tCues = parseCues(topText);
+        const bCues = parseCues(bottomText);
+
+        const formatVtt = (sec) => {
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = (sec % 60).toFixed(3);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${s.padStart(6, '0')}`;
+        };
+
+        let result = 'WEBVTT - Song Ngu\n\nSTYLE\n::cue {\n  background-color: transparent;\n  color: #ffd54f;\n  text-shadow: 0 1px 2px #000, 0 0 5px #000;\n}\n\n';
+
+        if (!tCues.length && !bCues.length) {
+            res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+            return res.send(result);
+        }
+
+        if (!tCues.length) {
+            bCues.forEach((c, idx) => {
+                result += `${idx + 1}\n${formatVtt(c.start)} --> ${formatVtt(c.end)}\n${c.text}\n\n`;
+            });
+            res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+            return res.send(result);
+        }
+
+        if (!bCues.length) {
+            tCues.forEach((c, idx) => {
+                result += `${idx + 1}\n${formatVtt(c.start)} --> ${formatVtt(c.end)}\n${c.text}\n\n`;
+            });
+            res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+            return res.send(result);
+        }
+
+        const merged = [];
+        const usedB = new Set();
+
+        tCues.forEach(tc => {
+            let bestB = null;
+            let maxOverlap = 0;
+            bCues.forEach((bc, idx) => {
+                if (usedB.has(idx)) return;
+                const overlap = Math.min(tc.end, bc.end) - Math.max(tc.start, bc.start);
+                if (overlap > 0.2 && overlap > maxOverlap) {
+                    maxOverlap = overlap;
+                    bestB = { cue: bc, idx };
+                }
+            });
+
+            if (bestB) {
+                usedB.add(bestB.idx);
+                merged.push({
+                    start: Math.min(tc.start, bestB.cue.start),
+                    end: Math.max(tc.end, bestB.cue.end),
+                    text: `${tc.text}\n${bestB.cue.text}`
+                });
+            } else {
+                merged.push({ start: tc.start, end: tc.end, text: tc.text });
+            }
+        });
+
+        bCues.forEach((bc, idx) => {
+            if (!usedB.has(idx)) {
+                merged.push({ start: bc.start, end: bc.end, text: bc.text });
+            }
+        });
+
+        merged.sort((a, b) => a.start - b.start);
+
+        merged.forEach((m, idx) => {
+            result += `${idx + 1}\n${formatVtt(m.start)} --> ${formatVtt(m.end)}\n${m.text}\n\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.send(result);
+    } catch (e) {
+        console.error('Error generating merged vtt:', e.message);
+        res.status(500).send('Error');
+    }
 });
 
 // ==========================================

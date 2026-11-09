@@ -1988,8 +1988,9 @@
 
             /* ⚡ Mở rộng overflow cho wrapper khi settings menu bật để không bao giờ bị cắt menu */
             #aphim-player-wrapper.aphim-menu-open,
-            #aphim-player-wrapper:has(#aphim-settings-menu:not(.hidden)) {
-                overflow: hidden !important;
+            #aphim-player-wrapper:has(#aphim-settings-menu:not(.hidden)),
+            #aphim-player-wrapper:has(#aphim-audio-menu:not(.hidden)) {
+                overflow: visible !important;
             }
 
             #aphim-controls .aphim-btn-icon,
@@ -2163,17 +2164,18 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: flex-start !important;
-                gap: 11px !important;
+                gap: 8px !important;
                 width: auto !important;
                 box-sizing: border-box !important;
-                margin: 2px 6px !important;
-                padding: 9px 12px !important;
-                border-radius: 9px !important;
+                margin: 1.5px 4px !important;
+                padding: 6px 10px !important;
+                min-height: 32px !important;
+                border-radius: 8px !important;
                 cursor: pointer !important;
                 touch-action: manipulation !important;
                 -webkit-tap-highlight-color: transparent !important;
                 transition: background 0.12s ease, color 0.12s ease, transform 0.1s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                font-size: 13px !important;
+                font-size: 12.5px !important;
                 font-weight: 500 !important;
                 color: rgba(255, 255, 255, 0.88) !important;
                 white-space: nowrap !important;
@@ -2471,70 +2473,79 @@
                 }
             }
 
+            /* ─── PURE-DOM MICRO VOLUME SLIDER (TUYỆT ĐỐI KHÔNG DÍNH NỀN BỌC) ─── */
             #aphim-volume-slider-box {
-                width: 88px !important;
+                position: relative !important;
+                width: 78px !important;
+                height: 32px !important;
                 display: flex !important;
                 align-items: center !important;
-                overflow: visible !important;
-                padding-left: 2px !important;
-                padding-right: 2px !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 2px !important;
                 flex-shrink: 0 !important;
+                overflow: visible !important;
             }
 
-            #aphim-volume-slider {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 82px !important;
-                height: 4px !important;
+            #aphim-vol-rail {
+                position: relative !important;
+                width: 100% !important;
+                height: 3.5px !important;
+                background: rgba(255, 255, 255, 0.25) !important;
                 border-radius: 9999px !important;
-                background: linear-gradient(to right, #ffffff 0%, #ffffff var(--vol-pct, 90%), rgba(255, 255, 255, 0.28) var(--vol-pct, 90%), rgba(255, 255, 255, 0.28) 100%) !important;
-                outline: none !important;
-                cursor: pointer !important;
-                margin: 0 !important;
-                transition: height 0.15s ease;
+                overflow: hidden !important;
+                pointer-events: none !important;
+                transition: height 0.15s ease !important;
             }
 
-            #aphim-volume-slider:hover {
-                height: 6px !important;
+            #aphim-vol-fill {
+                position: absolute !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                background: linear-gradient(90deg, #f59e0b 0%, #fcd576 100%) !important;
+                border-radius: 9999px !important;
+                pointer-events: none !important;
             }
 
-            @media (max-width: 640px) {
-                #aphim-volume-slider {
-                    width: 40px !important;
-                }
-            }
-
-            #aphim-volume-slider::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 14px !important;
-                height: 14px !important;
+            #aphim-vol-dot {
+                position: absolute !important;
+                top: 50% !important;
+                width: 10px !important;
+                height: 10px !important;
                 border-radius: 50% !important;
                 background: #ffffff !important;
-                border: none !important;
-                cursor: pointer !important;
-                box-shadow: 0 0 6px rgba(0, 0, 0, 0.9) !important;
+                border: 1.5px solid #fcd576 !important;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 0 6px rgba(252, 211, 118, 0.7) !important;
+                transform: translate(-50%, -50%) !important;
+                pointer-events: none !important;
                 transition: transform 0.1s ease !important;
             }
 
-            #aphim-volume-slider:hover::-webkit-slider-thumb {
-                transform: scale(1.15) !important;
+            #aphim-volume-slider-box:hover #aphim-vol-rail {
+                height: 4.5px !important;
+            }
+            #aphim-volume-slider-box:hover #aphim-vol-dot {
+                transform: translate(-50%, -50%) scale(1.2) !important;
             }
 
-            #aphim-volume-slider::-moz-range-thumb {
-                width: 14px !important;
-                height: 14px !important;
-                border-radius: 50% !important;
-                background: #ffffff !important;
+            /* The transparent invisible native slider on top to handle touch/clicks */
+            #aphim-volume-slider {
+                position: absolute !important;
+                inset: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                opacity: 0 !important;
+                background: transparent !important;
+                background-color: transparent !important;
                 border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 cursor: pointer !important;
-                box-shadow: 0 0 6px rgba(0, 0, 0, 0.9) !important;
-            }
-
-            #aphim-volume-slider::-moz-range-progress {
-                background-color: #ffffff !important;
-                height: 4px !important;
-                border-radius: 9999px !important;
+                z-index: 10 !important;
             }
 
 /* ─── DUAL SUBTITLES OVERLAY (ĐỒNG BỘ TOÁN HỌC CHUẨN XÁC THEO TỪNG KÍCH THƯỚC MÀN HÌNH) ─── */
@@ -5513,10 +5524,11 @@ html, body, button, a, input, select,
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 10px !important;
-    padding: 9px 12px !important;
+    gap: 8px !important;
+    padding: 6px 10px !important;
+    min-height: 32px !important;
     border-radius: 8px !important;
-    font-size: 13px !important;
+    font-size: 12.5px !important;
     cursor: pointer !important;
     flex-shrink: 0 !important;
     transition: background 0.12s ease !important;
@@ -5894,7 +5906,7 @@ html, body, button, a, input, select,
 #aphim-audio-menu .aphim-settings-header {
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: 12px 16px 10px 16px !important;
+    padding: 8px 12px 7px 12px !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     display: flex !important;
     align-items: center !important;
@@ -5904,22 +5916,22 @@ html, body, button, a, input, select,
 }
 
 #aphim-audio-menu .aphim-settings-header span:first-child {
-    font-size: 14.5px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
     color: #ffffff !important;
-    letter-spacing: -0.2px !important;
-    text-transform: none !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
 }
 
 #aphim-audio-menu .aphim-audio-badge {
     background: rgba(255, 255, 255, 0.12) !important;
     color: rgba(255, 255, 255, 0.85) !important;
-    font-size: 11px !important;
+    font-size: 9.5px !important;
     font-weight: 600 !important;
-    padding: 2.5px 8px !important;
-    border-radius: 6px !important;
-    letter-spacing: 0.2px !important;
-    text-transform: none !important;
+    padding: 1.5px 6px !important;
+    border-radius: 4px !important;
+    letter-spacing: 0.3px !important;
+    text-transform: uppercase !important;
 }
 
 #aphim-audio-options-list {
@@ -6113,4 +6125,266 @@ html, body, button, a, input, select,
 @keyframes aphimUnmutePulse {
     0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 15px rgba(252, 213, 118, 0.25); }
     50% { box-shadow: 0 8px 28px rgba(0, 0, 0, 0.7), 0 0 25px rgba(252, 213, 118, 0.5); }
+}
+
+/* ==========================================================================
+   MOBILE CONTROLS RESPONSIVE: Thiết kế phân cụm chuyên nghiệp (Linear / Netflix Standard)
+   ========================================================================== */
+@media (max-width: 640px) {
+    /* 1. Thanh điều khiển chính */
+    #aphim-controls {
+        padding: 6px 8px 8px 8px !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+        z-index: 35 !important;
+        transform: translateZ(0) !important;
+        -webkit-transform: translateZ(0) !important;
+        will-change: transform, opacity !important;
+    }
+    #aphim-row-bottom {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+    }
+
+    /* 2. CỤM TRÁI: Gom 3 cụm nút Play, Tua nhanh (Lùi/Tiến 10s), Loa & Thanh kéo âm lượng */
+    #aphim-left-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 2px !important;
+        flex-shrink: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Thanh kéo âm lượng trên mobile: Hoàn toàn trong suốt, không bao giờ có nền bọc */
+    #aphim-volume-slider-box {
+        position: relative !important;
+        display: flex !important;
+        width: 48px !important;
+        height: 32px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 2px !important;
+        overflow: visible !important;
+    }
+    #aphim-volume-slider {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        opacity: 0 !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+    /* Ẩn thời lượng và CC phụ trên mobile để cụm trái và cụm phải phân định rõ ràng */
+    #aphim-time-wrapper,
+    #aphim-cc-wrapper {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
+    }
+
+    /* 3. CỤM PHẢI: Dồn sát qua bên phải (Chuyển tập, Song ngữ, Cài đặt, PiP, Toàn màn hình) */
+    #aphim-right-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+        overflow: visible !important;
+    }
+
+    /* 4. Kích thước chuẩn chỉnh từng nút bấm trên mobile */
+    #aphim-row-bottom button,
+    #aphim-left-group button,
+    #aphim-right-group button,
+    #aphim-audio-wrapper button,
+    #aphim-settings-wrapper button,
+    #aphim-volume-wrapper button,
+    #aphim-btn-next,
+    #aphim-btn-fs,
+    #aphim-btn-pip {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Icon svg & font trong nút */
+    #aphim-controls .aphim-btn-icon,
+    #aphim-btn-settings svg,
+    #aphim-btn-pip svg,
+    #aphim-btn-audio svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+    #aphim-controls .material-icons-round {
+        font-size: 20px !important;
+    }
+
+    #aphim-audio-wrapper,
+    #aphim-settings-wrapper,
+    #aphim-volume-wrapper {
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: visible !important;
+        pointer-events: auto !important;
+    }
+
+    /* Nút Song Ngữ & Cài đặt khi bật popup */
+    #aphim-btn-audio.is-active,
+    #aphim-btn-settings.is-active {
+        background-color: rgba(252, 213, 118, 0.22) !important;
+        color: #fcd576 !important;
+        border: 1px solid rgba(252, 213, 118, 0.45) !important;
+        box-shadow: 0 0 14px rgba(252, 213, 118, 0.4) !important;
+        transform: scale(1.06) translateZ(0) !important;
+    }
+
+    /* 5. Menu popup Nguồn âm & Cài đặt: Tối ưu 60fps, không dính đỉnh, neo chuẩn icon */
+    #aphim-settings-menu,
+    #aphim-audio-menu {
+        position: absolute !important;
+        bottom: calc(100% + 8px) !important;
+        top: auto !important;
+        width: 245px !important;
+        max-width: 86vw !important;
+        max-height: 155px !important;
+        overflow-y: auto !important;
+        border-radius: 12px !important;
+        background: rgba(15, 20, 30, 0.95) !important;
+        border: 1px solid rgba(255, 255, 255, 0.20) !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        transform: translateZ(0) !important;
+        -webkit-transform: translateZ(0) !important;
+        will-change: transform, opacity !important;
+    }
+
+    /* Neo Menu Song Ngữ chuẩn xác ngay trên icon Song Ngữ */
+    #aphim-audio-menu {
+        right: -25px !important;
+    }
+    /* Neo Menu Cài đặt chuẩn xác ngay trên icon Cài đặt */
+    #aphim-settings-menu {
+        right: -4px !important;
+    }
+
+    #aphim-audio-menu #aphim-audio-options-list {
+        max-height: 115px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 4px 6px !important;
+    }
+    #aphim-audio-menu .aphim-audio-opt {
+        padding: 6px 10px !important;
+        margin: 1.5px 0 !important;
+        border-radius: 8px !important;
+        font-size: 12.5px !important;
+        min-height: 32px !important;
+        touch-action: pan-y !important;
+    }
+    #aphim-audio-menu .aphim-settings-header,
+    #aphim-settings-menu .aphim-settings-header {
+        padding: 8px 12px 6px 12px !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.6px !important;
+        text-transform: uppercase !important;
+    }
+    #aphim-settings-menu .aphim-settings-item {
+        padding: 6px 10px !important;
+        min-height: 32px !important;
+        font-size: 12.5px !important;
+    }
+    #aphim-settings-menu .aphim-settings-list {
+        max-height: 115px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 3px 5px !important;
+    }
+}
+
+@media (max-width: 420px) {
+    #aphim-left-group {
+        gap: 1px !important;
+    }
+    #aphim-right-group {
+        gap: 1.5px !important;
+    }
+    #aphim-volume-slider-box {
+        width: 42px !important;
+        height: 30px !important;
+        background: transparent !important;
+    }
+    #aphim-row-bottom button,
+    #aphim-left-group button,
+    #aphim-right-group button,
+    #aphim-audio-wrapper button,
+    #aphim-settings-wrapper button,
+    #aphim-volume-wrapper button,
+    #aphim-btn-next,
+    #aphim-btn-fs,
+    #aphim-btn-pip {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        max-width: 30px !important;
+    }
+}
+
+/* ==========================================================================
+   MOBILE & DESKTOP SUBTITLE: Chuẩn Song Ngữ nguyên bản trong suốt sắc nét
+   ========================================================================== */
+@media (max-width: 768px),
+       screen and (max-height: 520px) and (orientation: landscape),
+       screen and (max-width: 950px) and (orientation: landscape) {
+    #aphim-sub-top,
+    #aphim-sub-bottom {
+        font-size: var(--aphim-sub-font-size, 13px) !important;
+        line-height: 1.35 !important;
+        letter-spacing: 0.15px !important;
+        display: inline-block !important;
+        text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 92% !important;
+    }
+    #aphim-dual-subtitles-overlay {
+        gap: 3px !important;
+        padding-bottom: calc(var(--aphim-sub-offset, 22px) + var(--aphim-sub-user-offset, 0px)) !important;
+        pointer-events: none !important;
+    }
+    #aphim-sub-top, #aphim-sub-bottom {
+        pointer-events: none !important;
+    }
 }

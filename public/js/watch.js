@@ -2550,6 +2550,19 @@ window.changeServer = function (index) {
     window.currentServerIndex = index;
     window.requestedServerIndex = index;
 
+    // Cập nhật biến thể theo đúng máy chủ được chọn (Song Ngữ là trình phát riêng, Vietsub là trình phát riêng)
+    const pickedSrv = currentMovie.episodes[index];
+    const pickedName = (pickedSrv?.server_name || pickedSrv?.original_server_name || '').toLowerCase();
+    if (pickedName.includes('song ngữ') || pickedName.includes('song ngu') || pickedName.includes('bilingual')) {
+        requestedVariant = 'song-ngu';
+    } else if (pickedName.includes('thuyết minh')) {
+        requestedVariant = 'thuyet-minh';
+    } else if (pickedName.includes('lồng tiếng')) {
+        requestedVariant = 'long-tieng';
+    } else {
+        requestedVariant = 'vietsub';
+    }
+
     // Khi người dùng chủ động chọn server, xóa vết các server lỗi trước đó để thử lại
     if (window._failedServersForEpisode) {
         window._failedServersForEpisode.clear();
@@ -2867,6 +2880,7 @@ function initializePlayer(episode) {
             <video id="videoPlayer" 
                 class="w-full h-full object-contain bg-black block" 
                 playsinline 
+                webkit-playsinline
                 preload="auto"
                 poster="${bgUrl}">
                 Trình duyệt của bạn không hỗ trợ video.
@@ -3113,8 +3127,13 @@ function initializePlayer(episode) {
                             <button type="button" id="aphim-btn-volume" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0" title="Âm lượng (M)">
                                 <span class="material-icons-round" id="aphim-icon-volume">volume_up</span>
                             </button>
-                            <div id="aphim-volume-slider-box" class="w-12 sm:w-24 transition-all duration-200 flex items-center pl-1">
-                                <input type="range" id="aphim-volume-slider" min="0" max="1" step="0.01" value="0.9" class="w-10 sm:w-20 h-1.5 bg-white/40 rounded-lg appearance-none cursor-pointer accent-[#fcd576]">
+                            <!-- Custom Pure-DOM Micro-Slider (Không bao giờ dính nền bọc) -->
+                            <div id="aphim-volume-slider-box" class="relative flex items-center w-11 sm:w-20 h-6 px-0.5 cursor-pointer select-none">
+                                <div id="aphim-vol-rail" class="relative w-full h-[3.5px] bg-white/25 rounded-full overflow-hidden pointer-events-none">
+                                    <div id="aphim-vol-fill" class="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#f59e0b] to-[#fcd576] rounded-full" style="width: 90%;"></div>
+                                </div>
+                                <div id="aphim-vol-dot" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white rounded-full shadow-[0_0_6px_rgba(0,0,0,0.85)] border border-[#fcd576] pointer-events-none" style="left: 90%;"></div>
+                                <input type="range" id="aphim-volume-slider" min="0" max="1" step="0.01" value="0.9" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer m-0 p-0 z-10" title="Âm lượng">
                             </div>
                         </div>
 
@@ -3150,17 +3169,17 @@ function initializePlayer(episode) {
                                 </svg>
                                 <span id="aphim-song-badge" style="
                                     position: absolute;
-                                    top: 1px;
+                                    top: 0px;
                                     right: -2px;
-                                    background: #ffffff;
-                                    color: #000000;
+                                    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%);
+                                    color: #07090e;
                                     font-size: 8px;
                                     font-weight: 800;
                                     line-height: 1;
-                                    padding: 1.5px 3.5px;
+                                    padding: 1.5px 4px;
                                     border-radius: 4px;
                                     letter-spacing: -0.2px;
-                                    box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+                                    box-shadow: 0 1px 4px rgba(0,0,0,0.7);
                                     pointer-events: none;
                                     font-family: system-ui, -apple-system, sans-serif;
                                 ">Song</span>
@@ -3362,7 +3381,7 @@ function initializePlayer(episode) {
                         </div>
 
                         <!-- Picture-in-Picture Button -->
-                        <button type="button" id="aphim-btn-pip" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer text-white" title="Hình trong hình (PiP)">
+                        <button type="button" id="aphim-btn-pip" class="hidden md:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:text-[#fcd576] hover:bg-white/15 active:scale-95 transition-all items-center justify-center cursor-pointer text-white flex-shrink-0" title="Hình trong hình (PiP)">
                             <svg viewBox="0 0 24 24" class="aphim-btn-icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 10V6.8C20 5.25 18.75 4 17.2 4H6.8C5.25 4 4 5.25 4 6.8V16.2C4 17.75 5.25 19 6.8 19H10.5" />
                                 <rect x="12.5" y="12.5" width="8" height="6.5" rx="1.6" fill="currentColor" stroke="none" />
@@ -3570,28 +3589,54 @@ function initializePlayer(episode) {
 
     // Seek 10s with snappy spring rotation feedback (tức thì 0ms, không nghẽn)
     if (btnRewind) {
-        btnRewind.onclick = () => {
+        const handleRewind = (e) => {
+            if (e) {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+            }
             const icon = btnRewind.querySelector('.material-icons-round') || btnRewind;
             icon.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)';
             icon.style.transform = 'rotate(-35deg) scale(1.12)';
             setTimeout(() => { icon.style.transform = 'none'; }, 130);
             
-            player.currentTime = Math.max(0, player.currentTime - 10);
+            const newTime = Math.max(0, (player.currentTime || 0) - 10);
+            player.currentTime = newTime;
+            if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                try { window.hlsInstance.startLoad(newTime); } catch(e) {}
+            }
             if (player._dualSubHandler) player._dualSubHandler();
             showSeekOverlay('-10s', false);
+            if (player.paused) {
+                player.play().catch(() => {});
+            }
         };
+        btnRewind.onclick = handleRewind;
+        btnRewind.addEventListener('touchend', handleRewind);
     }
     if (btnForward) {
-        btnForward.onclick = () => {
+        const handleForward = (e) => {
+            if (e) {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+            }
             const icon = btnForward.querySelector('.material-icons-round') || btnForward;
             icon.style.transition = 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)';
             icon.style.transform = 'rotate(35deg) scale(1.12)';
             setTimeout(() => { icon.style.transform = 'none'; }, 130);
 
-            player.currentTime = Math.min(player.duration || 0, player.currentTime + 10);
+            const newTime = Math.min(player.duration || 0, (player.currentTime || 0) + 10);
+            player.currentTime = newTime;
+            if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                try { window.hlsInstance.startLoad(newTime); } catch(e) {}
+            }
             if (player._dualSubHandler) player._dualSubHandler();
             showSeekOverlay('+10s', true);
+            if (player.paused) {
+                player.play().catch(() => {});
+            }
         };
+        btnForward.onclick = handleForward;
+        btnForward.addEventListener('touchend', handleForward);
     }
     if (btnNext) {
         btnNext.onclick = () => {
@@ -3606,10 +3651,15 @@ function initializePlayer(episode) {
     // Volume Slider & Mute
     let lastVolume = 0.9;
     function updateVolumeSliderFill(vol) {
-        if (!volumeSlider) return;
         const pct = Math.max(0, Math.min(100, (vol * 100))).toFixed(1);
-        volumeSlider.style.setProperty('--vol-pct', `${pct}%`);
-        volumeSlider.style.background = `linear-gradient(to right, #fcd576 0%, #fcd576 ${pct}%, rgba(255, 255, 255, 0.28) ${pct}%, rgba(255, 255, 255, 0.28) 100%)`;
+        const fill = document.getElementById('aphim-vol-fill');
+        const dot = document.getElementById('aphim-vol-dot');
+        if (fill) fill.style.width = `${pct}%`;
+        if (dot) dot.style.left = `${pct}%`;
+        if (volumeSlider) {
+            volumeSlider.value = vol;
+            volumeSlider.style.setProperty('--vol-pct', `${pct}%`);
+        }
     }
 
     function updateVolumeIcon(vol, muted) {
@@ -3633,19 +3683,30 @@ function initializePlayer(episode) {
         };
     }
 
+    let lastVolTapTime = 0;
+    function toggleVolumeMute(e) {
+        if (e) {
+            e.stopPropagation();
+            if (e.cancelable && e.type === 'touchend') e.preventDefault();
+        }
+        const now = Date.now();
+        if (now - lastVolTapTime < 350) return;
+        lastVolTapTime = now;
+
+        if (player.muted || player.volume === 0) {
+            player.muted = false;
+            player.volume = lastVolume > 0 ? lastVolume : 0.9;
+            if (volumeSlider) volumeSlider.value = player.volume;
+        } else {
+            lastVolume = player.volume;
+            player.muted = true;
+            if (volumeSlider) volumeSlider.value = 0;
+        }
+        updateVolumeIcon(player.volume, player.muted);
+    }
     if (btnVolume) {
-        btnVolume.onclick = () => {
-            if (player.muted || player.volume === 0) {
-                player.muted = false;
-                player.volume = lastVolume > 0 ? lastVolume : 0.9;
-                if (volumeSlider) volumeSlider.value = player.volume;
-            } else {
-                lastVolume = player.volume;
-                player.muted = true;
-                if (volumeSlider) volumeSlider.value = 0;
-            }
-            updateVolumeIcon(player.volume, player.muted);
-        };
+        btnVolume.onclick = toggleVolumeMute;
+        btnVolume.addEventListener('touchend', toggleVolumeMute, { passive: false });
     }
 
     // Initialize initial volume slider fill
@@ -3707,16 +3768,18 @@ function initializePlayer(episode) {
     let lastDragPct = 0;
 
     function getTimelinePercentage(e) {
-        if (!timelineContainer) return 0;
+        if (!timelineContainer) return lastDragPct || 0;
         const rect = timelineContainer.getBoundingClientRect();
-        if (!rect || !rect.width) return 0;
+        if (!rect || !rect.width) return lastDragPct || 0;
         let clientX = 0;
-        if (e.touches && e.touches.length > 0) {
+        if (e && e.touches && e.touches.length > 0) {
             clientX = e.touches[0].clientX;
-        } else if (e.changedTouches && e.changedTouches.length > 0) {
+        } else if (e && e.changedTouches && e.changedTouches.length > 0) {
             clientX = e.changedTouches[0].clientX;
-        } else {
+        } else if (e && e.clientX !== undefined) {
             clientX = e.clientX;
+        } else {
+            return lastDragPct || 0;
         }
         const pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
         return pos;
@@ -3749,10 +3812,6 @@ function initializePlayer(episode) {
         isDraggingTimeline = true;
         wasPlayingBeforeDrag = !player.paused;
         
-        // ⚡ Tạm dừng video để chống nghẽn giải mã HLS trong lúc kéo
-        if (wasPlayingBeforeDrag) {
-            try { player.pause(); } catch(pErr) {}
-        }
         timelineContainer.classList.add('is-scrubbing');
         
         const pct = getTimelinePercentage(e);
@@ -3768,21 +3827,8 @@ function initializePlayer(episode) {
         const pct = getTimelinePercentage(e);
         
         // ⚡ Phản hồi giao diện tức thì 0ms (60/120fps) theo chuyển động ngón tay/chuột
+        // KHÔNG gọi seek video liên tục khi đang kéo để tránh tắc nghẽn decoder & nghẽn luồng HLS
         renderScrubUI(pct);
-
-        // ⚡ Tua video mượt mà (debounce 120ms): Tránh spam currentTime liên tục làm đơ HLS stream
-        if (throttledSeekTimer) clearTimeout(throttledSeekTimer);
-        throttledSeekTimer = setTimeout(() => {
-            throttledSeekTimer = null;
-            if (isDraggingTimeline && player && player.duration) {
-                const targetTime = pct * player.duration;
-                if (typeof player.fastSeek === 'function') {
-                    player.fastSeek(targetTime);
-                } else {
-                    player.currentTime = targetTime;
-                }
-            }
-        }, 120);
 
         showControls();
     }
@@ -3803,6 +3849,11 @@ function initializePlayer(episode) {
         if (player && player.duration) {
             const targetTime = pct * player.duration;
             player.currentTime = targetTime;
+
+            // 🚀 Bắt buộc HLS nạp ngay lập tức phân đoạn tại vị trí tua mới
+            if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                try { window.hlsInstance.startLoad(targetTime); } catch(e) {}
+            }
         }
         if (hoverTime) {
             hoverTime.style.opacity = '0';
@@ -3817,6 +3868,22 @@ function initializePlayer(episode) {
     if (timelineContainer) {
         timelineContainer.addEventListener('mousedown', handleScrubStart);
         timelineContainer.addEventListener('touchstart', handleScrubStart, { passive: false });
+
+        timelineContainer.addEventListener('click', (e) => {
+            if (!player || !player.duration) return;
+            const pct = getTimelinePercentage(e);
+            renderScrubUI(pct);
+            const targetTime = pct * player.duration;
+            player.currentTime = targetTime;
+            if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                try { window.hlsInstance.startLoad(targetTime); } catch(e) {}
+            }
+            if (player.paused) {
+                player.play().catch(() => {});
+            }
+            showControls(3800);
+            doSaveProgress();
+        });
 
         timelineContainer.addEventListener('mousemove', (e) => {
             if (isDraggingTimeline || !player || !player.duration) return;
@@ -4041,11 +4108,21 @@ function initializePlayer(episode) {
     }
 
     if (btnSettings && settingsMenu) {
-        btnSettings.onclick = (e) => {
-            e.stopPropagation();
+        let lastSettingsTapTime = 0;
+        function toggleSettingsMenu(e) {
+            if (e) {
+                e.stopPropagation();
+                if (e.cancelable && e.type === 'touchend') e.preventDefault();
+            }
+            const now = Date.now();
+            if (now - lastSettingsTapTime < 350) return;
+            lastSettingsTapTime = now;
+
             const isHidden = settingsMenu.classList.contains('hidden');
             if (isHidden) {
-                if (audioMenu) audioMenu.classList.add('hidden');
+                if (audioMenu) {
+                    audioMenu.classList.add('hidden');
+                }
                 const modal = document.getElementById('aphim-sub-modal');
                 if (modal) {
                     modal.classList.add('hidden');
@@ -4057,18 +4134,16 @@ function initializePlayer(episode) {
                 settingsMenu.classList.remove('hidden');
                 btnSettings.classList.add('is-active');
                 if (wrapper) wrapper.classList.add('aphim-menu-open');
-                if (window.innerWidth <= 640) {
-                    settingsMenu.style.maxHeight = '185px';
-                    settingsMenu.style.overflow = 'hidden';
-                    settingsMenu.style.display = 'flex';
-                    settingsMenu.style.flexDirection = 'column';
-                }
+                showControls(6000);
             } else {
                 settingsMenu.classList.add('hidden');
                 btnSettings.classList.remove('is-active');
                 if (wrapper) wrapper.classList.remove('aphim-menu-open');
             }
-        };
+        }
+
+        btnSettings.onclick = toggleSettingsMenu;
+        btnSettings.addEventListener('touchend', toggleSettingsMenu, { passive: false });
 
         const navItems = settingsMenu.querySelectorAll('.aphim-settings-item');
         navItems.forEach(item => {
@@ -4151,13 +4226,15 @@ function initializePlayer(episode) {
             });
         }
 
-        ['click', 'touchstart'].forEach(evt => {
+        ['click', 'touchend'].forEach(evt => {
             document.addEventListener(evt, (e) => {
-                if (settingsMenu && !settingsMenu.classList.contains('hidden') && !settingsMenu.contains(e.target) && e.target !== btnSettings && !btnSettings.contains(e.target)) {
-                    settingsMenu.classList.add('hidden');
-                    btnSettings.classList.remove('is-active');
-                    if (wrapper) wrapper.classList.remove('aphim-menu-open');
+                if (!settingsMenu || settingsMenu.classList.contains('hidden')) return;
+                if (e.target.closest('#aphim-settings-menu') || e.target.closest('#aphim-btn-settings') || e.target.closest('#aphim-settings-wrapper')) {
+                    return;
                 }
+                settingsMenu.classList.add('hidden');
+                btnSettings.classList.remove('is-active');
+                if (wrapper) wrapper.classList.remove('aphim-menu-open');
             }, { passive: true });
         });
     }
@@ -4211,9 +4288,15 @@ function initializePlayer(episode) {
             srvListForDual = window.initialEpisodes;
         }
 
-        // Tự động kế thừa subtitles từ Server Song Ngữ nếu máy chủ hiện tại chưa có
-        let availableSubs = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ? ep.subtitles : [];
-        if (availableSubs.length === 0) {
+        const curSrv = (currentMovie && currentMovie.episodes && currentMovie.episodes[currentServerIndex]) || null;
+        const curSrvName = curSrv ? (curSrv.original_server_name || curSrv.server_name || '').toLowerCase() : '';
+        const isSongNguServer = curSrvName.includes('song ngữ') || curSrvName.includes('song ngu') || curSrvName.includes('bilingual');
+
+        // Lấy danh sách phụ đề của tập hiện tại
+        let subtitles = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ? ep.subtitles : [];
+
+        // 🌟 CHỈ KHI LÀ MÁY CHỦ SONG NGỮ: Nếu bản thân chưa có subtitles thì mới kế thừa từ pool máy chủ Song Ngữ
+        if (isSongNguServer && subtitles.length === 0) {
             const epNum = (typeof extractEpNum === 'function') ? (extractEpNum(ep?.slug) || extractEpNum(ep?.name)) : null;
             for (const srv of srvListForDual) {
                 if (srv && Array.isArray(srv.server_data)) {
@@ -4222,7 +4305,7 @@ function initializePlayer(episode) {
                         return (epNum !== null && n === epNum) && Array.isArray(e.subtitles) && e.subtitles.length > 0;
                     }) || srv.server_data.find(e => Array.isArray(e.subtitles) && e.subtitles.length > 0);
                     if (match && Array.isArray(match.subtitles) && match.subtitles.length > 0) {
-                        availableSubs = match.subtitles;
+                        subtitles = match.subtitles;
                         if (ep) ep.subtitles = match.subtitles;
                         break;
                     }
@@ -4230,12 +4313,8 @@ function initializePlayer(episode) {
             }
         }
 
-        const curSrv = (currentMovie && currentMovie.episodes && currentMovie.episodes[currentServerIndex]) || null;
-        const curSrvName = curSrv ? (curSrv.original_server_name || curSrv.server_name || '').toLowerCase() : '';
-        const isSongNguForDual = curSrvName.includes('song ngữ') || curSrvName.includes('song ngu') || curSrvName.includes('bilingual') || (requestedVariant === 'song-ngu');
-
-        if (!isSongNguForDual) {
-            // Không phải máy chủ Song Ngữ -> ẩn sạch overlay và tắt vòng lặp phụ đề
+        // Nếu máy chủ hiện tại hoàn toàn không có phụ đề rời nào từ API (ví dụ phim thuyết minh hoặc hardsub):
+        if (!subtitles || subtitles.length === 0) {
             subTopEl.textContent = '';
             subTopEl.style.display = 'none';
             subBottomEl.textContent = '';
@@ -4247,6 +4326,7 @@ function initializePlayer(episode) {
             }
             return;
         }
+
         if (overlayEl) overlayEl.style.display = 'flex';
 
         const savedSubPos = localStorage.getItem('aphim_sub_pos') || 'bottom';
@@ -4309,19 +4389,22 @@ function initializePlayer(episode) {
             }
 
             const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('aphim-web-fullscreen'));
-            const isMobilePortrait = !isFullscreen && (wW <= 580 || (window.innerWidth <= 640 && window.innerHeight > window.innerWidth));
+            const isMobile = (wW <= 768 || window.innerWidth <= 768 || window.innerHeight <= 520 || (screen && screen.width <= 768) || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+            const isLandscape = (window.innerWidth > window.innerHeight) || (window.matchMedia && window.matchMedia('(orientation: landscape)').matches);
+            const isMobilePortrait = isMobile && !isLandscape && !isFullscreen;
+            const isMobileLandscape = (isMobile && isLandscape) || actualVideoH <= 500;
 
             let subClearance;
             let fontSize;
 
             if (isMobilePortrait) {
-                // 📱 Màn hình mobile dọc: Luồng OnCDN không dính hardsub, hiển thị song ngữ tự nhiên gần đáy
-                subClearance = Math.max(16, Math.min(26, Math.round(actualVideoH * 0.065)));
+                // 📱 Màn hình mobile dọc: Đặt clearance 50-68px để song ngữ luôn nổi trên thanh controls
+                subClearance = Math.max(50, Math.min(68, Math.round(actualVideoH * 0.22)));
                 fontSize = Math.max(12, Math.min(13.5, Math.round(actualVideoH * 0.052)));
-            } else if (actualVideoH <= 500) {
-                // 📱 Màn hình ngang trên Mobile (Landscape Fullscreen):
-                subClearance = Math.max(26, Math.min(38, Math.round(actualVideoH * 0.075)));
-                fontSize = Math.max(13, Math.min(15.5, Math.round(actualVideoH * 0.040)));
+            } else if (isMobileLandscape) {
+                // 📱 Màn hình ngang trên Mobile (Landscape / Fullscreen):
+                subClearance = Math.max(22, Math.min(36, Math.round(actualVideoH * 0.07)));
+                fontSize = Math.max(13, Math.min(16, Math.round(actualVideoH * 0.04)));
             } else {
                 // 🖥️ Desktop (thường & Fullscreen):
                 subClearance = Math.max(34, Math.min(52, Math.round(actualVideoH * 0.07)));
@@ -4348,6 +4431,10 @@ function initializePlayer(episode) {
 
             if (overlay) {
                 overlay.style.setProperty('padding-bottom', (baselineOffset + uOffset) + 'px', 'important');
+            }
+
+            if (typeof window._aphimApplySubStyles === 'function') {
+                window._aphimApplySubStyles();
             }
         }
 
@@ -4394,9 +4481,6 @@ function initializePlayer(episode) {
             }
             return deduped.join('\n');
         }
-
-        const subtitles = (availableSubs && availableSubs.length > 0) ? availableSubs : ((ep && ep.subtitles) ? ep.subtitles : []);
-        if (!subtitles || subtitles.length === 0) return;
 
         // ⚡ BỘ NHỚ ĐỆM RAM CACHE CUES (0ms tức thì khi thoát ra vào lại hoặc chuyển phim/tập)
         if (!window._aphimVttCueCache) {
@@ -4517,7 +4601,7 @@ function initializePlayer(episode) {
 
             merged.sort((a, b) => a.start - b.start);
 
-            let vtt = 'WEBVTT - Song Ngu\n\n';
+            let vtt = 'WEBVTT - Song Ngu\n\nSTYLE\n::cue {\n  background-color: transparent;\n  color: #ffd215;\n  font-size: 85%;\n}\n\n';
             merged.forEach((m, idx) => {
                 vtt += (idx + 1) + '\n';
                 vtt += formatVttTime(m.start) + ' --> ' + formatVttTime(m.end) + '\n';
@@ -4526,36 +4610,88 @@ function initializePlayer(episode) {
             return vtt;
         }
 
-        // 🌟 Đồng bộ Native Subtitle Track vào thẻ <video> của thiết bị (cho iPhone / Android Fullscreen)
-        function syncNativeDeviceSubtitleTracks() {
-            if (!videoEl || typeof Blob === 'undefined' || typeof URL === 'undefined') return;
+        let vietSub = null;
+        let foreignSub = null;
+
+        if (isSongNguServer) {
+            // 🌟 TRÌNH PHÁT RIÊNG: MÁY CHỦ SONG NGỮ (Hiện cả 2 dòng phụ đề)
+            let curCfg = { sub1Lang: 'vi', sub2Lang: 'ko' };
             try {
-                if ((!topCues || !topCues.length) && (!bottomCues || !bottomCues.length)) return;
+                const s = localStorage.getItem('aphim_sub_custom_config');
+                if (s) curCfg = Object.assign({}, curCfg, JSON.parse(s));
+            } catch (e) {}
 
-                const mergedVtt = mergeDualCuesClean(topCues, bottomCues);
-                const blob = new Blob([mergedVtt], { type: 'text/vtt;charset=utf-8' });
-                const trackUrl = URL.createObjectURL(blob);
+            vietSub = subtitles.find(s => (s.language === (curCfg.sub1Lang || 'vi') || (s.label || '').toLowerCase().includes('việt'))) || subtitles[0];
+            foreignSub = subtitles.find(s => (s.language === (curCfg.sub2Lang || 'ko'))) || subtitles.find(s => s !== vietSub) || subtitles[1] || subtitles[0];
+        } else {
+            // 🌟 TRÌNH PHÁT RIÊNG: MÁY CHỦ VIETSUB (Lấy phụ đề chuẩn từ API, mặc định Vietsub đầu tiên)
+            let curSavedVietsubLang = null;
+            try {
+                curSavedVietsubLang = localStorage.getItem('aphim_vietsub_lang_' + (currentMovie?.slug || ''));
+            } catch (e) {}
 
+            vietSub = (curSavedVietsubLang && subtitles.find(s => s.language === curSavedVietsubLang)) ||
+                      subtitles.find(s => s.language === 'vi' || (s.label || '').toLowerCase().includes('việt')) ||
+                      subtitles[0];
+            foreignSub = null; // Máy chủ Vietsub tuyệt đối không có dòng phụ đề thứ 2
+        }
+
+        // 🌟 Đồng bộ Native Subtitle Track vào thẻ <video> của thiết bị (cho iPhone AVPlayer / Android Fullscreen)
+        function syncNativeDeviceSubtitleTracks() {
+            if (!videoEl) return;
+            try {
                 let trackEl = videoEl.querySelector('track[data-native-dual="true"]');
                 if (!trackEl) {
                     trackEl = document.createElement('track');
                     trackEl.kind = 'subtitles';
-                    trackEl.label = 'Song Ngữ';
-                    trackEl.srclang = 'vi';
+                    trackEl.label = isSongNguServer ? 'Song Ngữ' : (vietSub?.label || 'Vietsub');
+                    trackEl.srclang = vietSub?.language || 'vi';
                     trackEl.setAttribute('data-native-dual', 'true');
-                    trackEl.default = true;
+                    trackEl.default = false;
                     videoEl.appendChild(trackEl);
-                } else if (trackEl._prevBlobUrl) {
-                    URL.revokeObjectURL(trackEl._prevBlobUrl);
+                } else {
+                    trackEl.default = false;
+                    trackEl.label = isSongNguServer ? 'Song Ngữ' : (vietSub?.label || 'Vietsub');
+                    trackEl.srclang = vietSub?.language || 'vi';
                 }
-                trackEl._prevBlobUrl = trackUrl;
-                trackEl.src = trackUrl;
 
-                // ⚡ Khi ở ngoài màn hình dọc web (Portrait / Inline): ĐẶT mode = 'hidden' để:
-                // 1) Không bao giờ bị đè trùng 2 dòng sub đen trên web (để custom HTML overlay hiển thị màu vàng/trắng đẹp mắt)
-                // 2) Nhưng track vẫn được nạp sẵn vào Apple AVPlayer / Android media engine!
+                if (isSongNguServer) {
+                    // Máy chủ Song Ngữ: Gắn URL HTTP gộp 2 dòng phụ đề để Apple AVPlayer hiển thị cả 2 dòng khi Fullscreen
+                    if (vietSub && foreignSub) {
+                        const topU = vietSub.direct_url || vietSub.url;
+                        const botU = foreignSub.direct_url || foreignSub.url;
+                        if (topU && botU) {
+                            const mergedUrl = `/api/bilingual/merged-vtt?top=${encodeURIComponent(topU)}&bottom=${encodeURIComponent(botU)}`;
+                            if (trackEl.getAttribute('src') !== mergedUrl) {
+                                trackEl.src = mergedUrl;
+                            }
+                        }
+                    }
+                } else {
+                    // Máy chủ Vietsub: Gắn URL phụ đề Vietsub lấy trực tiếp từ API (ví dụ Vietsub đầu tiên)
+                    if (vietSub && (vietSub.direct_url || vietSub.url)) {
+                        const directU = vietSub.direct_url || vietSub.url;
+                        const subUrl = directU.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(directU)}` : directU;
+                        if (trackEl.getAttribute('src') !== subUrl) {
+                            trackEl.src = subUrl;
+                        }
+                    }
+                }
+
+                // 🛡️ CHỐNG NHÂN ĐÔI / SPAM SUB (Đặc biệt cho Việc Ma, Lương Quái & iOS AVPlayer):
+                // Vô hiệu hóa toàn bộ các track phụ khác (Forced, Phụ đề KOR, Phụ đề VIE gốc của server)
+                // để tránh sinh thêm box phụ đề thứ 2 bên dưới
                 const isFs = !!(videoEl.webkitDisplayingFullscreen || document.fullscreenElement || document.webkitFullscreenElement);
-                if (trackEl.track) {
+                for (let i = 0; i < videoEl.textTracks.length; i++) {
+                    const t = videoEl.textTracks[i];
+                    if (trackEl && t === trackEl.track) {
+                        t.mode = isFs ? 'showing' : 'hidden';
+                    } else {
+                        try { t.mode = 'disabled'; } catch(e) {}
+                    }
+                }
+
+                if (trackEl && trackEl.track) {
                     trackEl.track.mode = isFs ? 'showing' : 'hidden';
                 }
             } catch (err) {
@@ -4626,23 +4762,34 @@ function initializePlayer(episode) {
                 });
         }
 
-        // Đọc cài đặt ngôn ngữ từ localStorage nếu có
-        let curCfg = { sub1Lang: 'vi', sub2Lang: 'ko' };
-        try {
-            const s = localStorage.getItem('aphim_sub_custom_config');
-            if (s) curCfg = Object.assign({}, curCfg, JSON.parse(s));
-        } catch (e) {}
-
-        const vietSub = subtitles.find(s => (s.language === (curCfg.sub1Lang || 'vi') || (s.label || '').toLowerCase().includes('việt'))) || subtitles[0];
-        const foreignSub = subtitles.find(s => (s.language === (curCfg.sub2Lang || 'ko'))) || subtitles.find(s => s !== vietSub) || subtitles[1] || subtitles[0];
-
         if (vietSub) loadTrack(vietSub, true);
-        if (foreignSub) loadTrack(foreignSub, false);
+        if (isSongNguServer && foreignSub) {
+            loadTrack(foreignSub, false);
+        } else {
+            bottomCues = [];
+            currentBottomText = '';
+            subBottomEl.textContent = '';
+            subBottomEl.style.display = 'none';
+        }
 
         // Đăng ký API để Subtitle Customizer gọi khi người dùng đổi ngôn ngữ trong danh sách
         window._aphimSwitchSubLanguage = function(lang, isTop) {
             const target = subtitles.find(s => s.language === lang);
-            if (target) loadTrack(target, isTop);
+            if (target) {
+                if (!isSongNguServer) {
+                    vietSub = target;
+                    try {
+                        localStorage.setItem('aphim_vietsub_lang_' + (currentMovie?.slug || ''), lang);
+                    } catch(e) {}
+                    loadTrack(target, true);
+                    syncNativeDeviceSubtitleTracks();
+                } else {
+                    if (isTop) vietSub = target;
+                    else foreignSub = target;
+                    loadTrack(target, isTop);
+                    syncNativeDeviceSubtitleTracks();
+                }
+            }
         };
 
         const onTimeUpdate = () => {
@@ -4651,7 +4798,7 @@ function initializePlayer(episode) {
             // ⚡ Tối ưu 0ms: Đọc trực tiếp từ bộ nhớ RAM (0 I/O)
             let subCfg = window._aphimSubConfigCache;
             if (!subCfg) {
-                subCfg = { mode: 'dual', syncOffset: 0 };
+                subCfg = { mode: isSongNguServer ? 'dual' : 'on', syncOffset: 0 };
                 try {
                     const saved = localStorage.getItem('aphim_sub_custom_config');
                     if (saved) subCfg = Object.assign({}, subCfg, JSON.parse(saved));
@@ -4667,7 +4814,25 @@ function initializePlayer(episode) {
 
             const syncOffset = Number(subCfg.syncOffset) || 0;
 
-            if (subCfg.mode === 'on') { // Đơn ngữ: Chỉ hiện 1 phụ đề
+            // 🌟 MÁY CHỦ VIETSUB: Luôn hiển thị chuẩn ĐƠN NGỮ 1 DÒNG DUY NHẤT LẤY TỪ API
+            if (!isSongNguServer) {
+                if (topCues.length > 0) {
+                    const cue = findActiveCue(topCues, t, syncOffset);
+                    const newTxt = (cue && cue.text) ? cue.text : '';
+                    if (newTxt !== currentTopText) {
+                        currentTopText = newTxt;
+                        if (newTxt) { subTopEl.textContent = newTxt; subTopEl.style.display = 'block'; }
+                        else { subTopEl.style.display = 'none'; }
+                    }
+                } else if (currentTopText !== '') {
+                    currentTopText = '';
+                    subTopEl.style.display = 'none';
+                }
+                if (currentBottomText !== '') { currentBottomText = ''; subBottomEl.style.display = 'none'; }
+                return;
+            }
+
+            if (subCfg.mode === 'on') { // Đơn ngữ trên máy chủ Song Ngữ: Chỉ hiện 1 phụ đề
                 if (subCfg.activeTab === 'sub1') {
                     if (topCues.length > 0) {
                         const cue = findActiveCue(topCues, t, syncOffset);
@@ -4700,8 +4865,7 @@ function initializePlayer(episode) {
                 return;
             }
 
-            // Chế độ 'dual' (Song ngữ)
-            // 🌟 Dòng 1: Phụ đề dịch (Tiếng Việt mềm)
+            // Chế độ 'dual' (Song ngữ: Hiện cả Phụ đề dịch & Phụ đề song ngữ)
             if (topCues.length > 0) {
                 const cueTop = findActiveCue(topCues, t, syncOffset);
                 const rawTop = (cueTop && cueTop.text) ? cueTop.text : '';
@@ -4721,7 +4885,7 @@ function initializePlayer(episode) {
                 subTopEl.style.display = 'none';
             }
 
-            // 🌟 Dòng 2: Phụ đề ngoại ngữ (Tiếng Hàn / Tiếng Anh)
+            // 🌟 Dòng 2: Phụ đề song ngữ ngoại ngữ (Tiếng Hàn / Tiếng Anh)
             if (bottomCues.length > 0) {
                 const cue = findActiveCue(bottomCues, t, syncOffset);
                 const rawTxt = (cue && cue.text) ? cue.text : '';
@@ -4894,6 +5058,31 @@ function initializePlayer(episode) {
             }
         }
 
+        let isTouchScrollingList = false;
+        let touchListStartY = 0;
+        let touchListStartX = 0;
+
+        if (audioOptionsList && !audioOptionsList._scrollBound) {
+            audioOptionsList._scrollBound = true;
+            audioOptionsList.addEventListener('touchstart', (e) => {
+                isTouchScrollingList = false;
+                if (e.touches && e.touches[0]) {
+                    touchListStartY = e.touches[0].clientY;
+                    touchListStartX = e.touches[0].clientX;
+                }
+            }, { passive: true });
+
+            audioOptionsList.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches[0]) {
+                    const dy = Math.abs(e.touches[0].clientY - touchListStartY);
+                    const dx = Math.abs(e.touches[0].clientX - touchListStartX);
+                    if (dy > 6 || dx > 6) {
+                        isTouchScrollingList = true; // Đang vuốt cuộn màn hình, KHÔNG ĐƯỢC CHỌN!
+                    }
+                }
+            }, { passive: true });
+        }
+
         function renderAudioOptions() {
             audioOptionsList.innerHTML = '';
             const liveServers = getMovieServers();
@@ -4932,35 +5121,36 @@ function initializePlayer(episode) {
                 opt.style.cssText = `
                     display: flex !important;
                     align-items: center !important;
-                    gap: 12px !important;
-                    padding: 10px 14px !important;
-                    margin: 2px 0 !important;
-                    border-radius: 12px !important;
+                    gap: 8px !important;
+                    padding: 6px 10px !important;
+                    margin: 1.5px 0 !important;
+                    border-radius: 8px !important;
                     cursor: pointer !important;
-                    transition: all 0.16s ease !important;
-                    border: 1.5px solid ${isActive ? '#d4a34b' : 'transparent'} !important;
-                    background: ${isActive ? 'rgba(212, 163, 75, 0.08)' : 'rgba(255, 255, 255, 0.02)'} !important;
+                    min-height: 32px !important;
+                    transition: all 0.14s ease !important;
+                    border: 1.2px solid ${isActive ? '#d4a34b' : 'transparent'} !important;
+                    background: ${isActive ? 'rgba(212, 163, 75, 0.12)' : 'rgba(255, 255, 255, 0.02)'} !important;
                     box-sizing: border-box !important;
                     width: 100% !important;
                 `;
 
-                // Radio Circle (Ảnh 1: viền vàng + chấm tròn giữa nếu active; vòng rỗng mảnh nếu inactive)
+                // Radio Circle (Thu nhỏ 14px để đồng bộ thanh mảnh như menu Cài Đặt)
                 const radioHtml = isActive 
-                    ? `<div style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #eab308; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><div style="width: 8px; height: 8px; border-radius: 50%; background: #eab308; box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);"></div></div>`
-                    : `<div style="width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.35); flex-shrink: 0;"></div>`;
+                    ? `<div style="width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #eab308; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><div style="width: 6px; height: 6px; border-radius: 50%; background: #eab308; box-shadow: 0 0 4px rgba(234, 179, 8, 0.6);"></div></div>`
+                    : `<div style="width: 14px; height: 14px; border-radius: 50%; border: 1.2px solid rgba(255, 255, 255, 0.35); flex-shrink: 0;"></div>`;
 
-                // Check icon (Ảnh 1: hình tròn màu vàng có dấu tick đen bên trong)
+                // Check icon (Thu nhỏ 16px thanh lịch)
                 const checkHtml = isActive 
-                    ? `<div style="width: 20px; height: 20px; border-radius: 50%; background: #eab308; display: flex; align-items: center; justify-content: center; margin-left: auto; flex-shrink: 0;"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; color: #111827; stroke-width: 3.5; stroke: currentColor; fill: none;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`
+                    ? `<div style="width: 16px; height: 16px; border-radius: 50%; background: #eab308; display: flex; align-items: center; justify-content: center; margin-left: auto; flex-shrink: 0;"><svg viewBox="0 0 24 24" style="width: 10px; height: 10px; color: #111827; stroke-width: 3.2; stroke: currentColor; fill: none;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`
                     : '';
 
                 opt.innerHTML = `
                     ${radioHtml}
                     <span style="
-                        font-size: 14px;
-                        font-weight: ${isActive ? '600' : '500'};
+                        font-size: 12.5px;
+                        font-weight: ${isActive ? '600' : '400'};
                         color: ${isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.88)'};
-                        letter-spacing: -0.15px;
+                        letter-spacing: -0.1px;
                         white-space: nowrap;
                         flex: 1;
                         overflow: hidden;
@@ -4976,9 +5166,17 @@ function initializePlayer(episode) {
                     if (!isActive) opt.style.background = 'rgba(255, 255, 255, 0.02)';
                 };
 
-                opt.onclick = (e) => {
-                    e.stopPropagation();
+                const selectAudioOpt = (e) => {
+                    if (isTouchScrollingList) {
+                        // Người dùng đang lướt vuốt danh sách -> KHÔNG kích hoạt chọn server
+                        return;
+                    }
+                    if (e) {
+                        e.stopPropagation();
+                    }
                     audioMenu.classList.add('hidden');
+                    if (btnAudio) btnAudio.classList.remove('is-active');
+                    if (wrapper) wrapper.classList.remove('aphim-menu-open');
                     if (sIdx !== currentServerIndex) {
                         currentServerIndex = sIdx;
                         window.currentServerIndex = sIdx;
@@ -4995,6 +5193,7 @@ function initializePlayer(episode) {
                         }
                     }
                 };
+                opt.onclick = selectAudioOpt;
 
                 audioOptionsList.appendChild(opt);
             });
@@ -5011,8 +5210,16 @@ function initializePlayer(episode) {
         // Khởi tạo ban đầu
         updateAudioBadgeAndControls(servers);
 
-        btnAudio.onclick = (e) => {
-            e.stopPropagation();
+        let lastAudioTapTime = 0;
+        function toggleAudioMenu(e) {
+            if (e) {
+                e.stopPropagation();
+                if (e.cancelable && e.type === 'touchend') e.preventDefault();
+            }
+            const now = Date.now();
+            if (now - lastAudioTapTime < 350) return;
+            lastAudioTapTime = now;
+
             const isHidden = audioMenu.classList.contains('hidden');
             if (settingsMenu) {
                 settingsMenu.classList.add('hidden');
@@ -5026,16 +5233,28 @@ function initializePlayer(episode) {
             if (isHidden) {
                 renderAudioOptions();
                 audioMenu.classList.remove('hidden');
+                btnAudio.classList.add('is-active');
+                if (wrapper) wrapper.classList.add('aphim-menu-open');
+                showControls(6000);
             } else {
                 audioMenu.classList.add('hidden');
+                btnAudio.classList.remove('is-active');
+                if (wrapper) wrapper.classList.remove('aphim-menu-open');
             }
-        };
+        }
 
-        ['click', 'touchstart'].forEach(evt => {
+        btnAudio.onclick = toggleAudioMenu;
+        btnAudio.addEventListener('touchend', toggleAudioMenu, { passive: false });
+
+        ['click', 'touchend'].forEach(evt => {
             document.addEventListener(evt, (e) => {
-                if (audioMenu && !audioMenu.classList.contains('hidden') && !audioMenu.contains(e.target) && e.target !== btnAudio && !btnAudio.contains(e.target)) {
-                    audioMenu.classList.add('hidden');
+                if (!audioMenu || audioMenu.classList.contains('hidden')) return;
+                if (e.target.closest('#aphim-audio-menu') || e.target.closest('#aphim-btn-audio') || e.target.closest('#aphim-audio-wrapper')) {
+                    return;
                 }
+                audioMenu.classList.add('hidden');
+                if (btnAudio) btnAudio.classList.remove('is-active');
+                if (wrapper) wrapper.classList.remove('aphim-menu-open');
             }, { passive: true });
         });
     }
@@ -5067,27 +5286,29 @@ function initializePlayer(episode) {
             const hasSnName = sName.includes('song ngữ') || sName.includes('song ngu') || sName.includes('bilingual');
             const hasSub = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ||
                            (ep && Array.isArray(ep.subTracks) && ep.subTracks.length > 0);
-            return hasSnName || hasSub;
+            return { isSongNguServer: hasSnName, hasSub: hasSub };
         }
 
-        const isSongNguMovie = checkIsSongNgu();
+        const subInfo = checkIsSongNgu();
+        const isSongNguServer = subInfo.isSongNguServer;
+        const hasSub = subInfo.hasSub;
+
         if (ccWrapper) {
-            if (isSongNguMovie) {
+            // Nút CC hiển thị khi là máy chủ Song Ngữ HOẶC khi máy chủ Vietsub có phụ đề lấy từ API
+            if (isSongNguServer || hasSub) {
                 ccWrapper.style.setProperty('display', 'inline-flex', 'important');
             } else {
                 ccWrapper.style.setProperty('display', 'none', 'important');
                 modal.classList.add('hidden');
                 wrapper.classList.remove('aphim-sub-open');
-                // Phim không có song ngữ -> THOÁT SỚM, không chạy modal/customizer để xem phim mượt nhất
                 return;
             }
         }
 
-        // Default Config Store
-        // Default Config Store (Bền vững, không bao giờ bị xóa đè khi chuyển tập / chuyển phim)
+        // Default Config Store (Phân định rõ: Máy chủ Song Ngữ mặc định 'dual', máy chủ Vietsub mặc định 'on' đơn ngữ)
         const DEFAULT_CONFIG = {
-            mode: 'dual', // 'dual' (cả cặp realtime), 'on' (đơn ngữ), 'off' (tắt)
-            activeTab: 'sub2', // Mặc định chỉnh Song Ngữ
+            mode: isSongNguServer ? 'dual' : 'on',
+            activeTab: isSongNguServer ? 'sub2' : 'sub1',
             sub1Lang: 'vi',
             sub2Lang: 'ko',
             font: "'Inter', system-ui, sans-serif",
@@ -5114,10 +5335,23 @@ function initializePlayer(episode) {
             wrapper.style.setProperty('--aphim-sub-font-family', cfg.font);
 
             const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('aphim-web-fullscreen'));
-            const isMobilePortrait = !isFullscreen && (wrapper.clientWidth <= 580 || (window.innerWidth <= 640 && window.innerHeight > window.innerWidth));
+            const isMobile = (wrapper.clientWidth <= 768 || window.innerWidth <= 768 || window.innerHeight <= 520 || (screen && screen.width <= 768) || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+            const isLandscape = (window.innerWidth > window.innerHeight) || (window.matchMedia && window.matchMedia('(orientation: landscape)').matches);
+            const isMobilePortrait = isMobile && !isLandscape && !isFullscreen;
+            const isMobileLandscape = isMobile && isLandscape;
 
-            const sub1FontSize = isMobilePortrait ? Math.min(14, Math.round(cfg.sub1.size * 0.8)) : cfg.sub1.size;
-            const sub2FontSize = isMobilePortrait ? Math.min(13.5, Math.round(cfg.sub2.size * 0.78)) : cfg.sub2.size;
+            let sub1FontSize = cfg.sub1.size;
+            let sub2FontSize = cfg.sub2.size;
+
+            if (isMobileLandscape) {
+                // 📱 Mobile Ngang: Nhỏ gọn (11px - 12.5px) để vừa vặn, không bè to
+                sub1FontSize = Math.min(12.5, Math.max(11, Math.round(cfg.sub1.size * 0.65)));
+                sub2FontSize = Math.min(12, Math.max(10.5, Math.round(cfg.sub2.size * 0.62)));
+            } else if (isMobilePortrait) {
+                // 📱 Mobile Dọc: Vừa mắt (12px - 13.5px)
+                sub1FontSize = Math.min(13.5, Math.max(12, Math.round(cfg.sub1.size * 0.72)));
+                sub2FontSize = Math.min(12.5, Math.max(11, Math.round(cfg.sub2.size * 0.68)));
+            }
 
             // Sub 1 (Phụ đề 1 / Chính - Dòng trên)
             wrapper.style.setProperty('--aphim-sub-top-color', cfg.sub1.color);
@@ -5126,9 +5360,11 @@ function initializePlayer(episode) {
                 subTopEl.style.setProperty('color', cfg.sub1.color, 'important');
                 subTopEl.style.setProperty('font-size', sub1FontSize + 'px', 'important');
                 subTopEl.style.setProperty('font-family', cfg.font, 'important');
+
                 if (cfg.sub1.bg === 'none') {
                     subTopEl.style.setProperty('background', 'transparent', 'important');
                     subTopEl.style.setProperty('padding', '0px', 'important');
+                    subTopEl.style.removeProperty('box-shadow');
                 } else if (cfg.sub1.bg === 'gray') {
                     subTopEl.style.setProperty('background', 'rgba(30, 41, 59, 0.85)', 'important');
                     subTopEl.style.setProperty('padding', '2px 8px', 'important');
@@ -5150,6 +5386,7 @@ function initializePlayer(episode) {
                 subBottomEl.style.setProperty('color', cfg.sub2.color || '#ffffff', 'important');
                 subBottomEl.style.setProperty('font-size', sub2FontSize + 'px', 'important');
                 subBottomEl.style.setProperty('font-family', cfg.font, 'important');
+
                 if (cfg.sub2.bg === 'gray') {
                     subBottomEl.style.setProperty('background', 'rgba(30, 41, 59, 0.85)', 'important');
                     subBottomEl.style.setProperty('padding', '2px 8px', 'important');
@@ -5162,8 +5399,11 @@ function initializePlayer(episode) {
                     subBottomEl.style.setProperty('background', 'transparent', 'important');
                     subBottomEl.style.setProperty('padding', '0px', 'important');
                     subBottomEl.style.setProperty('border-radius', '0px', 'important');
+                    subBottomEl.style.removeProperty('box-shadow');
                 }
             }
+
+            window._aphimApplySubStyles = applySubStyles;
 
             // Dynamic User Vertical Position Offset
             const baseOffset = parseInt(wrapper.style.getPropertyValue('--aphim-sub-offset') || '50', 10);
@@ -5240,6 +5480,44 @@ function initializePlayer(episode) {
 
         // Sync Modal Controls UI with current state
         function syncModalUI() {
+            // 🌟 Điều chỉnh giao diện Modal phụ thuộc vào máy chủ hiện tại:
+            if (!isSongNguServer) {
+                // MÁY CHỦ VIETSUB / THƯỜNG:
+                // Ẩn chế độ Song Ngữ trên thanh pills, chỉ để 'Đơn ngữ' và 'Tắt'
+                const dualPill = document.querySelector('#asmModePills button[data-mode="dual"]');
+                if (dualPill) dualPill.style.display = 'none';
+                if (cfg.mode === 'dual') cfg.mode = 'on';
+
+                // Ẩn hẳn cụm chọn Phụ đề 2 (Song ngữ)
+                const drop2Col = document.getElementById('asmLangDrop2')?.closest('.asm-lang-select-col');
+                if (drop2Col) drop2Col.style.setProperty('display', 'none', 'important');
+
+                // Đổi tiêu đề cụm chọn phụ đề 1 thành "Chọn phụ đề (từ API)"
+                const fLabel1 = document.querySelector('.asm-lang-select-col .asm-field-label');
+                if (fLabel1) fLabel1.textContent = 'Chọn phụ đề (từ API)';
+
+                // Ẩn dòng preview phụ đề thứ 2
+                const prev2 = document.getElementById('asmPreviewSub2');
+                if (prev2) prev2.style.setProperty('display', 'none', 'important');
+
+                // Ẩn tab switcher Sub1 / Sub2 nếu có
+                const asmTabs = document.getElementById('asmTabs');
+                if (asmTabs) asmTabs.style.display = 'none';
+            } else {
+                // MÁY CHỦ SONG NGỮ: Trình phát Song Ngữ riêng biệt
+                const dualPill = document.querySelector('#asmModePills button[data-mode="dual"]');
+                if (dualPill) dualPill.style.display = '';
+
+                const drop2Col = document.getElementById('asmLangDrop2')?.closest('.asm-lang-select-col');
+                if (drop2Col) drop2Col.style.removeProperty('display');
+
+                const fLabel1 = document.querySelector('.asm-lang-select-col .asm-field-label');
+                if (fLabel1) fLabel1.textContent = 'Phụ đề 1 (Chính)';
+
+                const asmTabs = document.getElementById('asmTabs');
+                if (asmTabs) asmTabs.style.display = '';
+            }
+
             // Mode pills
             document.querySelectorAll('#asmModePills .asm-mode-pill').forEach(b => {
                 b.classList.toggle('active', b.dataset.mode === cfg.mode);
@@ -5300,8 +5578,6 @@ function initializePlayer(episode) {
             });
 
             renderLanguagesLists();
-
-
         }
 
         // Populate Languages lists for Phụ đề 1 and Phụ đề 2 as clean dropdown menus
@@ -5313,7 +5589,8 @@ function initializePlayer(episode) {
             if (!list1 || !list2) return;
 
             let subtitles = (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) ? ep.subtitles : [];
-            if (subtitles.length === 0) {
+            // Chỉ kế thừa từ pool nếu là máy chủ Song Ngữ
+            if (isSongNguServer && subtitles.length === 0) {
                 const srvPool = (currentMovie?.episodes || window.initialEpisodes || []);
                 for (const srv of srvPool) {
                     const match = (srv.server_data || []).find(e => Array.isArray(e.subtitles) && e.subtitles.length > 0);
@@ -5793,22 +6070,31 @@ function initializePlayer(episode) {
     function enterFullscreen() {
         if (!player) return;
 
-        // ─── A. MOBILE FLOW (iOS & Android: Chuyển về trình chiếu video native của máy theo chuẩn các dự án lớn) ───
+        // ─── A. MOBILE FLOW (iOS Safari & Android: Mở Full Ngang Native Chuẩn 100%) ───
         if (isMobileDevice()) {
-            // 🌟 Bật Native Dual Subtitle Track trước khi mở Apple AVPlayer / Android Fullscreen
+            // 🌟 1. Bật duy nhất 1 Native Dual Subtitle Track (chứa cả 2 dòng: Vietsub + Song Ngữ)
+            // Tuyệt đối không bật 2 track song song để tránh spam 2 box phụ đề trên iOS Safari (Hình 2)
             try {
                 const trackEl = player.querySelector('track[data-native-dual="true"]');
-                if (trackEl && trackEl.track) {
-                    trackEl.track.mode = 'showing';
-                }
+                let activatedOne = false;
                 for (let i = 0; i < player.textTracks.length; i++) {
                     const t = player.textTracks[i];
-                    if (t.label && t.label.includes('Song Ngữ')) {
+                    if (trackEl && t === trackEl.track && !activatedOne) {
                         t.mode = 'showing';
+                        activatedOne = true;
+                    } else if (!activatedOne && t.label && t.label.includes('Song Ngữ')) {
+                        t.mode = 'showing';
+                        activatedOne = true;
+                    } else {
+                        try { t.mode = 'disabled'; } catch(e) {}
                     }
                 }
+                if (!activatedOne && trackEl && trackEl.track) {
+                    trackEl.track.mode = 'showing';
+                }
             } catch(e) {}
-            // 1. iOS Safari (iPhone / iPad): Gọi trực tiếp webkitEnterFullscreen ngay lập tức trong user gesture tick (không await)
+
+            // 🌟 2. iOS Safari (iPhone / iPad): Mở ngay Native Fullscreen xoay ngang máy
             if (typeof player.webkitEnterFullscreen === 'function') {
                 try {
                     player.webkitEnterFullscreen();
@@ -5819,10 +6105,10 @@ function initializePlayer(episode) {
                 }
             }
 
-            // 2. Android / Other Mobile: Kích hoạt Native Video Player trên chính thẻ <video> của thiết bị
+            // 🌟 3. Android / Mobile khác: Kích hoạt Fullscreen API trên chính video
             if (player.requestFullscreen || player.webkitRequestFullscreen) {
                 try {
-                    player.controls = true; // Bật thanh điều khiển native của máy
+                    player.controls = true;
                     const req = player.requestFullscreen ? player.requestFullscreen() : player.webkitRequestFullscreen();
                     if (req && req.catch) {
                         req.catch(() => { player.controls = false; });
@@ -5833,13 +6119,13 @@ function initializePlayer(episode) {
                     updateFullscreenIcons(true);
                     return;
                 } catch (e) {
-                    console.warn('Mobile native video requestFullscreen error:', e);
+                    console.warn('Mobile requestFullscreen error:', e);
                     player.controls = false;
                 }
             }
         }
 
-        // ─── B. DESKTOP FLOW (PC / Laptop: Custom Player Fullscreen trên wrapper) ───
+        // ─── B. DESKTOP FLOW (PC / Laptop) ───
         if (!wrapper) return;
         let nativeSuccess = false;
 
@@ -5857,9 +6143,7 @@ function initializePlayer(episode) {
                 wrapper.msRequestFullscreen();
                 nativeSuccess = true;
             }
-        } catch (e) {
-            console.warn('Native requestFullscreen on wrapper rejected, trying fallbacks:', e);
-        }
+        } catch (e) {}
 
         if (!nativeSuccess && !document.fullscreenElement && !document.webkitFullscreenElement) {
             wrapper.classList.add('aphim-web-fullscreen');
@@ -5871,15 +6155,30 @@ function initializePlayer(episode) {
     }
 
     function exitFullscreen() {
-        // 1. Khôi phục trạng thái mobile: tắt native controls của máy, chuyển lại custom controls
+        // 1. Khôi phục trạng thái mobile nếu dùng native video
         if (player) {
             player.controls = false;
             if (typeof player.webkitExitFullscreen === 'function') {
                 try { player.webkitExitFullscreen(); } catch (e) {}
             }
+            try {
+                const trackEl = player.querySelector('track[data-native-dual="true"]');
+                if (trackEl && trackEl.track) {
+                    trackEl.track.mode = 'hidden';
+                }
+                for (let i = 0; i < player.textTracks.length; i++) {
+                    try { player.textTracks[i].mode = 'hidden'; } catch(e) {}
+                }
+            } catch(e) {}
         }
 
-        // 2. Thoát native browser fullscreen
+        // 2. Thoát Web Fullscreen (iPhone Safari / Mobile Fallback)
+        if (wrapper && wrapper.classList.contains('aphim-web-fullscreen')) {
+            wrapper.classList.remove('aphim-web-fullscreen');
+            document.body.classList.remove('aphim-body-fullscreen');
+        }
+
+        // 3. Thoát native browser fullscreen
         try {
             if (document.exitFullscreen) {
                 document.exitFullscreen();
@@ -5890,23 +6189,18 @@ function initializePlayer(episode) {
             } else if (document.msExitFullscreen) {
                 document.msExitFullscreen();
             }
-        } catch (e) {
-            console.warn('Exit fullscreen error:', e);
-        }
+        } catch (e) {}
 
-        // 3. Mở khóa hướng xoay màn hình (orientation)
+        // 4. Mở khóa xoay màn hình
         if (screen.orientation && screen.orientation.unlock) {
-            try {
-                screen.orientation.unlock();
-            } catch (e) {}
+            try { screen.orientation.unlock(); } catch (e) {}
         }
-
-        // 4. Xóa các class Web Fullscreen
-        if (wrapper) wrapper.classList.remove('aphim-web-fullscreen');
-        document.body.classList.remove('aphim-body-fullscreen');
 
         updateFullscreenIcons(false);
         showControls();
+        if (typeof updateSubResponsiveMetrics === 'function') {
+            setTimeout(updateSubResponsiveMetrics, 60);
+        }
     }
 
     function toggleFullscreen() {
@@ -5968,34 +6262,39 @@ function initializePlayer(episode) {
     if (player) {
         player.addEventListener('webkitbeginfullscreen', () => {
             updateFullscreenIcons(true);
-            // 🌟 Tự động BẬT Native Dual Subtitle Track trên màn hình máy của Apple (Hình 2)
+            // 🌟 Tự động BẬT DUY NHẤT 1 Native Dual Subtitle Track trên Apple AVPlayer (Hình 2)
+            // Triệt tiêu toàn bộ track phụ để tránh spam 2 khung phụ đề
             try {
                 const trackEl = player.querySelector('track[data-native-dual="true"]');
-                if (trackEl && trackEl.track) {
-                    trackEl.track.mode = 'showing';
-                }
+                let activatedOne = false;
                 for (let i = 0; i < player.textTracks.length; i++) {
                     const t = player.textTracks[i];
-                    if (t.label && t.label.includes('Song Ngữ')) {
+                    if (trackEl && t === trackEl.track && !activatedOne) {
                         t.mode = 'showing';
+                        activatedOne = true;
+                    } else if (!activatedOne && t.label && t.label.includes('Song Ngữ')) {
+                        t.mode = 'showing';
+                        activatedOne = true;
+                    } else {
+                        try { t.mode = 'disabled'; } catch(e) {}
                     }
+                }
+                if (!activatedOne && trackEl && trackEl.track) {
+                    trackEl.track.mode = 'showing';
                 }
             } catch(e) {}
         });
         player.addEventListener('webkitendfullscreen', () => {
             if (player) {
                 player.controls = false;
-                // Ẩn Native Track khi quay về màn hình dọc để custom HTML overlay tiếp quản (chống đè 2 dòng phụ đề trên web)
+                // Ẩn toàn bộ Native Track khi quay về màn hình dọc để custom HTML overlay tiếp quản (chống đè dòng phụ đề trên web)
                 try {
                     const trackEl = player.querySelector('track[data-native-dual="true"]');
                     if (trackEl && trackEl.track) {
                         trackEl.track.mode = 'hidden';
                     }
                     for (let i = 0; i < player.textTracks.length; i++) {
-                        const t = player.textTracks[i];
-                        if (t.label && t.label.includes('Song Ngữ')) {
-                            t.mode = 'hidden';
-                        }
+                        try { player.textTracks[i].mode = 'hidden'; } catch(e) {}
                     }
                 } catch(e) {}
             }
@@ -6296,11 +6595,19 @@ function initializePlayer(episode) {
                                  (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
             if (shouldResume) {
                 isTimeRestored = true;
-                player.currentTime = progress.currentTime;
+                try { player.currentTime = progress.currentTime; } catch(e) {}
             }
-            player.play().catch(e => console.log('Autoplay prevented:', e));
+            const mp4PlayPromise = player.play();
+            if (mp4PlayPromise && mp4PlayPromise.catch) {
+                mp4PlayPromise.catch(() => {
+                    player.muted = true;
+                    if (typeof updateVolumeIcon === 'function') updateVolumeIcon(0, true);
+                    if (typeof updateUnmuteBanner === 'function') updateUnmuteBanner();
+                    player.play().catch(() => {});
+                });
+            }
         }, { once: true });
-    } else if (Hls.isSupported()) {
+    } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
         console.log('✅ [Hybrid Native Core] Khởi tạo HLS với 100% chất lượng GPU DirectComposition');
         if (window.hlsInstance) {
             try { window.hlsInstance.destroy(); } catch (e) { }
@@ -6313,9 +6620,9 @@ function initializePlayer(episode) {
             maxBufferLength: isMobileDevice ? 30 : 60, // ⚡ Mobile buffer 30s tiết kiệm pin & RAM, Desktop buffer 60s
             maxMaxBufferLength: isMobileDevice ? 60 : 120,
             startLevel: -1, // ⚡ Auto chọn bitrate thích ứng mạng 4G/Wifi
-            fragLoadingTimeOut: 18000,
-            manifestLoadingTimeOut: 12000,
-            levelLoadingTimeOut: 12000,
+            fragLoadingTimeOut: 20000,
+            manifestLoadingTimeOut: 15000,
+            levelLoadingTimeOut: 15000,
             preload: true
         });
         window.hls = hls;
@@ -6333,13 +6640,15 @@ function initializePlayer(episode) {
                 let bestIdx = -1;
                 let maxHeight = 0;
                 allLevels.forEach((lvl, idx) => {
-                    if (lvl.height && lvl.height >= maxHeight) {
-                        maxHeight = lvl.height;
+                    const h = lvl.height || 0;
+                    if (h >= maxHeight) {
+                        maxHeight = h;
                         bestIdx = idx;
                     }
                 });
                 if (bestIdx !== -1) {
-                    hls.currentLevel = bestIdx;
+                    hls.startLevel = bestIdx;
+                    hls.nextLevel = bestIdx;
                     console.log(`🎯 [HLS] Tự động chọn chất lượng cao nhất: ${maxHeight}p (Level ${bestIdx})`);
                 }
             }
@@ -6373,6 +6682,19 @@ function initializePlayer(episode) {
                 return;
             }
 
+            const attemptAutoPlayback = () => {
+                const playPromise = player.play();
+                if (playPromise && playPromise.catch) {
+                    playPromise.catch(err => {
+                        console.warn('⚠️ [Autoplay] Mobile unmuted blocked -> Chuyển tức thì sang Muted Autoplay để video chạy liền không khựng:', err);
+                        player.muted = true;
+                        if (typeof updateVolumeIcon === 'function') updateVolumeIcon(0, true);
+                        if (typeof updateUnmuteBanner === 'function') updateUnmuteBanner();
+                        player.play().catch(e => console.warn('Muted autoplay error:', e));
+                    });
+                }
+            };
+
             const shouldResume = !isTimeRestored && 
                                  progress && 
                                  progress.currentTime > 5 && 
@@ -6382,16 +6704,12 @@ function initializePlayer(episode) {
             if (shouldResume) {
                 isTimeRestored = true;
                 setTimeout(() => {
-                    player.currentTime = progress.currentTime;
-                    player.play().catch(e => {
-                        console.log('Play resume note:', e);
-                    });
-                }, 150);
+                    try { player.currentTime = progress.currentTime; } catch(e) {}
+                    attemptAutoPlayback();
+                }, 100);
             } else {
-                player.currentTime = 0;
-                player.play().catch(e => {
-                    console.log('⚠️ Autoplay muted fallback:', e);
-                });
+                // Không gán player.currentTime = 0 để tránh kích hoạt HLS seek flush gây khựng hình
+                attemptAutoPlayback();
             }
         });
 
@@ -6405,9 +6723,16 @@ function initializePlayer(episode) {
                     (t.name && t.name.toLowerCase().includes('viet'))
                 ));
                 if (vietIdx !== -1) {
-                    hls.subtitleTrack = vietIdx;
-                    hls.subtitleDisplay = true;
-                    console.log(`💬 [HLS] Tự động kích hoạt Phụ đề Tiếng Việt: Track ${vietIdx} (${tracks[vietIdx].name || 'Vietnamese'})`);
+                    // Chỉ kích hoạt HLS subtitle nếu không có custom dual subtitles overlay R2
+                    const hasCustomCues = (typeof topCues !== 'undefined' && topCues.length > 0) || (typeof bottomCues !== 'undefined' && bottomCues.length > 0);
+                    if (!hasCustomCues) {
+                        hls.subtitleTrack = vietIdx;
+                        hls.subtitleDisplay = true;
+                        console.log(`💬 [HLS] Tự động kích hoạt Phụ đề Tiếng Việt: Track ${vietIdx} (${tracks[vietIdx].name || 'Vietnamese'})`);
+                    } else {
+                        hls.subtitleTrack = -1;
+                        hls.subtitleDisplay = false;
+                    }
                 }
             }
         });
@@ -6427,7 +6752,10 @@ function initializePlayer(episode) {
                 switch (data.type) {
                     case Hls.ErrorTypes.NETWORK_ERROR:
                         console.log('🔄 Trying to recover network error...');
-                        hls.startLoad();
+                        if (hls.currentLevel !== -1) {
+                            hls.currentLevel = -1; // Thả về Auto để hạ bitrate mượt mà
+                        }
+                        try { hls.startLoad(); } catch (e) {}
                         if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR || data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
                             hls.destroy();
                             handleStreamError();
@@ -6442,9 +6770,23 @@ function initializePlayer(episode) {
                         handleStreamError();
                         break;
                 }
-            } else if (data.details === 'fragLoadError') {
-                console.warn('⚠️ [HLS Non-fatal fragLoadError]: Tự động startLoad để tiếp tục phân đoạn');
-                hls.startLoad();
+            } else if (
+                data.details === 'fragLoadError' || 
+                data.details === (Hls.ErrorDetails && Hls.ErrorDetails.FRAG_LOAD_ERROR) ||
+                data.details === 'bufferStalledError' ||
+                data.details === (Hls.ErrorDetails && Hls.ErrorDetails.BUFFER_STALLED_ERROR) ||
+                data.details === 'bufferSeekOverHole' ||
+                data.details === (Hls.ErrorDetails && Hls.ErrorDetails.BUFFER_SEEK_OVER_HOLE) ||
+                data.details === 'bufferNudgeOnStall' ||
+                data.details === (Hls.ErrorDetails && Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL)
+            ) {
+                console.warn(`⚠️ [HLS Auto-Recover]: Tự động startLoad phục hồi cho ${data.details}`);
+                if (!hls._fragRetryTimer) {
+                    hls._fragRetryTimer = setTimeout(() => {
+                        hls._fragRetryTimer = null;
+                        try { hls.startLoad(); } catch (e) {}
+                    }, 300);
+                }
             }
         });
     } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
@@ -6464,18 +6806,27 @@ function initializePlayer(episode) {
                                  !progress.completed &&
                                  (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
 
+            const attemptSafariPlayback = () => {
+                const playPromise = player.play();
+                if (playPromise && playPromise.catch) {
+                    playPromise.catch(err => {
+                        console.warn('⚠️ [Safari Autoplay] Blocked unmuted -> Chuyển sang Muted Autoplay chạy ngay:', err);
+                        player.muted = true;
+                        if (typeof updateVolumeIcon === 'function') updateVolumeIcon(0, true);
+                        if (typeof updateUnmuteBanner === 'function') updateUnmuteBanner();
+                        player.play().catch(() => {});
+                    });
+                }
+            };
+
             if (shouldResume) {
                 isTimeRestored = true;
                 setTimeout(() => {
-                    player.currentTime = progress.currentTime;
-                    player.play().catch(e => {
-                        player.muted = true;
-                        player.play().catch(() => {});
-                    });
-                }, 200);
+                    try { player.currentTime = progress.currentTime; } catch(e) {}
+                    attemptSafariPlayback();
+                }, 100);
             } else {
-                player.currentTime = 0;
-                player.play().catch(e => console.log('Auto-play prevented:', e));
+                attemptSafariPlayback();
             }
         }, { once: true });
     }
@@ -6545,6 +6896,25 @@ function initializePlayer(episode) {
 
     player.addEventListener('seeked', () => {
         doSaveProgress();
+    });
+
+    // 🚀 Bắt buộc HLS nạp phân đoạn ngay lập tức khi tua hoặc khi bộ đệm bị khựng
+    player.addEventListener('seeking', () => {
+        if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+            try { window.hlsInstance.startLoad(player.currentTime); } catch (e) { }
+        }
+    });
+
+    player.addEventListener('waiting', () => {
+        if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+            try { window.hlsInstance.startLoad(player.currentTime); } catch (e) { }
+        }
+    });
+
+    player.addEventListener('stalled', () => {
+        if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+            try { window.hlsInstance.startLoad(); } catch (e) { }
+        }
     });
 
     player.addEventListener('ended', () => {
@@ -6698,6 +7068,12 @@ function initializePlayer(episode) {
                         ? Math.min(player.duration || 0, player.currentTime + targetDelta)
                         : Math.max(0, player.currentTime + targetDelta);
                     player.currentTime = newTime;
+                    if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
+                        try { window.hlsInstance.startLoad(newTime); } catch(e) {}
+                    }
+                    if (player.paused) {
+                        player.play().catch(() => {});
+                    }
                 }
 
                 showSeekOverlay(`${seekSign}${accumulatedSeekSec}s`, isForward, true);
