@@ -1879,9 +1879,13 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
         // Cập nhật lại episodes
         if (baseItem) {
             // Chuẩn hóa tên server
-            mergedEpisodes.forEach((s, idx) => {
+            let srcCount = 0;
+            mergedEpisodes.forEach((s) => {
                 if (!s.original_server_name) s.original_server_name = s.server_name;
-                s.server_name = `Nguồn ${idx + 1}`;
+                const isSn = (s.original_server_name || '').toLowerCase().includes('song ngữ');
+                if (!isSn) {
+                    s.server_name = 'Nguồn ' + (++srcCount);
+                }
             });
             finalData.episodes = mergedEpisodes;
             finalData.status = true;
@@ -2599,7 +2603,11 @@ async function fetchMovieMetadata(slug) {
                     if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
                         const isMismatched = isSingle && songNguServer.server_data.length > 1;
                         if (!isMismatched) {
-                            attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
+                            // Chỉ fallback stream Vietsub khi server Song Ngữ hoàn toàn thiếu link phát hoặc bị lỗi
+                            const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim'));
+                            if (needsStream) {
+                                attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
+                            }
                             const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
                             primaryResult.episodes = [
                                 songNguServer,
@@ -2612,10 +2620,11 @@ async function fetchMovieMetadata(slug) {
                 console.warn('[Bilingual Service Error]:', bErr.message);
             }
 
-            try {
-                await Promise.race([enrichMovieBackdrop(primaryResult), new Promise(resolve => setTimeout(resolve, 600))]);
-            } catch (_) {}
+            // ⚡ KHÔNG chặn response chờ backdrop TMDB (trước đây await tới 600ms -> bấm vào phim lâu).
+            // Client (movie-detail.js) tự hydrate backdrop TMDB + crossfade mượt; cache vẫn được
+            // enrich ngầm (cùng reference) cho lần truy cập sau. Giống luồng Song Ngữ ở trên.
             movieMetadataCache.set(cleanSlug, { data: primaryResult, ts: Date.now() });
+            enrichMovieBackdrop(primaryResult).catch(() => {});
             return primaryResult;
         }
     } catch (parallelErr) {

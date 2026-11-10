@@ -4094,6 +4094,44 @@
         } else {
             setupInstantReelsInteraction();
         }
+
+        /* ⚡ Mở rộng thanh progress cho MỌI link nội bộ (không chỉ Reels).
+           Click vào phim / nav / danh sách → thanh chạy tức thì, hết cảm giác
+           "nhảy cái khựng, load chưa đủ". Dùng bubble phase + defaultPrevented
+           để KHÔNG kích hoạt cho link mở modal / dropdown (đã preventDefault). */
+        function setupGlobalNavProgress() {
+            document.addEventListener('click', function (e) {
+                if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                var t = e.target;
+                var a = (t && t.closest) ? t.closest('a[href]') : null;
+                if (!a) return;
+                if (a.target === '_blank' || a.hasAttribute('download') || a.getAttribute('rel') === 'external') return;
+                var href = a.getAttribute('href') || '';
+                if (!href || href.charAt(0) === '#' || /^(javascript:|mailto:|tel:)/i.test(href)) return;
+                if (/^https?:\/\//i.test(href) && href.indexOf(location.origin) !== 0) return;
+                triggerNavProgress();
+            });
+
+            // Khi quay lại bằng bfcache (back/forward), thanh có thể kẹt ở 88% → hoàn tất + ẩn.
+            window.addEventListener('pageshow', function () {
+                var bar = document.getElementById('aphim-nav-progress');
+                if (!bar || bar.style.display !== 'block') return;
+                bar.style.width = '100%';
+                setTimeout(function () {
+                    bar.style.opacity = '0';
+                    setTimeout(function () {
+                        bar.style.display = 'none';
+                        bar.style.width = '0%';
+                        bar.style.opacity = '';
+                    }, 240);
+                }, 90);
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupGlobalNavProgress);
+        } else {
+            setupGlobalNavProgress();
+        }
     })();
 
     // Đồng bộ chuyển đổi logo mượt mà khi vào trang Phim Ngắn & xử lý click logo trên mobile

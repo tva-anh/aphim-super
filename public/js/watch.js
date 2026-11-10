@@ -2943,6 +2943,9 @@ function initializePlayer(episode) {
                 Trình duyệt của bạn không hỗ trợ video.
             </video>
 
+            <!-- Hardsub Blur Mask (Gaussian Blur / Dark Box che phụ đề cứng) -->
+            <div id="aphim-hardsub-blur-mask" class="pointer-events-none absolute z-15 transition-all duration-200" style="display: none;"></div>
+
             <!-- Dual Subtitles Overlay (Vietnamese Top White + Korean Bottom Yellow) -->
             <div id="aphim-dual-subtitles-overlay" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end items-center px-4 ">
                 <div id="aphim-sub-top" class="text-center font-bold mb-1 leading-snug tracking-wide" style="display: none; color: #ffffff; font-size: clamp(17px, 2.3vw, 26px); -webkit-text-stroke: 2.2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
@@ -3130,6 +3133,22 @@ function initializePlayer(episode) {
                                 <button type="button" class="asm-seg-btn" data-bg="none">Không</button>
                                 <button type="button" class="asm-seg-btn" data-bg="gray">Hộp xám</button>
                                 <button type="button" class="asm-seg-btn" data-bg="black">Hộp đen</button>
+                            </div>
+                        </div>
+
+                        <div class="asm-field-item">
+                            <div class="asm-field-label flex justify-between items-center">
+                                <span>🛡️ Che Hardsub cũ (Blur Mask)</span>
+                                <span class="asm-field-val" id="asmBlurMaskVal" style="color: #60a5fa; font-weight: 700;">Tắt</span>
+                            </div>
+                            <div class="asm-seg" id="asmBlurMaskSeg">
+                                <button type="button" class="asm-seg-btn" data-blur="gaussian">Mờ Gauss</button>
+                                <button type="button" class="asm-seg-btn" data-blur="black">Hộp đen</button>
+                                <button type="button" class="asm-seg-btn" data-blur="mosaic">Vỡ hạt</button>
+                                <button type="button" class="asm-seg-btn active" data-blur="off">Tắt</button>
+                            </div>
+                            <div class="asm-sync-hint-text mt-1">
+                                💡 Dành riêng cho phim nguồn cũ bị dính phụ đề in chết vào hình ảnh. Mặc định TẮT để hình ảnh nguyên bản 100%.
                             </div>
                         </div>
                     </div>
@@ -4449,13 +4468,15 @@ function initializePlayer(episode) {
             const videoRatio = vW / vH;
             const containerRatio = wW / wH;
 
-            let actualVideoH, barBottom;
+            let actualVideoH, actualVideoW, barBottom;
             if (containerRatio > videoRatio) {
                 // Video chạm cạnh trên & cạnh dưới wrapper (letterbox 2 bên)
                 actualVideoH = wH;
+                actualVideoW = wH * videoRatio;
                 barBottom = 0;
             } else {
                 // Video chạm cạnh trái & cạnh phải wrapper (letterbox trên & dưới)
+                actualVideoW = wW;
                 actualVideoH = wW / videoRatio;
                 barBottom = Math.max(0, (wH - actualVideoH) / 2);
             }
@@ -4503,6 +4524,58 @@ function initializePlayer(episode) {
 
             if (overlay) {
                 overlay.style.setProperty('padding-bottom', (baselineOffset + uOffset) + 'px', 'important');
+            }
+
+            // 🛡️ Tự động nhận diện và căn chỉnh Blur Mask (Gaussian Blur che Hardsub) thích ứng Desktop & Mobile
+            const blurMask = document.getElementById('aphim-hardsub-blur-mask');
+            if (blurMask) {
+                let blurMode = 'gaussian';
+                try {
+                    const saved = localStorage.getItem('aphim_sub_custom_config');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (parsed.blurMask) blurMode = parsed.blurMask;
+                    }
+                } catch(e) {}
+                if (window._aphimSubConfig && window._aphimSubConfig.blurMask) {
+                    blurMode = window._aphimSubConfig.blurMask;
+                }
+
+                if (blurMode === 'off') {
+                    blurMask.style.display = 'none';
+                } else {
+                    blurMask.style.display = 'block';
+                    blurMask.className = `pointer-events-none absolute z-15 blur-style-${blurMode}`;
+
+                    // Chiều rộng: Chiếm dải đáy của video (không bao giờ tràn ra viền đen letterbox)
+                    let maskW;
+                    if (isMobilePortrait) {
+                        maskW = Math.round(actualVideoW * 0.94);
+                    } else if (isMobileLandscape) {
+                        maskW = Math.min(780, Math.round(actualVideoW * 0.88));
+                    } else {
+                        maskW = Math.min(940, Math.round(actualVideoW * 0.84));
+                    }
+
+                    // Chiều cao: Vừa vặn che trọn 2 dòng chữ hardsub cũ của video
+                    let maskH;
+                    if (isMobilePortrait) {
+                        maskH = Math.max(46, Math.min(74, Math.round(actualVideoH * 0.15)));
+                    } else if (isMobileLandscape) {
+                        maskH = Math.max(40, Math.min(68, Math.round(actualVideoH * 0.13)));
+                    } else {
+                        maskH = Math.max(56, Math.min(88, Math.round(actualVideoH * 0.115)));
+                    }
+
+                    // Vị trí bottom: Khớp dải đáy của phụ đề
+                    const maskBottom = Math.round(barBottom + subClearance - (maskH * 0.2) + uOffset);
+
+                    blurMask.style.width = maskW + 'px';
+                    blurMask.style.height = maskH + 'px';
+                    blurMask.style.bottom = maskBottom + 'px';
+                    blurMask.style.left = '50%';
+                    blurMask.style.transform = 'translateX(-50%)';
+                }
             }
 
             if (typeof window._aphimApplySubStyles === 'function') {
@@ -5395,6 +5468,7 @@ function initializePlayer(episode) {
             font: "'Inter', system-ui, sans-serif",
             userOffset: 0,
             syncOffset: 0,
+            blurMask: 'off', // Mặc định tắt mờ để giữ trải nghiệm xem phim gốc 100% trong trẻo
             sub1: { color: '#ffd54f', size: 18, bg: 'none' },
             sub2: { color: '#ffffff', size: 17, bg: 'none' }
         };
@@ -5413,7 +5487,19 @@ function initializePlayer(episode) {
         // Áp dụng kiểu dáng đồng bộ tức thì cho cả 2 dòng phụ đề realtime
         function applySubStyles() {
             if (!wrapper) return;
+            window._aphimSubConfig = cfg;
             wrapper.style.setProperty('--aphim-sub-font-family', cfg.font);
+
+            // Cập nhật trạng thái hiển thị của Hardsub Blur Mask
+            const blurMaskEl = document.getElementById('aphim-hardsub-blur-mask');
+            if (blurMaskEl) {
+                if (cfg.blurMask === 'off' || cfg.mode === 'off') {
+                    blurMaskEl.style.display = 'none';
+                } else {
+                    blurMaskEl.style.display = 'block';
+                    blurMaskEl.className = `pointer-events-none absolute z-15 blur-style-${cfg.blurMask}`;
+                }
+            }
 
             const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('aphim-web-fullscreen'));
             const isMobile = (wrapper.clientWidth <= 768 || window.innerWidth <= 768 || window.innerHeight <= 520 || (screen && screen.width <= 768) || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
@@ -5658,6 +5744,20 @@ function initializePlayer(episode) {
                 b.classList.toggle('active', b.dataset.bg === curSubCfg.bg);
             });
 
+            // Hardsub Blur Mask Seg
+            const blurValEl = document.getElementById('asmBlurMaskVal');
+            const blurLabels = {
+                gaussian: 'Mờ Gauss',
+                black: 'Hộp đen',
+                mosaic: 'Vỡ hạt',
+                off: 'Tắt'
+            };
+            const currentBlur = cfg.blurMask || 'gaussian';
+            if (blurValEl) blurValEl.textContent = blurLabels[currentBlur] || 'Mờ Gauss';
+            document.querySelectorAll('#asmBlurMaskSeg .asm-seg-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.blur === currentBlur);
+            });
+
             renderLanguagesLists();
         }
 
@@ -5843,8 +5943,15 @@ function initializePlayer(episode) {
             btnReset.onclick = (e) => {
                 e.stopPropagation();
                 cfg = Object.assign({}, DEFAULT_CONFIG);
+                try {
+                    localStorage.setItem('aphim_sub_custom_config', JSON.stringify(cfg));
+                } catch(e) {}
                 syncModalUI();
                 applySubStyles();
+                const vEl = document.getElementById('videoPlayer');
+                if (vEl && typeof vEl._subResizeHandler === 'function') {
+                    vEl._subResizeHandler();
+                }
             };
         }
 
@@ -6052,6 +6159,23 @@ function initializePlayer(episode) {
                 curSub.bg = b.dataset.bg;
                 syncModalUI();
                 applySubStyles();
+            };
+        });
+
+        // Hardsub Blur Mask Seg [ Mờ Gauss | Hộp đen | Vỡ hạt | Tắt ]
+        document.querySelectorAll('#asmBlurMaskSeg .asm-seg-btn').forEach(b => {
+            b.onclick = (e) => {
+                e.stopPropagation();
+                cfg.blurMask = b.dataset.blur;
+                try {
+                    localStorage.setItem('aphim_sub_custom_config', JSON.stringify(cfg));
+                } catch(e) {}
+                syncModalUI();
+                applySubStyles();
+                const vEl = document.getElementById('videoPlayer');
+                if (vEl && typeof vEl._subResizeHandler === 'function') {
+                    vEl._subResizeHandler();
+                }
             };
         });
 
@@ -6762,6 +6886,22 @@ function initializePlayer(episode) {
         window.hls = hls;
         window.hlsInstance = hls;
 
+        // 🛡️ Chống ĐỨNG HÌNH trên mạng chậm: KHÔNG abort phân đoạn đang tải dở.
+        // Nguồn Song Ngữ OnCDN chỉ 1 mức chất lượng (không có ABR để hạ xuống). Gọi startLoad() liên tục
+        // mỗi khi stalled/waiting sẽ hủy phân đoạn đang tải → tải lại từ đầu → lặp vô hạn → đứng hình vĩnh viễn.
+        // Chỉ hồi phục khi KHÔNG có phân đoạn nào đang tải và đã qua cooldown 4s.
+        hls._aphimFragInFlight = false;
+        hls.on(Hls.Events.FRAG_LOADING, () => { hls._aphimFragInFlight = true; });
+        hls.on(Hls.Events.FRAG_LOADED, () => { hls._aphimFragInFlight = false; });
+        let _lastStallRecover = 0;
+        player._aphimRecoverStalledLoad = () => {
+            if (hls._aphimFragInFlight) return; // đang tải phân đoạn → cứ để nó hoàn tất, không abort
+            const now = Date.now();
+            if (now - _lastStallRecover < 4000) return; // cooldown tránh spam startLoad
+            _lastStallRecover = now;
+            try { hls.startLoad(); } catch (e) {}
+        };
+
         hls.loadSource(videoUrl);
         hls.attachMedia(player);
 
@@ -6928,6 +7068,12 @@ function initializePlayer(episode) {
         });
 
         hls.on(Hls.Events.ERROR, (event, data) => {
+            // Phân đoạn chết/tải lỗi thật sự → xóa cờ đang tải để cho phép hồi phục (không clears khi bufferStalledError vì phân đoạn vẫn đang tải hợp lệ)
+            if (data.fatal || data.details === 'fragLoadError' || data.details === 'fragLoadTimeOut' ||
+                data.details === (Hls.ErrorDetails && Hls.ErrorDetails.FRAG_LOAD_ERROR) ||
+                data.details === (Hls.ErrorDetails && Hls.ErrorDetails.FRAG_LOAD_TIMEOUT)) {
+                hls._aphimFragInFlight = false;
+            }
             if (data.fatal) {
                 console.error('❌ HLS Fatal Error:', data.type, data.details);
                 switch (data.type) {
@@ -6991,13 +7137,8 @@ function initializePlayer(episode) {
                 data.details === 'bufferNudgeOnStall' ||
                 data.details === (Hls.ErrorDetails && Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL)
             ) {
-                console.warn(`⚠️ [HLS Auto-Recover]: Tự động startLoad phục hồi cho ${data.details}`);
-                if (!hls._fragRetryTimer) {
-                    hls._fragRetryTimer = setTimeout(() => {
-                        hls._fragRetryTimer = null;
-                        try { hls.startLoad(); } catch (e) {}
-                    }, 300);
-                }
+                console.warn(`⚠️ [HLS Auto-Recover]: phục hồi có bảo vệ cho ${data.details}`);
+                if (typeof player._aphimRecoverStalledLoad === 'function') player._aphimRecoverStalledLoad();
             }
         });
     } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
@@ -7140,12 +7281,11 @@ function initializePlayer(episode) {
     let waitingStallTimer = null;
     player.addEventListener('waiting', () => {
         if (waitingStallTimer) clearTimeout(waitingStallTimer);
-        // Tránh huỷ ngang phân đoạn đang tải dở trên mạng chậm: Chỉ nạp lại nếu đợi quá 2.5s mà chưa có dữ liệu
+        // Chỉ nạp lại nếu đợi quá 2.5s mà chưa có dữ liệu. Recovery có bảo vệ: không abort phân đoạn đang tải dở
+        // (nguồn Song Ngữ OnCDN 1 mức 1080p không ABR mà bị hủy-tải-lại liên tục sẽ ĐỨNG HÌNH vĩnh viễn trên mạng chậm).
         waitingStallTimer = setTimeout(() => {
             if (player.paused) return;
-            if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
-                try { window.hlsInstance.startLoad(player.currentTime); } catch (e) { }
-            }
+            if (typeof player._aphimRecoverStalledLoad === 'function') player._aphimRecoverStalledLoad();
         }, 2500);
     });
 
@@ -7157,9 +7297,7 @@ function initializePlayer(episode) {
     });
 
     player.addEventListener('stalled', () => {
-        if (window.hlsInstance && typeof window.hlsInstance.startLoad === 'function') {
-            try { window.hlsInstance.startLoad(); } catch (e) { }
-        }
+        if (typeof player._aphimRecoverStalledLoad === 'function') player._aphimRecoverStalledLoad();
     });
 
     player.addEventListener('ended', () => {

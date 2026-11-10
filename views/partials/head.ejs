@@ -28,6 +28,17 @@
                 document.documentElement.classList.add('user-guest');
             }
 
+            // ⚡ Chuyển động vào trang mượt (fade-in): thêm class TRƯỚC khi body paint
+            // để không chớp. Tắt JS → không có class → nội dung hiện bình thường (graceful).
+            document.documentElement.classList.add('aphim-enter');
+            // Gỡ class ngay khi fade xong: không giữ transform identity (fill:both) để
+            // tránh tạo containing block vĩnh viễn cho modal/player position:fixed bên trong main.
+            document.addEventListener('animationend', function (e) {
+                if (e.animationName === 'aphim-page-enter' || e.animationName === 'aphim-page-enter-fade') {
+                    document.documentElement.classList.remove('aphim-enter');
+                }
+            });
+
             // ⚡ Chống co nhỏ / biến dạng toàn trang khi vô tình chạm đa điểm trên Mobile
             if (typeof window !== 'undefined') {
                 window.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
@@ -35,6 +46,38 @@
         } catch (e) { }
     })();
 </script>
+<style id="aphim-page-enter-css">
+    /* ── APhim Page Entry Transition ──
+       Vào trang mượt (fade + nâng nhẹ) thay vì nhảy cứng. Scope vào nội dung
+       chính (main + hero desktop trang chủ), KHÔNG đụng header fixed / modal /
+       progress bar. Kết thúc transform:none để không tạo containing block vĩnh
+       viễn. Chạy cho cả dark + cream (chỉ opacity/transform, không màu). */
+    @keyframes aphim-page-enter {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: none; }
+    }
+    @keyframes aphim-page-enter-fade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    html.aphim-enter body > main,
+    html.aphim-enter body > section#desktopHeroShowcase {
+        animation: aphim-page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    /* Trang xem phim: chỉ fade opacity (không transform) để player/sticky ổn định tức thì */
+    html.aphim-enter body.page-watch > main {
+        animation: aphim-page-enter-fade 0.3s ease both;
+    }
+    /* Reduced-motion: bỏ chuyển động nâng (translateY) gây chóng mặt, nhưng vẫn
+       giữ fade opacity nhẹ nhàng (không phải motion tiền đình) để vào trang vẫn mượt. */
+    @media (prefers-reduced-motion: reduce) {
+        html.aphim-enter body > main,
+        html.aphim-enter body.page-watch > main,
+        html.aphim-enter body > section#desktopHeroShowcase {
+            animation: aphim-page-enter-fade 0.25s ease both;
+        }
+    }
+</style>
 <script src="/js/anti-devtools.js?v=111" defer></script>
 <script src="/js/discord-frames-map.js?v=1" defer></script>
 
