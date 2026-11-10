@@ -20,7 +20,7 @@
                 <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=29">
                 <link rel="stylesheet" href="/css/hero-banner.css?v=195">
                 <link rel="stylesheet" href="/css/interests-section.css?v=171">
-                <link rel="stylesheet" href="/css/home-layout.css?v=1">
+                <link rel="stylesheet" href="/css/home-layout.css?v=2">
                 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap"
                     rel="stylesheet" media="print" onload="this.media='all'">
                 <noscript>
@@ -656,7 +656,7 @@
                     </defs>
                 </svg>
 
-                <section style="margin-top: 10px;">
+                <section class="home-cv-section" style="margin-top: 10px;">
                     <div class="section-header">
                         <div class="section-header-left flex items-center gap-2.5">
                             <h2 class="section-header-title">PHIM MỚI ĐỀ CỬ</h2>
@@ -1116,7 +1116,7 @@
                 <!-- ==============================================
              SECTION 1: PHIM BỘ MỚI CẬP NHẬT (PHOTO #3 EXACT 5-COLUMN GRID: 12 ITEMS TOTAL)
              ============================================== -->
-                <section>
+                <section class="home-cv-section">
                     <div class="section-header">
                         <div class="section-header-left">
                             <h2 class="section-header-title">PHIM BỘ MỚI CẬP NHẬT</h2>
@@ -1783,9 +1783,22 @@
                                 }
                             }
 
+                            // Desktop home: cap poster TMDB về w500 để giảm giải mã ảnh khi cuộn (phimimg.com không hỗ trợ resize)
+                            if (full.includes('image.tmdb.org/t/p/')) {
+                                full = full.replace(/image\.tmdb\.org\/t\/p\/(?:original|w1280|w780)\//, 'image.tmdb.org/t/p/w500/');
+                            }
                             // Trả về trực tiếp ảnh gốc (phimimg.com đã được Cloudflare CDN phục vụ siêu tốc)
                             return full;
                         }
+
+                        // Desktop home: dừng shimmer vô hạn ngay khi poster đã tải xong (giảm repaint liên tục khi cuộn)
+                        document.addEventListener('load', function (e) {
+                            var t = e.target;
+                            if (t && t.tagName === 'IMG') {
+                                var w = t.closest && t.closest('.landscape-poster-wrap, .grid-poster-wrap, .de-cu-poster-wrap');
+                                if (w) w.classList.add('aphim-poster-loaded');
+                            }
+                        }, true);
 
                         // 🛡️ ULTRA ROBUST SELF-HEALING IMAGE RESTORATION
                         window.handleCardImgError = function (imgEl) {

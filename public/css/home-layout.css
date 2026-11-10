@@ -2641,4 +2641,46 @@
                                 height: 28px !important;
                                 opacity: 0.85;
                             }
-                        }
+                        }
+
+/* ================================================================
+   DESKTOP HOME SCROLL OPTIMIZATION (min-width: 1024px only)
+   - content-visibility: auto bỏ qua render/decode/animation của section
+     ngoài màn hình; contain-intrinsic-size giữ chỗ để CLS ~ 0.
+   - .aphim-poster-loaded dừng shimmer vô hạn sau khi ảnh đã tải.
+   Mobile (<1024px) và cream theme không bị ảnh hưởng.
+   ================================================================ */
+@media (min-width: 1024px) {
+    .interests-section,
+    .home-cv-section,
+    #snCountrySection,
+    #cinemaHotSection,
+    #homeCommentsSection,
+    #top10Section,
+    .rap-showcase-section,
+    .trending-keywords-section {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 600px;
+    }
+
+    #top10Section {
+        contain-intrinsic-size: auto 820px;
+    }
+
+    .trending-keywords-section {
+        contain-intrinsic-size: auto 260px;
+    }
+
+    .interests-section {
+        contain-intrinsic-size: auto 220px;
+    }
+
+    .landscape-poster-wrap.aphim-poster-loaded,
+    .grid-poster-wrap.aphim-poster-loaded,
+    .de-cu-poster-wrap.aphim-poster-loaded,
+    html.light-mode .landscape-poster-wrap.aphim-poster-loaded,
+    html.light-mode .grid-poster-wrap.aphim-poster-loaded,
+    html.light-mode .de-cu-poster-wrap.aphim-poster-loaded {
+        animation: none !important;
+    }
+}
