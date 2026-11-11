@@ -20,6 +20,27 @@
         return 'Vietsub';
     }
 
+    // <585px: ô đầu Vietsub / Thuyết Minh không có "#N" nên ngắn hơn các ô sau.
+    // Cân riêng từng nhóm theo ô dài nhất, không kéo ra mép phải.
+    function equalizeServerBoxes(container) {
+        var rows = container.querySelectorAll('.server-group-row.server-group-vietsub, .server-group-row.server-group-thuyet-minh');
+        rows.forEach(function(row) {
+            var btns = row.querySelectorAll('.server-tab-btn');
+            var max = 0, i;
+            for (i = 0; i < btns.length; i++) btns[i].style.width = '';
+            if (btns.length) btns[0].style.justifyContent = '';
+            if (window.matchMedia && window.matchMedia('(min-width: 585px)').matches) return;
+            if (btns.length < 2) return;
+            for (i = 0; i < btns.length; i++) {
+                var w = btns[i].getBoundingClientRect().width;
+                if (w > max) max = w;
+            }
+            for (i = 0; i < btns.length; i++) btns[i].style.width = Math.ceil(max) + 'px';
+            // Chỉ giãn khoảng trống trong ô đầu thiếu "#N", không giãn cả hàng.
+            btns[0].style.justifyContent = 'space-between';
+        });
+    }
+
     const ApWatchEarlyRender = {
         renderServers: function(episodes, currentServerIndex, currentMovie) {
             if (!episodes || episodes.length === 0) return;
@@ -76,6 +97,7 @@
                     var index = item.index;
                     var isActive = index === currentServerIndex;
                     var totalEps = server.server_data ? server.server_data.length : 0;
+                    // 📱 Mobile: badge chỉ hiện số tập (gọn để vừa 3 nhãn/hàng); desktop giữ nguyên "N tập"
                     var epText = totalEps === 1 ? 'Full' : totalEps + ' tập';
 
                     var isSongNgu = category === 'Song Ngữ';
@@ -109,7 +131,7 @@
                     '</button>';
                 }).join('');
 
-                html += '<div class="server-group-row">' +
+                html += '<div class="server-group-row server-group-' + catSlug + '">' +
                     '<div class="server-group-label server-group-label-' + catSlug + '">' +
                         categoryTag +
                         '<span class="server-group-name">' + category + '</span>' +
@@ -122,6 +144,7 @@
 
             container.innerHTML = html;
             container.className = "w-full space-y-2";
+            equalizeServerBoxes(container);
         },
 
         earlyInit: function() {
@@ -267,6 +290,16 @@
     };
 
     window.ApWatchEarlyRender = ApWatchEarlyRender;
+
+    // Xoay màn / đổi khổ: cân lại Vietsub và Thuyết Minh (≥585px dùng grid).
+    var _eqResizeTimer = null;
+    window.addEventListener('resize', function() {
+        clearTimeout(_eqResizeTimer);
+        _eqResizeTimer = setTimeout(function() {
+            var c = document.getElementById('server-list');
+            if (c) equalizeServerBoxes(c);
+        }, 150);
+    });
 
     // Tự động kích hoạt render sớm ngay khi file parse xong hoặc DOM ready
     if (document.readyState === 'loading') {

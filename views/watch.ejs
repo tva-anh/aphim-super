@@ -1651,6 +1651,51 @@
         <span>Thông tin</span>
     </button>
 
+    <style>
+        /* MOBILE: Vietsub + Thuyết Minh giữ cỡ chữ như Song Ngữ. */
+        /* Từ 585px đến 1024px: 3 ô/hàng; màn nhỏ hơn giữ kích thước tự nhiên. */
+        @media (min-width: 585px) and (max-width: 1024px) {
+            #server-list .server-group-row.server-group-vietsub,
+            #server-list .server-group-row.server-group-thuyet-minh {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 6px !important;
+            }
+            #server-list .server-group-row.server-group-vietsub .server-group-label,
+            #server-list .server-group-row.server-group-thuyet-minh .server-group-label {
+                min-width: 0 !important;
+            }
+            #server-list .server-group-row.server-group-vietsub .server-buttons-wrap,
+            #server-list .server-group-row.server-group-thuyet-minh .server-buttons-wrap {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                width: 100% !important;
+                gap: 4px 3px !important;
+            }
+            #server-list .server-group-row.server-group-vietsub .server-tab-btn,
+            #server-list .server-group-row.server-group-thuyet-minh .server-tab-btn,
+            html.light-mode #server-list .server-group-row.server-group-vietsub .server-tab-btn,
+            html.light-mode #server-list .server-group-row.server-group-thuyet-minh .server-tab-btn {
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                justify-content: space-between !important;
+                margin: 0 !important;
+                padding: 4px 8px !important;
+            }
+            #server-list .server-group-row.server-group-vietsub .server-tab-title,
+            #server-list .server-group-row.server-group-thuyet-minh .server-tab-title,
+            html.light-mode #server-list .server-group-row.server-group-vietsub .server-tab-title,
+            html.light-mode #server-list .server-group-row.server-group-thuyet-minh .server-tab-title {
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+
 </body>
 
 </html>

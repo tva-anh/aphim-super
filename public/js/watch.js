@@ -2571,7 +2571,7 @@ function __legacyRenderServerList_UNUSED(episodes) {
             }).join('');
 
             html += `
-                <div class="server-group-row">
+                <div class="server-group-row server-group-${catSlug}">
                     <div class="server-group-label server-group-label-${catSlug}">
                         ${categoryTag}
                         <span class="server-group-name">${category}</span>
