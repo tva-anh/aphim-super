@@ -1026,18 +1026,21 @@
                                     style="color: #94a3b8; font-weight: 500; font-size: 13px; margin-left: 4px;">(1
                                     TẬP)</span>
                             </h2>
-                            <button type="button" id="btnEpisodePingHttp" onclick="openServerPingModal(this, event)"
-                                class="header-ping-http-btn"
-                                style="display: inline-flex !important; align-items: center !important; gap: 4px !important; height: 22px !important; max-height: 22px !important; padding: 0 7px !important; font-size: 11px !important; font-weight: 700 !important; white-space: nowrap !important; border-radius: 6px !important; cursor: pointer !important; line-height: 1 !important; transition: all 0.2s ease !important;"
-                                title="Kiểm tra độ trễ mạng từng máy chủ">
-                                <svg style="width: 12px !important; height: 12px !important; min-width: 12px !important; max-width: 12px !important; display: inline-block !important; flex-shrink: 0 !important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="2" y="14" width="20" height="8" rx="2"></rect>
-                                    <path d="M6 18h.01"></path>
-                                    <path d="M10 18h.01"></path>
-                                    <path d="M6 10a8 8 0 0 1 12 0"></path>
-                                    <path d="M9 12a4 4 0 0 1 6 0"></path>
+                            <!-- Nút Song Ngữ — chỉ hiện trên mobile ở phim có Song Ngữ, mở menu tinh chỉnh -->
+                            <button type="button" id="btnMobileSongNgu"
+                                onclick="window.handleMobileSongNguClick(event)"
+                                class="mobile-song-ngu-btn lg:hidden"
+                                style="display: none;"
+                                title="Cấu hình phụ đề Song Ngữ">
+                                <!-- CC Subtitle Icon SVG (Chuẩn hình 2) -->
+                                <svg class="mobile-song-ngu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="5" width="20" height="14" rx="3.5"></rect>
+                                    <path d="M7 10h3"></path>
+                                    <path d="M7 14h3"></path>
+                                    <path d="M14 10h3"></path>
+                                    <path d="M14 14h3"></path>
                                 </svg>
-                                <span style="white-space: nowrap !important; font-size: 11px !important; line-height: 1 !important;">Ping HTTP</span>
+                                <span class="mobile-song-ngu-text">Song Ngữ</span>
                             </button>
                         </div>
 
@@ -1644,16 +1647,499 @@
 
     <!-- Floating Restore Sidebar Dock Tab (Hiện khi ô bên phải bị thu gọn) -->
     <button type="button" id="aphim-restore-sidebar-dock" onclick="window.toggleSidebarCollapse()" 
-        class="aphim-restore-sidebar-dock hidden" title="Mở lại ô thông tin" style="display: none !important;">
+        class="aphim-restore-sidebar-dock hidden" title="Má»Ÿ láº¡i Ã´ thÃ´ng tin" style="display: none !important;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        <span>Thông tin</span>
+        <span>ThÃ´ng tin</span>
     </button>
 
     <style>
-        /* MOBILE: Vietsub + Thuyết Minh giữ cỡ chữ như Song Ngữ. */
-        /* Từ 585px đến 1024px: 3 ô/hàng; màn nhỏ hơn giữ kích thước tự nhiên. */
+        /* LOẠI BỎ NỀN ĐEN BÓC CHỮ PHỤ ĐỀ SONG NGỮ */
+        #aphim-sub-top,
+        #aphim-sub-bottom,
+        #aphim-dual-subtitles-overlay {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        video::cue {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+        }
+        #aphim-sub-top {
+            --aphim-sub-top-bg: transparent !important;
+            --aphim-sub-top-pad: 0 !important;
+            --aphim-sub-top-radius: 0 !important;
+        }
+        #aphim-sub-bottom {
+            --aphim-sub-bottom-bg: transparent !important;
+            --aphim-sub-bottom-pad: 0 !important;
+            --aphim-sub-bottom-radius: 0 !important;
+        }
+        #aphim-hardsub-blur-mask {
+            display: none !important;
+            opacity: 0 !important;
+        }
+
+        /* ── Nút Song Ngữ trên mobile: Đơn giản, tinh gọn chuẩn như Hình 2 ── */
+        #btnMobileSongNgu,
+        .mobile-song-ngu-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            height: 28px !important;
+            padding: 0 4px !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            transition: opacity 0.15s ease !important;
+        }
+        #btnMobileSongNgu:active {
+            opacity: 0.65 !important;
+        }
+        #btnMobileSongNgu.hidden-song-ngu {
+            display: none !important;
+        }
+
+        @media (min-width: 1025px) {
+            #btnMobileSongNgu,
+            .mobile-song-ngu-btn {
+                display: none !important;
+            }
+        }
+
+        .mobile-song-ngu-icon {
+            width: 18px !important;
+            height: 14px !important;
+            min-width: 18px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .mobile-song-ngu-text {
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.2px !important;
+            line-height: 1 !important;
+        }
+
+        /* --- DARK MODE (Màn nền tối - Chuẩn Hình 2) --- */
+        html:not(.light-mode) #btnMobileSongNgu {
+            color: #ffffff !important;
+        }
+        html:not(.light-mode) #btnMobileSongNgu .mobile-song-ngu-icon {
+            stroke: #cbd5e1 !important;
+            color: #cbd5e1 !important;
+        }
+        html:not(.light-mode) #btnMobileSongNgu .mobile-song-ngu-text {
+            color: #ffffff !important;
+        }
+
+        /* --- LIGHT MODE (Màn nền kem - Đổi qua màu đen theo đúng yêu cầu) --- */
+        html.light-mode #btnMobileSongNgu {
+            color: #000000 !important;
+        }
+        html.light-mode #btnMobileSongNgu .mobile-song-ngu-icon {
+            stroke: #000000 !important;
+            color: #000000 !important;
+            stroke-width: 2.2 !important;
+        }
+        html.light-mode #btnMobileSongNgu .mobile-song-ngu-text {
+            color: #000000 !important;
+            font-weight: 800 !important;
+        }
+
+        /* ── Modal phụ đề song ngữ trên mobile & desktop: Dark Glassmorphism trong suốt, thẩm mỹ cao cấp ── */
+        #aphim-sub-modal {
+            background: rgba(13, 17, 28, 0.72) !important;
+            backdrop-filter: blur(28px) saturate(190%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+            border-radius: 20px !important;
+        }
+
+        /* Backdrop mờ nền khi mở modal */
+        #aphim-sub-modal-backdrop {
+            position: fixed !important;
+            inset: 0 !important;
+            background: rgba(0, 0, 0, 0.48) !important;
+            backdrop-filter: blur(5px) !important;
+            -webkit-backdrop-filter: blur(5px) !important;
+            z-index: 99999980 !important;
+        }
+
+        /* Header bar */
+        #aphim-sub-modal .asm-head {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+            padding: 11px 15px 10px 15px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            flex-shrink: 0 !important;
+            flex-wrap: nowrap !important;
+        }
+        #aphim-sub-modal .asm-title {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 13.5px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            margin: 0 !important;
+            letter-spacing: -0.2px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        #aphim-sub-modal .asm-title svg {
+            color: #fcd576 !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Mode Switcher Pills: [ Song ngữ ] [ Đơn ngữ ] [ Tắt ] - Tinh gọn, ôm sát, không bị phình bo dư */
+        #aphim-sub-modal .asm-mode-pills {
+            display: inline-flex !important;
+            align-items: center !important;
+            background: rgba(0, 0, 0, 0.45) !important;
+            border-radius: 999px !important;
+            padding: 2px !important;
+            gap: 2px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            flex: 0 0 auto !important;
+            width: fit-content !important;
+            max-width: fit-content !important;
+            margin: 0 auto !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        #aphim-sub-modal .asm-mode-pill {
+            background: transparent !important;
+            border: none !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            padding: 0 9px !important;
+            height: 24px !important;
+            line-height: 24px !important;
+            border-radius: 999px !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
+            white-space: nowrap !important;
+            flex: 0 0 auto !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+        }
+        #aphim-sub-modal .asm-mode-pill:hover:not(.active) {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+        #aphim-sub-modal .asm-mode-pill.active {
+            background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important;
+            color: #0b0f19 !important;
+            font-weight: 750 !important;
+            border-radius: 999px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Icon action buttons */
+        #aphim-sub-modal .asm-icon-btn {
+            width: 28px !important;
+            height: 28px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: rgba(255, 255, 255, 0.75) !important;
+            cursor: pointer !important;
+            transition: all 0.18s ease !important;
+            flex-shrink: 0 !important;
+        }
+        #aphim-sub-modal .asm-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+            transform: scale(1.08) !important;
+        }
+
+        /* Labels */
+        #aphim-sub-modal .asm-field-label {
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            color: rgba(255, 255, 255, 0.65) !important;
+            margin-bottom: 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            letter-spacing: 0.3px !important;
+            text-transform: uppercase !important;
+        }
+        #aphim-sub-modal .asm-field-val {
+            background: rgba(252, 213, 118, 0.12) !important;
+            border: 1px solid rgba(252, 213, 118, 0.3) !important;
+            border-radius: 6px !important;
+            padding: 1px 7px !important;
+            color: #fcd576 !important;
+            font-size: 11px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.3px !important;
+            text-transform: none !important;
+        }
+
+        /* Select Triggers (Dropdown Ngôn ngữ & Font) */
+        #aphim-sub-modal .asm-select-trigger {
+            width: 100% !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            padding: 8px 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            color: #ffffff !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.18s ease !important;
+            outline: none !important;
+            backdrop-filter: blur(8px) !important;
+        }
+        #aphim-sub-modal .asm-select-trigger:hover {
+            background: rgba(255, 255, 255, 0.09) !important;
+            border-color: rgba(255, 255, 255, 0.22) !important;
+        }
+        #aphim-sub-modal .asm-custom-select.open .asm-select-trigger {
+            border-color: #fcd576 !important;
+            background: rgba(255, 255, 255, 0.09) !important;
+            box-shadow: 0 0 0 3px rgba(252, 213, 118, 0.15) !important;
+        }
+        #aphim-sub-modal .asm-select-menu {
+            position: absolute !important;
+            top: calc(100% + 4px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: rgba(14, 18, 28, 0.94) !important;
+            backdrop-filter: blur(28px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+            padding: 5px !important;
+            z-index: 80 !important;
+        }
+        #aphim-sub-modal .asm-select-opt {
+            padding: 7px 10px !important;
+            border-radius: 8px !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            transition: all 0.12s ease !important;
+        }
+        #aphim-sub-modal .asm-select-opt:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+        }
+        #aphim-sub-modal .asm-select-opt.active {
+            background: rgba(252, 213, 118, 0.16) !important;
+            color: #fcd576 !important;
+            font-weight: 700 !important;
+        }
+
+        /* Preview Card nâng cấp chuẩn màn ảnh Cinema */
+        #aphim-sub-modal .asm-preview-card {
+            background: radial-gradient(ellipse at 50% 25%, rgba(30, 41, 65, 0.45) 0%, rgba(8, 11, 20, 0.75) 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 16px !important;
+            padding: 12px 14px 14px 14px !important;
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+            margin-bottom: 6px !important;
+        }
+        #aphim-sub-modal .asm-preview-tag {
+            color: #10b981 !important;
+            font-size: 9.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.6px !important;
+        }
+        #aphim-sub-modal .asm-preview-tag::before {
+            background: #10b981 !important;
+            box-shadow: 0 0 8px #10b981 !important;
+        }
+        #aphim-sub-modal .asm-preview-sub1,
+        #aphim-sub-modal .asm-preview-sub2 {
+            border-radius: 8px !important;
+            padding: 5px 12px !important;
+            font-weight: 700 !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        /* Loại bỏ đường đứt nét gạch rời thô kệch, thay bằng viền kính vàng amber mượt mà */
+        #aphim-sub-modal .asm-preview-line-active {
+            outline: none !important;
+            background: rgba(252, 213, 118, 0.12) !important;
+            border: 1.5px solid rgba(252, 213, 118, 0.55) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 16px rgba(252, 213, 118, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Tabs Switcher: [ Chính ] [ Song ngữ ] */
+        #aphim-sub-modal .asm-tabs {
+            background: rgba(0, 0, 0, 0.38) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
+            padding: 3px !important;
+            gap: 4px !important;
+            margin-top: 2px !important;
+        }
+        #aphim-sub-modal .asm-tab-btn {
+            border-radius: 9px !important;
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            color: rgba(255, 255, 255, 0.65) !important;
+            transition: all 0.18s ease !important;
+        }
+        #aphim-sub-modal .asm-tab-btn:hover:not(.active) {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+        }
+        #aphim-sub-modal .asm-tab-btn.active {
+            background: linear-gradient(135deg, rgba(252, 213, 118, 0.22) 0%, rgba(245, 158, 11, 0.14) 100%) !important;
+            color: #fcd576 !important;
+            font-weight: 800 !important;
+            border: 1px solid rgba(252, 213, 118, 0.4) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Bảng chọn màu chữ (Jewel color swatches) */
+        #aphim-sub-modal .asm-swatches {
+            gap: 10px !important;
+            padding: 4px 2px !important;
+        }
+        #aphim-sub-modal .asm-swatch {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 50% !important;
+            border: 2px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #aphim-sub-modal .asm-swatch:hover {
+            transform: scale(1.12) !important;
+        }
+        #aphim-sub-modal .asm-swatch.active {
+            border-color: #ffffff !important;
+            box-shadow: 0 0 0 2px #0f1420, 0 0 0 4.5px #fcd576, 0 4px 14px rgba(252, 213, 118, 0.5) !important;
+            transform: scale(1.14) !important;
+        }
+
+        /* Thanh trượt Range Sliders (Vị trí nâng, Cỡ chữ) */
+        #aphim-sub-modal .asm-slider {
+            height: 6px !important;
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.14) !important;
+        }
+        #aphim-sub-modal .asm-slider::-webkit-slider-thumb {
+            width: 18px !important;
+            height: 18px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important;
+            border: 2.5px solid #ffffff !important;
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.65), 0 0 0 2px rgba(252, 213, 118, 0.25) !important;
+            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #aphim-sub-modal .asm-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.22) !important;
+        }
+
+        /* Nền phụ đề Segmented Control */
+        #aphim-sub-modal .asm-seg {
+            background: rgba(0, 0, 0, 0.38) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 11px !important;
+            padding: 3px !important;
+            gap: 3px !important;
+        }
+        #aphim-sub-modal .asm-seg-btn {
+            border-radius: 8px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            color: rgba(255, 255, 255, 0.65) !important;
+            padding: 6px 4px !important;
+            transition: all 0.18s ease !important;
+        }
+        #aphim-sub-modal .asm-seg-btn:hover:not(.active) {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+        }
+        #aphim-sub-modal .asm-seg-btn.active {
+            background: linear-gradient(135deg, rgba(252, 213, 118, 0.22) 0%, rgba(245, 158, 11, 0.14) 100%) !important;
+            color: #fcd576 !important;
+            font-weight: 800 !important;
+            border: 1px solid rgba(252, 213, 118, 0.4) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* ── Modal phụ đề song ngữ trên mobile: Đổ ra menu tinh chỉnh như Desktop, căn giữa màn hình ── */
+        @media (max-width: 1024px) {
+            #aphim-sub-modal:not(.hidden) {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                bottom: auto !important;
+                right: auto !important;
+                transform: translate(-50%, -50%) !important;
+                width: min(390px, calc(100vw - 24px)) !important;
+                max-height: min(560px, calc(100dvh - 36px)) !important;
+                z-index: 99999999 !important;
+                border-radius: 20px !important;
+                background: rgba(13, 17, 28, 0.72) !important;
+                backdrop-filter: blur(28px) saturate(190%) !important;
+                -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                box-shadow: 0 28px 70px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                animation: aphimSubModalMobileIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+            }
+            @keyframes aphimSubModalMobileIn {
+                from {
+                    opacity: 0;
+                    transform: translate(-50%, -46%) scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+            }
+            #aphim-sub-modal .asm-body {
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                max-height: calc(min(560px, calc(100dvh - 36px)) - 56px) !important;
+                padding-bottom: 20px !important;
+            }
+        }
+
+        /* ========================================================================== */
+        /* 📱 MOBILE: VIETSUB + THUYẾT MINH — chữ to như nút Song Ngữ.                   */
+        /* ≥585px: 3 ô/hàng đều nhau, cân 2 mép. Dưới 585px: nguyên bản (cỡ cũ).         */
+        /* Song Ngữ & Lồng Tiếng không đụng.                                            */
+        /* ========================================================================== */
         @media (min-width: 585px) and (max-width: 1024px) {
             #server-list .server-group-row.server-group-vietsub,
             #server-list .server-group-row.server-group-thuyet-minh {
@@ -1697,5 +2183,4 @@
     </style>
 
 </body>
-
 </html>

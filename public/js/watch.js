@@ -1,4 +1,4 @@
-/**
+﻿/**
  * APhim Super — Production Clean Console (Triệt tiêu 100% log rác)
  */
 (function() {
@@ -85,11 +85,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (!requestedVariant && window.activeVariant) {
         requestedVariant = window.activeVariant;
     }
-    // 🌟 Khi vào phim, luôn để mặc định Vietsub đầu tiên (API) theo đúng yêu cầu
-    if (requestedVariant === 'song-ngu') {
-        requestedVariant = 'vietsub';
-    }
-
     if (!slug) {
         console.warn('[Watch] No movie slug provided, staying on current page.');
         return;
@@ -779,6 +774,9 @@ async function loadMovieAndPlay(slug, episodeSlug) {
         // Chỉ bắt buộc await nếu nguồn chính lỗi hoàn toàn
         await fetchAndMergeSecondaryServers(slug, true, episodeSlug);
     }
+
+    // Cập nhật nút Ping/Song Ngữ sau khi phim đã load xong
+    updatePingOrSongNguBtn();
 }
 
 // 🔄 Fetch VSMOV qua proxy server-side (tránh CORS)
@@ -2533,6 +2531,7 @@ function __legacyRenderServerList_UNUSED(episodes) {
                 let index = item.index;
                 let isActive = index === currentServerIndex;
                 let totalEps = server.server_data ? server.server_data.length : 0;
+                // 📱 Mobile: badge chỉ hiện số tập (gọn để vừa 3 nhãn/hàng); desktop giữ nguyên "N tập"
                 let epText = totalEps === 1 ? 'Full' : `${totalEps} tập`;
 
                 let isSongNgu = category === 'Song Ngữ';
@@ -2585,6 +2584,7 @@ function __legacyRenderServerList_UNUSED(episodes) {
 
         container.innerHTML = html;
     container.className = "w-full space-y-2";
+    if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
 }
 
 // Toggle Rút gọn episodes grid view
@@ -2661,6 +2661,7 @@ window.changeServer = function (index) {
         showSeekOverlay(`Đang tải máy chủ: ${currentMovie.episodes[index].server_name}...`, true);
     }
     initializePlayer(currentEpisode);
+    if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
 };
 
 // Biến toàn cục cho search/sort
@@ -2941,12 +2942,7 @@ function initializePlayer(episode) {
                 preload="auto"
                 poster="${bgUrl}">
                 Trình duyệt của bạn không hỗ trợ video.
-            </video>
-
-            <!-- Hardsub Blur Mask (Gaussian Blur / Dark Box che phụ đề cứng) -->
-            <div id="aphim-hardsub-blur-mask" class="pointer-events-none absolute z-15 transition-all duration-200" style="display: none;"></div>
-
-            <!-- Dual Subtitles Overlay (Vietnamese Top White + Korean Bottom Yellow) -->
+            </video><!-- Dual Subtitles Overlay (Vietnamese Top White + Korean Bottom Yellow) -->
             <div id="aphim-dual-subtitles-overlay" class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end items-center px-4 ">
                 <div id="aphim-sub-top" class="text-center font-bold mb-1 leading-snug tracking-wide" style="display: none; color: #ffffff; font-size: clamp(17px, 2.3vw, 26px); -webkit-text-stroke: 2.2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
                 <div id="aphim-sub-bottom" class="text-center font-bold leading-snug tracking-wide" style="display: none; color: #ffd215; font-size: clamp(16px, 2.1vw, 24px); -webkit-text-stroke: 2px #000000; paint-order: stroke fill; text-shadow: 0 0 2px #000000, 0 2px 4px rgba(0,0,0,0.95); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 90%; letter-spacing: 0.2px;"></div>
@@ -3090,41 +3086,7 @@ function initializePlayer(episode) {
                             <input type="range" class="asm-slider" id="asmSizeSlider" min="12" max="36" step="1" value="18">
                         </div>
 
-                        <div class="asm-field-item">
-                            <div class="asm-field-label flex justify-between items-center">
-                                <span>⏱️ Canh thời gian video (Sync)</span>
-                                <span class="asm-field-val" id="asmSyncVal" style="color: #fcd576; font-weight: 800;">+0.0s</span>
-                            </div>
-
-                            <!-- Nút nhảy nhanh -->
-                            <div class="asm-sync-grid-presets">
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="-10">-10s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="-5">-5s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="-1">-1s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="-0.5">-0.5s</button>
-                                <button type="button" class="asm-sync-preset-btn reset-btn" id="asmSyncResetBtn" title="Đặt lại về 0s">0s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="0.5">+0.5s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="1">+1s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="5">+5s</button>
-                                <button type="button" class="asm-sync-preset-btn" data-nudge="10">+10s</button>
-                            </div>
-
-                            <!-- Thanh trượt dải rộng (-180s đến +180s) và ô nhập trực tiếp -->
-                            <div class="flex items-center gap-1.5 mt-1">
-                                <input type="range" class="asm-slider flex-1" id="asmSyncSlider" min="-180" max="180" step="0.5" value="0">
-                                <input type="number" id="asmSyncNumInput" class="asm-sync-num-input" step="0.5" value="0" title="Nhập số giây lệch trực tiếp">
-                            </div>
-
-                            <!-- Nút tự động canh theo câu thoại tại giây hiện tại -->
-                            <button type="button" class="asm-sync-auto-btn" id="asmSyncAutoCurrentBtn" title="Tự động đồng bộ câu thoại gần nhất với giây video hiện tại">
-                                <span class="material-icons-round" style="font-size: 15px;">gps_fixed</span>
-                                <span>Khớp câu thoại tại giây này</span>
-                            </button>
-
-                            <div class="asm-sync-hint-text">
-                                💡 Phím tắt nhanh: bấm <b>[</b> để lùi 0.5s, <b>]</b> để tiến 0.5s, <b>\</b> để reset về 0s.
-                            </div>
-                        </div>
+                        
 
                         <div class="asm-field-item">
                             <div class="asm-field-label">Nền phụ đề</div>
@@ -3136,21 +3098,7 @@ function initializePlayer(episode) {
                             </div>
                         </div>
 
-                        <div class="asm-field-item">
-                            <div class="asm-field-label flex justify-between items-center">
-                                <span>🛡️ Che Hardsub cũ (Blur Mask)</span>
-                                <span class="asm-field-val" id="asmBlurMaskVal" style="color: #60a5fa; font-weight: 700;">Tắt</span>
-                            </div>
-                            <div class="asm-seg" id="asmBlurMaskSeg">
-                                <button type="button" class="asm-seg-btn" data-blur="gaussian">Mờ Gauss</button>
-                                <button type="button" class="asm-seg-btn" data-blur="black">Hộp đen</button>
-                                <button type="button" class="asm-seg-btn" data-blur="mosaic">Vỡ hạt</button>
-                                <button type="button" class="asm-seg-btn active" data-blur="off">Tắt</button>
-                            </div>
-                            <div class="asm-sync-hint-text mt-1">
-                                💡 Dành riêng cho phim nguồn cũ bị dính phụ đề in chết vào hình ảnh. Mặc định TẮT để hình ảnh nguyên bản 100%.
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -5446,6 +5394,7 @@ function initializePlayer(episode) {
         const subInfo = checkIsSongNgu();
         const isSongNguServer = subInfo.isSongNguServer;
         const hasSub = subInfo.hasSub;
+        if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
 
         if (ccWrapper) {
             // Nút CC hiển thị khi là máy chủ Song Ngữ HOẶC khi máy chủ Vietsub có phụ đề lấy từ API
@@ -5927,16 +5876,78 @@ function initializePlayer(episode) {
             }
         };
 
+        // 🌟 Global expose: cho phép nút Song Ngữ trên mobile gọi mở modal này
+        window._openAphimSubModal = function(e) {
+            if (e) e.stopPropagation();
+
+            // Quản lý backdrop trên mobile
+            let backdrop = document.getElementById('aphim-sub-modal-backdrop');
+            if (!backdrop) {
+                backdrop = document.createElement('div');
+                backdrop.id = 'aphim-sub-modal-backdrop';
+                backdrop.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.48); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); z-index:99999980;';
+                backdrop.onclick = function(ev) {
+                    ev.stopPropagation();
+                    window._closeAphimSubModal();
+                };
+                document.body.appendChild(backdrop);
+            }
+
+            // Trên mobile: Đưa modal vào document.body để thoát khỏi overflow:hidden của video box!
+            if (window.innerWidth <= 1024) {
+                if (modal.parentElement !== document.body) {
+                    document.body.appendChild(modal);
+                }
+            } else {
+                if (modal.parentElement !== wrapper) {
+                    wrapper.appendChild(modal);
+                }
+            }
+
+            const isHidden = modal.classList.contains('hidden');
+            const settingsMenu = document.getElementById('aphim-settings-menu');
+            const audioMenu = document.getElementById('aphim-audio-menu');
+            if (settingsMenu) settingsMenu.classList.add('hidden');
+            if (audioMenu) audioMenu.classList.add('hidden');
+
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                if (window.innerWidth <= 1024 && backdrop) {
+                    backdrop.style.display = 'block';
+                }
+                wrapper.classList.add('aphim-sub-open');
+                syncModalUI();
+                applySubStyles();
+            } else {
+                window._closeAphimSubModal();
+            }
+        };
+
+        window._closeAphimSubModal = function() {
+            modal.classList.add('hidden');
+            const backdrop = document.getElementById('aphim-sub-modal-backdrop');
+            if (backdrop) backdrop.style.display = 'none';
+            wrapper.classList.remove('aphim-sub-open');
+            if (fontDropdown) fontDropdown.classList.remove('open');
+            if (fontMenu) fontMenu.classList.add('hidden');
+        };
+
         const btnClose = document.getElementById('asmBtnClose');
         if (btnClose) {
             btnClose.onclick = (e) => {
                 e.stopPropagation();
-                modal.classList.add('hidden');
-                wrapper.classList.remove('aphim-sub-open');
-                if (fontDropdown) fontDropdown.classList.remove('open');
-                if (fontMenu) fontMenu.classList.add('hidden');
+                window._closeAphimSubModal();
             };
         }
+
+        // Đóng modal khi chạm/click bên ngoài (đặc biệt mượt trên mobile)
+        document.addEventListener('click', (e) => {
+            if (!modal.classList.contains('hidden')) {
+                if (!modal.contains(e.target) && !btnCc.contains(e.target) && !e.target.closest('#btnMobileSongNgu')) {
+                    window._closeAphimSubModal();
+                }
+            }
+        });
 
         const btnReset = document.getElementById('asmBtnReset');
         if (btnReset) {
@@ -9011,5 +9022,642 @@ if (typeof document !== 'undefined') {
         document.addEventListener('DOMContentLoaded', initSidebarState);
     } else {
         initSidebarState();
+    }
+}
+
+// ============================================================================
+// NÚT PING HTTP / SONG NGỨ TRÊN MOBILE (Danh sách tập)
+// - Nếu máy chủ hiện tại là Song Ngữ: hiển thị icon + chữ "Song Ngữ" (màu vàng)
+// - Nếu không: hiển thị "Ping HTTP" (màu trắng)
+// - Khi ấn vào: nếu là song ngữ → mở menu chọn phụ đề; nếu không → mở modal Ping HTTP
+// ============================================================================
+// NÃšT PING HTTP / SONG NGá»¨ TRÃŠN MOBILE (Danh sÃ¡ch táº­p)
+// - Náº¿u mÃ¡y chá»§ hiá»‡n táº¡i lÃ  Song Ngá»¯: hiá»ƒn thá»‹ icon + chá»¯ "Song Ngá»¯" (mÃ u vÃ ng)
+// - Náº¿u khÃ´ng: hiá»ƒn thá»‹ "Ping HTTP" (mÃ u tráº¯ng)
+// - Khi áº¥n vÃ o: náº¿u lÃ  song ngá»¯ â†’ hiá»ƒn thá»‹ "Äang táº£i..." â†’ táº£i phá»¥ Ä‘á» â†’ má»Ÿ khung phá»¥ Ä‘á» dÆ°á»›i nÃºt
+//               náº¿u khÃ´ng â†’ má»Ÿ modal Ping HTTP
+// ============================================================================
+
+let subtitlePanelOpen = false;
+let subtitleLoading = false;
+let selectedSubtitleLang = localStorage.getItem('aphim_selected_subtitle_lang') || 'Tiáº¿ng Viá»‡t';
+
+function isCurrentServerSongNgu() {
+    if (requestedVariant === 'song-ngu') return true;
+    if (!currentMovie || !currentMovie.episodes) return false;
+    const srv = currentMovie.episodes[currentServerIndex];
+    if (!srv) return false;
+    const raw = String((srv.original_server_name || srv.server_name || '') || '').toLowerCase();
+    return raw.includes('song ngữ') || raw.includes('song ngu') || raw.includes('bilingual');
+}
+
+// 🛡️ Kiểm tra phim / tập hiện tại có hỗ trợ Song Ngữ không (để ẩn/hiện nút mobile)
+function checkMovieHasSongNgu() {
+    if (requestedVariant === 'song-ngu') return true;
+    if (currentMovie) {
+        const catList = currentMovie.categories || [];
+        const isBilingualCat = catList.some(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase().includes('song ngữ'));
+        if (isBilingualCat) return true;
+        if ((currentMovie.lang || '').toLowerCase().includes('song ngữ')) return true;
+        if ((currentMovie.name || '').toLowerCase().includes('song ngữ')) return true;
+        if (Array.isArray(currentMovie.episodes)) {
+            const hasSnServer = currentMovie.episodes.some(e => {
+                const n = (e.server_name || e.original_server_name || '').toLowerCase();
+                return n.includes('song ngữ') || n.includes('song ngu') || n.includes('bilingual');
+            });
+            if (hasSnServer) return true;
+        }
+    }
+    if (typeof isCurrentServerSongNgu === 'function' && isCurrentServerSongNgu()) return true;
+    if (currentEpisode && Array.isArray(currentEpisode.subtitles) && currentEpisode.subtitles.length > 0) return true;
+    if (currentEpisode && Array.isArray(currentEpisode.subTracks) && currentEpisode.subTracks.length > 0) return true;
+    return false;
+}
+window.checkMovieHasSongNgu = checkMovieHasSongNgu;
+
+// ⚡ Ẩn/Hiện nút Song Ngữ trên mobile: Chỉ hiện ở những phim có Song Ngữ
+function updateMobileSongNguVisibility() {
+    const btn = document.getElementById('btnMobileSongNgu');
+    if (!btn) return;
+    const isMobile = window.innerWidth <= 1024;
+    const hasSongNgu = checkMovieHasSongNgu();
+    if (isMobile && hasSongNgu) {
+        btn.classList.remove('hidden-song-ngu');
+        btn.style.setProperty('display', 'inline-flex', 'important');
+    } else {
+        btn.classList.add('hidden-song-ngu');
+        btn.style.setProperty('display', 'none', 'important');
+    }
+}
+window.updateMobileSongNguVisibility = updateMobileSongNguVisibility;
+
+// ⚡ Xử lý khi ấn nút Song Ngữ trên mobile: Mở menu tinh chỉnh phụ đề như trên Desktop
+window.handleMobileSongNguClick = function (e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    if (typeof window._openAphimSubModal === 'function') {
+        window._openAphimSubModal(e);
+        return;
+    }
+    const modal = document.getElementById('aphim-sub-modal');
+    if (modal) {
+        const btnCc = document.getElementById('aphim-btn-cc');
+        if (btnCc) {
+            btnCc.click();
+            return;
+        }
+    }
+    if (typeof window.startActualPlayback === 'function') {
+        window.startActualPlayback();
+        setTimeout(() => {
+            if (typeof window._openAphimSubModal === 'function') {
+                window._openAphimSubModal();
+            } else {
+                const b = document.getElementById('aphim-btn-cc');
+                if (b) b.click();
+            }
+        }, 500);
+    }
+};
+
+function setBtnLoading(btn, loading) {
+    if (!btn) return;
+    subtitleLoading = loading;
+    const text = document.getElementById('pingOrSongNguText');
+    if (loading) {
+        if (text) text.textContent = 'Äang táº£i...';
+        btn.style.opacity = '0.85';
+        btn.style.pointerEvents = 'none';
+    } else {
+        if (text) text.textContent = 'Song Ngá»¯';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+    }
+}
+
+function updatePingOrSongNguBtn() {
+    const btn = document.getElementById('btnPingOrSongNgu');
+    if (!btn) return;
+    const isSN = isCurrentServerSongNgu();
+    const isMobile = window.innerWidth <= 1024;
+    const icon = document.getElementById('pingOrSongNguIcon');
+    const text = document.getElementById('pingOrSongNguText');
+
+    // Desktop: nút luôn hiện "Ping HTTP", không đổi dù đang xem Song Ngữ
+    // Mobile:  nút đổi thành "Song Ngữ" (vàng) khi đang ở server Song Ngữ
+    if (isSN && isMobile) {
+        btn.dataset.mode = 'songngu';
+        btn.title = 'Chọn ngôn ngữ phụ đề Song Ngữ';
+        btn.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important';
+        btn.style.color = '#18181b !important';
+        if (icon) { icon.style.stroke = '#18181b !important'; icon.style.color = '#18181b !important'; }
+        if (text) { text.textContent = subtitleLoading ? 'Đang tải...' : 'Song Ngữ'; text.style.color = '#18181b !important'; text.style.fontWeight = '800 !important'; }
+    } else {
+        btn.dataset.mode = 'ping';
+        btn.title = 'Kiểm tra độ trễ mạng từng máy chủ';
+        btn.style.background = 'rgba(255,255,255,0.08) !important';
+        btn.style.color = '#e2e8f0 !important';
+        if (icon) { icon.style.stroke = '#e2e8f0 !important'; icon.style.color = '#e2e8f0 !important'; }
+        if (text) { text.textContent = 'Ping HTTP'; text.style.color = '#e2e8f0 !important'; text.style.fontWeight = '700 !important'; }
+    }
+}
+
+window.handlePingOrSongNguBtn = function (btn, event) {
+    if (event) event.stopPropagation();
+    if (btn.dataset.mode === 'songngu') {
+        const isMobile = window.innerWidth <= 1024;
+        if (isMobile) {
+            // ── MOBILE: mở panel inline bên dưới video ──
+            setBtnLoading(btn, true);
+            updatePingOrSongNguBtn();
+            setTimeout(() => {
+                setBtnLoading(btn, false);
+                openMobileSubtitleInlinePanel();
+            }, 400);
+        } else {
+            // ── DESKTOP: mở popup phụ đề như cũ ──
+            setBtnLoading(btn, true);
+            updatePingOrSongNguBtn();
+            setTimeout(() => {
+                setBtnLoading(btn, false);
+                openSubtitlePanel(btn);
+            }, 900);
+        }
+    } else {
+        openServerPingModal(btn, event);
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MOBILE SUBTITLE INLINE PANEL
+// Mở panel inline bên dưới video (chỉ trên mobile <= 1024px)
+// ─────────────────────────────────────────────────────────────────────────────
+(function injectMobileSubtitlePanelCSS() {
+    if (document.getElementById('_aphim_mobile_sub_panel_css')) return;
+    const style = document.createElement('style');
+    style.id = '_aphim_mobile_sub_panel_css';
+    style.textContent = [
+        '#mobile-subtitle-inline-panel {',
+        '  background: #12141c;',
+        '  border: 1px solid rgba(255,255,255,0.12);',
+        '  border-radius: 16px;',
+        '  padding: 16px;',
+        '  margin: 0 0 12px 0;',
+        '  animation: aphimSubPanelIn 0.22s cubic-bezier(0.4,0,0.2,1);',
+        '}',
+        '@keyframes aphimSubPanelIn {',
+        '  from { opacity: 0; transform: translateY(-8px); }',
+        '  to   { opacity: 1; transform: translateY(0); }',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-header {',
+        '  display: flex;',
+        '  align-items: center;',
+        '  justify-content: space-between;',
+        '  margin-bottom: 14px;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-title {',
+        '  display: flex;',
+        '  align-items: center;',
+        '  gap: 6px;',
+        '  color: #fcd576;',
+        '  font-weight: 800;',
+        '  font-size: 15px;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-close-x {',
+        '  background: rgba(255,255,255,0.08);',
+        '  border: none;',
+        '  border-radius: 8px;',
+        '  color: #94a3b8;',
+        '  width: 30px;',
+        '  height: 30px;',
+        '  display: flex;',
+        '  align-items: center;',
+        '  justify-content: center;',
+        '  cursor: pointer;',
+        '  font-size: 16px;',
+        '  transition: background 0.15s;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-close-x:active { background: rgba(255,255,255,0.14); }',
+        '#mobile-subtitle-inline-panel .msip-mode-row {',
+        '  display: flex;',
+        '  align-items: center;',
+        '  gap: 6px;',
+        '  margin-bottom: 14px;',
+        '  background: rgba(255,255,255,0.05);',
+        '  border-radius: 10px;',
+        '  padding: 4px;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-pill {',
+        '  flex: 1;',
+        '  background: transparent;',
+        '  border: none;',
+        '  border-radius: 7px;',
+        '  color: #94a3b8;',
+        '  font-size: 13px;',
+        '  font-weight: 700;',
+        '  padding: 7px 4px;',
+        '  cursor: pointer;',
+        '  text-align: center;',
+        '  transition: all 0.18s;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-pill.active {',
+        '  background: #fff;',
+        '  color: #18181b;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-lang-label {',
+        '  font-size: 11px;',
+        '  font-weight: 700;',
+        '  color: #64748b;',
+        '  letter-spacing: 0.08em;',
+        '  text-transform: uppercase;',
+        '  margin-bottom: 8px;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-lang-list {',
+        '  display: flex;',
+        '  flex-direction: column;',
+        '  gap: 6px;',
+        '  margin-bottom: 14px;',
+        '  max-height: 220px;',
+        '  overflow-y: auto;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-lang-btn {',
+        '  display: flex;',
+        '  align-items: center;',
+        '  justify-content: space-between;',
+        '  background: rgba(255,255,255,0.05);',
+        '  border: 1px solid rgba(255,255,255,0.1);',
+        '  border-radius: 10px;',
+        '  padding: 10px 14px;',
+        '  color: #fff;',
+        '  font-size: 14px;',
+        '  font-weight: 600;',
+        '  cursor: pointer;',
+        '  transition: all 0.15s;',
+        '  text-align: left;',
+        '  width: 100%;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-lang-btn.selected {',
+        '  border-color: #fcd576;',
+        '  background: rgba(252,213,118,0.1);',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-lang-btn .msip-lang-check {',
+        '  color: #fcd576;',
+        '  font-size: 16px;',
+        '  font-weight: 900;',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-close-btn {',
+        '  width: 100%;',
+        '  background: #fbbf24;',
+        '  border: none;',
+        '  border-radius: 10px;',
+        '  color: #18181b;',
+        '  font-size: 14px;',
+        '  font-weight: 800;',
+        '  padding: 13px;',
+        '  cursor: pointer;',
+        '  transition: background 0.15s;',
+        '  letter-spacing: 0.01em;',
+        '  box-shadow: 0 0 14px rgba(251,191,36,0.35);',
+        '}',
+        '#mobile-subtitle-inline-panel .msip-close-btn:active { background: #f59e0b; }',
+    ].join('\n');
+    document.head.appendChild(style);
+})();
+
+function _getMsipSubtitleMode() {
+    return localStorage.getItem('aphim_subtitle_on') || 'on';
+}
+
+function _getMsipCurrentLang() {
+    return localStorage.getItem('aphim_selected_subtitle_lang') || 'Tiếng Việt';
+}
+
+function _getAvailableSubtitles() {
+    // Lấy từ currentEpisode.subtitles nếu có
+    if (currentEpisode && Array.isArray(currentEpisode.subtitles) && currentEpisode.subtitles.length > 0) {
+        return currentEpisode.subtitles;
+    }
+    // Fallback: lấy từ server hiện tại
+    if (currentMovie && Array.isArray(currentMovie.episodes)) {
+        const srv = currentMovie.episodes[currentServerIndex];
+        if (srv && Array.isArray(srv.server_data)) {
+            const ep = srv.server_data[0];
+            if (ep && Array.isArray(ep.subtitles) && ep.subtitles.length > 0) return ep.subtitles;
+        }
+    }
+    return [];
+}
+
+function _getLangDisplayName(sub) {
+    if (!sub) return '';
+    if (sub.label) return sub.label;
+    const langMap = {
+        'vi': 'Tiếng Việt', 'viet': 'Tiếng Việt',
+        'en': 'Tiếng Anh', 'eng': 'Tiếng Anh',
+        'ko': 'Tiếng Hàn', 'kr': 'Tiếng Hàn',
+        'zh': 'Tiếng Trung', 'cn': 'Tiếng Trung', 'zhs': 'Tiếng Trung (Giản)', 'zht': 'Tiếng Trung (Phồn)',
+        'ja': 'Tiếng Nhật', 'jp': 'Tiếng Nhật',
+        'th': 'Tiếng Thái',
+        'id': 'Tiếng Indonesia',
+        'fr': 'Tiếng Pháp',
+        'de': 'Tiếng Đức',
+        'es': 'Tiếng Tây Ban Nha',
+        'pt': 'Tiếng Bồ Đào Nha',
+        'ru': 'Tiếng Nga',
+        'ar': 'Tiếng Ả Rập',
+        'ms': 'Tiếng Mã Lai',
+        'tl': 'Tiếng Philippines',
+        'hi': 'Tiếng Hindi',
+    };
+    return langMap[(sub.language || '').toLowerCase()] || sub.language || 'Không rõ';
+}
+
+function openMobileSubtitleInlinePanel() {
+    const panel = document.getElementById('mobile-subtitle-inline-panel');
+    if (!panel) return;
+
+    // Toggle: nếu đang mở thì đóng lại
+    if (panel.style.display !== 'none') {
+        panel.style.display = 'none';
+        panel.setAttribute('aria-hidden', 'true');
+        return;
+    }
+
+    const subtitles = _getAvailableSubtitles();
+    const currentMode = _getMsipSubtitleMode();
+    const currentLang = _getMsipCurrentLang();
+
+    // Build HTML
+    const modeLabels = { 'on': 'Bật', 'songngu': 'Song ngữ', 'off': 'Tắt' };
+    const modes = ['on', 'songngu', 'off'];
+    const pillsHtml = modes.map(m =>
+        '<button type="button" class="msip-pill' + (currentMode === m ? ' active' : '') +
+        '" onclick="window._msipSetMode(\'' + m + '\', this)">' + modeLabels[m] + '</button>'
+    ).join('');
+
+    let langListHtml = '';
+    if (subtitles.length > 0) {
+        langListHtml = '<div class="msip-lang-label">Ngôn ngữ</div><div class="msip-lang-list">';
+        subtitles.forEach(function(sub) {
+            const name = _getLangDisplayName(sub);
+            const isSelected = (name === currentLang) || (sub.language && currentLang.toLowerCase().includes(sub.language.toLowerCase()));
+            langListHtml += '<button type="button" class="msip-lang-btn' + (isSelected ? ' selected' : '') +
+                '" onclick="window._msipSelectLang(\'' + name.replace(/'/g, "\\'") + '\', this, \'' + (sub.language || '').replace(/'/g, "\\'") + '\')">' +
+                '<span>' + name + '</span>' +
+                (isSelected ? '<span class="msip-lang-check">✓</span>' : '<span style="color:#64748b;font-size:12px;">Phụ đề</span>') +
+                '</button>';
+        });
+        langListHtml += '</div>';
+    } else {
+        langListHtml = '<div style="color:#64748b;font-size:13px;padding:8px 0 12px;">Không có phụ đề cho tập này.</div>';
+    }
+
+    panel.innerHTML =
+        '<div class="msip-header">' +
+            '<div class="msip-title">' +
+                '<span class="material-icons-round" style="font-size:18px;">closed_caption</span>' +
+                '<span>Phụ đề</span>' +
+            '</div>' +
+            '<button type="button" class="msip-close-x" onclick="window.closeMobileSubtitleInlinePanel()" aria-label="Đóng">✕</button>' +
+        '</div>' +
+        '<div class="msip-mode-row">' + pillsHtml + '</div>' +
+        langListHtml +
+        '<button type="button" class="msip-close-btn" onclick="window.closeMobileSubtitleInlinePanel()">Đóng bảng phụ đề</button>';
+
+    panel.style.display = 'block';
+    panel.removeAttribute('aria-hidden');
+
+    // Scroll nhẹ xuống để panel hiện ra
+    setTimeout(() => {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
+}
+
+window.closeMobileSubtitleInlinePanel = function () {
+    const panel = document.getElementById('mobile-subtitle-inline-panel');
+    if (!panel) return;
+    panel.style.animation = 'none';
+    panel.style.opacity = '0';
+    panel.style.transform = 'translateY(-6px)';
+    panel.style.transition = 'opacity 0.18s, transform 0.18s';
+    setTimeout(() => {
+        panel.style.display = 'none';
+        panel.style.opacity = '';
+        panel.style.transform = '';
+        panel.style.transition = '';
+        panel.style.animation = '';
+    }, 180);
+};
+
+window._msipSetMode = function (mode, btnEl) {
+    // Cập nhật pills UI
+    const panel = document.getElementById('mobile-subtitle-inline-panel');
+    if (panel) {
+        panel.querySelectorAll('.msip-pill').forEach(function(b) { b.classList.remove('active'); });
+        if (btnEl) btnEl.classList.add('active');
+    }
+    // Map mode pill -> aphim_sub_custom_config mode
+    const cfgMode = (mode === 'songngu') ? 'dual' : (mode === 'off' ? 'off' : 'on');
+    // Lưu vào localStorage
+    localStorage.setItem('aphim_subtitle_on', mode);
+    try {
+        const rawCfg = localStorage.getItem('aphim_sub_custom_config');
+        const cfg = rawCfg ? JSON.parse(rawCfg) : {};
+        cfg.mode = cfgMode;
+        localStorage.setItem('aphim_sub_custom_config', JSON.stringify(cfg));
+        window._aphimSubConfigCache = null; // Buộc re-read lần tiếp theo
+    } catch(e) {}
+    showSubtitleToast(mode === 'off' ? 'Tắt phụ đề' : (mode === 'songngu' ? 'Bật Song ngữ' : 'Bật phụ đề'));
+};
+
+window._msipSelectLang = function (langName, btnEl, langCode) {
+    selectedSubtitleLang = langName;
+    try { localStorage.setItem('aphim_selected_subtitle_lang', langName); } catch(e) {}
+    // Cập nhật UI
+    const panel = document.getElementById('mobile-subtitle-inline-panel');
+    if (panel) {
+        panel.querySelectorAll('.msip-lang-btn').forEach(function(b) {
+            b.classList.remove('selected');
+            const checkEl = b.querySelector('span:last-child');
+            if (checkEl) {
+                checkEl.className = '';
+                checkEl.style.cssText = 'color:#64748b;font-size:12px;';
+                checkEl.textContent = 'Phụ đề';
+            }
+        });
+        if (btnEl) {
+            btnEl.classList.add('selected');
+            const checkSpan = btnEl.querySelector('span:last-child');
+            if (checkSpan) {
+                checkSpan.className = 'msip-lang-check';
+                checkSpan.style.cssText = '';
+                checkSpan.textContent = '✓';
+            }
+        }
+    }
+    // Dùng _aphimSwitchSubLanguage để switch ngôn ngữ chính xác với hệ thống song ngữ
+    if (langCode && typeof window._aphimSwitchSubLanguage === 'function') {
+        window._aphimSwitchSubLanguage(langCode, true); // isTop = true: đổi phụ đề dòng 1 (Việt)
+    }
+    showSubtitleToast('Đã chọn: ' + langName);
+    // Đóng panel sau 0.6s
+    setTimeout(function() { window.closeMobileSubtitleInlinePanel(); }, 600);
+};
+
+function openSubtitlePanel(btn) {
+    const existing = document.getElementById('subtitlePanel');
+    if (existing) { existing.remove(); subtitlePanelOpen = false; return; }
+    const rect = btn ? btn.getBoundingClientRect() : null;
+    const panel = document.createElement('div');
+    panel.id = 'subtitlePanel';
+    panel.style.cssText = 'display: flex; position: fixed !important; z-index: 999999 !important; background: transparent !important; padding: 0 !important; top: ' + (rect ? rect.bottom + 10 : 130) + 'px; left: ' + (rect ? Math.max(8, rect.left - 4) : 16) + 'px; width: 290px; max-width: calc(100vw - 32px); font-family: inherit;';
+    panel.className = 'opacity-0 transition-opacity duration-200';
+    panel.onclick = function(e) { if (e.target === panel) closeSubtitlePanel(); };
+    const subtitleIsOn = localStorage.getItem('aphim_subtitle_on') !== 'false';
+    panel.innerHTML = '<div class="bg-[#161822] border border-white/15 rounded-2xl p-3 shadow-2xl transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()">' +
+        '<div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">' +
+        '<div class="flex items-center gap-1.5 text-[#fcd576] font-bold text-sm"><span class="material-icons-round text-lg text-[#f59e0b]">closed_caption</span><span>Phá»¥ Ä‘á»</span></div>' +
+        '<button type="button" onclick="closeSubtitlePanel()" class="text-gray-400 hover:text-white p-1 transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center" aria-label="ÄÃ³ng"><span class="material-icons-round text-lg">close</span></button>' +
+        '</div>' +
+        '<div class="space-y-2 mb-3">' +
+        '<div class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Tráº¡ng thÃ¡i</div>' +
+        '<div class="grid grid-cols-3 gap-1">' +
+        '<button type="button" onclick="setSubtitleToggle(\'off\', this)" id="subToggleOff" class="subtitle-toggle-opt bg-[#1e2230] border border-white/15 rounded-lg px-2 py-1.5 text-center text-xs font-medium transition-all cursor-pointer ' + (subtitleIsOn === false ? 'border-[#fcd576] bg-[#fcd576]/10 text-[#fcd576]' : 'text-gray-400') + '">Báº­t</button>' +
+        '<button type="button" onclick="setSubtitleToggle(\'songngu\', this)" id="subToggleSongNgu" class="subtitle-toggle-opt bg-[#1e2230] border border-white/15 rounded-lg px-2 py-1.5 text-center text-xs font-medium transition-all cursor-pointer ' + (subtitleIsOn === 'songngu' ? 'border-[#fcd576] bg-[#fcd576]/10 text-[#fcd576]' : 'text-gray-400') + '">Song ngá»¯</button>' +
+        '<button type="button" onclick="setSubtitleToggle(\'off\', this)" id="subToggleOffAlt" class="subtitle-toggle-opt bg-[#1e2230] border border-white/15 rounded-lg px-2 py-1.5 text-center text-xs font-medium transition-all cursor-pointer ' + (subtitleIsOn === false ? 'border-[#fcd576] bg-[#fcd576]/10 text-[#fcd576]' : 'text-gray-400') + '">Táº¯t</button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">NgÃ´n ngá»¯</div>' +
+        '<div class="space-y-1 mb-3">' +
+        '<button type="button" onclick="selectSubtitleLang(\'Tiáº¿ng Viá»‡t\', this)" class="subtitle-lang-opt w-full bg-[#1e2230] border border-white/15 rounded-xl px-3 py-2 text-left flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer text-sm ' + (selectedSubtitleLang === 'Tiáº¿ng Viá»‡t' ? 'border-[#fcd576] bg-[#fcd576]/10' : '') + '"><span class="text-white font-semibold">Tiáº¿ng Viá»‡t</span>' + (selectedSubtitleLang === 'Tiáº¿ng Viá»‡t' ? '<span class="text-[#fcd576] font-bold">âœ“</span>' : '<span class="text-gray-500">Phá»¥ Ä‘á» chÃ­nh</span>') + '</button>' +
+        '<button type="button" onclick="selectSubtitleLang(\'Tiáº¿ng Anh\', this)" class="subtitle-lang-opt w-full bg-[#1e2230] border border-white/15 rounded-xl px-3 py-2 text-left flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer text-sm ' + (selectedSubtitleLang === 'Tiáº¿ng Anh' ? 'border-[#fcd576] bg-[#fcd576]/10' : '') + '"><span class="text-white font-semibold">Tiáº¿ng Anh</span>' + (selectedSubtitleLang === 'Tiáº¿ng Anh' ? '<span class="text-[#fcd576] font-bold">âœ“</span>' : '<span class="text-gray-500">Phá»¥ Ä‘á» tiáº¿ng Anh</span>') + '</button>' +
+        '<button type="button" onclick="selectSubtitleLang(\'Tiáº¿ng Indonesia\', this)" class="subtitle-lang-opt w-full bg-[#1e2230] border border-white/15 rounded-xl px-3 py-2 text-left flex items-center justify-between outline-none focus:border-[#fcd576] transition-all cursor-pointer text-sm ' + (selectedSubtitleLang === 'Tiáº¿ng Indonesia' ? 'border-[#fcd576] bg-[#fcd576]/10' : '') + '"><span class="text-white font-semibold">Tiáº¿ng Indonesia</span>' + (selectedSubtitleLang === 'Tiáº¿ng Indonesia' ? '<span class="text-[#fcd576] font-bold">âœ“</span>' : '<span class="text-gray-500">Phá»¥ Ä‘á» Indonesia</span>') + '</button>' +
+        '</div>' +
+        '<div class="pt-2 border-t border-white/10">' +
+        '<button type="button" onclick="closeSubtitlePanel()" class="w-full bg-[#fbbf24] hover:bg-[#f59e0b] text-[#18181b] text-center py-2.5 rounded-lg font-bold transition-all shadow-[0_0_12px_rgba(251,191,36,0.4)]">ÄÃ³ng báº£ng phá»¥ Ä‘á»</button>' +
+        '</div>' +
+        '</div>';
+    document.body.appendChild(panel);
+    subtitlePanelOpen = true;
+    requestAnimationFrame(() => {
+        panel.classList.remove('opacity-0');
+        const card = panel.querySelector('.bg-[#161822]');
+        if (card) { card.classList.remove('scale-95'); card.classList.add('scale-100'); }
+    });
+}
+
+window.closeSubtitlePanel = function () {
+    const panel = document.getElementById('subtitlePanel');
+    if (!panel) return;
+    panel.classList.add('opacity-0');
+    setTimeout(() => { panel.remove(); subtitlePanelOpen = false; }, 200);
+};
+
+window.setSubtitleToggle = function (mode, btnEl) {
+    localStorage.setItem('aphim_subtitle_on', mode);
+    ['off', 'songngu'].forEach(m => {
+        const b = document.getElementById('subToggle' + (m === 'off' ? 'Off' : 'SongNgu'));
+        const b2 = document.getElementById('subToggleOffAlt');
+        [b, b2].filter(Boolean).forEach(t => {
+            if (m === 'off') {
+                t.classList.remove('border-[#fcd576]', 'bg-[#fcd576]/10', 'text-[#fcd576]');
+                t.classList.add('text-gray-400');
+            } else if (t.id === 'subToggleSongNgu' && m === 'songngu') {
+                t.classList.remove('text-gray-400');
+                t.classList.add('border-[#fcd576]', 'bg-[#fcd576]/10', 'text-[#fcd576]');
+            }
+        });
+    });
+    if (mode === 'off') {
+        const b = document.getElementById('subToggleOff');
+        const b2 = document.getElementById('subToggleOffAlt');
+        [b, b2].filter(Boolean).forEach(t => {
+            t.classList.remove('text-gray-400');
+            t.classList.add('border-[#fcd576]', 'bg-[#fcd576]/10', 'text-[#fcd576]');
+        });
+    }
+    applySubtitleToVideo(mode, selectedSubtitleLang);
+    showSubtitleToast(mode === 'off' ? 'Táº¯t phá»¥ Ä‘á»' : 'Báº­t phá»¥ Ä‘á» ' + selectedSubtitleLang);
+};
+
+window.selectSubtitleLang = function (lang, btnEl) {
+    selectedSubtitleLang = lang;
+    try { localStorage.setItem('aphim_selected_subtitle_lang', lang); } catch(e) {}
+    document.querySelectorAll('.subtitle-lang-opt').forEach(b => {
+        b.classList.remove('border-[#fcd576]', 'bg-[#fcd576]/10');
+        const check = b.querySelector('span:last-child');
+        if (check && !check.classList.contains('text-gray-500')) { check.classList.remove('text-[#fcd576]', 'font-bold'); check.classList.add('text-gray-500'); }
+    });
+    if (btnEl) {
+        btnEl.classList.add('border-[#fcd576]', 'bg-[#fcd576]/10');
+        const check = btnEl.querySelector('span:last-child');
+        if (check) { check.classList.remove('text-gray-500'); check.classList.add('text-[#fcd576]', 'font-bold'); check.textContent = 'âœ“'; }
+    }
+    const mode = localStorage.getItem('aphim_subtitle_on') || 'songngu';
+    applySubtitleToVideo(mode, lang);
+    showSubtitleToast('ÄÃ£ chá»n phá»¥ Ä‘á»: ' + lang);
+    closeSubtitlePanel();
+};
+
+function applySubtitleToVideo(mode, lang) {
+    if (mode === 'off') {
+        document.querySelectorAll('video').forEach(v => { v.textTracks && Array.from(v.textTracks).forEach(t => { t.mode = 'disabled'; }); });
+        return;
+    }
+    const vEl = document.getElementById('videoPlayer') || document.querySelector('video');
+    if (!vEl) return;
+    if (vEl.textTracks) {
+        Array.from(vEl.textTracks).forEach(t => {
+            const name = String(t.label || t.language || '').toLowerCase();
+            if (lang.startsWith('Tiáº¿ng Viá»‡t') && (name.includes('vi') || name.includes('viet'))) { t.mode = 'showing'; }
+            else if (lang.startsWith('Tiáº¿ng Anh') && (name.includes('en') || name.includes('anh'))) { t.mode = 'showing'; }
+            else if (lang.startsWith('Tiáº¿ng Indonesia') && (name.includes('id') || name.includes('indonesia'))) { t.mode = 'showing'; }
+            else { t.mode = 'disabled'; }
+        });
+    }
+}
+
+function showSubtitleToast(msg) {
+    const old = document.getElementById('subtitleToast');
+    if (old) old.remove();
+    const toast = document.createElement('div');
+    toast.id = 'subtitleToast';
+    toast.style.cssText = 'position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #18181b; border: 1px solid #fcd576; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 100000; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: none; opacity: 0; transition: opacity 0.2s;';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 200); }, 1600);
+}
+
+const _origChangeServer = window.changeServer;
+window.changeServer = function (index) {
+    _origChangeServer.call(this, index);
+    updatePingOrSongNguBtn();
+    if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
+};
+
+if (typeof document !== 'undefined') {
+    const initPingOrSongNguBtn = () => {
+        updatePingOrSongNguBtn();
+        if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
+        setTimeout(() => {
+            updatePingOrSongNguBtn();
+            if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
+        }, 800);
+        setTimeout(() => {
+            updatePingOrSongNguBtn();
+            if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
+        }, 2000);
+        setTimeout(() => {
+            updatePingOrSongNguBtn();
+            if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
+        }, 4000);
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPingOrSongNguBtn);
+    } else {
+        initPingOrSongNguBtn();
     }
 }

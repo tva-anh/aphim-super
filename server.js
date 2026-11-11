@@ -119,7 +119,21 @@ app.use([ADMIN_SECRET_PATH, '/admin', '/api/admin'], (req, res, next) => {
     next();
 });
 
-// 🚀 Dynamic SEO Sitemaps & Robots.txt (Ưu tiên phục vụ động trước static assets)
+// 🌐 Đảm bảo tất cả phản hồi HTML/JS/CSS đều khai báo charset UTF-8 (tránh chữ tiếng Việt bị vỡ)
+app.use((req, res, next) => {
+    const originalSend = res.send;
+    res.send = function (body) {
+        const ct = res.getHeader('Content-Type') || '';
+        const ctStr = String(ct);
+        if ((ctStr.startsWith('text/html') || ctStr.startsWith('application/javascript') || ctStr.startsWith('text/css')) && !ctStr.includes('charset=')) {
+            res.setHeader('Content-Type', ct + '; charset=utf-8');
+        }
+        return originalSend.call(this, body);
+    };
+    next();
+});
+
+// 🚀 Dynamic SEO Sitemaps & Robots.txt
 app.use('/', seoRoutes);
 
 // 🚀 Serve static assets with Smart HTTP Caching (Cache-Control & ETag)
@@ -2470,8 +2484,10 @@ async function fetchMovieMetadata(slug) {
 
     const cached = movieMetadataCache.get(cleanSlug);
     if (cached && (Date.now() - cached.ts < MOVIE_CACHE_TTL)) {
-        // Tự động xóa cache nếu trước đây bị lưu nhầm nội dung placeholder ngắn
-        if (cached.data && cached.data.content && cached.data.content.startsWith('Xem phim ') && cached.data.content.includes('tại APhim Super')) {
+        // Tự động xóa cache nếu trước đây bị lưu nhầm nội dung placeholder ngắn VÀ không có tập phim thật
+        // (placeholder có episodes thật vẫn dùng được, giữ lại để click sau tức thì ~50ms)
+        if (cached.data && cached.data.content && cached.data.content.startsWith('Xem phim ') && cached.data.content.includes('tại APhim Super') &&
+            (!cached.data.episodes || cached.data.episodes.length === 0)) {
             movieMetadataCache.delete(cleanSlug);
         } else {
             return cached.data;
@@ -2484,9 +2500,8 @@ async function fetchMovieMetadata(slug) {
         const bSlugs = getBilingualSlugs();
         if (Array.isArray(bSlugs) && bSlugs.includes(cleanSlug)) {
             const bilingualMovie = await getBilingualFullMovie(cleanSlug);
-            // Chỉ trả về nếu có nội dung phim thực sự (không phải placeholder 'Xem phim ...')
-            if (bilingualMovie && bilingualMovie.episodes && bilingualMovie.episodes.length > 0 &&
-                bilingualMovie.content && !bilingualMovie.content.startsWith('Xem phim ')) {
+            // Chỉ trả về nếu có tập phim thật (placeholder mô tả vẫn chấp nhận nếu episodes đầy đủ)
+            if (bilingualMovie && bilingualMovie.name && bilingualMovie.episodes && bilingualMovie.episodes.length > 0) {
                 movieMetadataCache.set(cleanSlug, { data: bilingualMovie, ts: Date.now() });
                 enrichMovieBackdrop(bilingualMovie).catch(() => {});
                 return bilingualMovie;
@@ -2593,13 +2608,31 @@ async function fetchMovieMetadata(slug) {
     try {
         const primaryResult = await Promise.any([fetchPhimApiPromise(), fetchOPhimPromise()]);
         if (primaryResult) {
-            // Tự động tích hợp nguồn Song Ngữ siêu tốc (chỉ chạy khi phim thực sự có bản Song Ngữ)
+            // ⚡ Tích hợp nguồn Song Ngữ KHÔNG BLOCKING: timeout 600ms
+            // Nếu cache có sẵn → tức thì (0ms). Nếu cold → trả trang ngay, background warm cache
             try {
-                const { isBilingualCandidate, getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
+                const { isBilingualCandidate, getBilingualServer, attachWorkingStreamsToBilingual, getBilingualCached } = require('./lib/bilingual.service');
                 if (isBilingualCandidate(cleanSlug, primaryResult)) {
                     const isSingle = primaryResult.type === 'single' || primaryResult.chieu_rap === true || (primaryResult.episodes?.[0]?.server_data?.length === 1);
                     const epCount = primaryResult.episodes?.[0]?.server_data?.length || 0;
-                    const songNguServer = await getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null, primaryResult.type || (isSingle ? 'single' : 'series'), epCount);
+
+                    // Thử lấy cache ngay lập tức (0ms) trước
+                    let songNguServer = getBilingualCached(cleanSlug);
+
+                    if (!songNguServer) {
+                        // Chạy song song với timeout 600ms để tránh block render
+                        const bilingualRacePromise = getBilingualServer(cleanSlug, primaryResult.name, primaryResult.origin_name, primaryResult.year || null, primaryResult.type || (isSingle ? 'single' : 'series'), epCount);
+                        const bilingualTimeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 600));
+                        songNguServer = await Promise.race([bilingualRacePromise, bilingualTimeoutPromise]);
+
+                        // Nếu timeout → kick-off background warm để request tiếp theo sẽ nhanh
+                        if (!songNguServer) {
+                            bilingualRacePromise.then(srv => {
+                                if (srv) console.log(`[Bilingual Warm] ✅ Background warmed cache: ${cleanSlug}`);
+                            }).catch(() => {});
+                        }
+                    }
+
                     if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
                         const isMismatched = isSingle && songNguServer.server_data.length > 1;
                         if (!isMismatched) {
@@ -3919,6 +3952,36 @@ server.listen(PORT, () => {
             console.warn('[Auto Sync Bilingual] ⚠️ Lỗi đồng bộ lần đầu:', e.message);
         }
     }, 30 * 1000);
+
+    // ⚡ WARM-UP CACHE: Preload metadata cho 24 phim Song Ngữ được ghim đầu trang
+    // Giúp click vào phim ngay sau khi restart luôn nhanh (~40ms) thay vì lâu (~3s)
+    setTimeout(async () => {
+        const PINNED_SLUGS = [
+            'viec-ma-luong-quai', 'bac-si-x-mafia-ao-trang', '100-ngay-doi-tra',
+            'buoc-vao-tim-em', 'giua-nhung-buoc-chan', 'nap-day-trai-tim',
+            'keo-ngot-tinh-yeu', 'tai-phiet-va-canh-sat-phan-2', 'sep-chinh-la-than-tuong',
+            'trung-so-doc-dac-van-phai-di-lam', 'ga-kim-thoa', 'thuong-cong-chua',
+            'mi-anh-than-bo', 'ban-gai-thien-tai', 'khong-the-thay-the-2026',
+            'tieu-thanh-luong-phuong', 'ngu-dinh-dao', 'vision-truy-tim-ban-nga',
+            'vung-dat-quy-du-2026', 'quy-quyet-ranh-gioi-vo-dinh', 'carrie-2026',
+            'tau-buon-nguoi-2026', 'tieng-yeu-nay-anh-dich-duoc-khong',
+            'dac-vu-kim-tai-khoi-dong', 'tinh-yeu-doc-nhat'
+        ];
+        let warmed = 0;
+        for (const slug of PINNED_SLUGS) {
+            try {
+                // Chỉ warm-up nếu chưa có trong cache
+                const existing = movieMetadataCache.get(slug);
+                if (!existing || (Date.now() - existing.ts > MOVIE_CACHE_TTL)) {
+                    await fetchMovieMetadata(slug);
+                    warmed++;
+                    // Nghỉ 800ms giữa mỗi slug để tránh spam request đồng loạt
+                    await new Promise(r => setTimeout(r, 800));
+                }
+            } catch (_) {}
+        }
+        if (warmed > 0) console.log(`[Cache Warm-up] ⚡ Đã preload metadata cho ${warmed} phim Song Ngữ được ghim.`);
+    }, 5000); // Bắt đầu sau 5 giây khi server sẵn sàng
 
     // Lần tiếp theo: mỗi 12 tiếng (giữ catalog luôn mới nhất)
     setInterval(async () => {

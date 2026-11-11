@@ -4395,11 +4395,11 @@ html.light-mode #serverPingModalCard button svg {
     display: flex !important;
     flex-direction: column !important;
     border-radius: 16px !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 100%), rgba(16, 21, 34, 0.88) !important;
+    background: rgba(13, 17, 28, 0.72) !important;
     backdrop-filter: blur(28px) saturate(190%) !important;
     -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.22) !important;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
     color: #ffffff !important;
     padding: 0 !important;
     overflow: hidden !important;
@@ -4474,39 +4474,48 @@ html.light-mode #serverPingModalCard button svg {
 /* Mode Switcher: [ Bật ] [ Song ngữ ] [ Tắt ] */
 .asm-mode-pills {
     display: inline-flex !important;
-    background: rgba(0, 0, 0, 0.35) !important;
+    align-items: center !important;
+    background: rgba(0, 0, 0, 0.45) !important;
     border-radius: 999px !important;
     padding: 2px !important;
     gap: 2px !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    justify-content: center !important;
-    flex-wrap: nowrap !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    flex: 0 0 auto !important;
+    width: fit-content !important;
+    max-width: fit-content !important;
+    margin: 0 auto !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
 }
 .asm-mode-pill {
     background: transparent !important;
     border: none !important;
-    color: rgba(255, 255, 255, 0.72) !important;
-    font-size: 10.5px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
-    padding: 3px 9px !important;
+    padding: 0 9px !important;
+    height: 24px !important;
+    line-height: 24px !important;
     border-radius: 999px !important;
     cursor: pointer !important;
-    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: all 0.15s ease !important;
     white-space: nowrap !important;
     flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
 }
 .asm-mode-pill:hover:not(.active) {
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.08) !important;
 }
 .asm-mode-pill.active {
-    background: #ffffff !important;
+    background: linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important;
     color: #0b0f19 !important;
-    font-weight: 700 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 750 !important;
+    border-radius: 999px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
 }
 .asm-head-actions {
     display: flex !important;
@@ -4755,9 +4764,11 @@ html.light-mode #serverPingModalCard button svg {
     border-radius: 6px !important;
 }
 .asm-preview-line-active {
-    outline: 1.5px dashed rgba(252, 213, 118, 0.65) !important;
-    outline-offset: 2px !important;
-    background: rgba(255, 255, 255, 0.04) !important;
+    outline: none !important;
+    background: rgba(252, 213, 118, 0.12) !important;
+    border: 1.5px solid rgba(252, 213, 118, 0.55) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 16px rgba(252, 213, 118, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 /* Tab Switcher: [ Chính ] [ Song ngữ ] */
@@ -6457,4 +6468,49 @@ html, body, button, a, input, select,
     #aphim-sub-top, #aphim-sub-bottom {
         pointer-events: none !important;
     }
+}
+
+/* ==========================================================================
+   LOẠI BỎ NỀN ĐEN BÓC CHỮ PHỤ ĐỀ SONG NGỮ (DUAL SUBTITLES)
+   Ép tất cả nền, padding, border-radius, backdrop-filter về trong suốt
+   ========================================================================== */
+#aphim-sub-top,
+#aphim-sub-bottom,
+#aphim-dual-subtitles-overlay {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Native <track> cue (fallback nếu overlay không render) */
+video::cue {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* Ghi đè biến CSS background/padding/radius của dòng phụ đề */
+#aphim-sub-top {
+    --aphim-sub-top-bg: transparent !important;
+    --aphim-sub-top-pad: 0 !important;
+    --aphim-sub-top-radius: 0 !important;
+}
+#aphim-sub-bottom {
+    --aphim-sub-bottom-bg: transparent !important;
+    --aphim-sub-bottom-pad: 0 !important;
+    --aphim-sub-bottom-radius: 0 !important;
+}
+
+/* Tắt hoàn toàn hardsub blur mask nếu có */
+#aphim-hardsub-blur-mask {
+    display: none !important;
+    opacity: 0 !important;
 }
