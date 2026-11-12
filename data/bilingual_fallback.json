@@ -1,0 +1,50 @@
+{
+  "tinh-yeu-doc-nhat": [
+    {
+      "name": "Tập 1",
+      "slug": "tap-1",
+      "link_m3u8": "https://oncdn.vip/live/source/str_pzvt2uwcc3he",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_pzvt2uwcc3he/sub_vi?seg=1"
+        },
+        {
+          "label": "English (United States)",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_pzvt2uwcc3he/sub_2_eng?seg=1"
+        },
+        {
+          "label": "Indonesian (Indonesia)",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_pzvt2uwcc3he/sub_3_ind?seg=1"
+        }
+      ]
+    },
+    {
+      "name": "Tập 2",
+      "slug": "tap-2",
+      "link_m3u8": "https://oncdn.vip/live/source/str_unf1sudtvou7",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_unf1sudtvou7/sub_vi?seg=1"
+        },
+        {
+          "label": "English (United States)",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_unf1sudtvou7/sub_2_eng?seg=1"
+        },
+        {
+          "label": "Indonesian (Indonesia)",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_unf1sudtvou7/sub_3_ind?seg=1"
+        }
+      ]
+    }
+  ]
+}
