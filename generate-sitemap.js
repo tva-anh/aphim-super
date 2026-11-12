@@ -7,6 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { getBilingualSitemapEntries } = require('./lib/bilingual-sitemap');
 
 const BASE_URL = process.env.BASE_URL || 'https://aphim.store';
 const TODAY = new Date().toISOString().split('T')[0];
@@ -159,6 +160,31 @@ async function processInBatches(items, batchSize, fn) {
         }
     });
 
+    // 4. HỢP NHẤT KHO PHIM SONG NGỮ (catalog cục bộ — không phụ thuộc PhimAPI/NguonC)
+    const bilingualEntries = getBilingualSitemapEntries();
+    for (const item of bilingualEntries) {
+        const existingMovie = uniqueMoviesMap.get(item.slug);
+        if (existingMovie) {
+            existingMovie.isBilingual = true;
+            existingMovie.isSingle = item.isSingle;
+            existingMovie.episodeCount = Math.max(existingMovie.episodeCount || 0, item.episodeCount || 0);
+            if (!existingMovie.name && item.name) existingMovie.name = item.name;
+            if (!existingMovie.poster_url && item.poster_url) existingMovie.poster_url = item.poster_url;
+            if (!existingMovie.thumb_url && item.thumb_url) existingMovie.thumb_url = item.thumb_url;
+        } else {
+            uniqueMoviesMap.set(item.slug, {
+                slug: item.slug,
+                name: item.name,
+                poster_url: item.poster_url,
+                thumb_url: item.thumb_url,
+                updated_at: item.updated_at || TODAY,
+                isBilingual: true,
+                isSingle: item.isSingle,
+                episodeCount: item.episodeCount
+            });
+        }
+    }
+    console.log(`🌐 Đã hợp nhất ${bilingualEntries.length} phim Song Ngữ từ catalog.`);
     const movies = Array.from(uniqueMoviesMap.values());
     console.log(`\n🎉 HOÀN TẤT THU THẬP! Tổng cộng: ${movies.length} bộ phim độc nhất.`);
 
@@ -185,6 +211,12 @@ async function processInBatches(items, batchSize, fn) {
     if (!fs.existsSync(publicDir)) {
         fs.mkdirSync(publicDir, { recursive: true });
     }
+
+    const bilingualExtraUrls = movies.reduce((sum, m) => {
+        if (!m.isBilingual) return sum;
+        return sum + (m.isSingle ? 1 : Math.max(1, Math.min(m.episodeCount || 1, 250)));
+    }, 0);
+    const totalSitemapUrls = movies.length * 2 + staticPages.length + bilingualExtraUrls;
 
     const outFiles = [
         {
@@ -220,6 +252,19 @@ async function processInBatches(items, batchSize, fn) {
 
             sitemapStream.write(`    <url>\n        <loc>${detailUrl}</loc>\n        <lastmod>${movie.updated_at || TODAY}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.9</priority>\n    </url>\n    <url>\n        <loc>${watchUrl}</loc>\n        <lastmod>${movie.updated_at || TODAY}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.8</priority>\n    </url>\n`);
 
+            // Biến thể Song Ngữ: phim lẻ dùng /full-song-ngu, phim bộ dùng /tap-N-song-ngu
+            if (movie.isBilingual) {
+                const bilingualLastmod = movie.updated_at || TODAY;
+                if (movie.isSingle) {
+                    sitemapStream.write(`    <url>\n        <loc>${BASE_URL}/xem-phim/${slug}/full-song-ngu</loc>\n        <lastmod>${bilingualLastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.8</priority>\n    </url>\n`);
+                } else {
+                    const maxEp = Math.max(1, Math.min(movie.episodeCount || 1, 250));
+                    for (let ep = 1; ep <= maxEp; ep++) {
+                        sitemapStream.write(`    <url>\n        <loc>${BASE_URL}/xem-phim/${slug}/tap-${ep}-song-ngu</loc>\n        <lastmod>${bilingualLastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>${ep === 1 ? '0.85' : '0.75'}</priority>\n    </url>\n`);
+                    }
+                }
+            }
+
             const thumb = getCleanImageUrl(movie.thumb_url);
             const poster = getCleanImageUrl(movie.poster_url);
 
@@ -243,7 +288,7 @@ async function processInBatches(items, batchSize, fn) {
         imagesStream.write('</urlset>');
         imagesStream.end();
 
-        console.log(`📄 Đã tạo file: ${sitemapPath} (Tổng ${movies.length * 2 + staticPages.length} URLs)`);
+        console.log(`📄 Đã tạo file: ${sitemapPath} (Tổng ${totalSitemapUrls} URLs)`);
         console.log(`🖼️ Đã tạo file: ${imagesPath} (Tổng ${imageCount} ảnh)`);
     });
 

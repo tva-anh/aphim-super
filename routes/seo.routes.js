@@ -9,6 +9,7 @@ const router = express.Router();
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const { getBilingualSitemapEntries } = require('../lib/bilingual-sitemap');
 
 const BASE_URL = process.env.BASE_URL || 'https://aphim.store';
 const SITEMAP_CACHE_FILE = path.join(__dirname, '../data/sitemaps_cache.json');
@@ -277,6 +278,40 @@ async function fetchMoviesForSitemap() {
         })
     );
 
+    // 6. Hợp nhất kho phim Song Ngữ (catalog cục bộ) — không phụ thuộc PhimAPI/NguonC
+    const movieBySlug = new Map(movies.map(m => [m.slug, m]));
+    for (const item of getBilingualSitemapEntries()) {
+        const existingMovie = movieBySlug.get(item.slug);
+        if (existingMovie) {
+            existingMovie.isBilingual = true;
+            existingMovie.isSingle = item.isSingle;
+            existingMovie.episodeCount = Math.max(existingMovie.episodeCount || 0, item.episodeCount || 0);
+            if (!existingMovie.episode_current && item.episode_current) existingMovie.episode_current = item.episode_current;
+            if (!existingMovie.episode_total && item.episode_total) existingMovie.episode_total = item.episode_total;
+            continue;
+        }
+        if (BLOCKED_SLUGS.includes(item.slug)) continue;
+
+        const movie = {
+            slug: item.slug,
+            name: item.name,
+            origin_name: item.origin_name || '',
+            year: new Date().getFullYear(),
+            thumb_url: item.thumb_url || '',
+            poster_url: item.poster_url || '',
+            episode_current: item.episode_current || '',
+            episode_total: item.episode_total || '',
+            isSingle: item.isSingle,
+            type: item.isSingle ? 'single' : 'series',
+            isBilingual: true,
+            episodeCount: item.episodeCount || 0,
+            modified: item.updated_at || todayStr
+        };
+        movies.push(movie);
+        movieBySlug.set(movie.slug, movie);
+        movieSlugsSeen.add(movie.slug);
+    }
+
     return movies;
 }
 
@@ -402,6 +437,16 @@ async function buildSitemapsXml() {
         singleXml += `    <changefreq>daily</changefreq>\n`;
         singleXml += `    <priority>0.85</priority>\n`;
         singleXml += `  </url>\n`;
+
+        // Biến thể Song Ngữ cho Phim Lẻ
+        if (m.isBilingual) {
+            singleXml += `  <url>\n`;
+            singleXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/full-song-ngu</loc>\n`;
+            singleXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            singleXml += `    <changefreq>daily</changefreq>\n`;
+            singleXml += `    <priority>0.85</priority>\n`;
+            singleXml += `  </url>\n`;
+        }
     });
     singleXml += `</urlset>`;
 
@@ -429,6 +474,16 @@ async function buildSitemapsXml() {
         seriesXml += `    <changefreq>daily</changefreq>\n`;
         seriesXml += `    <priority>0.90</priority>\n`;
         seriesXml += `  </url>\n`;
+
+        // Tập 1 Song Ngữ của phim bộ
+        if (m.isBilingual) {
+            seriesXml += `  <url>\n`;
+            seriesXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-1-song-ngu</loc>\n`;
+            seriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
+            seriesXml += `    <changefreq>daily</changefreq>\n`;
+            seriesXml += `    <priority>0.88</priority>\n`;
+            seriesXml += `  </url>\n`;
+        }
     });
     seriesXml += `</urlset>`;
 
@@ -453,6 +508,16 @@ async function buildSitemapsXml() {
                 epSeriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
                 epSeriesXml += `    <changefreq>daily</changefreq>\n`;
                 epSeriesXml += `    <priority>0.75</priority>\n`;
+                epSeriesXml += `  </url>\n`;
+            }
+
+            // Bổ sung tập Song Ngữ cho phim có trong kho Song Ngữ
+            if (m.isBilingual) {
+                epSeriesXml += `  <url>\n`;
+                epSeriesXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-${ep}-song-ngu</loc>\n`;
+                epSeriesXml += `    <lastmod>${m.modified}</lastmod>\n`;
+                epSeriesXml += `    <changefreq>daily</changefreq>\n`;
+                epSeriesXml += `    <priority>${ep === 1 ? '0.85' : '0.75'}</priority>\n`;
                 epSeriesXml += `  </url>\n`;
             }
         }
@@ -493,6 +558,15 @@ async function buildSitemapsXml() {
             movieXml += `    <changefreq>daily</changefreq>\n`;
             movieXml += `    <priority>0.85</priority>\n`;
             movieXml += `  </url>\n`;
+
+            if (m.isBilingual) {
+                movieXml += `  <url>\n`;
+                movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/full-song-ngu</loc>\n`;
+                movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+                movieXml += `    <changefreq>daily</changefreq>\n`;
+                movieXml += `    <priority>0.85</priority>\n`;
+                movieXml += `  </url>\n`;
+            }
         } else {
             // Phim Bộ: Chuẩn hóa về /tap-1 và /tap-1-thuyet-minh
             movieXml += `  <url>\n`;
@@ -507,6 +581,15 @@ async function buildSitemapsXml() {
             movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
             movieXml += `    <changefreq>daily</changefreq>\n`;
             movieXml += `  </url>\n`;
+
+            if (m.isBilingual) {
+                movieXml += `  <url>\n`;
+                movieXml += `    <loc>${BASE_URL}/xem-phim/${m.slug}/tap-1-song-ngu</loc>\n`;
+                movieXml += `    <lastmod>${m.modified}</lastmod>\n`;
+                movieXml += `    <changefreq>daily</changefreq>\n`;
+                movieXml += `    <priority>0.85</priority>\n`;
+                movieXml += `  </url>\n`;
+            }
         }
     });
     movieXml += `</urlset>`;
@@ -1022,3 +1105,5 @@ router.post('/api/seo/clear-cache', (req, res) => {
 });
 
 module.exports = router;
+module.exports.buildSitemapsXml = buildSitemapsXml;
+module.exports.fetchMoviesForSitemap = fetchMoviesForSitemap;
