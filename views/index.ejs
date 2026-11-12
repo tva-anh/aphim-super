@@ -266,13 +266,13 @@
                             <div id="heroGenres" class="flex flex-wrap gap-2 items-center">
                                 <% if (ssrHero0 && Array.isArray(ssrHero0.category) && ssrHero0.category.length> 0) { %>
                                     <% ssrHero0.category.slice(0, 2).forEach(cat=> { %>
-                                        <a href="/the-loai/<%= cat.slug || 'phim-hot' %>" class="hero-genre-pill">
+                                        <a href="/categories?category=<%= cat.slug || 'phim-hot' %>" class="hero-genre-pill">
                                             <%= cat.name || cat %>
                                         </a>
                                         <% }) %>
                                             <% } else { %>
-                                                <a href="/the-loai/chinh-kich" class="hero-genre-pill">Chính kịch</a>
-                                                <a href="/the-loai/gia-dinh" class="hero-genre-pill">Gia đình</a>
+<a href="/categories?category=chinh-kich" class="hero-genre-pill">Chính kịch</a>
+                            <a href="/categories?category=gia-dinh" class="hero-genre-pill">Gia đình</a>
                                                 <% } %>
                             </div>
 

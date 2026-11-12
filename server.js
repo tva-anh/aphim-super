@@ -2787,7 +2787,7 @@ async function fetchMovieMetadata(slug) {
 
 // 2. Movie Detail Showcase Route: /phim/:slug
 app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1800');
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
     const slug = req.params.slug;
 
     // 🔀 SEO: 301 redirect nếu slug là alias ChoPhim → slug chuẩn (tránh Duplicate Content)
@@ -3146,7 +3146,7 @@ app.get([
     '/xem-phim/:slug/:episode',
     '/xem-phim/:slug/:episode/:variant'
 ], checkBlockedSlug, async (req, res) => {
-    res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=1800');
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
     const slug = req.params.slug || req.query.slug || '';
     const rawEpisode = req.params.episode || req.query.episode || '';
     const rawVariant = req.params.variant || '';
@@ -3533,6 +3533,22 @@ app.get('/phim-song-ngu', (req, res) => {
         listTitle: 'Phim Song Ngữ Chất Lượng Cao'
     });
 });
+
+// 3.2 Redirect các URL SEO cũ về trang đúng (tránh 404)
+app.get(['/phim', '/xem-phim'], (req, res) => res.redirect(301, '/danh-sach'));
+app.get('/phim-bo', (req, res) => res.redirect(301, '/danh-sach?list=phim-bo'));
+app.get('/phim-le', (req, res) => res.redirect(301, '/danh-sach?list=phim-le'));
+app.get('/phim-moi-cap-nhat', (req, res) => res.redirect(301, '/danh-sach?list=phim-moi-cap-nhat'));
+app.get('/phim-hot', (req, res) => res.redirect(301, '/danh-sach?list=phim-hot'));
+app.get('/phim-thuyet-minh', (req, res) => res.redirect(301, '/danh-sach?list=phim-thuyet-minh'));
+app.get('/the-loai', (req, res) => res.redirect(301, '/categories'));
+app.get('/the-loai/:slug', (req, res) => res.redirect(301, `/categories?category=${encodeURIComponent(req.params.slug)}`));
+app.get('/quoc-gia', (req, res) => res.redirect(301, '/phim-theo-quoc-gia'));
+app.get('/quoc-gia/:slug', (req, res) => res.redirect(301, `/phim-theo-quoc-gia?country=${encodeURIComponent(req.params.slug)}`));
+app.get('/truyen-hinh', (req, res) => res.redirect(301, '/danh-sach?list=tv-shows'));
+app.get('/thuvi', (req, res) => res.redirect(301, '/profile?tab=favorites'));
+app.get(['/dien-vien', '/dang-chieu', '/lich-chieu', '/ghep-phim'], (req, res) => res.redirect(301, '/danh-sach'));
+app.get('/phim-chieu', (req, res) => res.redirect(301, '/danh-sach?list=phim-chieu-rap'));
 
 // 3.5 Account & Profile Routes: /profile, /tai-khoan, /tai-khoan/:tab
 app.get(['/profile', '/tai-khoan', '/tai-khoan/:tab'], (req, res) => {
