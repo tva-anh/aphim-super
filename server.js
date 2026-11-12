@@ -314,23 +314,18 @@ app.get(['/api/bilingual/slugs', '/api/bilingual-slugs'], (req, res) => {
 app.get(['/api/movies/bilingual/:slug', '/api/bilingual/movie/:slug'], async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     try {
-        const { getBilingualServer, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
+        const { getBilingualServer, hasCleanBilingualStream } = require('./lib/bilingual.service');
         const movieType = req.query.type || '';
         const epCount = parseInt(req.query.episodes_count, 10) || 0;
         const songNguServer = await getBilingualServer(req.params.slug, req.query.name || '', req.query.origin_name || '', req.query.year || null, movieType, epCount);
         if (songNguServer && Array.isArray(songNguServer.server_data)) {
+            // 🛡️ Chỉ trả nguồn Song Ngữ sạch (OnCDN/ViCDN), không trả nguồn dính sub hardcode
+            if (!hasCleanBilingualStream(songNguServer)) {
+                return res.json({ status: false, server: null, reason: 'Nguồn Song Ngữ dính hardsub' });
+            }
             const isSingle = movieType === 'single' || movieType === 'movie' || epCount === 1;
             if (isSingle && songNguServer.server_data.length > 1) {
                 return res.json({ status: false, server: null });
-            }
-            const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim'));
-            if (needsStream) {
-                try {
-                    const originData = await fetchMovieMetadata(req.params.slug);
-                    if (originData && originData.episodes) {
-                        attachWorkingStreamsToBilingual(songNguServer, originData.episodes);
-                    }
-                } catch (e) {}
             }
         }
         return res.json({
@@ -3953,39 +3948,6 @@ server.listen(PORT, () => {
         }
     }, 30 * 1000);
 
-    // ⚡ WARM-UP CACHE: Preload 30 phim Song Ngữ phổ biến từ catalog (giảm cold 4-8s)
-    async function warmSongNguCatalogCache(limit = 30) {
-        try {
-            const { getBilingualSitemapEntries } = require('./lib/bilingual-sitemap');
-            const entries = getBilingualSitemapEntries().slice(0, limit);
-            if (!entries.length) return 0;
-            const queue = entries.map(e => e.slug);
-            let warmed = 0;
-            const worker = async () => {
-                while (queue.length) {
-                    const slug = queue.shift();
-                    const existing = movieMetadataCache.get(slug);
-                    if (existing && (Date.now() - existing.ts < MOVIE_CACHE_TTL)) continue;
-                    try {
-                        await fetchMovieMetadata(slug);
-                        warmed++;
-                    } catch (_) {}
-                    await new Promise(r => setTimeout(r, 500));
-                }
-            };
-            await Promise.all([worker(), worker()]);
-            if (warmed > 0) console.log(`[Cache Warm-up] ⚡ Đã preload ${warmed} phim Song Ngữ từ catalog.`);
-            return warmed;
-        } catch (e) {
-            console.warn('[Cache Warm-up Song Ngữ] Lỗi:', e.message);
-            return 0;
-        }
-    }
-
-    setTimeout(() => {
-        warmSongNguCatalogCache(30).catch(() => {});
-    }, 8000);
-
     // ⚡ WARM-UP CACHE: Preload metadata cho 24 phim Song Ngữ được ghim đầu trang
     // Giúp click vào phim ngay sau khi restart luôn nhanh (~40ms) thay vì lâu (~3s)
     setTimeout(async () => {
@@ -4022,7 +3984,6 @@ server.listen(PORT, () => {
             const { syncBilingualCatalog } = require('./lib/bilingual.service');
             const count = await syncBilingualCatalog();
             console.log(`[Auto Sync Bilingual] 🔄 Cập nhật định kỳ: ${count} phim song ngữ.`);
-            warmSongNguCatalogCache(30).catch(() => {});
         } catch (e) {
             console.warn('[Auto Sync Bilingual] ⚠️ Lỗi cập nhật định kỳ:', e.message);
         }
