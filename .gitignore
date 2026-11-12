@@ -17,5 +17,6 @@ scratch/
 public/uploads/
 data/social_posts_log.json
 data/sitemaps_cache.json
+data/bilingual_server_cache.json
 
 data/google_trends.backup.json

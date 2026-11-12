@@ -381,6 +381,7 @@ body { /* removed overscroll-behavior-y to fix desktop wheel */
 .mobile-thumb-wrapper,
 .cat-tab-container,
 .de-cu-slider,
+.sn-track,
 .ranking-grid-container,
 .section-header-tabs,
 .scrollbar-hide {

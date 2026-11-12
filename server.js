@@ -3953,6 +3953,39 @@ server.listen(PORT, () => {
         }
     }, 30 * 1000);
 
+    // ⚡ WARM-UP CACHE: Preload 30 phim Song Ngữ phổ biến từ catalog (giảm cold 4-8s)
+    async function warmSongNguCatalogCache(limit = 30) {
+        try {
+            const { getBilingualSitemapEntries } = require('./lib/bilingual-sitemap');
+            const entries = getBilingualSitemapEntries().slice(0, limit);
+            if (!entries.length) return 0;
+            const queue = entries.map(e => e.slug);
+            let warmed = 0;
+            const worker = async () => {
+                while (queue.length) {
+                    const slug = queue.shift();
+                    const existing = movieMetadataCache.get(slug);
+                    if (existing && (Date.now() - existing.ts < MOVIE_CACHE_TTL)) continue;
+                    try {
+                        await fetchMovieMetadata(slug);
+                        warmed++;
+                    } catch (_) {}
+                    await new Promise(r => setTimeout(r, 500));
+                }
+            };
+            await Promise.all([worker(), worker()]);
+            if (warmed > 0) console.log(`[Cache Warm-up] ⚡ Đã preload ${warmed} phim Song Ngữ từ catalog.`);
+            return warmed;
+        } catch (e) {
+            console.warn('[Cache Warm-up Song Ngữ] Lỗi:', e.message);
+            return 0;
+        }
+    }
+
+    setTimeout(() => {
+        warmSongNguCatalogCache(30).catch(() => {});
+    }, 8000);
+
     // ⚡ WARM-UP CACHE: Preload metadata cho 24 phim Song Ngữ được ghim đầu trang
     // Giúp click vào phim ngay sau khi restart luôn nhanh (~40ms) thay vì lâu (~3s)
     setTimeout(async () => {
@@ -3989,6 +4022,7 @@ server.listen(PORT, () => {
             const { syncBilingualCatalog } = require('./lib/bilingual.service');
             const count = await syncBilingualCatalog();
             console.log(`[Auto Sync Bilingual] 🔄 Cập nhật định kỳ: ${count} phim song ngữ.`);
+            warmSongNguCatalogCache(30).catch(() => {});
         } catch (e) {
             console.warn('[Auto Sync Bilingual] ⚠️ Lỗi cập nhật định kỳ:', e.message);
         }

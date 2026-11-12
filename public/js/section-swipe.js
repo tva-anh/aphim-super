@@ -72,6 +72,13 @@
             if (s && s.scrollWidth > s.clientWidth) return s;
         }
 
+        // 🎯 Ưu tiên cho khu Phim Song Ngữ: tìm đúng hàng .sn-track đang chạm
+        const snSection = target.closest('#snCountrySection, .sn-country-section');
+        if (snSection) {
+            const s = target.closest('.sn-track') || snSection.querySelector('.sn-track');
+            if (s && s.scrollWidth > s.clientWidth) return s;
+        }
+
         const matched = target.closest(SLIDER_SELECTORS);
         if (matched) {
             if (matched.scrollWidth > matched.clientWidth || 
@@ -537,14 +544,18 @@
 
             .is-smooth-dragging .de-cu-card,
             .is-smooth-dragging .cinema-hot-card,
+            .is-smooth-dragging .sn-row-card,
             .is-smooth-dragging .de-cu-poster-wrap,
-            .is-smooth-dragging .cinema-hot-poster-wrap {
+            .is-smooth-dragging .cinema-hot-poster-wrap,
+            .is-smooth-dragging .sn-row-card .landscape-poster-wrap {
                 transition: none !important;
                 pointer-events: none !important;
             }
 
             .is-smooth-dragging .de-cu-card:hover .de-cu-poster-wrap,
-            .is-smooth-dragging .cinema-hot-card:hover .cinema-hot-poster-wrap img {
+            .is-smooth-dragging .cinema-hot-card:hover .cinema-hot-poster-wrap img,
+            .is-smooth-dragging .sn-row-card:hover .landscape-poster-wrap,
+            .is-smooth-dragging .sn-row-card:hover .landscape-poster-wrap img {
                 transform: none !important;
                 box-shadow: none !important;
                 border-color: rgba(255, 255, 255, 0.08) !important;
