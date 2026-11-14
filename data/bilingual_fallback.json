@@ -18213,8 +18213,8 @@
     {
       "name": "Tập 03",
       "slug": "tap-3",
-      "link_m3u8": "https://vicdn.cc/hls/UP/l4n4z344q284v2u2v2q274o2z2.html",
-      "link_embed": "",
+      "link_m3u8": "",
+      "link_embed": "https://vicdn.cc/tv-307106-1-3",
       "subtitles": []
     },
     {
@@ -33074,6 +33074,535 @@
           "label": "Tiếng Anh (English)",
           "language": "en",
           "url": "https://m-center.onflixcdn.com/content/07112026/20161c9b-27de-4249-a62d-1be3ce4faf32.vtt"
+        }
+      ]
+    }
+  ],
+  "tai-phiet-va-canh-sat-phan-2": [
+    {
+      "name": "1",
+      "slug": "tap-1",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.Us2K6Nweqa3T-ETh.9TNJYB8t1sfNiIL8BWEAxYAbq6N-ap6ODAKsmKPKxLca4KYaac059ljVFTxq.ehRrheN-pf4fPKoy3enzsg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-1-1786684226838-72672283-tap_01_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-1-1786684068736-62748611-tap_01_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-1-1786684073823-4f142d3c-tap_01_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-1-1786684080936-7e30ca4b-tap_01_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-1-1786684086020-e635c5e5-tap_01_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-1-1786684101717-12ebb5a9-tap_01_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "slug": "tap-2",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.OKRcE9tirA8i4yhb.YVYdPHfxuIW61mSURG9ap7DrvFA3rHhM3ajb4ZwFJa9fZK_a8fGPkmW9xJlc.xiBpjPMu-LmJAZ6KDiRkcA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-2-1786684233816-ba7b9a73-tap_02_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-2-1786684069170-758e83d3-tap_02_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-2-1786684074128-b264ecbc-tap_02_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-2-1786684081214-8680993b-tap_02_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-2-1786684087007-ba69759c-tap_02_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-2-1786684102013-6a995897-tap_02_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "slug": "tap-3",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.xK8Y7IR7Oiw4JPW3._reI1mbMUa_RgJFSKfUdBLQ0MKOGrNaSLwLdyzZjeoy7IjJDfD19lMniTl7J.Ey8_l8mp_QVzP1iUk9w1lw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-3-1786966071348-83b4254d-tap_03_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-3-1786966081070-7bba1327-tap_03_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-3-1786966088882-4a49077b-tap_03_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-3-1786966109098-f3fc310e-tap_03_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-3-1786966103368-c2a1fc51-tap_03_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-3-1786966113698-6abc9512-tap_03_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "slug": "tap-4",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.ujmy8yNwb7VUjp6T.0zoWPMSsorv5zH0Lw6NIjfcorgdUo3y26voCmzQY5BKZYSkff0XBqooQbX3Y.xlSeY0We6wG8PlC3xFDNug",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-4-1786966070899-495ba3ea-tap_04_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-4-1786966081245-bf76229e-tap_04_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-4-1786966088989-db733738-tap_04_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-4-1786966109201-21b2b883-tap_04_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-4-1786966103488-a840cfc9-tap_04_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-4-1786966113807-8ba2ed6e-tap_04_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "slug": "tap-5",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.Sb4nh1bcamv3E_ra.MEWl6VlCAQiYAe4bVcv4ypQd_bi-cSArAuutIk7OY9QPW1GMlemr3C8TOnJ0.4oZ3Gl6Or_MwjfzMEg9M9g",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-5-1787455965647-02d03168-tap_05_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-5-1787369204260-4c394b6d-tap_05_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-5-1787369208713-e9e0bb56-tap_05_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-5-1787369217566-98b65c66-tap_05_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-5-1787369211739-e6a85296-tap_05_chinese_traditional.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-5-1787369221170-20fb1104-tap_05_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "slug": "tap-6",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.EEKcZinE2NoREe6i.1qz7cARDYueXOwYPQxQGHXQJ3z84juyLp0eVEi46wcKXQOlE3yaYibrQ_4iy.gx1sog4kSsE7V0bv_tHF-g",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-6-1787549616217-db873c7e-tap_06_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-6-1787456114478-88c0d653-tap_06_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-6-1787456120388-a41fda8a-tap_06_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-6-1787456127974-32d06767-tap_06_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-6-1787456110123-2f9bfe2c-tap_06_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-6-1787456123768-5127fc8e-tap_06_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "slug": "tap-7",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.91vcTqI_W9zlxweG.HYG7YEbqbfILIn5qRVUupxJZXYvlCwcNdF7RAGd1q6ypHigdYEkrlk96muaP.GJ1QLoPnqu74nT5PdC5nmg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-7-1788080121660-4ae29271-tap_07_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-7-1788056198816-ef46e0e4-tap_07_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-7-1788056202561-7701d44b-tap_07_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-7-1788056214372-d3467442-tap_07_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-7-1788056206631-75bd47df-tap_07_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-7-1788056223448-7cb9a1ea-tap_07_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "8",
+      "slug": "tap-8",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.NBArCFgMwyAxmrYP.ZOBSq-hWin_M_ZAUumi4GgZgkI0hJkMTj5yWHE_sh7ckhodDWnjOHOwqV0JW.jzON_JfrRGUYeIwUBSkrQg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-8-1788515936666-f396d7d7-tap_08_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-8-1788056240879-5bddf4ea-tap_08_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-8-1788056245087-930556b1-tap_08_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-8-1788056252156-b170d603-tap_08_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-8-1788056248067-e096f324-tap_08_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-8-1788056256150-ec029b05-tap_08_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "9",
+      "slug": "tap-9",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.yAB3icaj2BDp46qE.9tYftk_n0d469rpq7Q27W0brvuOwTA11pZDf9wFBn46Dd0fgYx-BPvM93R5I.9AMe_vvO-SUjfdT4uq7_ng",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-9-1789124690787-bf8bc368-tap_09_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-9-1788536164562-985a66a8-tap_09_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-9-1788536165664-22def78b-tap_09_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-9-1788536165051-4618c1a0-tap_09_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-9-1788536165996-901b08c6-tap_09_chinese_traditional.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-9-1788536165383-5c34a451-tap_09_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "10",
+      "slug": "tap-10",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.kQDrQwr-Uhku7grL.AbT6smpY36VRfOPevolNoUj4JV1zYLDo2BoOokljbko5Tvwj3QQgYuwWSr2L.DQPqbrK9YDQbwT1dJEro3w",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-10-1789124691903-78617386-tap_10_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-10-1788657766654-1a8228f0-tap_10_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-10-1788657767071-3763525b-tap_10_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-10-1788657766759-918882cc-tap_10_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-10-1788657761907-9c0a26ca-tap_10_chinese_simplified.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-10-1788657766918-5d5190ea-tap_10_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "11",
+      "slug": "tap-11",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.L4BJXZCN5haeclNp.5WWDXYIwPnXtVZZu9IeSps9IM1ThwPCva8WmFBZgvZaG6ujIccwBFQqUw4RN.RUCPFmTvJHvDLbWFIlmK9w",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-11-1789815241660-1a5259e8-tap_11_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-11-1789140029923-add03f62-tap_11_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-11-1789140044896-45ccef24-tap_11_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-11-1789140030964-b5d988e7-tap_11_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-11-1789140035255-5b465033-tap_11_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-11-1789140033310-cc4096c0-tap_11_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "12",
+      "slug": "tap-12",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.qC7wi8n3iOz_qdlL.AuBm-D4hsEsdPBJ4_RSBJ3lTgRiRG1FxPqkkW6ZcMwTYO5Eb35vJ1EG0m3KO.Q_TdUnhF0Ugw6R97eSN_Xw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-12-1789815242099-ff4c8a93-tap_12_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-12-1789227014460-8de2bf28-tap_12_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-12-1789227022431-a8b1db12-tap_12_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-12-1789227016126-9e92db1d-tap_12_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-12-1789227017700-6de81a41-tap_12_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-12-1789227017018-1dd3beea-tap_12_french.vtt"
+        }
+      ]
+    },
+    {
+      "name": "13",
+      "slug": "tap-13",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.sjqyn_vHMpKcdx7D.MaHFrjc6t1EGOOpjfaofjDr7xi7UhTxq5T0l02iFOcveuGX3jSPWywz56hpS.EIaqKOxrjRW4QikeKSGAJw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-13-1789883093593-dd59b327-tap_13_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-13-1789744586131-3a4950bc-tap_13_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-13-1789744594277-a5ee600f-tap_13_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-13-1789744585629-edafbf46-tap_13_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-13-1789744584886-2fae9885-tap_13_chinese_traditional.vtt"
+        }
+      ]
+    },
+    {
+      "name": "14",
+      "slug": "tap-14",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.vO3kgVxKKTv0eIEg.-3L76ZZbiGgIBcT8DfwmTmYA5KKbkWk37nUqXhpUXMnOpZr1oGP8p3x7ZZQD.-XccsVTkW0vsq_n5PRisjQ",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-14-1789958719643-bac0f710-tap_14_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-14-1789832034454-eaf68954-tap_14_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-14-1789832048412-1be9c0ca-tap_14_english.vtt"
+        },
+        {
+          "label": "Tiếng Nhật",
+          "language": "ja",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-14-1789832034489-c27224cd-tap_14_japanese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-14-1789832034307-a63cc214-tap_14_chinese_tw.vtt"
+        },
+        {
+          "label": "Tiếng Pháp",
+          "language": "fr",
+          "url": "https://chophim.lat/api/storage/subtitles?file=tai-phiet-va-canh-sat-phan-2-tap-14-1789832034838-b1254a22-tap_14_french.vtt"
         }
       ]
     }

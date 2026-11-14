@@ -1437,6 +1437,36 @@
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
                 window.activeVariant = <%- JSON.stringify(typeof activeVariant !== 'undefined' ? activeVariant : null) %>;
                 window.requestedServerIndex = <%- JSON.stringify(typeof requestedServerIndex !== 'undefined' ? requestedServerIndex : null) %>;
+
+                // ⚡ Kết nối sớm (Preconnect) ngay lập tức tới đúng Domain chứa luồng video của phim này
+                (function preconnectMovieOrigins() {
+                    try {
+                        var eps = window.initialEpisodes || [];
+                        var origins = {};
+                        for (var i = 0; i < eps.length; i++) {
+                            var s = eps[i];
+                            if (s && s.server_data) {
+                                for (var j = 0; j < s.server_data.length && j < 2; j++) {
+                                    var m = s.server_data[j] && s.server_data[j].link_m3u8;
+                                    if (m && m.indexOf('http') === 0) {
+                                        var p = m.split('/');
+                                        if (p.length >= 3) {
+                                            var org = p[0] + '//' + p[2];
+                                            if (!origins[org]) {
+                                                origins[org] = true;
+                                                var link = document.createElement('link');
+                                                link.rel = 'preconnect';
+                                                link.href = org;
+                                                link.crossOrigin = 'anonymous';
+                                                document.head.appendChild(link);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) { }
+                })();
             </script>
             <%# ⚡ RENDER SỚM danh sách MÁY CHỦ + TẬP từ dữ liệu SSR.
                  Đặt TRƯỚC mọi script nặng: script `defer` chạy theo đúng thứ tự trong DOM,

@@ -6887,12 +6887,15 @@ function initializePlayer(episode) {
             levelLoadingMaxRetry: 4,
             manifestLoadingTimeOut: 15000,
             manifestLoadingMaxRetry: 4,
-            // ⚡ ABR (Adaptive Bitrate) thông minh ưu tiên mượt mà tuyệt đối
+            // ⚡ ABR (Adaptive Bitrate) thông minh ưu tiên phát siêu tốc và mượt mà tuyệt đối
             startLevel: -1, // Luôn để Auto thích ứng mạng
-            abrEwmaDefaultEstimate: 1500000, // Khởi đầu 1.5 Mbps thực tế cho mạng 3G/4G/Wifi
+            abrEwmaDefaultEstimate: 1200000, // Khởi đầu 1.2 Mbps tối ưu nạp phân đoạn đầu siêu nhanh
+            abrEwmaFastVoD: 2.5, // ⚡ Nhanh chóng nhận diện đường truyền để nâng lên Full HD tức thì
+            abrEwmaSlowVoD: 8.0,
             abrBandWidthFactor: 0.85, // Biên an toàn 85% băng thông
             abrBandWidthUpFactor: 0.7, // Tăng chất lượng có kiểm soát
-            testBandwidth: false // ⚡ Bỏ qua bước kiểm tra băng thông giả lập để bắt đầu phát tức thì
+            testBandwidth: false, // ⚡ Bỏ qua bước kiểm tra băng thông giả lập để bắt đầu phát tức thì
+            initialLiveManifestSize: 1
         });
         window.hls = hls;
         window.hlsInstance = hls;
@@ -6948,30 +6951,29 @@ function initializePlayer(episode) {
                     hls.currentLevel = -1;
                     hls.nextLevel = -1;
 
-                    if (isMobileDevice) {
-                        // Trên mobile: Khởi đầu bằng level 480p - 720p để phát ngay trong 100ms
-                        let fastStartIdx = -1;
-                        for (let i = 0; i < allLevels.length; i++) {
-                            const h = allLevels[i].height || 0;
-                            if (h >= 480 && h <= 720) {
-                                fastStartIdx = i;
-                                break;
-                            }
+                    // 🚀 THỦ THUẬT FAST INITIAL PLAYBACK (Cả Desktop & Mobile):
+                    // Bắt đầu phân đoạn đầu tiên bằng level vừa phải (~720p hoặc 480p) để video phát ngay trong 0.3s - 0.5s,
+                    // hoàn toàn xóa bỏ hiện tượng đứng hình xoay tròn do cố tải phân đoạn 1080p nặng khi CDN bị nghẽn.
+                    let fastStartIdx = -1;
+                    for (let i = 0; i < allLevels.length; i++) {
+                        const h = allLevels[i].height || 0;
+                        if (h >= 480 && h <= 720) {
+                            fastStartIdx = i;
+                            break;
                         }
-                        hls.startLevel = (fastStartIdx !== -1) ? fastStartIdx : -1;
-                    } else {
-                        // Desktop: Bắt đầu ở level cao nhất nếu mạng mạnh, nhưng vẫn để nextLevel = -1 để ABR thích ứng
-                        let bestIdx = -1;
-                        let maxHeight = 0;
-                        allLevels.forEach((lvl, idx) => {
-                            const h = lvl.height || 0;
-                            if (h >= maxHeight) {
-                                maxHeight = h;
-                                bestIdx = idx;
-                            }
-                        });
-                        hls.startLevel = (bestIdx !== -1) ? bestIdx : -1;
                     }
+                    if (fastStartIdx === -1 && allLevels.length > 0) {
+                        fastStartIdx = 0; // Fallback level nhẹ nhất
+                    }
+                    hls.startLevel = fastStartIdx;
+
+                    // Ngay khi phân đoạn đầu tiên được nạp vào buffer thành công, mở khóa ABR để tự động nâng lên 1080p Full HD nét nhất
+                    hls.once(Hls.Events.FRAG_BUFFERED, () => {
+                        console.log('⚡ [HLS Fast-Start] Phân đoạn đầu tiên đã nạp xong, kích hoạt ABR nâng lên độ nét cao nhất');
+                        if (savedQualityIdx === -1) {
+                            hls.nextLevel = -1;
+                        }
+                    });
                 }
             }
             if (typeof refreshSettingsQuality === 'function') {
