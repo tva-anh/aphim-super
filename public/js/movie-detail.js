@@ -1993,13 +1993,14 @@ function renderEpisodes(episodes) {
             else if (sName.includes('lồng tiếng') || sName.includes('long tieng')) catSlug = '-long-tieng';
         }
         const sParam = (currentServerIndexDetail > 0 && !catSlug) ? `?server=${currentServerIndexDetail}` : '';
+        const autoPlayQuery = sParam ? '&autoplay=1' : '?autoplay=1';
         const watchHref = isSingle
-            ? `/xem-phim/${currentMovie.slug}/full${catSlug}${sParam}`
-            : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}`;
+            ? `/xem-phim/${currentMovie.slug}/full${catSlug}${sParam}${autoPlayQuery}`
+            : `/xem-phim/${currentMovie.slug}/tap-${cleanSlug}${catSlug}${sParam}${autoPlayQuery}`;
 
         return `
             <a href="${watchHref}"
-                onclick="if(typeof savePreloadedMovieData==='function'&&currentMovie)savePreloadedMovieData(currentMovie);"
+                onclick="try{sessionStorage.setItem('aphim_direct_play','1');}catch(e){};if(typeof savePreloadedMovieData==='function'&&currentMovie)savePreloadedMovieData(currentMovie);"
                 class="group ${isActive ? 'bg-[#282c3f] border-[#fcd576] text-[#fcd576] font-bold shadow-[0_0_12px_rgba(252,213,118,0.25)]' : 'bg-[#212534] border-white/10 text-white hover:bg-[#2c3144] hover:border-white/20 font-medium'} border rounded-lg py-2.5 px-3 flex items-center justify-center gap-2 transition-all duration-200 w-full text-sm">
                 <svg style="width: 14px !important; height: 14px !important; min-width: 14px !important; flex-shrink: 0 !important; display: inline-block !important; fill: currentColor !important;" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>

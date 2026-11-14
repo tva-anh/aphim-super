@@ -1141,8 +1141,9 @@ app.get('/api/vsmov-episodes/:slug', async (req, res) => {
             timeout: 2500,
             headers: { 'User-Agent': 'Mozilla/5.0' }
         });
-        vsmovCache.set('direct_' + slug, { data: response.data, timestamp: Date.now() });
-        res.json(response.data);
+        const vData = response.data;
+        vsmovCache.set('direct_' + slug, { data: vData, timestamp: Date.now() });
+        res.json(vData);
     } catch (err) {
         vsmovCache.set('direct_' + slug, { data: { status: false, episodes: [] }, timestamp: Date.now() });
         res.json({ status: false, episodes: [] });
@@ -1410,6 +1411,7 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
     try {
         const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
         const isVicdn = targetUrl.includes('vicdn.cc');
+        const isVsmov = targetUrl.includes('streamvsmov.com') || targetUrl.includes('vsmov.com');
         const headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'Accept': '*/*'
@@ -1420,6 +1422,9 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
         } else if (isVicdn) {
             headers['Referer'] = 'https://vicdn.cc/';
             headers['Origin'] = 'https://vicdn.cc';
+        } else if (isVsmov) {
+            headers['Referer'] = 'https://v9.streamvsmov.com/';
+            headers['Origin'] = 'https://v9.streamvsmov.com';
         }
 
         const response = await axios.get(targetUrl, {
@@ -1514,6 +1519,7 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
     try {
         const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
         const isVicdn = targetUrl.includes('vicdn.cc');
+        const isVsmov = targetUrl.includes('streamvsmov.com') || targetUrl.includes('vsmov.com');
         const headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'Accept': '*/*'
@@ -1524,6 +1530,9 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
         } else if (isVicdn) {
             headers['Referer'] = 'https://vicdn.cc/';
             headers['Origin'] = 'https://vicdn.cc';
+        } else if (isVsmov) {
+            headers['Referer'] = 'https://v9.streamvsmov.com/';
+            headers['Origin'] = 'https://v9.streamvsmov.com';
         }
         if (req.headers.range) {
             headers['Range'] = req.headers.range;

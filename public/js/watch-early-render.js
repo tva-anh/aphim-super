@@ -49,6 +49,18 @@
 
             currentServerIndex = typeof currentServerIndex === 'number' ? currentServerIndex : 0;
 
+            function isBlockedServer(server) {
+                if (!server || !Array.isArray(server.server_data) || server.server_data.length === 0) return true;
+                return server.server_data.every(function(ep) {
+                    if (!ep) return true;
+                    if (ep.link_m3u8 && typeof ep.link_m3u8 === 'string' && ep.link_m3u8.trim()) return false;
+                    if (ep.link_embed && typeof ep.link_embed === 'string' && ep.link_embed.trim()) {
+                        return ep.link_embed.includes('streamc.xyz');
+                    }
+                    return true;
+                });
+            }
+
             episodes.forEach(function(s) {
                 if (!s.original_server_name) s.original_server_name = s.server_name;
             });
@@ -75,6 +87,13 @@
             groupOrder.forEach(function(category) {
                 var items = groups[category];
                 if (!items || items.length === 0) return;
+
+                // Lọc bỏ máy chủ bị nhà cung cấp chặn iframe (streamc.xyz trả 403 / khung xám) nếu trong nhóm đã có máy chủ hoạt động tốt
+                var hasWorking = items.some(function(it) { return !isBlockedServer(it.server); });
+                if (hasWorking) {
+                    items = items.filter(function(it) { return !isBlockedServer(it.server); });
+                }
+                if (items.length === 0) return;
 
                 var catSlug = category === 'Song Ngữ'
                     ? 'song-ngu'
@@ -105,8 +124,8 @@
                     var groupSubIndex = items.findIndex(function(it) { return it.index === index; });
                     var rawTitle = server.original_server_name || server.server_name || '';
                     var displayTitle = isSongNgu
-                        ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (isFirstInGroup ? 'Song Ngữ' : 'Song Ngữ #' + groupSubIndex))
-                        : (isFirstInGroup ? category : category + ' #' + groupSubIndex);
+                        ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (items.length > 1 ? (isFirstInGroup ? 'Song Ngữ' : 'Song Ngữ #' + (groupSubIndex + 1)) : 'Song Ngữ'))
+                        : (items.length > 1 ? (isFirstInGroup ? category + ' (Chính)' : category + ' #' + (groupSubIndex + 1)) : category);
 
                     if (isSongNgu) {
                         return '<button onclick="changeServer(' + index + ')"' +

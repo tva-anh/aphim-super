@@ -192,12 +192,31 @@ function isBlockedEmbedLink(link) {
     return BLOCKED_EMBED_HOSTS.some(b => host === b || host.endsWith('.' + b));
 }
 
+// 🌟 Phương án A: VSMov phát trực tiếp qua Iframe nhúng sạch từ CDN của họ (0% gánh nặng băng thông VPS)
+function enrichEpisodeLinks(ep) {
+    return ep;
+}
+
+// Chấm điểm chất lượng từng tập phim: 3 = M3U8, 2 = Embed sạch, 1 = Embed bị chặn (streamc.xyz), 0 = Không có link
+function getEpisodeQuality(ep) {
+    if (!ep) return 0;
+    enrichEpisodeLinks(ep);
+    const linkM3u8 = typeof ep.link_m3u8 === 'string' ? ep.link_m3u8.trim() : '';
+    const linkEmbed = typeof ep.link_embed === 'string' ? ep.link_embed.trim() : '';
+    if (linkM3u8) return 3;
+    if (linkEmbed) {
+        return isBlockedEmbedLink(linkEmbed) ? 1 : 2;
+    }
+    return 0;
+}
+
 function serverLinkQuality(server) {
     const eps = (server && Array.isArray(server.server_data)) ? server.server_data.filter(Boolean) : [];
     if (eps.length === 0) return 0;
 
     let m3u8 = 0, embedOk = 0, embedBlocked = 0;
     eps.forEach(ep => {
+        enrichEpisodeLinks(ep);
         const linkM3u8 = typeof ep.link_m3u8 === 'string' ? ep.link_m3u8.trim() : '';
         const linkEmbed = typeof ep.link_embed === 'string' ? ep.link_embed.trim() : '';
         if (linkM3u8) m3u8++;
@@ -396,9 +415,12 @@ function pickBestServerIndex(episodes, reqVariant, movie, requestedEpSlug) {
     const pool = requestedEpSlug ? all.filter(x => serverHasEpisode(x.s, requestedEpSlug)) : all;
     const candidates = pool.length ? pool : all;
 
-    // 🌟 MẶC ĐỊNH KHI VÀO TRANG: Luôn luôn tìm máy chủ Vietsub (API) đầu tiên để phát ngay tức thì
+    // 🌟 MẶC ĐỊNH KHI VÀO TRANG: Luôn luôn tìm máy chủ Vietsub (API) chất lượng tốt đầu tiên để phát ngay tức thì
     if (!reqVariant || reqVariant === 'vietsub' || reqVariant === 'song-ngu') {
         const vietsubCandidate = candidates.find(({ s }) => {
+            const type = getServerTypeTag(s, movie);
+            return type === 'vietsub' && serverLinkQuality(s) >= 2;
+        }) || candidates.find(({ s }) => {
             const type = getServerTypeTag(s, movie);
             return type === 'vietsub';
         });
@@ -1017,6 +1039,15 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
         if (data && data.episodes) {
             data.episodes.forEach((server) => {
                 if (server.server_data && server.server_data.length > 0) {
+                    // Kiểm tra xem server này đã tồn tại chưa (tránh trùng lặp m3u8 giống hệt nhau)
+                    const firstLink = server.server_data[0]?.link_m3u8 || server.server_data[0]?.link_embed;
+                    const isDup = currentMovie.episodes.some(existing => {
+                        if (!existing || !existing.server_data || existing.server_data.length === 0) return false;
+                        const existFirstLink = existing.server_data[0]?.link_m3u8 || existing.server_data[0]?.link_embed;
+                        return firstLink && existFirstLink && firstLink === existFirstLink;
+                    });
+                    if (isDup) return;
+
                     const svrNum = currentMovie.episodes.length + 1;
                     const origName = server.original_server_name || server.server_name;
                     currentMovie.episodes.push({
@@ -1046,8 +1077,8 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
                     ? keepIdx
                     : resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
             } else {
-                // 🌟 Chưa chỉ định gì (hoặc mới vào phim): Luôn ưu tiên phát máy chủ Vietsub (API) đầu tiên!
-                const firstVietsubIdx = currentMovie.episodes.findIndex(s => getServerTypeTag(s, currentMovie) === 'vietsub');
+                // 🌟 Chưa chỉ định gì (hoặc mới vào phim): Luôn ưu tiên phát máy chủ Vietsub (API) chất lượng tốt đầu tiên!
+                const firstVietsubIdx = currentMovie.episodes.findIndex(s => getServerTypeTag(s, currentMovie) === 'vietsub' && serverLinkQuality(s) >= 2);
                 if (firstVietsubIdx !== -1 && (!requestedVariant || requestedVariant === 'vietsub' || requestedVariant === 'song-ngu')) {
                     wantedIndex = firstVietsubIdx;
                 } else {
@@ -2403,8 +2434,24 @@ function shouldAutoResumePlayback(movie, episode) {
 }
 
 function handleInitialPlayerMount(episode) {
-    if (shouldAutoResumePlayback(currentMovie, episode)) {
-        console.log('⚡ [Auto-Resume] Phát hiện người dùng đang xem phim / tải lại trang -> Tự động phát tiếp tức thì tại vị trí đã xem, không cần xem lại quảng cáo!');
+    // ⚡ TỰ ĐỘNG PHÁT NGAY LẬP TỨC (Không bắt bấm nút Play lần 2):
+    // 1. Khi người dùng bấm tập phim từ ngoài trang phim (/phim/:slug)
+    // 2. Khi URL có tập cụ thể (/tap-X hoặc ?episode=X hoặc ?autoplay=1)
+    // 3. Khi có cờ sessionStorage từ trang trước
+    // 4. Khi auto-resume phiên xem trước
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasAutoplayParam = urlParams.get('autoplay') === '1' || urlParams.get('play') === '1';
+    let isDirectEpisodeClick = false;
+    try {
+        isDirectEpisodeClick = sessionStorage.getItem('aphim_direct_play') === '1';
+        sessionStorage.removeItem('aphim_direct_play');
+    } catch(e) {}
+
+    const pathname = window.location.pathname.toLowerCase();
+    const isExplicitEp = Boolean(urlParams.get('episode') || pathname.includes('/tap-') || pathname.includes('/full'));
+
+    if (hasAutoplayParam || isDirectEpisodeClick || isExplicitEp || shouldAutoResumePlayback(currentMovie, episode)) {
+        console.log('⚡ [Instant Auto-Play] Tự động phát video tức thì, không bắt bấm Play lần 2!');
         window._isTvcActive = false;
         initializePlayer(episode);
     } else {
@@ -2539,8 +2586,8 @@ function __legacyRenderServerList_UNUSED(episodes) {
                 let groupSubIndex = items.findIndex(it => it.index === index);
                 let rawTitle = server.original_server_name || server.server_name || '';
                 let displayTitle = isSongNgu
-                    ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (isFirstInGroup ? 'Song Ngữ' : `Song Ngữ #${groupSubIndex}`))
-                    : (isFirstInGroup ? category : `${category} #${groupSubIndex}`);
+                    ? (rawTitle.toLowerCase().includes('song ngữ') ? rawTitle : (items.length > 1 ? (isFirstInGroup ? 'Song Ngữ' : `Song Ngữ #${groupSubIndex + 1}`) : 'Song Ngữ'))
+                    : (items.length > 1 ? (isFirstInGroup ? `${category} (Chính)` : `${category} #${groupSubIndex + 1}`) : category);
 
                 if (isSongNgu) {
                     return `
@@ -2668,6 +2715,107 @@ window.changeServer = function (index) {
 window.episodeSearchTerm = window.episodeSearchTerm || '';
 window.episodeSortOrder = window.episodeSortOrder || 'asc';
 
+// 🌟 THỦ THUẬT SÁNG KIẾN: Quét toàn bộ máy chủ để gộp tất cả các tập phim khả dụng
+// Khử trùng triệt để số tập (ví dụ "1" và "01" là cùng 1 tập), tự động bù tập mới nhất (Tập 12).
+function getUnifiedEpisodesForDisplay(episodes, currentIdx) {
+    if (!episodes || !episodes.length) return [];
+
+    // Nạp trước M3U8 cho toàn bộ VSMOV nếu có
+    episodes.forEach(s => {
+        if (s && Array.isArray(s.server_data)) {
+            s.server_data.forEach(enrichEpisodeLinks);
+        }
+    });
+
+    const activeServer = episodes[currentIdx] || episodes[0] || {};
+    const serverData = Array.isArray(activeServer.server_data) ? activeServer.server_data : [];
+    
+    const epMap = new Map();
+    const customMap = new Map();
+
+    function registerEpisode(ep, borrowedIdx, isFromActiveServer) {
+        if (!ep) return;
+        enrichEpisodeLinks(ep);
+        const quality = getEpisodeQuality(ep);
+        const rawName = String(ep.name || '').trim();
+        const rawSlug = String(ep.slug || '').replace(/^tap-/, '').trim();
+
+        // Trích xuất số tập (ví dụ "01" -> 1, "1" -> 1, "Tập 01" -> 1)
+        const matchNum = (rawName + ' ' + rawSlug).match(/\b0*(\d+)\b/);
+        const epNum = matchNum ? parseInt(matchNum[1], 10) : null;
+
+        if (epNum !== null && !isNaN(epNum)) {
+            const existing = epMap.get(epNum);
+            if (!existing) {
+                epMap.set(epNum, {
+                    ep: { ...ep, _epNumber: epNum, _borrowedServerIndex: borrowedIdx },
+                    quality: quality,
+                    isFromActive: isFromActiveServer
+                });
+            } else {
+                // Nếu tập hiện tại bị chặn (streamc.xyz trả 403) hoặc tập mới có chất lượng cao hơn (m3u8), nâng cấp ngay!
+                if (quality > existing.quality && (!existing.isFromActive || existing.quality <= 1)) {
+                    epMap.set(epNum, {
+                        ep: { ...ep, _epNumber: epNum, _borrowedServerIndex: borrowedIdx },
+                        quality: quality,
+                        isFromActive: false
+                    });
+                }
+            }
+        } else {
+            const customKey = (rawName || rawSlug).toLowerCase();
+            const existing = customMap.get(customKey);
+            if (!existing) {
+                customMap.set(customKey, {
+                    ep: { ...ep, _epNumber: 999999, _borrowedServerIndex: borrowedIdx },
+                    quality: quality,
+                    isFromActive: isFromActiveServer
+                });
+            } else {
+                if (quality > existing.quality && (!existing.isFromActive || existing.quality <= 1)) {
+                    customMap.set(customKey, {
+                        ep: { ...ep, _epNumber: 999999, _borrowedServerIndex: borrowedIdx },
+                        quality: quality,
+                        isFromActive: false
+                    });
+                }
+            }
+        }
+    }
+
+    // 1. Nạp các tập của máy chủ hiện tại trước
+    serverData.forEach(ep => registerEpisode(ep, undefined, true));
+
+    // 2. Nạp thêm các tập mượn từ các máy chủ khác (ưu tiên máy chủ chất lượng cao m3u8 trước)
+    const otherServerIndices = [];
+    for (let sIdx = 0; sIdx < episodes.length; sIdx++) {
+        if (sIdx !== currentIdx) otherServerIndices.push(sIdx);
+    }
+    otherServerIndices.sort((a, b) => serverLinkQuality(episodes[b]) - serverLinkQuality(episodes[a]));
+
+    otherServerIndices.forEach(sIdx => {
+        const s = episodes[sIdx];
+        const sList = (s && Array.isArray(s.server_data)) ? s.server_data : [];
+        for (let j = 0; j < sList.length; j++) {
+            registerEpisode(sList[j], sIdx, false);
+        }
+    });
+
+    const unified = [
+        ...Array.from(epMap.values()).map(x => x.ep),
+        ...Array.from(customMap.values()).map(x => x.ep)
+    ];
+
+    // 3. Sắp xếp chuẩn xác theo số tập tăng dần: 1, 2, 3 ... 12
+    unified.sort((a, b) => {
+        if (a._epNumber !== b._epNumber) return a._epNumber - b._epNumber;
+        return 0;
+    });
+
+    return unified;
+}
+window.getUnifiedEpisodesForDisplay = getUnifiedEpisodesForDisplay;
+
 // Render episode list
 function renderEpisodeList(episodes) {
     if (!episodes || episodes.length === 0) return;
@@ -2677,25 +2825,25 @@ function renderEpisodeList(episodes) {
     const container = document.getElementById('episode-list') || document.querySelector('.grid.grid-cols-2');
     if (!container) return;
 
-    const serverData = episodes[currentServerIndex]?.server_data || episodes[0].server_data;
+    const unifiedEpisodes = getUnifiedEpisodesForDisplay(episodes, currentServerIndex);
 
     // Update dynamic episode count indicator
     const episodeCountEl = document.getElementById('episode-count');
     if (episodeCountEl) {
-        episodeCountEl.textContent = `(${serverData.length} TẬP)`;
+        episodeCountEl.textContent = `(${unifiedEpisodes.length} TẬP)`;
     }
 
     // --- SEARCH & SORT LOGIC ---
     const searchContainer = document.getElementById('episode-search-container');
     if (searchContainer) {
-        if (serverData.length > 0) {
+        if (unifiedEpisodes.length > 0) {
             searchContainer.style.display = 'flex';
         } else {
             searchContainer.style.display = 'none';
         }
     }
 
-    let displayEpisodes = [...serverData];
+    let displayEpisodes = [...unifiedEpisodes];
     if (window.episodeSearchTerm) {
         const term = window.episodeSearchTerm.toLowerCase();
         displayEpisodes = displayEpisodes.filter(ep => ep.name.toLowerCase().includes(term));
@@ -2705,15 +2853,19 @@ function renderEpisodeList(episodes) {
     }
 
     container.innerHTML = displayEpisodes.map(ep => {
-        const isActive = currentEpisode && ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, '');
+        const curEpNum = currentEpisode ? parseInt(String(currentEpisode.name || currentEpisode.slug || '').replace(/[^0-9]/g, ''), 10) : null;
+        const isActive = currentEpisode && (
+            (ep._epNumber && !isNaN(curEpNum) && ep._epNumber === curEpNum) ||
+            ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, '')
+        );
 
-        let epLabel = ep.name.trim();
-        if (epLabel.toLowerCase() === 'full' || epLabel.toLowerCase() === 'tập full') {
-            epLabel = 'Tập FULL';
-        } else if (!isNaN(epLabel)) {
-            epLabel = `Tập ${epLabel}`;
-        } else if (!epLabel.toLowerCase().startsWith('tập')) {
-            epLabel = `Tập ${epLabel}`;
+        let epLabel = '';
+        if (ep._epNumber && ep._epNumber < 99999) {
+            epLabel = `Tập ${ep._epNumber}`;
+        } else {
+            let n = (ep.name || '').trim();
+            if (n.toLowerCase() === 'full' || n.toLowerCase() === 'tập full') epLabel = 'Tập FULL';
+            else epLabel = n.toLowerCase().startsWith('tập') ? n : `Tập ${n}`;
         }
 
         if (isActive) {
@@ -2809,35 +2961,62 @@ function initializePlayer(episode) {
     const movieLinks = JSON.parse(localStorage.getItem('movieLinks') || '{}');
     const customLink = movieLinks[currentMovie.slug];
 
+    enrichEpisodeLinks(episode);
     let videoUrl = customLink || episode.link_m3u8 || episode.link_embed;
+    const isBlocked = isBlockedEmbedLink(videoUrl) || (!episode.link_m3u8 && isBlockedEmbedLink(episode.link_embed));
 
-    if (!videoUrl) {
-        console.warn('⚠️ Tập hiện tại thiếu link phát, đang tự động quét các server khác...', episode);
+    if (!videoUrl || isBlocked) {
+        console.warn('⚠️ Tập hiện tại thiếu link phát hoặc embed bị chặn, đang tự động quét các server khác...', episode);
         if (currentMovie && currentMovie.episodes && currentMovie.episodes.length > 0) {
+            let altFound = null;
+            let altSIdx = -1;
+            let altQuality = -1;
+
+            const targetNum = epNumber(episode.slug) || epNumber(episode.name);
+            const normTarget = String(episode.slug || episode.name || '').replace(/^tap-/, '').trim().toLowerCase();
+
             for (let sIdx = 0; sIdx < currentMovie.episodes.length; sIdx++) {
+                if (sIdx === currentServerIndex) continue;
                 const s = currentMovie.episodes[sIdx];
                 const altEp = (s.server_data || []).find(e => {
+                    const eNum = epNumber(e.slug) || epNumber(e.name);
+                    if (targetNum !== null && eNum === targetNum) return true;
                     const matchName = e.name && episode.name && e.name.toLowerCase() === episode.name.toLowerCase();
-                    const matchSlug = e.slug && episode.slug && e.slug.replace(/^tap-/, '') === episode.slug.replace(/^tap-/, '');
-                    return (matchName || matchSlug) && Boolean(e.link_m3u8 || e.link_embed);
-                }) || (s.server_data || []).find(e => Boolean(e.link_m3u8 || e.link_embed));
+                    const matchSlug = e.slug && episode.slug && e.slug.replace(/^tap-/, '').trim().toLowerCase() === normTarget;
+                    return matchName || matchSlug;
+                });
 
-                if (altEp && (altEp.link_m3u8 || altEp.link_embed)) {
-                    console.log(`✅ Đã tìm thấy luồng phát hợp lệ từ ${s.server_name}!`);
-                    _isInitializingPlayer = false;
-                    currentServerIndex = sIdx;
-                    currentEpisode = altEp;
-                    renderServerList(currentMovie.episodes);
-                    renderEpisodeList(currentMovie.episodes);
-                    initializePlayer(altEp);
-                    return;
+                if (altEp) {
+                    enrichEpisodeLinks(altEp);
+                    const q = getEpisodeQuality(altEp);
+                    if (q > altQuality && q > 1) {
+                        altQuality = q;
+                        altFound = altEp;
+                        altSIdx = sIdx;
+                    }
                 }
+            }
+
+            if (altFound && altQuality > 1) {
+                console.log(`✅ Đã tìm thấy luồng phát hợp lệ từ ${currentMovie.episodes[altSIdx].server_name}!`);
+                _isInitializingPlayer = false;
+                currentServerIndex = altSIdx;
+                window.currentServerIndex = altSIdx;
+                window.requestedServerIndex = altSIdx;
+                currentEpisode = altFound;
+                updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);
+                renderServerList(currentMovie.episodes);
+                renderEpisodeList(currentMovie.episodes);
+                initializePlayer(altFound);
+                return;
             }
         }
 
-        console.error('❌ No video link found in episode:', episode);
-        showError('Không tìm thấy link phim. Vui lòng liên hệ admin để cập nhật link.');
-        return;
+        if (!videoUrl) {
+            console.error('❌ No video link found in episode:', episode);
+            showError('Không tìm thấy link phim. Vui lòng liên hệ admin để cập nhật link.');
+            return;
+        }
     }
 
     // Auto upgrade http to https to prevent Mixed Content security blocking on mobile browsers
@@ -2862,6 +3041,13 @@ function initializePlayer(episode) {
         return;
     }
 
+    // ⚡ Xóa sạch placeholder ngay lập tức để không bao giờ bị hiện nút Play tròn màu vàng
+    const placeholder = document.getElementById('playerPlaceholder');
+    if (placeholder) {
+        placeholder.style.display = 'none';
+        try { placeholder.remove(); } catch(e) {}
+    }
+
     // Từ thời điểm này là ĐÃ nạp player thật (không còn placeholder) → merge sau 1.2s không được cắt luồng
     // trừ khi luồng đang phát là nguồn bị chặn.
     _playbackStarted = true;
@@ -2882,8 +3068,7 @@ function initializePlayer(episode) {
             <iframe id="videoIframe" 
                 src="${videoUrl}" 
                 class="w-full h-full bg-black border-0" 
-                allowfullscreen 
-                allow="autoplay; fullscreen">
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media">
             </iframe>
         `;
 
@@ -8490,8 +8675,71 @@ window.changeEpisode = function (episodeSlug) {
         try { player.pause(); } catch(e) {}
     }
 
-    const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-    const foundEp = serverData.find(ep => ep.slug.replace(/^tap-/, '') === episodeSlug.replace(/^tap-/, ''));
+    const normTarget = String(episodeSlug || '').replace(/^tap-/, '').trim().toLowerCase();
+    const targetNum = epNumber(normTarget);
+    const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data || [];
+    let foundEp = serverData.find(ep => {
+        const epNum = epNumber(ep.slug) || epNumber(ep.name);
+        if (targetNum !== null && epNum === targetNum) return true;
+        return (ep.slug && ep.slug.replace(/^tap-/, '').trim().toLowerCase() === normTarget) ||
+               (ep.name && ep.name.trim().toLowerCase() === normTarget);
+    });
+
+    if (foundEp) enrichEpisodeLinks(foundEp);
+    const curQuality = foundEp ? getEpisodeQuality(foundEp) : 0;
+
+    // 🌟 THỦ THUẬT SÁNG KIẾN: Tìm tập phim tốt nhất để phát
+    // Nếu máy chủ hiện tại KHÔNG có tập này (ví dụ Tập 12) HOẶC tập ở máy chủ hiện tại bị hỏng/chặn (streamc.xyz trả 403),
+    // tự động tìm máy chủ khác có tập này với chất lượng tốt nhất (link_m3u8 > embed) và chuyển sang phát NGAY LẬP TỨC
+    // HOÀN TOÀN ÂM THẦM, KHÔNG PHÁT BẤT KỲ THÔNG BÁO NÀO!
+    if (!foundEp || curQuality <= 1) {
+        let bestCand = null;
+        let bestCandServerIdx = -1;
+        let bestCandQuality = -1;
+
+        for (let sIdx = 0; sIdx < currentMovie.episodes.length; sIdx++) {
+            if (sIdx === currentServerIndex && foundEp && curQuality > 1) continue;
+            const s = currentMovie.episodes[sIdx];
+            const cand = (s && Array.isArray(s.server_data)) ? s.server_data.find(ep => {
+                const epNum = epNumber(ep.slug) || epNumber(ep.name);
+                if (targetNum !== null && epNum === targetNum) return true;
+                return (ep.slug && ep.slug.replace(/^tap-/, '').trim().toLowerCase() === normTarget) ||
+                       (ep.name && ep.name.trim().toLowerCase() === normTarget);
+            }) : null;
+
+            if (cand) {
+                enrichEpisodeLinks(cand);
+                const q = getEpisodeQuality(cand);
+                if (q > bestCandQuality) {
+                    bestCandQuality = q;
+                    bestCand = cand;
+                    bestCandServerIdx = sIdx;
+                }
+            }
+        }
+
+        if (bestCand && (bestCandQuality > curQuality || !foundEp)) {
+            _userPickedServer = true;
+            currentServerIndex = bestCandServerIdx;
+            window.currentServerIndex = bestCandServerIdx;
+            window.requestedServerIndex = bestCandServerIdx;
+
+            const pickedSrv = currentMovie.episodes[bestCandServerIdx];
+            const pickedName = (pickedSrv?.server_name || pickedSrv?.original_server_name || '').toLowerCase();
+            if (pickedName.includes('song ngữ') || pickedName.includes('song ngu') || pickedName.includes('bilingual')) {
+                requestedVariant = 'song-ngu';
+            } else if (pickedName.includes('thuyết minh')) {
+                requestedVariant = 'thuyet-minh';
+            } else if (pickedName.includes('lồng tiếng')) {
+                requestedVariant = 'long-tieng';
+            } else {
+                requestedVariant = 'vietsub';
+            }
+
+            foundEp = bestCand;
+        }
+    }
+
     if (!foundEp) return;
 
     // 1. Update active state variables
@@ -8503,13 +8751,14 @@ window.changeEpisode = function (episodeSlug) {
     // 2. Update URL query parameter cleanly without page reload
     updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);
 
-    // 4. Update play stream (Re-initialize player or switch stream)
-    const videoPlayer = document.getElementById('videoPlayer');
-    if (videoPlayer) {
-        initializePlayer(currentEpisode);
-    } else {
-        renderPlayerPlaceholder(currentEpisode);
+    // 4. Phát tập phim ngay lập tức (KHÔNG hiển thị lại nút Play màu vàng, phát luôn 0ms delay)
+    window._isTvcActive = false;
+    const placeholder = document.getElementById('playerPlaceholder');
+    if (placeholder) {
+        placeholder.style.display = 'none';
+        try { placeholder.remove(); } catch(e) {}
     }
+    initializePlayer(currentEpisode);
 
     // 5. Update Watch History
     if (typeof userService !== 'undefined' && typeof userService.addToHistory === 'function') {
@@ -8517,6 +8766,7 @@ window.changeEpisode = function (episodeSlug) {
     }
 
     // 6. Rerender Episode List to update highlights
+    renderServerList(currentMovie.episodes);
     renderEpisodeList(currentMovie.episodes);
 
     // 7. Update prev/next episode navigation buttons
@@ -8526,8 +8776,10 @@ window.changeEpisode = function (episodeSlug) {
 // Update under-player navigation skip buttons (opacity, clickability)
 function updateEpisodeNavButtons() {
     if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0 || !currentEpisode) return;
-    const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-    const currentIndex = serverData.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
+    const unifiedList = (typeof getUnifiedEpisodesForDisplay === 'function')
+        ? getUnifiedEpisodesForDisplay(currentMovie.episodes, currentServerIndex)
+        : (currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data || []);
+    const currentIndex = unifiedList.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
 
     const prevBtn = document.getElementById('btn-prev-episode');
     const nextBtn = document.getElementById('btn-next-episode');
@@ -8543,7 +8795,7 @@ function updateEpisodeNavButtons() {
     }
 
     if (nextBtn) {
-        if (currentIndex >= serverData.length - 1) {
+        if (currentIndex < 0 || currentIndex >= unifiedList.length - 1) {
             nextBtn.classList.add('opacity-30', 'cursor-not-allowed', 'pointer-events-none');
             nextBtn.classList.remove('hover:text-primary');
         } else {
@@ -8556,19 +8808,23 @@ function updateEpisodeNavButtons() {
 // Navigation skip buttons action
 function playPreviousEpisode() {
     if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0 || !currentEpisode) return;
-    const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-    const currentIndex = serverData.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
+    const unifiedList = (typeof getUnifiedEpisodesForDisplay === 'function')
+        ? getUnifiedEpisodesForDisplay(currentMovie.episodes, currentServerIndex)
+        : (currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data || []);
+    const currentIndex = unifiedList.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
     if (currentIndex > 0) {
-        window.changeEpisode(serverData[currentIndex - 1].slug);
+        window.changeEpisode(unifiedList[currentIndex - 1].slug);
     }
 }
 
 function playNextEpisode() {
     if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0 || !currentEpisode) return;
-    const serverData = currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data;
-    const currentIndex = serverData.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
-    if (currentIndex < serverData.length - 1) {
-        window.changeEpisode(serverData[currentIndex + 1].slug);
+    const unifiedList = (typeof getUnifiedEpisodesForDisplay === 'function')
+        ? getUnifiedEpisodesForDisplay(currentMovie.episodes, currentServerIndex)
+        : (currentMovie.episodes[currentServerIndex]?.server_data || currentMovie.episodes[0].server_data || []);
+    const currentIndex = unifiedList.findIndex(ep => ep.slug.replace(/^tap-/, '') === currentEpisode.slug.replace(/^tap-/, ''));
+    if (currentIndex >= 0 && currentIndex < unifiedList.length - 1) {
+        window.changeEpisode(unifiedList[currentIndex + 1].slug);
     }
 }
 
