@@ -3693,8 +3693,10 @@
                         // ==========================================
                         // 💬 HOMEPAGE COMMUNITY COMMENTS SHOWCASE (0ms Instant Cache + SWR)
                         // ==========================================
-                        const HOME_COMMENTS_CACHE_KEY = 'aphim_home_comments_cache_v5';
+                        const HOME_COMMENTS_CACHE_KEY = 'aphim_home_comments_cache_v7';
                         try {
+                            localStorage.removeItem('aphim_home_comments_cache_v6');
+                            localStorage.removeItem('aphim_home_comments_cache_v5');
                             localStorage.removeItem('aphim_home_comments_cache_v2');
                             localStorage.removeItem('aphim_home_comments_cache_v1');
                             localStorage.removeItem('aphim_home_comments_cache');
@@ -3752,15 +3754,6 @@
                             }
                             renderHomeComments();
                         };
-
-                        const HOME_FALLBACK_FRAMES = [
-                            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png',
-                            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0e839cd79500e7b68e2bbbed54790c28.png',
-                            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_001e956faa73bd0410c455234c62818f.png',
-                            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_1acbe609daec21fa5b866df9e5a42cb7.png',
-                            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_3c97a2d37f433a7913a1c7b7a735d000.png',
-                            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_777b7aa8e77a569766e4a2e2bf656f4e.png'
-                        ];
 
                         function formatHomeCardContent(raw) {
                             if (!raw || typeof raw !== 'string') return { text: '', gifUrl: null };
@@ -3827,11 +3820,11 @@
                                     if (!c) return '';
                                     const uName = String(c.userName || 'Thành viên APhim');
                                     const uAvatar = c.userAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(uName)}`;
-                                    const frameUrl = (c.equippedFrameUrl && typeof c.equippedFrameUrl === 'string' && c.equippedFrameUrl.startsWith('http'))
+                                    const frameUrl = (c.equippedFrameUrl && typeof c.equippedFrameUrl === 'string' && c.equippedFrameUrl.trim())
                                         ? c.equippedFrameUrl
-                                        : (c.frameUrl && typeof c.frameUrl === 'string' && c.frameUrl.startsWith('http'))
+                                        : (c.frameUrl && typeof c.frameUrl === 'string' && c.frameUrl.trim())
                                             ? c.frameUrl
-                                            : HOME_FALLBACK_FRAMES[idx % HOME_FALLBACK_FRAMES.length];
+                                            : '';
 
                                     const badgeHtml = c.badge ? (typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(c.badge) : `<span class="home-card-badge">${c.badge}</span>`) : '';
                                     const { text: cleanText, gifUrl } = formatHomeCardContent(c.content);

@@ -669,17 +669,6 @@ app.get('/api/comments/home-showcase', async (req, res) => {
             return 'Gần đây';
         };
 
-        const DISCORD_DECORATION_PRESETS = [
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0c0eeb351ae2cf48c6e1eee2cae49d40.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_0e839cd79500e7b68e2bbbed54790c28.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_001e956faa73bd0410c455234c62818f.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_1acbe609daec21fa5b866df9e5a42cb7.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_3c97a2d37f433a7913a1c7b7a735d000.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_777b7aa8e77a569766e4a2e2bf656f4e.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_b77d61247d4e3efdbe149a4e0a7df844.png',
-            'https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@main/frames/a_8679f2fe4ceca1b239ebca2021fb4bfb.png'
-        ];
-
         const KNOWN_MOVIE_NAMES = {
             'vu-be-boi-thoi-joseon-be-boi-trieu-dai': 'Vụ Bê Bối Thời Joseon: Bê Bối Triều Đại',
             'tai-phiet-va-canh-sat-phan-2': 'Tài Phiệt Và Cảnh Sát (Phần 2)',
@@ -699,7 +688,13 @@ app.get('/api/comments/home-showcase', async (req, res) => {
             const userObj = c.user || {};
             const uName = userObj.displayName || userObj.name || c.userName || c.user_name || 'Khách xem phim';
             const uAvatar = userObj.avatarUrl || userObj.avatar || c.avatar || c.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(uName)}`;
-            const frameUrl = userObj.equippedFrameUrl || c.equippedFrameUrl || c.frameUrl || DISCORD_DECORATION_PRESETS[idx % DISCORD_DECORATION_PRESETS.length];
+            const frameUrl = (userObj.equippedFrameUrl && typeof userObj.equippedFrameUrl === 'string' && userObj.equippedFrameUrl.trim())
+                ? userObj.equippedFrameUrl
+                : (c.equippedFrameUrl && typeof c.equippedFrameUrl === 'string' && c.equippedFrameUrl.trim())
+                    ? c.equippedFrameUrl
+                    : (c.frameUrl && typeof c.frameUrl === 'string' && c.frameUrl.trim())
+                        ? c.frameUrl
+                        : '';
             const frameClass = userObj.equippedFrameClass || c.equippedFrameClass || c.frameClass || '';
             const isAdmin = (uName && (uName.toLowerCase().includes('admin') || uName === 'Super Admin')) || userObj.role === 'admin' || (userObj.email && userObj.email.toLowerCase().includes('admin'));
             let badge = isAdmin ? 'ADMIN TOP 1' : (userObj.equippedBadge || userObj.badge || c.badge || (userObj.isVip ? 'VIP PRO' : 'LV.' + (userObj.level || 15)));

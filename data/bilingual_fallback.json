@@ -222,14 +222,14 @@
       "link_embed": "",
       "subtitles": [
         {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_93vwg1sn5vsy/sub_vi?seg=1"
+        },
+        {
           "label": "English (United States)",
           "language": "en",
           "url": "https://oncdn.vip/sub/str_93vwg1sn5vsy/sub_2_eng?seg=1"
-        },
-        {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/06112026/95880f5c-57d2-4163-9c2c-636e2d46134c.vtt"
         }
       ]
     },
@@ -240,14 +240,50 @@
       "link_embed": "",
       "subtitles": [
         {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_1ycty3b32n1k/sub_vi?seg=1"
+        },
+        {
           "label": "English (United States)",
           "language": "en",
           "url": "https://oncdn.vip/sub/str_1ycty3b32n1k/sub_2_eng?seg=1"
+        }
+      ]
+    },
+    {
+      "name": "Tập 3",
+      "slug": "tap-3",
+      "link_m3u8": "https://oncdn.vip/live/source/str_uzo39rzt81wd",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_uzo39rzt81wd/sub_vi?seg=1"
         },
         {
-          "label": "Tiếng Việt (Vietnamese)",
+          "label": "English (United States)",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_uzo39rzt81wd/sub_2_eng?seg=1"
+        }
+      ]
+    },
+    {
+      "name": "Tập 4",
+      "slug": "tap-4",
+      "link_m3u8": "https://oncdn.vip/live/source/str_mpqg7iij6mm4",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
           "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/06112026/55a9bd33-8b22-4efd-8ade-d9cf41fbcf78.vtt"
+          "url": "https://oncdn.vip/sub/str_mpqg7iij6mm4/sub_vi?seg=1"
+        },
+        {
+          "label": "English (United States)",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_mpqg7iij6mm4/sub_2_eng?seg=1"
         }
       ]
     }
@@ -2779,6 +2815,24 @@
           "label": "Korean (CC)",
           "language": "ko",
           "url": "https://oncdn.vip/sub/str_e93q0pkzliy0/sub_37_kor?seg=1"
+        }
+      ]
+    },
+    {
+      "name": "Tập 11",
+      "slug": "tap-11",
+      "link_m3u8": "https://oncdn.vip/live/source/str_l8wxeodtgumq",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_l8wxeodtgumq/vi_mwf3sw61?seg=1"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_l8wxeodtgumq/en_mwf3t2k9?seg=1"
         }
       ]
     }
@@ -12884,6 +12938,189 @@
           "url": "https://oncdn.vip/sub/str_057b282185d5/sub_36_chi?seg=1"
         }
       ]
+    },
+    {
+      "name": "Tập 16",
+      "slug": "tap-16",
+      "link_m3u8": "https://oncdn.vip/live/source/str_7kazwfhntmqv",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_2_ara?seg=1"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_3_cze?seg=1"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_4_dan?seg=1"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_5_ger?seg=1"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_6_gre?seg=1"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_7_eng?seg=1"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_8_spa?seg=1"
+        },
+        {
+          "label": "Dubtitle",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_9_spa?seg=1"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_10_spa?seg=1"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_11_fin?seg=1"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_12_fil?seg=1"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_13_fre?seg=1"
+        },
+        {
+          "label": "Hindi",
+          "language": "hin",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_14_hin?seg=1"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_15_hrv?seg=1"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_16_hun?seg=1"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_17_ind?seg=1"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_18_ita?seg=1"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_19_jpn?seg=1"
+        },
+        {
+          "label": "Korean",
+          "language": "ko",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_20_kor?seg=1"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_21_may?seg=1"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_22_nob?seg=1"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_23_dut?seg=1"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_24_pol?seg=1"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_25_por?seg=1"
+        },
+        {
+          "label": "Dubtitle",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_26_por?seg=1"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_27_por?seg=1"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_28_rum?seg=1"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_29_rus?seg=1"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_30_swe?seg=1"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_31_tha?seg=1"
+        },
+        {
+          "label": "Dubtitle",
+          "language": "th",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_32_tha?seg=1"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_33_tur?seg=1"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_34_vie?seg=1"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_35_chi?seg=1"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_7kazwfhntmqv/sub_36_chi?seg=1"
+        }
+      ]
     }
   ],
   "the-odyssey": [
@@ -17976,8 +18213,8 @@
     {
       "name": "Tập 03",
       "slug": "tap-3",
-      "link_m3u8": "",
-      "link_embed": "https://vicdn.cc/tv-307106-1-3",
+      "link_m3u8": "https://vicdn.cc/hls/UP/l4n4z344q284v2u2v2q274o2z2.html",
+      "link_embed": "",
       "subtitles": []
     },
     {
@@ -29087,300 +29324,864 @@
           "url": "https://oncdn.vip/sub/str_u7h7t982apxx/sub_14_chi?seg=1"
         }
       ]
+    },
+    {
+      "name": "Tập 19",
+      "slug": "tap-19",
+      "link_m3u8": "https://oncdn.vip/live/source/str_0buszj7ffxzj",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_0buszj7ffxzj/vi_mwetziii?seg=1"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://oncdn.vip/sub/str_0buszj7ffxzj/ko_mwetzs4b?seg=1"
+        }
+      ]
+    },
+    {
+      "name": "Tập 20",
+      "slug": "tap-20",
+      "link_m3u8": "https://oncdn.vip/live/source/str_opu8235hv8v7",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_opu8235hv8v7/sub_vi?seg=1"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_opu8235hv8v7/sub_en?seg=1"
+        }
+      ]
     }
   ],
   "mua-3-chua-te-nhung-chiec-nhan-nhung-chiec-nhan-quyen-nang": [
     {
-      "name": "1",
-      "slug": "1",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/6e1b19e00b6509b2e64c2fb123d71413/sub",
+      "name": "Tập 1",
+      "slug": "tap-1",
+      "link_m3u8": "https://oncdn.vip/live/source/str_qcykpspgoczd",
+      "link_embed": "",
       "subtitles": [
         {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/bd86a845-aff2-4d19-9aca-c4ac14921f46.vtt"
-        },
-        {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/e59fcd1f-bb68-4c6e-ada0-523da1ac209b.vtt"
-        },
-        {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/be1838eb-b0bf-49d0-aabd-e363dfb46daa.vtt"
-        },
-        {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/8d91b150-ad90-4473-b6bd-337f1304bae3.vtt"
-        },
-        {
-          "label": "Tiếng Nhật (Japanese)",
-          "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/8d38ca27-1f79-44d2-88ad-d5f447e9bb2d.vtt"
-        },
-        {
-          "label": "Tiếng Anh (English)",
+          "label": "Forced",
           "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/e86c3d2a-352d-41a0-b318-29639754401c.vtt"
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_2_eng?seg=1"
+        },
+        {
+          "label": "Phụ đề ENG",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_3_eng?seg=1"
+        },
+        {
+          "label": "SDH",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_4_eng?seg=1"
+        },
+        {
+          "label": "Phụ đề ARA",
+          "language": "ara",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_5_ara?seg=1"
+        },
+        {
+          "label": "Phụ đề CAT",
+          "language": "cat",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_6_cat?seg=1"
+        },
+        {
+          "label": "Phụ đề CZE",
+          "language": "cze",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_7_cze?seg=1"
+        },
+        {
+          "label": "Phụ đề DAN",
+          "language": "dan",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_8_dan?seg=1"
+        },
+        {
+          "label": "Phụ đề GER",
+          "language": "ger",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_9_ger?seg=1"
+        },
+        {
+          "label": "Phụ đề GRE",
+          "language": "gre",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_10_gre?seg=1"
+        },
+        {
+          "label": "Phụ đề SPA",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_11_spa?seg=1"
+        },
+        {
+          "label": "Phụ đề SPA",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_12_spa?seg=1"
+        },
+        {
+          "label": "Phụ đề BAQ",
+          "language": "baq",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_13_baq?seg=1"
+        },
+        {
+          "label": "Phụ đề FIN",
+          "language": "fin",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_14_fin?seg=1"
+        },
+        {
+          "label": "Phụ đề FRE",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_15_fre?seg=1"
+        },
+        {
+          "label": "Phụ đề FRE",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_16_fre?seg=1"
+        },
+        {
+          "label": "Phụ đề GLG",
+          "language": "glg",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_17_glg?seg=1"
+        },
+        {
+          "label": "Phụ đề HEB",
+          "language": "heb",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_18_heb?seg=1"
+        },
+        {
+          "label": "Phụ đề HIN",
+          "language": "hin",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_19_hin?seg=1"
+        },
+        {
+          "label": "Phụ đề HUN",
+          "language": "hun",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_20_hun?seg=1"
+        },
+        {
+          "label": "Phụ đề IND",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_21_ind?seg=1"
+        },
+        {
+          "label": "Phụ đề ITA",
+          "language": "ita",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_22_ita?seg=1"
+        },
+        {
+          "label": "Phụ đề JPN",
+          "language": "ja",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_23_jpn?seg=1"
+        },
+        {
+          "label": "Phụ đề KAN",
+          "language": "kan",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_24_kan?seg=1"
+        },
+        {
+          "label": "Phụ đề KOR",
+          "language": "ko",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_25_kor?seg=1"
+        },
+        {
+          "label": "Phụ đề MAL",
+          "language": "mal",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_26_mal?seg=1"
+        },
+        {
+          "label": "Phụ đề MAY",
+          "language": "may",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_27_may?seg=1"
+        },
+        {
+          "label": "Phụ đề NOR",
+          "language": "nor",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_28_nor?seg=1"
+        },
+        {
+          "label": "Phụ đề DUT",
+          "language": "dut",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_29_dut?seg=1"
+        },
+        {
+          "label": "Phụ đề POL",
+          "language": "pol",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_30_pol?seg=1"
+        },
+        {
+          "label": "Phụ đề POR",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_31_por?seg=1"
+        },
+        {
+          "label": "Phụ đề POR",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_32_por?seg=1"
+        },
+        {
+          "label": "Phụ đề RUM",
+          "language": "rum",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_33_rum?seg=1"
+        },
+        {
+          "label": "Phụ đề SWE",
+          "language": "swe",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_34_swe?seg=1"
+        },
+        {
+          "label": "Phụ đề TAM",
+          "language": "tam",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_35_tam?seg=1"
+        },
+        {
+          "label": "Phụ đề TEL",
+          "language": "tel",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_36_tel?seg=1"
+        },
+        {
+          "label": "Phụ đề THA",
+          "language": "th",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_37_tha?seg=1"
+        },
+        {
+          "label": "Phụ đề TUR",
+          "language": "tur",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_38_tur?seg=1"
+        },
+        {
+          "label": "Simplified",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_39_chi?seg=1"
+        },
+        {
+          "label": "Traditional",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/sub_40_chi?seg=1"
+        },
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_qcykpspgoczd/vi_mwdrgo5g?seg=1"
         }
       ]
     },
     {
-      "name": "2",
-      "slug": "2",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/36614e7fd0220f48eb04c776df305513/sub",
+      "name": "Tập 2",
+      "slug": "tap-2",
+      "link_m3u8": "https://oncdn.vip/live/source/str_fri2mr3uidfr",
+      "link_embed": "",
       "subtitles": [
         {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/cf12a947-1468-481a-aa96-d326fea2cb9b.vtt"
+          "label": "Forced",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_2_eng?seg=1"
         },
         {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/4bafa12a-3c59-4554-9cbe-0200b4c02258.vtt"
+          "label": "Phụ đề ENG",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_3_eng?seg=1"
         },
         {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/f7dad674-52b9-4daf-9e92-1bbbf42aa291.vtt"
+          "label": "SDH",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_4_eng?seg=1"
         },
         {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/432e1c5d-d1b0-41e4-84c8-c8d7ddb65b30.vtt"
+          "label": "Phụ đề ARA",
+          "language": "ara",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_5_ara?seg=1"
         },
         {
-          "label": "Tiếng Nhật (Japanese)",
+          "label": "Phụ đề CAT",
+          "language": "cat",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_6_cat?seg=1"
+        },
+        {
+          "label": "Phụ đề CZE",
+          "language": "cze",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_7_cze?seg=1"
+        },
+        {
+          "label": "Phụ đề DAN",
+          "language": "dan",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_8_dan?seg=1"
+        },
+        {
+          "label": "Phụ đề GER",
+          "language": "ger",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_9_ger?seg=1"
+        },
+        {
+          "label": "Phụ đề GRE",
+          "language": "gre",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_10_gre?seg=1"
+        },
+        {
+          "label": "Phụ đề SPA",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_11_spa?seg=1"
+        },
+        {
+          "label": "Phụ đề SPA",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_12_spa?seg=1"
+        },
+        {
+          "label": "Phụ đề BAQ",
+          "language": "baq",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_13_baq?seg=1"
+        },
+        {
+          "label": "Phụ đề FIN",
+          "language": "fin",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_14_fin?seg=1"
+        },
+        {
+          "label": "Phụ đề FRE",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_15_fre?seg=1"
+        },
+        {
+          "label": "Phụ đề FRE",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_16_fre?seg=1"
+        },
+        {
+          "label": "Phụ đề GLG",
+          "language": "glg",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_17_glg?seg=1"
+        },
+        {
+          "label": "Phụ đề HEB",
+          "language": "heb",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_18_heb?seg=1"
+        },
+        {
+          "label": "Phụ đề HIN",
+          "language": "hin",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_19_hin?seg=1"
+        },
+        {
+          "label": "Phụ đề HUN",
+          "language": "hun",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_20_hun?seg=1"
+        },
+        {
+          "label": "Phụ đề IND",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_21_ind?seg=1"
+        },
+        {
+          "label": "Phụ đề ITA",
+          "language": "ita",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_22_ita?seg=1"
+        },
+        {
+          "label": "Phụ đề JPN",
           "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/527afea4-78a7-4129-aa94-125ab448fd07.vtt"
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_23_jpn?seg=1"
+        },
+        {
+          "label": "Phụ đề KAN",
+          "language": "kan",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_24_kan?seg=1"
+        },
+        {
+          "label": "Phụ đề KOR",
+          "language": "ko",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_25_kor?seg=1"
+        },
+        {
+          "label": "Phụ đề MAL",
+          "language": "mal",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_26_mal?seg=1"
+        },
+        {
+          "label": "Phụ đề MAY",
+          "language": "may",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_27_may?seg=1"
+        },
+        {
+          "label": "Phụ đề NOR",
+          "language": "nor",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_28_nor?seg=1"
+        },
+        {
+          "label": "Phụ đề DUT",
+          "language": "dut",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_29_dut?seg=1"
+        },
+        {
+          "label": "Phụ đề POL",
+          "language": "pol",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_30_pol?seg=1"
+        },
+        {
+          "label": "Phụ đề POR",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_31_por?seg=1"
+        },
+        {
+          "label": "Phụ đề POR",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_32_por?seg=1"
+        },
+        {
+          "label": "Phụ đề RUM",
+          "language": "rum",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_33_rum?seg=1"
+        },
+        {
+          "label": "Phụ đề SWE",
+          "language": "swe",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_34_swe?seg=1"
+        },
+        {
+          "label": "Phụ đề TAM",
+          "language": "tam",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_35_tam?seg=1"
+        },
+        {
+          "label": "Phụ đề TEL",
+          "language": "tel",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_36_tel?seg=1"
+        },
+        {
+          "label": "Phụ đề THA",
+          "language": "th",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_37_tha?seg=1"
+        },
+        {
+          "label": "Phụ đề TUR",
+          "language": "tur",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_38_tur?seg=1"
+        },
+        {
+          "label": "Simplified",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_39_chi?seg=1"
+        },
+        {
+          "label": "Traditional",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/sub_40_chi?seg=1"
+        },
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_fri2mr3uidfr/vi_mwdrhl0v?seg=1"
         }
       ]
     },
     {
-      "name": "3",
-      "slug": "3",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/48ecf7a9bf6b0fe3c58ca2b5356e0213/sub",
+      "name": "Tập 3",
+      "slug": "tap-3",
+      "link_m3u8": "https://oncdn.vip/live/source/str_mj7vjg82iyrt",
+      "link_embed": "",
       "subtitles": [
         {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/18b5094b-0bab-4388-ada3-7589c2e19b04.vtt"
-        },
-        {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/701b2bdc-6402-4f47-ab0d-85e91c930179.vtt"
-        },
-        {
-          "label": "Tiếng Nhật (Japanese)",
-          "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/2a181dcf-fd2d-44a1-91ec-321ba3041879.vtt"
-        },
-        {
-          "label": "Tiếng Anh (English)",
+          "label": "American English [Forced]",
           "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/3385f6f8-eb30-4ccc-bac5-de2f332d5142.vtt"
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_2_eng?seg=1"
         },
         {
-          "label": "Tiếng Đức (German)",
+          "label": "American English [SDH]",
+          "language": "en",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_3_eng?seg=1"
+        },
+        {
+          "label": "Euskara",
+          "language": "eus",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_4_eus?seg=1"
+        },
+        {
+          "label": "Português",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_5_por?seg=1"
+        },
+        {
+          "label": "Français canadien",
+          "language": "fra",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_6_fra?seg=1"
+        },
+        {
+          "label": "Català",
+          "language": "cat",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_7_cat?seg=1"
+        },
+        {
+          "label": "Čeština",
+          "language": "ces",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_8_ces?seg=1"
+        },
+        {
+          "label": "Dansk",
+          "language": "dan",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_9_dan?seg=1"
+        },
+        {
+          "label": "Nederlands",
+          "language": "nld",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_10_nld?seg=1"
+        },
+        {
+          "label": "Português europeu",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_11_por?seg=1"
+        },
+        {
+          "label": "español de España",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_12_spa?seg=1"
+        },
+        {
+          "label": "Suomi",
+          "language": "fin",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_13_fin?seg=1"
+        },
+        {
+          "label": "Français",
+          "language": "fra",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_14_fra?seg=1"
+        },
+        {
+          "label": "Galego",
+          "language": "glg",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_15_glg?seg=1"
+        },
+        {
+          "label": "Deutsch",
+          "language": "deu",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_16_deu?seg=1"
+        },
+        {
+          "label": "Ελληνικά",
+          "language": "ell",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_17_ell?seg=1"
+        },
+        {
+          "label": "עברית",
+          "language": "heb",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_18_heb?seg=1"
+        },
+        {
+          "label": "हिन्दी",
+          "language": "hin",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_19_hin?seg=1"
+        },
+        {
+          "label": "Magyar",
+          "language": "hun",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_20_hun?seg=1"
+        },
+        {
+          "label": "Indonesia",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_21_ind?seg=1"
+        },
+        {
+          "label": "Italiano",
+          "language": "ita",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_22_ita?seg=1"
+        },
+        {
+          "label": "日本語",
+          "language": "ja",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_23_jpn?seg=1"
+        },
+        {
+          "label": "ಕನ್ನಡ",
+          "language": "kan",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_24_kan?seg=1"
+        },
+        {
+          "label": "한국어",
+          "language": "ko",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_25_kor?seg=1"
+        },
+        {
+          "label": "Español latinoamericano",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_26_spa?seg=1"
+        },
+        {
+          "label": "Melayu",
+          "language": "msa",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_27_msa?seg=1"
+        },
+        {
+          "label": "മലയാളം",
+          "language": "mal",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_28_mal?seg=1"
+        },
+        {
+          "label": "العربية الرسمية الحديثة",
+          "language": "ara",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_29_ara?seg=1"
+        },
+        {
+          "label": "Norsk bokmål",
+          "language": "nob",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_30_nob?seg=1"
+        },
+        {
+          "label": "Polski",
+          "language": "pol",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_31_pol?seg=1"
+        },
+        {
+          "label": "Română",
+          "language": "ron",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_32_ron?seg=1"
+        },
+        {
+          "label": "简体中文",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_33_zho?seg=1"
+        },
+        {
+          "label": "Svenska",
+          "language": "swe",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_34_swe?seg=1"
+        },
+        {
+          "label": "தமிழ்",
+          "language": "tam",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_35_tam?seg=1"
+        },
+        {
+          "label": "తెలుగు",
+          "language": "tel",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_36_tel?seg=1"
+        },
+        {
+          "label": "ไทย",
+          "language": "th",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_37_tha?seg=1"
+        },
+        {
+          "label": "繁體中文",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_38_zho?seg=1"
+        },
+        {
+          "label": "Türkçe",
+          "language": "tur",
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/sub_39_tur?seg=1"
+        },
+        {
+          "label": "Tiếng Việt",
           "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/021d72da-c18f-4eda-89c0-067b4f44f836.vtt"
+          "url": "https://oncdn.vip/sub/str_mj7vjg82iyrt/vi_mwdrhs8n?seg=1"
         }
       ]
     },
     {
-      "name": "4",
-      "slug": "4",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/4cc962d15cc00299feaec673f96fb513/sub",
+      "name": "Tập 4",
+      "slug": "tap-4",
+      "link_m3u8": "https://oncdn.vip/live/source/str_asyn4g5usl71",
+      "link_embed": "",
       "subtitles": [
         {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/1949143c-0814-4c4b-a225-938ac2c764ca.vtt"
-        },
-        {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/94f356dd-22b9-4510-9026-60813ec3433d.vtt"
-        },
-        {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/65fdfb46-67c0-4795-b5d8-fe81f369e3b9.vtt"
-        },
-        {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/abe3973a-f2fa-4e7b-93e8-6ce4b15f851d.vtt"
-        },
-        {
-          "label": "Tiếng Nhật (Japanese)",
-          "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/5e463808-63d9-4e92-a00f-889443498c58.vtt"
-        },
-        {
-          "label": "Tiếng Anh (English)",
+          "label": "Phụ đề ENG",
           "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/721c320b-9147-41a5-963b-b0635f862c96.vtt"
-        }
-      ]
-    },
-    {
-      "name": "5",
-      "slug": "5",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/23ee75b114e805d6dc2bce2c81ee8913/sub",
-      "subtitles": [
-        {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/1a8a9873-73ab-4128-98ca-6c5322a6e87a.vtt"
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_2_eng?seg=1"
         },
         {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/47803c7e-8ecb-472f-8a83-67e7b81bfaf2.vtt"
-        },
-        {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/891998e6-736a-4e93-94df-65912cac4523.vtt"
-        },
-        {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/702d4a82-2b57-4680-9870-0a4915ebbf49.vtt"
-        },
-        {
-          "label": "Tiếng Nhật (Japanese)",
-          "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/3d2fe58b-c88f-4093-84f3-1bd7e91af06c.vtt"
-        },
-        {
-          "label": "Tiếng Anh (English)",
+          "label": "SDH",
           "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/c9efb86c-4e01-4cf4-a078-d9fca808b4e5.vtt"
-        }
-      ]
-    },
-    {
-      "name": "6",
-      "slug": "6",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/bd6d37fe185c026dc0c5da454b6a3e13/sub",
-      "subtitles": [
-        {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/4d90e68f-b205-4481-b0ac-4c536ba7527f.vtt"
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_3_eng?seg=1"
         },
         {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/b581f25b-1809-4efc-b4bd-3ac9e19e9b6b.vtt"
+          "label": "Phụ đề ARA",
+          "language": "ara",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_4_ara?seg=1"
         },
         {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/04810de5-20b2-4736-8534-72d8bda27d1b.vtt"
+          "label": "Phụ đề CAT",
+          "language": "cat",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_5_cat?seg=1"
         },
         {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/0d7f3f9a-03bf-4b6c-8a06-a6b887561307.vtt"
+          "label": "Phụ đề CZE",
+          "language": "cze",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_6_cze?seg=1"
         },
         {
-          "label": "Tiếng Nhật (Japanese)",
+          "label": "Phụ đề DAN",
+          "language": "dan",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_7_dan?seg=1"
+        },
+        {
+          "label": "Phụ đề GER",
+          "language": "ger",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_8_ger?seg=1"
+        },
+        {
+          "label": "Phụ đề GRE",
+          "language": "gre",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_9_gre?seg=1"
+        },
+        {
+          "label": "Phụ đề SPA",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_10_spa?seg=1"
+        },
+        {
+          "label": "Phụ đề SPA",
+          "language": "spa",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_11_spa?seg=1"
+        },
+        {
+          "label": "Phụ đề BAQ",
+          "language": "baq",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_12_baq?seg=1"
+        },
+        {
+          "label": "Phụ đề FIN",
+          "language": "fin",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_13_fin?seg=1"
+        },
+        {
+          "label": "Phụ đề FRE",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_14_fre?seg=1"
+        },
+        {
+          "label": "Phụ đề FRE",
+          "language": "fre",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_15_fre?seg=1"
+        },
+        {
+          "label": "Phụ đề GLG",
+          "language": "glg",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_16_glg?seg=1"
+        },
+        {
+          "label": "Phụ đề HEB",
+          "language": "heb",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_17_heb?seg=1"
+        },
+        {
+          "label": "Phụ đề HIN",
+          "language": "hin",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_18_hin?seg=1"
+        },
+        {
+          "label": "Phụ đề HUN",
+          "language": "hun",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_19_hun?seg=1"
+        },
+        {
+          "label": "Phụ đề IND",
+          "language": "ind",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_20_ind?seg=1"
+        },
+        {
+          "label": "Phụ đề ITA",
+          "language": "ita",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_21_ita?seg=1"
+        },
+        {
+          "label": "Phụ đề JPN",
           "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/823f84f5-4203-4d99-99c9-86144b8528d7.vtt"
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_22_jpn?seg=1"
         },
         {
-          "label": "Tiếng Anh (English)",
-          "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/2fc3788d-a59e-4c50-bebc-bd5f79f48ca1.vtt"
-        }
-      ]
-    },
-    {
-      "name": "7",
-      "slug": "7",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/645c063e11d7093cd912f6ec80a69513/sub",
-      "subtitles": [
-        {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/38811f91-8263-45a5-ba1c-58600febaba1.vtt"
+          "label": "Phụ đề KAN",
+          "language": "kan",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_23_kan?seg=1"
         },
         {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/473d4ea5-c353-46d3-93a0-ae090ac23ae8.vtt"
-        },
-        {
-          "label": "Tiếng Thái (Thailand)",
-          "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/7b8c9ada-391e-457b-8540-629745e94c75.vtt"
-        },
-        {
-          "label": "Tiếng Hàn (Korean)",
+          "label": "Phụ đề KOR",
           "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/40f32c73-d2da-492f-b299-33222c640974.vtt"
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_24_kor?seg=1"
         },
         {
-          "label": "Tiếng Nhật (Japanese)",
-          "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/9290fc48-e5cf-48eb-a6de-a2a55d6c1b34.vtt"
+          "label": "Phụ đề MAL",
+          "language": "mal",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_25_mal?seg=1"
         },
         {
-          "label": "Tiếng Anh (English)",
-          "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/fbff7720-26a9-4187-9c05-63a25ab8769f.vtt"
-        }
-      ]
-    },
-    {
-      "name": "8",
-      "slug": "8",
-      "link_m3u8": "",
-      "link_embed": "https://playembed.vip/player/d32bd66db5580b99e719f9aa500b8e13/sub",
-      "subtitles": [
-        {
-          "label": "Tiếng Việt (Vietnamese)",
-          "language": "vi",
-          "url": "https://m-center.onflixcdn.com/content/26062026/671b7292-0012-4337-a159-d7c76d12f8e6.vtt"
+          "label": "Phụ đề MAY",
+          "language": "may",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_26_may?seg=1"
         },
         {
-          "label": "Tiếng Trung (Chinese)",
-          "language": "zh",
-          "url": "https://m-center.onflixcdn.com/content/26062026/a57b999d-a10e-4c5b-8d03-a22d60cf4208.vtt"
+          "label": "Phụ đề NOR",
+          "language": "nor",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_27_nor?seg=1"
         },
         {
-          "label": "Tiếng Thái (Thailand)",
+          "label": "Phụ đề DUT",
+          "language": "dut",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_28_dut?seg=1"
+        },
+        {
+          "label": "Phụ đề POL",
+          "language": "pol",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_29_pol?seg=1"
+        },
+        {
+          "label": "Phụ đề POR",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_30_por?seg=1"
+        },
+        {
+          "label": "Phụ đề POR",
+          "language": "por",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_31_por?seg=1"
+        },
+        {
+          "label": "Phụ đề RUM",
+          "language": "rum",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_32_rum?seg=1"
+        },
+        {
+          "label": "Phụ đề SWE",
+          "language": "swe",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_33_swe?seg=1"
+        },
+        {
+          "label": "Phụ đề TAM",
+          "language": "tam",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_34_tam?seg=1"
+        },
+        {
+          "label": "Phụ đề TEL",
+          "language": "tel",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_35_tel?seg=1"
+        },
+        {
+          "label": "Phụ đề THA",
           "language": "th",
-          "url": "https://m-center.onflixcdn.com/content/26062026/4f798852-3075-4f3c-acbe-d26c6fb78c05.vtt"
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_36_tha?seg=1"
         },
         {
-          "label": "Tiếng Hàn (Korean)",
-          "language": "ko",
-          "url": "https://m-center.onflixcdn.com/content/26062026/79944018-978a-458e-b1cd-eeffb1404f53.vtt"
+          "label": "Phụ đề TUR",
+          "language": "tur",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_37_tur?seg=1"
         },
         {
-          "label": "Tiếng Nhật (Japanese)",
-          "language": "ja",
-          "url": "https://m-center.onflixcdn.com/content/26062026/55be2760-b29c-4b7f-acd5-d99aceb24741.vtt"
+          "label": "Simplified",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_38_chi?seg=1"
         },
         {
-          "label": "Tiếng Anh (English)",
-          "language": "en",
-          "url": "https://m-center.onflixcdn.com/content/26062026/9ce5ef4a-965f-410f-9817-bf0f6ad84003.vtt"
+          "label": "Traditional",
+          "language": "zh",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/sub_39_chi?seg=1"
+        },
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://oncdn.vip/sub/str_asyn4g5usl71/vi_mwdrhxeq?seg=1"
         }
       ]
     }
@@ -30195,6 +30996,2084 @@
           "label": "Tiếng Anh (English)",
           "language": "en",
           "url": "https://m-center.onflixcdn.com/content/07112026/47141c4c-8870-469b-ba91-acf428035a6e.vtt"
+        }
+      ]
+    }
+  ],
+  "luc-luong-lanterns-phan-1": [
+    {
+      "name": "1",
+      "slug": "1",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/a9cc845643ba0f0fc042e3bcbb7a7f13/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/17082026/f9c6549f-cc2b-4676-a329-8324b22d30fc.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/17082026/8d947f97-b2ba-4b3e-acd8-1082e9aae05a.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/17082026/3f813da4-e7e0-4219-bbd1-b66186fa1c87.vtt"
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "slug": "2",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/1d25cbf3a3b809eccef9691ff193c413/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/25082026/801c445e-11b0-400b-9114-41c49709a53b.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/25082026/943ec18a-49a8-4b51-a39a-9372e8e39a12.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/25082026/654db12e-29fb-4560-a694-17a4a8513839.vtt"
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "slug": "3",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/bad6e198ec230470d4582999dd702d13/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/31082026/fce303ec-d444-4266-aaff-728f7eb86899.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/31082026/4f4ee625-7903-4772-807f-33f524cccfb9.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/31082026/dec0fc0b-ecd7-4d3f-87bf-a0796b3c3c31.vtt"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "slug": "4",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/1dbcab8908910eafe5b99afe6ffb5b13/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/07092026/d4ad4e06-e80c-4b43-9807-61d6be044f20.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/07092026/a78f4da8-92ad-415b-a978-e5db64c217b1.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/07092026/de8f31f8-184d-45ea-b438-44e5dd3d7ed5.vtt"
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "slug": "5",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/032ba3fd86db0c0adc83199e9ec7ff13/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/22092026/d25268a3-5afe-411b-bef8-cb37c091831a.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/22092026/6328beee-06f4-4286-bf4a-2391ae684382.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/22092026/9799ab22-1981-4ab8-b95c-9750da2f87eb.vtt"
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "slug": "6",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/03ac038ad165006cfe6cae399afac313/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/22092026/3133fe12-9b1e-4d20-9613-7526a6b44649.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/22092026/97c36898-16e2-441a-8e0b-9cb83bffdabd.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/22092026/8a4ef174-bd04-4bff-9d3b-1cfb1ec54d4a.vtt"
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "slug": "7",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/15c7cdaada71081cd3f8f0e7e9489213/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/28092026/95775eab-1e50-4269-b8ac-365e115d234b.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/28092026/1fd301cc-7104-40e2-81d6-4ab66496720b.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/28092026/d4518325-d6b8-4cd2-b431-c4e475cdc2b9.vtt"
+        }
+      ]
+    },
+    {
+      "name": "8",
+      "slug": "8",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/c9b7699f57f901afcf2aaec715daec13/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/05102026/2f44de92-41d3-4343-b2a9-2a49a68e13c4.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/05102026/d4f464e7-bd0e-4464-90a6-3313bd4b159c.vtt"
+        },
+        {
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "ja",
+          "url": "https://m-center.onflixcdn.com/content/05102026/acbc7d02-ecb0-406b-be1e-54a6e8fe2104.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/05102026/411e5d5a-5673-4212-a325-6de487d58bdd.vtt"
+        }
+      ]
+    }
+  ],
+  "100-ngay-lua-doi": [
+    {
+      "name": "Tập 1",
+      "slug": "tap-1",
+      "link_m3u8": "https://oncdn.vip/live/source/str_a9ttkyy274vq",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_spa.vtt"
+        },
+        {
+          "label": "Spanish (Latin America) (DUBTITLE)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-1_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 2",
+      "slug": "tap-2",
+      "link_m3u8": "https://oncdn.vip/live/source/str_14zzu2rp9yqk",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-2_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 3",
+      "slug": "tap-3",
+      "link_m3u8": "https://oncdn.vip/live/source/str_143sky42b31c",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_por.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil) (DUBTITLE)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-3_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 4",
+      "slug": "tap-4",
+      "link_m3u8": "https://oncdn.vip/live/source/str_pge0ncbelnky",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-4_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 5",
+      "slug": "tap-5",
+      "link_m3u8": "https://oncdn.vip/live/source/str_ioifpehto6a7",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_por.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil) (DUBTITLE)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-5_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 6",
+      "slug": "tap-6",
+      "link_m3u8": "https://oncdn.vip/live/source/str_vofrtye2b4a6",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_spa.vtt"
+        },
+        {
+          "label": "Spanish (Latin America) (DUBTITLE)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-6_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 7",
+      "slug": "tap-7",
+      "link_m3u8": "https://oncdn.vip/live/source/str_676256eken6d",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-7_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 8",
+      "slug": "tap-8",
+      "link_m3u8": "https://oncdn.vip/live/source/str_l8mj1p4naxwz",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-8_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 9",
+      "slug": "tap-9",
+      "link_m3u8": "https://oncdn.vip/live/source/str_tyukv1pcz9s1",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_spa.vtt"
+        },
+        {
+          "label": "Dubtitle",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-9_ko.vtt"
+        }
+      ]
+    },
+    {
+      "name": "Tập 10",
+      "slug": "tap-10",
+      "link_m3u8": "https://oncdn.vip/live/source/str_887w2aex5bqr",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Arabic",
+          "language": "ara",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ara.vtt"
+        },
+        {
+          "label": "Czech",
+          "language": "cze",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_cze.vtt"
+        },
+        {
+          "label": "Danish",
+          "language": "dan",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_dan.vtt"
+        },
+        {
+          "label": "German",
+          "language": "ger",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ger.vtt"
+        },
+        {
+          "label": "Greek",
+          "language": "gre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_gre.vtt"
+        },
+        {
+          "label": "English",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_en.vtt"
+        },
+        {
+          "label": "Spanish (Latin America)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_spa.vtt"
+        },
+        {
+          "label": "Spanish (Spain)",
+          "language": "spa",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_spa.vtt"
+        },
+        {
+          "label": "Finnish",
+          "language": "fin",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_fin.vtt"
+        },
+        {
+          "label": "Filipino",
+          "language": "fil",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_fil.vtt"
+        },
+        {
+          "label": "French",
+          "language": "fre",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_fre.vtt"
+        },
+        {
+          "label": "Hebrew",
+          "language": "heb",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_heb.vtt"
+        },
+        {
+          "label": "Croatian",
+          "language": "hrv",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_hrv.vtt"
+        },
+        {
+          "label": "Hungarian",
+          "language": "hun",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_hun.vtt"
+        },
+        {
+          "label": "Indonesian",
+          "language": "ind",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ind.vtt"
+        },
+        {
+          "label": "Italian",
+          "language": "ita",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ita.vtt"
+        },
+        {
+          "label": "Japanese",
+          "language": "ja",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ja.vtt"
+        },
+        {
+          "label": "Malay",
+          "language": "may",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_may.vtt"
+        },
+        {
+          "label": "Norwegian Bokmål",
+          "language": "nob",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_nob.vtt"
+        },
+        {
+          "label": "Dutch",
+          "language": "dut",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_dut.vtt"
+        },
+        {
+          "label": "Polish",
+          "language": "pol",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_pol.vtt"
+        },
+        {
+          "label": "Portuguese (Brazil)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_por.vtt"
+        },
+        {
+          "label": "Portuguese (Portugal)",
+          "language": "por",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_por.vtt"
+        },
+        {
+          "label": "Romanian",
+          "language": "rum",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_rum.vtt"
+        },
+        {
+          "label": "Russian",
+          "language": "rus",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_rus.vtt"
+        },
+        {
+          "label": "Swedish",
+          "language": "swe",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_swe.vtt"
+        },
+        {
+          "label": "Thai",
+          "language": "th",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_th.vtt"
+        },
+        {
+          "label": "Turkish",
+          "language": "tur",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_tur.vtt"
+        },
+        {
+          "label": "Ukrainian",
+          "language": "ukr",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ukr.vtt"
+        },
+        {
+          "label": "Vietnamese",
+          "language": "vi",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_vi.vtt"
+        },
+        {
+          "label": "Chinese (Simplified)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_zh.vtt"
+        },
+        {
+          "label": "Chinese (Traditional)",
+          "language": "zh",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_zh.vtt"
+        },
+        {
+          "label": "English (CC)",
+          "language": "en",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_en.vtt"
+        },
+        {
+          "label": "Korean (SDH)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ko.vtt"
+        },
+        {
+          "label": "Korean (CC)",
+          "language": "ko",
+          "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/100-ngay-doi-tra/tap-10_ko.vtt"
+        }
+      ]
+    }
+  ],
+  "kha-the-cua-tinh-yeu": [
+    {
+      "name": "Full",
+      "slug": "full",
+      "link_m3u8": "",
+      "link_embed": "https://playembed.vip/player/28932bdeadbc055fe6d96c118de60113/sub",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "vi",
+          "url": "https://m-center.onflixcdn.com/content/07112026/a4465060-587f-41a0-917c-c645520f82fd.vtt"
+        },
+        {
+          "label": "Tiếng Thái (Thailand)",
+          "language": "th",
+          "url": "https://m-center.onflixcdn.com/content/07112026/37442bff-4a2f-4df4-bb3b-39f40d0c2660.vtt"
+        },
+        {
+          "label": "Tiếng Hàn (Korean)",
+          "language": "ko",
+          "url": "https://m-center.onflixcdn.com/content/07112026/1dcb574f-fe72-4c31-9e15-71f6c42c13bb.vtt"
+        },
+        {
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "ja",
+          "url": "https://m-center.onflixcdn.com/content/07112026/4bd95bcb-0780-44bf-8571-7c3fa5c63e12.vtt"
+        },
+        {
+          "label": "Tiếng Anh (English)",
+          "language": "en",
+          "url": "https://m-center.onflixcdn.com/content/07112026/20161c9b-27de-4249-a62d-1be3ce4faf32.vtt"
         }
       ]
     }

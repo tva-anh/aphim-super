@@ -95,8 +95,10 @@
 
                             return `
                                 <a href="${detailUrl}" class="ap-top-weekly-item">
-                                    <div class="ap-top-weekly-rank ${rankClass}">${rankNum}</div>
                                     <div class="ap-top-weekly-card ${rankClass}">
+                                        <div class="ap-top-weekly-rank ${rankClass}">
+                                            <span class="ap-top-weekly-rank-num">${rankNum}</span>
+                                        </div>
                                         <div class="ap-top-weekly-thumb">
                                             <img src="${imgUrl}" alt="${movieTitle}" class="ap-top-weekly-img" loading="lazy" onerror="window.autoHealMovieImage ? window.autoHealMovieImage(this, '${item.slug}', '${movieTitle}') : null" />
                                         </div>
@@ -110,6 +112,9 @@
                                                 <span class="ap-top-weekly-dot">•</span>
                                                 <span class="ap-top-weekly-ep">${epText}</span>
                                             </div>
+                                        </div>
+                                        <div class="ap-top-weekly-arrow-wrap">
+                                            <span class="material-icons-round ap-top-weekly-arrow">chevron_right</span>
                                         </div>
                                     </div>
                                 </a>
@@ -127,131 +132,162 @@
                     .ap-top-weekly-header {
                         display: flex !important;
                         align-items: center !important;
-                        gap: 10px !important;
-                        margin-bottom: 18px !important;
-                        padding-left: 52px !important;
+                        gap: 8px !important;
+                        margin-bottom: 14px !important;
+                        padding-left: 2px !important;
                     }
                     .ap-top-weekly-icon {
                         color: #ffffff !important;
                         flex-shrink: 0 !important;
                     }
+                    .ap-top-weekly-trophy-icon {
+                        width: 20px !important;
+                        height: 20px !important;
+                        color: #fcd576 !important;
+                        fill: #fcd576 !important;
+                        flex-shrink: 0 !important;
+                    }
                     .ap-top-weekly-title {
-                        font-size: 18px !important;
+                        font-size: 17px !important;
                         font-weight: 800 !important;
                         color: #ffffff !important;
                         margin: 0 !important;
-                        letter-spacing: 0.3px !important;
+                        letter-spacing: 0.2px !important;
                     }
                     .ap-top-weekly-list {
                         display: flex !important;
                         flex-direction: column !important;
-                        gap: 12px !important;
+                        gap: 8px !important;
                         width: 100% !important;
                     }
                     .ap-top-weekly-item {
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 12px !important;
+                        display: block !important;
                         text-decoration: none !important;
                         width: 100% !important;
                         box-sizing: border-box !important;
-                        transition: transform 0.2s ease !important;
+                        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
                     }
                     .ap-top-weekly-item:hover {
-                        transform: translateX(4px) !important;
+                        transform: translateY(-2px) !important;
                     }
 
-                    /* Số thứ tự Ranking 1-10 */
+                    /* Khung thẻ phim - Thiết kế Card hiện đại, thon gọn, liền mạch */
+                    .ap-top-weekly-card {
+                        width: 100% !important;
+                        box-sizing: border-box !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 10px !important;
+                        background: rgba(255, 255, 255, 0.025) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.07) !important;
+                        border-radius: 12px !important;
+                        padding: 8px 12px 8px 10px !important;
+                        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                        position: relative !important;
+                        overflow: hidden !important;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+                    }
+
+                    /* Huy hiệu Rank số thứ tự - Dạng Badge kim loại sang trọng */
                     .ap-top-weekly-rank {
-                        width: 40px !important;
-                        min-width: 40px !important;
-                        text-align: center !important;
-                        font-size: 38px !important;
-                        font-weight: 900 !important;
+                        width: 28px !important;
+                        min-width: 28px !important;
+                        height: 28px !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        border-radius: 8px !important;
+                        background: rgba(255, 255, 255, 0.08) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                        color: #94a3b8 !important;
+                        font-size: 13px !important;
+                        font-weight: 800 !important;
                         font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
-                        color: transparent !important;
-                        -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.75) !important;
-                        text-stroke: 1.5px rgba(255, 255, 255, 0.75) !important;
                         line-height: 1 !important;
                         user-select: none !important;
                         flex-shrink: 0 !important;
-                        transition: all 0.3s ease !important;
+                        transition: all 0.25s ease !important;
                     }
 
-                    /* MÀU CHẤT RIÊNG CHO TOP 1, 2, 3 */
-                    /* TOP 1 - Vàng Hoàng Kim Gold Glow */
-                    .ap-top-weekly-rank.rank-1 {
-                        -webkit-text-stroke: 1.8px #fcd576 !important;
-                        text-stroke: 1.8px #fcd576 !important;
-                        color: rgba(252, 213, 118, 0.2) !important;
-                        filter: drop-shadow(0 0 10px rgba(252, 213, 118, 0.6)) !important;
-                    }
-                    /* TOP 2 - Xanh Bạch Kim Platinum Cyan Glow */
-                    .ap-top-weekly-rank.rank-2 {
-                        -webkit-text-stroke: 1.8px #38bdf8 !important;
-                        text-stroke: 1.8px #38bdf8 !important;
-                        color: rgba(56, 189, 248, 0.2) !important;
-                        filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6)) !important;
-                    }
-                    /* TOP 3 - Cam Đồng Hỏa Đỏ Flame Bronze Glow */
-                    .ap-top-weekly-rank.rank-3 {
-                        -webkit-text-stroke: 1.8px #fb923c !important;
-                        text-stroke: 1.8px #fb923c !important;
-                        color: rgba(251, 146, 60, 0.2) !important;
-                        filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.6)) !important;
-                    }
-
-                    .ap-top-weekly-card {
-                        flex: 1 !important;
-                        min-width: 0 !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 12px !important;
-                        background: transparent !important;
-                        border: none !important;
-                        border-radius: 14px !important;
-                        padding: 6px 8px !important;
-                        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                        box-shadow: none !important;
-                    }
+                    /* Top 1 - Gold Badge */
                     .ap-top-weekly-card.rank-1 {
-                        border: 1px solid rgba(252, 213, 118, 0.35) !important;
-                        background: linear-gradient(135deg, rgba(252, 213, 118, 0.06) 0%, #181b26 100%) !important;
-                        padding: 10px 12px !important;
+                        border: 1.5px solid rgba(252, 213, 118, 0.4) !important;
+                        background: linear-gradient(135deg, rgba(252, 213, 118, 0.08) 0%, #151824 100%) !important;
                         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
                     }
+                    .ap-top-weekly-rank.rank-1 {
+                        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+                        border-color: #fcd576 !important;
+                        color: #ffffff !important;
+                        font-size: 14px !important;
+                        font-weight: 900 !important;
+                        box-shadow: 0 2px 10px rgba(245, 158, 11, 0.45) !important;
+                    }
+
+                    /* Top 2 - Cyan Platinum Badge */
                     .ap-top-weekly-card.rank-2 {
-                        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-                        background: linear-gradient(135deg, rgba(56, 189, 248, 0.06) 0%, #181b26 100%) !important;
-                        padding: 10px 12px !important;
+                        border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+                        background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, #151824 100%) !important;
                         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
                     }
+                    .ap-top-weekly-rank.rank-2 {
+                        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+                        border-color: #7dd3fc !important;
+                        color: #ffffff !important;
+                        font-size: 14px !important;
+                        font-weight: 900 !important;
+                        box-shadow: 0 2px 10px rgba(14, 165, 233, 0.45) !important;
+                    }
+
+                    /* Top 3 - Bronze Flame Badge */
+                    .ap-top-weekly-card.rank-3 {
+                        border: 1.5px solid rgba(251, 146, 60, 0.4) !important;
+                        background: linear-gradient(135deg, rgba(251, 146, 60, 0.08) 0%, #151824 100%) !important;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                    }
+                    .ap-top-weekly-rank.rank-3 {
+                        background: linear-gradient(135deg, #f97316 0%, #c2410c 100%) !important;
+                        border-color: #fdba74 !important;
+                        color: #ffffff !important;
+                        font-size: 14px !important;
+                        font-weight: 900 !important;
+                        box-shadow: 0 2px 10px rgba(249, 115, 22, 0.45) !important;
+                    }
+
+                    /* Hover states */
                     .ap-top-weekly-item:hover .ap-top-weekly-card {
-                        background: rgba(255, 255, 255, 0.04) !important;
-                        border-color: transparent !important;
-                        box-shadow: none !important;
+                        background: rgba(255, 255, 255, 0.05) !important;
+                        border-color: rgba(255, 255, 255, 0.16) !important;
+                        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
                     }
                     .ap-top-weekly-item:hover .ap-top-weekly-card.rank-1 {
-                        background: #202433 !important;
-                        border-color: rgba(252, 213, 118, 0.6) !important;
-                        box-shadow: 0 6px 22px rgba(252, 213, 118, 0.2) !important;
+                        background: linear-gradient(135deg, rgba(252, 213, 118, 0.14) 0%, #1a1e2b 100%) !important;
+                        border-color: #fcd576 !important;
+                        box-shadow: 0 6px 20px rgba(252, 213, 118, 0.25) !important;
                     }
                     .ap-top-weekly-item:hover .ap-top-weekly-card.rank-2 {
-                        background: #202433 !important;
-                        border-color: rgba(56, 189, 248, 0.6) !important;
-                        box-shadow: 0 6px 22px rgba(56, 189, 248, 0.2) !important;
+                        background: linear-gradient(135deg, rgba(56, 189, 248, 0.14) 0%, #1a1e2b 100%) !important;
+                        border-color: #38bdf8 !important;
+                        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    .ap-top-weekly-item:hover .ap-top-weekly-card.rank-3 {
+                        background: linear-gradient(135deg, rgba(251, 146, 60, 0.14) 0%, #1a1e2b 100%) !important;
+                        border-color: #fb923c !important;
+                        box-shadow: 0 6px 20px rgba(251, 146, 60, 0.25) !important;
                     }
 
+                    /* Thumbnail */
                     .ap-top-weekly-thumb {
-                        width: 58px !important;
-                        min-width: 58px !important;
-                        height: 80px !important;
-                        min-height: 80px !important;
-                        border-radius: 10px !important;
+                        width: 48px !important;
+                        min-width: 48px !important;
+                        height: 66px !important;
+                        min-height: 66px !important;
+                        border-radius: 8px !important;
                         overflow: hidden !important;
                         flex-shrink: 0 !important;
                         background: #0d0f1a !important;
                         position: relative !important;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
                     }
                     .ap-top-weekly-img {
                         width: 100% !important;
@@ -261,15 +297,17 @@
                         transition: transform 0.3s ease !important;
                     }
                     .ap-top-weekly-item:hover .ap-top-weekly-img {
-                        transform: scale(1.08) !important;
+                        transform: scale(1.06) !important;
                     }
+
+                    /* Movie Info */
                     .ap-top-weekly-info {
                         flex: 1 !important;
                         min-width: 0 !important;
                         display: flex !important;
                         flex-direction: column !important;
                         justify-content: center !important;
-                        gap: 4px !important;
+                        gap: 2.5px !important;
                     }
                     .ap-top-weekly-name {
                         color: #ffffff !important;
@@ -286,7 +324,7 @@
                     }
                     .ap-top-weekly-origin {
                         color: #9ca3af !important;
-                        font-size: 12px !important;
+                        font-size: 11.5px !important;
                         font-weight: 400 !important;
                         white-space: nowrap !important;
                         overflow: hidden !important;
@@ -296,14 +334,21 @@
                         display: flex !important;
                         align-items: center !important;
                         gap: 6px !important;
-                        font-size: 12px !important;
+                        font-size: 11.5px !important;
                         color: #9ca3af !important;
-                        margin-top: 2px !important;
+                        margin-top: 1px !important;
                     }
                     .ap-top-weekly-badge {
-                        color: #d1d5db !important;
-                        font-size: 12px !important;
+                        display: inline-flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding: 1px 5px !important;
+                        border-radius: 4px !important;
+                        font-size: 10.5px !important;
                         font-weight: 700 !important;
+                        background: rgba(255, 255, 255, 0.08) !important;
+                        color: #e5e7eb !important;
+                        letter-spacing: 0.2px !important;
                     }
                     .ap-top-weekly-dot {
                         color: #6b7280 !important;
@@ -311,8 +356,26 @@
                     }
                     .ap-top-weekly-ep {
                         color: #9ca3af !important;
-                        font-size: 12px !important;
+                        font-size: 11.5px !important;
                         font-weight: 500 !important;
+                    }
+
+                    /* Right chevron indicator */
+                    .ap-top-weekly-arrow-wrap {
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        flex-shrink: 0 !important;
+                        padding-left: 2px !important;
+                    }
+                    .ap-top-weekly-arrow {
+                        font-size: 18px !important;
+                        color: rgba(255, 255, 255, 0.2) !important;
+                        transition: all 0.2s ease !important;
+                    }
+                    .ap-top-weekly-item:hover .ap-top-weekly-arrow {
+                        color: #fcd576 !important;
+                        transform: translateX(3px) !important;
                     }
                 </style>
             `;
