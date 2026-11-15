@@ -24571,5 +24571,50 @@
       "SN:12"
     ],
     "source": "/phim-song-ngu?page=21"
+  },
+  {
+    "slug": "thap-van-cuong-hoa-nhap-mong-lai",
+    "name": "Thập Vạn Cuồng Hoa Nhập Mộng Lai",
+    "origin_name": "Blossom in Darkness",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/ppkOd2CsryRUpEYvRVgIYB6czq.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/w500/9d7sWhj2oJ5sejtwLAiDVI3sCvP.jpg",
+    "episode_current": "Tập 4",
+    "lang": "Song Ngữ",
+    "available_languages": [
+      "PD",
+      "SN"
+    ],
+    "source": "homepage"
+  },
+  {
+    "slug": "hell-mode-game-thu-xuat-chung-tung-hoanh-chon-di-gioi-hon-nguyen-phan-2",
+    "name": "Hell Mode: Game Thủ Xuất Chúng Tung Hoành Chốn Dị Giới Hỗn Nguyên (Phần 2)",
+    "origin_name": "Hell Mode: The Hardcore Gamer Dominates In Another World With Garbage Balancing (Season 2)",
+    "type": "hoathinh",
+    "thumb_url": "https://image.tmdb.org/t/p/original/gf62V8UBVBMFPpD9yI0UFvkFvq2.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/9m8MgXfAHbR4ELxrsQR8w0b5NQM.jpg",
+    "episode_current": "Tập 13",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD",
+      "SN:13"
+    ],
+    "source": "/phim-song-ngu?page=19"
+  },
+  {
+    "slug": "phuong-trinh-tinh-yeu-2026",
+    "name": "Phương Trình Tình Yêu",
+    "origin_name": "Love Algorithm",
+    "type": "series",
+    "thumb_url": "https://image.tmdb.org/t/p/original/rtfuNfy7LUyfHceV7iaq8aoSk8X.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/original/eLtKtcucvdVbX2ETy7uPsRUYL8m.jpg",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub",
+    "available_languages": [
+      "PD:10",
+      "SN:3"
+    ],
+    "source": "/phim-song-ngu?page=24"
   }
 ]

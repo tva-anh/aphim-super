@@ -522,9 +522,9 @@
 
         /* ── BOX CHƯA ĐĂNG NHẬP (LẤY LẠI GIAO DIỆN CŨ) ── */
         .ap-cmt-guest {
-            padding: 32px 20px; text-align: center;
+            padding: 24px 20px; text-align: center;
             background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12);
-            border-radius: 16px; margin-bottom: 24px;
+            border-radius: 16px; margin-bottom: 14px;
         }
         .ap-guest-icon { font-size: 48px; margin-bottom: 12px; color: rgba(255,255,255,0.3); }
         .ap-cmt-guest h4 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; }
@@ -553,7 +553,7 @@
             border-radius: 20px; 
             overflow: hidden; 
             transition: all 0.3s ease; 
-            margin-bottom: 24px;
+            margin-bottom: 14px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
@@ -742,13 +742,13 @@
 
         /* ── GIAO DIỆN BÌNH LUẬN TRẢ LỜI ĐẸP & THANH LỊCH NHƯ TIKTOK/YOUTUBE ── */
         .ap-cmt-list { 
-            display: flex; flex-direction: column; text-align: left; gap: 14px;
+            display: flex; flex-direction: column; text-align: left; gap: 8px;
             max-width: 100%;
-            min-height: 140px;
+            min-height: 120px;
             max-height: 850px;
             overflow-y: auto;
             overflow-x: visible !important;
-            padding: 20px 4px 24px 4px !important;
+            padding: 6px 2px 18px 2px !important;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
@@ -768,7 +768,8 @@
         .ap-cmt-list::-webkit-scrollbar-track { display: none !important; background: transparent !important; }
         .ap-cmt-list::-webkit-scrollbar-thumb { display: none !important; background: transparent !important; }
         .ap-cmt-item { 
-            display: flex; flex-direction: column; gap: 8px; padding: 8px 0; 
+            display: flex; flex-direction: column; gap: 3px; padding: 3px 0 !important; 
+            margin: 0 !important;
             background: transparent;
             border: none; border-radius: 0;
             position:relative; align-items: flex-start; text-align: left;
@@ -879,7 +880,7 @@
         .ap-cmt-text.is-spoiler { filter: blur(6px); cursor: pointer; user-select: none; }
         .ap-cmt-text.is-spoiler.revealed { filter: blur(0); }
 
-        .ap-cmt-actions-bottom { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; position: relative; z-index: 50; overflow: visible !important; }
+        .ap-cmt-actions-bottom { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; position: relative; z-index: 50; overflow: visible !important; }
         .ap-cmt-time { font-size: 12px; color: #9ca3af; }
         .ap-action-reply-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 13px; font-weight: 600; padding: 2px 4px; border-radius: 4px; transition: color 0.15s; }
         .ap-action-reply-btn:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.06); }
@@ -1242,8 +1243,8 @@
         /* ── DESKTOP ONLY TWEAKS (>= 768px) ── */
         @media (min-width: 768px) {
             .ap-cmt-avatar.shop-frame-wrap.size-sm { width: 34px; height: 34px; }
-            .ap-cmt-list { max-width: 720px; }
-            .ap-cmt-item { border-bottom: none !important; padding: 10px 0 !important; transition: none; background: transparent !important; }
+            .ap-cmt-list { max-width: 100%; gap: 8px; padding: 6px 0 18px 0 !important; }
+            .ap-cmt-item { border-bottom: none !important; padding: 3px 0 !important; margin: 0 !important; transition: none; background: transparent !important; }
             .ap-cmt-item:last-child { border-bottom: none !important; }
             .ap-cmt-item:hover { background: transparent !important; border-bottom-color: transparent !important; box-shadow: none !important; }
             
@@ -1277,14 +1278,14 @@
             padding-left: 0;
             border-left: none !important;
             border: none !important;
-            gap: 6px; 
-            margin-top: 4px;
+            gap: 3px; 
+            margin-top: 3px;
         }
         html.light-mode .ap-cmt-replies {
             border-left: none !important;
             border: none !important;
         }
-        .ap-cmt-replies .ap-cmt-item { padding: 4px 0; background: transparent; }
+        .ap-cmt-replies .ap-cmt-item { padding: 2px 0 !important; margin: 0 !important; background: transparent; }
         .ap-cmt-replies .ap-cmt-avatar.shop-frame-wrap.size-sm { width: 28px; height: 28px; }
         .ap-cmt-replies .ap-cmt-name { font-size: 12px; }
         .ap-cmt-replies .ap-cmt-text { font-size: 13px; }
@@ -1357,7 +1358,8 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 box-sizing: border-box !important;
-                padding: 8px 0 !important;
+                padding: 3px 0 !important;
+                margin: 0 !important;
                 overflow: visible !important;
             }
 

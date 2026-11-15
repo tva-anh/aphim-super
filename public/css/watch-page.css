@@ -4204,20 +4204,34 @@ html.light-mode #sidebar-cast p {
     line-height: 1.6 !important;
 }
 
-/* Danh sách bình luận hiển thị tự nhiên, không bị bó hẹp chiều cao */
+/* Danh sách bình luận hiển thị gọn gàng, tự nhiên chuẩn TikTok/YouTube */
 .ap-cmt-list {
-    min-height: 220px !important;
+    min-height: 120px !important;
     max-height: none !important;
     overflow-y: visible !important;
-    gap: 18px !important;
-    padding: 14px 2px 24px 2px !important;
+    gap: 10px !important;
+    padding: 8px 0 20px 0 !important;
 }
 
 .ap-cmt-item {
-    margin-bottom: 14px !important;
-    padding: 16px 18px !important;
-    border-radius: 14px !important;
-    transition: background-color 0.2s ease !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    padding: 4px 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    transition: none !important;
+}
+
+.ap-cmt-replies {
+    gap: 4px !important;
+    margin-top: 4px !important;
+}
+
+.ap-cmt-replies .ap-cmt-item {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    padding: 2px 0 !important;
 }
 
 /* Đảm bảo khoảng cách đáy trước footer trên cả Desktop và Mobile */
