@@ -950,6 +950,19 @@
         html.light-mode .ap-char-count, body.light-mode .ap-char-count {
             color: #78716c !important;
         }
+        html.light-mode .ap-cancel-reply-btn, body.light-mode .ap-cancel-reply-btn {
+            background: rgba(0,0,0,0.05) !important;
+            border-color: rgba(0,0,0,0.12) !important;
+            color: #64748b !important;
+        }
+        html.light-mode .ap-cancel-reply-btn:hover, body.light-mode .ap-cancel-reply-btn:hover {
+            background: rgba(0,0,0,0.08) !important;
+            color: #1e293b !important;
+        }
+        html.light-mode .ap-reply-header-close-btn, body.light-mode .ap-reply-header-close-btn {
+            background: rgba(0,0,0,0.06) !important;
+            color: #64748b !important;
+        }
         
         .ap-cmt-right-actions { display: none !important; }
 
@@ -1294,7 +1307,16 @@
         .ap-more-replies-btn .line { width: 20px; height: 1px; background: #4b5563; margin-right: 8px; }
         
         /* Form Trả lời lồng nhau */
-        .ap-reply-form-container { margin-top: 16px; display: none; margin-bottom: 8px; width: 100%; margin-left: 52px; box-sizing: border-box; padding-right: 52px;}
+        .ap-reply-form-container { 
+            margin-top: 14px; 
+            display: none; 
+            margin-bottom: 8px; 
+            width: calc(100% - 48px); 
+            max-width: calc(100% - 48px); 
+            margin-left: 48px; 
+            box-sizing: border-box; 
+            padding-right: 0;
+        }
         .ap-reply-form-container.active { display: block; animation: ap-in 0.2s ease; }
 
         @keyframes ap-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
@@ -1313,9 +1335,46 @@
 
         @media (max-width: 768px) {
             /* Cấp page: KHÔNG cho scroll ngang (Chỉ áp dụng trên mobile) */
-            body {
+            html, body {
                 overflow-x: hidden !important;
                 max-width: 100vw !important;
+            }
+
+            /* Khung trả lời bình luận cố định chuẩn 100% trên mobile, không bị tràn màn hình hay gây xê dịch ngang */
+            .ap-reply-form-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding: 0 !important;
+                margin-top: 10px !important;
+                margin-bottom: 6px !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+
+            .ap-reply-form-container .ap-cmt-input-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-bottom: 10px !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+            }
+
+            .ap-reply-form-container .ap-cmt-form-box {
+                padding: 10px 12px !important;
+                border-radius: 12px !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .ap-reply-form-container .ap-cmt-textarea {
+                font-size: 13.5px !important;
+                min-height: 60px !important;
+                padding-right: 60px !important;
             }
 
             .ap-cmt-wrapper {
@@ -1627,6 +1686,7 @@
     function renderInputForm(boxId, rootId) {
         const user = getCurrentUser();
         const pid = boxId || 'main';
+        const isReply = !!boxId && boxId !== 'main';
         const submitPid = rootId || boxId || '';
 
         const displayName = user ? sanitize(user.displayName || user.name || user.email || 'Người dùng') : '';
@@ -1663,17 +1723,21 @@
                          ${userAvaWithFrame}
                      </div>
                      <div style="display: flex; flex-direction: column; justify-content: center; gap: 2px;">
-                         <span style="font-size: 12px; color: #94a3b8; font-weight: 500; line-height: 1.2;" class="ap-cmt-notice-sub">Bình luận với tên</span> 
+                         <span style="font-size: 12px; color: #94a3b8; font-weight: 500; line-height: 1.2;" class="ap-cmt-notice-sub">${isReply ? 'Trả lời bình luận với tên' : 'Bình luận với tên'}</span> 
                          <div class="ap-cmt-notice-user-row" style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.2;">
                              <strong class="ap-cmt-user-highlight ${nameColorClass}" style="${nameColorStyle}">${displayName}</strong> 
                              <span class="ap-cmt-badge-wrap" style="display: inline-flex; align-items: center; vertical-align: middle; transform: translateY(2px);">${userBadgeHtml}</span>
                          </div>
                      </div>
                  </div>
-                 <button style="font-size: 12px; color: #94a3b8; background: none; border: none; cursor: pointer; text-decoration: underline;" onclick="try{ if(typeof authService !== 'undefined') authService.logout(); else { localStorage.removeItem('A Phim_user'); localStorage.removeItem('user'); window.location.reload(); } } catch(e){ window.location.reload(); }">Đăng xuất</button>
+                 <div style="display: flex; align-items: center; gap: 8px;">
+                     <button style="font-size: 12px; color: #94a3b8; background: none; border: none; cursor: pointer; text-decoration: underline;" onclick="try{ if(typeof authService !== 'undefined') authService.logout(); else { localStorage.removeItem('A Phim_user'); localStorage.removeItem('user'); window.location.reload(); } } catch(e){ window.location.reload(); }">Đăng xuất</button>
+                     ${isReply ? `<button type="button" class="ap-reply-header-close-btn" onclick="window.actionCloseReply('${pid}')" title="Đóng trả lời" style="background: rgba(255,255,255,0.08); border: none; color: #94a3b8; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; line-height: 1; cursor: pointer;">✕</button>` : ''}
+                 </div>
                </div>`
-            : `<div style="font-size: 13.5px; color: #94a3b8; margin-bottom: 14px; padding: 4px 6px 0 6px;" class="select-none ap-cmt-notice-text">
-                 Vui lòng <span style="color: #fcd576; font-weight: 700; cursor: pointer;" onclick="if(window.showAuthModal){window.showAuthModal('login');}else{alert('Vui lòng đăng nhập!');}">đăng nhập</span> để tham gia bình luận.
+            : `<div style="font-size: 13.5px; color: #94a3b8; margin-bottom: 14px; padding: 4px 6px 0 6px; display: flex; align-items: center; justify-content: space-between;" class="select-none ap-cmt-notice-text">
+                 <div>Vui lòng <span style="color: #fcd576; font-weight: 700; cursor: pointer;" onclick="if(window.showAuthModal){window.showAuthModal('login');}else{alert('Vui lòng đăng nhập!');}">đăng nhập</span> để tham gia bình luận.</div>
+                 ${isReply ? `<button type="button" class="ap-reply-header-close-btn" onclick="window.actionCloseReply('${pid}')" title="Đóng trả lời" style="background: rgba(255,255,255,0.08); border: none; color: #94a3b8; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; line-height: 1; cursor: pointer;">✕</button>` : ''}
                </div>`;
 
         return `
@@ -1681,10 +1745,10 @@
             ${noticeHtml}
 
             <!-- Form Container -->
-            <div style="position: relative; width: 100%; background: #181a24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 14px 16px 12px 16px; transition: border-color 0.2s;" class="focus-within:border-[#fcd576]/50">
+            <div class="ap-cmt-form-box focus-within:border-[#fcd576]/50" style="position: relative; width: 100%; background: #181a24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 14px 16px 12px 16px; transition: border-color 0.2s; box-sizing: border-box;">
                 <textarea class="ap-cmt-textarea" 
                           id="ap-input-${pid}" 
-                          placeholder="Viết bình luận..." 
+                          placeholder="${isReply ? 'Viết câu trả lời của bạn...' : 'Viết bình luận...'}" 
                           maxlength="1000" 
                           rows="3" 
                           style="width: 100%; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 14px; resize: none; font-family: inherit; box-sizing: border-box; padding-right: 65px; min-height: 70px;"></textarea>
@@ -1722,11 +1786,17 @@
                         </div>
                     </div>
 
-                    <!-- Right tool: Submit Button with Gold Text & Gold Paper Plane Icon -->
-                    <button type="button" class="ap-send-btn" id="ap-btn-${pid}" onclick="window.submitComment('${submitPid}', '${pid}')" disabled style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: #fcd576; font-weight: 700; font-size: 14px; cursor: pointer; padding: 2px 4px; transition: opacity 0.2s;">
-                        <span>Gửi</span>
-                        <svg style="width: 16px; height: 16px; fill: #fcd576; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
+                    <!-- Right tool: Submit & Cancel Buttons -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        ${isReply ? `
+                        <button type="button" class="ap-cancel-reply-btn" onclick="window.actionCloseReply('${pid}')" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: all 0.2s;">
+                            Hủy
+                        </button>` : ''}
+                        <button type="button" class="ap-send-btn" id="ap-btn-${pid}" onclick="window.submitComment('${submitPid}', '${pid}')" disabled style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: #fcd576; font-weight: 700; font-size: 14px; cursor: pointer; padding: 2px 4px; transition: opacity 0.2s;">
+                            <span>Gửi</span>
+                            <svg style="width: 16px; height: 16px; fill: #fcd576; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1950,9 +2020,76 @@
             box.innerHTML = renderInputForm(clickId, rootId);
             box.classList.add('active');
             setupInputEvents(clickId);
-            document.getElementById(`ap-input-${clickId}`).focus();
+            const inputEl = document.getElementById(`ap-input-${clickId}`);
+            if (inputEl) inputEl.focus();
         }
-    }
+    };
+
+    window.actionCloseReply = function(clickId) {
+        if (clickId && clickId !== 'main') {
+            const box = document.getElementById(`reply-form-${clickId}`);
+            if (box) {
+                box.innerHTML = '';
+                box.classList.remove('active');
+            }
+        } else {
+            document.querySelectorAll('.ap-reply-form-container.active').forEach(el => {
+                el.innerHTML = '';
+                el.classList.remove('active');
+            });
+        }
+    };
+
+    // Tự động đóng khung trả lời khi user click hoặc chạm tay ở khu vực xung quanh
+    (function initOutsideReplyDismiss() {
+        let touchStartX = 0, touchStartY = 0, isTouchMoving = false;
+
+        document.addEventListener('touchstart', function(e) {
+            if (!e.touches || e.touches.length === 0) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isTouchMoving = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!e.touches || e.touches.length === 0) return;
+            const dx = Math.abs(e.touches[0].clientX - touchStartX);
+            const dy = Math.abs(e.touches[0].clientY - touchStartY);
+            if (dx > 10 || dy > 10) {
+                isTouchMoving = true;
+            }
+        }, { passive: true });
+
+        function handleOutsideDismiss(target) {
+            const activeForms = document.querySelectorAll('.ap-reply-form-container.active');
+            if (!activeForms.length) return;
+
+            // Không đóng nếu thao tác bên trong form trả lời hoặc nút bấm trả lời / biểu cảm
+            if (target.closest('.ap-reply-form-container') ||
+                target.closest('.ap-action-reply-btn') ||
+                target.closest('.ap-emoji-popover') ||
+                target.closest('.ap-btn-emoji-trigger') ||
+                target.closest('.fb-reaction-popover') ||
+                target.closest('.fb-react-btn')) {
+                return;
+            }
+
+            activeForms.forEach(el => {
+                el.innerHTML = '';
+                el.classList.remove('active');
+            });
+        }
+
+        document.addEventListener('touchend', function(e) {
+            if (isTouchMoving) return; // User đang cuộn trang, không phải chạm ra ngoài
+            const target = e.target;
+            if (target) handleOutsideDismiss(target);
+        }, { passive: true });
+
+        document.addEventListener('click', function(e) {
+            if (e.target) handleOutsideDismiss(e.target);
+        });
+    })();
 
     window.actionToggleMore = function(commentId) {
         const mId = `ap-menu-${commentId}`;
