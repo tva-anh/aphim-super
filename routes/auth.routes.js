@@ -27,6 +27,15 @@ const registerLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Trích xuất IP thật của người dùng kể cả khi đứng sau Cloudflare / Nginx
+function getClientIp(req) {
+    return req.headers['cf-connecting-ip'] || 
+           (req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0].trim() : null) || 
+           req.ip || 
+           req.socket?.remoteAddress || 
+           'Unknown';
+}
+
 /**
  * Kiểm tra xem tên hiển thị có chứa các danh xưng đặc quyền của Admin/BQT hay không
  */
@@ -123,12 +132,13 @@ router.post('/register', registerLimiter, async (req, res) => {
             .eq('id', data.user.id)
             .single();
 
-        logger.info(`New user registered: ${email}`, { ip: req.ip });
+        const clientIp = getClientIp(req);
+        logger.info(`New user registered: ${email}`, { ip: clientIp });
         await SecurityLog.create({
             user_id: data.user.id,
             email: email.trim().toLowerCase(),
             action: 'register',
-            ip_address: req.ip,
+            ip_address: clientIp,
             user_agent: req.headers['user-agent'],
             status: 'success'
         }).catch(err => console.error('[SecurityLog] Error:', err.message));
@@ -169,11 +179,12 @@ router.post('/login', loginLimiter, async (req, res) => {
         });
 
         if (error) {
-            logger.warn(`Login failed for ${email}: ${error.message}`, { ip: req.ip });
+            const clientIp = getClientIp(req);
+            logger.warn(`Login failed for ${email}: ${error.message}`, { ip: clientIp });
             await SecurityLog.create({
                 email: email.trim().toLowerCase(),
                 action: 'login_failed',
-                ip_address: req.ip,
+                ip_address: clientIp,
                 user_agent: req.headers['user-agent'],
                 status: 'failed',
                 note: error.message
@@ -221,12 +232,13 @@ router.post('/login', loginLimiter, async (req, res) => {
             .limit(1)
             .single();
 
-        logger.info(`Login successful for ${email}`, { ip: req.ip });
+        const clientIp = getClientIp(req);
+        logger.info(`Login successful for ${email}`, { ip: clientIp });
         await SecurityLog.create({
             user_id: data.user.id,
             email: email.trim().toLowerCase(),
             action: 'login_success',
-            ip_address: req.ip,
+            ip_address: clientIp,
             user_agent: req.headers['user-agent'],
             status: 'success'
         }).catch(err => console.error('[SecurityLog] Error:', err.message));
@@ -252,11 +264,12 @@ router.post('/logout', requireAuth, async (req, res) => {
         const userId = req.user.id;
         const email = req.user.email;
 
+        const clientIp = getClientIp(req);
         await SecurityLog.create({
             user_id: userId,
             email: email,
             action: 'logout',
-            ip_address: req.ip,
+            ip_address: clientIp,
             user_agent: req.headers['user-agent'],
             status: 'success'
         }).catch(err => console.error('[SecurityLog] Error:', err.message));
@@ -626,7 +639,7 @@ router.post('/reset-password', async (req, res) => {
                 user_id: user.id,
                 email: user.email,
                 action: 'reset_password',
-                ip_address: req.ip,
+                ip_address: getClientIp(req),
                 user_agent: req.headers['user-agent'],
                 status: 'success'
             }).catch(err => console.error('[SecurityLog] Error:', err.message));
