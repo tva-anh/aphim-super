@@ -25,7 +25,7 @@
         pointer-events: auto !important;
         display: inline-flex !important;
         flex-direction: column !important;
-        align-items: flex-end !important;
+        align-items: center !important;
         margin: 0 !important;
         padding: 0 !important;
         line-height: 0 !important;
@@ -34,10 +34,10 @@
     /* 🔴 Nút đóng hình tròn trắng có icon X đỏ */
     .aphim-catfish-close {
         position: absolute !important;
-        top: -12px !important;
-        right: 0px !important;
-        width: 26px !important;
-        height: 26px !important;
+        top: -11px !important;
+        right: -8px !important;
+        width: 25px !important;
+        height: 25px !important;
         border-radius: 50% !important;
         background: #ffffff !important;
         border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
@@ -57,7 +57,22 @@
         box-shadow: 0 3px 14px rgba(239, 68, 68, 0.5) !important;
     }
 
-    /* 📺 Desktop Grid: 3 banner cân đối */
+    /* 📺 Desktop Grid: Hàng trên 2 banner căn giữa */
+    .aphim-catfish-grid-top {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 2px !important;
+        width: min(720px, 96vw) !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        padding: 2px !important;
+        border-radius: 6px !important;
+        overflow: visible !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+        margin-bottom: 2px !important;
+        position: relative !important;
+    }
+
+    /* 📺 Desktop Grid: Hàng dưới 3 banner cân đối */
     .aphim-catfish-grid {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
@@ -77,11 +92,13 @@
         line-height: 0 !important;
         overflow: hidden !important;
         background: #000000 !important;
+        border-radius: 4px !important;
         transition: opacity 0.18s ease !important;
     }
     .aphim-catfish-link:hover {
         opacity: 0.92 !important;
     }
+    /* Toàn bộ 5 banner (hàng trên & hàng dưới) đều đồng bộ tỷ lệ chuẩn 728x90 (1456x180) */
     .aphim-catfish-img {
         display: block !important;
         width: 100% !important;
@@ -91,12 +108,21 @@
         margin: 0 !important;
         padding: 0 !important;
         border: none !important;
+        border-radius: 4px !important;
     }
 
-    /* 📱 Mobile View: Xếp chồng dọc 4 banner lên nhau + Nâng lên trên Bottom Nav */
+    /* 📱 Mobile View: Hàng trên 2 banner ngang + Hàng dưới xếp dọc + Nâng lên trên Bottom Nav */
     @media (max-width: 1023px) {
         .aphim-catfish-wrapper {
             bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+        }
+        .aphim-catfish-grid-top {
+            width: min(390px, calc(100vw - 16px)) !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 2px !important;
+            padding: 2px !important;
+            border-radius: 6px !important;
+            margin-bottom: 2px !important;
         }
         .aphim-catfish-grid {
             grid-template-columns: 1fr !important;
@@ -106,10 +132,10 @@
             border-radius: 6px !important;
         }
         .aphim-catfish-close {
-            top: -11px !important;
-            right: 0px !important;
-            width: 24px !important;
-            height: 24px !important;
+            top: -10px !important;
+            right: -6px !important;
+            width: 23px !important;
+            height: 23px !important;
         }
         /* Mobile: Ẩn trên các trang thông tin phim (/phim/), xem phim (/xem-phim/), tài khoản (/profile) */
         body.page-phim-detail .aphim-catfish-wrapper,
@@ -125,22 +151,44 @@
 
 <div class="aphim-catfish-wrapper" id="aphimAdCatfish">
     <div class="aphim-catfish-box" id="aphimAdCatfishBox">
-        <button 
-            type="button" 
-            class="aphim-catfish-close"
-            id="aphimAdCatfishCloseBtn"
-            onclick="closeAphimCatfishAd(event)"
-            title="Đóng quảng cáo"
-            aria-label="Đóng quảng cáo"
-        >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
 
+        <!-- 🚀 Hàng Trên: 2 Banner me88 & KO66 căn giữa -->
+        <div class="aphim-catfish-grid-top">
+            <button 
+                type="button" 
+                class="aphim-catfish-close"
+                id="aphimAdCatfishCloseBtn"
+                onclick="closeAphimCatfishAd(event)"
+                title="Đóng quảng cáo"
+                aria-label="Đóng quảng cáo"
+            >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <a href="https://me88.xin/" target="_blank" rel="noopener noreferrer nofollow" title="me88 - Nhà cái uy tín" class="aphim-catfish-link">
+                <img 
+                    src="/images/ads/me88-banner.avif?v=3" 
+                    alt="me88" 
+                    class="aphim-catfish-img"
+                    loading="eager"
+                />
+            </a>
+
+            <a href="https://ko66.casino/" target="_blank" rel="noopener noreferrer nofollow" title="KO66 - Casino trực tuyến" class="aphim-catfish-link">
+                <img 
+                    src="/images/ads/ko66-banner.avif?v=3" 
+                    alt="KO66" 
+                    class="aphim-catfish-img"
+                    loading="eager"
+                />
+            </a>
+        </div>
+
+        <!-- 📺 Hàng Dưới: 3 Banner VSBet, ColaTV, ColaScore -->
         <div class="aphim-catfish-grid">
-
             <a href="http://lacampina.mx" target="_blank" rel="noopener noreferrer nofollow" title="VSBet - Đăng ký nạp 1X thưởng 10X" class="aphim-catfish-link">
                 <img 
                     src="/images/ads/vsbet.gif" 
