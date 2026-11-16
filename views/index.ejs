@@ -31,78 +31,29 @@
 <body class="bg-[#1f2331] text-white antialiased has-desktop-hero">
     <%- include('partials/header') %>
 
-        <!-- Runtime Desktop Transparent Header Enforcer -->
+        <!-- Runtime Desktop Hero Transparent Header Initialization -->
         <script>
             (function () {
-                /* Trang thai header hien tai: null | 'top' | 'scrolled'
-                   Dung de CHI ghi DOM/STYLE khi trang thai THAT SU doi. */
-                var appliedState = null;
-
-                function applyDesktopHeaderTransparent(force) {
-                    /* Chi chay tren desktop (>=1024px) - giu nguyen hanh vi cu */
+                function enforceDesktopHeroHeader() {
                     if (window.innerWidth < 1024) return;
-
                     var header = document.getElementById('sofa-header') || document.querySelector('header');
                     if (!header) return;
-
                     var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-                    var nextState = (scrollY <= 50) ? 'top' : 'scrolled';
-
-                    /* TOI UU: trang thai khong doi thi KHONG ghi DOM/STYLE gi ca.
-                       Truoc day moi lan cuon deu goi 5-7 setProperty/removeProperty
-                       (ke ca backdrop-filter) du header da dung trang thai -> gayGiat. */
-                    if (appliedState === nextState && !force) return;
-                    appliedState = nextState;
-
-                    if (nextState === 'top') {
+                    if (scrollY <= 50) {
                         header.classList.remove('scrolled', 'sofa-header-scrolled');
                         header.style.setProperty('background', 'transparent', 'important');
                         header.style.setProperty('background-color', 'transparent', 'important');
                         header.style.setProperty('border', 'none', 'important');
                         header.style.setProperty('border-bottom', 'none', 'important');
                         header.style.setProperty('box-shadow', 'none', 'important');
-                        header.style.setProperty('backdrop-filter', 'none', 'important');
-                        header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-                    } else {
-                        header.classList.add('scrolled');
-                        header.style.removeProperty('background');
-                        header.style.removeProperty('background-color');
-                        header.style.removeProperty('border');
-                        header.style.removeProperty('border-bottom');
-                        header.style.removeProperty('box-shadow');
-                        header.style.removeProperty('backdrop-filter');
-                        header.style.removeProperty('-webkit-backdrop-filter');
                     }
                 }
-
-                /* Scroll/resize di qua requestAnimationFrame de gom vao MOT nhip ve.
-                   Truoc day chay dong bo tren tung event -> giat khi luot. */
-                var ticking = false;
-                function scheduleUpdate() {
-                    if (ticking) return;
-                    ticking = true;
-                    window.requestAnimationFrame(function () {
-                        applyDesktopHeaderTransparent(false);
-                    });
-                }
-
-                window.addEventListener('scroll', scheduleUpdate, { passive: true });
-                window.addEventListener('resize', scheduleUpdate, { passive: true });
-
-                /* Cac lan chay dau (va load) van chay TRUC TIEP de chac chan
-                   header dung trang thai truoc khi trang ve, khong bi nhay. */
-                function boot() {
-                    applyDesktopHeaderTransparent(true);
-                }
-
                 if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', boot);
+                    document.addEventListener('DOMContentLoaded', enforceDesktopHeroHeader);
                 } else {
-                    boot();
+                    enforceDesktopHeroHeader();
                 }
-                window.addEventListener('load', boot);
-                setTimeout(boot, 50);
-                setTimeout(boot, 250);
+                window.addEventListener('load', enforceDesktopHeroHeader);
             })();
         </script>
 
@@ -1053,7 +1004,7 @@
 
                         try {
                             var cinemaEl = document.getElementById('slider-cinema-hot');
-                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v13');
+                            var cachedCinemaHtml = localStorage.getItem('aphim_cinema_hot_html_v14');
                             if (cinemaEl && cachedCinemaHtml) {
                                 cinemaEl.innerHTML = cachedCinemaHtml;
                                 if (window.innerWidth < 640) {
@@ -1910,17 +1861,30 @@
                             if (!slider) return;
                             const cardWidth = window.innerWidth < 640 ? 170 : 215;
                             const scrollStep = Math.sign(amount) * (cardWidth * 2);
-                            slider.scrollBy({ left: scrollStep, behavior: 'smooth' });
+                            const maxScroll = Math.max(0, slider.scrollWidth - slider.clientWidth);
+
+                            let target = (slider._targetScrollLeft !== undefined) ? slider._targetScrollLeft : slider.scrollLeft;
+                            target = Math.max(0, Math.min(maxScroll, target + scrollStep));
+                            slider._targetScrollLeft = target;
+
+                            slider.classList.add('is-scrolling');
+                            clearTimeout(slider._navScrollEndTimer);
+                            slider._navScrollEndTimer = setTimeout(() => {
+                                slider.classList.remove('is-scrolling');
+                                slider._targetScrollLeft = undefined;
+                            }, 450);
+
+                            slider.scrollTo({ left: target, behavior: 'smooth' });
                         };
 
                         window.scrollCinemaHotSlider = function (amount) {
-                            if (typeof window.pauseCinemaHotOnUserAction === 'function') {
-                                window.pauseCinemaHotOnUserAction();
-                            }
                             const slider = document.getElementById('slider-cinema-hot');
                             if (!slider) return;
 
                             if (slider.classList.contains('cinema-hot-stage-mobile') && typeof window.updateCinemaHot3DStage === 'function') {
+                                if (typeof window.pauseCinemaHotOnUserAction === 'function') {
+                                    window.pauseCinemaHotOnUserAction();
+                                }
                                 const total = (slider.querySelectorAll('.cinema-hot-card') || []).length;
                                 if (total > 0) {
                                     if (amount > 0) {
@@ -1938,14 +1902,21 @@
 
                             const cardWidth = window.innerWidth < 640 ? 160 : 208;
                             const scrollStep = Math.sign(amount) * (cardWidth * 2);
-                            slider.scrollBy({ left: scrollStep, behavior: 'smooth' });
+                            const maxScroll = Math.max(0, slider.scrollWidth - slider.clientWidth);
 
-                            if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
-                                clearTimeout(window._cinemaHotNavResumeTimer);
-                                window._cinemaHotNavResumeTimer = setTimeout(() => {
-                                    window.resumeCinemaHotAfterUserAction();
-                                }, 600);
-                            }
+                            // ⚡ Tối ưu trượt 120FPS mượt như bơ: Tính toán đích đến liên tục và khóa hover khi đang lướt
+                            let target = (slider._targetScrollLeft !== undefined) ? slider._targetScrollLeft : slider.scrollLeft;
+                            target = Math.max(0, Math.min(maxScroll, target + scrollStep));
+                            slider._targetScrollLeft = target;
+
+                            slider.classList.add('is-scrolling');
+                            clearTimeout(slider._navScrollEndTimer);
+                            slider._navScrollEndTimer = setTimeout(() => {
+                                slider.classList.remove('is-scrolling');
+                                slider._targetScrollLeft = undefined;
+                            }, 450);
+
+                            slider.scrollTo({ left: target, behavior: 'smooth' });
                         };
 
                         // 🎯 ICONIC PHIMMOI HOLLOW STROKE PLAY TRIANGLE
@@ -3148,15 +3119,19 @@
                                 }
 
                                 if (sliderEl && items.length) {
-                                    const html = items.slice(0, 24).map((m, idx) => createDeCuCardHTML(m, idx)).join('');
                                     const hasSkeleton = !sliderEl.children.length || !!sliderEl.querySelector('.de-cu-skeleton-card');
-                                    if (hasSkeleton || sliderEl.innerHTML !== html) {
+                                    const existingSlugs = Array.from(sliderEl.querySelectorAll('a[href^="/phim/"]')).map(a => a.getAttribute('href')).slice(0, 5).join(',');
+                                    const newSlugs = items.slice(0, 5).map(m => '/phim/' + m.slug).join(',');
+
+                                    // ⚡ Tránh phá hủy DOM nếu danh sách phim Đề Cử đã hiển thị đúng (giúp chạm vào là ăn ngay)
+                                    if (hasSkeleton || existingSlugs !== newSlugs) {
+                                        const html = items.slice(0, 24).map((m, idx) => createDeCuCardHTML(m, idx)).join('');
                                         const prevScroll = sliderEl.scrollLeft;
                                         sliderEl.innerHTML = html;
                                         if (prevScroll > 0) sliderEl.scrollLeft = prevScroll;
-                                    }
-                                    if (items.some(m => m.is_google_trend) && !html.includes('data:image/svg+xml')) {
-                                        try { localStorage.setItem(cacheKey, html); } catch (e) { }
+                                        if (items.some(m => m.is_google_trend) && !html.includes('data:image/svg+xml')) {
+                                            try { localStorage.setItem(cacheKey, html); } catch (e) { }
+                                        }
                                     }
                                 }
                             } catch (err) {
@@ -3167,8 +3142,8 @@
                         // ==========================================
                         // 🎥 SECTION 0.2: PHIM RẠP SẮP CHIẾU (TỰ ĐỘNG 100% TRỰC TIẾP TỪ MOMO CINEMA API)
                         // ==========================================
-                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v13';
-                        const CINEMA_HOT_HTML_KEY = 'aphim_cinema_hot_html_v13';
+                        const CINEMA_HOT_CACHE_KEY = 'aphim_cinema_hot_momo_live_v14';
+                        const CINEMA_HOT_HTML_KEY = 'aphim_cinema_hot_html_v14';
                         const CINEMA_HOT_MAX_DISPLAY = 20; // Giới hạn 20 phim hot nhất
                         let cinemaHotStoredItems = null;
                         let cinemaHotActiveIndex = 0;
@@ -3208,12 +3183,23 @@
                             const metaText = movie.genres || [movie.genres, movie.duration].filter(Boolean).join(' • ');
                             const rankHTML = rank ? `<div class="cinema-hot-rank-num" aria-hidden="true">${rank}</div>` : '';
 
+                            // ⚡ Nén ảnh MoMo sang WebP 420px siêu nhẹ (~25KB thay vì 1.5MB), CDN Cloudflare tải tức thì 0ms
+                            const momoProxy = function (url) {
+                                if (!url || typeof url !== 'string') return '';
+                                if (url.includes('momocdn.net')) {
+                                    return 'https://wsrv.nl/?url=' + encodeURIComponent(url) + '&w=420&q=85&output=webp';
+                                }
+                                return (typeof getImgUrl === 'function') ? getImgUrl(url, null, 420, 85) : url;
+                            };
+                            const primaryPoster = momoProxy(movie.poster);
+                            const fallbackPoster = movie.fallback_poster ? momoProxy(movie.fallback_poster) : (movie.poster || '');
+
                             return `
                                 <div class="cinema-hot-card" ${extraAttr}>
                                     <a href="${watchUrl}" title="${movie.name}" style="text-decoration:none;" class="block group">
                                         <div class="cinema-hot-poster-wrap">
                                             <span class="cinema-hot-badge-age ${ageClass}">${age}</span>
-                                            <img src="${movie.poster}" data-fallback="${movie.fallback_poster || ''}" data-slug="${movie.slug || ''}" alt="${movie.name}" loading="eager" ${idx < 8 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
+                                            <img src="${primaryPoster}" data-original-src="${movie.poster || ''}" data-fallback="${fallbackPoster}" data-slug="${movie.slug || ''}" data-title="${(movie.name || '').replace(/"/g, '&quot;')}" data-origin="${(movie.origin_name || '').replace(/"/g, '&quot;')}" alt="${movie.name}" loading="eager" ${idx < 8 ? 'fetchpriority="high"' : 'fetchpriority="auto"'} decoding="async" referrerpolicy="no-referrer" onerror="if(this.dataset.fallback && this.src !== this.dataset.fallback){ this.src = this.dataset.fallback; } else { window.handleCardImgError(this); }" />
                                             ${rankHTML}
                                             <div class="phimmoi-play-overlay">
                                                 <div class="phimmoi-play-btn">
@@ -3651,9 +3637,16 @@
                                     return;
                                 }
 
-                                const html = items.slice(0, showLimit).map(createSnCountryCardHTML).join('');
-                                track.innerHTML = html;
-                                try { localStorage.setItem(cacheKey, html); } catch (_) {}
+                                const existingSlugs = Array.from(track.querySelectorAll('a[href^="/phim/"]')).map(a => a.getAttribute('href')).slice(0, 4).join(',');
+                                const newSlugs = items.slice(0, 4).map(m => '/phim/' + m.slug).join(',');
+                                const hasSkeleton = !track.children.length || !!track.querySelector('.sn-row-skeleton') || !!track.querySelector('.landscape-poster-wrap:not([style*="background"])');
+
+                                // ⚡ Tránh phá hủy DOM nếu danh sách phim Song Ngữ không đổi (giúp 1 chạm vào là ăn ngay)
+                                if (hasSkeleton || existingSlugs !== newSlugs) {
+                                    const html = items.slice(0, showLimit).map(createSnCountryCardHTML).join('');
+                                    track.innerHTML = html;
+                                    try { localStorage.setItem(cacheKey, html); } catch (_) {}
+                                }
                             } catch (err) {
                                 console.warn('Lỗi hàng Song Ngữ ' + row.key + ':', err);
                                 if (!track.children.length || track.querySelector('.landscape-poster-wrap')) {
@@ -4184,7 +4177,10 @@
                         }
 
                         window.handle3DCardClick = function (idx) {
-                            if (idx === showcase3DIndex) {
+                            const isMobileScreen = window.innerWidth <= 768;
+                            // ⚡ Trên mobile: Chạm bất kỳ card nào cũng mở phim ngay lập tức (1 chạm ăn ngay)
+                            // Trên desktop: Click card trung tâm để xem, click card 2 bên để xoay vào giữa
+                            if (idx === showcase3DIndex || isMobileScreen) {
                                 const current = showcase3DItems[idx];
                                 if (current && current.slug) {
                                     const isCurSingle = Boolean(
@@ -4197,6 +4193,9 @@
                                         String(current.episode_current || '').toLowerCase().includes('full') ||
                                         String(current.episode_current || '').toLowerCase().includes('chiếu rạp')
                                     );
+                                    if (typeof window.triggerNavProgress === 'function') {
+                                        window.triggerNavProgress();
+                                    }
                                     window.location.href = `/xem-phim/${current.slug}/${isCurSingle ? 'full' : 'tap-1'}`;
                                 }
                             } else {

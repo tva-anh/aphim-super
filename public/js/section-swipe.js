@@ -154,7 +154,7 @@
         container._userInteracted = true;
 
         // Tạm dừng auto-advance phim rạp nếu đang tương tác
-        if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
+        if (window.innerWidth < 640 && (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider'))) {
             if (typeof window.pauseCinemaHotOnUserAction === 'function') {
                 window.pauseCinemaHotOnUserAction();
             }
@@ -269,7 +269,7 @@
             // Áp dụng vị trí cuộn cuối cùng ngay lập tức
             container.scrollLeft = targetScroll;
 
-            if (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider')) {
+            if (window.innerWidth < 640 && (container.id === 'slider-cinema-hot' || container.classList.contains('cinema-hot-slider'))) {
                 if (typeof window.resumeCinemaHotAfterUserAction === 'function') {
                     window.resumeCinemaHotAfterUserAction();
                 }

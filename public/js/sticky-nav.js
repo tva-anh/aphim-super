@@ -33,13 +33,25 @@
         );
     }
 
-    function updateNavOnScroll() {
+    let lastAppliedNavState = null;
+
+    function updateNavOnScroll(force) {
         const header = getHeaderElement();
-        if (!header) return;
+        if (!header) {
+            ticking = false;
+            return;
+        }
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+        const nextState = scrollTop > 50 ? 'scrolled' : 'top';
 
-        if (scrollTop > 50) {
+        if (lastAppliedNavState === nextState && !force) {
+            ticking = false;
+            return;
+        }
+        lastAppliedNavState = nextState;
+
+        if (nextState === 'scrolled') {
             header.classList.add('scrolled');
             if (hasHeroOrBackdrop()) {
                 header.style.removeProperty('background');
@@ -47,8 +59,6 @@
                 header.style.removeProperty('border');
                 header.style.removeProperty('border-bottom');
                 header.style.removeProperty('box-shadow');
-                header.style.removeProperty('backdrop-filter');
-                header.style.removeProperty('-webkit-backdrop-filter');
             }
         } else {
             header.classList.remove('scrolled', 'sofa-header-scrolled');
@@ -58,8 +68,6 @@
                 header.style.setProperty('border', 'none', 'important');
                 header.style.setProperty('border-bottom', 'none', 'important');
                 header.style.setProperty('box-shadow', 'none', 'important');
-                header.style.setProperty('backdrop-filter', 'none', 'important');
-                header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
             } else {
                 header.style.backgroundColor = '';
                 header.style.background = '';
@@ -121,7 +129,9 @@
         updateNavOnScroll();
     }
 
-    window.addEventListener('scroll', requestTick, { passive: true });
+    if (!document.getElementById('site-header-scroll-marker') || !('IntersectionObserver' in window)) {
+        window.addEventListener('scroll', requestTick, { passive: true });
+    }
 
     window.addEventListener('resize', () => {
         if (window.innerWidth !== lastWidth) {

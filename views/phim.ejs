@@ -1800,7 +1800,7 @@
                                     </div>
 
                                     <div class="overflow-y-auto custom-scrollbar pr-0 pb-1 w-full"
-                                        style="max-height: 260px;">
+                                        style="max-height: 260px; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: auto;">
                                         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2"
                                             id="episodes-mobile">
                                             <!-- JS will render episodes here -->
@@ -2132,41 +2132,6 @@
                         initMobileSwipeGuard();
                     }
                     window.initMobileSwipeGuard = initMobileSwipeGuard;
-                })();
-            </script>
-
-            <!-- ====== CINEMATIC GLASS HEADER SCROLL CONTROLLER ====== -->
-            <script>
-                (function () {
-                    function checkHeaderScroll() {
-                        const header = document.getElementById('sofa-header') || document.querySelector('header');
-                        if (!header) return;
-                        const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
-                        if (scrollY > 40) {
-                            header.classList.add('scrolled');
-                            header.style.removeProperty('background');
-                            header.style.removeProperty('background-color');
-                            header.style.removeProperty('backdrop-filter');
-                            header.style.removeProperty('-webkit-backdrop-filter');
-                            header.style.removeProperty('box-shadow');
-                            header.style.removeProperty('border');
-                            header.style.removeProperty('border-bottom');
-                        } else {
-                            header.classList.remove('scrolled', 'sofa-header-scrolled');
-                            header.style.setProperty('background', 'transparent', 'important');
-                            header.style.setProperty('background-color', 'transparent', 'important');
-                            header.style.setProperty('backdrop-filter', 'none', 'important');
-                            header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-                            header.style.setProperty('box-shadow', 'none', 'important');
-                            header.style.setProperty('border', 'none', 'important');
-                            header.style.setProperty('border-bottom', 'none', 'important');
-                        }
-                    }
-
-                    window.addEventListener('scroll', checkHeaderScroll, { passive: true });
-                    window.addEventListener('load', checkHeaderScroll);
-                    document.addEventListener('DOMContentLoaded', checkHeaderScroll);
-                    checkHeaderScroll();
                 })();
             </script>
 </body>

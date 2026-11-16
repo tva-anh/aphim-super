@@ -18,6 +18,9 @@
         -webkit-transform: translateZ(0);
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
+        transition: background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    background 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
     /* Transparent Header on Movie Detail Page & Short Drama Home Hero (with full-bleed backdrop) */
@@ -36,8 +39,6 @@
         border: none !important;
         border-bottom: none !important;
         box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
     }
 
     /* Scrolled Header in Dark Mode (Solid Wrapping Bar on Scroll) */
@@ -283,8 +284,6 @@
             border: none !important;
             border-bottom: none !important;
             box-shadow: none !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
         }
     }
 
@@ -310,8 +309,6 @@
         border: none !important;
         border-bottom: none !important;
         box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
     }
 
     /* 🔔 DARK MODE: Translucent white circular buttons */
@@ -3074,6 +3071,10 @@
     }
 </style>
 
+<%- include('splash-screen') %>
+
+<span id="site-header-scroll-marker" class="site-header-scroll-marker" aria-hidden="true"></span>
+
 <header id="sofa-header" class="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? 'is-phim-ngan' : '' %>">
     <div class="sofa-header-container">
         <div class="sofa-header-left-group">
@@ -3922,7 +3923,7 @@
         }
 
         let ticking = false;
-        let scrollTimer = null;
+        let lastAppliedHeaderState = null;
 
         function hasHeroOrBackdrop() {
             const isDesktop = window.innerWidth >= 1024;
@@ -3944,32 +3945,47 @@
             );
         }
 
-        function updateSofaHeaderScroll() {
+        function updateSofaHeaderScroll(force, forcedState) {
             const header = document.getElementById('sofa-header') || document.querySelector('header');
-            if (!header) return;
+            if (!header) {
+                ticking = false;
+                return;
+            }
 
-            const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
-            if (scrollY > 50) {
+            let nextState;
+            if (typeof forcedState === 'string') {
+                nextState = forcedState;
+            } else {
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+                nextState = scrollY > 30 ? 'scrolled' : 'top';
+            }
+
+            // ⚡ Tối ưu triệt để: Nếu trạng thái không đổi thì KHÔNG ghi DOM/Style -> Loại bỏ 100% giật lag
+            if (lastAppliedHeaderState === nextState && !force) {
+                ticking = false;
+                return;
+            }
+            lastAppliedHeaderState = nextState;
+
+            if (nextState === 'scrolled') {
                 header.classList.add('scrolled');
+                header.setAttribute('data-scrolled', 'true');
                 if (hasHeroOrBackdrop()) {
                     header.style.removeProperty('background');
                     header.style.removeProperty('background-color');
                     header.style.removeProperty('border');
                     header.style.removeProperty('border-bottom');
                     header.style.removeProperty('box-shadow');
-                    header.style.removeProperty('backdrop-filter');
-                    header.style.removeProperty('-webkit-backdrop-filter');
                 }
             } else {
                 header.classList.remove('scrolled', 'sofa-header-scrolled');
+                header.removeAttribute('data-scrolled');
                 if (hasHeroOrBackdrop()) {
                     header.style.setProperty('background', 'transparent', 'important');
                     header.style.setProperty('background-color', 'transparent', 'important');
                     header.style.setProperty('border', 'none', 'important');
                     header.style.setProperty('border-bottom', 'none', 'important');
                     header.style.setProperty('box-shadow', 'none', 'important');
-                    header.style.setProperty('backdrop-filter', 'none', 'important');
-                    header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
                 } else {
                     header.style.backgroundColor = '';
                     header.style.background = '';
@@ -3979,45 +3995,44 @@
         }
 
         function forceHeaderTopState() {
-            const header = document.getElementById('sofa-header') || document.querySelector('header');
-            if (header) {
-                const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
-                if (scrollY <= 50) {
-                    header.classList.remove('scrolled', 'sofa-header-scrolled');
-                    if (hasHeroOrBackdrop()) {
-                        header.style.setProperty('background', 'transparent', 'important');
-                        header.style.setProperty('background-color', 'transparent', 'important');
-                        header.style.setProperty('border', 'none', 'important');
-                        header.style.setProperty('border-bottom', 'none', 'important');
-                        header.style.setProperty('box-shadow', 'none', 'important');
-                        header.style.setProperty('backdrop-filter', 'none', 'important');
-                        header.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
-                    } else {
-                        header.style.backgroundColor = '';
-                        header.style.background = '';
+            updateSofaHeaderScroll(true);
+        }
+
+        // ⚡ SOFAFLIX PATTERN: IntersectionObserver chạy 100% trên C++ Compositor Thread
+        // Hoàn toàn giải phóng Main Thread của JavaScript khi người dùng cuộn vuốt màn hình
+        var marker = document.getElementById('site-header-scroll-marker');
+        var observerActive = false;
+        if (marker && 'IntersectionObserver' in window) {
+            try {
+                var headerObserver = new IntersectionObserver(function (entries) {
+                    var entry = entries[0];
+                    if (entry) {
+                        var isScrolled = !entry.isIntersecting;
+                        updateSofaHeaderScroll(false, isScrolled ? 'scrolled' : 'top');
                     }
-                }
+                }, { threshold: 0 });
+                headerObserver.observe(marker);
+                observerActive = true;
+            } catch (e) {
+                observerActive = false;
             }
         }
 
-        function onScroll() {
-            if (!ticking) {
-                requestAnimationFrame(updateSofaHeaderScroll);
-                ticking = true;
+        if (!observerActive) {
+            function onScroll() {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        updateSofaHeaderScroll(false);
+                    });
+                    ticking = true;
+                }
             }
-            if (!document.body.classList.contains('is-scrolling')) {
-                document.body.classList.add('is-scrolling');
-            }
-            clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(function () {
-                document.body.classList.remove('is-scrolling');
-            }, 150);
+            window.addEventListener('scroll', onScroll, { passive: true });
         }
 
         // Run immediately
         forceHeaderTopState();
 
-        window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('load', forceHeaderTopState);
         window.addEventListener('pageshow', forceHeaderTopState);
         if (document.readyState === 'loading') {

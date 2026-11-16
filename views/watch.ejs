@@ -597,7 +597,7 @@
         </style>
 </head>
 
-<body class="page-watch bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-hidden w-full">
+<body class="page-watch bg-[#1f2331] text-gray-100 font-display min-h-screen overflow-x-clip w-full">
     <div id="cinemaOverlay" onclick="if (event.target === this) toggleCinemaMode(false)" title="Nhấn vào đây để bật lại đèn"></div>
     <div id="cinemaExitHint" onclick="toggleCinemaMode()" style="visibility: hidden; opacity: 0; cursor: pointer;"
         title="Bấm để bật lại đèn">
@@ -631,8 +631,9 @@
                             stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
-                        <span id="breadcrumb-movie-name"
-                            class="text-white font-extrabold truncate flex-1 min-w-0"><%= typeof movie !== 'undefined' && movie ? movie.name : '...' %></span>
+                        <a id="breadcrumb-movie-name" href="/phim/<%= typeof movie !== 'undefined' && movie ? movie.slug : '' %>"
+                            class="text-white hover:text-[#fcd576] transition-colors font-extrabold truncate flex-1 min-w-0"
+                            title="Xem thông tin chi tiết phim <%= typeof movie !== 'undefined' && movie ? movie.name : '' %>"><%= typeof movie !== 'undefined' && movie ? movie.name : '...' %></a>
                         <span id="watchBreadcrumbEpName"
                             class="text-[#fcd576] font-extrabold flex-shrink-0 whitespace-nowrap"><%= (typeof isSingleMovie !== 'undefined' && isSingleMovie) ? '- Bản Full' : (typeof episodeParam !== 'undefined' && episodeParam ? `- Tập ${String(episodeParam).replace(/^tap-/, '')}` : '') %></span>
                     </div>
@@ -1063,7 +1064,7 @@
                         </div>
 
                         <div id="episode-list"
-                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 14px; margin-bottom: 14px; max-height: 340px; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain; will-change: scroll-position; transform: translateZ(0);"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 14px; margin-bottom: 14px; max-height: 340px; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: auto;"
                             class="custom-scrollbar pr-1">
                         </div>
 

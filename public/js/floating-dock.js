@@ -200,12 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Scroll to Top Logic
     if (btnTop) {
         let scrollTicking = false;
+        let lastScrollTopState = null;
         const updateScrollTopVisibility = () => {
             const isScrolled = window.scrollY > 200;
-            if (isScrolled) {
-                btnTop.classList.add('show');
-            } else {
-                btnTop.classList.remove('show');
+            if (isScrolled !== lastScrollTopState) {
+                lastScrollTopState = isScrolled;
+                btnTop.classList.toggle('show', isScrolled);
             }
             scrollTicking = false;
         };

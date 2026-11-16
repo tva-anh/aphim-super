@@ -886,10 +886,27 @@ html.light-mode .grid-poster-wrap {
     pointer-events: none !important;
 }
 
-.normal-card-item:hover .phimmoi-play-overlay,
-.featured-card-item:hover .phimmoi-play-overlay,
-.de-cu-card:hover .phimmoi-play-overlay {
-    opacity: 1 !important;
+/* ⚡ CHỈ KÍCH HOẠT HOVER TRÊN DESKTOP MOUSE: Triệt tiêu 100% hiện tượng WebKit/iOS nuốt cú chạm đầu tiên (Hover Trap) */
+@media (hover: hover) and (pointer: fine) {
+    .normal-card-item:hover .phimmoi-play-overlay,
+    .featured-card-item:hover .phimmoi-play-overlay,
+    .de-cu-card:hover .phimmoi-play-overlay {
+        opacity: 1 !important;
+    }
+
+    .normal-card-item:hover .phimmoi-play-btn,
+    .featured-card-item:hover .phimmoi-play-btn,
+    .de-cu-card:hover .phimmoi-play-btn {
+        transform: scale(1) !important;
+        background: #ca8a04 !important;
+    }
+}
+
+/* ⚡ TRÊN MOBILE CẢM ỨNG: Ẩn play overlay để 100% cú chạm đầu tiên ăn ngay vào link xem phim */
+@media (hover: none) {
+    .phimmoi-play-overlay {
+        display: none !important;
+    }
 }
 
 .phimmoi-play-btn {
@@ -910,13 +927,6 @@ html.light-mode .grid-poster-wrap {
 .featured-card-item .phimmoi-play-btn {
     width: 52px !important;
     height: 52px !important;
-}
-
-.normal-card-item:hover .phimmoi-play-btn,
-.featured-card-item:hover .phimmoi-play-btn,
-.de-cu-card:hover .phimmoi-play-btn {
-    transform: scale(1) !important;
-    background: #ca8a04 !important;
 }
 
 .phimmoi-play-btn svg {

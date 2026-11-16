@@ -1,0 +1,273 @@
+<!-- ==============================================
+     APHIM CINEMATIC BRAND SPLASH SCREEN & PAGE TRANSITION
+     Chuyển cảnh mượt mà 100% chuẩn SofaFlix nguyên bản
+     ============================================== -->
+<script>
+    /* ⚡ KIỂM TRA ĐIỀU HƯỚNG QUAY VỀ / THỤT LUI (BACK NAVIGATION) NGAY LẬP TỨC
+       Nếu người dùng quay về (Back button / vuốt lùi / bfcache):
+       TẮT NGAY LẬP TỨC 0ms - Tuyệt đối không cho Splash Screen hiển thị */
+    (function () {
+        var isBackNav = false;
+        try {
+            // 1. Kiểm tra cờ ghi nhận từ sự kiện trước đó
+            if (sessionStorage.getItem('aphim_nav_direction') === 'back') {
+                isBackNav = true;
+                sessionStorage.removeItem('aphim_nav_direction');
+            }
+            // 2. Kiểm tra chuẩn Performance Navigation Timing của trình duyệt
+            var nav = window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation');
+            if (nav && nav.length > 0 && nav[0].type === 'back_forward') {
+                isBackNav = true;
+            } else if (window.performance && window.performance.navigation && window.performance.navigation.type === 2) {
+                isBackNav = true; // Legacy TYPE_BACK_FORWARD
+            }
+        } catch (e) {}
+
+        if (isBackNav) {
+            document.documentElement.classList.add('aphim-suppress-splash');
+        }
+    })();
+</script>
+
+<style>
+    /* 1. Nền đúng 100% màu SofaFlix: #191b24 (RGB 25, 27, 36) */
+    #aphim-splash-wrap {
+        position: fixed;
+        inset: 0;
+        z-index: 9999999;
+        background-color: #191b24; /* Đúng màu chuẩn SofaFlix 100% */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* 🔥 TỐI ƯU NHỊP ĐỘ: 0.95s mượt mà, giữ trọn vẹn 100% hiệu ứng lùi 3D SofaFlix nhưng không bắt user chờ lâu */
+        animation: aphimBodyLoadEffect 0.95s forwards;
+        will-change: opacity, visibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
+    /* 2. Khi lùi trang hoặc bị chặn (Back navigation): Triệt tiêu hoàn toàn 0ms */
+    html.aphim-suppress-splash #aphim-splash-wrap,
+    #aphim-splash-wrap.is-suppressed {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        animation: none !important;
+    }
+
+    .aphim-splash-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        max-width: min(1200px, 100vw - 48px);
+        padding: 0 24px;
+        gap: 2rem; /* Đúng khoảng cách 2rem như SofaFlix */
+        user-select: none;
+        -webkit-user-select: none;
+        /* 🔥 TỐI ƯU NHỊP ĐỘ: 0.95s mượt mà, lùi sâu 3D scale(0.6) chuẩn SofaFlix */
+        animation: aphimLogoLoad 0.95s forwards;
+        will-change: transform, opacity;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
+    /* 🔥 ĐẲNG CẤP HOẠT ẢNH NGUYÊN BẢN TỪ SOFAFLIX (TỐI ƯU 0.95 GIÂY ÊM ÁI) 🔥 */
+    @keyframes aphimBodyLoadEffect {
+        0%   { opacity: 1; z-index: 9999999; }
+        70%  { opacity: 1; z-index: 9999999; }
+        100% { opacity: 0; z-index: -100; pointer-events: none; }
+    }
+
+    @keyframes aphimLogoLoad {
+        0%   { transform: scale(1.05); }
+        55%  { opacity: 1; transform: scale(1); }
+        78%  { opacity: 0; transform: scale(0.6); } /* Thu nhỏ lùi sâu ra sau cực kỳ êm dịu */
+        100% { opacity: 0; }
+    }
+
+    .aphim-splash-logo-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .aphim-splash-logo-box picture {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .aphim-splash-logo {
+        width: 60%;
+        max-width: 320px;
+        min-width: 200px;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        filter: drop-shadow(0 14px 35px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 20px rgba(234, 179, 8, 0.15));
+    }
+
+    .aphim-splash-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: rgba(255, 255, 255, 0.75);
+        font-weight: 700;
+        line-height: 1.4;
+        letter-spacing: -0.015em;
+        gap: 0.35rem;
+    }
+
+    .aphim-splash-line1 {
+        font-size: clamp(1.05rem, 2.2vw, 2.05rem);
+        white-space: nowrap;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.78);
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+    }
+
+    .aphim-splash-line2 {
+        font-size: clamp(0.95rem, 1.9vw, 1.8rem);
+        white-space: normal;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.68);
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+    }
+
+    @media (min-width: 640px) {
+        .aphim-splash-line2 {
+            white-space: nowrap;
+        }
+    }
+</style>
+
+<div id="aphim-splash-wrap" role="status" aria-label="Đang tải trang">
+    <div class="aphim-splash-inner">
+        <div class="aphim-splash-logo-box">
+            <picture>
+                <source srcset="/logo-aphim-splash.webp" type="image/webp">
+                <source srcset="/logo-aphim1.webp" type="image/webp">
+                <img src="/logo-aphim1.png" alt="APhim" class="aphim-splash-logo" width="480" height="200" fetchpriority="high" decoding="sync">
+            </picture>
+        </div>
+        <div class="aphim-splash-text">
+            <span class="aphim-splash-line1">Xem Phim Miễn Phí Cực Nhanh FullHD</span>
+            <span class="aphim-splash-line2">Cập Nhật Liên Tục</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var splash = document.getElementById('aphim-splash-wrap');
+        if (!splash) return;
+
+        // Nếu là điều hướng lùi: Tắt ngay lập tức 0ms
+        if (document.documentElement.classList.contains('aphim-suppress-splash')) {
+            splash.classList.add('is-suppressed');
+            splash.style.setProperty('display', 'none', 'important');
+            return;
+        }
+
+        // Tự động giải phóng sau khi animation 0.95s kết thúc hoàn toàn
+        setTimeout(function () {
+            if (splash && !splash.classList.contains('is-leaving')) {
+                splash.style.setProperty('display', 'none', 'important');
+            }
+        }, 1000);
+
+        // ⚡ Smart Dismiss: Nếu người dùng chạm hoặc cuộn màn hình sau 500ms, tự động nhường quyền điều khiển ngay
+        function dismissSplashEarly() {
+            if (!splash || splash.classList.contains('is-suppressed')) return;
+            splash.style.transition = 'opacity 0.22s ease-out';
+            splash.style.opacity = '0';
+            setTimeout(function () {
+                splash.classList.add('is-suppressed');
+                splash.style.setProperty('display', 'none', 'important');
+            }, 230);
+        }
+
+        setTimeout(function () {
+            window.addEventListener('scroll', dismissSplashEarly, { once: true, passive: true });
+            if (splash) {
+                splash.addEventListener('click', dismissSplashEarly, { once: true, passive: true });
+            }
+        }, 500);
+
+        /* ==========================================================
+           ⚡ XỬ LÝ ĐIỀU HƯỚNG QUAY VỀ / THỤT LUI (BACK / HISTORY)
+           Tuyệt đối không hiển thị Splash Screen khi user Back / thụt lùi
+           ========================================================== */
+
+        // 1. Khi người dùng bấm nút Back trình duyệt hoặc vuốt màn hình quay lại (popstate):
+        window.addEventListener('popstate', function () {
+            try {
+                sessionStorage.setItem('aphim_nav_direction', 'back');
+            } catch (e) {}
+            splash.classList.add('is-suppressed');
+            splash.style.setProperty('display', 'none', 'important');
+        });
+
+        // 2. Khi trình duyệt khôi phục từ bộ nhớ đệm lịch sử (bfcache):
+        window.addEventListener('pageshow', function (e) {
+            var isBack = e.persisted;
+            try {
+                var nav = window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation');
+                if (nav && nav.length > 0 && nav[0].type === 'back_forward') {
+                    isBack = true;
+                }
+                if (sessionStorage.getItem('aphim_nav_direction') === 'back') {
+                    isBack = true;
+                    sessionStorage.removeItem('aphim_nav_direction');
+                }
+            } catch (err) {}
+
+            if (isBack) {
+                splash.classList.add('is-suppressed');
+                splash.style.setProperty('display', 'none', 'important');
+            }
+        });
+
+        /* ==========================================================
+           ⚡ XỬ LÝ ĐIỀU HƯỚNG TIẾN TỚI (FORWARD NAVIGATION)
+           Chỉ áp dụng khi user click link tiến tới trang mới
+           ========================================================== */
+        document.addEventListener('click', function (e) {
+            var link = e.target.closest('a');
+            if (!link) return;
+
+            var href = link.getAttribute('href');
+            if (!href) return;
+
+            // Bỏ qua các link ngoại bộ, link neo (#), javascript, tab mới, v.v.
+            if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+            if (link.getAttribute('target') === '_blank' || link.hasAttribute('download')) return;
+            if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+            if (link.dataset.noTransition === 'true' || link.closest('.no-transition')) return;
+
+            try {
+                var url = new URL(link.href, window.location.origin);
+                if (url.origin !== window.location.origin) return;
+                if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+                // Đánh dấu đây là điều hướng TIẾN TỚI (Forward) để trang mới kích hoạt Splash Screen
+                try {
+                    sessionStorage.setItem('aphim_nav_direction', 'forward');
+                } catch (err) {}
+            } catch (err) {}
+        }, { capture: true, passive: true });
+    })();
+</script>

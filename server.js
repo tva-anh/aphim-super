@@ -2484,6 +2484,10 @@ async function fetchMovieMetadata(slug) {
 
     const cached = movieMetadataCache.get(cleanSlug);
     if (cached && (Date.now() - cached.ts < MOVIE_CACHE_TTL)) {
+        // ⚡ Phản hồi tức thì 0ms nếu đã xác nhận là phim không tồn tại / chưa có bản chiếu
+        if (cached.isMissing) {
+            return null;
+        }
         // Tự động xóa cache nếu trước đây bị lưu nhầm nội dung placeholder ngắn VÀ không có tập phim thật
         // (placeholder có episodes thật vẫn dùng được, giữ lại để click sau tức thì ~50ms)
         if (cached.data && cached.data.content && cached.data.content.startsWith('Xem phim ') && cached.data.content.includes('tại APhim Super') &&
@@ -2664,10 +2668,10 @@ async function fetchMovieMetadata(slug) {
         // Cả 2 mirror chính đều không có hoặc timeout -> tiếp tục fallback
     }
 
-    // 2. Fallback to NguonC (phim.nguonc.com) for 18+ and external titles
+    // 2. Fallback to NguonC (phim.nguonc.com) với timeout 900ms (Fast-Fail)
     try {
         const nRes = await axios.get(`https://phim.nguonc.com/api/film/${cleanSlug}`, {
-            timeout: 2500,
+            timeout: 900,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
         });
 
@@ -2746,7 +2750,7 @@ async function fetchMovieMetadata(slug) {
                 query: queryText,
                 language: 'vi-VN'
             },
-            timeout: 2500
+            timeout: 900
         });
 
         if (tmdbRes.data?.results && tmdbRes.data.results.length > 0) {
@@ -2787,6 +2791,8 @@ async function fetchMovieMetadata(slug) {
         }
     } catch (err3) {}
 
+    // ⚡ Negative Cache: Lưu kết quả không tìm thấy trong 1 giờ để lần sau truy cập trả về tức thì 0ms, không quét lại
+    movieMetadataCache.set(cleanSlug, { data: null, isMissing: true, ts: Date.now() });
     return null;
 }
 

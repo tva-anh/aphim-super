@@ -1272,6 +1272,9 @@ function renderMovieInfo(movie, episode) {
     const breadcrumb = document.getElementById('breadcrumb-movie-name');
     if (breadcrumb) {
         breadcrumb.textContent = movie.name;
+        if (movie.slug && breadcrumb.tagName === 'A') {
+            breadcrumb.href = '/phim/' + movie.slug;
+        }
 
         const epNameEl = document.getElementById('watchBreadcrumbEpName');
         if (epNameEl && episode && episode.name) {

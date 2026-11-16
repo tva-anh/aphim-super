@@ -164,19 +164,11 @@
         
         prefetchedUrls.add(url);
 
-        // A. Fetch API nạp vào HTTP Cache (Hoạt động hoàn hảo trên cả iOS Safari & Android)
+        // Nạp trước nhẹ nhàng qua Fetch API với mức ưu tiên thấp (priority: low)
+        // Không tạo thêm thẻ <link prefetch> để tránh trùng lặp 2 request trên Chrome/Android
         if (window.fetch) {
             fetch(url, { priority: 'low', cache: 'default' }).catch(() => {});
         }
-
-        // B. Link prefetch (Dành cho trình duyệt Chromium / Firefox)
-        try {
-            const link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = url;
-            link.as = 'document';
-            document.head.appendChild(link);
-        } catch (e) {}
     }
     window.preheatUrl = preheatUrl;
 
@@ -190,6 +182,7 @@
     let touchStartY = 0;
     let touchStartTime = 0;
     let preheatTouchTimer = null;
+    let currentPressedEl = null;
 
     document.addEventListener('touchstart', function (e) {
         if (!isTouchOrMobile() || !e.touches || !e.touches[0]) return;
@@ -202,13 +195,22 @@
             preheatTouchTimer = null;
         }
 
+        if (currentPressedEl) {
+            currentPressedEl.classList.remove('is-touch-pressed');
+            currentPressedEl = null;
+        }
+
         const anchor = e.target.closest('a[href], .bn-tab, .bn-tab-center, #showcase3DBtnWatch, #showcase3DBtnInfo, .de-cu-card, .normal-card-item, .featured-card-item, .top10-card, .grid-movie-card, .sn-row-card');
         if (anchor) {
             anchor.classList.add('is-touch-pressed');
+            currentPressedEl = anchor;
             const href = anchor.getAttribute('href') || (anchor.querySelector('a') ? anchor.querySelector('a').getAttribute('href') : null);
-            // ⚡ 0ms Instant Touch Prewarm: Khởi động nạp trước ngay khi ngón tay vừa chạm vào màn hình (tiết kiệm 150-300ms)
+            // ⚡ Đặt độ trễ 65ms: Nếu người dùng đang vuốt cuộn (scroll/swipe), touchmove sẽ hủy timer -> không tốn băng thông
+            // Nếu người dùng dừng ngón tay để bấm: Timer sẽ kích hoạt nạp trước ngay lập tức
             if (href && href.startsWith('/') && !href.startsWith('//') && !href.startsWith('/api/')) {
-                preheatUrl(href);
+                preheatTouchTimer = setTimeout(function () {
+                    preheatUrl(href);
+                }, 65);
             }
         }
     }, { passive: true });
@@ -219,30 +221,53 @@
             clearTimeout(preheatTouchTimer);
             preheatTouchTimer = null;
         }
-        document.querySelectorAll('.is-touch-pressed').forEach(el => el.classList.remove('is-touch-pressed'));
+        if (currentPressedEl) {
+            currentPressedEl.classList.remove('is-touch-pressed');
+            currentPressedEl = null;
+        }
     }, { passive: true });
 
     document.addEventListener('touchend', function (e) {
         // Gỡ bỏ trạng thái pressed
-        document.querySelectorAll('.is-touch-pressed').forEach(el => el.classList.remove('is-touch-pressed'));
+        if (currentPressedEl) {
+            currentPressedEl.classList.remove('is-touch-pressed');
+            currentPressedEl = null;
+        }
 
         if (!isTouchOrMobile() || !e.changedTouches || !e.changedTouches[0]) return;
         const touch = e.changedTouches[0];
         const moveDist = Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY);
         const duration = performance.now() - touchStartTime;
 
-        // Chỉ kích hoạt haptic và tiến trình khi là cú Tap dứt khoát (< 9px & < 350ms)
-        if (moveDist < 9 && duration < 350) {
+        // ⚡ Nâng ngưỡng lên < 16px & < 450ms để bắt trọn mọi cú Tap ngón tay cái tự nhiên, không bao giờ bị trượt
+        if (moveDist < 16 && duration < 450) {
             const target = e.target.closest(HAPTIC_SELECTORS);
             if (target) {
                 triggerHaptic(6);
             }
 
-            const navLink = e.target.closest('a[href^="/"], .bn-tab, .bn-tab-center, #showcase3DBtnWatch, #showcase3DBtnInfo, .drawer-pill-btn, .sofa-menu-btn');
+            const navLink = e.target.closest('a[href^="/"], .bn-tab, .bn-tab-center, #showcase3DBtnWatch, #showcase3DBtnInfo, .drawer-pill-btn, .sofa-menu-btn, .de-cu-card a, .normal-card-item a, .featured-card-item a, .grid-movie-card a');
             if (navLink) {
                 const href = navLink.getAttribute('href');
                 if (href && !href.startsWith('#') && !href.includes('javascript:') && !href.includes('logout')) {
                     triggerNavProgress();
+                }
+            }
+
+            // ⚡ ĐẢM BẢO 100% 1 CHẠM ĂN NGAY CHO MỌI THẺ PHIM (Đề Cử, Song Ngữ, Rạp, Top 10...)
+            // Triệt tiêu hoàn toàn tình trạng iOS Safari / WebKit nuốt click do Hover Trap
+            const movieCardLink = e.target.closest('.de-cu-card a, .sn-row-card a, .normal-card-item a, .featured-card-item a, .grid-movie-card a, .top10-card a, .cinema-hot-card a');
+            if (movieCardLink) {
+                const cardHref = movieCardLink.getAttribute('href');
+                if (cardHref && cardHref.startsWith('/') && !cardHref.startsWith('#')) {
+                    try { sessionStorage.setItem('aphim_nav_direction', 'forward'); } catch (_) {}
+                    // Chuyển trang tức thì nếu sau 45ms trình duyệt chưa kịp kích hoạt click mặc định
+                    setTimeout(function () {
+                        if (!window._aphimNavTriggered) {
+                            window._aphimNavTriggered = true;
+                            window.location.href = cardHref;
+                        }
+                    }, 45);
                 }
             }
         }
@@ -316,8 +341,13 @@
         initAll();
     }
 
-    window.addEventListener('load', completeNavProgress);
-    window.addEventListener('pageshow', completeNavProgress);
+    function onPageReset() {
+        window._aphimNavTriggered = false;
+        completeNavProgress();
+    }
+
+    window.addEventListener('load', onPageReset);
+    window.addEventListener('pageshow', onPageReset);
 
     console.log('⚡ [APhim Pro Mobile Engine] 0ms Instant Navigation & Speculative Pre-warm Active v2026.');
 })();

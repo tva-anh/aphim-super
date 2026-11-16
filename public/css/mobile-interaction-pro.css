@@ -10,16 +10,53 @@
 
 @media (max-width: 768px), (hover: none) and (pointer: coarse) {
 
-    /* ─── 1. TỐI ƯU LƯỚT DỌC MÀN HÌNH (120FPS NATIVE HARDWARE ACCELERATED) ─── */
+    /* ─── 1. TỐI ƯU LƯỚT DỌC MÀN HÌNH (SOFAFLIX NATIVE 120FPS SILK COMPOSITOR) ─── */
     html {
+        touch-action: pan-x pan-y !important;
+        -webkit-tap-highlight-color: transparent !important;
         -webkit-overflow-scrolling: touch !important;
-        scroll-behavior: auto !important;
+        scroll-behavior: auto !important; /* Chuẩn hệ điều hành: iOS & Android physics */
+        overflow-y: scroll;
     }
 
     body {
         -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-y;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        touch-action: pan-x pan-y !important;
         overscroll-behavior-y: auto;
+    }
+
+    /* Marker đo Header không tốn tài nguyên (SofaFlix Pattern) */
+    .site-header-scroll-marker {
+        pointer-events: none !important;
+        width: 1px !important;
+        height: 1px !important;
+        position: absolute !important;
+        top: 24px !important;
+        left: 0 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* ─── SOFAFLIX SCROLLED HEADER TRÊN MOBILE (NỀN ĐẶC, KHÔNG SHADER BLUR NẶNG GPU) ─── */
+    #sofa-header.scrolled,
+    header#sofa-header.scrolled,
+    #sofa-header[data-scrolled="true"],
+    header#sofa-header[data-scrolled="true"] {
+        background-color: #111217 !important;
+        background: #111217 !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    /* ─── CONTENT-VISIBILITY CHO SECTIONS NGOÀI KHUNG NHÌN (SOFAFLIX / NETFLIX STANDARD) ─── */
+    .app-container > section,
+    .sn-country-row,
+    .phimmoi-section-wrapper {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 340px;
     }
 
     /* ─── 2. TỐI ƯU LƯỚT NGANG CÁC DANH SÁCH PHIM (FLUID 120FPS NATIVE GLIDE) ─── */

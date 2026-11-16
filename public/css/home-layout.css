@@ -148,7 +148,6 @@
                             touch-action: pan-x pan-y !important;
                             overscroll-behavior-x: contain !important;
                             transform: translateZ(0);
-                            will-change: scroll-position;
                         }
                         .cinema-hot-slider::-webkit-scrollbar {
                             display: none !important;
@@ -199,7 +198,6 @@
                                 transition: transform 0.22s cubic-bezier(0.2, 0, 0.2, 1) !important;
                                 transform-origin: center center !important;
                                 transform: translateZ(0);
-                                will-change: transform;
                                 backface-visibility: hidden;
                                 -webkit-backface-visibility: hidden;
                                 aspect-ratio: 2 / 3 !important;
@@ -212,10 +210,8 @@
                                 display: block !important;
                                 aspect-ratio: 2 / 3 !important;
                                 transform: translateZ(0);
-                                will-change: transform;
                                 backface-visibility: hidden;
                                 -webkit-backface-visibility: hidden;
-                                filter: brightness(1.08) contrast(1.03) !important;
                             }
                             .cinema-hot-info-wrap {
                                 margin-top: 14px !important;
@@ -244,6 +240,23 @@
                                 -webkit-box-reflect: none !important;
                                 filter: none !important;
                                 z-index: 30 !important;
+                            }
+
+                            /* ⚡ Khóa 100% hover và transition khi thanh trượt đang lướt ngang: Triệt tiêu hoàn toàn rung giật/chập chờn */
+                            .cinema-hot-slider.is-scrolling,
+                            .cinema-hot-slider.is-smooth-dragging {
+                                pointer-events: none !important;
+                            }
+                            .cinema-hot-slider.is-scrolling .cinema-hot-card,
+                            .cinema-hot-slider.is-scrolling .cinema-hot-poster-wrap,
+                            .cinema-hot-slider.is-smooth-dragging .cinema-hot-card,
+                            .cinema-hot-slider.is-smooth-dragging .cinema-hot-poster-wrap {
+                                pointer-events: none !important;
+                                transition: none !important;
+                            }
+                            .cinema-hot-slider.is-scrolling .cinema-hot-card:hover .cinema-hot-poster-wrap,
+                            .cinema-hot-slider.is-smooth-dragging .cinema-hot-card:hover .cinema-hot-poster-wrap {
+                                transform: inherit !important;
                             }
 
                             /* Thẻ Xem Tất Cả cuối slider */

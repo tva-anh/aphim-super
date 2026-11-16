@@ -33606,5 +33606,168 @@
         }
       ]
     }
+  ],
+  "thap-van-cuong-hoa-nhap-mong-lai": [
+    {
+      "name": "01",
+      "slug": "tap-1",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.ieOnmkZ8tk7FDHNt.bbqEh2cfs9KUHHsGY7wnb5lGDxZttrrwhad_Br4Hn1v0f6Sx7S7FT0wf5NOZ.yalbc0d5-KAzUQ-x0JUtcw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-1-1794743626604-ea451e24-tap_01_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-1-1794743625685-65ed0176-tap_01_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-1-1794743626239-2303a672-tap_01_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "02",
+      "slug": "tap-2",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.jBlPz3-zX2UDmCUi.0cL2gnic6hbVVv0dwbiJw_9Tmbuy8fBgK9NhJ3PjMB99NBcpuD_6Fu0QD1xZ.raRZMuNLGgxlfVxVG4WijA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-2-1794743624780-50bfc437-tap_02_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-2-1794743623825-e9852189-tap_02_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-2-1794743623858-cb660ed8-tap_02_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "03",
+      "slug": "tap-3",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.fLYuPlBAXKU_B3Cx.RG9NlbyNxEAxwtJlbVmTsp3dnYs5ZQcM-QTbha6nKNHY01xlKsgIjGMMWL7y.zmRZh7Gw8-1fIDSwJms_Fg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-3-1794743622500-b161d503-tap_03_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-3-1794743620788-a58bc286-tap_03_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-3-1794743621949-6697dc67-tap_03_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "04",
+      "slug": "tap-4",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.qZ73NYSa43_Gdrmc.KGZzLXhyzaf31OoubPPu3IR1RJzqpj5eqrv62eQI-QhsP2j40YtV7VDZ0tgS.28hcodsexlHWrvQJm7lD1Q",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-4-1794743620012-cf35aa56-tap_04_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-4-1794743617967-e0d18227-tap_04_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-4-1794743620668-a1183353-tap_04_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "05",
+      "slug": "tap-5",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.tK3m5Y0XRNG92gBm.P6ktTKE1w4IVeuzWqN4wCIL7I16ks9VoplEauBNzEP1ZQXy5yZZKyhiKNTL6.42q87ANpxkgD7rsfEZwfqA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-5-1794754498967-0b015bb3-tap_05_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-5-1794754500370-24129789-tap_05_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-5-1794754497164-733d974e-tap_05_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "06",
+      "slug": "tap-6",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.Jl1KOEzvo9qMZgp1.Gel2ln-fDbYlByE1yXhm5D5Urh9SPxQEhNhbyyN6PLN7m0-GtsCkxGc16Y-O.sqEVgDsah3oFcowihzesWA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-6-1794832433537-9544f869-tap_06_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-6-1794832431225-2aa57ecc-tap_06_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-6-1794832431801-3bc8d340-tap_06_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "07",
+      "slug": "tap-7",
+      "link_m3u8": "https://chophim.lat/api/playback/manifest/p2.stringdeptrai.0xgcR2l7XBKPmFfv.k0V7RbJ8EPJ5Z4f7R1IlyVcayVoaVlLxxsowUfhuM1H2hj-_caI7fBrF4L5q.PELOd8KZccQ3h6bp9lHyuw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-7-1794832430150-caf1aaf8-tap_07_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Trung",
+          "language": "zh",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-7-1794832433451-2851b124-tap_07_chinese.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.lat/api/storage/subtitles?file=thap-van-cuong-hoa-nhap-mong-lai-tap-7-1794832429290-eebfd7bf-tap_07_english.vtt"
+        }
+      ]
+    }
   ]
 }
