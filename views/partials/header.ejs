@@ -3435,7 +3435,7 @@
                                     } else if (frameClass && frameClass !== 'none') {
                                         avatarHtml = '<div class="shop-frame-wrap size-xs ' + frameClass + '" style="width:38px; height:38px; flex-shrink:0; position:relative; z-index:2;">' + innerAvatar + '</div>';
                                     } else {
-                                        avatarHtml = '<div class="ap-user-avatar-badge ap-avatar-no-frame" style="width:38px; height:38px; border-radius:50%; border:2px solid rgba(255,255,255,0.22); background:linear-gradient(135deg, #fcd576, #d97706); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; color:#1a1000; overflow:hidden; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.2); position:relative; z-index:2;">' + innerAvatar + '</div>';
+                                        avatarHtml = '<div class="ap-user-avatar-badge ap-avatar-no-frame" style="width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; overflow:hidden; flex-shrink:0; position:relative; z-index:2; background:transparent !important; border:none !important; box-shadow:none !important;">' + innerAvatar + '</div>';
                                     }
 
                                     // Universal Navigation Handler for Profile Tabs (Keeps within Standalone PWA & handles in-page tabs)

@@ -657,20 +657,58 @@
         .ap-emoji-popover.show {
             opacity: 1; visibility: visible; transform: translateY(0) scale(1); pointer-events: auto;
         }
+        .ap-emoji-popover {
+            width: 320px !important;
+            max-width: 92vw !important;
+            background: #141724;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 18px;
+            padding: 14px 12px 12px 12px;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px) scale(0.96);
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 99999;
+            backdrop-filter: blur(14px);
+            box-sizing: border-box;
+        }
         .ap-emoji-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px 4px;
+            margin-bottom: 12px;
+            justify-items: center;
         }
         .ap-emoji-item {
-            display: flex; align-items: center; justify-content: center;
-            width: 46px; height: 46px; border-radius: 12px; font-size: 24px; line-height: 1;
-            cursor: pointer; background: transparent; border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            user-select: none;
             transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease;
-            user-select: none; padding: 0;
         }
         .ap-emoji-item:hover {
-            background: rgba(255, 255, 255, 0.12); transform: scale(1.25);
+            background: rgba(255, 255, 255, 0.12) !important;
+            transform: scale(1.28);
+            z-index: 5;
         }
-        .ap-emoji-item:active { transform: scale(0.95); }
+        .ap-emoji-item:active {
+            transform: scale(0.92);
+        }
+        .ap-emoji-item img {
+            width: 28px !important;
+            height: 28px !important;
+            object-fit: contain !important;
+            pointer-events: none;
+            display: block;
+        }
 
         /* GIF Button & Panel */
         .ap-gif-btn {
@@ -743,26 +781,27 @@
         /* ── GIAO DIỆN BÌNH LUẬN TRẢ LỜI ĐẸP & THANH LỊCH NHƯ TIKTOK/YOUTUBE ── */
         .ap-cmt-list { 
             display: flex; flex-direction: column; text-align: left; gap: 8px;
-            max-width: 100%;
-            min-height: 120px;
-            max-height: 850px;
-            overflow-y: auto;
-            overflow-x: visible !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 80px;
+            max-height: none !important;
+            overflow: visible !important;
+            overflow-y: visible !important;
             padding: 6px 2px 18px 2px !important;
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            scroll-behavior: smooth;
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
+            touch-action: pan-y !important;
+            overscroll-behavior: auto !important;
         }
         html.light-mode .ap-cmt-list, body.light-mode .ap-cmt-list {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
+            max-height: none !important;
+            overflow: visible !important;
+            overflow-y: visible !important;
         }
         .ap-cmt-list::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
         .ap-cmt-list::-webkit-scrollbar-track { display: none !important; background: transparent !important; }
@@ -883,7 +922,7 @@
         .ap-cmt-actions-bottom { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; position: relative; z-index: 50; overflow: visible !important; }
         .ap-cmt-time { font-size: 12px; color: #9ca3af; }
         .ap-action-reply-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 13px; font-weight: 600; padding: 2px 4px; border-radius: 4px; transition: color 0.15s; }
-        .ap-action-reply-btn:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.06); }
+        .ap-action-reply-btn:hover { color: #f8fafc; background: transparent !important; }
         
         /* ── LIGHT MODE CONTRAST OVERRIDES (IMAGE 1 & 4) ── */
         html.light-mode .ap-cmt-text, body.light-mode .ap-cmt-text {
@@ -897,8 +936,10 @@
             font-weight: 700 !important;
         }
         html.light-mode .ap-action-reply-btn:hover, body.light-mode .ap-action-reply-btn:hover {
-            color: #0284c7 !important;
-            background: rgba(0, 0, 0, 0.05) !important;
+            color: #0f172a !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
         }
         html.light-mode .ap-cmt-time, body.light-mode .ap-cmt-time {
             color: #475569 !important;
@@ -1284,10 +1325,213 @@
         .ap-dropdown-item:hover { background: #f3f4f6; }
         .ap-dropdown-item .material-icons-round { font-size: 18px; color: #4b5563; }
 
+        /* ── TIKTOK STYLE COMMENT SYSTEM ── */
+        .tiktok-actions-row {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            margin-top: 5px !important;
+            padding-top: 2px !important;
+        }
+        .tiktok-actions-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .tiktok-actions-left .ap-cmt-time {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+        html.light-mode .tiktok-actions-left .ap-cmt-time {
+            color: #64748b !important;
+        }
+        .tiktok-actions-left .ap-action-reply-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.15s;
+        }
+        .tiktok-actions-left .ap-action-reply-btn:hover {
+            color: #f1f5f9;
+        }
+        html.light-mode .tiktok-actions-left .ap-action-reply-btn {
+            color: #475569 !important;
+        }
+        html.light-mode .tiktok-actions-left .ap-action-reply-btn:hover {
+            color: #0f172a !important;
+        }
+
+        .tiktok-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+            padding-right: 2px;
+        }
+        .tiktok-react-btn {
+            background: transparent !important;
+            border: none !important;
+            padding: 2px 2px !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #1c1917 !important;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            transition: transform 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.3), color 0.15s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html:not(.light-mode) .tiktok-react-btn {
+            color: #9ca3af !important;
+        }
+        .tiktok-react-btn:hover {
+            transform: scale(1.15);
+        }
+        .tiktok-react-btn:active {
+            transform: scale(0.92);
+        }
+
+        /* ── Trái tim: ruột màu kem/transparent, viền đen mảnh (cân xứng với nút like bên cạnh) ── */
+        #comments-section .tiktok-heart-icon,
+        .tiktok-heart-icon {
+            width: 17px !important;
+            height: 17px !important;
+            fill: none !important;
+            stroke: #1c1917 !important;
+            stroke-width: 1.6px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #comments-section .tiktok-heart-icon path,
+        .tiktok-heart-icon path {
+            fill: none !important;
+            stroke: #1c1917 !important;
+            stroke-width: 1.6px !important;
+        }
+        html:not(.light-mode) #comments-section .tiktok-heart-icon,
+        html:not(.light-mode) .tiktok-heart-icon {
+            stroke: #9ca3af !important;
+        }
+        html:not(.light-mode) #comments-section .tiktok-heart-icon path,
+        html:not(.light-mode) .tiktok-heart-icon path {
+            stroke: #9ca3af !important;
+        }
+        .tiktok-heart-btn.active {
+            color: #fe2c55 !important;
+        }
+        #comments-section .tiktok-heart-btn.active .tiktok-heart-icon,
+        .tiktok-heart-btn.active .tiktok-heart-icon {
+            fill: #fe2c55 !important;
+            stroke: #fe2c55 !important;
+            animation: tiktokHeartPop 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #comments-section .tiktok-heart-btn.active .tiktok-heart-icon path,
+        .tiktok-heart-btn.active .tiktok-heart-icon path {
+            fill: #fe2c55 !important;
+            stroke: #fe2c55 !important;
+        }
+        @keyframes tiktokHeartPop {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+
+        /* ── Nút Thumbs Down (Nút like bên cạnh): ruột kem, viền đen ── */
+        #comments-section .tiktok-dislike-icon,
+        .tiktok-dislike-icon {
+            width: 16px !important;
+            height: 16px !important;
+            fill: none !important;
+            stroke: #1c1917 !important;
+            stroke-width: 1.6px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #comments-section .tiktok-dislike-icon path,
+        .tiktok-dislike-icon path {
+            fill: none !important;
+            stroke: #1c1917 !important;
+            stroke-width: 1.6px !important;
+        }
+        html:not(.light-mode) #comments-section .tiktok-dislike-icon,
+        html:not(.light-mode) .tiktok-dislike-icon {
+            stroke: #9ca3af !important;
+        }
+        html:not(.light-mode) #comments-section .tiktok-dislike-icon path,
+        html:not(.light-mode) .tiktok-dislike-icon path {
+            stroke: #9ca3af !important;
+        }
+        .tiktok-dislike-btn.active {
+            color: #18181b !important;
+        }
+        html.light-mode .tiktok-dislike-btn.active {
+            color: #0f172a !important;
+        }
+        #comments-section .tiktok-dislike-btn.active .tiktok-dislike-icon path,
+        .tiktok-dislike-btn.active .tiktok-dislike-icon path {
+            fill: #1c1917 !important;
+            stroke: #1c1917 !important;
+        }
+        html:not(.light-mode) #comments-section .tiktok-dislike-btn.active .tiktok-dislike-icon path,
+        html:not(.light-mode) .tiktok-dislike-btn.active .tiktok-dislike-icon path {
+            fill: #e2e8f0 !important;
+            stroke: #e2e8f0 !important;
+        }
+        .tiktok-count {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569 !important;
+            letter-spacing: -0.2px;
+            line-height: 1;
+            margin-left: 2px;
+            display: inline-block;
+        }
+        html.light-mode .tiktok-count {
+            color: #334155 !important;
+        }
+        html:not(.light-mode) .tiktok-count {
+            color: #94a3b8 !important;
+        }
+        .tiktok-heart-btn.active .tiktok-count {
+            color: #fe2c55 !important;
+        }
+
+        /* ── Che mờ / Ẩn bình luận khi Dislike ── */
+        .ap-cmt-item.is-disliked-hidden {
+            opacity: 0.22 !important;
+            filter: blur(3.5px) !important;
+            transition: opacity 0.3s ease, filter 0.3s ease !important;
+            user-select: none !important;
+        }
+        .ap-cmt-item.is-disliked-hidden:hover {
+            opacity: 0.65 !important;
+            filter: blur(1px) !important;
+        }
+
+        /* ── Loại bỏ hoàn toàn viền vàng trên avatar user mặc định ── */
+        #comments-section .ap-avatar-no-frame,
+        #comments-section .ap-user-avatar-badge,
+        .ap-cmt-avatar-clean {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
         /* Nested Comments Layout (No Left Vertical Border) */
         .ap-cmt-replies { 
             display: flex; flex-direction: column;
-            margin-left: 36px;
+            margin-left: 48px;
             padding-left: 0;
             border-left: none !important;
             border: none !important;
@@ -1303,8 +1547,105 @@
         .ap-cmt-replies .ap-cmt-name { font-size: 12px; }
         .ap-cmt-replies .ap-cmt-text { font-size: 13px; }
         .ap-cmt-replies .ap-cmt-time { font-size: 11px; }
-        .ap-more-replies-btn { color: #9ca3af; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; margin-top: 4px; }
-        .ap-more-replies-btn .line { width: 20px; height: 1px; background: #4b5563; margin-right: 8px; }
+
+        /* TikTok Reply Triggers: Xem câu trả lời & Ẩn */
+        .tiktok-replies-section {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .tiktok-toggle-replies-btn,
+        .tiktok-collapse-replies-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            margin-bottom: 4px;
+            padding: 4px 0;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 600;
+            user-select: none;
+            transition: color 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tiktok-toggle-replies-btn {
+            margin-left: 48px;
+        }
+        .tiktok-collapse-replies-btn {
+            margin-left: 0;
+        }
+        html.light-mode .tiktok-toggle-replies-btn,
+        html.light-mode .tiktok-collapse-replies-btn {
+            color: #64748b !important;
+        }
+        .tiktok-toggle-replies-btn:hover,
+        .tiktok-collapse-replies-btn:hover {
+            color: #f1f5f9;
+        }
+        html.light-mode .tiktok-toggle-replies-btn:hover,
+        html.light-mode .tiktok-collapse-replies-btn:hover {
+            color: #0f172a !important;
+        }
+        .tiktok-dash-line {
+            width: 24px;
+            height: 1.5px;
+            background: #64748b;
+            flex-shrink: 0;
+            border-radius: 1px;
+            transition: background 0.15s;
+        }
+        html.light-mode .tiktok-dash-line {
+            background: #94a3b8 !important;
+        }
+        .tiktok-toggle-replies-btn:hover .tiktok-dash-line,
+        .tiktok-collapse-replies-btn:hover .tiktok-dash-line {
+            background: #cbd5e1;
+        }
+        html.light-mode .tiktok-toggle-replies-btn:hover .tiktok-dash-line,
+        html.light-mode .tiktok-collapse-replies-btn:hover .tiktok-dash-line {
+            background: #475569 !important;
+        }
+        .tiktok-toggle-text {
+            line-height: 1.2;
+        }
+        #comments-section .tiktok-chevron-icon,
+        .tiktok-chevron-icon {
+            width: 14px !important;
+            height: 14px !important;
+            fill: none !important;
+            stroke: currentColor !important;
+            stroke-width: 2.2px !important;
+            flex-shrink: 0;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            transition: transform 0.2s ease;
+        }
+        #comments-section .tiktok-chevron-icon path,
+        .tiktok-chevron-icon path {
+            fill: none !important;
+            stroke: currentColor !important;
+            stroke-width: 2.2px !important;
+        }
+        .tiktok-toggle-replies-btn:hover .tiktok-chevron-icon {
+            transform: translateY(1.5px);
+        }
+        .tiktok-collapse-replies-btn:hover .tiktok-chevron-icon {
+            transform: translateY(-1.5px);
+        }
+
+        @media (max-width: 768px) {
+            .ap-cmt-replies {
+                margin-left: 36px !important;
+            }
+            .tiktok-toggle-replies-btn {
+                margin-left: 36px !important;
+            }
+            .tiktok-collapse-replies-btn {
+                margin-left: 0 !important;
+            }
+        }
         
         /* Form Trả lời lồng nhau */
         .ap-reply-form-container { 
@@ -1334,10 +1675,14 @@
            ================================================================= */
 
         @media (max-width: 768px) {
-            /* Cấp page: KHÔNG cho scroll ngang (Chỉ áp dụng trên mobile) */
-            html, body {
-                overflow-x: hidden !important;
-                max-width: 100vw !important;
+            /* Đảm bảo khung bình luận cuộn tự nhiên 100% cùng trang web, không khựng, không bẫy cuộn lồng */
+            #comments-section,
+            .ap-cmt-wrapper {
+                max-height: none !important;
+                overflow: visible !important;
+                overflow-y: visible !important;
+                touch-action: pan-y !important;
+                overscroll-behavior: auto !important;
             }
 
             /* Khung trả lời bình luận cố định chuẩn 100% trên mobile, không bị tràn màn hình hay gây xê dịch ngang */
@@ -1392,22 +1737,26 @@
                 box-sizing: border-box !important;
                 overflow: visible !important;
                 margin-bottom: 16px !important;
+                touch-action: pan-y !important;
             }
 
             .ap-cmt-list {
                 width: 100% !important;
                 max-width: 100% !important;
-                max-height: 750px !important;
-                overflow-y: auto !important;
-                overflow-x: visible !important;
+                max-height: none !important;
+                overflow: visible !important;
+                overflow-y: visible !important;
                 box-sizing: border-box !important;
-                padding: 12px 2px 20px 2px !important;
+                padding: 10px 2px 24px 2px !important;
                 background: transparent !important;
                 border: none !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
                 scrollbar-width: none !important;
                 -ms-overflow-style: none !important;
+                touch-action: pan-y !important;
+                overscroll-behavior: auto !important;
+                -webkit-overflow-scrolling: touch !important;
             }
             .ap-cmt-list::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
             .ap-cmt-list::-webkit-scrollbar-track { display: none !important; background: transparent !important; }
@@ -1591,29 +1940,34 @@
 
 
     const MODERN_COMMENT_EMOJIS = [
-        { char: '😊', name: 'Vui vẻ' },
-        { char: '😂', name: 'Cười vỡ bụng' },
-        { char: '😍', name: 'Mê mẩn' },
-        { char: '😭', name: 'Khóc ròng' },
-        { char: '😱', name: 'Kinh ngạc' },
-
-        { char: '👍', name: 'Tuyệt vời / Thích' },
-        { char: '👎', name: 'Chưa hay' },
-        { char: '🔥', name: 'Cháy quá / Siêu phẩm' },
-        { char: '👏', name: 'Vỗ tay tán thưởng' },
-        { char: '💖', name: 'Tim lấp lánh' },
-
-        { char: '🤔', name: 'Suy ngẫm / Plot twist' },
-        { char: '😎', name: 'Ngầu đét' },
-        { char: '🍿', name: 'Bắp rang bơ / Hóng phim' },
-        { char: '🎬', name: 'Điện ảnh' },
-        { char: '💯', name: '100 Điểm hoàn hảo' },
-
-        { char: '🙏', name: 'Hóng tập mới / Cảm ơn' },
-        { char: '👑', name: 'Đẳng cấp hoàng gia' },
-        { char: '⚡', name: 'Cuốn hút' },
-        { char: '🚀', name: 'Đỉnh nóc' },
-        { char: '💣', name: 'Bom tấn' }
+        { id: 'smile', file: 'smile.png', char: '😊', name: 'Vui vẻ' },
+        { id: 'laugh', file: 'laugh.png', char: '😂', name: 'Cười ra nước mắt' },
+        { id: 'rofl', file: 'rofl.png', char: '🤣', name: 'Cười vỡ bụng' },
+        { id: 'love', file: 'love.png', char: '🥰', name: 'Mê mẩn' },
+        { id: 'cry', file: 'cry.png', char: '😭', name: 'Khóc cảm động' },
+        { id: 'scared', file: 'scared.png', char: '😱', name: 'Kinh ngạc' },
+        { id: 'mindblown', file: 'mindblown.png', char: '🤯', name: 'Xoắn não' },
+        { id: 'think', file: 'think.png', char: '🤔', name: 'Suy ngẫm / Twist' },
+        { id: 'cool', file: 'cool.png', char: '😎', name: 'Ngầu đét' },
+        { id: 'party', file: 'party.png', char: '🎉', name: 'Ăn mừng' },
+        { id: 'like', file: 'like.png', char: '👍', name: 'Tuyệt vời / Thích' },
+        { id: 'dislike', file: 'dislike.png', char: '👎', name: 'Chưa hay' },
+        { id: 'fire', file: 'fire.png', char: '🔥', name: 'Siêu phẩm / Cháy' },
+        { id: 'clap', file: 'clap.png', char: '👏', name: 'Vỗ tay' },
+        { id: 'sparkles', file: 'sparkles.png', char: '✨', name: 'Lung linh' },
+        { id: 'heart', file: 'heart.png', char: '❤️', name: 'Trái tim' },
+        { id: 'sparkle_heart', file: 'sparkle_heart.png', char: '💖', name: 'Yêu thích' },
+        { id: 'pray', file: 'pray.png', char: '🙏', name: 'Cầu tập mới / Cảm ơn' },
+        { id: 'popcorn', file: 'popcorn.png', char: '🍿', name: 'Bắp rang / Hóng phim' },
+        { id: 'cinema', file: 'cinema.png', char: '🎬', name: 'Điện ảnh' },
+        { id: 'hundred', file: 'hundred.png', char: '💯', name: '100 Điểm' },
+        { id: 'crown', file: 'crown.png', char: '👑', name: 'Đẳng cấp hoàng gia' },
+        { id: 'lightning', file: 'lightning.png', char: '⚡', name: 'Cuốn hút' },
+        { id: 'rocket', file: 'rocket.png', char: '🚀', name: 'Đỉnh nóc' },
+        { id: 'bomb', file: 'bomb.png', char: '💣', name: 'Bom tấn' },
+        { id: 'trophy', file: 'trophy.png', char: '🏆', name: 'Tuyệt tác' },
+        { id: 'star', file: 'star.png', char: '🌟', name: 'Ngôi sao' },
+        { id: 'eyes', file: 'eyes.png', char: '👀', name: 'Hóng kịch tính' }
     ];
 
     const TRENDING_COMMENT_GIFS = [
@@ -1630,7 +1984,7 @@
     function renderEmojiPickerHtml(pid) {
         let emojisGrid = MODERN_COMMENT_EMOJIS.map(item => `
             <button type="button" class="ap-emoji-item" title="${item.name}" onclick="window.insertCommentEmoji('${item.char}', '${pid}', event)">
-                ${item.char}
+                <img src="/images/emojis/${item.file}" alt="${item.name}" width="28" height="28" loading="lazy">
             </button>
         `).join('');
 
@@ -1803,20 +2157,54 @@
         `;
     }
 
+    // ── Expanded TikTok Reply State Persistence ──────────────────────
+    window._expandedTikTokReplies = window._expandedTikTokReplies || new Set();
+
     // ── Generate Comment List Item ───────────────────────────────────
     function generateHtml(c, userEmail, isChild = false, rootId = null) {
         const initial = sanitize((c.name || 'K').charAt(0).toUpperCase());
         const tAgo = sanitize(timeAgo(c.timestamp));
         const txt = formatCommentText(c.text);
         const localHidden = localStorage.getItem('ap_hide_' + c.id) === '1';
-        const hiddenStyle = localHidden ? 'opacity: 0.4; filter: blur(1.5px);' : '';
+        const isDisliked = localHidden;
 
+        // TikTok Reaction State
         const localLiked = localStorage.getItem('ap_like_' + c.id) === '1';
-        const baseLikes = (c.likedBy && c.likedBy.length) ? c.likedBy.length : 0;
-        let finalLikes = baseLikes + (localLiked && (!c.likedBy || !c.likedBy.includes(userEmail)) ? 1 : 0);
-        const likeCountStr = finalLikes > 0 ? finalLikes : '';
-        const liked = localLiked;
-        const disliked = localHidden;
+        let isUserLiked = false;
+        let totalLikes = 0;
+
+        if (c.reactions && typeof c.reactions === 'object') {
+            for (const [rType, uList] of Object.entries(c.reactions)) {
+                const cnt = Array.isArray(uList) ? uList.length : (typeof uList === 'number' ? uList : 0);
+                if (rType === 'like' || rType === 'love') {
+                    totalLikes += cnt;
+                }
+                if (Array.isArray(uList) && userEmail && uList.includes(userEmail)) {
+                    isUserLiked = true;
+                }
+            }
+        }
+        if (Array.isArray(c.likedBy)) {
+            totalLikes = Math.max(totalLikes, c.likedBy.length);
+            if (userEmail && c.likedBy.includes(userEmail)) isUserLiked = true;
+        }
+        if (Array.isArray(c.likes)) {
+            totalLikes = Math.max(totalLikes, c.likes.length);
+            if (userEmail && c.likes.includes(userEmail)) isUserLiked = true;
+        }
+
+        // Apply local storage override
+        if (localLiked) {
+            if (!isUserLiked) {
+                totalLikes += 1;
+                isUserLiked = true;
+            }
+        } else if (localStorage.getItem('ap_like_' + c.id) === '0') {
+            if (isUserLiked) {
+                totalLikes = Math.max(0, totalLikes - 1);
+                isUserLiked = false;
+            }
+        }
 
         // Custom Name Colors for Comment Author
         const currentUser = getCurrentUser();
@@ -1846,25 +2234,50 @@
 
         const currentRootId = rootId || c.id;
 
+        // ── TIKTOK REPLIES DISPLAY SYSTEM (IMAGE 1 & IMAGE 2) ──
         let repliesHtml = '';
         if (c.replies && c.replies.length > 0) {
-            let visibleReplies = c.replies.slice(0, 3);
-            let hiddenReplies = c.replies.slice(3);
+            const repliesCount = c.replies.length;
             
-            let visibleHtml = visibleReplies.map(r => generateHtml(r, userEmail, true, currentRootId)).join('');
-            let hiddenHtml = hiddenReplies.length > 0 ? `<div style="display:none; flex-direction:column; gap:6px;" id="hidden-replies-${c.id}">${hiddenReplies.map(r => generateHtml(r, userEmail, true, currentRootId)).join('')}</div>` : '';
-            let moreBtnHtml = hiddenReplies.length > 0 ? `
-                <div class="ap-more-replies-btn" id="more-btn-${c.id}" onclick="window.actionToggleReplies('${c.id}', ${hiddenReplies.length})">
-                    <div class="line"></div> <span class="btn-text">Xem thêm ${hiddenReplies.length} câu trả lời</span> <span class="material-icons-round btn-icon" style="font-size:16px; margin-left:2px;">expand_more</span>
-                </div>
-            ` : '';
+            if (repliesCount === 1) {
+                // Rule 1: Exactly 1 reply -> Show directly under parent comment, NO button, matching Image 1 bottom
+                const singleReplyHtml = generateHtml(c.replies[0], userEmail, true, currentRootId);
+                repliesHtml = `
+                <div class="ap-cmt-replies tiktok-replies-wrap" id="replies-wrap-${c.id}">
+                    ${singleReplyHtml}
+                </div>`;
+            } else {
+                // Rule 2: 2 or more replies -> Hidden by default, show "Xem {N} câu trả lời ⌄", matching Image 1 top
+                const isExpanded = window._expandedTikTokReplies && window._expandedTikTokReplies.has(c.id);
+                const allRepliesHtml = c.replies.map(r => generateHtml(r, userEmail, true, currentRootId)).join('');
+                
+                repliesHtml = `
+                <div class="tiktok-replies-section" id="tiktok-replies-sec-${c.id}">
+                    <div class="tiktok-toggle-replies-btn" id="show-replies-btn-${c.id}" 
+                         style="display: ${isExpanded ? 'none' : 'inline-flex'};" 
+                         onclick="window.toggleTikTokReplies('${c.id}', true)">
+                        <span class="tiktok-dash-line"></span>
+                        <span class="tiktok-toggle-text">Xem ${repliesCount} câu trả lời</span>
+                        <svg class="tiktok-chevron-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </div>
 
-            repliesHtml = `
-            <div class="ap-cmt-replies">
-                ${visibleHtml}
-                ${hiddenHtml}
-                ${moreBtnHtml}
-            </div>`;
+                    <div class="ap-cmt-replies tiktok-replies-wrap tiktok-collapsible-replies" 
+                         id="replies-box-${c.id}" 
+                         style="display: ${isExpanded ? 'flex' : 'none'};">
+                        ${allRepliesHtml}
+                        <!-- Rule 3: Collapse button "Ẩn ⌃" placed right below the last reply, matching Image 2 -->
+                        <div class="tiktok-collapse-replies-btn" onclick="window.toggleTikTokReplies('${c.id}', false)">
+                            <span class="tiktok-dash-line"></span>
+                            <span class="tiktok-toggle-text">Ẩn</span>
+                            <svg class="tiktok-chevron-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>`;
+            }
         }
 
         // Frame Info
@@ -1881,45 +2294,15 @@
 
         const avaInnerList = c.avatarUrl 
             ? `<img src="${sanitize(c.avatarUrl)}" style="width:100% !important; height:100% !important; border-radius:50% !important; object-fit:cover !important; display:block !important; position:relative; z-index:2;">` 
-            : `<div style="width:100%; height:100%; border-radius:50%; background:${sanitize(c.color || '#f59e0b')}; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; position:relative; z-index:2;">${initial}</div>`;
+            : `<div style="width:100%; height:100%; border-radius:50%; background:${sanitize(c.color || '#3b82f6')}; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; position:relative; z-index:2; font-size:${isChild ? '12px' : '15px'};">${initial}</div>`;
 
-        const userAva = typeof renderAvatarWithFrame === 'function'
-            ? renderAvatarWithFrame(avaInnerList, isChild ? 32 : 44, frameInfo)
-            : `<div class="ap-cmt-avatar shop-frame-wrap size-sm ${frameInfo.value || ''}" style="z-index:1;">${avaInnerList}</div>`;
-
-        // Build Facebook Reactions data
-        const FB_REACTIONS_MAP = {
-            like: { name: 'Thích', icon: '👍', color: '#38bdf8' },
-            love: { name: 'Yêu thích', icon: '❤️', color: '#f43f5e' },
-            care: { name: 'Thương thương', icon: '🥰', color: '#f59e0b' },
-            haha: { name: 'HaHa', icon: '😆', color: '#f59e0b' },
-            wow: { name: 'Wow', icon: '😮', color: '#f59e0b' },
-            sad: { name: 'Buồn', icon: '😢', color: '#f59e0b' },
-            angry: { name: 'Phẫn nộ', icon: '😡', color: '#ef4444' }
-        };
-
-        let userReactType = c.userReaction || null;
-        let reactionsData = c.reactions || {};
-        if (!c.reactions && c.likedBy && Array.isArray(c.likedBy)) {
-            reactionsData = { like: Array.from(c.likedBy) };
-        }
-
-        let totalReactCount = 0;
-        const countsByType = [];
-        for (const [rId, uList] of Object.entries(reactionsData)) {
-            const cnt = Array.isArray(uList) ? uList.length : (typeof uList === 'number' ? uList : 0);
-            if (cnt > 0) {
-                totalReactCount += cnt;
-                countsByType.push({ rId, count: cnt, icon: (FB_REACTIONS_MAP[rId] ? FB_REACTIONS_MAP[rId].icon : '👍') });
-            }
-        }
-        countsByType.sort((a, b) => b.count - a.count);
-        const topIconsHtml = countsByType.slice(0, 3).map(item => `<span class="fb-count-icon">${item.icon}</span>`).join('');
-
-        const activeReactObj = userReactType ? FB_REACTIONS_MAP[userReactType] : null;
+        // Render avatar: no gold frame/ring for normal users without equipped shop frame
+        const userAva = (frameInfo && frameInfo.type !== 'none' && typeof renderAvatarWithFrame === 'function')
+            ? renderAvatarWithFrame(avaInnerList, isChild ? 30 : 38, frameInfo)
+            : `<div class="ap-cmt-avatar-clean" style="width:${isChild ? 30 : 38}px; height:${isChild ? 30 : 38}px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; z-index:1; border:none !important; box-shadow:none !important; background:transparent !important;">${avaInnerList}</div>`;
 
         return `
-        <div class="ap-cmt-item" data-id="${c.id}" style="${hiddenStyle}">
+        <div class="ap-cmt-item ${isDisliked ? 'is-disliked-hidden' : ''}" data-id="${c.id}">
             <div class="ap-cmt-main-row">
                 <div style="display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 4px 6px; overflow: visible !important;">
                     ${userAva}
@@ -1933,40 +2316,34 @@
                     
                     <div class="ap-cmt-text ${c.isSpoiler ? 'is-spoiler' : ''}" onclick="this.classList.add('revealed')">${c.isSpoiler ? '<span class="material-icons-round" style="font-size:14px;vertical-align:middle;color:#fcd576">visibility_off</span> <span style="color:#fcd576;font-weight:700">[Bình luận Tiết lộ nội dung - Click để xem]</span><br>' : ''}${txt}</div>
                     
-                    <div class="ap-cmt-actions-bottom">
-                        <div class="fb-reaction-wrap">
-                            <div class="fb-reaction-popover">
-                                <button type="button" class="fb-react-btn" aria-label="Thích" onclick="window.actionReact('${c.id}', 'like', event)"><span class="fb-react-icon-anim">👍</span><span class="fb-react-tooltip">Thích</span></button>
-                                <button type="button" class="fb-react-btn" aria-label="Yêu thích" onclick="window.actionReact('${c.id}', 'love', event)"><span class="fb-react-icon-anim">❤️</span><span class="fb-react-tooltip">Yêu thích</span></button>
-                                <button type="button" class="fb-react-btn" aria-label="Thương thương" onclick="window.actionReact('${c.id}', 'care', event)"><span class="fb-react-icon-anim">🥰</span><span class="fb-react-tooltip">Thương thương</span></button>
-                                <button type="button" class="fb-react-btn" aria-label="HaHa" onclick="window.actionReact('${c.id}', 'haha', event)"><span class="fb-react-icon-anim">😆</span><span class="fb-react-tooltip">HaHa</span></button>
-                                <button type="button" class="fb-react-btn" aria-label="Wow" onclick="window.actionReact('${c.id}', 'wow', event)"><span class="fb-react-icon-anim">😮</span><span class="fb-react-tooltip">Wow</span></button>
-                                <button type="button" class="fb-react-btn" aria-label="Buồn" onclick="window.actionReact('${c.id}', 'sad', event)"><span class="fb-react-icon-anim">😢</span><span class="fb-react-tooltip">Buồn</span></button>
-                                <button type="button" class="fb-react-btn" aria-label="Phẫn nộ" onclick="window.actionReact('${c.id}', 'angry', event)"><span class="fb-react-icon-anim">😡</span><span class="fb-react-tooltip">Phẫn nộ</span></button>
-                            </div>
+                    <!-- ── TIKTOK ACTIONS ROW (IMAGE 1 & IMAGE 2) ── -->
+                    <div class="ap-cmt-actions-bottom tiktok-actions-row">
+                        <div class="tiktok-actions-left">
+                            <span class="ap-cmt-time">${tAgo}</span>
+                            <button type="button" class="ap-action-reply-btn" onclick="window.actionReplyToggle('${c.id}', '${currentRootId}')">Trả lời</button>
+                        </div>
 
-                            <button type="button" class="fb-like-trigger-btn ${activeReactObj ? 'active' : ''}" 
-                                    style="${activeReactObj ? `color: ${activeReactObj.color} !important; font-weight: 700;` : ''}"
-                                    onclick="window.actionReact('${c.id}', '${activeReactObj ? 'toggle' : 'like'}', event)">
-                                <span class="fb-like-icon" style="font-size: 14px; line-height: 1;">${activeReactObj ? activeReactObj.icon : '👍'}</span>
-                                <span>${activeReactObj ? activeReactObj.name : 'Thích'}</span>
+                        <div class="tiktok-actions-right">
+                            <!-- TikTok Heart (Like) Icon + Count -->
+                            <button type="button" class="tiktok-react-btn tiktok-heart-btn ${isUserLiked ? 'active' : ''}" 
+                                    onclick="window.actionTikTokReact('${c.id}', 'like', event)" 
+                                    title="Thích" aria-label="Thích">
+                                <svg class="tiktok-heart-icon" viewBox="0 0 24 24" width="17" height="17" fill="${isUserLiked ? '#fe2c55' : 'none'}" stroke="${isUserLiked ? '#fe2c55' : 'currentColor'}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                                <span class="tiktok-count tiktok-heart-count" style="${totalLikes > 0 ? '' : 'display:none;'}">${totalLikes > 0 ? totalLikes : ''}</span>
+                            </button>
+
+                            <!-- TikTok Dislike (Thumbs down) Icon -->
+                            <button type="button" class="tiktok-react-btn tiktok-dislike-btn ${isDisliked ? 'active' : ''}" 
+                                    onclick="window.actionTikTokReact('${c.id}', 'dislike', event)" 
+                                    title="Không thích" aria-label="Không thích">
+                                <svg class="tiktok-dislike-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 14V2"/>
+                                    <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h-1.5a1.5 1.5 0 0 1-1.5-1.5z"/>
+                                </svg>
                             </button>
                         </div>
-
-                        ${totalReactCount > 0 ? `
-                        <div class="fb-reaction-count-pill" onclick="window.actionReact('${c.id}', 'like', event)">
-                            <span class="fb-count-icons">${topIconsHtml}</span>
-                            <span class="fb-count-num">${totalReactCount}</span>
-                        </div>
-                        ` : ''}
-
-                        <span class="fb-dot">•</span>
-
-                        <button type="button" class="ap-action-reply-btn" onclick="window.actionReplyToggle('${c.id}', '${currentRootId}')">Trả lời</button>
-
-                        <span class="fb-dot">•</span>
-
-                        <span class="ap-cmt-time">${tAgo}</span>
                     </div>
                 </div>
             </div>
@@ -1978,25 +2355,197 @@
         `;
     }
 
-    // ── Global Handlers for clicks ────────────────────────────────────
-    window.actionToggleReplies = function(cmtId, count) {
-        const hiddenDiv = document.getElementById(`hidden-replies-${cmtId}`);
-        const btnText = document.querySelector(`#more-btn-${cmtId} .btn-text`);
-        const btnIcon = document.querySelector(`#more-btn-${cmtId} .btn-icon`);
-        if (!hiddenDiv) return;
+    // ── Global Handlers for TikTok Replies & Reactions ─────────────────
+    window.toggleTikTokReplies = function(commentId, expand) {
+        const box = document.getElementById(`replies-box-${commentId}`);
+        const showBtn = document.getElementById(`show-replies-btn-${commentId}`);
         
-        if (hiddenDiv.style.display === 'none') {
-            hiddenDiv.style.display = 'flex';
-            if (btnText) btnText.innerText = 'Ẩn ∧';
-            if (btnIcon) btnIcon.style.display = 'none';
+        if (expand) {
+            window._expandedTikTokReplies.add(commentId);
+            if (box) {
+                box.style.display = 'flex';
+                box.style.animation = 'ap-in 0.22s ease';
+            }
+            if (showBtn) {
+                showBtn.style.display = 'none';
+            }
         } else {
-            hiddenDiv.style.display = 'none';
-            if (btnText) btnText.innerText = `Xem thêm ${count} câu trả lời`;
-            if (btnIcon) {
-                btnIcon.style.display = 'inline-block';
-                btnIcon.innerText = 'expand_more';
+            window._expandedTikTokReplies.delete(commentId);
+            if (box) {
+                box.style.display = 'none';
+            }
+            if (showBtn) {
+                showBtn.style.display = 'inline-flex';
             }
         }
+    };
+
+    window.actionToggleReplies = function(cmtId) {
+        const box = document.getElementById(`replies-box-${cmtId}`);
+        const isHidden = !box || box.style.display === 'none';
+        window.toggleTikTokReplies(cmtId, isHidden);
+    };
+
+    window.actionTikTokReact = function(commentId, type, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+
+        const user = getCurrentUser();
+        let userKey = user ? (user.email || user.id || user._id) : (localStorage.getItem('ap_guest_react_id') || '');
+        if (!userKey) {
+            userKey = 'guest_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('ap_guest_react_id', userKey);
+        }
+
+        const cmtItem = document.querySelector(`.ap-cmt-item[data-id="${commentId}"]`);
+        const heartBtn = cmtItem ? cmtItem.querySelector('.tiktok-heart-btn') : null;
+        const dislikeBtn = cmtItem ? cmtItem.querySelector('.tiktok-dislike-btn') : null;
+        const heartCountEl = heartBtn ? heartBtn.querySelector('.tiktok-heart-count') : null;
+
+        const isCurrentlyLiked = localStorage.getItem('ap_like_' + commentId) === '1';
+        const isCurrentlyDisliked = localStorage.getItem('ap_hide_' + commentId) === '1';
+
+        const slug = (window.firebaseComments && window.firebaseComments.currentSlug) || 'main';
+
+        if (type === 'like') {
+            const nextLiked = !isCurrentlyLiked;
+            if (nextLiked) {
+                localStorage.setItem('ap_like_' + commentId, '1');
+                if (typeof saveStoredReaction === 'function') {
+                    saveStoredReaction(slug, commentId, 'like', userKey);
+                }
+                if (heartBtn) heartBtn.classList.add('active');
+                
+                // If it was disliked, undo dislike and unblur comment
+                if (isCurrentlyDisliked) {
+                    localStorage.removeItem('ap_hide_' + commentId);
+                    if (dislikeBtn) dislikeBtn.classList.remove('active');
+                    if (cmtItem) cmtItem.classList.remove('is-disliked-hidden');
+                }
+
+                // Update count in UI immediately to the right of heart
+                let count = heartCountEl ? (parseInt(heartCountEl.textContent.trim()) || 0) : 0;
+                count += 1;
+                if (heartCountEl) {
+                    heartCountEl.textContent = count;
+                    heartCountEl.style.display = 'inline-block';
+                } else if (heartBtn) {
+                    heartBtn.insertAdjacentHTML('beforeend', `<span class="tiktok-count tiktok-heart-count" style="display:inline-block;">${count}</span>`);
+                }
+
+                const svg = heartBtn ? heartBtn.querySelector('.tiktok-heart-icon') : null;
+                const svgPath = heartBtn ? heartBtn.querySelector('.tiktok-heart-icon path') : null;
+                if (svg) {
+                    svg.style.setProperty('fill', '#fe2c55', 'important');
+                    svg.style.setProperty('stroke', '#fe2c55', 'important');
+                }
+                if (svgPath) {
+                    svgPath.style.setProperty('fill', '#fe2c55', 'important');
+                    svgPath.style.setProperty('stroke', '#fe2c55', 'important');
+                }
+            } else {
+                localStorage.setItem('ap_like_' + commentId, '0');
+                if (typeof saveStoredReaction === 'function') {
+                    saveStoredReaction(slug, commentId, null, userKey);
+                }
+                if (heartBtn) heartBtn.classList.remove('active');
+
+                if (heartCountEl) {
+                    let count = parseInt(heartCountEl.textContent.trim()) || 1;
+                    count = Math.max(0, count - 1);
+                    if (count > 0) {
+                        heartCountEl.textContent = count;
+                        heartCountEl.style.display = 'inline-block';
+                    } else {
+                        heartCountEl.textContent = '';
+                        heartCountEl.style.display = 'none';
+                    }
+                }
+
+                const svg = heartBtn ? heartBtn.querySelector('.tiktok-heart-icon') : null;
+                const svgPath = heartBtn ? heartBtn.querySelector('.tiktok-heart-icon path') : null;
+                if (svg) {
+                    svg.style.setProperty('fill', 'none', 'important');
+                    svg.style.removeProperty('stroke');
+                }
+                if (svgPath) {
+                    svgPath.style.setProperty('fill', 'none', 'important');
+                    svgPath.style.removeProperty('stroke');
+                }
+            }
+
+            // Sync with backend API
+            try {
+                fetch(`${API_URL}/comments/${encodeURIComponent(commentId)}/react`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, reactionType: nextLiked ? 'like' : null, userKey })
+                }).catch(() => {});
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const bc = new BroadcastChannel('ap_movie_comments');
+                    bc.postMessage({ type: 'reaction_updated', slug, commentId, reactionType: nextLiked ? 'like' : null, userKey, timestamp: Date.now() });
+                    bc.close();
+                }
+            } catch(e) {}
+
+        } else if (type === 'dislike') {
+            const nextDisliked = !isCurrentlyDisliked;
+            if (nextDisliked) {
+                localStorage.setItem('ap_hide_' + commentId, '1');
+                if (dislikeBtn) dislikeBtn.classList.add('active');
+
+                // If currently liked, remove like
+                if (isCurrentlyLiked) {
+                    localStorage.setItem('ap_like_' + commentId, '0');
+                    if (typeof saveStoredReaction === 'function') {
+                        saveStoredReaction(slug, commentId, null, userKey);
+                    }
+                    if (heartBtn) heartBtn.classList.remove('active');
+                    if (heartCountEl) {
+                        let count = parseInt(heartCountEl.textContent.trim()) || 1;
+                        count = Math.max(0, count - 1);
+                        if (count > 0) {
+                            heartCountEl.textContent = count;
+                            heartCountEl.style.display = 'inline-block';
+                        } else {
+                            heartCountEl.textContent = '';
+                            heartCountEl.style.display = 'none';
+                        }
+                    }
+                    const svg = heartBtn ? heartBtn.querySelector('.tiktok-heart-icon') : null;
+                    if (svg) {
+                        svg.setAttribute('fill', 'none');
+                        svg.setAttribute('stroke', 'currentColor');
+                    }
+                    try {
+                        fetch(`${API_URL}/comments/${encodeURIComponent(commentId)}/react`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ slug, reactionType: null, userKey })
+                        }).catch(() => {});
+                    } catch(e) {}
+                }
+
+                // Che mờ / Ẩn bình luận
+                if (cmtItem) {
+                    cmtItem.classList.add('is-disliked-hidden');
+                }
+                showToast('Đã làm mờ bình luận không thích', 'info');
+            } else {
+                localStorage.removeItem('ap_hide_' + commentId);
+                if (dislikeBtn) dislikeBtn.classList.remove('active');
+                if (cmtItem) {
+                    cmtItem.classList.remove('is-disliked-hidden');
+                }
+                showToast('Đã bỏ ẩn bình luận', 'info');
+            }
+        }
+    };
+
+    window.actionReact = function(commentId, reactionType, event) {
+        window.actionTikTokReact(commentId, reactionType === 'dislike' ? 'dislike' : 'like', event);
     };
 
     window.actionReplyToggle = function(clickId, rootId) {

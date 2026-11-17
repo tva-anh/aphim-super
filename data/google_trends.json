@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T15:09:04.510Z",
+  "updatedAt": "2026-11-17T15:26:08.296Z",
   "items": [
     {
       "query": "bác sĩ",
@@ -58,16 +58,16 @@
       "is_momo": false
     },
     {
-      "query": "nhà bà nữ xem phim",
-      "title": "nhà bà nữ",
+      "query": "cuộc chiến hoa hồng",
+      "title": "cuộc chiến hoa hồng",
       "traffic": "+70%",
-      "movie_slug": "nha-ba-nu",
-      "movie_name": "Nhà Bà Nữ",
-      "poster_url": "https://phimimg.com/upload/vod/20230922-1/8e7ee122a3ca993f858a005ab9b8211d.jpg",
-      "thumb_url": "https://phimimg.com/upload/vod/20230922-1/d2cfd0e655a35fd296702ab53226061e.jpg",
-      "year": "2023",
-      "quality": "HD",
-      "lang": "Vietsub",
+      "movie_slug": "cuoc-chien-hoa-hong-2026",
+      "movie_name": "Cuộc Chiến Hoa Hồng",
+      "poster_url": "https://phimimg.com/uploads/movies/20261111/cuoc-chien-hoa-hong-2026-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20261111/cuoc-chien-hoa-hong-2026-thumb.webp",
+      "year": "2026",
+      "quality": "FHD",
+      "lang": "Lồng Tiếng",
       "is_custom": false,
       "is_momo": false
     },
@@ -89,13 +89,13 @@
       "query": "xem phim the rules",
       "title": "the rules",
       "traffic": "+10%",
-      "movie_slug": "the-rules",
-      "movie_name": "The Rules",
-      "poster_url": "https://phimimg.com/uploads/movies/20261112/the-rules-poster.webp",
-      "thumb_url": "https://phimimg.com/uploads/movies/20261112/the-rules-thumb.webp",
+      "movie_slug": "ngoc-nu-bao-thu",
+      "movie_name": "Ngọc Nữ Báo Thù",
+      "poster_url": "https://phimimg.com/uploads/movies/20261110/ngoc-nu-bao-thu-poster.webp",
+      "thumb_url": "https://phimimg.com/uploads/movies/20261110/ngoc-nu-bao-thu-thumb.webp",
       "year": "2026",
       "quality": "FHD",
-      "lang": "Vietsub",
+      "lang": "Vietsub + Thuyết Minh",
       "is_custom": false,
       "is_momo": false
     },

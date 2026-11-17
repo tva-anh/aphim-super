@@ -4898,7 +4898,7 @@ html.light-mode .ap-cmt-header-wrap h3 {
     color: #1c1917 !important;
 }
 
-html.light-mode #comments-section svg,
+html.light-mode #comments-section svg:not(.tiktok-heart-icon):not(.tiktok-dislike-icon):not(.tiktok-chevron-icon),
 html.light-mode .ap-cmt-header-wrap svg {
     fill: #1c1917 !important;
     color: #1c1917 !important;

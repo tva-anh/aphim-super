@@ -84,12 +84,12 @@ function renderAvatarWithFrame(innerHtml, sizePx, frameInfo) {
     sizePx = sizePx || 38;
     const fontSize = Math.round(sizePx * 0.42);
     if (!frameInfo || frameInfo.type === 'none') {
-        return `<div class="ap-user-avatar-badge ap-avatar-no-frame" style="width:${sizePx}px; height:${sizePx}px; border-radius:50%; border:2px solid rgba(255,255,255,0.22); background:linear-gradient(135deg, #fcd576, #d97706); display:flex; align-items:center; justify-content:center; font-size:${fontSize}px; font-weight:900; color:#1a1000; overflow:hidden; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.2); position:relative; z-index:2;">${innerHtml}</div>`;
+        return `<div class="ap-user-avatar-badge ap-avatar-no-frame" style="width:${sizePx}px; height:${sizePx}px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:${fontSize}px; font-weight:900; overflow:hidden; flex-shrink:0; position:relative; z-index:2; background:transparent !important; border:none !important; box-shadow:none !important;">${innerHtml}</div>`;
     }
     if (frameInfo.type === 'url') {
         return `
             <div class="user-avatar-frame-wrap" style="position:relative; display:inline-flex; align-items:center; justify-content:center; width:${sizePx}px; height:${sizePx}px; flex-shrink:0;">
-                <div class="user-avatar-inner" style="width:100%; height:100%; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #fcd576 0%, #f59e0b 100%) !important; position:relative; z-index:1; font-size:${fontSize}px; font-weight:900; color:#1a1000 !important; box-shadow:0 4px 14px rgba(245,158,11,0.45);">
+                <div class="user-avatar-inner" style="width:100%; height:100%; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:transparent !important; position:relative; z-index:1; font-size:${fontSize}px; font-weight:900; box-shadow:none;">
                     ${innerHtml}
                 </div>
                 <img src="${frameInfo.value}" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:120%; height:120%; max-width:none; max-height:none; object-fit:contain; pointer-events:none; z-index:5;" alt="frame">
