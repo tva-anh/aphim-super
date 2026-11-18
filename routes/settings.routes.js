@@ -735,6 +735,63 @@ router.get('/movie-backdrops', async (req, res) => {
             }
         }
 
+        // 5. Bổ sung Logo Tiếng Việt (Local Assets & Curated Calligraphy Logos)
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const localLogosDir = path.join(__dirname, '..', 'public', 'images', 'logos');
+            const cleanSlug = (slug || '').trim().toLowerCase();
+            const cleanName = (name || '').trim().toLowerCase();
+
+            if (cleanSlug) {
+                const possibleFiles = [
+                    `${cleanSlug}.png`,
+                    `${cleanSlug}.webp`,
+                    `${cleanSlug}-logo.png`,
+                    `${cleanSlug}-logo.webp`
+                ];
+                for (const file of possibleFiles) {
+                    const fullPath = path.join(localLogosDir, file);
+                    if (fs.existsSync(fullPath)) {
+                        const localUrl = `/images/logos/${file}`;
+                        if (!logos.some(l => l.url === localUrl)) {
+                            logos.unshift({
+                                url: localUrl,
+                                previewUrl: localUrl,
+                                lang: 'vi',
+                                isVietnamese: true,
+                                name: 'Logo Tiếng Việt'
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Đặc biệt bổ sung cho phim Thập Vạn Cuồng Hoa Nhập Mộng Lai
+            if (cleanSlug.includes('thap-van-cuong-hoa') || cleanName.includes('thập vạn cuồng hoa') || (origin_name && origin_name.toLowerCase().includes('blossom in darkness'))) {
+                const tvLogoUrl = '/images/logos/thap-van-cuong-hoa-nhap-mong-lai.png';
+                if (!logos.some(l => l.url === tvLogoUrl || l.url === '/images/logos/thap-van-cuong-hoa-nhap-mong-lai.webp')) {
+                    logos.unshift({
+                        url: tvLogoUrl,
+                        previewUrl: '/images/logos/thap-van-cuong-hoa-nhap-mong-lai.webp',
+                        lang: 'vi',
+                        isVietnamese: true,
+                        name: 'Logo Tiếng Việt (Thập Vạn Cuồng Hoa Nhập Mộng Lai)'
+                    });
+                }
+            }
+
+            // Ưu tiên Logo tiếng Việt lên đầu danh sách
+            logos.sort((a, b) => {
+                if (a.isVietnamese || a.lang === 'vi') return -1;
+                if (b.isVietnamese || b.lang === 'vi') return 1;
+                return 0;
+            });
+        } catch (eLogo) {
+            console.warn('[Logo VN Enrichment Warning]', eLogo.message);
+        }
+
         return res.json({
             success: true,
             tmdbId: targetId,

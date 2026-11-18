@@ -1224,11 +1224,17 @@
                                     width: b.width || 1920
                                 }));
                             }
-                            if ((!logos.length) && imgData.logos && Array.isArray(imgData.logos)) {
-                                logos = imgData.logos.slice(0, 20).map(l => ({
-                                    url: `https://image.tmdb.org/t/p/w500${l.file_path}`,
-                                    previewUrl: `https://image.tmdb.org/t/p/w300${l.file_path}`
-                                }));
+                            if (imgData.logos && Array.isArray(imgData.logos)) {
+                                imgData.logos.slice(0, 20).forEach(l => {
+                                    const tmdbUrl = `https://image.tmdb.org/t/p/w500${l.file_path}`;
+                                    if (!logos.some(item => item.url === tmdbUrl)) {
+                                        logos.push({
+                                            url: tmdbUrl,
+                                            previewUrl: `https://image.tmdb.org/t/p/w300${l.file_path}`,
+                                            lang: l.iso_639_1 || 'en'
+                                        });
+                                    }
+                                });
                             }
                         }
                     }
@@ -1257,11 +1263,18 @@
                     let logosHtml = '';
                     if (logos.length > 0) {
                         currentLoadedLogos = logos;
-                        logosHtml = logos.map(l => `
-                            <div onclick="DesktopHeroAdmin.selectLogo('${l.url}')" style="height:44px;min-width:90px;padding:4px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='#38bdf8';this.style.background='rgba(56,189,248,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.06)'">
+                        logosHtml = logos.map(l => {
+                            const isVi = l.isVietnamese || l.lang === 'vi' || (l.url && (l.url.includes('/images/logos/') || l.url.includes('tieng-viet')));
+                            return `
+                            <div onclick="DesktopHeroAdmin.selectLogo('${l.url}')" 
+                                 style="position:relative;height:44px;min-width:96px;padding:4px 12px;border-radius:8px;background:${isVi ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.06)'};border:1.5px solid ${isVi ? '#10b981' : 'rgba(255,255,255,0.15)'};cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;" 
+                                 onmouseover="this.style.borderColor='#38bdf8';this.style.background='rgba(56,189,248,0.15)'" 
+                                 onmouseout="this.style.borderColor='${isVi ? '#10b981' : 'rgba(255,255,255,0.15)'}';this.style.background='${isVi ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.06)'}'"
+                                 title="${isVi ? '🇻🇳 Logo Tiếng Việt (Thư Pháp)' : 'Logo Phim TMDB'}">
+                                ${isVi ? '<span style="position:absolute;top:-8px;left:4px;background:#10b981;color:#000;font-size:8.5px;font-weight:900;padding:1px 5px;border-radius:4px;box-shadow:0 2px 4px rgba(0,0,0,0.4);letter-spacing:0.3px;">🇻🇳 TIẾNG VIỆT</span>' : ''}
                                 <img src="${l.previewUrl || l.url}" style="max-height:100%;max-width:120px;object-fit:contain;">
                             </div>
-                        `).join('');
+                        `}).join('');
                     }
 
                     logoGallery.innerHTML = logosHtml + `
