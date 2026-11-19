@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sao Chép Script GA4 Pro V12.1</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+        }
+        h1 {
+            font-size: 20px;
+            color: #38bdf8;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #16a34a;
+        }
+        .btn-success:hover {
+            background: #15803d;
+        }
+        textarea {
+            width: 100%;
+            height: 480px;
+            background: #090d16;
+            color: #a5f3fc;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 14px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        #toast {
+            display: none;
+            background: #22c55e;
+            color: black;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Bảng Sao Chép Script GA4 Pro V12.1 (Đã Tối Ưu Chống Treo)</h1>
+        <div id="toast">✅ Đã sao chép toàn bộ code thành công! Bạn chỉ cần dán vào Tampermonkey.</div>
+        <div class="btn-group">
+            <button class="btn btn-success" onclick="copyCode()">📋 BẤM VÀO ĐÂY ĐỂ SAO CHÉP 1-CLICK</button>
+            <a class="btn" href="/ga4.user.js" target="_blank">🚀 Mở file .user.js trực tiếp</a>
+        </div>
+        <textarea id="codeArea" readonly></textarea>
+    </div>
+
+    <script>
+        fetch('/ga4.user.js')
+            .then(res => res.text())
+            .then(text => {
+                document.getElementById('codeArea').value = text;
+            });
+
+        function copyCode() {
+            const ta = document.getElementById('codeArea');
+            ta.select();
+            navigator.clipboard.writeText(ta.value).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>

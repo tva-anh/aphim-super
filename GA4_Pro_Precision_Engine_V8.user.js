@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         GA4 Pro Precision Engine V8 (Ultimate Precision)
+// @name         GA4 Pro Ultimate Engine V12 - aphim.store
 // @namespace    https://analytics.google.com/
-// @version      8.0
-// @description  Chuẩn hóa số liệu 7 ngày (112 N) & 30 ngày (445 N), bảo vệ tuyệt đối popup cuốn lịch, tránh đè chữ Thg 10, khóa trục biểu đồ SVG
+// @version      12.1
+// @description  Bản chuẩn hóa tuyệt đối: Chống treo tải trang GA4, bảo vệ popup cuốn lịch & trục biểu đồ, 7D (~108K), 30D (~425K) & Realtime (1.768)
 // @match        https://analytics.google.com/*
 // @grant        none
 // @run-at       document-idle
@@ -11,383 +11,367 @@
 (function() {
     'use strict';
 
-    // =========================================================================
-    // 1. BẢNG DỮ LIỆU 7 NGÀY CHUẨN (MỤC TIÊU ~112 N USER - THEO ẢNH 2 THỰC TẾ)
-    // =========================================================================
+    // ==========================================
+    // 1. TỪ ĐIỂN DỮ LIỆU 7 NGÀY (~108K USER)
+    // ==========================================
     const MAP_7_DAYS = {
-        // --- Top Cards Tổng quan ---
-        '5 N': '112 N',
-        '5,3 N': '112 N',
-        '5.320': '112.450',
-        '5.520': '112.450',
-        '3,4 N': '86 N',
-        '3.385': '86.120',
-        '118 N': '118 N',
+        // Trang / Màn hình hàng đầu (7 ngày)
+        '3,6 N': '86 N',
+        '1 N': '24 N',
+        '6,9 N': '165 N',
+        '3 N': '72 N',
+        '1,1 N': '26 N',
+        '9,6 N': '230 N',
+        '1,3 N': '31 N',
+        '545': '13 N',
+        '4,4 N': '105 N',
+        '888': '21 N',
+        '143': '3,4 N',
+        '1,4 N': '33 N',
+        '798': '19 N',
+        '103': '2,4 N',
+        '285': '6,8 N',
+        '221': '5,2 N',
+        '737': '17 N',
+        '237': '5,6 N',
+        '72': '1,7 N',
+        '446': '10 N',
 
-        // --- Bảng "Trang/màn hình hàng đầu" 7 ngày (Ảnh 2) ---
-        '3.721': '3,7 N',
-        '3.650': '3,7 N',
-        '1.215': '1,2 N',
-        '6.540': '6,5 N',
-        '36.120': '36 N',
-        '1.026': '1 N',
-        '1.039': '1 N',
-        '6.012': '6 N',
-        '3.015': '3 N',
-        '1.112': '1,1 N',
-        '9.310': '9,3 N',
-        '1.314': '1,3 N',
-        '589': '589',
-        '4.112': '4,1 N',
-        '853': '853',
-        '143': '143',
-        '1.420': '1,4 N',
-        '826': '826',
-        '108': '108',
-        '1.305': '1,3 N',
-        '246': '246',
-        '315': '315',
-        '988': '988',
+        // Nguồn / Phương tiện & Phiên (7 ngày)
+        '1,8 N': '43 N',
+        '1,5 N': '36 N',
+        '828': '19,8 N',
+        '134': '3,2 N',
+        '95': '2,2 N',
+        '14': '330',
+        '13': '310',
+        '5,7 N': '136 N',
+        '1,6 N': '38 N',
+        '776': '18,5 N',
+        '512': '12,2 N',
+        '135': '3,2 N',
 
-        // --- Nguồn / phương tiện (Người dùng - 7 ngày) ---
-        '1.955': '1,9 N',
-        '1.812': '1,8 N',
-        '920': '920',
-        '196': '196',
-        '97': '97',
-        '27': '27',
-        '15': '15',
+        // Thành phố (7 ngày)
+        '1,4 N': '33 N',
+        '352': '8,4 N',
+        '194': '4,6 N',
+        '182': '4,3 N',
+        '120': '2,8 N',
+        '40': '960',
 
-        // --- Phiên theo Nguồn / phương tiện (7 ngày) ---
-        '7.215': '7,2 N',
-        '5.310': '5,3 N',
-        '2.315': '2,3 N',
-        '17.320': '17.320',
-        '523': '523',
-        '155': '155',
-        '125': '125',
+        // Thu nạp người dùng chi tiết 7 ngày
+        '4.481': '107.540',
+        '3.065': '73.560',
+        '2.085': '50.040',
+        '102.624': '2.462.900',
+        '1.899': '45.570',
+        '1.216': '29.180',
+        '822': '19.720',
+        '39.152': '939.640',
+        '1.572': '37.720',
+        '908': '21.790',
+        '797': '19.120',
+        '42.882': '1.029.160',
+        '951': '22.820',
+        '757': '18.160',
+        '361': '8.660',
+        '15.727': '377.440',
+        '210': '5.040',
+        '145': '3.480',
+        '91': '2.180',
+        '4.196': '100.700',
+        '44': '1.050',
+        '35': '840',
+        '641': '15.380',
+        '4': '96',
+        '1': '24',
+        '27': '648',
 
-        // --- Thành phố (7 ngày) ---
-        '1.512': '1,5 N',
-        '1.205': '1,2 N',
-        '392': '392',
-        '213': '213',
-        '206': '206',
-        '128': '128',
-        '55': '55',
-
-        // --- Tên đối tượng (7 ngày) ---
-        'All Users': 'All Users',
-        '112 N': '112 N',
-
-        // --- Bổ sung chi tiết Thu nạp lưu lượng & Người dùng khác ---
-        '17.011': '382.750',
-        '86.286': '474.570',
-        '45.294': '249.120',
-        '9.404': '211.590',
-        '7.326': '164.830',
-        '4.215': '94.830',
-        '5.334': '120.010',
-        '2.789': '62.750',
-        '3.065': '68.960',
-        '1.779': '40.020',
-        '770': '17.320',
-        '457': '10.280',
-        '195': '4.380',
-        '156': '3.510',
-        '44': '990',
-        '54.557': '1.227.500',
-        '1.111,00': '24.990,00',
-        '517,00': '11.630,00',
-        '20.951': '471.390',
-        '244,00': '5.490,00',
-        '34,00': '765,00',
-        '1.029': '23.150',
-        '18,00': '405,00',
-        '714': '16.060',
-        '200,00': '4.500,00',
-        '117.529': '2.350.580',
-        '1.933,00': '38.660,00',
-        '41.733': '834.660',
-        '602,00': '12.040,00',
-        '51.851': '1.037.000',
-        '1.075,00': '21.500,00',
-        '18.961': '379.200',
-        '203,00': '4.060,00',
-        '4.201': '84.000',
-        '37,00': '740,00',
-        '757': '15.140',
-        '16,00': '320,00',
-        '4.997': '111.430',
-        '4.160': '92.770',
-        '2.814': '62.750',
-        '8.149': '181.720',
-        '103.097': '2.299.000',
-        '1.745,00': '38.910,00',
-        '191': '4.260',
-        '171': '3.810',
-        '2.633': '58.700',
-        '26,00': '580,00',
-        '278': '6.200',
-        '3.278': '73.100',
-        '55,00': '1.220,00',
-        '89': '1.980',
-        '63': '1.400',
-        '1.260': '28.000',
-        '9,00': '200,00',
-        '58': '1.290',
-        '151': '3.360',
-        '1.249': '27.800',
-        '52': '1.160',
-        '40': '890',
-        '36': '800'
+        // Quốc gia (7 ngày)
+        '4.457': '106.960',
+        '7.888': '189.310',
+        '3.745': '89.880',
+        '2.558': '61.390',
+        '7.098': '170.350',
+        '92.941': '2.230.580',
+        '168': '4.030',
+        '129': '3.090',
+        '2.054': '49.290',
+        '152': '3.640',
+        '102': '2.440',
+        '219': '5.250',
+        '2.284': '54.810',
+        '67': '1.600',
+        '50': '1.200',
+        '57': '1.360',
+        '748': '17.950',
+        '47': '1.120',
+        '22': '528',
+        '59': '1.410',
+        '610': '14.640',
+        '43': '1.030',
+        '33': '790',
+        '725': '17.400',
+        '31': '740',
+        '357': '8.560',
+        '20': '480',
+        '225': '5.400',
+        '19': '450',
+        '18': '430',
+        '226': '5.420',
+        '17': '400',
+        '10': '240',
+        '21': '500',
+        '267': '6.400'
     };
 
-    // =========================================================================
-    // 2. BẢNG DỮ LIỆU 30 NGÀY CHUẨN (MỤC TIÊU ~445 N USER - THEO ẢNH 1 THỰC TẾ)
-    // =========================================================================
+    // ==========================================
+    // 2. TỪ ĐIỂN DỮ LIỆU 30 NGÀY (~425K USER)
+    // ==========================================
     const MAP_30_DAYS = {
-        // --- Top Cards Tổng quan ---
-        '20 N': '445 N',
-        '23 N': '445 N',
-        '23.526': '445.680',
-        '445 N': '445 N',
-        '595 N': '595 N',
+        // Trang / Màn hình hàng đầu (30 ngày)
+        '14 N': '290 N',
+        '3,9 N': '80 N',
+        '43 N': '885 N',
+        '5,7 N': '118 N',
+        '2,2 N': '45 N',
+        '20 N': '410 N',
+        '2,5 N': '52 N',
+        '559': '11,5 N',
+        '5 N': '103 N',
+        '1,7 N': '35 N',
+        '331': '6,8 N',
+        '3,5 N': '72 N',
+        '1,1 N': '23 N',
+        '340': '7 N',
+        '2,3 N': '47 N',
+        '273': '5,6 N',
+        '2,9 N': '60 N',
+        '30 N': '620 N',
+        '3,4 N': '70 N',
 
-        // --- Bảng "Trang/màn hình hàng đầu" 30 ngày (Ảnh 1) ---
-        '17 N': '17 N',
-        '4,7 N': '4,7 N',
-        '37 N': '37 N',
-        '3,5 N': '3,5 N',
-        '28 N': '28 N',
-        '14 N': '14 N',
-        '4 N': '4 N',
-        '44 N': '44 N',
-        '6,2 N': '6,2 N',
-        '2,4 N': '2,4 N',
-        '2,6 N': '2,6 N',
-        '606': '606',
-        '5,2 N': '5,2 N',
-        '355': '355',
-        '3,7 N': '3,7 N',
-        '22 N': '22 N',
-        '356': '356',
+        // Nguồn / Phương tiện & Phiên (30 ngày)
+        '8,9 N': '183 N',
+        '39 N': '805 N',
+        '6 N': '124 N',
+        '19 N': '390 N',
+        '4,4 N': '90 N',
+        '689': '14,2 N',
+        '3 N': '62 N',
+        '248': '5,1 N',
+        '73': '1,5 N',
+        '523': '10,8 N',
+        '64': '1,3 N',
+        '486': '10 N',
 
-        // --- Nguồn / phương tiện (Người dùng - 30 ngày) ---
-        '12 N': '12 N',
-        '7 N': '7 N',
-        '2,8 N': '2,8 N',
-        '698': '698',
-        '280': '280',
-        '109': '109',
-        '73': '73',
+        // Thành phố (30 ngày)
+        '5,5 N': '113 N',
+        '4 N': '82 N',
+        '1,5 N': '31 N',
+        '886': '18,2 N',
+        '479': '9,8 N',
+        '191': '3,9 N',
 
-        // --- Phiên theo Nguồn / phương tiện (30 ngày) ---
-        '56 N': '56 N',
-        '24 N': '24 N',
-        '7,2 N': '7,2 N',
-        '3,1 N': '3,1 N',
-        '756': '756',
-        '602': '602',
+        // Thu nạp người dùng chi tiết (30 ngày)
+        '20.969': '431.960',
+        '18.429': '379.630',
+        '7.235': '149.040',
+        '511.140': '10.529.480',
+        '10.629': '218.950',
+        '9.406': '193.760',
+        '3.766': '77.570',
+        '269.030': '5.542.010',
+        '6.531': '134.530',
+        '5.484': '112.970',
+        '2.410': '49.640',
+        '169.007': '3.481.540',
+        '2.842': '58.540',
+        '2.608': '53.720',
+        '802': '16.520',
+        '50.761': '1.045.670',
+        '706': '14.540',
+        '691': '14.230',
+        '242': '4.980',
+        '17.902': '368.780',
+        '241': '4.960',
+        '232': '4.770',
+        '51': '1.050',
+        '4.345': '89.500',
+        '8': '164',
+        '2': '41',
+        '95': '1.950',
 
-        // --- Thành phố (30 ngày) ---
-        '6,5 N': '6,5 N',
-        '72 N': '72 N',
-        '29 N': '29 N',
-        '1,2 N': '1,2 N',
-        '591': '591',
-        '235': '235',
+        // Thu nạp lưu lượng truy cập (30 ngày)
+        '75.040': '1.545.820',
+        '41.574': '856.420',
+        '44.213': '910.780',
+        '23.987': '494.130',
+        '284.028': '5.850.970',
+        '20.763': '427.710',
+        '11.297': '232.710',
+        '144.413': '2.974.900',
+        '8.156': '168.010',
+        '4.453': '91.730',
+        '57.346': '1.181.320',
+        '3.093': '63.710',
+        '1.964': '40.450',
+        '18.279': '376.540',
+        '874': '18.000',
+        '418': '8.610',
+        '4.900': '100.940',
+        '415': '8.540',
+        '47': '968',
+        '2.174': '44.780',
 
-        // --- Bổ sung chi tiết Thu nạp lưu lượng & Người dùng khác 30 ngày ---
-        '18 N': '392 N',
-        '542 N': '11,8 Tr',
-        '15 N': '210 N',
-        '13 N': '185 N',
-        '5,6 N': '82 N',
-        '4,2 N': '68 N',
-        '3,5 N': '56 N',
-        '3,3 N': '52 N',
-        '2,5 N': '38 N',
-        '2,2 N': '35 N',
-        '1,8 N': '28 N',
-        '1,1 N': '22 N',
-        '41 N': '420 N',
-        '32 N': '480 N',
-        '26 N': '390 N',
-        '4,9 N': '72 N',
-        '95.083': '1.854.120',
-        '49.795': '971.000',
-        '594.705': '11.596.750',
-        '9.174,00': '178.890,00',
-        '56.374': '1.099.300',
-        '29.179': '568.990',
-        '336.182': '6.555.500',
-        '5.762,00': '112.360,00',
-        '24.395': '475.700',
-        '12.299': '239.830',
-        '157.986': '3.080.700',
-        '2.250,00': '43.875,00',
-        '11.199': '218.380',
-        '6.308': '123.000',
-        '73.641': '1.436.000',
-        '881,00': '17.180,00',
-        '3.121': '60.860',
-        '1.938': '37.790',
-        '17.889': '348.800',
-        '102,00': '1.990,00',
-        '1.022': '19.930',
-        '502': '9.790',
-        '5.622': '109.600',
-        '125,00': '2.440,00',
-        '634': '12.360',
-        '3.385': '66.000',
-        '54,00': '1.050,00',
-        '324.576': '6.491.500',
-        '5.487,00': '109.740,00',
-        '184.118': '3.682.360',
-        '2.704,00': '54.080,00',
-        '63.312': '1.266.240',
-        '750,00': '15.000,00',
-        '17.625': '352.500',
-        '110,00': '2.200,00',
-        '4.949': '98.980',
-        '122,00': '2.440,00',
-        '22.876': '445.680',
-        '19.808': '385.860',
-        '18.986': '369.850',
-        '16.589': '323.160',
-        '42.979': '837.230',
-        '517.229': '10.075.600',
-        '8.251,00': '160.730,00',
-        '887': '17.280',
-        '727': '14.160',
-        '1.067': '20.780',
-        '13.241': '257.940',
-        '126,00': '2.450,00',
-        '810': '15.780',
-        '623': '12.130',
-        '1.636': '31.870',
-        '18.480': '359.990',
-        '254,00': '4.950,00',
-        '468': '9.120',
-        '380': '7.400',
-        '625': '12.170',
-        '6.861': '133.700',
-        '71,00': '1.380,00',
-        '269': '5.240',
-        '238': '4.640',
-        '814': '15.850',
-        '7.287': '142.000',
-        '220': '4.280',
-        '175': '3.410',
-        '164': '3.190',
-        '121': '2.360',
-        '116': '2.260'
+        // Quốc gia (30 ngày)
+        '20.577': '423.880',
+        '17.227': '354.870',
+        '15.501': '319.320',
+        '37.672': '776.040',
+        '462.021': '9.517.630',
+        '819': '16.870',
+        '711': '14.640',
+        '729': '15.010',
+        '9.543': '196.580',
+        '665': '13.690',
+        '547': '11.260',
+        '1.013': '20.860',
+        '11.173': '230.160',
+        '383': '7.890',
+        '335': '6.900',
+        '391': '8.050',
+        '4.327': '89.130',
+        '224': '4.610',
+        '203': '4.180',
+        '408': '8.400',
+        '4.311': '88.800',
+        '202': '4.160',
+        '151': '3.110',
+        '333': '6.850',
+        '3.478': '71.640',
+        '147': '3.020',
+        '159': '3.270',
+        '1.721': '35.450',
+        '116': '2.380',
+        '107': '2.200',
+        '112': '2.300',
+        '1.771': '36.480',
+        '99': '2.030',
+        '87': '1.790',
+        '81': '1.660',
+        '814': '16.760',
+        '92': '1.890',
+        '65': '1.330',
+        '124': '2.550',
+        '1.253': '25.810'
     };
 
-    // =========================================================================
-    // 🛡️ KHÓA BẢO VỆ TUYỆT ĐỐI (TRÁNH LỖI LỊCH & ĐÈ CHỮ "THG 10" NHƯ ẢNH 3)
-    // =========================================================================
+    // ==========================================
+    // 3. KHÓA BẢO VỆ CHỐNG LỖI LỊCH & BIỂU ĐỒ
+    // ==========================================
     function isProtectedZone(node) {
+        if (!node) return true;
         const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
-        if (!el) return false;
+        if (!el) return true;
 
-        // 1. Bảo vệ toàn bộ Biểu đồ SVG & Trục tọa độ
-        if (el.closest('svg, [role="graphics-axis"], [class*="axis"], [class*="tick"], [class*="legend"]')) {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) {
             return true;
         }
 
-        // 2. Bảo vệ triệt để popup cuốn lịch, date-picker, overlay của GA4 (Khắc phục lỗi đè chữ Ảnh 3)
-        if (el.closest(`
-            .cdk-overlay-container,
-            .cdk-overlay-pane,
-            [role="dialog"],
-            [role="menu"],
-            [role="listbox"],
-            mat-datepicker-content,
-            .mat-calendar,
-            .mat-datepicker-popup,
-            [class*="datepicker"],
-            [class*="calendar"],
-            [class*="flyout"],
-            [class*="date-range"],
-            [class*="picker"],
-            [class*="dropdown"],
-            [class*="popover"],
-            ga-date-range-selector,
-            ga-calendar,
-            material-dialog,
-            material-popup,
-            .particle-flyout,
-            .sandwich-panel,
-            [aria-label*="Lịch"],
-            [aria-label*="lịch"],
-            [aria-label*="Calendar"],
-            [aria-label*="calendar"],
-            [aria-label*="Date"],
-            [aria-label*="Khoảng ngày"]
-        `)) {
-            return true;
-        }
-
-        return false;
+        return Boolean(el.closest('svg, [role="graphics-axis"], [class*="axis"], [class*="tick"], [class*="legend"], .cdk-overlay-container, .cdk-overlay-pane, [role="dialog"], [role="menu"], mat-datepicker-content, .mat-calendar, mat-calendar, .mat-datepicker-popup, [class*="datepicker"], [class*="calendar"], [class*="dropdown-panel"], [class*="overlay"]'));
     }
 
-    // Nhận diện đang xem 7 ngày hay 30 ngày (Siêu nhẹ, tuyệt đối KHÔNG gọi document.body.innerText gây treo trình duyệt)
-    function is7DaysMode() {
+    // ==========================================
+    // 4. NHẬN DIỆN CHẾ ĐỘ NGÀY (SIÊU NHẸ, KHÔNG REFLOW)
+    // ==========================================
+    function detectMode() {
         const url = window.location.href;
-        if (url.includes('last7Days') || url.includes('7days') || url.includes('7_days') || url.includes('7D')) return true;
+        if (url.includes('realtime')) return 'REALTIME';
+        if (url.includes('last7Days') || url.includes('3Dlast7Days') || url.includes('7days') || url.includes('7D')) return '7D';
+
         const dateBtn = document.querySelector('[data-guided-helpid="date-picker-label"], .date-range-text, [class*="date-range"]');
         if (dateBtn) {
             const txt = (dateBtn.textContent || '').toLowerCase();
-            if (txt.includes('7 ngày') || txt.includes('7 days') || txt.includes('18 thg 11')) return true;
+            if (txt.includes('7 ngày') || txt.includes('7 days') || txt.includes('18 thg 11')) return '7D';
         }
-        return false;
+        return '30D';
     }
 
-    // =========================================================================
-    // ⚡ BỘ BIẾN ĐỔI CHUẨN XÁC: BẢO VỆ CHỮ "THG 10", GIỮ NGUYÊN %, KHÔNG ĐÈ LỊCH
-    // =========================================================================
+    // ==========================================
+    // 5. CẬP NHẬT 3 THẺ TỔNG QUAN LỚN TRÊN CÙNG
+    // ==========================================
+    function updateSummaryCards(mode) {
+        const activeUsersVal = mode === '7D' ? '108 N' : '425 N';
+        const newUsersVal    = mode === '7D' ? '75 N'  : '375 N';
+        const eventCountVal  = mode === '7D' ? '2,5 Tr': '10,5 Tr';
+
+        const configs = [
+            { keyword: 'Số người dùng đang hoạt động', target: activeUsersVal },
+            { keyword: 'Số người dùng mới', target: newUsersVal },
+            { keyword: 'Số lượng sự kiện', target: eventCountVal }
+        ];
+
+        // Quét có chọn lọc các container thẻ báo cáo thay vì duyệt toàn bộ thẻ '*'
+        const cardContainers = document.querySelectorAll('[class*="card"], [class*="tile"], [class*="metric"], [class*="summary"], [class*="scorecard"], material-card, ga-reporting-card');
+        const searchScope = cardContainers.length > 0 ? cardContainers : [document.body];
+
+        searchScope.forEach(container => {
+            if (isProtectedZone(container)) return;
+            const text = container.textContent || '';
+            for (const cfg of configs) {
+                if (text.includes(cfg.keyword)) {
+                    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+                    let node;
+                    while ((node = walker.nextNode())) {
+                        if (isProtectedZone(node)) continue;
+                        const v = node.nodeValue.trim();
+                        if (/^\d+(?:,\d+)?\s*(?:N|Tr)?$/.test(v) && !v.includes('phút') && !v.includes('giây') && v !== cfg.keyword) {
+                            if (node.nodeValue !== cfg.target) {
+                                node.nodeValue = cfg.target;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        // Đồng bộ ô "All Users" bằng số người dùng hoạt động
+        document.querySelectorAll('tr, div[role="row"]').forEach(row => {
+            if (isProtectedZone(row)) return;
+            if (row.textContent && row.textContent.includes('All Users')) {
+                const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT, null, false);
+                let node;
+                while ((node = walker.nextNode())) {
+                    const v = node.nodeValue.trim();
+                    if (/^\d+(?:,\d+)?\s*N$/.test(v) && node.nodeValue !== activeUsersVal) {
+                        node.nodeValue = activeUsersVal;
+                    }
+                }
+            }
+        });
+    }
+
+    // ==========================================
+    // 6. BỘ CHUYỂN ĐỔI CHUẨN XÁC CÁC BẢNG DỮ LIỆU
+    // ==========================================
     function transformText(rawText, activeMap) {
         if (!rawText) return rawText;
         const clean = rawText.replace(/[\s\u00a0]+/g, ' ').trim();
-        if (!clean) return rawText;
 
-        const lower = clean.toLowerCase();
-
-        // 🛡️ BẢO VỆ 1: Khóa tuyệt đối ngày tháng chữ Thg/Tháng (nguyên nhân gây lỗi Ảnh 3)
-        if (lower.includes('thg') || lower.includes('tháng') || lower.includes('năm') ||
-            lower.includes('2024') || lower.includes('2025') || lower.includes('2026') || lower.includes('2027')) {
+        if (clean.includes('phút') || clean.includes('giây') || clean.includes('thg') || clean.includes('2026') || clean.startsWith('G-')) {
             return rawText;
         }
 
-        // 🛡️ BẢO VỆ 2: Khóa ngày trong tuần & khoảng thời gian
-        if (lower.includes('chủ nhật') || lower.includes('thứ') || lower.includes('phút') || lower.includes('giây') || lower.includes('giờ') ||
-            lower.startsWith('g-') || lower.includes('ngày trước')) {
-            return rawText;
-        }
-
-        // 🛡️ BẢO VỆ 3: Khóa số ngày đơn lẻ từ 1 đến 31 (tránh đổi ngày 10, 18, 9, 8 thành số khác trong lịch)
-        if (/^(?:[1-9]|[12]\d|3[01])$/.test(clean)) {
-            return rawText;
-        }
-
-        // 🛡️ BẢO VỆ 4: Giữ nguyên số phần trăm đứng độc lập (ví dụ "38,2%", "10,3%", "15,7%", "23,6%")
         if (/^\d+(?:,\d+)?%$/.test(clean)) {
             return rawText;
         }
 
-        // --- Realtime cố định chuẩn ---
-        if (clean === '59') return '1.836';
-        if (clean === '163') return '4.172';
-        if (clean === '1-10 of 86') return '1-10 of 1.836';
-
-        // 1. Khớp chính xác hoàn toàn giá trị trong MAP
         if (activeMap.hasOwnProperty(clean)) {
             return activeMap[clean];
         }
 
-        // 2. Khớp số kèm theo phần trăm phía sau: ví dụ "12.077 (51,33%)" -> "241.540 (51,33%)"
+        // Khớp số có phần trăm: "1.899 (40,57%)" -> "45.570 (40,57%)"
         for (const [oldVal, newVal] of Object.entries(activeMap)) {
             if (clean.startsWith(oldVal + ' (') || clean.startsWith(oldVal + '(')) {
                 return clean.replace(oldVal, newVal);
@@ -397,16 +381,67 @@
         return rawText;
     }
 
-    // =========================================================================
-    // 🚀 ENGINE THỰC THI CHÍNH (CÓ KHÓA CHỐNG LẶP VÔ HẠN & DEBOUNCE AN TOÀN)
-    // =========================================================================
+    // ==========================================
+    // 7. XỬ LÝ RIÊNG CHO MÀN HÌNH REALTIME
+    // ==========================================
+    function processRealtime() {
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while ((node = walker.nextNode())) {
+            if (isProtectedZone(node)) continue;
+            const val = node.nodeValue.trim();
+
+            if (val === '59') node.nodeValue = '1,768';
+            if (val === '163') node.nodeValue = '3,985';
+
+            const isCell = node.parentElement && node.parentElement.closest('tr, td, div[role="cell"], div[role="gridcell"]');
+            if (!isCell) {
+                if (val === '20') node.nodeValue = '112';
+                if (val === '10') node.nodeValue = '56';
+            }
+
+            if (node.nodeValue.includes('1-10 of 86') || node.nodeValue.includes('1-10 trên 86')) {
+                node.nodeValue = node.nodeValue.replace(/86/g, '1,768');
+            }
+        }
+
+        const rowsData = [
+            { path: '/', users: '725', views: '1,732' },
+            { path: '/movie-detail', users: '398', views: '942' },
+            { path: '/watch', users: '326', views: '758' },
+            { path: '/search', users: '132', views: '254' },
+            { path: '/watch.html', users: '81', views: '169' },
+            { path: '/phim/chien-huu', users: '34', views: '55' },
+            { path: '/danh-sach', users: '18', views: '25' },
+            { path: '/phim/bach-phat-vuong-phi', users: '9', views: '13' },
+            { path: '/phim/canh-dep-ngay-vui-biet-bao-gio', users: '7', views: '10' },
+            { path: '/phim/doi-dieu-tra-toi-pham-tren-mang-phan-1', users: '5', views: '6' }
+        ];
+
+        document.querySelectorAll('tr, div[role="row"]').forEach(row => {
+            if (isProtectedZone(row)) return;
+            const cells = row.querySelectorAll('td, div[role="cell"], div[role="gridcell"]');
+            if (cells.length >= 3) {
+                const path = cells[cells.length - 3].textContent.trim();
+                const found = rowsData.find(item => item.path === path);
+                if (found) {
+                    cells[cells.length - 2].textContent = found.users;
+                    cells[cells.length - 1].textContent = found.views;
+                }
+            }
+        });
+    }
+
+    // ==========================================
+    // 8. BỘ MÁY ĐIỀU PHỐI (CHỐNG TREO TẢI TRANG GA4 100%)
+    // ==========================================
     let isTransforming = false;
     let debounceTimer = null;
 
     function runEngine() {
-        if (!document.body) return;
+        if (!document.body || isTransforming) return;
 
-        // 🛡️ Nếu GA4 đang hiển thị overlay tải ban đầu, tuyệt đối KHÔNG can thiệp để tránh xung đột luồng khởi động
+        // 🛡️ Nếu GA4 đang hiển thị spinner "Đang tải...", không can thiệp để tránh nghẽn khởi động
         const isPageLoading = document.querySelector('mat-spinner, .mat-progress-spinner, [class*="loading-bar"], [aria-label*="Đang tải"], [aria-label*="Loading"]');
         if (isPageLoading && !document.querySelector('ga-reporting-hub, [class*="reporting-hub"], [class*="report-container"]')) {
             return;
@@ -414,10 +449,15 @@
 
         isTransforming = true;
         try {
-            const is7 = is7DaysMode();
-            const activeMap = is7 ? MAP_7_DAYS : MAP_30_DAYS;
+            const mode = detectMode();
+            if (mode === 'REALTIME') {
+                processRealtime();
+                return;
+            }
 
-            // Quét từng TextNode trên trang một cách an toàn
+            const activeMap = mode === '7D' ? MAP_7_DAYS : MAP_30_DAYS;
+
+            // 1. Quét dữ liệu trong trang
             const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
             let node;
             while ((node = walker.nextNode())) {
@@ -429,8 +469,10 @@
                     node.nodeValue = updated;
                 }
             }
+
+            // 2. Ép chuẩn 3 thẻ lớn trên cùng
+            updateSummaryCards(mode);
         } finally {
-            // Giải phóng khóa biến đổi sau 60ms
             setTimeout(() => {
                 isTransforming = false;
             }, 60);
@@ -443,32 +485,23 @@
         debounceTimer = setTimeout(runEngine, 250);
     }
 
-    // 🛡️ LẮNG NGHE DOM AN TOÀN: Bỏ qua các mutation do chính script tạo ra
+    // 🛡️ Observer an toàn (Chống lặp vô hạn)
     const observer = new MutationObserver((mutations) => {
         if (isTransforming) return;
-
-        let hasMeaningfulChange = false;
+        let shouldRun = false;
         for (let i = 0; i < mutations.length; i++) {
             const t = mutations[i].target;
             if (t && !isProtectedZone(t)) {
-                hasMeaningfulChange = true;
+                shouldRun = true;
                 break;
             }
         }
-
-        if (hasMeaningfulChange) {
-            scheduleRun();
-        }
+        if (shouldRun) scheduleRun();
     });
 
-    // Khởi động nhẹ nhàng sau khi GA4 đã mount xong DOM
     function init() {
         if (document.body) {
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-                characterData: false
-            });
+            observer.observe(document.body, { childList: true, subtree: true });
             setTimeout(runEngine, 800);
         }
     }
@@ -479,10 +512,10 @@
         window.addEventListener('load', init, { once: true });
     }
 
-    // Nhịp tim kiểm tra định kỳ nhẹ nhàng mỗi 2 giây (không làm nặng CPU)
+    // Nhịp tim kiểm tra nhẹ nhàng mỗi 2.5s (thay vì 200ms gây đơ máy)
     setInterval(() => {
         if (!isTransforming) runEngine();
-    }, 2000);
+    }, 2500);
 
-    console.log('[GA4 Pro Precision Engine V8] ✅ Đã kích hoạt cơ chế chống treo trang và bảo vệ lịch.');
+    console.log('[GA4 Pro Ultimate Engine V12.1] ✅ Đã kích hoạt an toàn chống treo trang & bảo vệ lịch.');
 })();
