@@ -333,12 +333,15 @@
         return false;
     }
 
-    // Nhận diện đang xem 7 ngày hay 30 ngày
+    // Nhận diện đang xem 7 ngày hay 30 ngày (Siêu nhẹ, tuyệt đối KHÔNG gọi document.body.innerText gây treo trình duyệt)
     function is7DaysMode() {
         const url = window.location.href;
-        if (url.includes('last7Days') || url.includes('7days') || url.includes('7_days')) return true;
-        const text = (document.body.innerText || '');
-        if (text.includes('7 ngày trước') || text.includes('12 thg 11 - 18 thg 11')) return true;
+        if (url.includes('last7Days') || url.includes('7days') || url.includes('7_days') || url.includes('7D')) return true;
+        const dateBtn = document.querySelector('[data-guided-helpid="date-picker-label"], .date-range-text, [class*="date-range"]');
+        if (dateBtn) {
+            const txt = (dateBtn.textContent || '').toLowerCase();
+            if (txt.includes('7 ngày') || txt.includes('7 days') || txt.includes('18 thg 11')) return true;
+        }
         return false;
     }
 
@@ -395,50 +398,91 @@
     }
 
     // =========================================================================
-    // 🚀 ENGINE THỰC THI CHÍNH
+    // 🚀 ENGINE THỰC THI CHÍNH (CÓ KHÓA CHỐNG LẶP VÔ HẠN & DEBOUNCE AN TOÀN)
     // =========================================================================
-    function runEngine() {
-        const is7 = is7DaysMode();
-        const activeMap = is7 ? MAP_7_DAYS : MAP_30_DAYS;
+    let isTransforming = false;
+    let debounceTimer = null;
 
-        // Quét từng TextNode trên trang
-        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-        let node;
-        while ((node = walker.nextNode())) {
-            if (isProtectedZone(node)) continue;
-            const raw = node.nodeValue;
-            if (!raw || !raw.trim()) continue;
-            const updated = transformText(raw, activeMap);
-            if (updated !== raw) {
-                node.nodeValue = updated;
+    function runEngine() {
+        if (!document.body) return;
+
+        // 🛡️ Nếu GA4 đang hiển thị overlay tải ban đầu, tuyệt đối KHÔNG can thiệp để tránh xung đột luồng khởi động
+        const isPageLoading = document.querySelector('mat-spinner, .mat-progress-spinner, [class*="loading-bar"], [aria-label*="Đang tải"], [aria-label*="Loading"]');
+        if (isPageLoading && !document.querySelector('ga-reporting-hub, [class*="reporting-hub"], [class*="report-container"]')) {
+            return;
+        }
+
+        isTransforming = true;
+        try {
+            const is7 = is7DaysMode();
+            const activeMap = is7 ? MAP_7_DAYS : MAP_30_DAYS;
+
+            // Quét từng TextNode trên trang một cách an toàn
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            while ((node = walker.nextNode())) {
+                if (isProtectedZone(node)) continue;
+                const raw = node.nodeValue;
+                if (!raw || !raw.trim()) continue;
+                const updated = transformText(raw, activeMap);
+                if (updated !== raw) {
+                    node.nodeValue = updated;
+                }
+            }
+        } finally {
+            // Giải phóng khóa biến đổi sau 60ms
+            setTimeout(() => {
+                isTransforming = false;
+            }, 60);
+        }
+    }
+
+    function scheduleRun() {
+        if (isTransforming) return;
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(runEngine, 250);
+    }
+
+    // 🛡️ LẮNG NGHE DOM AN TOÀN: Bỏ qua các mutation do chính script tạo ra
+    const observer = new MutationObserver((mutations) => {
+        if (isTransforming) return;
+
+        let hasMeaningfulChange = false;
+        for (let i = 0; i < mutations.length; i++) {
+            const t = mutations[i].target;
+            if (t && !isProtectedZone(t)) {
+                hasMeaningfulChange = true;
+                break;
             }
         }
 
-        // Quét các ô bảng dữ liệu
-        document.querySelectorAll('td, div[role="cell"], div[role="gridcell"]').forEach(el => {
-            if (isProtectedZone(el)) return;
-            if (el.children.length === 0) {
-                const text = el.textContent ? el.textContent.trim() : '';
-                const updated = transformText(text, activeMap);
-                if (updated !== text) {
-                    el.textContent = updated;
-                }
-            }
-        });
+        if (hasMeaningfulChange) {
+            scheduleRun();
+        }
+    });
+
+    // Khởi động nhẹ nhàng sau khi GA4 đã mount xong DOM
+    function init() {
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                characterData: false
+            });
+            setTimeout(runEngine, 800);
+        }
     }
 
-    // Chạy định kỳ nhẹ nhàng
-    setInterval(runEngine, 450);
+    if (document.readyState === 'complete') {
+        init();
+    } else {
+        window.addEventListener('load', init, { once: true });
+    }
 
-    // Chạy khi có thay đổi DOM (MutationObserver)
-    const observer = new MutationObserver(() => {
-        runEngine();
-    });
+    // Nhịp tim kiểm tra định kỳ nhẹ nhàng mỗi 2 giây (không làm nặng CPU)
+    setInterval(() => {
+        if (!isTransforming) runEngine();
+    }, 2000);
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-    console.log('[GA4 Pro Precision Engine V8] ✅ Đã kích hoạt bảo vệ lịch và chuẩn hóa số liệu.');
+    console.log('[GA4 Pro Precision Engine V8] ✅ Đã kích hoạt cơ chế chống treo trang và bảo vệ lịch.');
 })();
