@@ -24376,5 +24376,563 @@
         }
       ]
     }
+  ],
+  "ke-hoach-cua-quy-du-phan-3": [
+    {
+      "name": "01",
+      "slug": "tap-1",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai._DwxwzPbgdrx273A.IVPPylhGNnj9LaVKz9_Yx8YoqztCs3zow87CFLiMS7bp2fE3IY2US72MMJHK.NRdT56sVKsRR-sMcLqoRfg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-1-1794368098412-33435b5d-tap_01_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-1-1794368097787-4cbedb54-tap_01_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-1-1794368096826-8758f86f-tap_01_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "02",
+      "slug": "tap-2",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.JA14f_9m0Q6baWLf.oWMrZAmIBXC1MbiOXGSAdeEEGxGaylG3m9nVAzN4WHZ90rHoulrvguPr0Fzx.qW0MEzTzb7-fpQhk3uu_Kw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-2-1794368096815-da578a78-tap_02_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-2-1794368095756-af7eb8af-tap_02_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-2-1794368095057-148347bf-tap_02_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "03",
+      "slug": "tap-3",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.5TeKBgaS23ZGl8Bb.hiahGmGOpu6AW8j5tV98jcmC0iItrxZ6I3cDCcw41qU-ylgnmIoTBeP7gLz5.KvXcs75IIIVl_Z84_xwqdQ",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-3-1794368093801-55dabade-tap_03_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-3-1794368093134-e4e18cf0-tap_03_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-3-1794368091591-5753ae65-tap_03_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "04",
+      "slug": "tap-4",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.TLJxxIHeHsVHvn11.DhiHonWBb3oT1NjVxrWs-7l-EoQZy_FC1UL1C15ZQ89_HYR3SdqbwnxbbSbv.cYE86hansA0-M7VjRlcq-w",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-4-1794368092321-07c4e0a6-tap_04_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-4-1794368092242-af8b691b-tap_04_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-tap-4-1794368091238-fbbdf105-tap_04_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "05",
+      "slug": "tap-5",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.6vOQboxW5Nr1jOEK.V1CksPTRuBxDh4KPqWNkqj2snRLvX6VVwKaO8hy53HoKJKCyjzgqi95DIz3S.xtQ8w1BV0O2YkoH1niLdZg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-5-1794368518511-26d3d08c-tap_05_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-5-1794368518110-113fd2e6-tap_05_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-5-1794368517151-9ce2ef96-tap_05_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "06",
+      "slug": "tap-6",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.yOF0klKj_OMBWBlU.F7U4PP8VPjVUZ_ehAZaJ_9cxv-8UFDXnoFLlCcEzvAqWqFwkDqSrKMvGd-7K.RzWcP4yEPkxjv7X9VPDb8A",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-6-1794971791269-61cc2af0-tap_06_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-6-1794971791105-ae2ef7df-tap_06_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-6-1794971790262-3555df93-tap_06_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "07",
+      "slug": "tap-7",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.Xspps55AA9zUIPuA.0GyJ9Sp23OwUy7wLj_IZ92sV40SipNYSS-7Vn2lgtTghwD3CXHozDh_wXBCr.xUBK9ivym5PeVb4V8gT3VQ",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-7-1794971790227-6b222b2e-tap_07_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-7-1794971788058-d8a690f8-tap_07_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-7-1794971787080-0c40ab57-tap_07_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "08",
+      "slug": "tap-8",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.lY-q7Z3mX5OFTyIL.Hi28G1mOgf08w6nDhxT0SgtIpJZyx9f2w3da-e1hNpFzCZcGSD7sofKAv2Dt.Ee6xQfVR3RSoBDzNE_VtpA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-8-1794971786470-8b895b75-tap_08_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-8-1794971786536-35000f79-tap_08_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-8-1794971785708-faceb309-tap_08_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "09",
+      "slug": "tap-9",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.Kf0mbi2fZ1XybZvv.S03Ze7B7OYyzCUq0-ftvX5s0f1Id8Z0zlLtGwa738kx0bTF5hN-H-uXkCcu2.hD51aRKGENewyt-gMZxytg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-9-1794971782305-c0790753-tap_09_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-9-1794971782483-8697df9b-tap_09_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-9-1794971781870-c0758091-tap_09_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "10",
+      "slug": "tap-10",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.rDKkJ-56zkk7U8hP.jjAVP9_H3GZG1j_m8Ak-DDzYg6Mjnk3ft0arXgf4Ou3W6nNs7XdtMvhuzo3F.FQ_NL9uu67djw30SlNKIzQ",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-10-1794971785148-c2fa4c77-tap_10_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-10-1794971782988-25727194-tap_10_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=ke-hoach-cua-quy-du-phan-3-tap-10-1794971782160-b299b26f-tap_10_english.vtt"
+        }
+      ]
+    }
+  ],
+  "hoang-hau-tai-hon": [
+    {
+      "name": "01",
+      "slug": "tap-1",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.gimOXyLPdK0lBcI9.oHKfsdlfD9vQqVsrT2N-uZSahJHWfI_n9WrbnalvO-ZylRq2DAwUhol7IXvn.f1QaKEkq6A2LFEsG00jeJg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-1-1793890766934-d053858a-tap_01_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-1-1793707500654-82136ba8-tap_01_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-1-1793707498858-1c1b325a-tap_01_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "02",
+      "slug": "tap-2",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.KgqK6gY7-2e97cPU.h6J5ZEM-TmUSZFFFjzEtADP9Cn9eb8ZBUxjTmLo7xtQblVaHU-dx1rzKUU_q.LX9WA4a8fRAMrHF_gQXIfw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-2-1793709709390-b27ecf49-tap_02_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-2-1793707513003-928951dd-tap_02_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-2-1793707505019-0142e44c-tap_02_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "03",
+      "slug": "tap-3",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.nhrFcXeB0wdQY4Kp.IIN1HUJVVvHN8--50SDuKEqrUnepFvxhjnqg7rtfWkLlozw8dpF7wTLeCOwY.6t0ep4ofvE_lygroi_NE9Q",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-3-1793709709888-c3356af6-tap_03_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-3-1793707521345-d4120f38-tap_03_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-3-1793707514699-6cbe64e8-tap_03_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "04",
+      "slug": "tap-4",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.KR26F4EkdsDWZYoh.1kUg0psR5_FNJjVTNKaVfr-MyUCmGeVBCQznaYarSsU3CZbSntTjPeoT0EzR.L6W1cmlO8iM-C8-g8MHrJA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-4-1793753536533-9ab5a68b-tap_04_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-4-1793707530422-a1dc595d-tap_04_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-4-1793707524918-06512bca-tap_04_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "05",
+      "slug": "tap-5",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.F9eWqhcSaGjsrLhK.puSM347qCZ5AMA8F5US7wsesUrS_IKLW6ysiLLsQM6Ie6i3KkUs9QuitQort.33oiNgBHutkH0YDchMOh6Q",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-5-1794413328980-d189b380-tap_05_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-5-1794396612466-68c2859b-tap_05_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-5-1794396612201-e80aaf2b-tap_05_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "06",
+      "slug": "tap-6",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.Wbm_LhL0IIO5FYkd.VexfXEJfhdz2rBNsxLZqcWPotAARrNuAbfX-_lWAeyzqG4nhHqBMg05OCTJa.bFzfxCzPZCTegKoWbZq__A",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-6-1794413337311-9297334e-tap_06_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-6-1794396610342-d31b2d81-tap_06_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-6-1794396609323-46d46519-tap_06_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "07",
+      "slug": "tap-7",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai._pn8NLyROzQBiU_t.VBbIv56zMyHU9lYS_QxdBaEorMYAG-X_NkA4Eq3G2DxJ--1fLyF6F7VuyD7Z.UApaGGpiBsEvwgZNdwP1pw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-7-1794996479149-6b97d23e-tap_07_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-7-1794996469518-764727b6-tap_07_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-7-1794996468894-398b0561-tap_07_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "08",
+      "slug": "tap-8",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.92fA0MM9WhAE7aUu.v305x_Kt3tZ4jVVBVKkiYBsNs1Bri5IDmR2UIc4OZq-sJjXc3crwxQGvZ5_k.U74iBWrFyiIN1Tw-51y-5Q",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-8-1794996483223-b2d0c313-tap_08_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-8-1794996471062-50926a6c-tap_08_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=hoang-hau-tai-hon-tap-8-1794996470584-a3d1d6e3-tap_08_english.vtt"
+        }
+      ]
+    }
+  ],
+  "loi-noi-doi-hoan-hao-2026": [
+    {
+      "name": "01",
+      "slug": "tap-1",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.5D9q5vQBRQuQbJpb.A0V2Ziff2zS3MYkbf9qU-5tr-pCeJW2eMwVdn0iM7xpj-2jOLU_AWPRcfhCd.VI2BAtTefr4JAj8bW2FPfg",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-1-1793427421796-3daa2c1d-tap_01_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-1-1793427066036-9439d1ee-tap_01_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-1-1793427065436-ece456c7-tap_01_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "02",
+      "slug": "tap-2",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.eo1uG0mn-Iq45bsz.4bSmXQWiTcKm283YC6um0c7Hczi-yg3Bs4QaZK9nbsfUUXzWag6xu_CUepaL.xkXbeHPkB5Fdhi7HGXsroA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-2-1793507893431-80284ac2-tap_02_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-2-1793507105480-b2f1e2d5-tap_02_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-2-1793507104546-c14ac976-tap_02_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "03",
+      "slug": "tap-3",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.F9yFARGCfKg7vBnv.Mn_BGGg2Cu-P9HJhfo3vz12wM04x1_I1Q_jsfqMz4lpbhuHgD5bCNrPxHqwk.7ORsyhaXheVSmikD8Bq5Yw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-3-1794028169389-209d4ef5-tap_03_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-3-1794027517922-2316bc6a-tap_03_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-3-1794027503497-c6be5937-tap_03_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "04",
+      "slug": "tap-4",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.53lM7qpVC1I1j39Q.27o5Z1Dyheecdh7NY_rb_dAiBSuAvKwnRU3TR2U1aszwROT48aBJlkJkFBoi.8fXLwZpsyZFjbHvOUvf6Aw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-4-1794067594985-17785627-tap_04_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-4-1794067388107-6f6499ab-tap_04_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-4-1794067386359-e2e1d4c0-tap_04_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "05",
+      "slug": "tap-5",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.Lqere8M5WqJvloSU.FdyPu3C2C6rM7kEf6Au4Sh8puv9-aMbBNwzJ46WCe4gRikQjQxWQvhD6D-_m.b60UuDpbIHxNm2LABVT2hw",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-5-1794632260538-b6d32c0c-tap_05_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-5-1794632254520-74d42684-tap_05_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-5-1794632253905-b7d4da58-tap_05_english.vtt"
+        }
+      ]
+    },
+    {
+      "name": "06",
+      "slug": "tap-6",
+      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.qIQUgdUu7-MPKXnb.Nh7Q-KCHQciZUeOMw6ulLDlBUWC0OQrmcvnmKwQCotrfMhZe1l4_ZIfyXxIu.vxqYBTvdE5tWnTiXC5OgnA",
+      "link_embed": "",
+      "subtitles": [
+        {
+          "label": "Tiếng Việt",
+          "language": "vi",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-6-1794723072365-24da988c-tap_06_vietnamese.vtt"
+        },
+        {
+          "label": "Tiếng Hàn",
+          "language": "ko",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-6-1794721821110-0f17e9da-tap_06_korean.vtt"
+        },
+        {
+          "label": "Tiếng Anh",
+          "language": "en",
+          "url": "https://chophim.ink/api/storage/subtitles?file=loi-noi-doi-hoan-hao-tap-6-1794721819007-1ad19156-tap_06_english.vtt"
+        }
+      ]
+    }
   ]
 }
