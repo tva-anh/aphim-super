@@ -24,12 +24,23 @@ router.get('/hidden/list', async (req, res) => {
     }
 });
 
-// ── GET /api/movies/ping-server — Đo độ trễ HTTP máy chủ video (Fallback khi client chặn CORS) ─────────────
+// ── GET /api/movies/ping-server — Đo độ trễ HTTP máy chủ video (Hỗ trợ cả link trực tiếp & link Proxy Song Ngữ) ─────────────
 router.get('/ping-server', async (req, res) => {
-    const targetUrl = req.query.url;
+    let targetUrl = req.query.url;
     if (!targetUrl || typeof targetUrl !== 'string') {
         return res.status(400).json({ success: false, message: 'Thiếu url' });
     }
+
+    // 1. Tự động trích xuất URL gốc nếu URL là link proxy nội bộ của APhim (e.g. /api/proxy/m3u8?url=...)
+    if (targetUrl.includes('url=')) {
+        try {
+            const extracted = decodeURIComponent(targetUrl.split('url=')[1].split('&')[0]);
+            if (extracted.startsWith('http://') || extracted.startsWith('https://')) {
+                targetUrl = extracted;
+            }
+        } catch (_) {}
+    }
+
     if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
         return res.status(400).json({ success: false, message: 'URL không hợp lệ' });
     }
@@ -38,14 +49,40 @@ router.get('/ping-server', async (req, res) => {
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 3500);
-        const response = await fetch(targetUrl, {
+
+        // 2. Tự động đính kèm Referer Anti-Leech theo từng nhà cung cấp CDN
+        const reqHeaders = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': '*/*'
+        };
+
+        if (targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip')) {
+            reqHeaders['Referer'] = 'https://tophim.vip/';
+            reqHeaders['Origin'] = 'https://tophim.vip';
+        } else if (targetUrl.includes('vicdn.cc')) {
+            reqHeaders['Referer'] = 'https://vicdn.cc/';
+            reqHeaders['Origin'] = 'https://vicdn.cc';
+        } else if (targetUrl.includes('streamvsmov.com') || targetUrl.includes('vsmov.com')) {
+            reqHeaders['Referer'] = 'https://v9.streamvsmov.com/';
+            reqHeaders['Origin'] = 'https://v9.streamvsmov.com';
+        }
+
+        let response = await fetch(targetUrl, {
             method: 'HEAD',
             signal: controller.signal,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhimPing/1.0',
-                'Accept': '*/*'
-            }
+            headers: reqHeaders
         });
+
+        // 3. Nếu HEAD bị 403 hoặc 405 (một số CDN chặn method HEAD), thử lại bằng GET với Range byte nhỏ
+        if (response.status === 403 || response.status === 405) {
+            reqHeaders['Range'] = 'bytes=0-10';
+            response = await fetch(targetUrl, {
+                method: 'GET',
+                signal: controller.signal,
+                headers: reqHeaders
+            });
+        }
+
         clearTimeout(timeout);
         const latency = Date.now() - startTime;
         return res.json({

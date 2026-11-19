@@ -1573,7 +1573,7 @@ app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
     let targetUrl = req.query.url;
     if (!targetUrl) return res.status(400).send('Invalid url');
     if (!targetUrl.startsWith('http')) {
-        targetUrl = 'https://chophim.cam' + (targetUrl.startsWith('/') ? '' : '/') + targetUrl;
+        targetUrl = 'https://chophim.cc' + (targetUrl.startsWith('/') ? '' : '/') + targetUrl;
     }
 
     const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
@@ -1605,10 +1605,9 @@ app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
 
     const mirrors = [
         targetUrl,
-        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.cam'),
-        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.lat'),
-        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.app'),
-        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.fun')
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.cc'),
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.tv'),
+        targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.ink')
     ];
 
     let lastError = null;
