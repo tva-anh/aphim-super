@@ -1498,6 +1498,10 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                             let absUri;
                             try { absUri = new URL(uri, base).href; } catch (e) { absUri = uri; }
                             const isPlaylist = absUri.includes('.m3u8') || absUri.includes('format=m3u8') || absUri.includes('media=');
+                            // ⚡ BẬT DIRECT CDN CHO VICDN & KVP726 (Bỏ qua Node.js Proxy, giảm 70% độ trễ trên mobile)
+                            if (!isPlaylist && (absUri.includes('vicdn.cc') || absUri.includes('kvp726.com') || absUri.includes('kkphim'))) {
+                                return `URI="${absUri}"`;
+                            }
                             const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
                             return `URI="${endpoint}?url=${encodeURIComponent(absUri)}"`;
                         });
@@ -1511,6 +1515,11 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                 try { absUrl = new URL(trimmed, base).href; } catch (e) { absUrl = trimmed; }
 
                 const isPlaylist = absUrl.includes('.m3u8') || absUrl.includes('format=m3u8') || absUrl.includes('media=');
+                // ⚡ BẬT DIRECT CDN CHO VICDN & KVP726: Thiết bị di động tải thẳng từ CDN toàn cầu
+                if (!isPlaylist && (absUrl.includes('vicdn.cc') || absUrl.includes('kvp726.com') || absUrl.includes('kkphim'))) {
+                    rewritten.push(absUrl);
+                    continue;
+                }
                 const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
                 rewritten.push(`${endpoint}?url=${encodeURIComponent(absUrl)}`);
             }
@@ -1618,7 +1627,7 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
         });
 
         res.setHeader('Content-Type', 'video/mp2t');
-        if (upstream.headers['cache-control']) res.setHeader('Cache-Control', upstream.headers['cache-control']);
+        res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
         if (upstream.headers['accept-ranges']) res.setHeader('Accept-Ranges', upstream.headers['accept-ranges']);
         // Không forward content-length của upstream khi có giải mã để Express phát luồng chunked mượt mà, chống lệch kích thước
 
@@ -2754,7 +2763,7 @@ async function fetchMovieMetadata(slug) {
                             // Chỉ fallback stream Vietsub khi server Song Ngữ hoàn toàn thiếu link phát hoặc bị lỗi (ChoPhim 404)
                             const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim') || ep.link_m3u8.includes('stringdeptrai') || ep.link_m3u8.includes('/api/playback/manifest'));
                             if (needsStream) {
-                                attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes, true);
+                                attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes, false);
                             }
                             const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
                             primaryResult.episodes = [

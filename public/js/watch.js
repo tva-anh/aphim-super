@@ -7121,38 +7121,45 @@ function initializePlayer(episode) {
             lowLatencyMode: false,
             fLoader: AphimFragLoader,
             // ⚡ BỘ ĐỆM THÍCH ỨNG SIÊU MƯỢT (Chống khựng khi mạng lag / 4G yếu)
-            backBufferLength: 60, // Giữ 60s dữ liệu quá khứ trong RAM, tua lùi 10s-30s tức thì không cần tải lại
-            maxBufferLength: isMobileDevice ? 25 : 40, // Giữ 25-40s buffer phía trước để phát siêu mượt
-            maxMaxBufferLength: isMobileDevice ? 50 : 80,
-            maxBufferSize: isMobileDevice ? 40 * 1000 * 1000 : 80 * 1000 * 1000,
+            backBufferLength: isMobileDevice ? 20 : 60, // Mobile: 20s RAM, tua lùi mượt không tràn bộ nhớ
+            maxBufferLength: isMobileDevice ? 8 : 35, // ⚡ Mobile: Chỉ cần 8s (1-2 phân đoạn) để phát tức thì trong 300ms
+            maxMaxBufferLength: isMobileDevice ? 16 : 70,
+            maxBufferSize: isMobileDevice ? 15 * 1000 * 1000 : 60 * 1000 * 1000,
             maxBufferHole: 0.5, // Tự động nhảy qua các lỗ hổng buffer nhỏ (0.5s) thay vì treo video
-            highBufferWatchdogPeriod: 2,
+            highBufferWatchdogPeriod: 1.5,
             nudgeOffset: 0.1, // Nudge 0.1s tự động nếu bị kẹt audio/video stall
             nudgeMaxRetry: 6,
             maxFragLookUpTolerance: 0.25,
             startFragPrefetch: true, // ⚡ Tự động tải trước phân đoạn tiếp theo ngay khi phân đoạn trước đang phát (0ms gap)
             progressive: false, // ⚡ Tắt progressive demuxing để bảo đảm gói tin trọn vẹn trước khi demux (chống fragParsingError)
             // ⚡ Cơ chế thử lại thông minh khi mạng chập chờn / lag
-            fragLoadingTimeOut: 20000,
+            fragLoadingTimeOut: 15000,
             fragLoadingMaxRetry: 6,
-            fragLoadingRetryDelay: 400,
-            fragLoadingMaxRetryTimeout: 30000,
-            levelLoadingTimeOut: 15000,
+            fragLoadingRetryDelay: 300,
+            fragLoadingMaxRetryTimeout: 25000,
+            levelLoadingTimeOut: 10000,
             levelLoadingMaxRetry: 4,
-            manifestLoadingTimeOut: 15000,
+            manifestLoadingTimeOut: 10000,
             manifestLoadingMaxRetry: 4,
             // ⚡ ABR (Adaptive Bitrate) thông minh ưu tiên phát siêu tốc và mượt mà tuyệt đối
             startLevel: -1, // Luôn để Auto thích ứng mạng
-            abrEwmaDefaultEstimate: 1200000, // Khởi đầu 1.2 Mbps tối ưu nạp phân đoạn đầu siêu nhanh
-            abrEwmaFastVoD: 2.5, // ⚡ Nhanh chóng nhận diện đường truyền để nâng lên Full HD tức thì
-            abrEwmaSlowVoD: 8.0,
+            abrEwmaDefaultEstimate: isMobileDevice ? 800000 : 1500000, // ⚡ Mobile: 800 Kbps nạp phân đoạn đầu siêu tốc
+            abrEwmaFastVoD: 2.0, // ⚡ Nhanh chóng nhận diện đường truyền để nâng lên Full HD tức thì
+            abrEwmaSlowVoD: 6.0,
             abrBandWidthFactor: 0.85, // Biên an toàn 85% băng thông
-            abrBandWidthUpFactor: 0.7, // Tăng chất lượng có kiểm soát
+            abrBandWidthUpFactor: 0.75, // Tăng chất lượng có kiểm soát
             testBandwidth: false, // ⚡ Bỏ qua bước kiểm tra băng thông giả lập để bắt đầu phát tức thì
             initialLiveManifestSize: 1
         });
         window.hls = hls;
         window.hlsInstance = hls;
+
+        // ⚡ [Fast-Start Mobile]: Ngay khi phân đoạn đầu tiên tải xong, ép gọi play() tức thì để tránh chờ đợi
+        hls.once(Hls.Events.FRAG_LOADED, () => {
+            if (player && player.paused) {
+                player.play().catch(() => {});
+            }
+        });
 
         // 🛡️ Chống ĐỨNG HÌNH trên mạng chậm: KHÔNG abort phân đoạn đang tải dở.
         // Nguồn Song Ngữ OnCDN chỉ 1 mức chất lượng (không có ABR để hạ xuống). Gọi startLoad() liên tục
