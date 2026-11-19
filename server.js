@@ -2559,7 +2559,7 @@ async function fetchMovieMetadata(slug) {
     // Nguồn nào phản hồi hợp lệ trước thì nhận ngay, giảm TTFB từ 9.5s xuống còn ~180-350ms!
     const fetchPhimApiPromise = async () => {
         const response = await axios.get(`https://phimapi.com/phim/${cleanSlug}`, {
-            timeout: 1400,
+            timeout: 2800,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
         });
         if (response.data?.status && response.data?.movie) {
@@ -2606,7 +2606,7 @@ async function fetchMovieMetadata(slug) {
 
     const fetchOPhimPromise = async () => {
         const ophimRes = await axios.get(`https://ophim1.com/phim/${cleanSlug}`, {
-            timeout: 1400,
+            timeout: 2800,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) APhim-Enterprise-SEO/2.0' }
         });
         const oItem = ophimRes.data?.movie || ophimRes.data?.data?.item;
@@ -2833,8 +2833,8 @@ async function fetchMovieMetadata(slug) {
         }
     } catch (err3) {}
 
-    // ⚡ Negative Cache: Lưu kết quả không tìm thấy trong 1 giờ để lần sau truy cập trả về tức thì 0ms, không quét lại
-    movieMetadataCache.set(cleanSlug, { data: null, isMissing: true, ts: Date.now() });
+    // ⚡ Negative Cache: Chỉ lưu ngắn 30s nếu tạm thời không tìm thấy, tránh dính 1 giờ khi mạng timeout
+    movieMetadataCache.set(cleanSlug, { data: null, isMissing: true, ts: Date.now() - (MOVIE_CACHE_TTL - 30 * 1000) });
     return null;
 }
 
