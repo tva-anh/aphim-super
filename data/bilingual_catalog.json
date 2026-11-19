@@ -24616,5 +24616,1790 @@
       "SN:3"
     ],
     "source": "/phim-song-ngu?page=24"
+  },
+  {
+    "slug": "ke-toi-do-cua-toi",
+    "name": "Kẻ Tội Đồ Của Tôi",
+    "origin_name": "Kẻ Tội Đồ Của Tôi",
+    "poster_url": "https://image.tmdb.org/t/p/original/ez4FZ3ciNE5XZQBEzYkfdcK8rzV.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/ez4FZ3ciNE5XZQBEzYkfdcK8rzV.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "ga-kim-thoa-ga-tram-vang",
+    "name": "Gả Kim Thoa / Gả trâm vàng",
+    "origin_name": "Gả Kim Thoa / Gả trâm vàng",
+    "poster_url": "https://image.tmdb.org/t/p/original/ozczlsMlKUhzB11ygTj4QVEGS7v.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/ozczlsMlKUhzB11ygTj4QVEGS7v.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "nghich-thien-ta-than",
+    "name": "Nghịch Thiên Tà Thần",
+    "origin_name": "Nghịch Thiên Tà Thần",
+    "poster_url": "https://image.tmdb.org/t/p/original/5tkrlTCmx2G3lUUdiXFNxSxmelo.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/5tkrlTCmx2G3lUUdiXFNxSxmelo.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "ban-trai-bi-mat",
+    "name": "Bạn Trai Bí Mật",
+    "origin_name": "Bạn Trai Bí Mật",
+    "poster_url": "https://image.tmdb.org/t/p/original/g0Kq7GfxUUw4sl0jlUeaLwn7x.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/g0Kq7GfxUUw4sl0jlUeaLwn7x.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "su-thi-odyssey",
+    "name": "Sử Thi Odyssey",
+    "origin_name": "Sử Thi Odyssey",
+    "poster_url": "https://image.tmdb.org/t/p/original/7876PK6gosE13Uq1B6nRxf7AJLT.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/7876PK6gosE13Uq1B6nRxf7AJLT.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "nguoi-me-khac-2026",
+    "name": "Người Mẹ Khác",
+    "origin_name": "Người Mẹ Khác",
+    "poster_url": "https://image.tmdb.org/t/p/original/nZYi7HeXJVfJmZ0kprb1cJBHN2g.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/nZYi7HeXJVfJmZ0kprb1cJBHN2g.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "ngoc-minh-tra-cot-2",
+    "name": "Ngọc Minh Trà Cốt",
+    "origin_name": "Ngọc Minh Trà Cốt",
+    "poster_url": "https://image.tmdb.org/t/p/w400/aIa5fGC4fIzC22XPR56KV879bFV.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/aIa5fGC4fIzC22XPR56KV879bFV.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "bach-hoa-sat-2",
+    "name": "Bách Hoa Sát",
+    "origin_name": "Bách Hoa Sát",
+    "poster_url": "https://image.tmdb.org/t/p/w400/sWdiop8BQwODB6tVOMeTfi0XHE3.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/sWdiop8BQwODB6tVOMeTfi0XHE3.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "su-huynh-qua-can-trong-2",
+    "name": "Sư Huynh Quá Cẩn Trọng",
+    "origin_name": "Sư Huynh Quá Cẩn Trọng",
+    "poster_url": "https://image.tmdb.org/t/p/w400/7OECArBmyQZHzdV331OzH9mpH1K.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/7OECArBmyQZHzdV331OzH9mpH1K.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "ke-hoach-cua-quy-du-phan-3",
+    "name": "Kế Hoạch Của Quỷ Dữ (Phần 3)",
+    "origin_name": "Kế Hoạch Của Quỷ Dữ (Phần 3)",
+    "poster_url": "https://image.tmdb.org/t/p/original/ezsnPeIru8Z7iomV89EbABjaIlU.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/ezsnPeIru8Z7iomV89EbABjaIlU.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "yeu-mot-nguoi-khac-yeu-mot-nguoi-khac-khong-phai-em",
+    "name": "Yêu một người khác / Yêu Một Người Khác Không Phải Em",
+    "origin_name": "Yêu một người khác / Yêu Một Người Khác Không Phải Em",
+    "poster_url": "https://image.tmdb.org/t/p/original/iKgdhgBPi1cCRRqsUgaxUDRuFP6.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/iKgdhgBPi1cCRRqsUgaxUDRuFP6.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "tung-buoc-ben-nhau-phan-1",
+    "name": "Từng Bước Bên Nhau (Phần 1)",
+    "origin_name": "Từng Bước Bên Nhau (Phần 1)",
+    "poster_url": "https://image.tmdb.org/t/p/original/vyrpZOFIZJkQG8ZWTezmlNGav8R.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/vyrpZOFIZJkQG8ZWTezmlNGav8R.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "bac-si-x-phan-1",
+    "name": "Bác Sĩ X (Phần 1)",
+    "origin_name": "Bác Sĩ X (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-51c7ef015eae5869ad0bcdd2665b06d94a0e37893b90f17369ecb1095e18f35b.png",
+    "thumb_url": "https://img.nguonc.com/images/img-51c7ef015eae5869ad0bcdd2665b06d94a0e37893b90f17369ecb1095e18f35b.png",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "anh-la-nam-chinh-doi-em",
+    "name": "Anh Là Nam Chính Đời Em",
+    "origin_name": "Anh Là Nam Chính Đời Em",
+    "poster_url": "https://image.tmdb.org/t/p/original/4BGGUe7hupVj1M1972LyYzUI6bB.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/4BGGUe7hupVj1M1972LyYzUI6bB.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "van-vu-vuong",
+    "name": "Văn Vũ Vương",
+    "origin_name": "Văn Vũ Vương",
+    "poster_url": "https://image.tmdb.org/t/p/original/wVpTtPknLaYCeXnRKO6p2dQle5Z.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/wVpTtPknLaYCeXnRKO6p2dQle5Z.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "loi-noi-doi-hoan-hao",
+    "name": "Lời Nói Dối Hoàn Hảo",
+    "origin_name": "Lời Nói Dối Hoàn Hảo",
+    "poster_url": "https://image.tmdb.org/t/p/original/jztHpl2h5wXykrltiL3Dms1it45.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/jztHpl2h5wXykrltiL3Dms1it45.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "am-thanh-cua-nhung-vien-duong",
+    "name": "Âm Thanh Của Những Viên Đường",
+    "origin_name": "Âm Thanh Của Những Viên Đường",
+    "poster_url": "https://image.tmdb.org/t/p/original/lrXBz398kzpEIZKG7ud9DOwf0eh.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/lrXBz398kzpEIZKG7ud9DOwf0eh.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "cua-hang-sat-thu-phan-1",
+    "name": "Cửa Hàng Sát Thủ (Phần 1)",
+    "origin_name": "Cửa Hàng Sát Thủ (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-018b34c7ec84c13b9ff5b68c4c382d77a218357a4914f3f715d1832706b2bc5d.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-018b34c7ec84c13b9ff5b68c4c382d77a218357a4914f3f715d1832706b2bc5d.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "uoc-mo-chua-ha-man",
+    "name": "Ước Mơ Chưa Hạ Màn",
+    "origin_name": "Ước Mơ Chưa Hạ Màn",
+    "poster_url": "https://image.tmdb.org/t/p/original/dJa6CReOqtLDsYdwBS0hW8NgDlD.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/dJa6CReOqtLDsYdwBS0hW8NgDlD.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "chiec-ca-vat-roi-ram-phan-1",
+    "name": "Chiếc Cà Vạt Rối Rắm (Phần 1)",
+    "origin_name": "Chiếc Cà Vạt Rối Rắm (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-414df38dd4ebd20bdd0f111b9a0802786a0f5826b356c6378d42165b4dd16d29.png",
+    "thumb_url": "https://img.nguonc.com/images/img-414df38dd4ebd20bdd0f111b9a0802786a0f5826b356c6378d42165b4dd16d29.png",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "chiec-ca-vat-roi-ram",
+    "name": "Chiếc Cà Vạt Rối Rắm",
+    "origin_name": "Chiếc Cà Vạt Rối Rắm",
+    "poster_url": "https://image.tmdb.org/t/p/original/saKfS1nsVlZFZSVWnQbUz0BS9Vr.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/saKfS1nsVlZFZSVWnQbUz0BS9Vr.jpg",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "chim-vao-mat-em",
+    "name": "Chìm Vào Mắt Em",
+    "origin_name": "Chìm Vào Mắt Em",
+    "poster_url": "https://img.nguonc.com/images/img-a1d172992dc36bffc33416129773f37b716a9a8314b3243c9a0fb93df265193b.png",
+    "thumb_url": "https://img.nguonc.com/images/img-a1d172992dc36bffc33416129773f37b716a9a8314b3243c9a0fb93df265193b.png",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "chuyen-tinh-rung-cam",
+    "name": "Chuyện Tình Rung Cảm",
+    "origin_name": "Chuyện Tình Rung Cảm",
+    "poster_url": "https://image.tmdb.org/t/p/original/aGX71DFozG55achSbKd225LHGMj.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/aGX71DFozG55achSbKd225LHGMj.jpg",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "cham-vao-tim-em",
+    "name": "Chạm Vào Tim Em",
+    "origin_name": "Chạm Vào Tim Em",
+    "poster_url": "https://img.nguonc.com/images/img-b1ff1ed9b7fa4340aa33a5fb0da9c4a428751a2a48903e8864484dadadddaf8d.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-b1ff1ed9b7fa4340aa33a5fb0da9c4a428751a2a48903e8864484dadadddaf8d.jpg",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "yeu-mot-nguoi-khac",
+    "name": "Yêu một người khác",
+    "origin_name": "Yêu một người khác",
+    "poster_url": "https://image.tmdb.org/t/p/original/iKgdhgBPi1cCRRqsUgaxUDRuFP6.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/iKgdhgBPi1cCRRqsUgaxUDRuFP6.jpg",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "thuc-don-tinh-yeu",
+    "name": "Thực Đơn Tình Yêu",
+    "origin_name": "Thực Đơn Tình Yêu",
+    "poster_url": "https://image.tmdb.org/t/p/w400/pGEz6J7GFT0LXGBd6ZSHvJtTsAS.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/pGEz6J7GFT0LXGBd6ZSHvJtTsAS.jpg",
+    "source": "/quoc-gia/han-quoc?page=2",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "cua-hang-sat-thu-2",
+    "name": "Cửa Hàng Sát Thủ 2",
+    "origin_name": "Cửa Hàng Sát Thủ 2",
+    "poster_url": "https://image.tmdb.org/t/p/w400/kGoqDpDoW7AHiR4L22QCOQwOIhh.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/kGoqDpDoW7AHiR4L22QCOQwOIhh.jpg",
+    "source": "/quoc-gia/han-quoc?page=3",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "chim-vao-mat-em-phan-1",
+    "name": "Chìm Vào Mắt Em (Phần 1)",
+    "origin_name": "Chìm Vào Mắt Em (Phần 1)",
+    "poster_url": "https://image.tmdb.org/t/p/original/hLBNb9tUcYnJ879XKxJD68Ort2y.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/hLBNb9tUcYnJ879XKxJD68Ort2y.jpg",
+    "source": "/quoc-gia/han-quoc?page=3",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "tro-choi-con-muc-3",
+    "name": "Trò Chơi Con Mực 3",
+    "origin_name": "Trò Chơi Con Mực 3",
+    "poster_url": "https://image.tmdb.org/t/p/w400/okJESjE3wqN4qDNFOM8TecUVfHX.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/okJESjE3wqN4qDNFOM8TecUVfHX.jpg",
+    "source": "/quoc-gia/han-quoc?page=3",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "de-che-dai-han-phan-1",
+    "name": "Đế Chế Đại Hàn (Phần 1)",
+    "origin_name": "Đế Chế Đại Hàn (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-e40151377c481fc41d92f875682a4639fba7eb7d24b7c7b73549ddb4edd10d00.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-e40151377c481fc41d92f875682a4639fba7eb7d24b7c7b73549ddb4edd10d00.jpg",
+    "source": "/quoc-gia/han-quoc?page=3",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "tai-phiet-va-canh-sat-2",
+    "name": "Tài Phiệt Và Cảnh Sát 2",
+    "origin_name": "Tài Phiệt Và Cảnh Sát 2",
+    "poster_url": "https://image.tmdb.org/t/p/w400/2eWH2RDxpbIfEs17BpJTQhcOqRs.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/2eWH2RDxpbIfEs17BpJTQhcOqRs.jpg",
+    "source": "/quoc-gia/han-quoc?page=3",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "anh-den-cung-mua-ha",
+    "name": "Anh Đến Cùng Mùa Hạ",
+    "origin_name": "Anh Đến Cùng Mùa Hạ",
+    "poster_url": "https://img.nguonc.com/images/img-46b1d876e8ae96425de9df1716598c0fd2436f8d962e056d7e5d3811bc09e702.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-46b1d876e8ae96425de9df1716598c0fd2436f8d962e056d7e5d3811bc09e702.jpg",
+    "source": "/quoc-gia/han-quoc?page=5",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "nu-hoang-lua-dao",
+    "name": "Nữ Hoàng Lừa Đảo",
+    "origin_name": "Nữ Hoàng Lừa Đảo",
+    "poster_url": "https://image.tmdb.org/t/p/w400/wUCmw1B6MBRiN6TUSbssKHuJnV0.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/wUCmw1B6MBRiN6TUSbssKHuJnV0.jpg",
+    "source": "/quoc-gia/han-quoc?page=5",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "biet-doi-nha-ben-2",
+    "name": "Biệt Đội Nhà Bên",
+    "origin_name": "Biệt Đội Nhà Bên",
+    "poster_url": "https://image.tmdb.org/t/p/w400/uBWlSo0O7VfWzjO5i8hG2E4dexG.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/uBWlSo0O7VfWzjO5i8hG2E4dexG.jpg",
+    "source": "/quoc-gia/han-quoc?page=6",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "duoc-roi-chung-ta-ly-hon-thoi",
+    "name": "Được Rồi! Chúng Ta Ly Hôn Thôi",
+    "origin_name": "Được Rồi! Chúng Ta Ly Hôn Thôi",
+    "poster_url": "https://image.tmdb.org/t/p/w400/eE15dAtxrO3m8O9puVgBOgpF4a8.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/eE15dAtxrO3m8O9puVgBOgpF4a8.jpg",
+    "source": "/quoc-gia/han-quoc?page=6",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "buoi-dien-tap-cua-chung-ta",
+    "name": "Buổi Diễn Tập Của Chúng Ta",
+    "origin_name": "Buổi Diễn Tập Của Chúng Ta",
+    "poster_url": "https://img.nguonc.com/images/img-152ebda720b79f23b267c2d2431bee3f680d0a661d6ebca6569da587f0d2ce9e.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-152ebda720b79f23b267c2d2431bee3f680d0a661d6ebca6569da587f0d2ce9e.jpg",
+    "source": "/quoc-gia/han-quoc?page=6",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "cam-nang-tinh-yeu",
+    "name": "Cẩm Nang Tình Yêu",
+    "origin_name": "Cẩm Nang Tình Yêu",
+    "poster_url": "https://image.tmdb.org/t/p/w400/eja0b2MR6lhtUczEinjBD1ek12g.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/eja0b2MR6lhtUczEinjBD1ek12g.jpg",
+    "source": "/quoc-gia/han-quoc?page=6",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "su-yen-lang-chet-nguoi-2020",
+    "name": "Sự Yên Lặng Chết Người",
+    "origin_name": "Sự Yên Lặng Chết Người",
+    "poster_url": "https://image.tmdb.org/t/p/original/go7X8AUn8zUiMpZN7VQ0TmuiNO1.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/go7X8AUn8zUiMpZN7VQ0TmuiNO1.jpg",
+    "source": "/quoc-gia/han-quoc?page=6",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "penthouse-cuoc-chien-thuong-luu-phan-3",
+    "name": "Penthouse: Cuộc Chiến Thượng Lưu (Phần 3)",
+    "origin_name": "Penthouse: Cuộc Chiến Thượng Lưu (Phần 3)",
+    "poster_url": "https://phimimg.com/upload/vod/20240126-1/ffdf3fefd1fe7df0b3fea89a796c4a7b.jpg",
+    "thumb_url": "https://phimimg.com/upload/vod/20240126-1/ffdf3fefd1fe7df0b3fea89a796c4a7b.jpg",
+    "source": "/quoc-gia/han-quoc?page=6",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "mi-anh-than-bo-phan-1",
+    "name": "Mị Ảnh Thần Bộ (Phần 1)",
+    "origin_name": "Mị Ảnh Thần Bộ (Phần 1)",
+    "poster_url": "https://image.tmdb.org/t/p/original/cSMi2gLm9uKevEgfk7nOXpHXO57.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/cSMi2gLm9uKevEgfk7nOXpHXO57.jpg",
+    "source": "/quoc-gia/trung-quoc?page=1",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "my-nhan-du-phan-1",
+    "name": "Mỹ Nhân Dư (Phần 1)",
+    "origin_name": "Mỹ Nhân Dư (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-8791f819b806cb11822a3054fd5a91297eebaffa73d5b9335b09980c00ba27ff.png",
+    "thumb_url": "https://img.nguonc.com/images/img-8791f819b806cb11822a3054fd5a91297eebaffa73d5b9335b09980c00ba27ff.png",
+    "source": "/quoc-gia/trung-quoc?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "yeu-mot-ke-ngoc",
+    "name": "Yêu Một Kẻ Ngốc",
+    "origin_name": "Yêu Một Kẻ Ngốc",
+    "poster_url": "https://image.tmdb.org/t/p/original/dX6xlCbOGmmBze6uU0FQCw7iLK6.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/dX6xlCbOGmmBze6uU0FQCw7iLK6.jpg",
+    "source": "/quoc-gia/trung-quoc?page=2",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "pham-nhan-tu-tien",
+    "name": "Phàm Nhân Tu Tiên",
+    "origin_name": "Phàm Nhân Tu Tiên",
+    "poster_url": "https://image.tmdb.org/t/p/original/ajn1vUCQCGMXSobZ9uj9dFx3dr6.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/ajn1vUCQCGMXSobZ9uj9dFx3dr6.jpg",
+    "source": "/quoc-gia/trung-quoc?page=2",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "chon-ngay-phi-thang",
+    "name": "Chọn Ngày Phi Thăng",
+    "origin_name": "Chọn Ngày Phi Thăng",
+    "poster_url": "https://image.tmdb.org/t/p/original/cMjXBlqG4dJ7OaodgM8DnnpDWbK.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/cMjXBlqG4dJ7OaodgM8DnnpDWbK.jpg",
+    "source": "/quoc-gia/trung-quoc?page=2",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "o-re-phan-1",
+    "name": "Ở Rể (Phần 1)",
+    "origin_name": "Ở Rể (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-db66ee499a872182b2d21287c3dbc267c07313a62f856ca6875bb36f9445e70e.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-db66ee499a872182b2d21287c3dbc267c07313a62f856ca6875bb36f9445e70e.jpg",
+    "source": "/quoc-gia/trung-quoc?page=3",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "con-ra-the-thong-gi-nua-phan-1",
+    "name": "Còn Ra Thể Thống Gì Nữa? (Phần 1)",
+    "origin_name": "Còn Ra Thể Thống Gì Nữa? (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-46b3e0415949cd4f63e6b588d48da0ac6ed57feb6b2e602b0b637e336b53f549.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-46b3e0415949cd4f63e6b588d48da0ac6ed57feb6b2e602b0b637e336b53f549.jpg",
+    "source": "/quoc-gia/trung-quoc?page=3",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "tuy-mong",
+    "name": "Tuý Mộng",
+    "origin_name": "Tuý Mộng",
+    "poster_url": "https://image.tmdb.org/t/p/original/xvUOJChljBOY9e4vDc36p2yOIOM.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/xvUOJChljBOY9e4vDc36p2yOIOM.jpg",
+    "source": "/quoc-gia/trung-quoc?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "duong-trieu-quy-su-luc-3",
+    "name": "Đường Triều Quỷ Sự Lục 3",
+    "origin_name": "Đường Triều Quỷ Sự Lục 3",
+    "poster_url": "https://image.tmdb.org/t/p/w400/b6Awsj16flaCMCSIIW5GFoYAsYU.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/b6Awsj16flaCMCSIIW5GFoYAsYU.jpg",
+    "source": "/quoc-gia/trung-quoc?page=4",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "thien-dia-kiem-tam-2",
+    "name": "Thiên Địa Kiếm Tâm",
+    "origin_name": "Thiên Địa Kiếm Tâm",
+    "poster_url": "https://image.tmdb.org/t/p/w400/eoETKocFtS3SpuSG8YRSYgcNcOE.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/eoETKocFtS3SpuSG8YRSYgcNcOE.jpg",
+    "source": "/quoc-gia/trung-quoc?page=4",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "tinh-lac-ngung-thanh-duong-2",
+    "name": "Tinh Lạc Ngưng Thành Đường",
+    "origin_name": "Tinh Lạc Ngưng Thành Đường",
+    "poster_url": "https://image.tmdb.org/t/p/w400/bSczP7CskLw5RMyA106jJ5pAUuv.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/bSczP7CskLw5RMyA106jJ5pAUuv.jpg",
+    "source": "/quoc-gia/trung-quoc?page=4",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "dai-hinh-cho-san",
+    "name": "Đại Hình Chờ Sẵn",
+    "origin_name": "Đại Hình Chờ Sẵn",
+    "poster_url": "https://image.tmdb.org/t/p/original/2J8QMUCRCRvkZPOliQpefyewlM6.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/2J8QMUCRCRvkZPOliQpefyewlM6.jpg",
+    "source": "/quoc-gia/trung-quoc?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "trieu-tuyet-luc-2",
+    "name": "Triều Tuyết Lục",
+    "origin_name": "Triều Tuyết Lục",
+    "poster_url": "https://image.tmdb.org/t/p/w400/b1ZDAum0zWySxU2Qz1ExV7W2nII.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/b1ZDAum0zWySxU2Qz1ExV7W2nII.jpg",
+    "source": "/quoc-gia/trung-quoc?page=5",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "ngay-ban-than-giau-co-chang-con-xa",
+    "name": "Ngày Bạn Thân Giàu Có Chẳng Còn Xa",
+    "origin_name": "Ngày Bạn Thân Giàu Có Chẳng Còn Xa",
+    "poster_url": "https://image.tmdb.org/t/p/original/yLlJDH8CqXrkjG1iX0j8nxiXLEY.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/yLlJDH8CqXrkjG1iX0j8nxiXLEY.jpg",
+    "source": "/quoc-gia/trung-quoc?page=5",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "dung-la-mot-co-gai-ngoan-ngoan",
+    "name": "Đúng Là Một Cô Gái Ngoan Ngoãn",
+    "origin_name": "Đúng Là Một Cô Gái Ngoan Ngoãn",
+    "poster_url": "https://image.tmdb.org/t/p/original/fSkQrScYxfI985YRF1TuyM906Kk.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/fSkQrScYxfI985YRF1TuyM906Kk.jpg",
+    "source": "/quoc-gia/trung-quoc?page=5",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "my-nhan-du",
+    "name": "Mỹ Nhân Dư",
+    "origin_name": "Mỹ Nhân Dư",
+    "poster_url": "https://image.tmdb.org/t/p/original/hwx7VCmLRhd5seoJuWirnjjnkEb.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/hwx7VCmLRhd5seoJuWirnjjnkEb.jpg",
+    "source": "/quoc-gia/trung-quoc?page=5",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "khong-the-thay-the-phan-1",
+    "name": "Không Thể Thay Thế (Phần 1)",
+    "origin_name": "Không Thể Thay Thế (Phần 1)",
+    "poster_url": "https://image.tmdb.org/t/p/original/ugdQvfUB7RBw1tPCEjwxaADWYpO.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/ugdQvfUB7RBw1tPCEjwxaADWYpO.jpg",
+    "source": "/quoc-gia/trung-quoc?page=5",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "vua-hai-kich-2026",
+    "name": "Vua Hài Kịch",
+    "origin_name": "Vua Hài Kịch",
+    "poster_url": "https://image.tmdb.org/t/p/w500/4pXuB0KdIhS2v9dS3u8NXZv9OLg.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w500/4pXuB0KdIhS2v9dS3u8NXZv9OLg.jpg",
+    "source": "/quoc-gia/trung-quoc?page=6",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "loi-noi-doi-hoan-hao-2026",
+    "name": "Lời Nói Dối Hoàn Hảo",
+    "origin_name": "Lời Nói Dối Hoàn Hảo",
+    "poster_url": "https://image.tmdb.org/t/p/original/up1YBgPq6lC0ut2JvjguNwLiXw4.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/up1YBgPq6lC0ut2JvjguNwLiXw4.jpg",
+    "source": "/quoc-gia/au-my?page=1",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "dexter-hoi-sinh-2026",
+    "name": "Dexter: Hồi Sinh (Phần 2)",
+    "origin_name": "Dexter: Hồi Sinh (Phần 2)",
+    "poster_url": "https://image.tmdb.org/t/p/original/xUTaKnjLFhUe9IfGLF9H3ImFi8k.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/xUTaKnjLFhUe9IfGLF9H3ImFi8k.jpg",
+    "source": "/quoc-gia/au-my?page=2",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "bo-cau-den-phan-2",
+    "name": "Bồ Câu Đen (Phần 2)",
+    "origin_name": "Bồ Câu Đen (Phần 2)",
+    "poster_url": "https://image.tmdb.org/t/p/original/srlsyEfIBz2MNWBndVc3opOaNGS.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/srlsyEfIBz2MNWBndVc3opOaNGS.jpg",
+    "source": "/quoc-gia/au-my?page=2",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "cyberpunk-edgerunners-phan-2",
+    "name": "Cyberpunk: Edgerunners (Phần 2)",
+    "origin_name": "Cyberpunk: Edgerunners (Phần 2)",
+    "poster_url": "https://img.nguonc.com/images/img-1c253b1e699df63805fd00f44137934ab3c1519db56f872293448ed6b04ff3bc.png",
+    "thumb_url": "https://img.nguonc.com/images/img-1c253b1e699df63805fd00f44137934ab3c1519db56f872293448ed6b04ff3bc.png",
+    "source": "/quoc-gia/au-my?page=3",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "dexter-hoi-sinh-2025",
+    "name": "Dexter: Hồi Sinh -",
+    "origin_name": "Dexter: Hồi Sinh -",
+    "poster_url": "https://image.tmdb.org/t/p/original/xUTaKnjLFhUe9IfGLF9H3ImFi8k.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/xUTaKnjLFhUe9IfGLF9H3ImFi8k.jpg",
+    "source": "/quoc-gia/au-my?page=3",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "ly-tri-va-tinh-cam-2026",
+    "name": "Lý Trí Và Tình Cảm",
+    "origin_name": "Lý Trí Và Tình Cảm",
+    "poster_url": "https://image.tmdb.org/t/p/original/czsyPHosFNbh4PPqXfqWu1aBXnA.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/czsyPHosFNbh4PPqXfqWu1aBXnA.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "nguoi-chay-xuyen-khong-gian-phan-2",
+    "name": "Người Chạy Xuyên Không Gian (phần 2)",
+    "origin_name": "Người Chạy Xuyên Không Gian (phần 2)",
+    "poster_url": "https://image.tmdb.org/t/p/original/2uy9Gs6wrBLXhEBmdQsrmSEbFub.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/2uy9Gs6wrBLXhEBmdQsrmSEbFub.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "to-tung-phan-2",
+    "name": "Tố tụng (Phần 2)",
+    "origin_name": "Tố tụng (Phần 2)",
+    "poster_url": "https://img.nguonc.com/images/img-d716f2e63363d7e4c5587b5726da7cb8bd1b23c4d87890f000eb33a604f36954.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-d716f2e63363d7e4c5587b5726da7cb8bd1b23c4d87890f000eb33a604f36954.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "to-tung-phan-5",
+    "name": "Tố tụng (Phần 5)",
+    "origin_name": "Tố tụng (Phần 5)",
+    "poster_url": "https://img.nguonc.com/images/img-b99355129b1ad3736838622739244ac7137cdf62cc9922c7fd213582ad73f98c.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-b99355129b1ad3736838622739244ac7137cdf62cc9922c7fd213582ad73f98c.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "to-tung-phan-7",
+    "name": "Tố tụng (Phần 7)",
+    "origin_name": "Tố tụng (Phần 7)",
+    "poster_url": "https://img.nguonc.com/images/img-e5e77cb543f33df6eaa05a191a245690560170413a90ede490e6067ec3eb2c61.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-e5e77cb543f33df6eaa05a191a245690560170413a90ede490e6067ec3eb2c61.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "to-tung-phan-8",
+    "name": "Tố tụng (Phần 8)",
+    "origin_name": "Tố tụng (Phần 8)",
+    "poster_url": "https://img.nguonc.com/images/img-d82d668d3332901bedc9ef714a16c75124eee986547042fd17b8a2a07fa660e0.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-d82d668d3332901bedc9ef714a16c75124eee986547042fd17b8a2a07fa660e0.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "tho-san-quai-vat-phan-1",
+    "name": "Thợ Săn Quái Vật (Phần 1)",
+    "origin_name": "Thợ Săn Quái Vật (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-e9e4f5fc5cacf13bd3afbefbe385687fde6d7160a8743919778ee8290a2a6604.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-e9e4f5fc5cacf13bd3afbefbe385687fde6d7160a8743919778ee8290a2a6604.jpg",
+    "source": "/quoc-gia/au-my?page=4",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "to-tung-phan-6",
+    "name": "Tố tụng (Phần 6)",
+    "origin_name": "Tố tụng (Phần 6)",
+    "poster_url": "https://img.nguonc.com/images/img-dfecaad21de985dfeff93d792e90db9e048765b9b31234c645fe2f76b0657eab.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-dfecaad21de985dfeff93d792e90db9e048765b9b31234c645fe2f76b0657eab.jpg",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "reacher-phat-sung-cuoi-cung-phan-1",
+    "name": "Reacher: Phát Súng Cuối Cùng (Phần 1)",
+    "origin_name": "Reacher: Phát Súng Cuối Cùng (Phần 1)",
+    "poster_url": "https://image.tmdb.org/t/p/original/f1VCQIG2iCyOookdgOzwtUpwWC0.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/f1VCQIG2iCyOookdgOzwtUpwWC0.jpg",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "dao-hai-tac-live-action-1",
+    "name": "Đảo Hải Tặc (Live Action) 1",
+    "origin_name": "Đảo Hải Tặc (Live Action) 1",
+    "poster_url": "https://image.tmdb.org/t/p/w400/kzuzfuWJ0uzFkrsNuHHaWsk4G7w.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/kzuzfuWJ0uzFkrsNuHHaWsk4G7w.jpg",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "danh-sach-tu-tu-phan-2",
+    "name": "Danh Sách Tử Tù (Phần 2)",
+    "origin_name": "Danh Sách Tử Tù (Phần 2)",
+    "poster_url": "https://image.tmdb.org/t/p/original/yzFec3f0720rWW2Wr3SBC8rl8tl.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/yzFec3f0720rWW2Wr3SBC8rl8tl.jpg",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "phia-dong-vuon-dia-dang-phan-1-2026",
+    "name": "Phía Đông Vườn Địa Đàng (Phần 1)",
+    "origin_name": "Phía Đông Vườn Địa Đàng (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-23f7863c361990e3841e8ddcd928633eda2288bfd20c4634ce2b0a902bb29622.png",
+    "thumb_url": "https://img.nguonc.com/images/img-23f7863c361990e3841e8ddcd928633eda2288bfd20c4634ce2b0a902bb29622.png",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "tho-san-quai-vat-phan-3",
+    "name": "Thợ Săn Quái Vật (Phần 3)",
+    "origin_name": "Thợ Săn Quái Vật (Phần 3)",
+    "poster_url": "https://img.nguonc.com/images/img-55de5b71add3023f089d004402b2c0e2f894af9c5c521fd3d64de79019e3a937.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-55de5b71add3023f089d004402b2c0e2f894af9c5c521fd3d64de79019e3a937.jpg",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "nhung-diep-vien-het-thoi-phan-6",
+    "name": "Những Điệp Viên Hết Thời (Phần 6)",
+    "origin_name": "Những Điệp Viên Hết Thời (Phần 6)",
+    "poster_url": "https://image.tmdb.org/t/p/original/zQQEYr8Ur2HRmHA59rc48ev9Dz.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/zQQEYr8Ur2HRmHA59rc48ev9Dz.jpg",
+    "source": "/quoc-gia/au-my?page=5",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "thi-tran-ac-mong-hoi-chuong-la-phan-1",
+    "name": "Thị Trấn Ác Mộng (Hồi Chuông Lạ)",
+    "origin_name": "Thị Trấn Ác Mộng (Hồi Chuông Lạ)",
+    "poster_url": "https://phimimg.com/upload/vod/20260423-1/2902bf863d80dfc195168a698365663c.jpg",
+    "thumb_url": "https://phimimg.com/upload/vod/20260423-1/2902bf863d80dfc195168a698365663c.jpg",
+    "source": "/quoc-gia/au-my?page=6",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "con-thinh-no-cua-carrie-2026",
+    "name": "Cơn Thịnh Nộ của Carrie",
+    "origin_name": "Cơn Thịnh Nộ của Carrie",
+    "poster_url": "https://image.tmdb.org/t/p/original/hL8oHjZqdT4RvimHEwopIAw1ABc.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/hL8oHjZqdT4RvimHEwopIAw1ABc.jpg",
+    "source": "/quoc-gia/au-my?page=6",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "cyberpunk-edgerunners-phan-2-2026",
+    "name": "Cyberpunk Edgerunners (Phần 2)",
+    "origin_name": "Cyberpunk Edgerunners (Phần 2)",
+    "poster_url": "https://image.tmdb.org/t/p/original/7SyuwA5SfyvPDmhHbFqwskolgYW.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/7SyuwA5SfyvPDmhHbFqwskolgYW.jpg",
+    "source": "/quoc-gia/au-my?page=6",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "hay-den-hon-toi",
+    "name": "Hãy Đến Hôn Tôi",
+    "origin_name": "Hãy Đến Hôn Tôi",
+    "poster_url": "https://image.tmdb.org/t/p/original/aYHameMSOuFajPI7qBsT4Pm39Vi.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/aYHameMSOuFajPI7qBsT4Pm39Vi.jpg",
+    "source": "/quoc-gia/nhat-ban?page=1",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "chuyen-tinh-mua-dau",
+    "name": "Chuyện Tình Mùa Dâu",
+    "origin_name": "Chuyện Tình Mùa Dâu",
+    "poster_url": "https://image.tmdb.org/t/p/original/h5F1ElJ3riLT0QvsUqQWycxbqt1.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/h5F1ElJ3riLT0QvsUqQWycxbqt1.jpg",
+    "source": "/quoc-gia/nhat-ban?page=2",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "duoc-su-tu-su-phan-3-2026",
+    "name": "Dược Sư Tự Sự (Phần 3)",
+    "origin_name": "Dược Sư Tự Sự (Phần 3)",
+    "poster_url": "https://image.tmdb.org/t/p/original/tKZeL5kDZbOo8ao1szJZuZT0kqO.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/tKZeL5kDZbOo8ao1szJZuZT0kqO.jpg",
+    "source": "/quoc-gia/nhat-ban?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "duoc-su-tu-su-phan-3",
+    "name": "Dược Sư Tự Sự (Phần 3)",
+    "origin_name": "Dược Sư Tự Sự (Phần 3)",
+    "poster_url": "https://img.nguonc.com/images/img-6fd4a6445bac51e2c4281f74bd9f7f3be41c4fd61c967a6ca0d89186d722d9b9.png",
+    "thumb_url": "https://img.nguonc.com/images/img-6fd4a6445bac51e2c4281f74bd9f7f3be41c4fd61c967a6ca0d89186d722d9b9.png",
+    "source": "/quoc-gia/nhat-ban?page=4",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "frieren-phap-su-tien-tang-phan-1",
+    "name": "Frieren: Pháp Sư Tiễn Táng",
+    "origin_name": "Frieren: Pháp Sư Tiễn Táng",
+    "poster_url": "https://phimimg.com/upload/vod/20260118-1/f14ad17b956c80a59d16a58268d34059.jpg",
+    "thumb_url": "https://phimimg.com/upload/vod/20260118-1/f14ad17b956c80a59d16a58268d34059.jpg",
+    "source": "/quoc-gia/nhat-ban?page=5",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "bleach-huyet-chien-ngan-nam-kiep-nan",
+    "name": "Bleach: Huyết Chiến Ngàn Năm - Kiếp Nạn",
+    "origin_name": "Bleach: Huyết Chiến Ngàn Năm - Kiếp Nạn",
+    "poster_url": "https://image.tmdb.org/t/p/original/eX1hGZKuS9IOYFx8N7G0pVxsCTH.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/eX1hGZKuS9IOYFx8N7G0pVxsCTH.jpg",
+    "source": "/quoc-gia/nhat-ban?page=6",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "cau-va-to-la-hai-thai-cuc-doi-lap-seihantai-na-kimi-to-boku-phan-2",
+    "name": "Cậu Và Tớ Là Hai Thái Cực Đối Lập (Seihantai na Kimi to Boku) (Phần 2)",
+    "origin_name": "Cậu Và Tớ Là Hai Thái Cực Đối Lập (Seihantai na Kimi to Boku) (Phần 2)",
+    "poster_url": "https://image.tmdb.org/t/p/original/8gTyU1EDgi4llBn8XdvprB9QF6S.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/8gTyU1EDgi4llBn8XdvprB9QF6S.jpg",
+    "source": "/quoc-gia/nhat-ban?page=6",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "luc-do-toi-da-chuyen-sinh-thanh-slime-4",
+    "name": "Lúc Đó Tôi Đã Chuyển Sinh Thành Slime 4",
+    "origin_name": "Lúc Đó Tôi Đã Chuyển Sinh Thành Slime 4",
+    "poster_url": "https://image.tmdb.org/t/p/w400/fuocjqTAeKGUH0rYT625hHrTRHB.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/fuocjqTAeKGUH0rYT625hHrTRHB.jpg",
+    "source": "/quoc-gia/nhat-ban?page=6",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "cau-va-to-la-hai-thai-cuc-doi-lap-seihantai-na-kimi-to-boku-phan-1",
+    "name": "Cậu Và Tớ Là Hai Thái Cực Đối Lập (Seihantai na Kimi to Boku)",
+    "origin_name": "Cậu Và Tớ Là Hai Thái Cực Đối Lập (Seihantai na Kimi to Boku)",
+    "poster_url": "https://phimimg.com/upload/vod/20260706-1/34491fe3f69a1c5b716b73ccbd4a65ab.jpg",
+    "thumb_url": "https://phimimg.com/upload/vod/20260706-1/34491fe3f69a1c5b716b73ccbd4a65ab.jpg",
+    "source": "/quoc-gia/nhat-ban?page=6",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "kien-tao-trai-tim",
+    "name": "Kiến Tạo Trái Tim",
+    "origin_name": "Kiến Tạo Trái Tim",
+    "poster_url": "https://image.tmdb.org/t/p/original/sLyZ2T00inCLvZBQsXUPMt0r0pq.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/sLyZ2T00inCLvZBQsXUPMt0r0pq.jpg",
+    "source": "/quoc-gia/thai-lan?page=1",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "yeu-mot-ke-ngoc-phan-1",
+    "name": "Yêu Một Kẻ Ngốc (Phần 1)",
+    "origin_name": "Yêu Một Kẻ Ngốc (Phần 1)",
+    "poster_url": "https://img.nguonc.com/images/img-6c9d2f763021c98602775f0c91bc80f48f6735074d076adb597601128e62cc30.png",
+    "thumb_url": "https://img.nguonc.com/images/img-6c9d2f763021c98602775f0c91bc80f48f6735074d076adb597601128e62cc30.png",
+    "source": "/quoc-gia/thai-lan?page=1",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "giao-trinh-tinh-yeu-bat-buoc",
+    "name": "Giáo Trình Tình Yêu Bắt Buộc",
+    "origin_name": "Giáo Trình Tình Yêu Bắt Buộc",
+    "poster_url": "https://image.tmdb.org/t/p/original/9X8Fk4x3LUJsfFSOTqZVuoVPkny.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/9X8Fk4x3LUJsfFSOTqZVuoVPkny.jpg",
+    "source": "/quoc-gia/thai-lan?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "phai-song-sot",
+    "name": "Phải Sống Sót",
+    "origin_name": "Phải Sống Sót",
+    "poster_url": "https://img.nguonc.com/images/img-57c1910d495fd16fbdbdde6e9dbe855619f9d71dc87b0695fcdc5ae2fe59806e.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-57c1910d495fd16fbdbdde6e9dbe855619f9d71dc87b0695fcdc5ae2fe59806e.jpg",
+    "source": "/quoc-gia/thai-lan?page=1",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "vo-ve-trai-tim",
+    "name": "Vỗ Về Trái Tim",
+    "origin_name": "Vỗ Về Trái Tim",
+    "poster_url": "https://image.tmdb.org/t/p/original/z448tMyPUCOOtB95wzGJauLxxQk.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/z448tMyPUCOOtB95wzGJauLxxQk.jpg",
+    "source": "/quoc-gia/thai-lan?page=1",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "dich-vu-chia-tay-thue",
+    "name": "Dịch Vụ Chia Tay Thuê",
+    "origin_name": "Dịch Vụ Chia Tay Thuê",
+    "poster_url": "https://image.tmdb.org/t/p/original/lJGVgDmTsmvkWeg7hKfkW15KZPR.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/lJGVgDmTsmvkWeg7hKfkW15KZPR.jpg",
+    "source": "/quoc-gia/thai-lan?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "to-am-tinh-yeu",
+    "name": "Tổ Ấm Tình Yêu",
+    "origin_name": "Tổ Ấm Tình Yêu",
+    "poster_url": "https://image.tmdb.org/t/p/original/cz4LfSnPopIc1uZxTfcFNlrqlz6.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/cz4LfSnPopIc1uZxTfcFNlrqlz6.jpg",
+    "source": "/quoc-gia/thai-lan?page=2",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "lieu-co-the-yeu-khong",
+    "name": "Liệu có thể yêu không?",
+    "origin_name": "Liệu có thể yêu không?",
+    "poster_url": "https://image.tmdb.org/t/p/original/4wCj3cqVJUi2lmNVe05YaPj5ys8.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/4wCj3cqVJUi2lmNVe05YaPj5ys8.jpg",
+    "source": "/quoc-gia/thai-lan?page=2",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "ban-gai-nguoi-may-2",
+    "name": "Bạn Gái Người Máy",
+    "origin_name": "Bạn Gái Người Máy",
+    "poster_url": "https://image.tmdb.org/t/p/w400/JeTjIZhyE5cuqZeHBULmsUu9ni.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/JeTjIZhyE5cuqZeHBULmsUu9ni.jpg",
+    "source": "/quoc-gia/thai-lan?page=2",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "nhan-duyen-tien-dinh-2026",
+    "name": "Nhân Duyên Tiền Định",
+    "origin_name": "Nhân Duyên Tiền Định",
+    "poster_url": "https://phimimg.com/uploads/movies/20260715/nhan-duyen-tien-dinh-poster.webp",
+    "thumb_url": "https://phimimg.com/uploads/movies/20260715/nhan-duyen-tien-dinh-poster.webp",
+    "source": "/quoc-gia/thai-lan?page=3",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "tinh-yeu-bat-ngo",
+    "name": "Tình Yêu Bất Ngờ",
+    "origin_name": "Tình Yêu Bất Ngờ",
+    "poster_url": "https://image.tmdb.org/t/p/w400/pltdLEu60hpvcHKSPunNbTvmnsS.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/pltdLEu60hpvcHKSPunNbTvmnsS.jpg",
+    "source": "/quoc-gia/thai-lan?page=3",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "chermchey",
+    "name": "Chermchey",
+    "origin_name": "Chermchey",
+    "poster_url": "https://image.tmdb.org/t/p/w400/oJDU24sDVRsADG5nJWMGES7hDZ.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/oJDU24sDVRsADG5nJWMGES7hDZ.jpg",
+    "source": "/quoc-gia/thai-lan?page=3",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "ngon-lua-tinh-yeu",
+    "name": "Ngọn Lửa Tình Yêu",
+    "origin_name": "Ngọn Lửa Tình Yêu",
+    "poster_url": "https://image.tmdb.org/t/p/w400/x6V5eC6Xu1XkVnQGl6gigSLYHrV.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/x6V5eC6Xu1XkVnQGl6gigSLYHrV.jpg",
+    "source": "/quoc-gia/thai-lan?page=3",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "a-dog-and-a-plane",
+    "name": "A Dog And A Plane",
+    "origin_name": "A Dog And A Plane",
+    "poster_url": "https://image.tmdb.org/t/p/w400/aqznHK3XnW9mo2BONDkY8SJNLbP.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/aqznHK3XnW9mo2BONDkY8SJNLbP.jpg",
+    "source": "/quoc-gia/thai-lan?page=3",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "nut-that",
+    "name": "Nút Thắt",
+    "origin_name": "Nút Thắt",
+    "poster_url": "https://image.tmdb.org/t/p/w400/8MdbW6O2wF3BwmfgSxlHi1E2xwK.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/8MdbW6O2wF3BwmfgSxlHi1E2xwK.jpg",
+    "source": "/quoc-gia/thai-lan?page=3",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "anh-duong-giua-troi-2",
+    "name": "Ánh Dương Giữa Trời",
+    "origin_name": "Ánh Dương Giữa Trời",
+    "poster_url": "https://image.tmdb.org/t/p/w400/qKvkzMcMyJqwfXJ1Yf8htggdOtE.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/qKvkzMcMyJqwfXJ1Yf8htggdOtE.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "chi-rieng-minh-em-2",
+    "name": "Chỉ Riêng Mình Em",
+    "origin_name": "Chỉ Riêng Mình Em",
+    "poster_url": "https://image.tmdb.org/t/p/w400/uunNzunr9B94vzMysdremYfTLdZ.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/uunNzunr9B94vzMysdremYfTLdZ.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "hoi-chung-kiet-suc",
+    "name": "Hội Chứng Kiệt Sức",
+    "origin_name": "Hội Chứng Kiệt Sức",
+    "poster_url": "https://img.nguonc.com/images/img-187f4de96d137addbea35da1c44590de33761d0121146a8e8ee85cf722736e79.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-187f4de96d137addbea35da1c44590de33761d0121146a8e8ee85cf722736e79.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "pit-babe-phan-2",
+    "name": "Pit Babe (Phần 2)",
+    "origin_name": "Pit Babe (Phần 2)",
+    "poster_url": "https://img.nguonc.com/images/img-3643114c718bd4e31a4ef69f1f9bc321aa1f569793d0a1a2a2bd507982b7ab32.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-3643114c718bd4e31a4ef69f1f9bc321aa1f569793d0a1a2a2bd507982b7ab32.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "pit-babe-the-series",
+    "name": "Pit Babe The Series",
+    "origin_name": "Pit Babe The Series",
+    "poster_url": "https://phimimg.com/upload/vod/20240206-1/8e61edb46efff78c520cd633cba19743.jpg",
+    "thumb_url": "https://phimimg.com/upload/vod/20240206-1/8e61edb46efff78c520cd633cba19743.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "crazy-love-moo-moo",
+    "name": "Crazy Love, Moo-moo",
+    "origin_name": "Crazy Love, Moo-moo",
+    "poster_url": "https://image.tmdb.org/t/p/w400/nhhfvJRIXC5a7d5eOZOhu1vrTWG.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/nhhfvJRIXC5a7d5eOZOhu1vrTWG.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
+  },
+  {
+    "slug": "toi-muon-tro-thanh-sieu-sao",
+    "name": "Tôi Muốn Trở Thành Siêu Sao",
+    "origin_name": "Tôi Muốn Trở Thành Siêu Sao",
+    "poster_url": "https://image.tmdb.org/t/p/w400/xj3MWlE225txzjM1bIzhocd5mba.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/xj3MWlE225txzjM1bIzhocd5mba.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "chan-tinh-sau-cuoi",
+    "name": "Chân Tình Sau Cưới",
+    "origin_name": "Chân Tình Sau Cưới",
+    "poster_url": "https://image.tmdb.org/t/p/w400/641XP3JW6JfQc3vfsmVRHsjcJjk.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/641XP3JW6JfQc3vfsmVRHsjcJjk.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "bao-thu-2",
+    "name": "Báo Thù",
+    "origin_name": "Báo Thù",
+    "poster_url": "https://image.tmdb.org/t/p/w400/jqPLOdL2BmCIM1BSkEF9ezdbMJp.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/jqPLOdL2BmCIM1BSkEF9ezdbMJp.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "ban-gai-nguoi-may-2026",
+    "name": "Bạn Gái Người Máy (2026)",
+    "origin_name": "Bạn Gái Người Máy (2026)",
+    "poster_url": "https://img.nguonc.com/images/img-1c4c382d323377c232a3da75d41209005156db1b046a21444813ac35389f7af1.jpg",
+    "thumb_url": "https://img.nguonc.com/images/img-1c4c382d323377c232a3da75d41209005156db1b046a21444813ac35389f7af1.jpg",
+    "source": "/quoc-gia/thai-lan?page=4",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "tinh-yeu-tron-ven",
+    "name": "Tình Yêu Trọn Vẹn",
+    "origin_name": "Tình Yêu Trọn Vẹn",
+    "poster_url": "https://image.tmdb.org/t/p/w400/mIwwFFUAD8fGDFK5G9BvQKKRo0.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/mIwwFFUAD8fGDFK5G9BvQKKRo0.jpg",
+    "source": "/quoc-gia/thai-lan?page=5",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "vung-an-toan-cua-em-2",
+    "name": "Vùng An Toàn Của Em",
+    "origin_name": "Vùng An Toàn Của Em",
+    "poster_url": "https://image.tmdb.org/t/p/w400/5d0dBLwbBOwcfBMjHOmtcGWwHBt.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/5d0dBLwbBOwcfBMjHOmtcGWwHBt.jpg",
+    "source": "/quoc-gia/thai-lan?page=5",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "cam-o-nha-ho-nhung-cu-roi-sang-nha-minh",
+    "name": "Cam Ở Nhà Họ Nhưng Cứ Rơi Sang Nhà Mình",
+    "origin_name": "Cam Ở Nhà Họ Nhưng Cứ Rơi Sang Nhà Mình",
+    "poster_url": "https://image.tmdb.org/t/p/w400/bW350HHTko17wChdYZwKpmKLU0z.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/bW350HHTko17wChdYZwKpmKLU0z.jpg",
+    "source": "/quoc-gia/thai-lan?page=5",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "your-third",
+    "name": "Your Third",
+    "origin_name": "Your Third",
+    "poster_url": "https://image.tmdb.org/t/p/w400/4kwtjUQ6OrLT2YEiYidhcyJvhEg.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/4kwtjUQ6OrLT2YEiYidhcyJvhEg.jpg",
+    "source": "/quoc-gia/thai-lan?page=5",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "le-tinh-nhan-bang-gia",
+    "name": "Lễ Tình Nhân Băng Giá",
+    "origin_name": "Lễ Tình Nhân Băng Giá",
+    "poster_url": "https://image.tmdb.org/t/p/w400/s5VBfZQK4dCFVeml4FgfYuRAICV.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/s5VBfZQK4dCFVeml4FgfYuRAICV.jpg",
+    "source": "/quoc-gia/thai-lan?page=6",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
+  },
+  {
+    "slug": "tinh-yeu-doc-hai",
+    "name": "Tình Yêu Độc Hại",
+    "origin_name": "Tình Yêu Độc Hại",
+    "poster_url": "https://image.tmdb.org/t/p/w400/vjQlHWBW8VPvECw54EgOb00EjQ7.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/w400/vjQlHWBW8VPvECw54EgOb00EjQ7.jpg",
+    "source": "/quoc-gia/thai-lan?page=6",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
   }
 ]

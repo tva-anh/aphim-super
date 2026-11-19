@@ -2,6 +2,7 @@ require('dotenv').config();
 const dns = require('dns');
 try { dns.setDefaultResultOrder('ipv4first'); } catch (e) {}
 const fs = require('fs');
+const { Transform } = require('stream');
 const express = require('express');
 const compression = require('compression');
 const path = require('path');
@@ -1552,17 +1553,59 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Accept');
 
-        let contentType = upstream.headers['content-type'] || 'video/mp2t';
-        if (targetUrl.includes('.vtt') || targetUrl.includes('sub_') || targetUrl.includes('seg=') || (upstream.headers['content-type'] && upstream.headers['content-type'].includes('text/vtt'))) {
-            contentType = 'text/vtt; charset=utf-8';
-        }
-        res.setHeader('Content-Type', contentType);
+        let isSubtitle = targetUrl.includes('.vtt') || targetUrl.includes('sub_') || targetUrl.includes('seg=') || (upstream.headers['content-type'] && upstream.headers['content-type'].includes('text/vtt'));
+        let contentType = isSubtitle ? 'text/vtt; charset=utf-8' : (upstream.headers['content-type'] || 'video/mp2t');
 
-        ['content-length', 'content-range', 'accept-ranges', 'cache-control'].forEach(h => {
-            if (upstream.headers[h]) res.setHeader(h, upstream.headers[h]);
+        if (isSubtitle) {
+            res.setHeader('Content-Type', contentType);
+            ['content-length', 'content-range', 'accept-ranges', 'cache-control'].forEach(h => {
+                if (upstream.headers[h]) res.setHeader(h, upstream.headers[h]);
+            });
+            return upstream.data.pipe(res);
+        }
+
+        // 🛡️ BỘ LỌC GIẢI MÃ MẶT NẠ 188-BYTE PNG CHO VIDEO TS (OnCDN, ViCDN Anti-Leech)
+        // OnCDN cố tình chèn 188 byte PNG header vào đầu file .ts để gây lỗi fragParsingError.
+        // Transform stream này tự động nhận diện và bóc tách 188 bytes rác, trả về MPEG-TS chuẩn 100%.
+        let headerBuf = Buffer.alloc(0);
+        let inspected = false;
+        let isMaskedTs = false;
+
+        const tsUnmasker = new Transform({
+            transform(chunk, encoding, callback) {
+                if (!inspected) {
+                    headerBuf = Buffer.concat([headerBuf, chunk]);
+                    if (headerBuf.length < 189) {
+                        return callback();
+                    }
+                    inspected = true;
+                    // PNG magic bytes: 0x89, 0x50, 0x4E, 0x47 và byte thứ 188 là 0x47 (MPEG-TS Sync Byte)
+                    if (headerBuf[0] === 0x89 && headerBuf[1] === 0x50 && headerBuf[2] === 0x4E && headerBuf[3] === 0x47 && headerBuf[188] === 0x47) {
+                        isMaskedTs = true;
+                        this.push(headerBuf.subarray(188));
+                    } else {
+                        this.push(headerBuf);
+                    }
+                    headerBuf = null;
+                    return callback();
+                }
+                this.push(chunk);
+                callback();
+            },
+            flush(callback) {
+                if (!inspected && headerBuf && headerBuf.length > 0) {
+                    this.push(headerBuf);
+                }
+                callback();
+            }
         });
 
-        upstream.data.pipe(res);
+        res.setHeader('Content-Type', 'video/mp2t');
+        if (upstream.headers['cache-control']) res.setHeader('Cache-Control', upstream.headers['cache-control']);
+        if (upstream.headers['accept-ranges']) res.setHeader('Accept-Ranges', upstream.headers['accept-ranges']);
+        // Không forward content-length của upstream khi có giải mã để Express phát luồng chunked mượt mà, chống lệch kích thước
+
+        upstream.data.pipe(tsUnmasker).pipe(res);
     } catch (err) {
         console.error('[Proxy Media Error]:', err.message);
         res.status(502).send('Error proxying media chunk');

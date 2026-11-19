@@ -7050,10 +7050,32 @@ function initializePlayer(episode) {
             try { window.hlsInstance.destroy(); } catch (e) { }
         }
         const isMobileDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 850);
+
+        // 🛡️ BỘ TẢI PHÂN ĐOẠN TỰ ĐỘNG BÓC TÁCH MẶT NẠ PNG 188-BYTE (CHỐNG LỖI fragParsingError 100%)
+        class AphimFragLoader extends (Hls.DefaultConfig.loader || class {}) {
+            load(context, config, callbacks) {
+                const origSuccess = callbacks.onSuccess;
+                callbacks.onSuccess = function(response, stats, context, networkDetails) {
+                    if (response && response.data instanceof ArrayBuffer) {
+                        const u8 = new Uint8Array(response.data);
+                        // Kiểm tra PNG magic bytes: 0x89, 0x50, 0x4e, 0x47 và sync byte 0x47 tại offset 188
+                        if (u8.length >= 189 && u8[0] === 0x89 && u8[1] === 0x50 && u8[2] === 0x4e && u8[3] === 0x47 && u8[188] === 0x47) {
+                            response.data = response.data.slice(188);
+                        }
+                    }
+                    if (typeof origSuccess === 'function') {
+                        origSuccess(response, stats, context, networkDetails);
+                    }
+                };
+                super.load(context, config, callbacks);
+            }
+        }
+
         const hls = new Hls({
             debug: false,
             enableWorker: true,
             lowLatencyMode: false,
+            fLoader: AphimFragLoader,
             // ⚡ BỘ ĐỆM THÍCH ỨNG SIÊU MƯỢT (Chống khựng khi mạng lag / 4G yếu)
             backBufferLength: 60, // Giữ 60s dữ liệu quá khứ trong RAM, tua lùi 10s-30s tức thì không cần tải lại
             maxBufferLength: isMobileDevice ? 25 : 40, // Giữ 25-40s buffer phía trước để phát siêu mượt
@@ -7065,7 +7087,7 @@ function initializePlayer(episode) {
             nudgeMaxRetry: 6,
             maxFragLookUpTolerance: 0.25,
             startFragPrefetch: true, // ⚡ Tự động tải trước phân đoạn tiếp theo ngay khi phân đoạn trước đang phát (0ms gap)
-            progressive: true, // ⚡ Giải mã luồng phân đoạn theo dạng progressive streaming mượt mà
+            progressive: false, // ⚡ Tắt progressive demuxing để bảo đảm gói tin trọn vẹn trước khi demux (chống fragParsingError)
             // ⚡ Cơ chế thử lại thông minh khi mạng chập chờn / lag
             fragLoadingTimeOut: 20000,
             fragLoadingMaxRetry: 6,
@@ -7276,7 +7298,14 @@ function initializePlayer(episode) {
                 hls._aphimFragInFlight = false;
             }
             if (data.fatal) {
-                console.error('❌ HLS Fatal Error:', data.type, data.details);
+                // 🛡️ Kiểm soát lỗi phân đoạn: Không spam console liên tục
+                const isFragParseErr = (data.details === 'fragParsingError' || data.details === (Hls.ErrorDetails && Hls.ErrorDetails.FRAG_PARSING_ERROR));
+                if (!isFragParseErr) {
+                    console.error('❌ HLS Fatal Error:', data.type, data.details);
+                } else {
+                    console.warn('⚠️ [HLS Auto-Heal] Gặp phân đoạn mã hóa bất thường, tự động sửa luồng...');
+                }
+
                 switch (data.type) {
                     case Hls.ErrorTypes.NETWORK_ERROR:
                         console.log('🔄 Trying to recover network error...');
@@ -7291,13 +7320,29 @@ function initializePlayer(episode) {
                         break;
                     case Hls.ErrorTypes.MEDIA_ERROR: {
                         const now = Date.now();
-                        if (now - lastRecoveryTime > 4000) {
+                        // 🛡️ Cửa sổ hồi phục 15s (tránh reset liên tục mỗi 4s dẫn đến vòng lặp vô hạn 8 lần)
+                        if (now - lastRecoveryTime > 15000) {
                             mediaRecoveryCount = 0;
                         }
                         lastRecoveryTime = now;
                         mediaRecoveryCount++;
 
                         console.warn(`🔄 [HLS Recovery] MEDIA_ERROR attempt #${mediaRecoveryCount}: ${data.details}`);
+
+                        // ⚡ Xử lý chuyên sâu cho lỗi parse phân đoạn: Nudge thời gian tức thì để vượt qua
+                        if (isFragParseErr) {
+                            if (player && typeof player.currentTime === 'number') {
+                                player.currentTime += 0.8;
+                            }
+                            if (mediaRecoveryCount <= 2) {
+                                hls.recoverMediaError();
+                            } else {
+                                console.warn('⚠️ [HLS] Phân đoạn bị lỗi không thể giải mã -> Tự động chuyển máy chủ dự phòng mượt mà');
+                                hls.destroy();
+                                handleStreamError();
+                            }
+                            break;
+                        }
 
                         if (mediaRecoveryCount === 1) {
                             hls.recoverMediaError();
