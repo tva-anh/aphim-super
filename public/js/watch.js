@@ -1,4 +1,4 @@
-﻿/**
+/**
  * APhim Super — Production Clean Console (Triệt tiêu 100% log rác)
  */
 (function() {
@@ -367,15 +367,29 @@ function attachWorkingStreamsToBilingual(bilingualServer, referenceEpisodes) {
     });
 
     bilingualServer.server_data.forEach((bEp, idx) => {
-        // 🛡️ Nếu link m3u8 là luồng OnCDN / Tophim đã giải mã và proxy thì giữ nguyên 100%, không ghi đè
-        if (bEp.link_m3u8 && (bEp.link_m3u8.includes('oncdn.vip') || bEp.link_m3u8.includes('tophim.vip') || bEp.link_m3u8.includes('vicdn.cc') || bEp.link_m3u8.startsWith('/api/proxy/'))) {
+        const isBrokenChoPhim = bEp.link_m3u8 && (
+            bEp.link_m3u8.includes('chophim') ||
+            bEp.link_m3u8.includes('stringdeptrai') ||
+            bEp.link_m3u8.includes('/api/playback/manifest')
+        );
+        // 🛡️ Nếu link m3u8 là luồng OnCDN / Tophim / ViCDN sạch thì giữ nguyên 100%, không ghi đè
+        if (!isBrokenChoPhim && bEp.link_m3u8 && (bEp.link_m3u8.includes('oncdn.vip') || bEp.link_m3u8.includes('tophim.vip') || bEp.link_m3u8.includes('vicdn.cc'))) {
             return;
         }
+
+        // 🛡️ BẢO VỆ TUYỆT ĐỐI VIDEO GỐC TRẮNG SUB (CHỐNG LỖI ĐÈ SUB DO HARDSUB):
+        // Nếu tập phim đã có nguồn video gốc trắng sub từ SofaFlix / PlayEmbed,
+        // TUYỆT ĐỐI KHÔNG đè luồng m3u8 của server Vietsub (vốn là video đã bị dán chết hardsub tiếng Việt vào hình ảnh)
+        if (bEp.link_embed && (bEp.link_embed.includes('playembed.vip') || bEp.link_embed.includes('sofaflix'))) {
+            bEp.link_m3u8 = '';
+            return;
+        }
+
         const n1 = getEpNum(bEp.slug);
         const n2 = getEpNum(bEp.name);
         const refEp = (n1 !== null && refMap.get(n1)) || (n2 !== null && refMap.get(n2)) || refServer.server_data[idx] || refServer.server_data[0];
         if (refEp) {
-            const isBroken = !bEp.link_m3u8 || bEp.link_m3u8.includes('chophim');
+            const isBroken = !bEp.link_m3u8 || isBrokenChoPhim;
             if (isBroken && refEp.link_m3u8) {
                 bEp.link_m3u8 = refEp.link_m3u8;
             }
@@ -1022,7 +1036,13 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
                 const existingIdx = currentMovie.episodes.findIndex(s => isBilingualServer(s));
                 if (existingIdx !== -1) {
                     const isNewOnCdn = (bilingualData.server.server_data || []).some(ep => ep.link_m3u8 && (ep.link_m3u8.includes('oncdn.vip') || ep.link_m3u8.includes('tophim.vip') || ep.link_m3u8.includes('vicdn.cc') || ep.link_m3u8.startsWith('/api/proxy/')));
-                    if (isNewOnCdn) {
+                    const oldEpCount = (currentMovie.episodes[existingIdx].server_data || []).length;
+                    const newEpCount = (bilingualData.server.server_data || []).length;
+                    const isOldBroken = (currentMovie.episodes[existingIdx].server_data || []).some(ep => ep.link_m3u8 && (ep.link_m3u8.includes('chophim') || ep.link_m3u8.includes('stringdeptrai')));
+                    const hasRichSubs = (bilingualData.server.server_data || []).some(ep => (ep.subtitles || []).length >= 2 || (ep.link_embed || '').includes('playembed.vip'));
+
+                    if (isNewOnCdn || newEpCount > oldEpCount || isOldBroken || hasRichSubs) {
+                        attachWorkingStreamsToBilingual(bilingualData.server, currentMovie.episodes);
                         currentMovie.episodes[existingIdx] = bilingualData.server;
                         added++;
                     } else {
@@ -1077,9 +1097,13 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
                     ? keepIdx
                     : resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
             } else {
-                // 🌟 Chưa chỉ định gì (hoặc mới vào phim): Luôn ưu tiên phát máy chủ Vietsub (API) chất lượng tốt đầu tiên!
+                // 🌟 Chưa chỉ định gì (hoặc mới vào phim):
+                // Nếu URL yêu cầu song-ngu, ưu tiên phát máy chủ Song Ngữ!
+                const songNguIdx = currentMovie.episodes.findIndex(s => getServerTypeTag(s, currentMovie) === 'song-ngu');
                 const firstVietsubIdx = currentMovie.episodes.findIndex(s => getServerTypeTag(s, currentMovie) === 'vietsub' && serverLinkQuality(s) >= 2);
-                if (firstVietsubIdx !== -1 && (!requestedVariant || requestedVariant === 'vietsub' || requestedVariant === 'song-ngu')) {
+                if (songNguIdx !== -1 && requestedVariant === 'song-ngu') {
+                    wantedIndex = songNguIdx;
+                } else if (firstVietsubIdx !== -1 && (!requestedVariant || requestedVariant === 'vietsub')) {
                     wantedIndex = firstVietsubIdx;
                 } else {
                     wantedIndex = resolveServerIndex(currentMovie.episodes, requestedServerParam, requestedVariant, currentMovie, epKey);
@@ -1090,11 +1114,11 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
             const wantedServer = currentMovie.episodes[wantedIndex];
             const wantedEpisode = pickEpisodeForServer(wantedServer, prevEpisode, epKey);
 
-            const variantIntent = Boolean(requestedVariant && requestedVariant !== 'vietsub' && requestedVariant !== 'song-ngu');
+            const variantIntent = Boolean(requestedVariant && requestedVariant !== 'vietsub');
             const intentNotServed = variantIntent && !_userPickedServer && wantedServer !== prevServerObj;
             const streamChanged = Boolean(wantedEpisode) && (wantedServer !== prevServerObj || wantedEpisode !== prevEpisode);
-            // Khi người dùng chưa bấm chọn server (! _userPickedServer), nếu nguồn đang phát chưa phải Vietsub thì phải rebind về Vietsub
-            const mustRebind = streamChanged && (!_playbackStarted || prevQuality <= 1 || intentNotServed || !_userPickedServer);
+            // Khi người dùng chưa bấm chọn server (! _userPickedServer), nếu nguồn đang phát chưa phải Vietsub/Song Ngữ đúng ý định thì rebind
+            const mustRebind = streamChanged && (!_playbackStarted || prevQuality <= 1 || intentNotServed);
 
             let nextIndex = wantedIndex;
             if (!mustRebind && prevServerObj && _userPickedServer) {
@@ -2966,10 +2990,11 @@ function initializePlayer(episode) {
 
     enrichEpisodeLinks(episode);
     let videoUrl = customLink || episode.link_m3u8 || episode.link_embed;
-    const isBlocked = isBlockedEmbedLink(videoUrl) || (!episode.link_m3u8 && isBlockedEmbedLink(episode.link_embed));
+    const isDeadStream = videoUrl && (videoUrl.includes('chophim') || videoUrl.includes('stringdeptrai') || videoUrl.includes('/api/playback/manifest'));
+    const isBlocked = isBlockedEmbedLink(videoUrl) || (!episode.link_m3u8 && isBlockedEmbedLink(episode.link_embed)) || isDeadStream;
 
     if (!videoUrl || isBlocked) {
-        console.warn('⚠️ Tập hiện tại thiếu link phát hoặc embed bị chặn, đang tự động quét các server khác...', episode);
+        console.warn('⚠️ Tập hiện tại thiếu link phát, embed bị chặn hoặc nguồn ChoPhim 404, đang tự động quét các server khác...', episode);
         if (currentMovie && currentMovie.episodes && currentMovie.episodes.length > 0) {
             let altFound = null;
             let altSIdx = -1;
@@ -2992,7 +3017,8 @@ function initializePlayer(episode) {
                 if (altEp) {
                     enrichEpisodeLinks(altEp);
                     const q = getEpisodeQuality(altEp);
-                    if (q > altQuality && q > 1) {
+                    const altIsDead = altEp.link_m3u8 && (altEp.link_m3u8.includes('chophim') || altEp.link_m3u8.includes('stringdeptrai') || altEp.link_m3u8.includes('/api/playback/manifest'));
+                    if (!altIsDead && q > altQuality && q > 1) {
                         altQuality = q;
                         altFound = altEp;
                         altSIdx = sIdx;
@@ -3001,17 +3027,35 @@ function initializePlayer(episode) {
             }
 
             if (altFound && altQuality > 1) {
-                console.log(`✅ Đã tìm thấy luồng phát hợp lệ từ ${currentMovie.episodes[altSIdx].server_name}!`);
-                _isInitializingPlayer = false;
-                currentServerIndex = altSIdx;
-                window.currentServerIndex = altSIdx;
-                window.requestedServerIndex = altSIdx;
-                currentEpisode = altFound;
-                updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);
-                renderServerList(currentMovie.episodes);
-                renderEpisodeList(currentMovie.episodes);
-                initializePlayer(altFound);
-                return;
+                // 🌟 ĐẶC QUYỀN SONG NGỮ: Ưu tiên tuyệt đối VIDEO GỐC TRẮNG SUB (Không đè luồng hardsub Vietsub làm dính sub)
+                const isSn = typeof isCurrentServerSongNgu === 'function' ? isCurrentServerSongNgu() : false;
+                const hasCleanRawEmbed = episode.link_embed && (
+                    episode.link_embed.includes('playembed.vip') ||
+                    episode.link_embed.includes('sofaflix')
+                );
+
+                if (isSn && hasCleanRawEmbed) {
+                    console.log('✨ [Song Ngữ Raw] Sử dụng video gốc trắng sub không dính hardsub:', episode.link_embed);
+                    episode.link_m3u8 = '';
+                    videoUrl = episode.link_embed;
+                } else if (isSn && episode.subtitles && episode.subtitles.length > 0) {
+                    console.log(`✅ [Song Ngữ Auto-Heal] Ghép luồng mượt mà từ ${currentMovie.episodes[altSIdx].server_name} vào máy chủ Song Ngữ!`);
+                    episode.link_m3u8 = altFound.link_m3u8;
+                    if (altFound.link_embed) episode.link_embed = altFound.link_embed;
+                    videoUrl = episode.link_m3u8;
+                } else {
+                    console.log(`✅ Đã tìm thấy luồng phát hợp lệ từ ${currentMovie.episodes[altSIdx].server_name}!`);
+                    _isInitializingPlayer = false;
+                    currentServerIndex = altSIdx;
+                    window.currentServerIndex = altSIdx;
+                    window.requestedServerIndex = altSIdx;
+                    currentEpisode = altFound;
+                    updateWatchUrlState(currentMovie, currentEpisode, currentServerIndex);
+                    renderServerList(currentMovie.episodes);
+                    renderEpisodeList(currentMovie.episodes);
+                    initializePlayer(altFound);
+                    return;
+                }
             }
         }
 
@@ -7878,6 +7922,39 @@ function handleStreamError() {
     if (!currentMovie || !currentMovie.episodes || currentMovie.episodes.length === 0) {
         showError('Không thể phát video từ máy chủ này. Vui lòng thử lại sau.');
         return;
+    }
+
+    // 🌟 ĐẶC QUYỀN BẢO VỆ SONG NGỮ: Tự động chữa lành không để mất trải nghiệm Song Ngữ
+    const isSn = typeof isCurrentServerSongNgu === 'function' ? isCurrentServerSongNgu() : false;
+    if (isSn && currentEpisode) {
+        console.warn('🛡️ [Song Ngữ Self-Healing] Đang tự động tìm nguồn video thay thế để bảo vệ phụ đề Song Ngữ...');
+        // 1. Thử lấy link m3u8 từ các máy chủ Vietsub khác còn sống
+        for (let sIdx = 0; sIdx < currentMovie.episodes.length; sIdx++) {
+            if (sIdx === currentServerIndex) continue;
+            const altServer = currentMovie.episodes[sIdx];
+            if (!altServer || !Array.isArray(altServer.server_data)) continue;
+            const altEp = findMatchingEpisode(altServer, currentEpisode);
+            if (altEp && altEp.link_m3u8 && altEp.link_m3u8 !== currentEpisode.link_m3u8) {
+                console.log(`🛡️ [Song Ngữ Self-Healing] ✅ Đã ghép thành công luồng video mượt mà từ ${altServer.server_name || 'Vietsub'} vào Song Ngữ!`);
+                currentEpisode.link_m3u8 = altEp.link_m3u8;
+                if (window.art && typeof window.art.switchUrl === 'function') {
+                    window.art.switchUrl(currentEpisode.link_m3u8).catch(() => {
+                        initializePlayer(currentEpisode);
+                    });
+                    return;
+                } else {
+                    initializePlayer(currentEpisode);
+                    return;
+                }
+            }
+        }
+
+        // 2. Nếu mọi luồng m3u8 đều chết, chuyển ngay sang link_embed (Iframe SofaFlix / Vip)
+        if (currentEpisode.link_embed && currentEpisode.link_embed.startsWith('http') && !currentEpisode.link_embed.includes('opstream')) {
+            console.log('🛡️ [Song Ngữ Self-Healing] 🔄 Chuyển mượt sang Iframe Embed dự phòng:', currentEpisode.link_embed);
+            loadIframeFallback(currentEpisode.link_embed);
+            return;
+        }
     }
 
     // 🛡️ CHỐNG VÒNG LẶP VÔ TẬN: Lưu vết các server đã thử trong phiên phát

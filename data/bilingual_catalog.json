@@ -17,12 +17,12 @@
   },
   {
     "slug": "bac-si-x-mafia-ao-trang",
-    "name": "Bác Sĩ X",
+    "name": "Bác Sĩ X : Mafia Áo Trắng",
     "origin_name": "Doctor X: Mafia in White",
     "type": "series",
     "thumb_url": "https://oncdn.vip/img/2468c170a26b4280b6b228170435691a.png",
     "poster_url": "/img/e44e96b6bf3148a093719985871e9a78.jpg",
-    "episode_current": "ongoing",
+    "episode_current": "completed",
     "lang": "Song Ngữ",
     "available_languages": [
       "PD",
@@ -32,8 +32,8 @@
     "source": "tophim",
     "is_songngu": true,
     "year": 2026,
-    "quality": "FHD",
-    "updated_at": "2026-11-14T18:19:13.311Z"
+    "quality": "HD",
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "100-ngay-doi-tra",
@@ -118,7 +118,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:13.311Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "tai-phiet-va-canh-sat-phan-2",
@@ -212,8 +212,8 @@
     "source": "tophim",
     "is_songngu": true,
     "year": 2026,
-    "quality": "FHD",
-    "updated_at": "2026-11-14T18:19:37.562Z"
+    "quality": "4K",
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "mi-anh-than-bo",
@@ -248,7 +248,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:37.562Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "khong-the-thay-the-2026",
@@ -474,7 +474,7 @@
     "type": "series",
     "thumb_url": "https://oncdn.vip/img/bb959b46b94741929b899790b282f47b.png",
     "poster_url": "/img/bced3d7cd76847c7aa393e6704f02cf3.jpg",
-    "episode_current": "ongoing",
+    "episode_current": "completed",
     "lang": "Song Ngữ",
     "available_languages": [
       "PD",
@@ -485,7 +485,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-12T17:56:47.253Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "the-odyssey",
@@ -565,7 +565,7 @@
     "is_songngu": true,
     "year": 2001,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:20:26.046Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "ngay-tan-cua-pho-oak",
@@ -769,7 +769,7 @@
   },
   {
     "slug": "dau-tay-ngot-ngao-phan-1",
-    "name": "Dâu Tây Ngọt Ngào",
+    "name": "Tình Yêu Vị Dâu Tây",
     "origin_name": "Merry Berry Love",
     "type": "series",
     "thumb_url": "/img/fd56603e764b4ec88a221911978c7f4d.jpg",
@@ -785,7 +785,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:20:09.990Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "mua-2-bo-cau-den",
@@ -825,7 +825,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:20.673Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "lao-cuu-mon-thanh-son-hai-duong",
@@ -890,11 +890,11 @@
   {
     "slug": "tham-tu-lung-danh-conan",
     "name": "Thám Tử Lừng Danh Conan",
-    "origin_name": "Detective Conan, Case Closed, Meitantei Conan",
+    "origin_name": "Detective Conan",
     "type": "series",
     "thumb_url": "/img/6b188016a73d4ca88594fb53a1a77acc.jpg",
     "poster_url": "/img/90e6ea83b2f54ebe98be15b7a8977c61.jpg",
-    "episode_current": "Tập 1219",
+    "episode_current": "ongoing",
     "lang": "Song Ngữ",
     "available_languages": [
       "PD",
@@ -904,8 +904,8 @@
     "source": "tophim",
     "is_songngu": true,
     "year": 1996,
-    "quality": "HD",
-    "updated_at": "2026-11-14T18:19:37.562Z"
+    "quality": "FHD",
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "mua-ruc-ro-cua-em-mua-em-ruc-ro",
@@ -1045,7 +1045,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:20.673Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "hoan-hon-phan-1",
@@ -1405,7 +1405,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:28.654Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "hope-vung-tu-dia",
@@ -2305,7 +2305,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:20.673Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "khien-em-rung-dong",
@@ -2385,7 +2385,7 @@
     "is_songngu": true,
     "year": 2007,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:44.209Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "vinh-quang-trong-thu-han",
@@ -3065,7 +3065,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:20:23.292Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "pham-nhan-tu-tien-truyen",
@@ -3565,7 +3565,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "4K",
-    "updated_at": "2026-11-14T18:19:28.654Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "frieren-phap-su-tien-tang-phan-2",
@@ -3605,7 +3605,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:13.311Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "avatar-dong-chay-cua-nuoc",
@@ -4345,7 +4345,7 @@
     "is_songngu": true,
     "year": 2025,
     "quality": "4K",
-    "updated_at": "2026-11-14T18:20:23.292Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "cai-chet-cua-robin-hood",
@@ -6385,7 +6385,7 @@
     "is_songngu": true,
     "year": 2017,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:20:09.990Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "nguoi-sat-3",
@@ -7185,7 +7185,7 @@
     "is_songngu": true,
     "year": 2012,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:20:01.752Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "supergirl",
@@ -7385,7 +7385,7 @@
     "is_songngu": true,
     "year": 2023,
     "quality": "4K",
-    "updated_at": "2026-11-14T18:20:09.990Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "gambit-hau",
@@ -7605,7 +7605,7 @@
     "is_songngu": true,
     "year": 2025,
     "quality": "FHD",
-    "updated_at": "2026-11-14T18:20:26.046Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "o-re",
@@ -8125,7 +8125,7 @@
     "is_songngu": true,
     "year": 2022,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:20.673Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "truong-an-nhu-co",
@@ -11045,7 +11045,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "FHD",
-    "updated_at": "2026-11-14T18:11:39.153Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "nguoi-lam-an-lon",
@@ -20274,7 +20274,7 @@
     "type": "series",
     "thumb_url": "https://oncdn.vip/img/b3191af532d44af3bde6bb44a07f5159.png",
     "poster_url": "/img/2d291c649a5d485b8e6617ad3d6ddd83.jpg",
-    "episode_current": "ongoing",
+    "episode_current": "completed",
     "lang": "Song Ngữ",
     "available_languages": [
       "PD",
@@ -20285,7 +20285,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-11T15:22:32.585Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "lanh-dia-tu-chien-phan-2",
@@ -20305,7 +20305,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-12T17:56:47.253Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "gia-dinh-hien-dai-phan-1",
@@ -22508,7 +22508,7 @@
   {
     "slug": "100-ngay-lua-doi-phan-1",
     "name": "100 Ngày Lừa Dối",
-    "origin_name": "100 Days of Deception",
+    "origin_name": "100 Days Of Deception",
     "type": "series",
     "thumb_url": "/img/f18ee744639447bebd138309a8c6f4a7.jpg",
     "poster_url": "/img/d7a41277151a4e71aee1d67eef7f6e68.jpg",
@@ -22522,8 +22522,8 @@
     "source": "tophim",
     "is_songngu": true,
     "year": 2026,
-    "quality": "HD",
-    "updated_at": "2026-11-14T18:19:13.311Z"
+    "quality": "FHD",
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "cuoc-phieu-luu",
@@ -22543,7 +22543,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:20.673Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "vung-dat-quy-du",
@@ -22583,7 +22583,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:13.311Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "tau-buon-nguoi",
@@ -24070,7 +24070,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-11T15:22:31.515Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "chu-han-tri-hoa-y",
@@ -24475,15 +24475,15 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:20:23.292Z"
+    "updated_at": "2026-11-19T10:41:27.944Z"
   },
   {
     "slug": "mua-3-chua-te-nhung-chiec-nhan-nhung-chiec-nhan-quyen-nang",
     "name": "[Mùa 3] Chúa Tể Những Chiếc Nhẫn: Những Chiếc Nhẫn Quyền Năng",
     "origin_name": "The Lord of the Rings: The Rings of Power Season 3",
     "type": "series",
-    "thumb_url": "https://image.tmdb.org/t/p/original/hVRWuAY03KfLjjAbwmy9QhrfAPs.jpg",
-    "poster_url": "https://image.tmdb.org/t/p/w500/57qMrgNoh72wF5sVEDrtMlRk7D.jpg",
+    "thumb_url": "/img/202611165d0da382bba8ce174e3a997f.jpg",
+    "poster_url": "/img/202611165d0d9bf1c84f1b6540db814f.jpg",
     "episode_current": "ongoing",
     "lang": "Song Ngữ",
     "available_languages": [
@@ -24495,7 +24495,7 @@
     "is_songngu": true,
     "year": 2026,
     "quality": "HD",
-    "updated_at": "2026-11-14T18:19:13.311Z"
+    "updated_at": "2026-11-19T10:41:27.409Z"
   },
   {
     "slug": "bat-tien",
@@ -26401,5 +26401,25 @@
       "SN",
       "TM:16"
     ]
+  },
+  {
+    "slug": "hon-ma-trong-nha",
+    "name": "Người Mẹ Khác",
+    "origin_name": "Other Mommy",
+    "type": "single",
+    "thumb_url": "/img/202611165d0d8beddc2e96d54da1900c.jpg",
+    "poster_url": "/img/202611165d0dd84137eb95af4436a09a.jpg",
+    "episode_current": "completed",
+    "lang": "Song Ngữ",
+    "available_languages": [
+      "PD",
+      "SN",
+      "TM"
+    ],
+    "source": "tophim",
+    "is_songngu": true,
+    "year": 2026,
+    "quality": "HD",
+    "updated_at": "2026-11-19T10:41:27.409Z"
   }
 ]

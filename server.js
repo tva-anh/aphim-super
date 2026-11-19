@@ -316,18 +316,35 @@ app.get(['/api/bilingual/slugs', '/api/bilingual-slugs'], (req, res) => {
 app.get(['/api/movies/bilingual/:slug', '/api/bilingual/movie/:slug'], async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     try {
-        const { getBilingualServer, hasCleanBilingualStream } = require('./lib/bilingual.service');
+        const { getBilingualServer, hasCleanBilingualStream, attachWorkingStreamsToBilingual } = require('./lib/bilingual.service');
         const movieType = req.query.type || '';
         const epCount = parseInt(req.query.episodes_count, 10) || 0;
         const songNguServer = await getBilingualServer(req.params.slug, req.query.name || '', req.query.origin_name || '', req.query.year || null, movieType, epCount);
         if (songNguServer && Array.isArray(songNguServer.server_data)) {
-            // 🛡️ Chỉ trả nguồn Song Ngữ sạch (OnCDN/ViCDN), không trả nguồn dính sub hardcode
-            if (!hasCleanBilingualStream(songNguServer)) {
-                return res.json({ status: false, server: null, reason: 'Nguồn Song Ngữ dính hardsub' });
-            }
             const isSingle = movieType === 'single' || movieType === 'movie' || epCount === 1;
             if (isSingle && songNguServer.server_data.length > 1) {
                 return res.json({ status: false, server: null });
+            }
+
+            // 🛡️ Tự động vá luồng phát hoạt động từ KKPhim/OPhim nếu luồng Song Ngữ cũ bị chết (ChoPhim 404) hoặc thiếu m3u8
+            const needsWorkingStream = songNguServer.server_data.some(ep => 
+                !ep.link_m3u8 || 
+                ep.link_m3u8.includes('chophim') || 
+                ep.link_m3u8.includes('stringdeptrai') || 
+                ep.link_m3u8.includes('/api/playback/manifest')
+            );
+            if (needsWorkingStream) {
+                try {
+                    const meta = await fetchMovieMetadata(req.params.slug);
+                    if (meta && Array.isArray(meta.episodes) && meta.episodes.length > 0) {
+                        attachWorkingStreamsToBilingual(songNguServer, meta.episodes, true);
+                    }
+                } catch (_) {}
+            }
+
+            // 🛡️ Chỉ trả nguồn Song Ngữ sạch, không trả nguồn dính sub hardcode
+            if (!hasCleanBilingualStream(songNguServer)) {
+                return res.json({ status: false, server: null, reason: 'Nguồn Song Ngữ dính hardsub' });
             }
         }
         return res.json({
@@ -1612,6 +1629,14 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
     }
 });
 
+// ==========================================
+// 🛡️ VTT SUBTITLE SHIELD (Bảo vệ phụ đề vĩnh viễn, chống chết nguồn, 0ms Local Cache)
+// ==========================================
+const VTT_CACHE_DIR = path.join(__dirname, 'cache/vtt_cache');
+if (!fs.existsSync(VTT_CACHE_DIR)) {
+    try { fs.mkdirSync(VTT_CACHE_DIR, { recursive: true }); } catch (_) {}
+}
+
 app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
     let targetUrl = req.query.url;
     if (!targetUrl) return res.status(400).send('Invalid url');
@@ -1619,57 +1644,101 @@ app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
         targetUrl = 'https://chophim.cc' + (targetUrl.startsWith('/') ? '' : '/') + targetUrl;
     }
 
+    const nodeCrypto = require('crypto');
+    const urlHash = nodeCrypto.createHash('md5').update(targetUrl).digest('hex');
+    const diskCachePath = path.join(VTT_CACHE_DIR, `${urlHash}.vtt`);
+
+    // ⚡ 1. TỨC THÌ 0MS: Đọc ngay từ bộ nhớ đệm ổ cứng nếu đã lưu trước đó (Bất tử dù nguồn gốc có sập)
+    if (fs.existsSync(diskCachePath)) {
+        try {
+            const cachedVtt = fs.readFileSync(diskCachePath, 'utf8');
+            if (cachedVtt && cachedVtt.length > 20) {
+                res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                res.setHeader('X-Subtitle-Shield', 'HIT-LOCAL-DISK');
+                return res.send(cachedVtt);
+            }
+        } catch (_) {}
+    }
+
     const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
+    const isSofaflix = targetUrl.includes('onflixcdn.com') || targetUrl.includes('edgecontent.site');
+
     const reqHeaders = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     };
+
     if (isAntiLeech) {
         reqHeaders['Referer'] = 'https://tophim.vip/';
         reqHeaders['Origin'] = 'https://tophim.vip';
-        try {
-            const response = await axios.get(targetUrl, { timeout: 10000, responseType: 'text', headers: reqHeaders });
-            let data = response.data;
-            if (typeof data === 'string' && data.includes('#EXTM3U')) {
-                const lines = data.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
-                if (lines.length > 0) {
-                    const subSegUrl = new URL(lines[0], targetUrl).href;
-                    const segRes = await axios.get(subSegUrl, { timeout: 10000, responseType: 'text', headers: reqHeaders });
-                    data = segRes.data;
-                }
-            }
-            res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Cache-Control', 'public, max-age=86400');
-            return res.send(data);
-        } catch (err) {
-            console.error('[Proxy VTT oncdn Error]:', err.message);
-        }
+    } else if (isSofaflix) {
+        reqHeaders['Referer'] = 'https://sofaflix.cam/';
+        reqHeaders['Origin'] = 'https://sofaflix.cam';
     }
 
+    // 2. Thử tải từ nguồn chính
+    try {
+        const response = await axios.get(targetUrl, { timeout: 8000, responseType: 'text', headers: reqHeaders });
+        let data = response.data;
+        if (typeof data === 'string' && data.includes('#EXTM3U')) {
+            const lines = data.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+            if (lines.length > 0) {
+                const subSegUrl = new URL(lines[0], targetUrl).href;
+                const segRes = await axios.get(subSegUrl, { timeout: 8000, responseType: 'text', headers: reqHeaders });
+                data = segRes.data;
+            }
+        }
+        if (typeof data === 'string' && data.length > 20) {
+            // Lưu vĩnh viễn vào ổ cứng để lần sau không bao giờ sợ sập nguồn
+            fs.writeFile(diskCachePath, data, 'utf8', () => {});
+            res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            res.setHeader('X-Subtitle-Shield', 'SAVED-TO-DISK');
+            return res.send(data);
+        }
+    } catch (err) {
+        // Nguồn chính lỗi -> tiếp tục fallback mirror
+    }
+
+    // 3. Fallback qua các Mirror ChoPhim nếu là link cũ của ChoPhim
     const mirrors = [
-        targetUrl,
         targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.cc'),
         targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.tv'),
         targetUrl.replace(/^https?:\/\/[^\/]+/, 'https://chophim.ink')
     ];
 
-    let lastError = null;
     for (const urlToFetch of mirrors) {
         try {
             const response = await axios.get(urlToFetch, {
-                timeout: 8000,
+                timeout: 6000,
                 responseType: 'text',
                 headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
             });
-            if (response.data && typeof response.data === 'string' && response.data.length > 5) {
+            if (response.data && typeof response.data === 'string' && response.data.length > 20) {
+                fs.writeFile(diskCachePath, response.data, 'utf8', () => {});
                 res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
                 res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Cache-Control', 'public, max-age=86400');
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
                 return res.send(response.data);
             }
-        } catch (err) { lastError = err; }
+        } catch (_) {}
     }
-        res.status(502).send('Error proxying vtt');
+
+    // 4. Cứu hộ cuối cùng: Nếu có bất kỳ file cache cũ nào còn lưu
+    if (fs.existsSync(diskCachePath)) {
+        try {
+            const cachedVtt = fs.readFileSync(diskCachePath, 'utf8');
+            if (cachedVtt) {
+                res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                return res.send(cachedVtt);
+            }
+        } catch (_) {}
+    }
+
+    res.status(502).send('Error proxying vtt');
 });
 
 // ==========================================
@@ -2682,10 +2751,10 @@ async function fetchMovieMetadata(slug) {
                     if (songNguServer && songNguServer.server_data && songNguServer.server_data.length > 0) {
                         const isMismatched = isSingle && songNguServer.server_data.length > 1;
                         if (!isMismatched) {
-                            // Chỉ fallback stream Vietsub khi server Song Ngữ hoàn toàn thiếu link phát hoặc bị lỗi
-                            const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim'));
+                            // Chỉ fallback stream Vietsub khi server Song Ngữ hoàn toàn thiếu link phát hoặc bị lỗi (ChoPhim 404)
+                            const needsStream = songNguServer.server_data.some(ep => !ep.link_m3u8 || ep.link_m3u8.includes('chophim') || ep.link_m3u8.includes('stringdeptrai') || ep.link_m3u8.includes('/api/playback/manifest'));
                             if (needsStream) {
-                                attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes);
+                                attachWorkingStreamsToBilingual(songNguServer, primaryResult.episodes, true);
                             }
                             const vietsubAndOtherServers = (primaryResult.episodes || []).filter(s => !(s.server_name || '').toLowerCase().includes('song ngữ'));
                             primaryResult.episodes = [
