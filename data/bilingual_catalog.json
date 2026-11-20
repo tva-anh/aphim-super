@@ -26421,5 +26421,65 @@
     "year": 2026,
     "quality": "HD",
     "updated_at": "2026-11-19T10:41:27.409Z"
+  },
+  {
+    "slug": "thi-the-bi-an",
+    "name": "Thi Thể Bí Ẩn",
+    "origin_name": "Thi Thể Bí Ẩn",
+    "poster_url": "https://image.tmdb.org/t/p/original/195kCuy2RqGaEAZDDpGTx7gBUBZ.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/195kCuy2RqGaEAZDDpGTx7gBUBZ.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 24",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:24",
+      "SN",
+      "TM:24"
+    ]
+  },
+  {
+    "slug": "bao-chau",
+    "name": "Bảo Châu",
+    "origin_name": "Bảo Châu",
+    "poster_url": "https://image.tmdb.org/t/p/original/1gLhhin6IukBRGfMmUI3wjHPPpZ.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/1gLhhin6IukBRGfMmUI3wjHPPpZ.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 8",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:8",
+      "SN",
+      "TM:8"
+    ]
+  },
+  {
+    "slug": "off-campus",
+    "name": "Off Campus",
+    "origin_name": "Off Campus",
+    "poster_url": "https://image.tmdb.org/t/p/original/tcPc5ZMBO4y2BtCJMe3o2nwZb2B.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/tcPc5ZMBO4y2BtCJMe3o2nwZb2B.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 10",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:10",
+      "SN",
+      "TM:10"
+    ]
+  },
+  {
+    "slug": "dau-xuan-tuoi-sang-2",
+    "name": "Đầu Xuân Tươi Sáng",
+    "origin_name": "Đầu Xuân Tươi Sáng",
+    "poster_url": "https://image.tmdb.org/t/p/original/uCpDUdogzpqzFKVPtoPLGCLyXbj.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/uCpDUdogzpqzFKVPtoPLGCLyXbj.jpg",
+    "source": "homepage",
+    "episode_current": "Tập 12",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:12",
+      "SN",
+      "TM:12"
+    ]
   }
 ]

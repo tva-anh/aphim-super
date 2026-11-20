@@ -1751,6 +1751,156 @@ app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
 });
 
 // ==========================================
+// 🎬 VIDSRC HLS PROXY (Billions S6/S7 — bypass quảng cáo iframe)
+// 1) /api/vidsrc/master?tmdb=&s=&e=  → resolve token + trả master m3u8 (children trỏ về proxy)
+// 2) /api/vidsrc/hls?url=&token=     → fetch playlist/segment với token, rewrite đệ quy
+// ==========================================
+const VIDSRC_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
+const vidsrcResolveCache = new Map(); // key -> { data, ts }
+const VIDSRC_RESOLVE_TTL = 4 * 60 * 1000;
+
+function vidsrcB64(s) { return Uint8Array.from(Buffer.from(s, 'base64')); }
+
+async function vidsrcDecrypt(encB64, vs) {
+    let wasmBytes;
+    if (vs.wasm_url) {
+        wasmBytes = new Uint8Array(await fetch(vs.wasm_url).then(r => r.arrayBuffer()));
+    } else if (vs.wasm) {
+        wasmBytes = vidsrcB64(vs.wasm);
+    } else {
+        throw new Error('no wasm');
+    }
+    const mod = await WebAssembly.compile(wasmBytes);
+    const inst = await WebAssembly.instantiate(mod, {});
+    const enc = vidsrcB64(encB64);
+    const ptr = inst.exports.alloc(enc.length);
+    new Uint8Array(inst.exports.memory.buffer, ptr, enc.length).set(enc);
+    const outLen = inst.exports.decrypt(ptr, enc.length);
+    return new TextDecoder().decode(new Uint8Array(inst.exports.memory.buffer, ptr + 12, outLen)).split('\n').filter(Boolean);
+}
+
+async function vidsrcResolve(tmdb, season, episode) {
+    const key = `${tmdb}:${season}:${episode}`;
+    const cached = vidsrcResolveCache.get(key);
+    if (cached && Date.now() - cached.ts < VIDSRC_RESOLVE_TTL) return cached.data;
+
+    const VIDS = 'https://vidsrc.sh';
+    const STELLAR = 'https://stellarconductornexus.com';
+
+    // 1) vidsrc.sh → stellar landing
+    const vsrc = await fetch(`${VIDS}/vs_src.php?type=tv&id=${tmdb}&season=${season}&episode=${episode}`, {
+        headers: { 'User-Agent': VIDSRC_UA, 'Referer': `${VIDS}/embed/tv/${tmdb}/${season}/${episode}` }
+    }).then(r => r.json());
+    if (!vsrc || !vsrc.src) throw new Error('vs_src.php no src');
+
+    const landingHtml = await fetch(vsrc.src, { headers: { 'User-Agent': VIDSRC_UA, 'Referer': VIDS + '/' } }).then(r => r.text());
+    const landingCfg = JSON.parse(landingHtml.match(/window\.CFG = (\{[\s\S]*?\});/)[1]);
+    const playerHtml = await fetch(STELLAR + landingCfg.playerUrl, { headers: { 'User-Agent': VIDSRC_UA, 'Referer': STELLAR + '/' } }).then(r => r.text());
+    const cfg = JSON.parse(playerHtml.match(/window\.CONFIG = (\{[\s\S]*?\});/)[1]);
+    if (!cfg.apiToken) throw new Error('no apiToken (captcha gate?)');
+
+    // 2) metadata → pool host
+    const metaJson = await fetch(cfg.streamBase + `&season=${season}&episode=${episode}&api_token=${encodeURIComponent(cfg.apiToken)}`, {
+        headers: { 'User-Agent': VIDSRC_UA, 'Referer': STELLAR + '/' }
+    }).then(r => r.json());
+    const poolHost = (metaJson.data || {}).stream_urls_api_host || 'data.vidsrc.sh';
+
+    // 3) stream_urls + giải mã
+    const apiJson = await fetch(`https://${poolHost}/api.php?type=tv&tmdb=${tmdb}&season=${season}&episode=${episode}&stream_urls&api_token=${encodeURIComponent(cfg.apiToken)}`, {
+        headers: { 'User-Agent': VIDSRC_UA, 'Referer': STELLAR + '/' }
+    }).then(r => r.json());
+    const data = apiJson.data || {};
+    let urls;
+    if (typeof data.stream_urls === 'string') {
+        urls = await vidsrcDecrypt(data.stream_urls, apiJson.vs);
+    } else if (Array.isArray(data.stream_urls)) {
+        urls = data.stream_urls;
+    } else {
+        throw new Error('no stream_urls');
+    }
+    const masterUrl = urls[0];
+    const plU = new URL(masterUrl);
+
+    // 4) /generate.php → token
+    const genRes = await fetch(`${plU.protocol}//${plU.host}/generate.php?api_token=${encodeURIComponent(cfg.apiToken)}`, {
+        headers: { 'User-Agent': VIDSRC_UA, 'Referer': STELLAR + '/' }
+    });
+    const token = (await genRes.text()).trim();
+    if (!token || token.includes('<')) throw new Error('generate.php failed');
+
+    const result = { masterUrl, token };
+    vidsrcResolveCache.set(key, { data: result, ts: Date.now() });
+    return result;
+}
+
+function vidsrcRewritePlaylist(text, baseUrl, token) {
+    return text.split('\n').map(line => {
+        const t = line.trim();
+        if (!t || t.startsWith('#')) return line;
+        let abs;
+        try { abs = new URL(t, baseUrl).href; } catch (e) { return line; }
+        const proxied = `/api/vidsrc/hls?url=${encodeURIComponent(abs)}&token=${encodeURIComponent(token)}`;
+        return proxied;
+    }).join('\n');
+}
+
+app.get('/api/vidsrc/master', async (req, res) => {
+    const tmdb = parseInt(req.query.tmdb, 10);
+    const s = parseInt(req.query.s, 10);
+    const e = parseInt(req.query.e, 10);
+    if (!tmdb || !s || !e) return res.status(400).send('Missing tmdb/s/e');
+    try {
+        const { masterUrl, token } = await vidsrcResolve(tmdb, s, e);
+        const plRes = await fetch(masterUrl + '?token=' + encodeURIComponent(token), {
+            headers: { 'User-Agent': VIDSRC_UA, 'Referer': 'https://stellarconductornexus.com/' }
+        });
+        if (!plRes.ok) return res.status(502).send('vidsrc master fetch failed: ' + plRes.status);
+        const text = await plRes.text();
+        const rewritten = vidsrcRewritePlaylist(text, masterUrl, token);
+        res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.send(rewritten);
+    } catch (err) {
+        console.error('[VidSrcProxy] master error:', err.message);
+        return res.status(502).json({ error: err.message });
+    }
+});
+
+app.get('/api/vidsrc/hls', async (req, res) => {
+    let target = req.query.url;
+    const token = req.query.token;
+    if (!target || !target.startsWith('http')) return res.status(400).send('Invalid url');
+    try {
+        const sep = target.includes('?') ? '&' : '?';
+        const fetchUrl = token ? target + sep + 'token=' + encodeURIComponent(token) : target;
+        const upstream = await fetch(fetchUrl, { headers: { 'User-Agent': VIDSRC_UA, 'Referer': 'https://stellarconductornexus.com/' } });
+        if (!upstream.ok) return res.status(upstream.status).send('vidsrc hls fetch failed: ' + upstream.status);
+
+        const buf = Buffer.from(await upstream.arrayBuffer());
+        const head = buf.slice(0, 40).toString('utf8');
+
+        // Playlist (kể cả khi disguised text/plain hoặc text/html)
+        if (head.trimStart().startsWith('#EXTM3U')) {
+            const rewritten = vidsrcRewritePlaylist(buf.toString('utf8'), target, token || '');
+            res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cache-Control', 'no-store');
+            return res.send(rewritten);
+        }
+
+        // Segment nhị phân (ts/mp4 disguised .html) → trả nguyên bytes
+        res.setHeader('Content-Type', 'video/mp2t');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        return res.send(buf);
+    } catch (err) {
+        console.error('[VidSrcProxy] hls error:', err.message);
+        if (!res.headersSent) res.status(502).json({ error: err.message });
+    }
+});
+
+// ==========================================
 // 🎬 NATIVE DUAL SUBTITLES API (Hỗ trợ Apple AVPlayer & Mobile Fullscreen 100%)
 // ==========================================
 app.get('/api/bilingual/merged-vtt', async (req, res) => {

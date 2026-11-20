@@ -24638,382 +24638,582 @@
   ],
   "nap-day-trai-tim": [
     {
-      "name": "01",
+      "name": "1",
       "slug": "tap-1",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.j9yykcsNXcSc1x4j.Df9RfhdPenQbLt-reHDRGB16x0koDRETDPwx037oiALEwVj_jqgU8aqAl-xa.h4RbpnlkemQEzsTUB60n5w",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x105/l4n4z334y2a4y2w2s2q274o2x2.html",
+      "link_embed": "https://playembed.vip/player/f82cd05b9c630b06cfc4184bb1636913/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-1-1791541608089-c01fd869-tap_01_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/f4f280be-8618-4208-9d6b-8870c8cfdeb0.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-1-1791541607791-9d814bef-tap_01_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/71c5169c-a2c2-4b2b-bac6-8ddb0551e348.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-1-1791541606604-7484f6b9-tap_01_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/2c6050d8-2878-476b-8ac0-88a4bd24c768.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-1-1791541606229-4bea5b6a-tap_01_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/fbcd0bf8-5c11-43a8-a355-c276fa52ff82.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-1-1791541607443-fc4ba267-tap_01_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/0384e0b8-1472-4976-8c57-58f468a58d94.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-1-1791541607054-ea1f14c1-tap_01_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/954a6a3a-5e35-4483-8970-3705de9b781f.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/96e472b7-002c-479d-b550-8c92e6bcc456.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/fe067c35-d3bb-4870-a4ab-60d050123f8e.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/cfebc208-2911-4b83-8580-0007c330977d.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/90969891-1f89-42ee-b3c8-292d50a774a0.vtt"
         }
       ]
     },
     {
-      "name": "02",
+      "name": "2",
       "slug": "tap-2",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.0RBetPG_wvpICQ35.XPRIlFDdc_wFMJZlQvJs_z3_F1B1FjHyR92uAzrqRpNOIeGy5ojLh_oCBuP1.JVTusMWi8d6m3H5lHwyXkg",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x106/l4n4z334y2a4y2w2s2q274o2y2.html",
+      "link_embed": "https://playembed.vip/player/bd88d91fb8630b5edb44253454124b13/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-2-1791541605940-747d8e5b-tap_02_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/6f3ea36e-e448-4666-b52a-d480ed4f3999.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-2-1791541605537-d75b934c-tap_02_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/52d91095-5753-4b61-8dfb-7eedcd6b9ed1.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-2-1791541604516-02fac064-tap_02_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/0764ce4b-9e75-4a6f-9bdf-8eb25620b7bb.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-2-1791541604133-e3dee0eb-tap_02_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/342bed6f-e2a5-44d2-a710-fb4f7fa4948b.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-2-1791541605218-3c4a49a9-tap_02_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/922fcbc7-7503-4aeb-a9e4-3d24430f44c6.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-2-1791541604769-220e2413-tap_02_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/9e983e90-39b2-4f5b-82e2-9f096572630b.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/8a712aa3-4a0e-4bd3-bdef-a68b348d2459.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/ae06c50d-95f0-4b87-b54d-4a7ae4618b24.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/cc6b9ca6-114f-4129-991c-80ece7221bba.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/7acde8c3-dd70-4244-a88c-a5c45308e5b9.vtt"
         }
       ]
     },
     {
-      "name": "03",
+      "name": "3",
       "slug": "tap-3",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.3DPTk1pIV6ISnR-V.QztwgPKh7-8vgezhhCAjE49Vs1aLSqemy2Zon0Wc-Nm41Jt4KKL5Yk13YF15.h-KrYHCEiZZ5ONiHmUCCqw",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x103/l4n4z334y2a4y2w2s2q274o2z2.html",
+      "link_embed": "https://playembed.vip/player/d448cce75df90e16f75ffedbebc77913/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-3-1791541603742-18630352-tap_03_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/b9bb9b0a-4abd-4fac-bd5d-53f62ecd4b37.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-3-1791541603060-f266785a-tap_03_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/ece27015-55a7-4b1a-bff9-5c70cd2b1452.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-3-1791541601950-5240d088-tap_03_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/7904f52b-50c6-49e6-9c1c-36c29dac432e.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-3-1791541601412-efd749a8-tap_03_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/46ca5466-2811-419d-ba07-c0a57e040a00.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-3-1791541602402-d05892f1-tap_03_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/972a2cbb-118e-45d6-9ef1-b2f3331ae258.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-3-1791541602448-1183721c-tap_03_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/ee2da682-5804-4229-85f6-3fcede7674e5.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/e30f731b-5899-4001-b9d9-d61c43e4a695.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/1ad09882-35cc-4d61-b018-5e76a0dc763e.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/5fbe5a35-e852-4ce6-82d4-aee75cf4097a.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/4c68f86c-84d7-4521-a6fb-96744f7d5f18.vtt"
         }
       ]
     },
     {
-      "name": "04",
+      "name": "4",
       "slug": "tap-4",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.tDpVTk6wCwPRv4gB.f54qnUIwRhRO0_OT8zDa8HuFZe8NRSnowhWqk6e094024aiUOENHeNKql_GD.ddCPLVfAqLAO8dl2V4iKjg",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x104/l4n4z334y2a4y2w2s2q274o203.html",
+      "link_embed": "https://playembed.vip/player/81f8bc78836f0ae7da5115e490313913/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-4-1791542144726-f858ab9d-tap_04_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/8c81322a-efc9-472f-9cf1-e01d5c251fb1.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-4-1791542144516-cbfafef2-tap_04_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/aefba310-c9d7-405e-b6b1-e46b75c6cf7f.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-4-1791542143752-9eaf6101-tap_04_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/b9ba8cd4-a279-4bad-989e-7fd1aac16dee.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-4-1791542143704-ffc8b01f-tap_04_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/99b46ca1-55f8-4955-9313-5e19b76d81e4.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-4-1791542144035-71ad1fe8-tap_04_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/1756c9b8-fb0e-485b-967e-b8c76e401bc4.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-4-1791542144066-67f313be-tap_04_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/84f7ae28-86c9-4588-b2cd-5c2180258ab1.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/1c55c75c-42c7-41f6-a15d-41e37308e53f.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/0a958a90-3b33-4e65-bd02-e4f1e4f34d4d.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/c2a5eed3-70ec-4e0c-948a-8436d2f2964b.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/3cd00801-78ef-43a0-8d32-dc7a3e73c9c5.vtt"
         }
       ]
     },
     {
-      "name": "05",
+      "name": "5",
       "slug": "tap-5",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.pdXl05rTDarsPjlP.KCoW4s6Py4Pv23PJ-wYhbLVjAWtqO13OuUOGvTXZWAQz4B0Y_kBdj_Zc-98A.2H7-RidzyH1kT36RQXgZMQ",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x109/l4n4z334y2a4y2w2s2q274o213.html",
+      "link_embed": "https://playembed.vip/player/da0d035543770745d94db44454900113/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-5-1791542145985-5c00b612-tap_05_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/b3c883e0-d1b6-44c3-ab63-b322489b570e.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-5-1791542145789-ff4752e1-tap_05_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/30d40ee5-ca4c-4eb5-88e0-831f80677c74.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-5-1791542145200-35688552-tap_05_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/3b7cd531-ef72-4264-9206-4555b468c867.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-5-1791542144974-dac337cb-tap_05_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/c3599ef5-7a6b-4b4d-9313-e43fd2b0d53b.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-5-1791542145552-a15aa192-tap_05_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/20b0ae90-cc20-4205-8c62-4be7ea4c54f1.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-5-1791542145324-977314d2-tap_05_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/fed2653e-2e73-4818-a9a9-090249a114f8.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/fede8e50-5414-49ad-aef9-c31793653089.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/c8807300-c233-4d18-841e-fdea94d44c62.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/f6767722-0eea-452c-af64-903e5aaf7c07.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/abbe7c5b-6416-4514-947a-d12a847db69c.vtt"
         }
       ]
     },
     {
-      "name": "06",
+      "name": "6",
       "slug": "tap-6",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.RVrMCDfujIt9NqOP.K-x_CXlT3yfTa-tv7Q2TGBGOV-k36Z3PdaoP7ReH02mvjtHouiMXZuI_D3bc.6wUZU3oY1nvYYWkRwfjvow",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x109/l4n4z334y2a4y2w2s2q274o223.html",
+      "link_embed": "https://playembed.vip/player/1274ec17d8c70a55eaa19260609d5d13/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-6-1791542147161-72fb5fcc-tap_06_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/926af051-bd6d-4cc6-9cf7-4c9c90e6c1ea.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-6-1791542146963-44b8c85e-tap_06_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/67ec93e1-ddb6-488c-a447-d5f703d8c771.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-6-1791542146279-e54b98bf-tap_06_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/6fc4a50a-494b-4f64-87b8-00aadce9fa26.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-6-1791542146013-3c403f91-tap_06_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/70736006-89ca-4e40-9c68-ae9bfde0deae.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-6-1791542146608-2f0bc810-tap_06_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/fde61954-a745-4433-8d20-6aa0978bb9c8.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-6-1791542146542-965484b2-tap_06_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/eb320954-f3bb-46ac-a3c3-166e8503b12c.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/e7f64c18-83cd-4956-9323-cca82af7b5de.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/3184066e-b77e-4d06-9cbc-8a5ef5a399d1.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/0df0c5ab-d1e0-4e94-b2b2-658467aafb12.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/d6af98af-30a5-433d-a258-ba101d6fda99.vtt"
         }
       ]
     },
     {
-      "name": "07",
+      "name": "7",
       "slug": "tap-7",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.kLFgQ_jVV07Stzn2.XyW35KERHK0M6YRKJkGozlEXdPHy9ZpZbhf_mx1xCfBWNEiutXm8MFuvoLQK.AmlPfhVSDtrkR_-SllCtrg",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x102/l4n4z334y2a4y2w2s2q274o233.html",
+      "link_embed": "https://playembed.vip/player/fc84d4764711026cf48101e9eb928e13/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-7-1791542386953-a524adf8-tap_07_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/f29b0f5e-20b3-4781-9e0f-a8ab222182c8.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-7-1791542386759-129c5b3e-tap_07_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/41fe4355-2aec-4365-9397-1e507e4263f9.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-7-1791542385912-fd552b72-tap_07_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/c31d7511-2d6d-439f-b46e-262020a955e0.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-7-1791542385733-706a4022-tap_07_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/6420eefa-4fb6-4a77-a4f8-1dbd40946a5a.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-7-1791542385971-d34fcc8a-tap_07_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/e9090f7b-ce25-49fd-bec1-045b7a358811.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-7-1791542386148-16fe0d1e-tap_07_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/24bc9e78-dd94-4f96-8b38-d93b0d0b130e.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/a4170b62-b3e2-4787-8688-eaaaec5488a5.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/162264d6-ee76-4a8c-b459-645d14f16bd0.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/de27591f-3785-4e0e-9e5f-607d47ac56ea.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/2c2353d8-46e2-47e0-983d-1def6dc26893.vtt"
         }
       ]
     },
     {
-      "name": "08",
+      "name": "8",
       "slug": "tap-8",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai._QRteU-MgDsZSthp.tCv1GSpqeY2yFnxzuoySe4a7GI9fx6vweJf4BEwL6NY2msNZ9Q8naUbZHCM3.91fE3r23OaB0gdS1R8286g",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x102/l4n4z334y2a4y2w2s2q274o243.html",
+      "link_embed": "https://playembed.vip/player/fae09dc24b5c0e01c097c9f6496f9e13/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-8-1791542388296-4c5b8392-tap_08_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/dfae7127-a9a3-4faf-b1b8-399642c6ccee.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-8-1791542388113-da72d9a8-tap_08_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/f47f5680-324f-4d6b-aebc-83d281035bab.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-8-1791542387452-a7b31bea-tap_08_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/472e9c1d-13a9-4f56-a8d2-7352fe6f0ad3.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-8-1791542387191-74486574-tap_08_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/05b2f94f-5336-4433-8b43-4c1f53ae21bc.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-8-1791542387823-4352320d-tap_08_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/2d4a0ab7-83a0-47e9-bbfd-9b65e5d915ed.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-8-1791542387576-1e4b2d97-tap_08_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/4d5ad6d0-c5d6-40ec-bbd4-d182ed6486c2.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/2d516e85-6507-4aea-a563-b3daa6eb0313.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/508faeee-6401-4154-9024-b8af81efc0cb.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/943dee7e-3abd-499a-a0a4-fc50c9386264.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/e4384a4a-6025-42dd-b3fa-674e2eb4384b.vtt"
         }
       ]
     },
     {
-      "name": "09",
+      "name": "9",
       "slug": "tap-9",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.fSSwGm1LP-2tgYSl.MLxHe-IGjHtVixFqVjiAi_SR1xAGgX06sgxaBq38yoVxVzLUjOFvoHx_W3gK.dWomENwf_ygN-oMcLV4O_Q",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x101/l4n4z334y2a4y2w2s2q274o253.html",
+      "link_embed": "https://playembed.vip/player/e96fb6a8c5d60000f654021d39c83e13/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-9-1791542389282-505a6283-tap_09_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/042facff-ad21-4371-8e90-8a29cc88b591.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-9-1791542389113-5aa8fd54-tap_09_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/cbf8938e-5bfb-4fbc-8c05-e85ad108555d.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-9-1791542388625-a21b44a7-tap_09_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/0e408854-5e79-411b-b214-8e53034fcf8b.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-9-1791542388390-7b6e8faf-tap_09_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/b2b2e852-b45f-47cc-a2cd-72400bfc7c83.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-9-1791542388968-36c18365-tap_09_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/1145c52a-2222-495f-99db-a41c1ec75082.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-9-1791542388752-f343ed99-tap_09_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/e0309d06-0ba9-409d-9f84-e2e5eb951da4.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/839076cc-250d-4f63-947d-3011745fada5.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/33ada625-5dc5-4aac-b1cf-bc1e14121928.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/ef7585be-89bd-4f2f-b297-0f2f91fa7e0b.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/e2b39212-d4d2-45f5-8f95-f5a7f371d2c9.vtt"
         }
       ]
     },
     {
       "name": "10",
       "slug": "tap-10",
-      "link_m3u8": "https://chophim.ink/api/playback/manifest/p2.stringdeptrai.WxX5ks_5qdpfwkFE.WfiA2zXJA46Olc6eFOJlkW8ZrVP1ziEaiq6f8qTqF0BdCxLRKG6S369Ujr2v.iEhqXNJ16PBrrFfkgEmTEQ",
-      "link_embed": "",
+      "link_m3u8": "https://vicdn.cc/hls/x103/l4n4z334y2a4y2w2s2q274o2x264.html",
+      "link_embed": "https://playembed.vip/player/f055151e31db0ce2c45ffdc50ee75c13/sub",
       "subtitles": [
         {
-          "label": "Tiếng Việt",
-          "language": "vi",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-10-1791542390342-35882880-tap_10_vietnamese.vtt"
+          "label": "Tiếng Việt (Vietnamese)",
+          "language": "tieng-viet",
+          "url": "https://m-center.onflixcdn.com/content/09102026/bf5c670b-fd5c-44d6-9fd9-5ee4726049f7.vtt"
         },
         {
-          "label": "Tiếng Hàn",
-          "language": "ko",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-10-1791542390244-d06eb947-tap_10_korean.vtt"
+          "label": "Tiếng Thái (Thailand)",
+          "language": "tieng-thai",
+          "url": "https://m-center.onflixcdn.com/content/09102026/1c47f184-f0d0-4a54-9f1e-cbcc669772c8.vtt"
         },
         {
-          "label": "Tiếng Anh",
-          "language": "en",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-10-1791542389645-cab02792-tap_10_english.vtt"
+          "label": "Tiếng Hàn (Korean)",
+          "language": "tieng-han",
+          "url": "https://m-center.onflixcdn.com/content/09102026/9aab005c-4e58-4f81-86da-e878ce6a6f2c.vtt"
         },
         {
-          "label": "Tiếng Trung",
-          "language": "zh",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-10-1791542389491-762baa32-tap_10_chinese_simplified.vtt"
+          "label": "Tiếng Nhật (Japanese)",
+          "language": "tieng-nhat",
+          "url": "https://m-center.onflixcdn.com/content/09102026/ba139087-d6f9-4ae2-93f9-8f61af8c8e48.vtt"
         },
         {
-          "label": "Tiếng Nhật",
-          "language": "ja",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-10-1791542389990-61d15b5a-tap_10_japanese.vtt"
+          "label": "Tiếng Anh (English)",
+          "language": "tieng-anh",
+          "url": "https://m-center.onflixcdn.com/content/09102026/625c2cdc-d3a8-4d33-a22b-56e0a6ddc346.vtt"
         },
         {
-          "label": "Tiếng Pháp",
-          "language": "fr",
-          "url": "https://chophim.ink/api/storage/subtitles?file=nap-day-trai-tim-tap-10-1791542389931-fb8eec69-tap_10_french.vtt"
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/a26f240e-5374-4b22-9308-c7f40f0ae497.vtt"
+        },
+        {
+          "label": "Tiếng Đức (German)",
+          "language": "tieng-duc",
+          "url": "https://m-center.onflixcdn.com/content/09102026/48c417db-d325-4e9c-9149-543196e92a65.vtt"
+        },
+        {
+          "label": "Tiếng Pháp ( French )",
+          "language": "tieng-phap",
+          "url": "https://m-center.onflixcdn.com/content/09102026/4a808a6d-2684-4533-b64c-03f5b6407a4f.vtt"
+        },
+        {
+          "label": "Tiếng Trung Giản Thể",
+          "language": "tieng-trung-gian-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/56bcbf59-ce56-495b-b83e-4b9f3fdbfcb7.vtt"
+        },
+        {
+          "label": "Tiếng Trung Phồn Thể",
+          "language": "tieng-trung-phon-the",
+          "url": "https://m-center.onflixcdn.com/content/09102026/ea8538d3-736e-4ae0-9144-95e750d386fe.vtt"
         }
       ]
     }

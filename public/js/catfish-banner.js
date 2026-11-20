@@ -35,7 +35,7 @@
             },
             {
                 img: '/ads/catfish/728x90-AFF-Cup.gif',
-                url: 'https://vsbet9k8.com/p/BSYk',
+                url: 'http://178.128.49.112/vsthethao.html',
                 label: 'VSBet — Nạp Đầu Nhận 68,888,000đ'
             },
             {

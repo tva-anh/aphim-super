@@ -29,5 +29,231 @@
     ],
     "created_at": 1793121766541,
     "updated_at": 1793122676965
+  },
+  "cuoc-choi-bac-ty-phan-6": {
+    "slug": "cuoc-choi-bac-ty-phan-6",
+    "name": "Cuộc chơi bạc tỷ (Phần 6)",
+    "origin_name": "Billions (Season 6)",
+    "year": 2023,
+    "quality": "Full HD",
+    "lang": "Vietsub",
+    "thumb_url": "https://image.tmdb.org/t/p/w1280/51Hw58fMwJQKYJ6XYJIRQBP9EPA.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/w500/edwYPQdZE998d748AdwWLsfy0rl.jpg",
+    "content": "Viên công tố năng nổ Chuck Rhoades tiến hành cuộc điều tra mang tính triệt phá về tỉ phú Bobby Axelrod, một quản lí quỹ phòng hộ luôn muốn thắng bằng mọi giá.",
+    "category": [
+      "Chính kịch",
+      "Tâm Lý",
+      "Tội Phạm"
+    ],
+    "country": [
+      "Mỹ"
+    ],
+    "type": "series",
+    "episodes": [
+      {
+        "server_name": "Vietsub (vidsrc.sh)",
+        "server_data": [
+          {
+            "name": "Tập 1",
+            "slug": "tap-1",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=1",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/1",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 2",
+            "slug": "tap-2",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=2",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/2",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 3",
+            "slug": "tap-3",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=3",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/3",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 4",
+            "slug": "tap-4",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=4",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/4",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 5",
+            "slug": "tap-5",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=5",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/5",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 6",
+            "slug": "tap-6",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=6",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/6",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 7",
+            "slug": "tap-7",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=7",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/7",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 8",
+            "slug": "tap-8",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=8",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/8",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 9",
+            "slug": "tap-9",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=9",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/9",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 10",
+            "slug": "tap-10",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=10",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/10",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 11",
+            "slug": "tap-11",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=11",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/11",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 12",
+            "slug": "tap-12",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=12",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/6/12",
+            "no_mask": true
+          }
+        ]
+      }
+    ],
+    "created_at": 1795106234651,
+    "updated_at": 1795107320042
+  },
+  "cuoc-choi-bac-ty-phan-7": {
+    "slug": "cuoc-choi-bac-ty-phan-7",
+    "name": "Cuộc chơi bạc tỷ (Phần 7)",
+    "origin_name": "Billions (Season 7)",
+    "year": 2023,
+    "quality": "Full HD",
+    "lang": "Vietsub",
+    "thumb_url": "https://image.tmdb.org/t/p/w1280/51Hw58fMwJQKYJ6XYJIRQBP9EPA.jpg",
+    "poster_url": "https://image.tmdb.org/t/p/w500/edwYPQdZE998d748AdwWLsfy0rl.jpg",
+    "content": "Viên công tố năng nổ Chuck Rhoades tiến hành cuộc điều tra mang tính triệt phá về tỉ phú Bobby Axelrod, một quản lí quỹ phòng hộ luôn muốn thắng bằng mọi giá.",
+    "category": [
+      "Chính kịch",
+      "Tâm Lý",
+      "Tội Phạm"
+    ],
+    "country": [
+      "Mỹ"
+    ],
+    "type": "series",
+    "episodes": [
+      {
+        "server_name": "Vietsub (vidsrc.sh)",
+        "server_data": [
+          {
+            "name": "Tập 1",
+            "slug": "tap-1",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=1",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/1",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 2",
+            "slug": "tap-2",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=2",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/2",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 3",
+            "slug": "tap-3",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=3",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/3",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 4",
+            "slug": "tap-4",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=4",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/4",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 5",
+            "slug": "tap-5",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=5",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/5",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 6",
+            "slug": "tap-6",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=6",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/6",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 7",
+            "slug": "tap-7",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=7",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/7",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 8",
+            "slug": "tap-8",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=8",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/8",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 9",
+            "slug": "tap-9",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=9",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/9",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 10",
+            "slug": "tap-10",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=10",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/10",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 11",
+            "slug": "tap-11",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=11",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/11",
+            "no_mask": true
+          },
+          {
+            "name": "Tập 12",
+            "slug": "tap-12",
+            "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=12",
+            "link_embed": "https://vidsrc.sh/embed/tv/62852/7/12",
+            "no_mask": true
+          }
+        ]
+      }
+    ],
+    "created_at": 1795106234660,
+    "updated_at": 1795107348885
   }
 }
