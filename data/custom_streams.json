@@ -58,84 +58,252 @@
             "slug": "tap-1",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=1",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/1",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-1.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-1.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-1-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-1-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 2",
             "slug": "tap-2",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=2",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/2",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-2.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-2.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-2-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-2-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 3",
             "slug": "tap-3",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=3",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/3",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-3.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-3.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-3-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-3-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 4",
             "slug": "tap-4",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=4",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/4",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-4.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-4.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-4-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-4-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 5",
             "slug": "tap-5",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=5",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/5",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-5.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-5.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-5-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-5-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 6",
             "slug": "tap-6",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=6",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/6",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-6.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-6.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-6-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-6-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 7",
             "slug": "tap-7",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=7",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/7",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-7.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-7.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-7-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-7-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 8",
             "slug": "tap-8",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=8",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/8",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-8.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-8.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-8-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-8-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 9",
             "slug": "tap-9",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=9",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/9",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-9.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-9.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-9-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-9-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 10",
             "slug": "tap-10",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=10",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/10",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-10.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-10.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-10-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-10-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 11",
             "slug": "tap-11",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=11",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/11",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-11.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-11.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-11-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-11-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 12",
             "slug": "tap-12",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=6&e=12",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/6/12",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-12.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-12.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-12-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-6/tap-12-en.vtt"
+              }
+            ]
           }
         ]
       }
@@ -171,84 +339,252 @@
             "slug": "tap-1",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=1",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/1",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-1.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-1.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-1-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-1-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 2",
             "slug": "tap-2",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=2",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/2",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-2.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-2.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-2-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-2-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 3",
             "slug": "tap-3",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=3",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/3",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-3.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-3.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-3-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-3-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 4",
             "slug": "tap-4",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=4",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/4",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-4.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-4.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-4-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-4-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 5",
             "slug": "tap-5",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=5",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/5",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-5.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-5.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-5-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-5-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 6",
             "slug": "tap-6",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=6",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/6",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-6.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-6.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-6-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-6-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 7",
             "slug": "tap-7",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=7",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/7",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-7.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-7.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-7-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-7-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 8",
             "slug": "tap-8",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=8",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/8",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-8.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-8.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-8-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-8-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 9",
             "slug": "tap-9",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=9",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/9",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-9.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-9.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-9-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-9-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 10",
             "slug": "tap-10",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=10",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/10",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-10.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-10.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-10-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-10-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 11",
             "slug": "tap-11",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=11",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/11",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-11.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-11.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-11-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-11-en.vtt"
+              }
+            ]
           },
           {
             "name": "Tập 12",
             "slug": "tap-12",
             "link_m3u8": "/api/vidsrc/master?tmdb=62852&s=7&e=12",
             "link_embed": "https://vidsrc.sh/embed/tv/62852/7/12",
-            "no_mask": true
+            "no_mask": true,
+            "subtitles": [
+              {
+                "label": "Tiếng Việt",
+                "language": "vi",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-12.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-12.vtt"
+              },
+              {
+                "label": "Tiếng Anh",
+                "language": "en",
+                "url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-12-en.vtt",
+                "direct_url": "https://pub-ab37deb7159143cba56caba0d6c322d3.r2.dev/subtitles/cuoc-choi-bac-ty-phan-7/tap-12-en.vtt"
+              }
+            ]
           }
         ]
       }

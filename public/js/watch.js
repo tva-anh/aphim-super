@@ -5374,7 +5374,7 @@ function initializePlayer(episode) {
                     // Máy chủ Vietsub: Gắn URL phụ đề Vietsub lấy trực tiếp từ API (ví dụ Vietsub đầu tiên)
                     if (vietSub && (vietSub.direct_url || vietSub.url)) {
                         const directU = vietSub.direct_url || vietSub.url;
-                        const subUrl = directU.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(directU)}` : directU;
+                        const subUrl = (directU.startsWith('http') && !directU.includes('r2.dev')) ? `/api/proxy/vtt?url=${encodeURIComponent(directU)}` : directU;
                         if (trackEl.getAttribute('src') !== subUrl) {
                             trackEl.src = subUrl;
                         }
@@ -5410,7 +5410,7 @@ function initializePlayer(episode) {
                 if (isTop) { topCues = []; lastTopIdx.val = 0; } else { bottomCues = []; lastBottomIdx.val = 0; }
                 return;
             }
-            const sUrl = subItem.url.startsWith('http') ? `/api/proxy/vtt?url=${encodeURIComponent(subItem.url)}` : subItem.url;
+            const sUrl = (subItem.url.startsWith('http') && !subItem.url.includes('r2.dev')) ? `/api/proxy/vtt?url=${encodeURIComponent(subItem.url)}` : subItem.url;
 
             // ⚡ KIỂM TRA RAM CACHE TRƯỚC (Nạp ngay trong 0ms nếu đã từng xem hoặc vừa thoát ra vào lại)
             if (window._aphimVttCueCache.has(sUrl)) {
