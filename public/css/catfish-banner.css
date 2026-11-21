@@ -309,7 +309,7 @@
     position: fixed;
     inset: 0;
     z-index: 99998;
-    background: rgba(0, 0, 0, 0.82);
+    background: rgba(0, 0, 0, 0.80);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     display: flex;
@@ -318,7 +318,8 @@
     padding: 14px;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity;
 }
 
 #aphim-popup-overlay.visible {
@@ -333,6 +334,13 @@
     justify-content: center;
     width: 640px;
     max-width: 96vw;
+    transform: scale(0.93) translateY(8px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+}
+
+#aphim-popup-overlay.visible .aph-popup-wrapper.aph-popup-triple-mode {
+    transform: scale(1) translateY(0);
 }
 
 /* Hộp Popup viền 3.5px trên Desktop (to rõ hơn theo yêu cầu), ánh sáng chạy gọn trong viền, không lan ra ngoài */

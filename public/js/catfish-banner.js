@@ -46,8 +46,8 @@
         // 2. 3 POPUP (TRẢI NGANG 3 BANNER VUÔNG CHUẨN MẪU)
         popup: {
             enabled: true,
-            showAfterMs: 400,
-            sessionKey: 'aphim_popup_closed_v16',
+            showAfterMs: 120,
+            sessionKey: 'aphim_popup_session_v2',
             excludePaths: ['/admin'],
             banners: [
                 {
@@ -115,6 +115,17 @@
             ]
         }
     };
+
+    // ⚡ Preload ngay 3 ảnh GIF popup vào cache để popup mở tức thì mượt mà, không bị lag
+    try {
+        var _pb = (CONFIG.popup && CONFIG.popup.banners) || [];
+        for (var _pi = 0; _pi < _pb.length; _pi++) {
+            if (_pb[_pi] && _pb[_pi].img) {
+                var _pImg = new Image();
+                _pImg.src = _pb[_pi].img;
+            }
+        }
+    } catch (e) {}
 
     /* ─────────────────────────────────────────────────────────
        HELPERS
@@ -334,12 +345,19 @@
     }
 
     /* ─────────────────────────────────────────────────────────
-       3. 3 POPUP (TRẢI NGANG 3 BANNER VUÔNG CHUẨN MẪU)
+       3. 3 POPUP (TRẢI NGANG 3 BANNER VUÔNG CHUẨN MẪU - SESSION LOGIC & MƯỢT MÀ)
     ───────────────────────────────────────────────────────── */
     function shouldShowPopup() {
         if (!CONFIG.popup.enabled) return false;
         if (isPathExcluded(CONFIG.popup.excludePaths)) return false;
-        return !isBannerHidden(CONFIG.popup.sessionKey, false);
+        // User đang trong web xem phim bình thường: đã tắt rồi thì không hiện lại
+        // Khi user thoát ra khỏi web (tắt hết tab/trình duyệt) vào lại từ đầu: sessionStorage tự xóa -> hiện lại 1 lần
+        try {
+            if (sessionStorage.getItem(CONFIG.popup.sessionKey)) {
+                return false;
+            }
+        } catch (e) {}
+        return true;
     }
 
     function initPopup() {
@@ -373,17 +391,23 @@
 
         document.body.appendChild(overlay);
 
+        // Xuất hiện nhanh và mượt mà với requestAnimationFrame
         var showTimer = setTimeout(function () {
-            requestAnimationFrame(function () { overlay.classList.add('visible'); });
+            requestAnimationFrame(function () {
+                overlay.classList.add('visible');
+            });
         }, CONFIG.popup.showAfterMs);
 
         function closePopup() {
             clearTimeout(showTimer);
-            registerBannerClose(CONFIG.popup.sessionKey, false);
+            // Lưu trạng thái đã đóng trong phiên duyệt web hiện tại
+            try {
+                sessionStorage.setItem(CONFIG.popup.sessionKey, 'closed');
+            } catch (e) {}
             overlay.classList.remove('visible');
             setTimeout(function () {
                 if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-            }, 360);
+            }, 260);
         }
 
         var closeBtn = document.getElementById('aphim-popup-close-btn');
@@ -407,9 +431,6 @@
         });
     }
 
-    /* ─────────────────────────────────────────────────────────
-       4. UNDER ADS (GỘP 4 VÀO 1 TRÊN MOBILE — CHUYỂN XOAY VÒNG)
-    ───────────────────────────────────────────────────────── */
     function initUnderAds() {
         if (!CONFIG.underAds.enabled) return;
         var containers = document.querySelectorAll('#watch-episodes-ad, #movie-detail-content-ad');
