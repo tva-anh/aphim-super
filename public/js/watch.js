@@ -13,6 +13,21 @@
     }
 })();
 
+// 🛡️ Chặn 100% Popunder / Nhảy link quảng cáo rác từ các nguồn embed bên ngoài
+(function() {
+    if (typeof window === 'undefined') return;
+    const origOpen = window.open;
+    window.open = function(url, target, features) {
+        if (!url || typeof url !== 'string') return null;
+        // Chặn toàn bộ các domain chuyển hướng quảng cáo (qpon, entrezsu, adkeeper, bet, pop,...)
+        const lower = url.toLowerCase();
+        if (lower.includes('qpon') || lower.includes('entrezsu') || lower.includes('bet') || lower.includes('traffic') || lower.includes('click') || lower.includes('pop') || lower.includes('track') || lower.includes('adserver') || lower.includes('revenue') || lower.includes('doubleclick') || lower.includes('adsterra')) {
+            return null;
+        }
+        return origOpen.apply(this, arguments);
+    };
+})();
+
 // Watch Page Script
 let currentMovie = null;
 let currentEpisode = null;
@@ -3487,7 +3502,8 @@ function initializePlayer(episode) {
             <iframe id="videoIframe" 
                 src="${videoUrl}" 
                 class="w-full h-full bg-black border-0" 
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media">
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation">
             </iframe>
         `;
 
@@ -8468,7 +8484,8 @@ function loadIframeFallback(embedUrl) {
                 src="${embedUrl}" 
                 class="w-full h-full bg-black border-0" 
                 allowfullscreen 
-                allow="autoplay; fullscreen">
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation">
             </iframe>
         `;
 
