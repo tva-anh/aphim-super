@@ -8344,6 +8344,12 @@ function handleStreamError() {
 
     // Kiểm tra nếu tất cả máy chủ đều đã thử và thất bại -> Dừng ngay, không quay vòng lặp vô tận
     if (window._failedServersForEpisode.size >= totalServers) {
+        // 🌟 BẢO HIỂM: Nếu tập có link_embed dự phòng, tự động chuyển sang Iframe thay vì báo lỗi bảo trì
+        if (currentEpisode && currentEpisode.link_embed && currentEpisode.link_embed.startsWith('http')) {
+            console.log('🔄 All m3u8 failed. Falling back to episode link_embed:', currentEpisode.link_embed);
+            loadIframeFallback(currentEpisode.link_embed);
+            return;
+        }
         console.error('❌ Toàn bộ máy chủ đều không phát được (Dead servers):', Array.from(window._failedServersForEpisode));
         showError('Tất cả máy chủ đều đang bảo trì hoặc gặp sự cố đường truyền. Vui lòng bấm Báo Lỗi để Admin xử lý ngay nhé!');
         return;
