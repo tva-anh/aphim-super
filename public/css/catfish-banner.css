@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════
-   APhim — Catfish Banner + Welcome Popup CSS
-   Version: 4.0 | 2026-05-18
+   APhim — Catfish Bottom, Top Bar, Popup 1 Khung, Under Ads Gọn Mobile
+   Version: 7.0 | 2026-11-19
    ═══════════════════════════════════════════════════════════ */
 
-/* ─── CATFISH STICKY 2-ROW BAR ────────────────────────────── */
+/* ─── 1. CATFISH BOTTOM (STAKE + 3 BANNER TRẢI NGANG) ───────── */
 #aphim-catfish {
     position: fixed;
     bottom: 0;
@@ -11,421 +11,311 @@
     right: 0;
     margin-left: auto;
     margin-right: auto;
-    width: 750px; /* Độ rộng chuẩn theo Hình 1 */
-    max-width: 96vw;
+    width: 780px;
+    max-width: 98vw;
     z-index: 9997;
-    background: rgba(6, 6, 10, 0.97);
-    border-top: 1px solid rgba(252, 211, 77, 0.25);
-    border-right: 1px solid rgba(252, 211, 77, 0.15);
-    border-radius: 0;
-    box-shadow: 0 -6px 36px rgba(0, 0, 0, 0.65), 0 0 50px rgba(252, 211, 77, 0.06);
-    transform: translateY(110%);
-    transition: transform 0.44s cubic-bezier(0.34, 1.4, 0.64, 1);
+    background: transparent;
+    border: none;
+    padding: 0;
+    transform: translateY(115%);
+    transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 
 #aphim-catfish.visible {
     transform: translateY(0);
 }
 
-#aphim-catfish::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(252, 211, 77, 0.5), rgba(252, 211, 77, 0.15), transparent);
-    pointer-events: none;
+.catfish-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    background: transparent;
+    padding: 0;
+    border: none;
 }
 
-/* ─── CATFISH TOP STICKY BAR (8QBet) ────────────────────────────── */
+/* Hàng Stake phía trên (nằm lệch bên phải) */
+.catfish-row-stake {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.catfish-stake-item {
+    display: block;
+    width: 50%;
+    max-width: 390px;
+    line-height: 0;
+    border-radius: 6px 6px 0 0;
+    overflow: hidden;
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.4);
+    transition: filter 0.2s ease;
+}
+
+.catfish-stake-item:hover {
+    filter: brightness(1.12);
+}
+
+.catfish-stake-item img,
+.catfish-stake-item video {
+    width: 100%;
+    height: 48px;
+    object-fit: fill;
+    display: block;
+}
+
+/* Hàng 3 banner trải ngang liền nhau */
+.catfish-row-single {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    overflow: hidden;
+    background: transparent;
+    border: none;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.5);
+    border-radius: 6px 6px 0 0;
+}
+
+.catfish-item {
+    display: block;
+    flex: 1 1 0%;
+    min-width: 0;
+    line-height: 0;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: filter 0.2s ease;
+}
+
+.catfish-item:hover {
+    filter: brightness(1.12);
+}
+
+.catfish-item img,
+.catfish-item video {
+    width: 100%;
+    height: 48px;
+    object-fit: fill;
+    display: block;
+}
+
+#aphim-catfish-close {
+    position: absolute;
+    top: -9px;
+    right: -7px;
+    background: #ffffff;
+    color: #ff0000;
+    border: 1.5px solid #ff0000;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+    z-index: 10;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#aphim-catfish-close:hover {
+    background: #ff0000;
+    color: #ffffff;
+    transform: scale(1.15) rotate(90deg);
+}
+
+@media (max-width: 768px) {
+    #aphim-catfish {
+        width: 100vw;
+        max-width: 100vw;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    .catfish-row-stake {
+        width: 100% !important;
+        display: block !important;
+    }
+    .catfish-stake-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+    }
+    .catfish-row-single {
+        flex-direction: column !important;
+        width: 100% !important;
+        border-radius: 0 !important;
+    }
+    .catfish-item {
+        width: 100% !important;
+        flex: none !important;
+        border-left: none !important;
+    }
+    .catfish-item img,
+    .catfish-item video,
+    .catfish-stake-item img,
+    .catfish-stake-item video {
+        width: 100% !important;
+        height: 36px !important;
+        object-fit: fill !important;
+        display: block !important;
+    }
+    #aphim-catfish-close {
+        top: -10px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        font-size: 13px;
+    }
+}
+
+
+/* ─── 2. CATFISH TOP: DESKTOP TRẢI NGANG, MOBILE XẾP HÀNG LÊN NHAU ─── */
 #aphim-catfish-top {
     position: fixed;
-    top: 56px; /* Đưa xuống sát dưới mép thanh menu (thanh menu cao 56px) */
+    top: 56px;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
-    width: 600px;
-    max-width: 96vw;
-    z-index: 9998; /* Nằm dưới menu dropdown và search box */
-    background: rgba(6, 6, 10, 0.97);
-    border-bottom: 1px solid rgba(252, 211, 77, 0.25);
-    border-left: 1px solid rgba(252, 211, 77, 0.15);
-    border-right: 1px solid rgba(252, 211, 77, 0.15);
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.75), 0 0 50px rgba(252, 211, 77, 0.08);
+    width: 880px;
+    max-width: 98vw;
+    z-index: 9998;
+    background: transparent;
+    border: none;
+    padding: 0;
     transform: translateY(-150%);
-    transition: transform 0.44s cubic-bezier(0.34, 1.4, 0.64, 1);
+    transition: transform 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 
 #aphim-catfish-top.visible {
     transform: translateY(0);
 }
 
-#aphim-catfish-top .catfish-item img {
-    height: 70px;
+.catfish-top-inner {
+    position: relative;
     width: 100%;
-    object-fit: fill;
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
-@media (max-width: 768px) {
-    #aphim-catfish-top {
-        top: 56px;
-        width: calc(100vw - 8px);
-        max-width: calc(100vw - 8px);
-        border-radius: 0 0 12px 12px;
-    }
-    #aphim-catfish-top .catfish-item img {
-        height: auto !important;
-        width: 100%;
-        object-fit: contain;
-    }
+.catfish-top-row {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.catfish-top-item {
+    display: block;
+    flex: 1 1 0%;
+    min-width: 0;
+    line-height: 0;
+    overflow: hidden;
+    transition: filter 0.2s ease;
+    border: none;
+}
+
+.catfish-top-item:hover {
+    filter: brightness(1.12);
+}
+
+.catfish-top-item img,
+.catfish-top-item video {
+    width: 100%;
+    height: 52px;
+    object-fit: fill;
+    display: block;
 }
 
 #aphim-catfish-top-close {
     position: absolute;
-    bottom: -12px;
-    right: -8px;
+    bottom: -11px;
+    right: 4px;
     background: #ffffff;
     color: #ff0000;
-    border: 1px solid rgba(0,0,0,0.1);
-    width: 24px;
-    height: 24px;
+    border: 1.5px solid #ff0000;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    font-size: 14px;
-    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 900;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.25s;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
     z-index: 10;
     padding: 0;
-    font-family: sans-serif;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
+
 #aphim-catfish-top-close:hover {
     background: #ff0000;
     color: #ffffff;
-    border-color: #ff0000;
     transform: scale(1.15) rotate(90deg);
 }
 
-#aphim-catfish-top .catfish-item[aria-label*="Thưởng"]::after {
-    content: 'HOT 8QBET';
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    border: 1px solid rgba(255,255,255,0.25);
-    animation: adPulseOrange 1.8s infinite;
-}
-#aphim-catfish-top .catfish-item[aria-label*="Hoàn Trả"]::after {
-    content: 'VIP PROMO';
-    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-    border: 1px solid rgba(255,255,255,0.25);
-    animation: adPulseRed 1.8s infinite;
-}
-#aphim-catfish-top .catfish-item[aria-label*="Nạp Rút"]::after {
-    content: 'SIÊU TỐC';
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    border: 1px solid rgba(255,255,255,0.25);
-    animation: adPulseGreen 1.8s infinite;
-}
-@keyframes adPulseOrange {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 5px rgba(245, 158, 11, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-}
-
-.catfish-inner { 
-    display: flex; flex-direction: column; gap: 0; padding: 0; 
-    border-radius: inherit; 
-    overflow: hidden; 
-}
-.catfish-row { display: flex; align-items: stretch; }
-.catfish-row + .catfish-row { border-top: 1px solid rgba(0,0,0,0.4); }
-
-.catfish-item {
-    display: block; flex: 1; overflow: hidden;
-    line-height: 0; text-decoration: none;
-    transition: filter 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
-    position: relative;
-}
-.catfish-row .catfish-item + .catfish-item { border-left: 1px solid rgba(0,0,0,0.4); }
-.catfish-item:hover {
-    filter: brightness(1.15);
-    transform: scale(1.02) translateY(-2px);
-    box-shadow: 0 4px 20px rgba(252, 211, 77, 0.35);
-    z-index: 2;
-}
-.catfish-item img,
-.catfish-item video {
-    width: 100%; display: block;
-    object-fit: fill;
-}
-
-/* Hàng trên (8SVui Video + VSBet) */
-.catfish-row:first-child .catfish-item img,
-.catfish-row:first-child .catfish-item video {
-    height: 60px;
-    object-fit: fill;
-}
-
-/* Hàng dưới (ColaTV + ColaScore) */
-.catfish-row:last-child .catfish-item img,
-.catfish-row:last-child .catfish-item video {
-    height: 60px;
-    object-fit: fill;
-}
-
-/* Hàng trên (VSBet) giảm chiều dọc xuống một tý */
-.catfish-row:first-child .catfish-item img {
-    height: 70px;
-}
-
-/* Hàng dưới (ColaTV, ColaScore) bù lại cho cao lên một xíu */
-.catfish-row:last-child .catfish-item img {
-    height: 55px;
-}
-
-/* Thêm badge động thu hút tương tác cho đối tác */
-.catfish-item::after {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    padding: 3px 6px;
-    font-size: 9px;
-    font-weight: 800;
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #fff;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    pointer-events: none;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    z-index: 3;
-    transition: transform 0.2s;
-}
-
-.catfish-item[aria-label*="VSBet"]::after {
-    content: 'HOT PROMO';
-    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-    border: 1px solid rgba(255,255,255,0.2);
-    animation: adPulseRed 1.8s infinite;
-}
-.catfish-item[aria-label*="ColaTV"]::after {
-    content: 'LIVE 4K';
-    background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
-    border: 1px solid rgba(255,255,255,0.2);
-    animation: adPulseGreen 1.8s infinite;
-}
-.catfish-item[aria-label*="ColaScore"]::after {
-    content: 'TỶ SỐ';
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border: 1px solid rgba(255,255,255,0.2);
-    animation: adPulseBlue 1.8s infinite;
-}
-
-@keyframes adPulseRed {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
-@keyframes adPulseGreen {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-}
-@keyframes adPulseBlue {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 5px rgba(59, 130, 246, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-}
-
-#aphim-catfish-close {
-    position: absolute; 
-    top: -10px; 
-    bottom: auto; 
-    right: -10px; 
-    transform: none;
-    background: #ffffff;
-    color: #ff0000;
-    border: 1px solid rgba(0,0,0,0.1);
-    width: 24px; 
-    height: 24px;
-    border-radius: 50%; 
-    cursor: pointer;
-    font-size: 14px; 
-    font-weight: bold;
-    line-height: 1;
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    transition: background 0.2s, transform 0.25s;
-    z-index: 10; 
-    padding: 0; 
-    font-family: sans-serif;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-#aphim-catfish-close:hover {
-    background: #ff0000;
-    color: #ffffff;
-    border-color: #ff0000;
-    transform: scale(1.15) rotate(90deg);
-}
-
-body.aphim-has-catfish { /* card dưới không cần push body */ }
-
-@media (min-width: 769px) {
-    #aphim-catfish {
-        width: 750px !important;
-        max-width: 96vw !important;
-        left: 0 !important;
-        right: 0 !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        bottom: 0 !important;
-    }
-
-    .catfish-inner {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-    }
-
-    .catfish-row {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: stretch !important;
-        width: 100% !important;
-    }
-
-    .catfish-item-desktop-only {
-        display: block !important;
-        flex: 1 1 0% !important;
-        width: 50% !important;
-    }
-
-    .catfish-rotate-slot {
-        flex: 1 1 0% !important;
-        width: 50% !important;
-        position: relative !important;
-        height: 60px !important;
-    }
-
-    .catfish-rotate-slot .catfish-slide {
-        display: none !important;
-    }
-
-    .catfish-rotate-slot .catfish-slide:first-child {
-        display: block !important;
-        width: 100% !important;
-        height: 100% !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: auto !important;
-    }
-
-    .catfish-row-2 .catfish-item {
-        flex: 1 1 0% !important;
-        width: 50% !important;
-    }
-
-    .catfish-item img,
-    .catfish-item video {
-        height: 60px !important;
-        width: 100% !important;
-        object-fit: fill !important;
-    }
-}
-
+/* Mobile: Xếp hàng lên nhau theo đúng yêu cầu */
 @media (max-width: 768px) {
-    #aphim-catfish {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        border-radius: 12px 12px 0 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
+    #aphim-catfish-top {
+        top: 56px;
+        width: 100vw;
+        max-width: 100vw;
     }
-
-    .catfish-inner {
-        display: flex !important;
+    .catfish-top-row {
         flex-direction: column !important;
         width: 100% !important;
+        border-radius: 0 !important;
     }
-
-    .catfish-row {
-        display: flex !important;
-        flex-direction: column !important;
+    .catfish-top-item {
         width: 100% !important;
+        flex: none !important;
     }
-
-    .catfish-item-desktop-only {
-        display: none !important;
-    }
-
-    .catfish-rotate-slot {
-        position: relative !important;
+    .catfish-top-item img,
+    .catfish-top-item video {
         width: 100% !important;
-        height: 48px !important;
-        overflow: hidden !important;
-    }
-
-    .catfish-rotate-slot .catfish-slide {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        transition: opacity 0.6s ease-in-out !important;
-        pointer-events: none !important;
-    }
-
-    .catfish-rotate-slot .catfish-slide.slide-active {
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: auto !important;
-    }
-
-    .catfish-row-2 {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-    }
-
-    .catfish-row-2 .catfish-item {
-        width: 100% !important;
-        height: 48px !important;
-    }
-
-    .catfish-item img,
-    .catfish-item video {
-        height: 48px !important;
-        width: 100% !important;
+        height: 38px !important;
         object-fit: fill !important;
-        display: block !important;
     }
-
-    #aphim-catfish-close { top: -10px; bottom: auto; right: -6px; width: 24px; height: 24px; font-size: 14px; transform: none; }
+    #aphim-catfish-top-close {
+        bottom: -10px;
+        right: 6px;
+    }
 }
 
 
-/* ═══════════════════════════════════════════════════════════
-   WELCOME POPUP — SLIDESHOW Style Bet365 / 1xBet
-   ═══════════════════════════════════════════════════════════ */
-
-/* Backdrop overlay */
+/* ─── 3. POPUP MODAL (3 BANNER VUÔNG TRẢI NGANG CHUẨN MẪU - VIỀN MỎNG + NĂNG LƯỢNG NẠP LIÊN TỤC) ─── */
 #aphim-popup-overlay {
     position: fixed;
     inset: 0;
     z-index: 99998;
-    background: rgba(0, 0, 0, 0.84);
+    background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 14px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -436,172 +326,250 @@ body.aphim-has-catfish { /* card dưới không cần push body */ }
     pointer-events: all;
 }
 
-/* Wrapper: nút đóng + card */
-.aph-popup-wrapper {
+.aph-popup-wrapper.aph-popup-triple-mode {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    width: 780px;
-    max-width: 94vw;
-}
-
-/* ── Nút Bỏ qua quảng cáo — thủy tinh sang trọng, nhỏ gọn ngoài card ── */
-#aphim-popup-x {
-    display: inline-flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.6);
-    padding: 6px 14px;
-    border-radius: 22px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    font-family: inherit;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-    opacity: 0;
-    transform: translateY(-6px);
-    transition: opacity 0.3s ease 0.15s,
-                transform 0.35s cubic-bezier(0.34, 1.5, 0.64, 1) 0.15s,
-                background 0.18s,
-                border-color 0.18s,
-                color 0.18s,
-                box-shadow 0.18s;
-}
-#aphim-popup-overlay.visible #aphim-popup-x {
-    opacity: 1;
-    transform: translateY(0);
-}
-#aphim-popup-x:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.35);
-    color: #fff;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-    transform: scale(1.03);
+    justify-content: center;
+    width: 640px;
+    max-width: 96vw;
 }
 
-/* ── Popup card ── */
-#aphim-popup {
+/* Hộp Popup viền 3.5px trên Desktop (to rõ hơn theo yêu cầu), ánh sáng chạy gọn trong viền, không lan ra ngoài */
+.aph-popup-card {
+    position: relative;
     width: 100%;
-    background: #07070d;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.08),
-        0 28px 70px rgba(0, 0, 0, 0.75),
-        0 0 60px rgba(252, 211, 77, 0.04);
-    opacity: 0;
-    transform: scale(0.9) translateY(12px);
-    transition: opacity 0.32s ease 0.05s,
-                transform 0.38s cubic-bezier(0.34, 1.5, 0.64, 1) 0.05s;
-}
-#aphim-popup-overlay.visible #aphim-popup {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+    padding: 3.5px; /* Dày hơn trên desktop để tia sáng to rõ, nổi bật */
+    border-radius: 9px;
+    background: #000000;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9); /* Bóng tối sâu, KHÔNG có ánh sáng màu lan ra ngoài */
+    overflow: hidden; /* Giữ luồng sáng gọn gàng 100% bên trong viền */
 }
 
-/* ── Slideshow container ── */
-.aph-slideshow {
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-    line-height: 0;
-}
-
-/* Mỗi slide */
-.aph-slide {
+/* Luồng ánh sáng năng lượng to rõ, chạy xoay tròn nạp quanh viền - Sắc nét, không nhòe lan ra nền */
+.aph-popup-card::before {
+    content: '';
     position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 0.28s ease;
+    top: 50%;
+    left: 50%;
+    width: 400%;
+    height: 400%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 190deg,
+        rgba(0, 240, 255, 0.3) 230deg,
+        rgba(0, 240, 255, 0.75) 270deg,
+        #00f0ff 305deg,
+        #f59e0b 330deg,
+        #ffffff 348deg,
+        #ffffff 358deg,
+        #00f0ff 360deg
+    );
+    animation: aphEnergyCharging 2.5s linear infinite;
     pointer-events: none;
-}
-.aph-slide.active {
-    position: relative;
-    opacity: 1;
-    pointer-events: all;
-}
-.aph-slide.prev {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    z-index: 1;
 }
 
-.aph-slide-link {
-    display: block;
-    line-height: 0;
+@keyframes aphEnergyCharging {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Nút tắt đỏ tròn góc trên bên phải y hệt ảnh mẫu */
+#aphim-popup-close-btn {
+    position: absolute;
+    top: -11px;
+    right: -11px;
+    background: #ffffff;
+    color: #ef4444;
+    border: 1.5px solid #ef4444;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+    z-index: 30;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+#aphim-popup-close-btn:hover {
+    background: #ef4444;
+    color: #ffffff;
+    transform: scale(1.15) rotate(90deg);
+}
+
+/* 3 banner nằm ngang cạnh nhau (cả Mobile và Desktop đều 3 cái ngang) */
+.aph-popup-triple-row {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    background: #ffffff;
+    padding: 1.5px;
+    border-radius: 6px;
+}
+
+.aph-popup-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0%;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #061126;
+    border: 1px solid rgba(0, 0, 0, 0.12);
     text-decoration: none;
-    cursor: pointer;
+    line-height: 0;
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.aph-slide img {
+.aph-popup-box:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+/* Cả 3 ô banner tràn đầy khung to rõ đẹp */
+.aph-popup-box img,
+.aph-popup-box video {
     width: 100%;
-    height: auto;
-    max-height: 380px;
+    height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.3s ease;
-}
-.aph-slide-link:hover img {
-    transform: scale(1.015);
 }
 
-/* ── Progress bar (bottom of image) ── */
-.aph-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: rgba(255,255,255,0.12);
-    z-index: 5;
-}
-.aph-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #fcd34d, #f59e0b);
-    border-radius: 0 2px 2px 0;
+/* Riêng ô số 1: phóng to đầy khung và canh từ mép trái để thấy rõ trọn vẹn */
+.aph-popup-box:first-child img,
+.aph-popup-box:first-child video {
+    object-fit: cover !important;
+    object-position: left center !important;
 }
 
-/* ── Dot indicators ── */
-.aph-dots {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+/* Với ảnh vuông 1:1 tràn kín tâm ô vuông cực đẹp */
+.aph-popup-box img[src*="300x300"],
+.aph-popup-box img[src*="400x400"] {
+    object-fit: cover !important;
+    object-position: center center !important;
+}
+
+@media (max-width: 768px) {
+    .aph-popup-wrapper.aph-popup-triple-mode {
+        width: calc(100vw - 16px);
+        max-width: calc(100vw - 16px);
+    }
+    .aph-popup-card {
+        padding: 2px;
+        border-radius: 6px;
+    }
+    .aph-popup-triple-row {
+        gap: 2.5px;
+        padding: 1px;
+        border-radius: 5px;
+    }
+    .aph-popup-box {
+        border-radius: 3px;
+    }
+    #aphim-popup-close-btn {
+        top: -9px;
+        right: -9px;
+        width: 23px;
+        height: 23px;
+        font-size: 12.5px;
+    }
+}
+
+/* ─── 4. UNDER ADS (WATCH & MOVIE-DETAIL): DESKTOP 3 NGANG, MOBILE GỘP 3 VÀO 1 CHUYỂN 1S ─── */
+.watch-ad-responsive-container {
+    width: 100%;
+    margin: 12px 0;
+}
+
+/* Desktop: 3 banner trải ngang đều nhau */
+.watch-ad-desktop-row {
     display: flex;
-    gap: 7px;
-    z-index: 6;
-}
-.aph-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.15);
-    cursor: pointer;
-    padding: 0;
-    transition: background 0.25s, border-color 0.25s, transform 0.2s;
-}
-.aph-dot.active {
-    background: #fcd34d;
-    border-color: #fcd34d;
-    transform: scale(1.2);
-    box-shadow: 0 0 6px rgba(252,211,77,0.6);
-}
-.aph-dot:hover:not(.active) {
-    background: rgba(255,255,255,0.4);
-    border-color: rgba(255,255,255,0.7);
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 }
 
-/* ── Mobile ── */
-@media (max-width: 560px) {
-    .aph-popup-wrapper { width: 100%; max-width: 100%; }
-    .aph-slide img { max-height: 180px; }
-    #aphim-popup-x { font-size: 11px; padding: 6px 12px; }
+.watch-ad-col-item {
+    flex: 1 1 0%;
+    min-width: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    display: block;
+    line-height: 0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.watch-ad-col-item:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.12);
+}
+
+.watch-ad-col-item img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 728 / 90;
+    object-fit: fill;
+    display: block;
+}
+
+/* Mobile: Slider chuyển 3 vào 1 chuyển 1s cực kỳ gọn gàng */
+.watch-ad-mobile-slider {
+    display: none;
+    width: 100%;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.watch-ad-mobile-slide {
+    display: none;
+    width: 100%;
+    line-height: 0;
+}
+
+.watch-ad-mobile-slide.active {
+    display: block;
+    animation: aphFadeQuick 0.25s ease-in-out;
+}
+
+.watch-ad-mobile-slide img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 728 / 90;
+    object-fit: fill;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .watch-ad-desktop-row {
+        display: none !important;
+    }
+    .watch-ad-mobile-slider {
+        display: block !important;
+    }
 }

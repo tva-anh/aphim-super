@@ -26481,5 +26481,35 @@
       "SN",
       "TM:12"
     ]
+  },
+  {
+    "slug": "cong-su-hoan-hao-phan-2",
+    "name": "Cộng Sự Hoàn Hảo (Phần 2)",
+    "origin_name": "Cộng Sự Hoàn Hảo (Phần 2)",
+    "poster_url": "https://img.nguonc.com/images/img-3429124842797f3068f7e2b534fd7687cd1a5672d24ec25c95f8283bdc4add0d.png",
+    "thumb_url": "https://img.nguonc.com/images/img-3429124842797f3068f7e2b534fd7687cd1a5672d24ec25c95f8283bdc4add0d.png",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 16",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:16",
+      "SN",
+      "TM:16"
+    ]
+  },
+  {
+    "slug": "con-duong-buon-dau",
+    "name": "Con Đường Buồn Đau",
+    "origin_name": "Con Đường Buồn Đau",
+    "poster_url": "https://image.tmdb.org/t/p/original/byTzfiWeKix4p4CJ9f7qxpkNSN7.jpg",
+    "thumb_url": "https://image.tmdb.org/t/p/original/byTzfiWeKix4p4CJ9f7qxpkNSN7.jpg",
+    "source": "/quoc-gia/han-quoc?page=1",
+    "episode_current": "Tập 20",
+    "lang": "Vietsub + Thuyết Minh",
+    "available_languages": [
+      "PD:20",
+      "SN",
+      "TM:20"
+    ]
   }
 ]
