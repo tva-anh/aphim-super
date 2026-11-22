@@ -37,7 +37,7 @@
                 },
                 {
                     img: '/quangcao/catfish/colascore.gif',
-                    url: 'http://178.128.49.112/colaapp.html',
+                    url: 'http://178.128.49.112/colaball.html',
                     label: 'ColaScore — Xem TTBĐ Full HD'
                 }
             ]
