@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const libCode = fs.readFileSync(path.join(__dirname, '../public/js/disable-devtool.min.js'), 'utf8');
-
 const output = `(function () {
     'use strict';
 
@@ -16,7 +14,7 @@ const output = `(function () {
                   hostname.endsWith('.internal') ||
                   hostname.startsWith('192.168.') ||
                   hostname.startsWith('10.') ||
-                  /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
+                  /^172\\.(1[6-9]|2[0-9]|3[0-1])\\./.test(hostname) ||
                   window.location.protocol === 'file:' ||
                   window.location.search.indexOf('allow_devtools=1') !== -1;
 
@@ -37,78 +35,37 @@ const output = `(function () {
         }
     }
 
+    // CHỈ BẮT KHI USER CHỦ ĐỘNG BẤM PHÍM F12 HOẶC TỔ HỢP PHÍM MỞ DEVTOOLS
+    // TUYỆT ĐỐI KHÔNG DÙNG:
+    // - Vòng lặp debugger
+    // - Check kích thước cửa sổ (outerWidth vs innerWidth)
+    // - Thư viện DisableDevtool ngầm
+    // - Bất kỳ setInterval / event listener resize/focus/mouseenter nào gây nhảy link khi bot/user truy cập bình thường
     window.addEventListener('keydown', function (event) {
         var key = String(event.key || '').toLowerCase();
         var keyCode = event.keyCode || event.which;
-        var isF12 = key === 'f12' || keyCode === 123;
-        var isInspect = event.ctrlKey && event.shiftKey && (key === 'i' || key === 'j' || key === 'c');
-        var isViewSource = event.ctrlKey && (key === 'u' || keyCode === 85);
-        var isSave = event.ctrlKey && (key === 's' || keyCode === 83);
-        var isMacInspect = event.metaKey && event.altKey && (key === 'i' || key === 'j' || key === 'c');
-        var isMacViewSource = event.metaKey && event.altKey && key === 'u';
+        var isMac = navigator.platform && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        var ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
+        var altOrOpt = event.altKey;
+        var shift = event.shiftKey;
 
-        if (isF12 || isInspect || isViewSource || isSave || isMacInspect || isMacViewSource) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
+        var isF12 = key === 'f12' || keyCode === 123;
+        var isInspect = (ctrlOrCmd && shift && (key === 'i' || key === 'j' || key === 'c')) ||
+                        (isMac && ctrlOrCmd && altOrOpt && (key === 'i' || key === 'j' || key === 'c'));
+        var isViewSource = ctrlOrCmd && (key === 'u' || keyCode === 85);
+
+        if (isF12 || isInspect || isViewSource) {
+            try {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+            } catch (err) {}
             triggerRedirectTrap();
             return false;
         }
     }, true);
-
-    window.addEventListener('contextmenu', function (event) {
-        var tag = event.target && event.target.tagName ? event.target.tagName.toLowerCase() : '';
-        if (tag === 'input' || tag === 'textarea') return true;
-        event.preventDefault();
-        event.stopPropagation();
-        return false;
-    }, true);
-
-    function runDebuggerCheck() {
-        if (isBlocked) return;
-        var startedAt = performance.now();
-        debugger;
-        if (performance.now() - startedAt > 100) {
-            triggerRedirectTrap();
-        }
-    }
-
-    window.setInterval(runDebuggerCheck, 1000);
-    window.addEventListener('resize', runDebuggerCheck, true);
-    window.addEventListener('focus', runDebuggerCheck, true);
-    window.addEventListener('mouseenter', runDebuggerCheck, true);
-
-    try {
-        ${libCode}
-
-        if (typeof DisableDevtool !== 'undefined') {
-            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            var detectors = isMobile ? [0, 1, 3, 4, 6, 7] : [0, 1, 2, 3, 4, 6, 7];
-
-            DisableDevtool({
-                url: TRAP_REDIRECT_URL,
-                timeOutUrl: TRAP_REDIRECT_URL,
-                disableMenu: true,
-                clearLog: true,
-                interval: 800,
-                detectors: detectors,
-                ondevtoolopen: function () {
-                    triggerRedirectTrap();
-                },
-                ignore: function () {
-                    var h = window.location.hostname;
-                    return h === 'localhost' ||
-                           h === '127.0.0.1' ||
-                           h === '::1' ||
-                           h.endsWith('.local') ||
-                           h.startsWith('192.168.') ||
-                           h.startsWith('10.');
-                }
-            });
-        }
-    } catch (e) {}
 })();
 `;
 
 fs.writeFileSync(path.join(__dirname, '../public/js/anti-devtools.js'), output, 'utf8');
-console.log('Successfully compiled public/js/anti-devtools.js with debugger trap');
+console.log('Successfully updated public/js/anti-devtools.js (F12-only mode, no background checks)');
