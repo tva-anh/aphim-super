@@ -62,9 +62,50 @@ async function processInBatches(items, batchSize, fn) {
     }
 }
 
+// 🛡️ CƠ CHẾ TÍCH LŨY DỮ LIỆU VĨNH VIỄN — TUYỆT ĐỐI KHÔNG BAO GIỜ BỊ TỤT SITEMAP
+function loadBaseCatalog(uniqueMoviesMap) {
+    const catalogPath = path.join(__dirname, 'data', 'sitemap-catalog.json');
+    if (fs.existsSync(catalogPath)) {
+        try {
+            const list = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+            if (Array.isArray(list)) {
+                list.forEach(m => {
+                    const slug = (m?.slug || '').trim().toLowerCase();
+                    if (slug && !BLOCKED_SLUGS.includes(slug)) {
+                        uniqueMoviesMap.set(slug, {
+                            slug,
+                            name: m.name || '',
+                            poster_url: m.poster_url || m.thumb_url || '',
+                            thumb_url: m.thumb_url || m.poster_url || '',
+                            updated_at: m.updated_at || TODAY
+                        });
+                    }
+                });
+                console.log(`📦 Đã nạp thành công ${uniqueMoviesMap.size} phim từ kho lưu trữ tích lũy (data/sitemap-catalog.json).`);
+            }
+        } catch (e) {
+            console.warn('⚠️ Lỗi đọc sitemap-catalog.json:', e.message);
+        }
+    }
+}
+
+function saveBaseCatalog(uniqueMoviesMap) {
+    const catalogPath = path.join(__dirname, 'data', 'sitemap-catalog.json');
+    const arr = Array.from(uniqueMoviesMap.values()).map(m => ({
+        slug: m.slug,
+        name: m.name || '',
+        poster_url: m.poster_url || '',
+        thumb_url: m.thumb_url || '',
+        updated_at: m.updated_at || TODAY
+    }));
+    fs.writeFileSync(catalogPath, JSON.stringify(arr), 'utf8');
+    console.log(`💾 Đã lưu tích lũy vĩnh viễn ${arr.length} phim vào kho (data/sitemap-catalog.json).`);
+}
+
 (async () => {
     console.log(`🚀 Bắt đầu quét kho phim toàn diện cho APhim Super (${BASE_URL}) - Ngày: ${TODAY}...`);
     const uniqueMoviesMap = new Map();
+    loadBaseCatalog(uniqueMoviesMap);
     const targets = [];
 
     // 1. PhimAPI Main Lists (Phim mới, Phim bộ, Phim lẻ, Hoạt hình, TV Shows)
@@ -185,6 +226,7 @@ async function processInBatches(items, batchSize, fn) {
         }
     }
     console.log(`🌐 Đã hợp nhất ${bilingualEntries.length} phim Song Ngữ từ catalog.`);
+    saveBaseCatalog(uniqueMoviesMap);
     const movies = Array.from(uniqueMoviesMap.values());
     console.log(`\n🎉 HOÀN TẤT THU THẬP! Tổng cộng: ${movies.length} bộ phim độc nhất.`);
 
