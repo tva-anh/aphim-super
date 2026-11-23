@@ -3377,6 +3377,19 @@ function initializePlayer(episode) {
 
     enrichEpisodeLinks(episode);
     let videoUrl = customLink || episode.link_m3u8 || episode.link_embed;
+
+    // 📱 SofaFlix/PlayEmbed Song Ngữ: trên mobile ưu tiên iframe video gốc.
+    // Các m3u8 này thường yêu cầu header Referer hoặc native HLS không tương thích
+    // với Safari/iOS, khiến player chỉ đứng ở 00:00 dù link vẫn còn sống.
+    const isMobilePlayback = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 850);
+    const isSofaFlixEmbed = typeof episode.link_embed === 'string' &&
+        /(?:playembed\.vip|sofaflix(?:\.|$)|onflixcdn\.com|edgecontent\.site)/i.test(episode.link_embed);
+    if (!customLink && isMobilePlayback && isSofaFlixEmbed) {
+        console.log('📱 [Song Ngữ Mobile] Ưu tiên iframe SofaFlix/PlayEmbed thay cho m3u8:', episode.link_embed);
+        episode.link_m3u8 = '';
+        videoUrl = episode.link_embed;
+    }
+
     const isDeadStream = videoUrl && (videoUrl.includes('chophim') || videoUrl.includes('stringdeptrai') || videoUrl.includes('/api/playback/manifest'));
     const isBlocked = isBlockedEmbedLink(videoUrl) || (!episode.link_m3u8 && isBlockedEmbedLink(episode.link_embed)) || isDeadStream;
 
@@ -3502,8 +3515,7 @@ function initializePlayer(episode) {
             <iframe id="videoIframe" 
                 src="${videoUrl}" 
                 class="w-full h-full bg-black border-0" 
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation">
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media">
             </iframe>
         `;
 
@@ -8484,8 +8496,7 @@ function loadIframeFallback(embedUrl) {
                 src="${embedUrl}" 
                 class="w-full h-full bg-black border-0" 
                 allowfullscreen 
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation">
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media">
             </iframe>
         `;
 
