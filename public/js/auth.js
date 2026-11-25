@@ -144,10 +144,10 @@ class AuthService {
         const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
         if (!token || token.startsWith('demo_') || token.startsWith('mock-') || token.startsWith('token_')) return;
 
-        // Throttling: avoid duplicate calls within cooldown (3s for force, 12s for auto)
+        // Throttling: avoid duplicate calls within cooldown (3s for force, 45s for auto focus/tab switch)
         const now = Date.now();
         const lastSync = Number(sessionStorage.getItem('ap_last_profile_sync_ts') || 0);
-        const minCooldown = force ? 3000 : 12000;
+        const minCooldown = force ? 3000 : 45000;
         if (now - lastSync < minCooldown) {
             return;
         }
@@ -206,22 +206,48 @@ class AuthService {
                     serverUser.avatar_url = localAvatar;
                     needPush = true;
                 }
-                // 2. If server has default frame but local has custom frame, push to cloud
-                if ((!serverUser.equippedFrame || serverUser.equippedFrame === 'frame_none') && localFrame && localFrame !== 'frame_none' && localFrame !== 'none') {
+                // 2. Sync Equipped Frame (respect explicit 'frame_none' unequip on server unless local was just changed)
+                if (!serverUser.equippedFrame && localFrame && localFrame !== 'frame_none' && localFrame !== 'none') {
                     pushPayload.equippedFrame = localFrame;
                     if (localFrameClass) pushPayload.equippedFrameClass = localFrameClass;
                     if (localFrameUrl) pushPayload.equippedFrameUrl = localFrameUrl;
+                    serverUser.equippedFrame = localFrame;
                     needPush = true;
                 }
-                // 3. If server has default banner but local has custom banner, push to cloud
-                if ((!serverUser.equippedBanner || serverUser.equippedBanner === 'banner_default') && localBanner && localBanner !== 'banner_default') {
+                // 3. Sync Equipped Banner (respect explicit 'banner_default' unequip on server)
+                if (!serverUser.equippedBanner && localBanner && localBanner !== 'banner_default') {
                     pushPayload.equippedBanner = localBanner;
+                    serverUser.equippedBanner = localBanner;
                     needPush = true;
                 }
-                // 4. If server has default color but local has custom color, push to cloud
-                if ((!serverUser.equippedColor || serverUser.equippedColor === 'color_default') && localColor && localColor !== 'color_default') {
+                // 4. Sync Equipped Color (respect explicit 'color_default' unequip on server)
+                if (!serverUser.equippedColor && localColor && localColor !== 'color_default') {
                     pushPayload.equippedColor = localColor;
+                    serverUser.equippedColor = localColor;
                     needPush = true;
+                }
+                // 4.1 Protect fresh local Xu/XP earned within the last 15s from being overwritten by an older /auth/me response
+                const lastXuChangeTs = Number(localStorage.getItem('ap_last_xu_change_ts') || 0);
+                if (Date.now() - lastXuChangeTs < 15000) {
+                    const localXuRaw = localStorage.getItem('cinestream_xu');
+                    const localXpRaw = localStorage.getItem('cinestream_xp');
+                    if (localXuRaw !== null && !isNaN(Number(localXuRaw))) {
+                        const localXuVal = Number(localXuRaw);
+                        if (serverUser.xu !== localXuVal) {
+                            serverUser.xu = localXuVal;
+                            serverUser.coins = localXuVal;
+                            pushPayload.xu = localXuVal;
+                            needPush = true;
+                        }
+                    }
+                    if (localXpRaw !== null && !isNaN(Number(localXpRaw))) {
+                        const localXpVal = Number(localXpRaw);
+                        if (localXpVal > Number(serverUser.xp || 0)) {
+                            serverUser.xp = localXpVal;
+                            pushPayload.xp = localXpVal;
+                            needPush = true;
+                        }
+                    }
                 }
                 // 5. If server has no cover but local has cover, push to cloud
                 if (!serverUser.profileCover && localCover) {
@@ -459,8 +485,13 @@ class AuthService {
         if (frameId) {
             localStorage.setItem('ap_frame_id', frameId);
             localStorage.setItem('ap_equipped_frame', frameId);
+            if (frameId === 'frame_none' || frameId === 'none') {
+                localStorage.removeItem('ap_frame_url');
+                localStorage.removeItem('ap_equipped_frame_url');
+                localStorage.removeItem('ap_frame_class');
+            }
         }
-        let frameUrl = user.equippedFrameUrl || user.equipped_frame_url;
+        let frameUrl = (frameId === 'frame_none' || frameId === 'none') ? '' : (user.equippedFrameUrl || user.equipped_frame_url);
         if (!frameUrl && frameId && frameId !== 'frame_none' && frameId !== 'none') {
             if (typeof window.resolveFrameUrl === 'function') {
                 frameUrl = window.resolveFrameUrl(frameId);

@@ -14896,7 +14896,33 @@
           if (res.ok) {
             const data = await res.json();
             if (data && data.success && Array.isArray(data.data)) {
-              const serverNotifs = data.data;
+              let deletedIds = new Set();
+              try {
+                const rawDel = JSON.parse(localStorage.getItem('ap_deleted_notifs') || '[]');
+                if (Array.isArray(rawDel)) deletedIds = new Set(rawDel.map(String));
+              } catch (e) { }
+
+              const localNotifs = getStoredProfileNotifications();
+              const localReadSet = new Set();
+              localNotifs.forEach(n => {
+                const k = String(n.id || n._id || '');
+                if (k && (n.read || n.isRead)) localReadSet.add(k);
+              });
+
+              const serverNotifs = data.data
+                .filter(n => {
+                  const k = String(n.id || n._id || '');
+                  return k && !deletedIds.has(k);
+                })
+                .map(n => {
+                  const k = String(n.id || n._id || '');
+                  if (localReadSet.has(k)) {
+                    n.read = true;
+                    n.isRead = true;
+                  }
+                  return n;
+                });
+
               if (uid) {
                 localStorage.setItem(`ap_notifs_${uid}`, JSON.stringify(serverNotifs));
               }
@@ -15331,28 +15357,49 @@
         }
       }
 
+      function rememberDeletedNotifIds(ids) {
+        try {
+          const raw = JSON.parse(localStorage.getItem('ap_deleted_notifs') || '[]');
+          const list = Array.isArray(raw) ? raw.map(String) : [];
+          ids.forEach(id => {
+            const s = String(id || '');
+            if (s && !list.includes(s)) list.push(s);
+            if (s) localStorage.setItem(`ap_toast_seen_${s}`, 'true');
+          });
+          localStorage.setItem('ap_deleted_notifs', JSON.stringify(list.slice(-200)));
+        } catch (e) { }
+      }
+
       function toggleProfileNotifRead(id) {
         let notifs = getStoredProfileNotifications();
         const item = notifs.find(n => (n.id == id || n._id == id));
         if (item) {
           item.read = !item.read;
           item.isRead = item.read;
+          if (item.read) {
+            try { localStorage.setItem(`ap_toast_seen_${id}`, 'true'); } catch (e) { }
+          }
           saveStoredProfileNotifications(notifs);
           const panel = document.getElementById('tabPanel');
           if (panel) {
             panel.innerHTML = renderProfileNotifications(activeProfileNotifFilter, profileNotifSearchQuery);
           }
           const token = localStorage.getItem('cinestream_token');
-          if (token && item.read) {
+          if (token) {
             fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
               method: 'PUT',
-              headers: { 'Authorization': 'Bearer ' + token }
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ read: item.read })
             }).catch(() => { });
           }
         }
       }
 
       function deleteProfileNotif(id) {
+        rememberDeletedNotifIds([id]);
         let notifs = getStoredProfileNotifications();
         notifs = notifs.filter(n => (n.id != id && n._id != id));
         saveStoredProfileNotifications(notifs);
@@ -15374,7 +15421,14 @@
 
       function markAllProfileNotifsRead() {
         let notifs = getStoredProfileNotifications();
-        notifs.forEach(n => { n.read = true; n.isRead = true; });
+        notifs.forEach(n => {
+          n.read = true;
+          n.isRead = true;
+          const nid = n.id || n._id;
+          if (nid) {
+            try { localStorage.setItem(`ap_toast_seen_${nid}`, 'true'); } catch (e) { }
+          }
+        });
         saveStoredProfileNotifications(notifs);
         const panel = document.getElementById('tabPanel');
         if (panel) {
@@ -15400,6 +15454,7 @@
           if (typeof showToast === 'function') showToast('Không có thông báo đã đọc nào để xóa', 'info');
           return;
         }
+        rememberDeletedNotifIds(readNotifs.map(n => n.id || n._id));
         saveStoredProfileNotifications(unreadOnly);
         profileNotifCurrentPage = 1;
         const panel = document.getElementById('tabPanel');
@@ -15430,6 +15485,7 @@
         if (!item.read) {
           item.read = true;
           item.isRead = true;
+          try { localStorage.setItem(`ap_toast_seen_${id}`, 'true'); } catch (e) { }
           saveStoredProfileNotifications(notifs);
           updateProfileNotifBadge();
           const cardEl = document.getElementById(`notif-card-${id}`);
@@ -16515,31 +16571,28 @@
 
       // ─── INITIALIZATION ───
       function initProfilePage() {
-        const tryInit = () => {
-          try {
+        try {
+          currentUser = getUser();
+          if (currentUser && typeof updateUserUI === 'function') {
+            // updateUserUI() đã bao gồm gọi initSidebar() bên trong
+            updateUserUI();
+          } else {
             initSidebar();
-          } catch (e) { console.warn('[Profile] initSidebar warning:', e); }
-          try {
-            currentUser = getUser();
-            if (currentUser && typeof updateUserUI === 'function') {
-              updateUserUI();
-            }
-          } catch (e) { console.warn('[Profile] updateUserUI warning:', e); }
-          try {
-            if (window.GamificationCore && typeof window.GamificationCore.updateHeaderChips === 'function') {
-              window.GamificationCore.updateHeaderChips();
-            }
-          } catch (e) { }
-          try {
-            const oldLb = localStorage.getItem('ap_real_leaderboard') || '';
-            if (oldLb.includes('Trần Gia Bảo') || oldLb.includes('Ngọc Mai Cinema')) {
-              localStorage.removeItem('ap_real_leaderboard');
-            }
-          } catch (e) { }
-        };
-        tryInit();
-        setTimeout(tryInit, 300);
-        setTimeout(tryInit, 1000);
+          }
+        } catch (e) {
+          try { initSidebar(); } catch (err) { }
+        }
+        try {
+          if (window.GamificationCore && typeof window.GamificationCore.updateHeaderChips === 'function') {
+            window.GamificationCore.updateHeaderChips();
+          }
+        } catch (e) { }
+        try {
+          const oldLb = localStorage.getItem('ap_real_leaderboard') || '';
+          if (oldLb.includes('Trần Gia Bảo') || oldLb.includes('Ngọc Mai Cinema')) {
+            localStorage.removeItem('ap_real_leaderboard');
+          }
+        } catch (e) { }
 
         try {
           const urlParams = new URLSearchParams(window.location.search);
@@ -16555,7 +16608,7 @@
               if (typeof openProfileNotifDetail === 'function') {
                 openProfileNotifDetail(notifId);
               }
-            }, 300);
+            }, 200);
           }
           const path = window.location.pathname.toLowerCase();
           if (!tab) {
@@ -16593,8 +16646,7 @@
           console.error('[Profile] Init switchTab error:', err);
           try { switchTab('account', { replace: true }); } catch (e) { }
         }
-        setTimeout(alignAvatarPanel, 50);
-        setTimeout(alignAvatarPanel, 250);
+        requestAnimationFrame(alignAvatarPanel);
         try { updateProfileNotifBadge(); } catch (e) { }
         try {
           if (typeof fetchProfileNotificationsFromServer === 'function') {
@@ -16604,24 +16656,18 @@
       }
 
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initProfilePage);
+        document.addEventListener('DOMContentLoaded', initProfilePage, { once: true });
       } else {
         initProfilePage();
       }
 
-      // Safety checks to ensure tab is always populated
+      // Safety fallback chỉ chạy khi #tabPanel chưa có nội dung
       window.addEventListener('load', function () {
         const panel = document.getElementById('tabPanel');
         if (!panel || !panel.innerHTML.trim()) {
           initProfilePage();
         }
-      });
-      setTimeout(function () {
-        const panel = document.getElementById('tabPanel');
-        if (!panel || !panel.innerHTML.trim()) {
-          initProfilePage();
-        }
-      }, 350);
+      }, { once: true });
 
       // ─── LEGACY & GLOBAL EXPORTS ───
       window.switchTab = switchTab;
@@ -16819,13 +16865,18 @@
           scanAndAttach();
         }
 
-        // Tự động gắn guard cho các tab/container mới render
+        // Tự động gắn guard cho các tab/container mới render (có rAF throttle chống giật trên mobile)
+        let _mobileGuardRaf = false;
         const observer = new MutationObserver(() => {
-          if (window.innerWidth <= 1024) {
+          if (window.innerWidth > 1024 || _mobileGuardRaf) return;
+          _mobileGuardRaf = true;
+          requestAnimationFrame(() => {
+            _mobileGuardRaf = false;
             scanAndAttach();
-          }
+          });
         });
-        observer.observe(document.body, { childList: true, subtree: true });
+        const observeTarget = document.getElementById('tabPanel') || document.body;
+        observer.observe(observeTarget, { childList: true, subtree: true });
       })();
 
       // 🚫 Proactive Clean-up of any Banner Ads on Profile

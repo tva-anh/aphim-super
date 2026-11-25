@@ -43,7 +43,7 @@
         }
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
-        const nextState = scrollTop > 50 ? 'scrolled' : 'top';
+        const nextState = scrollTop > 24 ? 'scrolled' : 'top';
 
         if (lastAppliedNavState === nextState && !force) {
             ticking = false;
@@ -53,25 +53,10 @@
 
         if (nextState === 'scrolled') {
             header.classList.add('scrolled');
-            if (hasHeroOrBackdrop()) {
-                header.style.removeProperty('background');
-                header.style.removeProperty('background-color');
-                header.style.removeProperty('border');
-                header.style.removeProperty('border-bottom');
-                header.style.removeProperty('box-shadow');
-            }
+            header.setAttribute('data-scrolled', 'true');
         } else {
             header.classList.remove('scrolled', 'sofa-header-scrolled');
-            if (hasHeroOrBackdrop()) {
-                header.style.setProperty('background', 'transparent', 'important');
-                header.style.setProperty('background-color', 'transparent', 'important');
-                header.style.setProperty('border', 'none', 'important');
-                header.style.setProperty('border-bottom', 'none', 'important');
-                header.style.setProperty('box-shadow', 'none', 'important');
-            } else {
-                header.style.backgroundColor = '';
-                header.style.background = '';
-            }
+            header.removeAttribute('data-scrolled');
         }
         header.classList.remove('nav-hidden');
         header.classList.add('nav-visible');

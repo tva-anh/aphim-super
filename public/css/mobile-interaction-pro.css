@@ -36,7 +36,6 @@
         top: 24px !important;
         left: 0 !important;
         opacity: 0 !important;
-        visibility: hidden !important;
     }
 
     /* ─── SOFAFLIX SCROLLED HEADER TRÊN MOBILE (NỀN ĐẶC, KHÔNG SHADER BLUR NẶNG GPU) ─── */

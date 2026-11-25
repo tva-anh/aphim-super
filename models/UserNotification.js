@@ -21,6 +21,7 @@ const NotificationItemSchema = new mongoose.Schema({
 const UserNotificationSchema = new mongoose.Schema({
     user_id:       { type: String, required: true, unique: true, index: true },
     notifications: { type: [NotificationItemSchema], default: [] },
+    deleted_ids:   { type: [String], default: [] },
     updated_at:    { type: Date, default: Date.now }
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }

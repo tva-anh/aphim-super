@@ -1645,21 +1645,38 @@ window.syncNotifications = async function (force = false) {
 
         const data = await response.json();
         if (data.success && Array.isArray(data.data)) {
-            // MERGE thông minh: không bao giờ xóa mất thông báo cũ của user
+            // MERGE thông minh: tôn trọng trạng thái đã xóa và đã đọc của user
             const localNotifs = getNotifications();
             const serverNotifs = data.data;
             const notifMap = new Map();
 
-            // 1. Đưa server notifs vào map (nguồn chuẩn từ cloud)
+            let deletedIds = new Set();
+            try {
+                const rawDel = JSON.parse(localStorage.getItem('ap_deleted_notifs') || '[]');
+                if (Array.isArray(rawDel)) deletedIds = new Set(rawDel.map(String));
+            } catch (e) { }
+
+            const localReadSet = new Set();
+            localNotifs.forEach(n => {
+                const k = String(n.id || n._id || '');
+                if (k && (n.read || n.isRead)) localReadSet.add(k);
+            });
+
+            // 1. Đưa server notifs vào map (trừ những ID đã xóa, và giữ trạng thái đã đọc local nếu có)
             serverNotifs.forEach(n => {
                 const k = String(n.id || n._id || '');
-                if (k) notifMap.set(k, n);
+                if (!k || deletedIds.has(k)) return;
+                if (localReadSet.has(k)) {
+                    n.read = true;
+                    n.isRead = true;
+                }
+                notifMap.set(k, n);
             });
 
             // 2. Gộp thêm các thông báo local (ví dụ điểm danh vừa tạo offline)
             localNotifs.forEach(n => {
                 const k = String(n.id || n._id || '');
-                if (k && !notifMap.has(k)) {
+                if (k && !deletedIds.has(k) && !notifMap.has(k)) {
                     notifMap.set(k, n);
                 }
             });
@@ -1812,7 +1829,7 @@ window.createUserNotification = function (opts = {}) {
 
     // Đồng bộ lên Cloud để không bao giờ bị mất khi đổi thiết bị hoặc reset
     const token = localStorage.getItem('cinestream_token');
-    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
+    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
     if (token && backendUrl) {
         fetch(`${backendUrl}/notifications`, {
             method: 'POST',
@@ -2017,7 +2034,14 @@ window.markAllNotifsRead = async function () {
     }
     const userId = user ? (user._id || user.id) : null;
     const notifs = getNotifications();
-    notifs.forEach(n => { n.read = true; n.isRead = true; });
+    notifs.forEach(n => {
+        n.read = true;
+        n.isRead = true;
+        const nid = n._id || n.id;
+        if (nid) {
+            try { localStorage.setItem(`ap_toast_seen_${nid}`, 'true'); } catch (e) { }
+        }
+    });
     try {
         localStorage.setItem('cinestream_notifications', JSON.stringify(notifs));
         if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs));
@@ -2038,7 +2062,7 @@ window.markAllNotifsRead = async function () {
 
     // Sync to backend
     const token = localStorage.getItem('cinestream_token');
-    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
+    const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
     if (token && backendUrl) {
         fetch(`${backendUrl}/notifications/read-all`, {
             method: 'PUT',
@@ -2056,6 +2080,7 @@ window.markNotifRead = function (id) {
         notifs[idx].read = true;
         notifs[idx].isRead = true;
         try {
+            localStorage.setItem(`ap_toast_seen_${id}`, 'true');
             localStorage.setItem('cinestream_notifications', JSON.stringify(notifs));
             if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs));
         } catch (e) { }
@@ -2066,7 +2091,7 @@ window.markNotifRead = function (id) {
         }
 
         const token = localStorage.getItem('cinestream_token');
-        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
+        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
         if (token && backendUrl) {
             fetch(`${backendUrl}/notifications/${encodeURIComponent(id)}/read`, {
                 method: 'PUT',
@@ -2083,19 +2108,23 @@ window.toggleNotif = async function (id, element) {
     // 1. Mark as read in storage & Backend
     const userId = user._id || user.id;
     const notifs = getNotifications();
-    const idx = notifs.findIndex(n => (n._id === id || n.id === id));
+    const idx = notifs.findIndex(n => (String(n._id) === String(id) || String(n.id) === String(id)));
 
     if (idx !== -1 && !notifs[idx].isRead && !notifs[idx].read) {
         notifs[idx].isRead = true;
         notifs[idx].read = true;
-        localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs));
+        try {
+            localStorage.setItem(`ap_toast_seen_${id}`, 'true');
+            localStorage.setItem('cinestream_notifications', JSON.stringify(notifs));
+            if (userId) localStorage.setItem(`ap_notifs_${userId}`, JSON.stringify(notifs));
+        } catch (e) { }
         updateNotifBadge();
 
         // Async sync to backend
         const token = localStorage.getItem('cinestream_token');
-        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : null;
-        if (token && backendUrl && id.length > 15) { // Only sync if it looks like a MongoID
-            fetch(`${backendUrl}/notifications/${id}/read`, {
+        const backendUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BACKEND_URL) ? API_CONFIG.BACKEND_URL : '/api';
+        if (token && backendUrl && id) {
+            fetch(`${backendUrl}/notifications/${encodeURIComponent(id)}/read`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` }
             }).catch(() => { });

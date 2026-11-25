@@ -425,7 +425,6 @@
         const canScrollBackward = delta < 0 && currentPos > 2;
 
         if (canScrollForward || canScrollBackward) {
-            e.preventDefault();
             stopMomentum();
             container._userInteracted = true;
 
@@ -463,7 +462,7 @@
         } else {
             stopWheelGlide();
         }
-    }, { passive: false });
+    }, { passive: true });
 
     // ── 5.1 TỰ ĐỘNG BẬT IS-SCROLLING KHI CUỘN ĐỂ KHÓA HOVER TRANSITIONS (120FPS) ──
     document.addEventListener('scroll', function (e) {

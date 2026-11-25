@@ -2253,10 +2253,13 @@ let cachedHeroSlidesTime = 0;
 global.invalidateHeroCache = function() {
     cachedHeroSlides = null;
     cachedHeroSlidesTime = 0;
+    cachedHeroAutoSlide = null;
+    cachedHeroAutoSlideTime = 0;
+    if (global.invalidateHomepageCache) global.invalidateHomepageCache();
 };
 
 async function getDesktopHeroSlides() {
-    if (cachedHeroSlides && (Date.now() - cachedHeroSlidesTime < 5000)) {
+    if (cachedHeroSlides && (Date.now() - cachedHeroSlidesTime < 300000)) {
         return cachedHeroSlides;
     }
     try {
@@ -2296,7 +2299,7 @@ let cachedHeroAutoSlide = null;
 let cachedHeroAutoSlideTime = 0;
 
 async function getDesktopHeroAutoSlide() {
-    if (cachedHeroAutoSlide && (Date.now() - cachedHeroAutoSlideTime < 5000)) {
+    if (cachedHeroAutoSlide && (Date.now() - cachedHeroAutoSlideTime < 300000)) {
         return cachedHeroAutoSlide;
     }
     try {
@@ -2339,7 +2342,7 @@ global.invalidateInterestsCache = function() {
 };
 
 async function getDesktopInterests() {
-    if (cachedDesktopInterests && (Date.now() - cachedDesktopInterestsTime < 5000)) {
+    if (cachedDesktopInterests && (Date.now() - cachedDesktopInterestsTime < 300000)) {
         return cachedDesktopInterests;
     }
     try {
@@ -2375,8 +2378,8 @@ function formatMobileShowcaseImg(url) {
     if (!url) return '';
     let u = String(url).trim();
     if (u.includes('image.tmdb.org')) {
-        // ⚡ Giữ độ phân giải gốc siêu nét (original) cho mobile showcase Retina
-        return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, 'image.tmdb.org/t/p/original/');
+        // ⚡ Chuẩn w780 cho Mobile 3D Showcase: Độ nét Retina 3.5x trên khung 220px, nhẹ hơn 8-10 lần so với bản original 3MB
+        return u.replace(/image\.tmdb\.org\/t\/p\/(original|w\d+)\//, 'image.tmdb.org/t/p/w780/');
     }
     if (u.startsWith('http://') || u.startsWith('https://')) {
         return u.replace('img.ophimimg.com', 'phimimg.com')
@@ -2399,7 +2402,7 @@ function formatMobileShowcaseImg(url) {
 }
 
 async function getMobile3DShowcase() {
-    if (cachedMobile3DShowcase && (Date.now() - cachedMobile3DShowcaseTime < 5000)) {
+    if (cachedMobile3DShowcase && (Date.now() - cachedMobile3DShowcaseTime < 300000)) {
         return cachedMobile3DShowcase;
     }
     try {

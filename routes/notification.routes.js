@@ -47,6 +47,16 @@ router.get('/', requireAuth, async (req, res) => {
             }
         }
 
+        // Danh sách các ID thông báo user đã chủ động xóa (không bao giờ tự sinh lại)
+        const deletedIds = new Set([
+            ...(Array.isArray(mongoDoc?.deleted_ids) ? mongoDoc.deleted_ids.map(String) : []),
+            ...(Array.isArray(userMeta?.deleted_notif_ids) ? userMeta.deleted_notif_ids.map(String) : [])
+        ]);
+
+        if (deletedIds.size > 0) {
+            storedNotifs = storedNotifs.filter(n => !deletedIds.has(String(n.id || n._id || '')));
+        }
+
         // 3. Tự động lấy các giao dịch nạp xu/tiêu xu từ bảng transactions chuyển thành thông báo
         let hasNewAutoNotifs = false;
         try {
@@ -62,7 +72,7 @@ router.get('/', requireAuth, async (req, res) => {
             if (txs && txs.length > 0) {
                 for (const tx of txs) {
                     const notifId = 'tx_' + tx.id;
-                    if (!existingIds.has(notifId)) {
+                    if (!existingIds.has(notifId) && !deletedIds.has(notifId)) {
                         let title = 'Giao dịch hệ thống';
                         let type = 'system';
                         const content = tx.transfer_content || tx.note || 'Biến động tài khoản';
@@ -99,10 +109,10 @@ router.get('/', requireAuth, async (req, res) => {
             console.warn('[Notifications] Transactions fetch warn:', txErr.message);
         }
 
-        // 4. Luôn đảm bảo có thông báo chào mừng nếu hộp thư rỗng
+        // 4. Luôn đảm bảo có thông báo chào mừng nếu hộp thư rỗng (và user chưa từng xóa nó)
         const existingIds = new Set(storedNotifs.map(n => String(n.id || n._id || '')));
         const welcomeId = 'welcome_' + userId;
-        if (!existingIds.has(welcomeId) && storedNotifs.length === 0) {
+        if (!existingIds.has(welcomeId) && !deletedIds.has(welcomeId) && storedNotifs.length === 0) {
             storedNotifs.push({
                 id: welcomeId,
                 title: 'Chào Mừng Đến Với APhim Super!',
@@ -160,6 +170,7 @@ router.put('/:id/read', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         const notifId = String(req.params.id);
+        const readState = (req.body && typeof req.body.read === 'boolean') ? req.body.read : true;
 
         let notifs = [];
         try {
@@ -174,7 +185,7 @@ router.put('/:id/read', requireAuth, async (req, res) => {
 
         notifs = notifs.map(n => {
             if (String(n.id) === notifId || String(n._id) === notifId) {
-                return { ...n, read: true, isRead: true };
+                return { ...n, read: readState, isRead: readState };
             }
             return n;
         });
@@ -250,15 +261,25 @@ router.delete('/:id', requireAuth, async (req, res) => {
         const notifId = String(req.params.id);
 
         let notifs = [];
+        let deletedIds = [];
         try {
             const doc = await UserNotification.findOne({ user_id: userId }).lean();
             if (doc && Array.isArray(doc.notifications)) notifs = doc.notifications;
+            if (doc && Array.isArray(doc.deleted_ids)) deletedIds = doc.deleted_ids.map(String);
         } catch (e) { }
 
-        if (!notifs.length) {
-            const meta = req.user.user_metadata || {};
-            if (Array.isArray(meta.notifications)) notifs = meta.notifications;
+        const meta = req.user.user_metadata || {};
+        if (!notifs.length && Array.isArray(meta.notifications)) {
+            notifs = meta.notifications;
         }
+        if (Array.isArray(meta.deleted_notif_ids)) {
+            deletedIds = Array.from(new Set([...deletedIds, ...meta.deleted_notif_ids.map(String)]));
+        }
+        if (!deletedIds.includes(notifId)) {
+            deletedIds.push(notifId);
+        }
+        // Giữ tối đa 200 ID đã xóa gần nhất
+        deletedIds = deletedIds.slice(-200);
 
         notifs = notifs.filter(n => String(n.id) !== notifId && String(n._id) !== notifId);
 
@@ -266,7 +287,13 @@ router.delete('/:id', requireAuth, async (req, res) => {
         try {
             await UserNotification.findOneAndUpdate(
                 { user_id: userId },
-                { $set: { notifications: notifs, updated_at: new Date() } },
+                {
+                    $set: {
+                        notifications: notifs,
+                        deleted_ids: deletedIds,
+                        updated_at: new Date()
+                    }
+                },
                 { upsert: true }
             );
         } catch (e) { }
@@ -274,7 +301,11 @@ router.delete('/:id', requireAuth, async (req, res) => {
         // Cập nhật Supabase
         try {
             await supabaseAdmin.auth.admin.updateUserById(userId, {
-                user_metadata: { ...(req.user.user_metadata || {}), notifications: notifs.slice(0, 50) }
+                user_metadata: {
+                    ...meta,
+                    notifications: notifs.slice(0, 50),
+                    deleted_notif_ids: deletedIds.slice(-100)
+                }
             });
         } catch (e) { }
 
@@ -289,7 +320,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { title, message, detail, type = 'system', amount = 0, link = '/profile?tab=notifications' } = req.body;
+        const { id: clientId, title, message, detail, type = 'system', amount = 0, link = '/profile?tab=notifications', createdAt } = req.body;
 
         if (!title && !message) {
             return res.status(400).json({ success: false, message: 'Thiếu tiêu đề hoặc nội dung thông báo' });
@@ -306,15 +337,22 @@ router.post('/', requireAuth, async (req, res) => {
             if (Array.isArray(meta.notifications)) notifs = meta.notifications;
         }
 
+        const notifId = clientId ? String(clientId) : ('notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5));
+
+        // Chống trùng lặp nếu client đã gửi cùng ID
+        if (notifs.some(n => String(n.id || n._id) === notifId)) {
+            return res.json({ success: true, duplicate: true });
+        }
+
         const newNotif = {
-            id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            id: notifId,
             title: title || 'Thông báo',
             message: message || detail || '',
             detail: detail || message || '',
             type: type,
             amount: Number(amount) || 0,
             link: link,
-            createdAt: new Date().toISOString(),
+            createdAt: createdAt || new Date().toISOString(),
             read: false,
             isRead: false
         };

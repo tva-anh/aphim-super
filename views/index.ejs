@@ -13,8 +13,16 @@
             <% } %>
         <% const _mobileList=(typeof mobileShowcase !=='undefined' && Array.isArray(mobileShowcase) && mobileShowcase.length > 0) ? mobileShowcase : null;
            const _mob0Poster = _mobileList ? (_mobileList[0].poster_url || _mobileList[0].thumb_url) : null;
+           const _mob1Poster = (_mobileList && _mobileList[1]) ? (_mobileList[1].poster_url || _mobileList[1].thumb_url) : null;
+           const _mobLastPoster = (_mobileList && _mobileList.length > 2) ? (_mobileList[_mobileList.length - 1].poster_url || _mobileList[_mobileList.length - 1].thumb_url) : null;
            if (_mob0Poster) { %>
             <link rel="preload" as="image" href="<%= _mob0Poster %>" media="(max-width: 1023px)" fetchpriority="high">
+            <% } %>
+        <% if (_mob1Poster) { %>
+            <link rel="preload" as="image" href="<%= _mob1Poster %>" media="(max-width: 1023px)">
+            <% } %>
+        <% if (_mobLastPoster) { %>
+            <link rel="preload" as="image" href="<%= _mobLastPoster %>" media="(max-width: 1023px)">
             <% } %>
                 <link rel="preconnect" href="https://static-cgv.vncdn.vn" crossorigin>
                 <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=29">
@@ -39,13 +47,12 @@
                     var header = document.getElementById('sofa-header') || document.querySelector('header');
                     if (!header) return;
                     var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-                    if (scrollY <= 50) {
+                    if (scrollY <= 24) {
                         header.classList.remove('scrolled', 'sofa-header-scrolled');
-                        header.style.setProperty('background', 'transparent', 'important');
-                        header.style.setProperty('background-color', 'transparent', 'important');
-                        header.style.setProperty('border', 'none', 'important');
-                        header.style.setProperty('border-bottom', 'none', 'important');
-                        header.style.setProperty('box-shadow', 'none', 'important');
+                        header.removeAttribute('data-scrolled');
+                    } else {
+                        header.classList.add('scrolled');
+                        header.setAttribute('data-scrolled', 'true');
                     }
                 }
                 if (document.readyState === 'loading') {
@@ -109,12 +116,12 @@
                     <!-- Dual Layer Hero Images for Flawless Cinematic Crossfade & Slide Transitions -->
                     <img id="heroImageLayerA" class="hero-bg-layer is-active" alt="<%= ssrTitle %>"
                         src="<%= ssrBgImg %>" data-original-src="<%= rawBgImg %>" data-movie-slug="<%= ssrSlug %>"
-                        fetchpriority="high" decoding="sync" />
+                        loading="lazy" fetchpriority="high" decoding="async" />
                     <img id="heroImageLayerB" class="hero-bg-layer" alt="" src="<%= rawBgImg1 %>"
                         data-original-src="<%= rawBgImg1 %>" data-movie-slug="<%= ssrSlug1 %>"
-                        style="opacity: 0;" loading="eager" decoding="async" />
+                        style="opacity: 0;" loading="lazy" decoding="async" />
                     <!-- Fallback element for compatibility -->
-                    <img id="heroImage" class="hidden" alt="<%= ssrTitle %>" src="<%= ssrBgImg %>" />
+                    <img id="heroImage" class="hidden" alt="<%= ssrTitle %>" data-src="<%= ssrBgImg %>" />
 
                     <!-- Left Gradient Vignette: Natural shadow for crisp text readability without fogging the art -->
                     <div class="hero-left-blend pointer-events-none"></div>
@@ -278,7 +285,7 @@
                                             onclick="switchHeroSlide(<%= idx %>)" data-slide-index="<%= idx %>"
                                             title="<%= (m.name || '').replace(/" /g, '&quot;' ) %>">
                                             <img src="<%= thumbImg %>" alt="<%= m.name || '' %>"
-                                                loading="<%= idx < 4 ? 'eager' : 'lazy' %>" decoding="async">
+                                                loading="lazy" decoding="async">
                                         </div>
                                         <% }) %>
                                             <% } else { %>
@@ -463,16 +470,10 @@
                                     if (idx === 0) {
                                         cardClass += ' is-center';
                                         priority = 'high';
-                                        loadingMode = 'eager';
-                                        decodingMode = 'sync';
                                     } else if (idx === 1) {
                                         cardClass += ' is-right';
-                                        priority = 'high';
-                                        loadingMode = 'eager';
                                     } else if (idx === total - 1) {
                                         cardClass += ' is-left';
-                                        priority = 'high';
-                                        loadingMode = 'eager';
                                     } else if (idx === 2) {
                                         cardClass += ' is-far-right';
                                     } else {
@@ -3916,10 +3917,14 @@
                             : [];
                         let showcase3DIndex = 0;
                         let showcase3DAutoTimer = null;
+                        let showcase3DInitialized = false;
 
                         async function loadMobile3DShowcase() {
+                            if (typeof window !== 'undefined' && window.innerWidth >= 1024) return;
+                            if (showcase3DInitialized) return;
                             const section = document.getElementById('mobile3DShowcaseSection');
                             if (!section) return;
+                            showcase3DInitialized = true;
 
                             if (showcase3DItems && showcase3DItems.length > 0) {
                                 initMobile3DShowcase(true);
@@ -4284,7 +4289,7 @@
                         });
                     })();
                 </script>
-                <script src="/js/hero-banner.js?v=197" defer></script>
+                <script src="/js/hero-banner.js?v=198" defer></script>
 </body>
 
 </html>

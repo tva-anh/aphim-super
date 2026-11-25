@@ -83,12 +83,13 @@
     return 0;
   }
 
-  function setXu(newXu) {
+  function setXu(newXu, skipServerSync = false) {
     if (!isUserLoggedIn()) {
       return 0;
     }
     const val = Math.max(0, Math.round(newXu));
     localStorage.setItem('cinestream_xu', val);
+    localStorage.setItem('ap_last_xu_change_ts', String(Date.now()));
     const u = getUser();
     if (u) {
       u.xu = val;
@@ -104,7 +105,7 @@
         if (typeof authService.saveUser === 'function' && authService.currentUser) {
           authService.saveUser(authService.currentUser);
         }
-        if (typeof authService.updateProfile === 'function') {
+        if (!skipServerSync && typeof authService.updateProfile === 'function') {
           authService.updateProfile({ xu: val });
         }
       }
@@ -126,12 +127,13 @@
     return localXP;
   }
 
-  function setXP(newXP) {
+  function setXP(newXP, skipServerSync = false) {
     if (!isUserLoggedIn()) {
       return 0;
     }
     const val = Math.max(0, Math.round(newXP));
     localStorage.setItem('cinestream_xp', val);
+    localStorage.setItem('ap_last_xu_change_ts', String(Date.now()));
     const u = getUser();
     if (u) {
       u.xp = val;
@@ -141,7 +143,7 @@
       if (typeof authService !== 'undefined') {
         if (authService.currentUser) authService.currentUser.xp = val;
         if (typeof authService.saveUser === 'function' && authService.currentUser) authService.saveUser(authService.currentUser);
-        if (typeof authService.updateProfile === 'function') authService.updateProfile({ xp: val });
+        if (!skipServerSync && typeof authService.updateProfile === 'function') authService.updateProfile({ xp: val });
       }
     } catch (e) { }
     window.dispatchEvent(new CustomEvent('gamificationUpdated', { detail: { xp: val } }));
@@ -220,7 +222,7 @@
     };
   }
 
-  function addReward(xpAmount, xuAmount, reason) {
+  function addReward(xpAmount, xuAmount, reason, skipServerSync = false) {
     if (!isUserLoggedIn()) {
       return null;
     }
@@ -228,9 +230,15 @@
     const curXu = getXu();
     const oldLevel = calculateLevel(curXP).level;
 
-    const newXP = setXP(curXP + (xpAmount || 0));
-    const newXu = setXu(curXu + (xuAmount || 0));
+    const newXP = setXP(curXP + (xpAmount || 0), true);
+    const newXu = setXu(curXu + (xuAmount || 0), true);
     const newLevelInfo = calculateLevel(newXP);
+
+    if (!skipServerSync && typeof authService !== 'undefined' && typeof authService.updateProfile === 'function') {
+      try {
+        authService.updateProfile({ xu: newXu, xp: newXP, level: newLevelInfo.level });
+      } catch (e) { }
+    }
 
     let toastMsg = `🎁 <strong>Nhận thưởng:</strong>`;
     if (xpAmount > 0) toastMsg += ` <span style="color:#38bdf8;font-weight:800;">+${xpAmount} XP</span>`;
@@ -370,12 +378,12 @@
         authService.currentUser.streakData = updatedData;
       }
 
-      // 3. Thưởng Xu & XP
+      // 3. Thưởng Xu & XP (đồng bộ qua /api/gamification/claim-streak bên dưới để tránh bắn trùng request)
       const extraReason = `Điểm danh Ngày ${dayIndex + 1}/7 chuỗi`;
       if (newStreak % 30 === 0) {
-        addReward(150, 50, '🎁 Thưởng mốc 30 Ngày Điểm Danh Liên Tục!');
+        addReward(150, 50, '🎁 Thưởng mốc 30 Ngày Điểm Danh Liên Tục!', true);
       }
-      addReward(reward.xp, reward.xu, extraReason);
+      addReward(reward.xp, reward.xu, extraReason, true);
 
       // 3.1 Ghi thông báo hoạt động vào hệ thống Thông Báo
       if (typeof window.createUserNotification === 'function') {
@@ -402,8 +410,8 @@
           if (res && res.success) {
             console.log('[Gamification] Cloud streak synced successfully:', res);
 
-            if (res.xu != null) setXu(res.xu);
-            if (res.xp != null) setXP(res.xp);
+            if (res.xu != null) setXu(res.xu, true);
+            if (res.xp != null) setXP(res.xp, true);
             updateHeaderChips();
           } else if (res && !res.success) {
             console.warn('[Gamification] Cloud streak response:', res.message);
@@ -770,13 +778,28 @@
     showGamificationToast('🎁 Bạn đang xem phim: Hệ thống tự động đếm thời gian xem thực tế để tăng Xu & XP khi đạt các mốc 15 phút & 45 phút!');
   }
 
+  function isActivelyWatchingVideo() {
+    if (document.hidden) return false;
+    // Nếu đang ở màn hình poster chờ (chưa bấm nút Xem Phim) thì chưa tính giờ
+    const overlay = document.getElementById('playerPosterOverlay');
+    if (overlay && !overlay.classList.contains('is-hidden') && overlay.style.display !== 'none' && overlay.offsetParent !== null) {
+      return false;
+    }
+    // Nếu trình phát là thẻ <video> trực tiếp và đang bị tạm dừng (pause) thì không đếm
+    const videoEl = document.querySelector('#playerContainer video, #videoPlayer video');
+    if (videoEl && videoEl.readyState > 0 && videoEl.paused) {
+      return false;
+    }
+    return true;
+  }
+
   function initWatchToEarn() {
     updatePillUI();
     if (watchInterval) return;
 
     watchInterval = setInterval(() => {
-      // Chỉ tính khi tab đang active và người dùng ĐÃ ĐĂNG NHẬP
-      if (document.hidden) return;
+      // Chỉ tính khi tab đang active, người dùng ĐÃ ĐĂNG NHẬP và đang thực sự phát phim
+      if (!isActivelyWatchingVideo()) return;
       if (!isUserLoggedIn()) {
         updatePillUI();
         return;
@@ -784,6 +807,7 @@
 
       const today = getTodayString();
       let dailyWatchSeconds = Number(localStorage.getItem(`ap_daily_watch_sec_${today}`) || 0);
+      const prevMins = Math.floor(dailyWatchSeconds / 60);
 
       // Kiểm tra giờ cú đêm 00:00 - 04:00 (Thành tựu Tín Đồ Đêm Khuya)
       const currentHour = new Date().getHours();
@@ -802,10 +826,11 @@
 
       const totalMins = Math.floor(dailyWatchSeconds / 60);
 
-      // Cập nhật tiến độ nhiệm vụ ngày (watch15 & watch45)
-      progressDailyMission('watch15', 15);
-      if (totalMins >= 45) {
-        progressDailyMission('watch45', 45);
+      // Chỉ cập nhật tiến độ nhiệm vụ ngày (watch15 & watch45) khi tròn thêm 1 phút xem thực tế
+      if (totalMins > prevMins) {
+        const gainedMins = totalMins - prevMins;
+        progressDailyMission('watch15', gainedMins);
+        progressDailyMission('watch45', gainedMins);
       }
 
       // Mỗi 30 phút xem liên tục (1800s): Thưởng +30 XP & +2 Xu (Tối đa 2 lần = 4 Xu/ngày)

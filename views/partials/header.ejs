@@ -1,5 +1,18 @@
 <style>
-    /* Single Dark Bar - Uniform 64px Height & Color at Top and Scrolled */
+    /* Marker đo ngưỡng cuộn 24px cho IntersectionObserver trên cả Desktop & Mobile (0ms Main-Thread overhead) */
+    .site-header-scroll-marker,
+    #site-header-scroll-marker {
+        position: absolute !important;
+        top: 24px !important;
+        left: 0 !important;
+        width: 1px !important;
+        height: 1px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
+    }
+
+    /* Single Bar - Uniform 64px Height & Smooth 60/120FPS GPU Transition between Top & Scrolled */
     #sofa-header,
     header#sofa-header,
     header {
@@ -10,17 +23,19 @@
         height: 64px !important;
         z-index: 9999 !important;
         font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-        background: #1f2331 !important;
         background-color: #1f2331 !important;
+        border-bottom: 1px solid transparent !important;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
-        will-change: background-color, box-shadow;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        will-change: background-color, box-shadow, border-bottom-color;
         transform: translateZ(0);
         -webkit-transform: translateZ(0);
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        transition: background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                    background 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        transition: background-color 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+                    border-bottom-color 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+                    box-shadow 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
     }
 
     /* Transparent Header on Movie Detail Page & Short Drama Home Hero (with full-bleed backdrop) */
@@ -34,14 +49,13 @@
     body:has(.movie-hero-backdrop-wrap) header#sofa-header:not(.scrolled),
     body:has(#movieHeroBackdrop) #sofa-header:not(.scrolled),
     body:has(#movieHeroBackdrop) header#sofa-header:not(.scrolled) {
-        background: transparent !important;
         background-color: transparent !important;
-        border: none !important;
-        border-bottom: none !important;
+        background-image: none !important;
+        border-bottom-color: transparent !important;
         box-shadow: none !important;
     }
 
-    /* Scrolled Header in Dark Mode (Solid Wrapping Bar on Scroll) */
+    /* Scrolled Header in Dark Mode (Solid Wrapping Bar on Scroll - No heavy backdrop-filter allocation spike) */
     html:not(.light-mode) body.page-phim-ngan #sofa-header.scrolled,
     html:not(.light-mode) body.page-phim-ngan header#sofa-header.scrolled,
     html:not(.light-mode) body.page-phim-ngan header.scrolled,
@@ -49,12 +63,11 @@
     html:not(.light-mode) body:has(#asDramaDetailView) header#sofa-header.scrolled,
     html:not(.light-mode) body:has(#asHeroSection) #sofa-header.scrolled,
     html:not(.light-mode) body:has(#asHeroSection) header#sofa-header.scrolled {
-        background: #11141a !important;
         background-color: #11141a !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
     /* ==========================================================
@@ -75,12 +88,11 @@
     html.light-mode body:has(#asDramaDetailView) header#sofa-header.scrolled,
     html.light-mode body:has(#asHeroSection) #sofa-header.scrolled,
     html.light-mode body:has(#asHeroSection) header#sofa-header.scrolled {
-        background: rgba(250, 247, 242, 0.98) !important;
         background-color: #faf7f2 !important;
         border-bottom: 1px solid #e7e0d3 !important;
         box-shadow: 0 4px 20px rgba(78, 64, 45, 0.08) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
     /* 🏷️ Màu chữ và Dropdown Links trên thanh Header chế độ nền kem */
@@ -279,10 +291,9 @@
         html.light-mode body:has(#desktopHeroShowcase) #sofa-header:not(.scrolled),
         html.light-mode body:has(#desktopHeroShowcase) header#sofa-header:not(.scrolled),
         html.light-mode body:has(.desktop-hero-showcase) #sofa-header:not(.scrolled) {
-            background: transparent !important;
             background-color: transparent !important;
-            border: none !important;
-            border-bottom: none !important;
+            background-image: none !important;
+            border-bottom-color: transparent !important;
             box-shadow: none !important;
         }
     }
@@ -304,10 +315,9 @@
     body.page-detail-mode header#sofa-header:not(.scrolled),
     body:has(#asHeroSection) #sofa-header:not(.scrolled),
     body:has(#asDramaDetailView) #sofa-header:not(.scrolled) {
-        background: transparent !important;
         background-color: transparent !important;
-        border: none !important;
-        border-bottom: none !important;
+        background-image: none !important;
+        border-bottom-color: transparent !important;
         box-shadow: none !important;
     }
 
@@ -3957,7 +3967,7 @@
                 nextState = forcedState;
             } else {
                 const scrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
-                nextState = scrollY > 30 ? 'scrolled' : 'top';
+                nextState = scrollY > 24 ? 'scrolled' : 'top';
             }
 
             // ⚡ Tối ưu triệt để: Nếu trạng thái không đổi thì KHÔNG ghi DOM/Style -> Loại bỏ 100% giật lag
@@ -3970,26 +3980,9 @@
             if (nextState === 'scrolled') {
                 header.classList.add('scrolled');
                 header.setAttribute('data-scrolled', 'true');
-                if (hasHeroOrBackdrop()) {
-                    header.style.removeProperty('background');
-                    header.style.removeProperty('background-color');
-                    header.style.removeProperty('border');
-                    header.style.removeProperty('border-bottom');
-                    header.style.removeProperty('box-shadow');
-                }
             } else {
                 header.classList.remove('scrolled', 'sofa-header-scrolled');
                 header.removeAttribute('data-scrolled');
-                if (hasHeroOrBackdrop()) {
-                    header.style.setProperty('background', 'transparent', 'important');
-                    header.style.setProperty('background-color', 'transparent', 'important');
-                    header.style.setProperty('border', 'none', 'important');
-                    header.style.setProperty('border-bottom', 'none', 'important');
-                    header.style.setProperty('box-shadow', 'none', 'important');
-                } else {
-                    header.style.backgroundColor = '';
-                    header.style.background = '';
-                }
             }
             ticking = false;
         }

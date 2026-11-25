@@ -185,12 +185,20 @@ async function fetchRealMovieDetail(movie) {
 
 function prefetchAllMovieDetails() {
     setTimeout(() => {
-        DEFAULT_HERO_SLIDES.forEach(m => fetchRealMovieDetail(m));
-    }, 4000);
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
+        const list = (Array.isArray(heroSlides) && heroSlides.length > 0) ? heroSlides.slice(0, 3) : DEFAULT_HERO_SLIDES.slice(0, 3);
+        list.forEach(m => fetchRealMovieDetail(m));
+    }, 4500);
 }
+
+let _heroBannerInitialized = false;
 
 // -- Entry Point -------------------------------------------------
 async function loadHeroBanner() {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
+    if (_heroBannerInitialized) return;
+    _heroBannerInitialized = true;
+
     // 0. KIỂM TRA SSR INJECTION: Nếu Server đã truyền sẵn dữ liệu chuẩn của Admin qua SSR
     if (window.__INITIAL_HERO_SLIDES__ && Array.isArray(window.__INITIAL_HERO_SLIDES__) && window.__INITIAL_HERO_SLIDES__.length > 0) {
         heroSlides = window.__INITIAL_HERO_SLIDES__;
@@ -429,6 +437,17 @@ async function loadHeroLogo(movie) {
     if (!heroTitle) return;
 
     const loadId = ++currentLogoLoadId;
+    const existingLogo = document.getElementById('heroTitleImg');
+    const directLogoUrl = (movie && movie.logoUrl && movie.logoUrl.trim() !== '') ? movie.logoUrl.trim() : '';
+
+    // ⚡ Nếu SSR đã vẽ sẵn đúng Logo của phim hiện tại: Giữ nguyên 0ms, tuyệt đối không xóa đi vẽ lại gây chớp!
+    if (existingLogo && directLogoUrl && (existingLogo.getAttribute('src') === directLogoUrl || existingLogo.src === directLogoUrl)) {
+        heroTitle.textContent = (movie && movie.name) || '';
+        heroTitle.style.display = 'none';
+        existingLogo.classList.remove('opacity-0');
+        return;
+    }
+
     document.querySelectorAll('#heroTitleImg').forEach(el => el.remove());
 
     if (!movie) {
@@ -592,20 +611,20 @@ let isUserHoldingOrDragging = false;
 let lastAutoSlideConfigHash = '';
 
 function initHeroAutoSlide() {
-    // 1. Đọc dữ liệu SSR trước nếu có
+    // 1. Đọc dữ liệu SSR trước nếu có (nếu đã có từ SSR thì không cần gọi lại API ngay lúc mở trang)
     if (window.__INITIAL_HERO_AUTOSLIDE__ && typeof window.__INITIAL_HERO_AUTOSLIDE__ === 'object') {
         applyAutoSlideConfig(window.__INITIAL_HERO_AUTOSLIDE__, true);
+    } else {
+        // 2. Fallback fetch cấu hình từ backend API nếu chưa có SSR
+        fetch('/api/settings/desktop-hero-autoslide')
+            .then(r => r.json())
+            .then(res => {
+                if (res.success && res.data) {
+                    applyAutoSlideConfig(res.data, false);
+                }
+            })
+            .catch(() => {});
     }
-
-    // 2. Fetch cấu hình mới nhất từ backend API (không gián đoạn đếm giờ nếu cấu hình giống nhau)
-    fetch('/api/settings/desktop-hero-autoslide')
-        .then(r => r.json())
-        .then(res => {
-            if (res.success && res.data) {
-                applyAutoSlideConfig(res.data, false);
-            }
-        })
-        .catch(() => {});
 
     // 3. Gắn sự kiện nhấn giữ / chuẩn bị lướt (Hold / Drag to pause)
     // Di chuột vào (hover) thì VẪN CHUYỂN BÌNH THƯỜNG. Chỉ dừng khi người dùng chủ động ấn giữ (mousedown / touchstart / pointerdown)
@@ -1251,49 +1270,49 @@ function renderThumbnails(movies) {
     const container = document.getElementById('heroThumbnails');
     if (!container || !Array.isArray(movies) || movies.length === 0) return;
 
-    // Hiển thị toàn bộ phim do Admin cấu hình (Không giới hạn cứng 7 phim)
     const displayMovies = movies;
-    container.innerHTML = displayMovies.map((movie, i) => {
-        let raw = movie.thumb_url || movie.poster_url || '';
-        let imgSrc = '';
-        if (raw) {
-            imgSrc = raw.startsWith('http') ? raw : `https://phimimg.com/upload/vod/${raw}`;
-        }
-        if (!imgSrc) {
-            imgSrc = 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
-        }
-        if (imgSrc.includes('tmdb.org')) {
-            imgSrc = imgSrc.replace(/\/t\/p\/(original|w\d+)\//, '/t/p/w500/');
-        }
+    const existingItems = container.querySelectorAll('.hero-thumb-item');
 
-        const slideIndex = i;
-        const isActive = (currentSlideIndex === slideIndex) ? 'hero-thumb-active active' : '';
-
-        return `
-        <div class="hero-thumb-item ${isActive}"
-             data-slide-index="${slideIndex}"
-             data-movie-index="${i}"
-             role="button"
-             tabindex="0"
-             title="${(movie.name || '').replace(/"/g, '&quot;')}"
-             onclick="selectHeroThumbnail(${slideIndex})">
-            <img
-                src="${imgSrc}"
-                alt="${(movie.name || '').replace(/"/g, '&quot;')}"
-                loading="${i < 4 ? 'eager' : 'lazy'}"
-                decoding="async"
-                onerror="this.src='https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg'" />
-        </div>`;
-    }).join('');
-
-    // Direct click and keyboard navigation for thumbnails
-    container.querySelectorAll('.hero-thumb-item').forEach(el => {
-        el.addEventListener('click', (e) => {
-            const idx = parseInt(el.getAttribute('data-slide-index'), 10);
-            if (!isNaN(idx)) {
-                selectHeroThumbnail(idx);
+    // ⚡ Nếu SSR đã render sẵn đúng danh sách thumbnail: Giữ nguyên DOM để không bắt trình duyệt tải/giải mã lại 8 ảnh
+    if (existingItems.length !== displayMovies.length) {
+        container.innerHTML = displayMovies.map((movie, i) => {
+            let raw = movie.thumb_url || movie.poster_url || '';
+            let imgSrc = '';
+            if (raw) {
+                imgSrc = raw.startsWith('http') ? raw : `https://phimimg.com/upload/vod/${raw}`;
             }
-        });
+            if (!imgSrc) {
+                imgSrc = 'https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg';
+            }
+            if (imgSrc.includes('tmdb.org')) {
+                imgSrc = imgSrc.replace(/\/t\/p\/(original|w\d+)\//, '/t/p/w500/');
+            }
+
+            const slideIndex = i;
+            const isActive = (currentSlideIndex === slideIndex) ? 'hero-thumb-active active' : '';
+
+            return `
+            <div class="hero-thumb-item ${isActive}"
+                 data-slide-index="${slideIndex}"
+                 data-movie-index="${i}"
+                 role="button"
+                 tabindex="0"
+                 title="${(movie.name || '').replace(/"/g, '&quot;')}"
+                 onclick="selectHeroThumbnail(${slideIndex})">
+                <img
+                    src="${imgSrc}"
+                    alt="${(movie.name || '').replace(/"/g, '&quot;')}"
+                    loading="${i < 4 ? 'eager' : 'lazy'}"
+                    decoding="async"
+                    onerror="this.src='https://phimimg.com/upload/vod/20260620-1/00083387b890aaac69f0490b3fda8c13.jpg'" />
+            </div>`;
+        }).join('');
+    }
+
+    // Keyboard accessibility for thumbnails (không gắn trùng click listener vì đã có onclick trên thẻ)
+    container.querySelectorAll('.hero-thumb-item').forEach(el => {
+        if (el._kbBound) return;
+        el._kbBound = true;
         el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -1669,5 +1688,14 @@ window.switchHeroSlide = switchHeroSlide;
 
 // -- Boot ---------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-    loadHeroBanner();
+    if (window.innerWidth >= 1024) {
+        loadHeroBanner();
+    } else {
+        window.addEventListener('resize', function onDesktopResize() {
+            if (window.innerWidth >= 1024) {
+                window.removeEventListener('resize', onDesktopResize);
+                loadHeroBanner();
+            }
+        }, { passive: true });
+    }
 });
