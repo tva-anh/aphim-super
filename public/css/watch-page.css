@@ -1717,7 +1717,12 @@
             }
 
             #aphim-player-wrapper {
-                transition: cursor 0.2s ease !important;
+                cursor: default;
+            }
+
+            #aphim-dual-subtitles-overlay {
+                contain: layout style;
+                pointer-events: none !important;
             }
 
             #aphim-player-wrapper.aphim-hide-cursor,

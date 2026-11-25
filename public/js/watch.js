@@ -387,16 +387,8 @@ function attachWorkingStreamsToBilingual(bilingualServer, referenceEpisodes) {
             bEp.link_m3u8.includes('stringdeptrai') ||
             bEp.link_m3u8.includes('/api/playback/manifest')
         );
-        // 🛡️ Nếu link m3u8 là luồng OnCDN / Tophim / ViCDN sạch thì giữ nguyên 100%, không ghi đè
-        if (!isBrokenChoPhim && bEp.link_m3u8 && (bEp.link_m3u8.includes('oncdn.vip') || bEp.link_m3u8.includes('tophim.vip') || bEp.link_m3u8.includes('vicdn.cc'))) {
-            return;
-        }
-
-        // 🛡️ BẢO VỆ TUYỆT ĐỐI VIDEO GỐC TRẮNG SUB (CHỐNG LỖI ĐÈ SUB DO HARDSUB):
-        // Nếu tập phim đã có nguồn video gốc trắng sub từ SofaFlix / PlayEmbed,
-        // TUYỆT ĐỐI KHÔNG đè luồng m3u8 của server Vietsub (vốn là video đã bị dán chết hardsub tiếng Việt vào hình ảnh)
-        if (bEp.link_embed && (bEp.link_embed.includes('playembed.vip') || bEp.link_embed.includes('sofaflix'))) {
-            bEp.link_m3u8 = '';
+        // 🛡️ Nếu link m3u8 là luồng OnCDN / Tophim / ViCDN / Proxy sạch thì giữ nguyên 100%, không ghi đè
+        if (!isBrokenChoPhim && bEp.link_m3u8 && (bEp.link_m3u8.includes('oncdn.vip') || bEp.link_m3u8.includes('tophim.vip') || bEp.link_m3u8.includes('vicdn.cc') || bEp.link_m3u8.startsWith('/api/proxy/'))) {
             return;
         }
 
@@ -1152,23 +1144,15 @@ async function fetchAndMergeSecondaryServers(slug, isPrimary = false, episodeSlu
                 currentEpisode = wantedEpisode;
                 console.log(`🔄 [Watch] Merge xong → nạp lại player sang "${nextServer.server_name}" (chất lượng nguồn cũ ${prevQuality}/4, chủ đích: ${requestedVariant || 'không'})`);
                 if (_playbackStarted) {
-                    // Guard trong initializePlayer giữ _isInitializingPlayer tới 5s → thử lại nhẹ nhàng,
-                    // nhưng chỉ khi người dùng chưa tự chuyển server/tập khác trong lúc chờ.
-                    const tryInit = (attempt) => {
-                        if (currentServerIndex !== nextIndex) return;
-                        if (_isInitializingPlayer && attempt < 6) {
-                            setTimeout(() => tryInit(attempt + 1), 500);
-                            return;
-                        }
-                        initializePlayer(currentEpisode);
-                    };
-                    tryInit(0);
+                    _isInitializingPlayer = false;
+                    initializePlayer(currentEpisode);
                 } else {
                     renderPlayerPlaceholder(currentEpisode);
                 }
             }
 
             // Cập nhật highlight + số thứ tự Nguồn + danh sách tập của server mới
+            renderServerList(currentMovie.episodes);
             renderEpisodeList(currentMovie.episodes);
             if (typeof window._aphimUpdateAudioMenu === 'function') {
                 window._aphimUpdateAudioMenu();
@@ -3121,6 +3105,7 @@ window.changeServer = function (index) {
     if (player && !player.paused) {
         showSeekOverlay(`Đang tải máy chủ: ${currentMovie.episodes[index].server_name}...`, true);
     }
+    _isInitializingPlayer = false;
     initializePlayer(currentEpisode);
     if (typeof updateMobileSongNguVisibility === 'function') updateMobileSongNguVisibility();
 };
@@ -3355,17 +3340,18 @@ function renderEpisodeList(episodes) {
 
 // Initialize video player
 function initializePlayer(episode) {
-    // Guard: nếu đang trong quá trình khởi tạo, bỏ qua lần gọi này
+    // Guard ngắn (800ms) chống gọi đúp trong cùng 1 tick khởi tạo
     if (_isInitializingPlayer) {
         console.warn('⚠️ initializePlayer đang chạy, bỏ qua lần gọi trùng lặp.');
         return;
     }
     _isInitializingPlayer = true;
-    setTimeout(() => { _isInitializingPlayer = false; }, 5000);
+    setTimeout(() => { _isInitializingPlayer = false; }, 800);
 
     console.log('🎥 Initializing ArtPlayer:', episode?.name || 'Tập phim');
 
     if (!episode) {
+        _isInitializingPlayer = false;
         console.error('❌ No episode provided');
         showError('Không tìm thấy tập phim');
         return;
@@ -3377,18 +3363,6 @@ function initializePlayer(episode) {
 
     enrichEpisodeLinks(episode);
     let videoUrl = customLink || episode.link_m3u8 || episode.link_embed;
-
-    // 📱 SofaFlix/PlayEmbed Song Ngữ: trên mobile ưu tiên iframe video gốc.
-    // Các m3u8 này thường yêu cầu header Referer hoặc native HLS không tương thích
-    // với Safari/iOS, khiến player chỉ đứng ở 00:00 dù link vẫn còn sống.
-    const isMobilePlayback = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 850);
-    const isSofaFlixEmbed = typeof episode.link_embed === 'string' &&
-        /(?:playembed\.vip|sofaflix(?:\.|$)|onflixcdn\.com|edgecontent\.site)/i.test(episode.link_embed);
-    if (!customLink && isMobilePlayback && isSofaFlixEmbed) {
-        console.log('📱 [Song Ngữ Mobile] Ưu tiên iframe SofaFlix/PlayEmbed thay cho m3u8:', episode.link_embed);
-        episode.link_m3u8 = '';
-        videoUrl = episode.link_embed;
-    }
 
     const isDeadStream = videoUrl && (videoUrl.includes('chophim') || videoUrl.includes('stringdeptrai') || videoUrl.includes('/api/playback/manifest'));
     const isBlocked = isBlockedEmbedLink(videoUrl) || (!episode.link_m3u8 && isBlockedEmbedLink(episode.link_embed)) || isDeadStream;
@@ -3427,18 +3401,8 @@ function initializePlayer(episode) {
             }
 
             if (altFound && altQuality > 1) {
-                // 🌟 ĐẶC QUYỀN SONG NGỮ: Ưu tiên tuyệt đối VIDEO GỐC TRẮNG SUB (Không đè luồng hardsub Vietsub làm dính sub)
                 const isSn = typeof isCurrentServerSongNgu === 'function' ? isCurrentServerSongNgu() : false;
-                const hasCleanRawEmbed = episode.link_embed && (
-                    episode.link_embed.includes('playembed.vip') ||
-                    episode.link_embed.includes('sofaflix')
-                );
-
-                if (isSn && hasCleanRawEmbed) {
-                    console.log('✨ [Song Ngữ Raw] Sử dụng video gốc trắng sub không dính hardsub:', episode.link_embed);
-                    episode.link_m3u8 = '';
-                    videoUrl = episode.link_embed;
-                } else if (isSn && episode.subtitles && episode.subtitles.length > 0) {
+                if (isSn && episode.subtitles && episode.subtitles.length > 0 && altFound.link_m3u8) {
                     console.log(`✅ [Song Ngữ Auto-Heal] Ghép luồng mượt mà từ ${currentMovie.episodes[altSIdx].server_name} vào máy chủ Song Ngữ!`);
                     episode.link_m3u8 = altFound.link_m3u8;
                     if (altFound.link_embed) episode.link_embed = altFound.link_embed;
@@ -3571,6 +3535,7 @@ function initializePlayer(episode) {
                 class="w-full h-full object-contain bg-black block" 
                 playsinline 
                 webkit-playsinline
+                disableRemotePlayback
                 preload="auto"
                 poster="${bgUrl}">
                 Trình duyệt của bạn không hỗ trợ video.
@@ -3581,7 +3546,7 @@ function initializePlayer(episode) {
             </div>
 
             <!-- Clickable Center Video Zone (Tap/Click to Play/Pause) -->
-            <div id="aphim-clickzone" class="absolute inset-0 z-10 cursor-pointer"></div>
+            <div id="aphim-clickzone" class="absolute inset-0 z-10"></div>
 
             <!-- Subtitle Customizer Modal (Desktop & Tablet Popup - Images 1, 2, 3) -->
             <div id="aphim-sub-modal" class="hidden">
@@ -7189,7 +7154,38 @@ function initializePlayer(episode) {
 
     // Controls Auto-Hide & Mouse Hover Visibility Logic (Professional Cinema Standard - YouTube/Netflix)
     let hideTimeout = null;
+    let cursorHideTimeout = null;
     let isHoveringControls = false;
+    let lastMouseX = -1;
+    let lastMouseY = -1;
+
+    function showCursorNow() {
+        if (!wrapper) return;
+        if (wrapper.classList.contains('aphim-hide-cursor')) {
+            wrapper.classList.remove('aphim-hide-cursor');
+        }
+        if (wrapper.style.cursor) {
+            wrapper.style.cursor = '';
+        }
+    }
+
+    function scheduleHideCursor(delay = 2500) {
+        if (cursorHideTimeout) {
+            clearTimeout(cursorHideTimeout);
+            cursorHideTimeout = null;
+        }
+        if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
+        if (typeof isAnyPopupOpen === 'function' && isAnyPopupOpen()) return;
+        if (settingsMenu && !settingsMenu.classList.contains('hidden')) return;
+
+        cursorHideTimeout = setTimeout(() => {
+            if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
+            if (typeof isAnyPopupOpen === 'function' && isAnyPopupOpen()) return;
+            if (wrapper) {
+                wrapper.classList.add('aphim-hide-cursor');
+            }
+        }, delay);
+    }
 
     function showControls(customDelay) {
         if (!controls) return;
@@ -7203,14 +7199,12 @@ function initializePlayer(episode) {
             controls.classList.remove('aphim-controls-hidden');
         }
 
-        if (wrapper) {
-            wrapper.classList.remove('aphim-hide-cursor');
-            wrapper.style.cursor = 'default';
-        }
+        showCursorNow();
 
         const isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768);
         const delay = (typeof customDelay === 'number' && customDelay > 0) ? customDelay : (isTouch ? 3800 : 2500);
         scheduleHideControls(delay);
+        if (!isTouch) scheduleHideCursor(delay);
     }
 
     function isAnyPopupOpen() {
@@ -7223,7 +7217,7 @@ function initializePlayer(episode) {
         return false;
     }
 
-    function hideControls(force = false) {
+    function hideControls(force = false, keepCursorVisible = false) {
         if (!controls) return;
         if (!force) {
             if (!player || player.paused || isDraggingTimeline || isHoveringControls) return;
@@ -7242,14 +7236,13 @@ function initializePlayer(episode) {
 
         controls.classList.add('aphim-controls-hidden');
 
-        if (wrapper) {
+        if (!keepCursorVisible && wrapper) {
             wrapper.classList.add('aphim-hide-cursor');
-            wrapper.style.cursor = 'none';
         }
         if (settingsMenu) settingsMenu.classList.add('hidden');
     }
 
-    function scheduleHideControls(delay) {
+    function scheduleHideControls(delay, keepCursorVisible = false) {
         if (hideTimeout) {
             clearTimeout(hideTimeout);
             hideTimeout = null;
@@ -7263,7 +7256,7 @@ function initializePlayer(episode) {
         const actualDelay = (typeof delay === 'number' && delay > 0) ? delay : (isTouch ? 3800 : 2500);
 
         hideTimeout = setTimeout(() => {
-            hideControls();
+            hideControls(false, keepCursorVisible);
         }, actualDelay);
     }
 
@@ -7316,6 +7309,15 @@ function initializePlayer(episode) {
             return;
         }
 
+        // Bỏ qua sự kiện mousemove tổng hợp của trình duyệt khi DOM phụ đề thay đổi mà chuột thực tế đang đứng yên
+        if (e && typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+            if (Math.abs(e.clientX - lastMouseX) < 2 && Math.abs(e.clientY - lastMouseY) < 2) {
+                return;
+            }
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        }
+
         const isFs = isCurrentlyFullscreen();
         const targetEl = wrapper;
         if (!targetEl) return;
@@ -7327,55 +7329,45 @@ function initializePlayer(episode) {
         const relativeY = clientY - rect.top;
         const height = rect.height;
 
-        // Ngưỡng phân chia 2 vùng thông minh:
-        // - Trên Fullscreen: Vùng dưới là 32% chiều cao đáy (hoặc từ đáy tính lên 220px)
-        // - Chế độ thường: Vùng dưới là 38% chiều cao đáy (hoặc từ đáy tính lên 150px)
         const bottomTriggerThreshold = isFs 
             ? Math.max(height * 0.68, height - 220)
             : Math.max(height * 0.62, height - 150);
 
-        // Vùng đệm rời đi (Hysteresis - tránh giật nhấp nháy khi rê chuột chậm quanh ranh giới)
         const topExitThreshold = isFs
             ? Math.max(height * 0.64, height - 250)
             : Math.max(height * 0.58, height - 170);
 
-        // Nếu có bất kỳ popup/modal nào đang mở (Phụ đề, Cài đặt, Nguồn âm), KHÔNG tự ẩn controls hoặc ẩn cursor
+        // Khi chuột thực sự di chuyển, luôn hiện con trỏ ngay và đặt hẹn giờ 2.5s đứng yên mới ẩn con trỏ
+        showCursorNow();
+        scheduleHideCursor(2500);
+
         if (typeof isAnyPopupOpen === 'function' && isAnyPopupOpen()) {
             if (controls && controls.classList.contains('aphim-controls-hidden')) {
                 showControls(2800);
-            }
-            if (wrapper) {
-                wrapper.classList.remove('aphim-hide-cursor');
-                wrapper.style.cursor = 'default';
             }
             return;
         }
 
         if (relativeY >= bottomTriggerThreshold) {
-            // Chuột đang ở VÙNG DƯỚI:
-            // - Nếu controls đang ẨN → mới gọi showControls để trigger transition trượt lên mượt mà
-            // - Nếu controls đã HIỆN rồi → chỉ gia hạn timer, KHÔNG gọi lại showControls tránh chớp giật
             if (controls && controls.classList.contains('aphim-controls-hidden')) {
                 showControls(2800);
             } else {
-                scheduleHideControls(2800); // Chỉ gia hạn, không làm gián đoạn transition
+                scheduleHideControls(2800);
             }
         } else if (relativeY < topExitThreshold) {
-            // Chuột đã được đưa lên lại VÙNG TRÊN (vùng xem phim) → Nhận biết user không cần controls nữa:
-            if (wrapper) {
-                wrapper.classList.remove('aphim-hide-cursor');
-                wrapper.style.cursor = 'default';
-            }
-            if (player && !player.paused && !isDraggingTimeline && !isHoveringControls) {
-                if (!settingsMenu || settingsMenu.classList.contains('hidden')) {
-                    scheduleHideControls(180); // Ẩn mượt mà sau 180ms
+            // Chuột đưa lên vùng trên: chỉ thu gọn thanh công cụ (keepCursorVisible = true), KHÔNG tắt con trỏ chuột sau 180ms!
+            if (controls && !controls.classList.contains('aphim-controls-hidden')) {
+                if (player && !player.paused && !isDraggingTimeline && !isHoveringControls) {
+                    if (!settingsMenu || settingsMenu.classList.contains('hidden')) {
+                        scheduleHideControls(180, true);
+                    }
                 }
             }
         }
     }
 
     if (wrapper) {
-        wrapper.addEventListener('mousemove', handleDesktopDualZoneMouseMove);
+        wrapper.addEventListener('mousemove', handleDesktopDualZoneMouseMove, { passive: true });
 
         wrapper.addEventListener('mouseenter', (e) => {
             if (e && e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
@@ -7384,41 +7376,34 @@ function initializePlayer(episode) {
                 return;
             }
 
+            showCursorNow();
+            scheduleHideCursor(2500);
+
             const rect = wrapper.getBoundingClientRect();
             const relativeY = e.clientY - rect.top;
             const bottomThreshold = Math.max(rect.height * 0.62, rect.height - 150);
 
             if (relativeY >= bottomThreshold) {
-                // mouseenter vào vùng dưới: chỉ show nếu đang ẩn, tránh interrupt transition
                 if (controls && controls.classList.contains('aphim-controls-hidden')) {
                     showControls(2800);
                 } else {
                     scheduleHideControls(2800);
                 }
-            } else {
-                // Di chuột vào ở vùng trên: không bật controls che mắt, chỉ đảm bảo con trỏ hiển thị
-                if (wrapper) {
-                    wrapper.classList.remove('aphim-hide-cursor');
-                    wrapper.style.cursor = 'default';
-                }
             }
         });
 
         wrapper.addEventListener('mouseleave', () => {
-            // Không áp dụng mouseleave trên thiết bị cảm ứng
             if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) return;
             isHoveringControls = false;
             if (hideTimeout) clearTimeout(hideTimeout);
-            if (wrapper) wrapper.style.cursor = 'default';
+            if (cursorHideTimeout) clearTimeout(cursorHideTimeout);
+            showCursorNow();
             if (player && !player.paused && !isDraggingTimeline) {
-                // Di chuột ra khỏi khung chiếu -> ẩn mượt mà sau 180ms với transition trượt mờ điện ảnh
                 hideTimeout = setTimeout(() => {
-                    hideControls();
+                    hideControls(false, true);
                 }, 180);
             }
         });
-        // ĐÃ LOẠI BỎ wrapper.addEventListener('touchstart') gọi showControls() sớm
-        // Để clickzone quản lý luồng tap/double-tap/long-press chuẩn xác 100%
     }
 
     // Global listener khi ở Fullscreen: Vẫn áp dụng chính xác Smart Dual-Zone Hover (Không bao giờ bị lỗi hiện trơ trơ nữa)
@@ -7467,7 +7452,11 @@ function initializePlayer(episode) {
             try { window.hlsInstance.destroy(); } catch (e) { }
             window.hlsInstance = null;
         }
-        player.src = videoUrl;
+        const nativeVideoUrl = (videoUrl.includes('/api/proxy/m3u8') && !videoUrl.includes('native=1'))
+            ? `${videoUrl}&native=1`
+            : videoUrl;
+        player.src = nativeVideoUrl;
+        _isInitializingPlayer = false;
         player.addEventListener('loadedmetadata', () => {
             const shouldResume = !isTimeRestored && 
                                  progress && 
@@ -7577,8 +7566,10 @@ function initializePlayer(episode) {
             try { hls.startLoad(); } catch (e) {}
         };
 
+        try { player.disableRemotePlayback = true; } catch (e) {}
         hls.loadSource(videoUrl);
         hls.attachMedia(player);
+        _isInitializingPlayer = false;
 
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
             console.log('🚀 [HLS] Manifest parsed, sẵn sàng phát');
@@ -7846,7 +7837,11 @@ function initializePlayer(episode) {
             window.hls = null;
         }
 
-        player.src = videoUrl;
+        const nativeVideoUrl = (videoUrl.includes('/api/proxy/m3u8') && !videoUrl.includes('native=1'))
+            ? `${videoUrl}&native=1`
+            : videoUrl;
+        player.src = nativeVideoUrl;
+        _isInitializingPlayer = false;
 
         // 🛡️ Vô hiệu hóa toàn bộ native text tracks trên Safari Mobile (chống sub đen đè lên web)
         const disableSafariNativeTracks = () => {
@@ -9296,6 +9291,7 @@ window.changeEpisode = function (episodeSlug) {
         placeholder.style.display = 'none';
         try { placeholder.remove(); } catch(e) {}
     }
+    _isInitializingPlayer = false;
     initializePlayer(currentEpisode);
 
     // 5. Update Watch History

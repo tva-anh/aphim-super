@@ -1428,6 +1428,21 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
         return res.status(400).send('Invalid url');
     }
     try {
+        const ua = String(req.headers['user-agent'] || '');
+        const isAppleNative = req.query.native === '1' ||
+            /iPhone|iPad|iPod/i.test(ua) ||
+            (/Macintosh/i.test(ua) && /Safari/i.test(ua) && !/Chrome|Chromium|Edg/i.test(ua));
+        const cacheKey = isAppleNative ? `${targetUrl}|apple` : targetUrl;
+
+        const cachedM3u8 = m3u8Cache.get(cacheKey);
+        if (cachedM3u8 && (Date.now() - cachedM3u8.time < 30 * 60 * 1000)) {
+            res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Headers', '*');
+            res.setHeader('Cache-Control', 'public, max-age=1800');
+            return res.send(cachedM3u8.content);
+        }
+
         const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
         const isVicdn = targetUrl.includes('vicdn.cc');
         const isVsmov = targetUrl.includes('streamvsmov.com') || targetUrl.includes('vsmov.com');
@@ -1455,7 +1470,7 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
         res.setHeader('Content-Type', 'application/vnd.apple.mpegurl; charset=utf-8');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Headers', '*');
-        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('Cache-Control', 'public, max-age=1800');
 
         let m3u8Content = response.data;
         if (isVicdn && typeof m3u8Content === 'string' && m3u8Content.includes('#ENC-AESGCM')) {
@@ -1471,16 +1486,11 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                 if (!trimmed) continue;
 
                 // 🛡️ TRIỆT TIÊU SUB ĐEN & LỖI FRAG PARSING ERROR:
-                // Lược bỏ toàn bộ các track phụ đề nhúng trong stream m3u8.
-                // APhim đã có engine phụ đề Custom HTML Overlay độc lập với API WebVTT riêng.
-                // Để lại phụ đề trong m3u8 sẽ khiến Safari mobile tự động vẽ sub đen native và HLS.js bị lỗi fragParsingError!
                 if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=SUBTITLES')) {
                     continue;
                 }
 
                 // 🛡️ TRIỆT TIÊU MÀN HÌNH ĐEN TRÊN SAFARI MOBILE:
-                // Lược bỏ #EXT-X-MEDIA:TYPE=AUDIO khi không có URI (audio đã mux sẵn trong TS video)
-                // Nếu để lại thẻ này mà không có URI, Safari CoreMedia trên iPhone sẽ chờ stream audio riêng biệt -> gây đen màn hình!
                 if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=AUDIO') && !trimmed.includes('URI="')) {
                     continue;
                 }
@@ -1493,16 +1503,21 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
 
                 // 🛡️ Bọc 100% mọi URI trong các thẻ EXT-X-MEDIA (AUDIO), EXT-X-KEY, EXT-X-MAP
                 if (trimmed.startsWith('#')) {
+                    const isMapTag = trimmed.startsWith('#EXT-X-MAP');
                     if (trimmed.includes('URI="')) {
                         line = line.replace(/URI="([^"]+)"/g, (match, uri) => {
                             let absUri;
                             try { absUri = new URL(uri, base).href; } catch (e) { absUri = uri; }
                             const isPlaylist = absUri.includes('.m3u8') || absUri.includes('format=m3u8') || absUri.includes('media=');
-                            // ⚡ BẬT DIRECT CDN CHO VICDN & KVP726 (Bỏ qua Node.js Proxy, giảm 70% độ trễ trên mobile)
-                            if (!isPlaylist && (absUri.includes('vicdn.cc') || absUri.includes('kvp726.com') || absUri.includes('kkphim'))) {
+                            // 🛡️ Với #EXT-X-MAP (fMP4 init segment của vicdn.cc ngụy trang đuôi .png + image/png):
+                            // LUÔN bọc qua /api/proxy/media/init.mp4 để trả về Content-Type: video/mp4 chuẩn cho iPhone/Safari & mọi trình phát
+                            if (isMapTag && !isPlaylist) {
+                                return `URI="/api/proxy/media/init.mp4?url=${encodeURIComponent(absUri)}"`;
+                            }
+                            if (!isPlaylist && ((absUri.includes('vicdn.cc') && !isAppleNative) || absUri.includes('kvp726.com') || absUri.includes('kkphim'))) {
                                 return `URI="${absUri}"`;
                             }
-                            const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
+                            const endpoint = isPlaylist ? '/api/proxy/m3u8' : (absUri.includes('vicdn.cc') ? '/api/proxy/media/seg.m4s' : '/api/proxy/media');
                             return `URI="${endpoint}?url=${encodeURIComponent(absUri)}"`;
                         });
                     }
@@ -1510,18 +1525,19 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                     continue;
                 }
 
-                // 🛡️ Bọc 100% mọi phân đoạn video .ts, variant playlist
+                // 🛡️ Bọc phân đoạn video .ts / .m4s, variant playlist
                 let absUrl;
                 try { absUrl = new URL(trimmed, base).href; } catch (e) { absUrl = trimmed; }
 
                 const isPlaylist = absUrl.includes('.m3u8') || absUrl.includes('format=m3u8') || absUrl.includes('media=');
-                // ⚡ BẬT DIRECT CDN CHO VICDN & KVP726: Thiết bị di động tải thẳng từ CDN toàn cầu
-                if (!isPlaylist && (absUrl.includes('vicdn.cc') || absUrl.includes('kvp726.com') || absUrl.includes('kkphim'))) {
+                // ⚡ Desktop & Android (hls.js): tải trực tiếp từ CDN vicdn.cc; Riêng iPhone/Safari (isAppleNative): đi qua /api/proxy/media/seg.m4s để đổi image/png -> video/mp4
+                if (!isPlaylist && ((absUrl.includes('vicdn.cc') && !isAppleNative) || absUrl.includes('kvp726.com') || absUrl.includes('kkphim'))) {
                     rewritten.push(absUrl);
                     continue;
                 }
-                const endpoint = isPlaylist ? '/api/proxy/m3u8' : '/api/proxy/media';
-                rewritten.push(`${endpoint}?url=${encodeURIComponent(absUrl)}`);
+                const endpoint = isPlaylist ? '/api/proxy/m3u8' : (absUrl.includes('vicdn.cc') ? '/api/proxy/media/seg.m4s' : '/api/proxy/media');
+                const nativeSuffix = (isPlaylist && isAppleNative) ? '&native=1' : '';
+                rewritten.push(`${endpoint}?url=${encodeURIComponent(absUrl)}${nativeSuffix}`);
             }
             m3u8Content = rewritten.join('\n');
         }
@@ -1530,7 +1546,7 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
             const firstKey = m3u8Cache.keys().next().value;
             m3u8Cache.delete(firstKey);
         }
-        m3u8Cache.set(targetUrl, { time: Date.now(), content: m3u8Content });
+        m3u8Cache.set(cacheKey, { time: Date.now(), content: m3u8Content });
         res.send(m3u8Content);
     } catch (err) {
         console.error('[Proxy M3U8 Error]:', err.message);
@@ -1539,7 +1555,7 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
 });
 
 // ⚡ Proxy cho từng phân đoạn video .ts, .png, .m4s và phụ đề .vtt vượt tường lửa Anti-Leech 100%
-app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
+app.get(['/api/proxy/media', '/api/proxy/media/:filename', '/api/bilingual/media'], async (req, res) => {
     const targetUrl = req.query.url;
     if (!targetUrl || !targetUrl.startsWith('http')) {
         return res.status(400).send('Invalid url');
@@ -1590,12 +1606,23 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
             return upstream.data.pipe(res);
         }
 
-        // 🛡️ BỘ LỌC GIẢI MÃ MẶT NẠ 188-BYTE PNG CHO VIDEO TS (OnCDN, ViCDN Anti-Leech)
-        // OnCDN cố tình chèn 188 byte PNG header vào đầu file .ts để gây lỗi fragParsingError.
-        // Transform stream này tự động nhận diện và bóc tách 188 bytes rác, trả về MPEG-TS chuẩn 100%.
+        // 🛡️ BỘ LỌC GIẢI MÃ MẶT NẠ 188-BYTE PNG CHO VIDEO TS & TỰ ĐỘNG NHẬN DIỆN FMP4 (OnCDN, ViCDN Anti-Leech)
+        // - OnCDN chèn 188 byte PNG header vào đầu file .ts -> bóc 188 bytes rác, trả về video/mp2t.
+        // - ViCDN ngụy trang phân đoạn fMP4 (ftyp / styp / moof / sidx) dưới đuôi .png và Content-Type: image/png -> trả về chuẩn video/mp4 cho iPhone/Safari!
         let headerBuf = Buffer.alloc(0);
         let inspected = false;
-        let isMaskedTs = false;
+
+        const applyMediaHeaders = (isMasked, buf) => {
+            const boxType = (buf && buf.length >= 8) ? buf.subarray(4, 8).toString('ascii') : '';
+            const isFmp4 = !isMasked && (boxType === 'ftyp' || boxType === 'styp' || boxType === 'moof' || boxType === 'sidx' || boxType === 'mdat' || (req.params && req.params.filename && /\.(mp4|m4s)$/i.test(req.params.filename)));
+            res.setHeader('Content-Type', isFmp4 ? 'video/mp4' : 'video/mp2t');
+            res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+            if (upstream.headers['accept-ranges']) res.setHeader('Accept-Ranges', upstream.headers['accept-ranges']);
+            if (!isMasked) {
+                if (upstream.headers['content-length']) res.setHeader('Content-Length', upstream.headers['content-length']);
+                if (upstream.headers['content-range']) res.setHeader('Content-Range', upstream.headers['content-range']);
+            }
+        };
 
         const tsUnmasker = new Transform({
             transform(chunk, encoding, callback) {
@@ -1607,9 +1634,10 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
                     inspected = true;
                     // PNG magic bytes: 0x89, 0x50, 0x4E, 0x47 và byte thứ 188 là 0x47 (MPEG-TS Sync Byte)
                     if (headerBuf[0] === 0x89 && headerBuf[1] === 0x50 && headerBuf[2] === 0x4E && headerBuf[3] === 0x47 && headerBuf[188] === 0x47) {
-                        isMaskedTs = true;
+                        applyMediaHeaders(true, headerBuf);
                         this.push(headerBuf.subarray(188));
                     } else {
+                        applyMediaHeaders(false, headerBuf);
                         this.push(headerBuf);
                     }
                     headerBuf = null;
@@ -1620,16 +1648,14 @@ app.get(['/api/proxy/media', '/api/bilingual/media'], async (req, res) => {
             },
             flush(callback) {
                 if (!inspected && headerBuf && headerBuf.length > 0) {
+                    inspected = true;
+                    applyMediaHeaders(false, headerBuf);
                     this.push(headerBuf);
+                    headerBuf = null;
                 }
                 callback();
             }
         });
-
-        res.setHeader('Content-Type', 'video/mp2t');
-        res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
-        if (upstream.headers['accept-ranges']) res.setHeader('Accept-Ranges', upstream.headers['accept-ranges']);
-        // Không forward content-length của upstream khi có giải mã để Express phát luồng chunked mượt mà, chống lệch kích thước
 
         upstream.data.pipe(tsUnmasker).pipe(res);
     } catch (err) {
