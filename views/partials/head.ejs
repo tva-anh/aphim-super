@@ -2,6 +2,7 @@
 <meta name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="no-referrer">
+<link rel="preload" as="image" href="/logo-aphim-splash.webp" type="image/webp" fetchpriority="high">
 
 <!-- ⚡ Tối ưu mạng: DNS-Prefetch & Preconnect giữ sẵn kết nối tới các cụm CDN Video & Ảnh -->
 <link rel="dns-prefetch" href="https://a.kvp726.com">
@@ -77,21 +78,21 @@
         from { opacity: 0; }
         to   { opacity: 1; }
     }
-    html.aphim-enter body > main,
-    html.aphim-enter body > section#desktopHeroShowcase {
-        animation: aphim-page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    html.aphim-enter:not(.aphim-splash-active) body > main,
+    html.aphim-enter:not(.aphim-splash-active) body > section#desktopHeroShowcase {
+        animation: aphim-page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
     /* Trang xem phim: chỉ fade opacity (không transform) để player/sticky ổn định tức thì */
-    html.aphim-enter body.page-watch > main {
-        animation: aphim-page-enter-fade 0.3s ease both;
+    html.aphim-enter:not(.aphim-splash-active) body.page-watch > main {
+        animation: aphim-page-enter-fade 0.22s ease both;
     }
     /* Reduced-motion: bỏ chuyển động nâng (translateY) gây chóng mặt, nhưng vẫn
        giữ fade opacity nhẹ nhàng (không phải motion tiền đình) để vào trang vẫn mượt. */
     @media (prefers-reduced-motion: reduce) {
-        html.aphim-enter body > main,
-        html.aphim-enter body.page-watch > main,
-        html.aphim-enter body > section#desktopHeroShowcase {
-            animation: aphim-page-enter-fade 0.25s ease both;
+        html.aphim-enter:not(.aphim-splash-active) body > main,
+        html.aphim-enter:not(.aphim-splash-active) body.page-watch > main,
+        html.aphim-enter:not(.aphim-splash-active) body > section#desktopHeroShowcase {
+            animation: aphim-page-enter-fade 0.18s ease both;
         }
     }
 </style>

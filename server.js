@@ -2056,6 +2056,20 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
         return res.status(400).json({ status: false, message: 'Invalid slug' });
     }
 
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+    const isMetaOnly = req.query.meta === '1' || req.query.light === '1';
+    const sendMerged = (payload) => {
+        if (!isMetaOnly || !payload || !payload.status) return res.json(payload);
+        const lightMovie = payload.movie ? { ...payload.movie } : null;
+        if (lightMovie) delete lightMovie.episodes;
+        return res.json({
+            status: true,
+            source: payload.source || 'aphim',
+            movie: lightMovie,
+            episodes: []
+        });
+    };
+
     const cleanSlug = String(slug).toLowerCase().trim();
     let querySlug = cleanSlug;
     try {
@@ -2067,7 +2081,7 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
     // 🎬 0. Ưu tiên luồng phát tùy biến / R2 nội bộ từ Admin (0ms, không gọi API bên ngoài)
     const custom = customStreams.getBySlug(cleanSlug) || customStreams.getBySlug(querySlug);
     if (custom && custom.episodes && custom.episodes.length > 0) {
-        return res.json({
+        return sendMerged({
             status: true,
             source: 'aphim-custom',
             movie: custom,
@@ -2077,7 +2091,7 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
 
     const cached = mergedCache.get(cleanSlug) || mergedCache.get(querySlug);
     if (cached && Date.now() - cached.timestamp < 15 * 60 * 1000) { // 15 phút cache
-        return res.json(cached.data);
+        return sendMerged(cached.data);
     }
 
     try {
@@ -2160,9 +2174,8 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
             }
         }
 
-        // Cập nhật lại episodes
+        // Cập nhật lại episodes & cắt bỏ trường filename thừa (~150-250KB rác ở các bộ dài tập như Conan)
         if (baseItem) {
-            // Chuẩn hóa tên server
             let srcCount = 0;
             mergedEpisodes.forEach((s) => {
                 if (!s.original_server_name) s.original_server_name = s.server_name;
@@ -2170,15 +2183,28 @@ app.get('/api/movie-merged/:slug', async (req, res) => {
                 if (!isSn) {
                     s.server_name = 'Nguồn ' + (++srcCount);
                 }
+                if (Array.isArray(s.server_data)) {
+                    s.server_data = s.server_data.map(ep => ({
+                        name: ep.name,
+                        slug: ep.slug,
+                        link_m3u8: ep.link_m3u8 || '',
+                        link_embed: ep.link_embed || '',
+                        subtitles: ep.subtitles || []
+                    }));
+                }
             });
+            delete baseItem.episodes;
             finalData.episodes = mergedEpisodes;
             finalData.status = true;
         }
 
         if (finalData.status) {
-            mergedCache.set(slug, { data: finalData, timestamp: Date.now() });
+            mergedCache.set(cleanSlug, { data: finalData, timestamp: Date.now() });
+            if (querySlug !== cleanSlug) {
+                mergedCache.set(querySlug, { data: finalData, timestamp: Date.now() });
+            }
         }
-        res.json(finalData);
+        return sendMerged(finalData);
 
     } catch (err) {
         console.error('[MovieMerged] Lỗi:', err.message);

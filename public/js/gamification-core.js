@@ -7,6 +7,11 @@
 (function () {
   'use strict';
 
+  if (typeof window !== 'undefined') {
+    if (window.__aphimGamificationCoreInit) return;
+    window.__aphimGamificationCoreInit = true;
+  }
+
   // ─── 1. CẤU HÌNH BẢN QUY HOẠCH KINH TẾ ĐÃ DUYỆT ───
   const STREAK_REWARDS = [
     { day: 1, xp: 20, xu: 2, label: 'Ngày 1' },
@@ -946,6 +951,7 @@
           _leaderboardCache[timeframe] = json.data;
           try {
             localStorage.setItem(`ap_real_lb_${timeframe}`, JSON.stringify(json.data));
+            localStorage.setItem(`ap_real_lb_ts_${timeframe}`, String(Date.now()));
             if (timeframe === 'weekly') {
               localStorage.setItem('ap_real_leaderboard', JSON.stringify(json.data));
             }
@@ -1056,11 +1062,19 @@
     updateHeaderChips
   };
 
-  // Tự động lắng nghe và nạp trước dữ liệu thực tế khi trang load
+  // Tự động lắng nghe và nạp dữ liệu thực tế khi trang load (ưu tiên cache 5 phút để không gọi lặp mỗi lần chuyển trang)
   document.addEventListener('DOMContentLoaded', () => {
     updateHeaderChips();
     updatePillUI();
-    fetchLeaderboard('weekly');
+    try {
+      const ts = parseInt(localStorage.getItem('ap_real_lb_ts_weekly') || '0', 10);
+      const cachedRaw = localStorage.getItem('ap_real_lb_weekly');
+      if (cachedRaw && ts > 0 && (Date.now() - ts) < 5 * 60 * 1000) {
+        _leaderboardCache['weekly'] = JSON.parse(cachedRaw);
+        return;
+      }
+    } catch (e) {}
+    setTimeout(() => { fetchLeaderboard('weekly'); }, 1500);
   });
 
   window.addEventListener('ap:user-updated', () => { updateHeaderChips(); updatePillUI(); });

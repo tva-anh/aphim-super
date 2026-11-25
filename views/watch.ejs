@@ -3,7 +3,7 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css?v=<%= Date.now() %>" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=20261125" />
         <style>
             /* Tên phim trong Card bên phải: Vàng amber sắc nét, tương phản cao, không bị lợt trên nền kem */
             html.light-mode #sidebar-movie-name,
@@ -1477,21 +1477,20 @@
                  nên file này (rất nhẹ) chạy ngay khi HTML parse xong ⇒ nút Vietsub / Lồng Tiếng
                  + lưới tập hiện ra tức thì, KHÔNG phải chờ hls.js / lottie / watch.js (233KB)...
                  Lưu ý: watch.js gọi lại ApWatchEarlyRender.* để không lệch giao diện. %>
-            <script src="/js/watch-early-render.js?v=<%= Date.now() %>" defer></script>
-            <script src="/js/hls.min.js"></script>
+            <script src="/js/watch-early-render.js?v=20261125" defer></script>
+            <script src="/js/hls.min.js" defer></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js" defer></script>
             <script src="/js/api.js?v=107" defer></script>
             <script src="/js/user.js?v=101" defer></script>
-            <script src="/js/gamification-core.js?v=107" defer></script>
             <script src="/js/rating.js?v=100" defer></script>
             <script src="/js/tmdb-api.js?v=101" defer></script>
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=105" defer></script>
-            <script src="/js/watch.js?v=<%= Date.now() %>" defer></script>
-            <script src="/js/firebase-comments.js?v=<%= Date.now() %>" defer></script>
+            <script src="/js/watch.js?v=20261125" defer></script>
+            <script src="/js/firebase-comments.js?v=20261125" defer></script>
             <script src="/js/watch-ui-init.js?v=219" defer></script>
-            <script src="/js/watch-server-ping.js?v=<%= Date.now() %>" defer></script>
+            <script src="/js/watch-server-ping.js?v=20261125" defer></script>
 
             <!-- 📡 Popover Máy chủ • Ping HTTP (Chuẩn Kính Mờ & Tinh Gọn Như Hình 3) -->
             <div id="serverPingModal"

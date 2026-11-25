@@ -1469,23 +1469,32 @@
                             <!-- Nhóm các nút hành động bên trái (Xem ngay, Yêu thích, Thêm vào, Chia sẻ, Bình luận) -->
                             <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
                                 <%
-                                    let directWatchUrl = `/xem-phim/${typeof slug !== 'undefined' ? slug : ''}`;
+                                    let directWatchUrl = `/xem-phim/${typeof slug !== 'undefined' ? slug : ''}/tap-1`;
                                     if (typeof movie !== 'undefined' && movie) {
-                                        const isSingle = Boolean(
-                                            movie.type === 'single' ||
-                                            movie.type === 'movie' ||
+                                        const rawType = String(movie.type || '').trim().toLowerCase();
+                                        const epTotal = String(movie.episode_total || '').trim().toLowerCase();
+                                        const epCurrent = String(movie.episode_current || '').trim().toLowerCase();
+                                        const catList = Array.isArray(movie.category)
+                                            ? movie.category.map(c => (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase())
+                                            : [];
+                                        const parsedTotal = parseInt(epTotal.replace(/[^0-9]/g, ''), 10);
+                                        const isMultiTotal = !isNaN(parsedTotal) && parsedTotal > 1;
+                                        const hasSeriesCategory = catList.some(c => c.includes('phim bộ') || c.includes('phim-bo') || c.includes('tv series') || c.includes('tv-series'));
+                                        const isExplicitSeriesType = rawType === 'series' || rawType === 'tvshows';
+                                        const isOngoingSeriesEpisode = /tập\s*\d+/i.test(epCurrent) && !epCurrent.includes('full') && !epCurrent.includes('trọn bộ') && !epCurrent.includes('hoàn tất');
+                                        const isDefinitelySeries = isExplicitSeriesType || isMultiTotal || isOngoingSeriesEpisode || hasSeriesCategory;
+
+                                        const isSingle = Boolean(!isDefinitelySeries && (
+                                            rawType === 'single' ||
+                                            rawType === 'movie' ||
                                             movie.chieu_rap === true ||
                                             movie.is_cinema === true ||
-                                            String(movie.episode_total || '').trim() === '1' ||
-                                            String(movie.episode_total || '').trim() === '01' ||
-                                            String(movie.episode_current || '').toLowerCase().includes('full') ||
-                                            String(movie.episode_current || '').toLowerCase().includes('chiếu rạp') ||
-                                            (Array.isArray(movie.category) && movie.category.some(c => {
-                                                const n = (typeof c === 'string' ? c : (c.name || c.slug || '')).toLowerCase();
-                                                return n.includes('chiếu rạp') || n.includes('phim lẻ');
-                                            })) ||
-                                            (Array.isArray(movie.episodes) && movie.episodes.length > 0 && Math.max(...movie.episodes.map(s => (s.server_data || []).length)) === 1)
-                                        );
+                                            epTotal === '1' ||
+                                            epTotal === '01' ||
+                                            epCurrent.includes('full') ||
+                                            epCurrent.includes('chiếu rạp') ||
+                                            catList.some(c => c.includes('chiếu rạp') || c.includes('phim lẻ'))
+                                        ));
 
                                         const reqVer = (typeof reqVersion !== 'undefined' && reqVersion ? String(reqVersion) : ((typeof req !== 'undefined' && req && req.query) ? String(req.query.version || '') : '')).toLowerCase();
                                         let catSlug = '';
@@ -2011,7 +2020,7 @@
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
             </script>
-            <script src="/js/movie-detail.js?v=<%= Date.now() %>" defer></script>
+            <script src="/js/movie-detail.js?v=20261125" defer></script>
 
             <script>
                 (function () {
@@ -2020,8 +2029,8 @@
                         if (_prewarmed) return;
                         _prewarmed = true;
                         var assets = [
-                            { href: '/css/watch-page.css?v=340', as: 'style' },
-                            { href: '/js/watch.js?v=10098', as: 'script' }
+                            { href: '/css/watch-page.css?v=20261125', as: 'style' },
+                            { href: '/js/watch.js?v=20261125', as: 'script' }
                         ];
                         assets.forEach(function (item) {
                             try {
@@ -2077,7 +2086,7 @@
 
             <!-- ====== Sidebar & Comments ====== -->
             <script src="/js/top-weekly-sidebar.js?v=10014" defer></script>
-            <script src="/js/firebase-comments.js?v=<%= Date.now() %>" defer></script>
+            <script src="/js/firebase-comments.js?v=20261125" defer></script>
 
             <script src="/js/nav-active-indicator.js?v=99" defer></script>
 

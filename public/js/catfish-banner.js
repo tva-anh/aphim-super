@@ -116,13 +116,15 @@
         }
     };
 
-    // ⚡ Preload ngay 3 ảnh GIF popup vào cache để popup mở tức thì mượt mà, không bị lag
+    // ⚡ Preload 3 ảnh GIF popup CHỈ KHI popup chưa bị đóng trong phiên hiện tại (tiết kiệm 7.5MB băng thông khi chuyển trang)
     try {
-        var _pb = (CONFIG.popup && CONFIG.popup.banners) || [];
-        for (var _pi = 0; _pi < _pb.length; _pi++) {
-            if (_pb[_pi] && _pb[_pi].img) {
-                var _pImg = new Image();
-                _pImg.src = _pb[_pi].img;
+        if (CONFIG.popup && CONFIG.popup.enabled && !sessionStorage.getItem(CONFIG.popup.sessionKey)) {
+            var _pb = CONFIG.popup.banners || [];
+            for (var _pi = 0; _pi < _pb.length; _pi++) {
+                if (_pb[_pi] && _pb[_pi].img) {
+                    var _pImg = new Image();
+                    _pImg.src = _pb[_pi].img;
+                }
             }
         }
     } catch (e) {}

@@ -140,7 +140,7 @@ async function fetchRealMovieDetail(movie) {
         return movie;
     }
     try {
-        const res = await fetch(`/api/movie-merged/${encodeURIComponent(movie.slug)}`);
+        const res = await fetch(`/api/movie-merged/${encodeURIComponent(movie.slug)}?meta=1`);
         if (res.ok) {
             const data = await res.json();
             const item = data.data?.item || data.movie;

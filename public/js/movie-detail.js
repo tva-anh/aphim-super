@@ -940,7 +940,8 @@ function setupWatchButton(movie) {
     };
 
     if (customLink) {
-        watchBtn.href = `/xem-phim/${movie.slug}`;
+        const isSingleCustom = String(movie.type || '').toLowerCase() === 'single' || String(movie.episode_total || '') === '1';
+        watchBtn.href = isSingleCustom ? `/xem-phim/${movie.slug}/full` : `/xem-phim/${movie.slug}/tap-1`;
         watchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         watchBtn.onclick = syncPreload;
         watchBtn.onmouseenter = syncPreload;
