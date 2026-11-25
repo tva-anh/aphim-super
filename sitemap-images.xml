@@ -107554,4 +107554,34 @@
         <image:image><image:loc>https://phimimg.com/uploads/movies/upload/vod/20241020-1/37aa6733968604bbbb2c20192d76d562.jpg</image:loc><image:title>Sát Thủ Đội Cổ Vũ</image:title></image:image>
         <image:image><image:loc>https://phimimg.com/uploads/movies/upload/vod/20241020-1/f3aff71335d46a0bc44cd6526e7094c6.jpg</image:loc><image:title>Sát Thủ Đội Cổ Vũ - Poster</image:title></image:image>
     </url>
+    <url>
+        <loc>https://aphim.store/phim/moi-tinh-troi-ban</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/moi-tinh-troi-ban-thumb.webp</image:loc><image:title>Mối Tình Trời Ban</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/moi-tinh-troi-ban-poster.webp</image:loc><image:title>Mối Tình Trời Ban - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/thu-nu</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/thu-nu-thumb.webp</image:loc><image:title>Thứ Nữ</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/thu-nu-poster.webp</image:loc><image:title>Thứ Nữ - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/vu-an-karen-read</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/vu-an-karen-read-thumb.webp</image:loc><image:title>Vụ Án Karen Read</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/vu-an-karen-read-poster.webp</image:loc><image:title>Vụ Án Karen Read - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/rob-lowe-ke-ngoai-dao</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/rob-lowe-ke-ngoai-dao-thumb.webp</image:loc><image:title>Rob Lowe: Kẻ Ngoại Đạo</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/rob-lowe-ke-ngoai-dao-poster.webp</image:loc><image:title>Rob Lowe: Kẻ Ngoại Đạo - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/don-cuoi-cung</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/don-cuoi-cung-thumb.webp</image:loc><image:title>Đơn Cuối Cùng</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261125/don-cuoi-cung-poster.webp</image:loc><image:title>Đơn Cuối Cùng - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/mua-he-nam-do</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/upload/vod/20241221-1/b4f9221e52e0b863fdcb4075d39d49c7.jpg</image:loc><image:title>Mùa Hè Năm Đó</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/upload/vod/20241221-1/7dd700787a97dbb03580197cebf6496a.jpg</image:loc><image:title>Mùa Hè Năm Đó - Poster</image:title></image:image>
+    </url>
 </urlset>
