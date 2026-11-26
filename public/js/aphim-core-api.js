@@ -428,52 +428,59 @@
         if (endpointPath.startsWith('/api/')) {
             urlsToTry.push(endpointPath);
         } else {
-            urlsToTry.push('https://phimapi.com' + endpointPath);
+            // Ưu tiên proxy nội bộ để tránh CORS/499 khi gọi phimapi trực tiếp từ browser.
             urlsToTry.push('/api/movies/phimapi-proxy?path=' + encodeURIComponent(endpointPath));
+            urlsToTry.push('https://phimapi.com' + endpointPath);
         }
 
         let lastError = null;
+        let lastStatus = 0;
 
         for (const url of urlsToTry) {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 7500);
+            for (let attempt = 0; attempt < 2; attempt++) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 7500);
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    lastStatus = response.status;
 
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
+                    if (response.ok) {
+                        const data = await response.json();
+                        let items = [];
+                        let totalPages = 1;
+                        let titlePage = '';
 
-                if (response.ok) {
-                    const data = await response.json();
-                    let items = [];
-                    let totalPages = 1;
-                    let titlePage = '';
+                        if (data.data && data.data.items) {
+                            items = data.data.items;
+                            totalPages = data.data.params?.pagination?.totalPages || 50;
+                            titlePage = data.data.titlePage || '';
+                        } else if (data.items) {
+                            items = data.items;
+                            totalPages = data.pagination?.totalPages || 50;
+                        }
 
-                    if (data.data && data.data.items) {
-                        items = data.data.items;
-                        totalPages = data.data.params?.pagination?.totalPages || 50;
-                        titlePage = data.data.titlePage || '';
-                    } else if (data.items) {
-                        items = data.items;
-                        totalPages = data.pagination?.totalPages || 50;
+                        const result = { items: items || [], totalPages: totalPages || 1, titlePage };
+                        const cacheObj = { data: result, timestamp: Date.now() };
+                        _apiMemoryCache.set(cacheKey, cacheObj);
+                        try { sessionStorage.setItem(cacheKey, JSON.stringify(cacheObj)); } catch (e) {}
+                        setTimeout(() => window.APhimCore.initLazyObserver(), 50);
+                        return result;
                     }
 
-                    const result = { items: items || [], totalPages: totalPages || 1, titlePage };
-                    // Save to In-Memory & Session Storage Cache
-                    const cacheObj = { data: result, timestamp: Date.now() };
-                    _apiMemoryCache.set(cacheKey, cacheObj);
-                    try {
-                        sessionStorage.setItem(cacheKey, JSON.stringify(cacheObj));
-                    } catch (e) {}
-
-                    setTimeout(() => window.APhimCore.initLazyObserver(), 50);
-                    return result;
+                    // 4xx khác không nên retry; 499/5xx có thể là lỗi tạm thời.
+                    if (response.status !== 499 && response.status < 500) break;
+                } catch (err) {
+                    lastError = err;
                 }
-            } catch (err) {
-                lastError = err;
+                if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 350));
             }
         }
 
-        console.warn('[APhimCore] Không thể tải dữ liệu:', endpointPath, lastError?.message || lastError);
+        // 499 thường là upstream đóng request, không phải lỗi cần spam Console.
+        if (lastStatus !== 499 && lastError?.name !== 'AbortError') {
+            console.warn('[APhimCore] Không thể tải dữ liệu:', endpointPath, lastError?.message || ('HTTP ' + lastStatus));
+        }
         return { items: [], totalPages: 1, titlePage: '' };
     };
 

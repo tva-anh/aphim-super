@@ -531,6 +531,17 @@
                 "href_matches": "/phim-song-ngu*"
               },
               "eagerness": "moderate"
+            },
+            {
+              "source": "document",
+              "where": {
+                "or": [
+                  { "href_matches": "/danh-sach*" },
+                  { "href_matches": "/categories*" },
+                  { "href_matches": "/phim-theo-quoc-gia*" }
+                ]
+              },
+              "eagerness": "moderate"
             }
           ]
         }

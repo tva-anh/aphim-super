@@ -1,6 +1,6 @@
 // Movie Detail Page Script
-// --- Anti-FOUC CSS injection (Mobile layout jump fix) ---
-if (!document.getElementById('anti-fouc-style')) {
+// --- Anti-FOUC CSS injection (Mobile layout jump fix — skip hiding when SSR window.initialMovie is already present) ---
+if (!document.getElementById('anti-fouc-style') && !window.initialMovie) {
     const style = document.createElement('style');
     style.id = 'anti-fouc-style';
     style.innerHTML = `
@@ -8,7 +8,7 @@ if (!document.getElementById('anti-fouc-style')) {
             .movie-content-zone {
                 opacity: 0;
                 visibility: hidden;
-                transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+                transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
             }
             .movie-content-zone.loaded {
                 opacity: 1;

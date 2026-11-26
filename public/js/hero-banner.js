@@ -185,10 +185,9 @@ async function fetchRealMovieDetail(movie) {
 
 function prefetchAllMovieDetails() {
     setTimeout(() => {
-        if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
-        const list = (Array.isArray(heroSlides) && heroSlides.length > 0) ? heroSlides.slice(0, 3) : DEFAULT_HERO_SLIDES.slice(0, 3);
+        const list = (Array.isArray(heroSlides) && heroSlides.length > 0) ? heroSlides.slice(0, 5) : DEFAULT_HERO_SLIDES.slice(0, 5);
         list.forEach(m => fetchRealMovieDetail(m));
-    }, 4500);
+    }, 1200);
 }
 
 let _heroBannerInitialized = false;
@@ -345,7 +344,7 @@ function renderInterestsCards(cards) {
         const textColor = c.textColor || '#ffffff';
         const rgbStyle = isNoAura(c) ? `--card-text-color: ${textColor} !important;` : `--card-rgb: ${getCardRgb(c, idx)} !important; --card-text-color: ${textColor} !important;`;
         return `
-        <div class="interest-card${noAuraClass}" onclick="window.location.href='${c.link || '#'}'" style="${rgbStyle}">
+        <a href="${c.link || '#'}" class="interest-card${noAuraClass}" style="text-decoration: none; ${rgbStyle}">
             <div class="interest-bg-img" style="background-image: url('${c.imageUrl || ''}');"></div>
             <div class="interest-icon-circle" title="${c.title || ''}" style="color: ${c.iconColor || '#ffffff'} !important;">
                 ${iconContent}
@@ -354,7 +353,7 @@ function renderInterestsCards(cards) {
                 <span class="interest-title" style="color: ${textColor} !important;">${c.title || ''}</span>
                 <span class="interest-action" style="color: ${textColor} !important;">${c.actionText || 'XEM NGAY'} <svg style="width: 10px; height: 10px; display: inline;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></span>
             </div>
-        </div>
+        </a>
     `}).join('');
 }
 

@@ -387,6 +387,50 @@ async function fetchFromMoMoCinema() {
     }
 }
 
+// ⚡ Tra cứu tức thì 0ms phim rạp từ bộ nhớ đệm MoMo Cinema (giúp /phim/:slug cho phim rạp phản hồi < 30ms thay vì dò 4 tầng API mất 2-3s)
+global.getCinemaHotMovieBySlug = function (rawSlug) {
+    if (!rawSlug || !Array.isArray(cinemaHotCache) || cinemaHotCache.length === 0) return null;
+    const clean = String(rawSlug).trim().toLowerCase();
+    const found = cinemaHotCache.find(m => m && m.slug === clean);
+    if (!found) return null;
+    const releaseYear = Number((found.release_date || '').split('-')[0]) || new Date().getFullYear();
+    const genres = found.genres
+        ? String(found.genres).split(',').map(g => g.trim()).filter(Boolean)
+        : ['Phim Chiếu Rạp'];
+    return {
+        slug: clean,
+        name: found.name || clean,
+        origin_name: found.origin_name || found.name || '',
+        year: releaseYear,
+        quality: 'Chiếu Rạp',
+        lang: 'Vietsub',
+        episode_current: 'Chiếu Rạp',
+        episode_total: '1',
+        status: 'trailer',
+        time: found.duration || 'Đang chiếu rạp',
+        content: found.synopsis || `Phim điện ảnh ${found.name} hiện đang được công chiếu tại các cụm rạp trên toàn quốc. Trang sẽ sớm cập nhật bản đẹp cho bạn thưởng thức.`,
+        thumb_url: found.fallback_poster || found.poster || '',
+        poster_url: found.poster || found.fallback_poster || '',
+        actor: [],
+        director: [],
+        category: genres.length ? genres : ['Phim Chiếu Rạp'],
+        country: ['Chiếu Rạp'],
+        type: 'single',
+        trailer_url: found.trailer || '',
+        tmdb: found.rating ? { vote_average: Number(found.rating) || 9.2 } : null,
+        episodes: []
+    };
+};
+
+setTimeout(() => {
+    fetchFromMoMoCinema().then(list => {
+        if (list && list.length > 0 && !cinemaHotCache) {
+            cinemaHotCache = list;
+            cinemaHotCacheTime = Date.now();
+        }
+    }).catch(() => {});
+}, 1800);
+
 router.get('/cinema-hot', async (req, res) => {
     try {
         if (cinemaHotCache && (Date.now() - cinemaHotCacheTime < CINEMA_HOT_TTL)) {
@@ -847,8 +891,26 @@ async function refreshTrending24hInBackground(force = false) {
         }
 
         if (matchedMovies.length > 0) {
+            try {
+                const { getCanonicalSlug } = require('../lib/bilingual.service');
+                const deduped = [];
+                const seenCanonical = new Set();
+                for (const item of matchedMovies) {
+                    if (!item || !item.slug) continue;
+                    const cSlug = getCanonicalSlug(item.slug) || item.slug;
+                    if (seenCanonical.has(cSlug)) continue;
+                    seenCanonical.add(cSlug);
+                    deduped.push({ ...item, slug: cSlug });
+                }
+                matchedMovies = deduped;
+            } catch (_) {}
+
             trending24hCache = matchedMovies;
             trending24hCacheTime = Date.now();
+
+            if (typeof global.warmMovieMetadataSlugs === 'function') {
+                global.warmMovieMetadataSlugs(matchedMovies.slice(0, 12).map(m => m.slug));
+            }
         }
     } catch (err) {
         console.warn('⚠️ Lỗi nền refresh Google Trends 24h:', err.message);

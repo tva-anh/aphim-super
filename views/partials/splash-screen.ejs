@@ -4,24 +4,34 @@
      Không phụ thuộc Main Thread JS -> Không bao giờ khựng khung hình
      ============================================== -->
 <script>
-    /* ⚡ KIỂM TRA ĐIỀU HƯỚNG QUAY VỀ / THỤT LUI (BACK NAVIGATION) NGAY LẬP TỨC */
+    /* ⚡ KIỂM TRA ĐIỀU HƯỚNG QUAY VỀ / CHUYỂN TRANG NỘI BỘ NGAY LẬP TỨC */
     (function () {
-        var isBackNav = false;
+        var suppressSplash = false;
         try {
             if (sessionStorage.getItem('aphim_nav_direction') === 'back') {
-                isBackNav = true;
+                suppressSplash = true;
                 sessionStorage.removeItem('aphim_nav_direction');
             }
             var nav = window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation');
             if (nav && nav.length > 0 && nav[0].type === 'back_forward') {
-                isBackNav = true;
+                suppressSplash = true;
             } else if (window.performance && window.performance.navigation && window.performance.navigation.type === 2) {
-                isBackNav = true;
+                suppressSplash = true;
+            }
+            // Chỉ bật Splash Screen thương hiệu 0.72s ở lần đầu vào website trong phiên;
+            // Khi bấm chuyển trang nội bộ (Trang chủ -> Phim / Xem phim / Danh mục) thì vào thẳng tức thì 0ms.
+            if (sessionStorage.getItem('aphim_splash_shown_v1') === '1') {
+                suppressSplash = true;
+            } else if (document.referrer && document.referrer.indexOf(window.location.origin) === 0) {
+                suppressSplash = true;
+                sessionStorage.setItem('aphim_splash_shown_v1', '1');
+            } else {
+                sessionStorage.setItem('aphim_splash_shown_v1', '1');
             }
         } catch (e) {}
 
         var root = document.documentElement;
-        if (isBackNav) {
+        if (suppressSplash) {
             root.classList.add('aphim-suppress-splash');
         } else {
             root.classList.remove('aphim-enter');
