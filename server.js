@@ -1481,6 +1481,79 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
         }
 
         if (typeof m3u8Content === 'string' && m3u8Content.includes('#EXTM3U')) {
+            // 🛡️ LÀM SẠCH M3U8 MEDIA PLAYLIST (Khôi phục phân đoạn gốc convertv9/*.ts -> *.ts & cắt quảng cáo /v9/<hash>/segment_*.ts gây rè tiếng)
+            if (m3u8Content.includes('#EXTINF:') && (m3u8Content.includes('DISCONTINUITY') || m3u8Content.includes('convertv') || m3u8Content.includes('/v9/') || m3u8Content.includes('adjump'))) {
+                const rawLines = m3u8Content.split(/\r?\n/);
+                const cleanLines = [];
+                let pendingDisc = false;
+                let suppressNextDisc = false;
+                let hasEmittedSeg = false;
+                const isAdSeg = (u) => /(\/v\d+\/[a-f0-9]{16,}\/segment_\d+\.ts|\/adjump\/|\/ad_segment\/|\/ads\/segment_)/i.test(u);
+                const cvRegex = /(^|\/)(convertv\d+)\/([^\/]+\.ts(?:\?.*)?)$/i;
+
+                for (let idx = 0; idx < rawLines.length; idx++) {
+                    const l = rawLines[idx].trim();
+                    if (!l) continue;
+                    if (l === '#EXT-X-DISCONTINUITY') {
+                        if (!suppressNextDisc && hasEmittedSeg) pendingDisc = true;
+                        continue;
+                    }
+                    if (l.startsWith('#EXTINF:')) {
+                        const meta = [l];
+                        let j = idx + 1;
+                        while (j < rawLines.length) {
+                            const nt = rawLines[j].trim();
+                            if (!nt) { j++; continue; }
+                            if (nt.startsWith('#') && !nt.startsWith('#EXTINF:') && nt !== '#EXT-X-DISCONTINUITY' && !nt.startsWith('#EXT-X-ENDLIST')) {
+                                meta.push(nt);
+                                j++;
+                                continue;
+                            }
+                            break;
+                        }
+                        if (j < rawLines.length && !rawLines[j].trim().startsWith('#')) {
+                            let segUri = rawLines[j].trim();
+                            idx = j;
+                            if (isAdSeg(segUri)) {
+                                pendingDisc = false;
+                                suppressNextDisc = true;
+                                if (cleanLines.length > 0 && cleanLines[cleanLines.length - 1] === '#EXT-X-KEY:METHOD=NONE') {
+                                    cleanLines.pop();
+                                }
+                                continue;
+                            }
+                            if (cvRegex.test(segUri)) {
+                                segUri = segUri.replace(cvRegex, '$1$3');
+                                pendingDisc = false;
+                                suppressNextDisc = true;
+                            } else {
+                                if (pendingDisc && !suppressNextDisc && hasEmittedSeg) {
+                                    cleanLines.push('#EXT-X-DISCONTINUITY');
+                                }
+                                pendingDisc = false;
+                                suppressNextDisc = false;
+                            }
+                            for (const m of meta) cleanLines.push(m);
+                            cleanLines.push(segUri);
+                            hasEmittedSeg = true;
+                            continue;
+                        }
+                    }
+                    if (l === '#EXT-X-KEY:METHOD=NONE') {
+                        let la = idx + 1;
+                        let nextU = '';
+                        while (la < rawLines.length && la <= idx + 5) {
+                            const nl = rawLines[la].trim();
+                            if (nl && !nl.startsWith('#')) { nextU = nl; break; }
+                            la++;
+                        }
+                        if (nextU && isAdSeg(nextU)) continue;
+                    }
+                    cleanLines.push(l);
+                }
+                m3u8Content = cleanLines.join('\n');
+            }
+
             const base = new URL(targetUrl);
             const lines = m3u8Content.split('\n');
             const rewritten = [];

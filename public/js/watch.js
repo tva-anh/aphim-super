@@ -2750,11 +2750,12 @@ function playTvcPreroll(onFinished) {
 
                 if (shouldResume) {
                     mainVideo.currentTime = progress.currentTime;
-                } else {
+                } else if (mainVideo.currentTime > 1.2) {
+                    // Chỉ tua về 0 nếu video đã trôi qua > 1.2s; tránh ép gán currentTime = 0 khi đang ở 0s làm flush MSE buffer & abort segment
                     mainVideo.currentTime = 0;
                 }
             } catch (e) {
-                mainVideo.currentTime = 0;
+                if (mainVideo.currentTime > 1.2) mainVideo.currentTime = 0;
             }
 
             const playPromise = mainVideo.play();
@@ -7452,9 +7453,12 @@ function initializePlayer(episode) {
             try { window.hlsInstance.destroy(); } catch (e) { }
             window.hlsInstance = null;
         }
-        const nativeVideoUrl = (videoUrl.includes('/api/proxy/m3u8') && !videoUrl.includes('native=1'))
-            ? `${videoUrl}&native=1`
-            : videoUrl;
+        let nativeVideoUrl = videoUrl;
+        if (videoUrl.includes('/api/proxy/m3u8')) {
+            if (!videoUrl.includes('native=1')) nativeVideoUrl = `${videoUrl}&native=1`;
+        } else if (/^https?:\/\//i.test(videoUrl) && (videoUrl.includes('kvp726.com') || videoUrl.includes('kkphim'))) {
+            nativeVideoUrl = `/api/proxy/m3u8?url=${encodeURIComponent(videoUrl)}&native=1`;
+        }
         player.src = nativeVideoUrl;
         _isInitializingPlayer = false;
         player.addEventListener('loadedmetadata', () => {
@@ -7484,12 +7488,118 @@ function initializePlayer(episode) {
         }
         const isMobileDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 850);
 
-        // 🛡️ BỘ TẢI PHÂN ĐOẠN TỰ ĐỘNG BÓC TÁCH MẶT NẠ PNG 188-BYTE (CHỐNG LỖI fragParsingError 100%)
+        // 🛡️ BỘ LỌC M3U8 & TẢI PHÂN ĐOẠN THÔNG MINH:
+        // 1. Khôi phục phân đoạn gốc từ convertv9/*.ts -> *.ts (loại bỏ lệch PTS 1.40s & +67ms AAC padding gây rè/khựng tiếng)
+        // 2. Cắt bỏ hoàn toàn quảng cáo chèn ngang (/v9/<hash>/segment_*.ts, /adjump/...) & thẻ #EXT-X-DISCONTINUITY dư thừa
+        // 3. Bóc tách mặt nạ PNG 188-byte cho phân đoạn MPEG-TS
+        window._aphimConvertV9Fallbacks = window._aphimConvertV9Fallbacks || new Set();
+        function sanitizeAphimHlsPlaylist(m3u8Text) {
+            if (typeof m3u8Text !== 'string' || !m3u8Text.includes('#EXTINF:')) return m3u8Text;
+            if (!m3u8Text.includes('DISCONTINUITY') && !m3u8Text.includes('convertv') && !m3u8Text.includes('/v9/') && !m3u8Text.includes('adjump')) {
+                return m3u8Text;
+            }
+            const rawLines = m3u8Text.split(/\r?\n/);
+            const out = [];
+            let pendingDiscontinuity = false;
+            let suppressNextDiscontinuity = false;
+            let hasEmittedMediaSegment = false;
+
+            const isAdSegmentUri = (uri) => /(\/v\d+\/[a-f0-9]{16,}\/segment_\d+\.ts|\/adjump\/|\/ad_segment\/|\/ads\/segment_)/i.test(uri);
+            const convertV9Regex = /(^|\/)(convertv\d+)\/([^\/]+\.ts(?:\?.*)?)$/i;
+
+            for (let i = 0; i < rawLines.length; i++) {
+                const line = rawLines[i].trim();
+                if (!line) continue;
+
+                if (line === '#EXT-X-DISCONTINUITY') {
+                    if (!suppressNextDiscontinuity && hasEmittedMediaSegment) {
+                        pendingDiscontinuity = true;
+                    }
+                    continue;
+                }
+
+                if (line.startsWith('#EXTINF:')) {
+                    // Tìm dòng URI phân đoạn tiếp theo (bỏ qua các thẻ phụ giữa #EXTINF và URI nếu có)
+                    const metaLines = [line];
+                    let j = i + 1;
+                    while (j < rawLines.length) {
+                        const nextTrimmed = rawLines[j].trim();
+                        if (!nextTrimmed) { j++; continue; }
+                        if (nextTrimmed.startsWith('#') && !nextTrimmed.startsWith('#EXTINF:') && nextTrimmed !== '#EXT-X-DISCONTINUITY' && !nextTrimmed.startsWith('#EXT-X-ENDLIST')) {
+                            metaLines.push(nextTrimmed);
+                            j++;
+                            continue;
+                        }
+                        break;
+                    }
+
+                    if (j < rawLines.length && !rawLines[j].trim().startsWith('#')) {
+                        let segUri = rawLines[j].trim();
+                        i = j;
+
+                        // 1. Cắt bỏ hoàn toàn phân đoạn quảng cáo chèn ngang (/v9/<hash>/segment_*.ts)
+                        if (isAdSegmentUri(segUri)) {
+                            pendingDiscontinuity = false;
+                            suppressNextDiscontinuity = true;
+                            // Nếu ngay trước đó vừa đẩy #EXT-X-KEY:METHOD=NONE của cụm quảng cáo thì gỡ bỏ
+                            if (out.length > 0 && out[out.length - 1] === '#EXT-X-KEY:METHOD=NONE') {
+                                out.pop();
+                            }
+                            continue;
+                        }
+
+                        // 2. Khôi phục phân đoạn gốc từ convertv9/XYZ.ts -> XYZ.ts (PTS liên tục 100%, không cần DISCONTINUITY)
+                        const cvMatch = segUri.match(convertV9Regex);
+                        if (cvMatch) {
+                            const cleanFileName = cvMatch[3];
+                            window._aphimConvertV9Fallbacks.add(cleanFileName.split('?')[0]);
+                            segUri = segUri.replace(convertV9Regex, '$1$3');
+                            pendingDiscontinuity = false;
+                            suppressNextDiscontinuity = true;
+                        } else {
+                            if (pendingDiscontinuity && !suppressNextDiscontinuity && hasEmittedMediaSegment) {
+                                out.push('#EXT-X-DISCONTINUITY');
+                            }
+                            pendingDiscontinuity = false;
+                            suppressNextDiscontinuity = false;
+                        }
+
+                        for (const mLine of metaLines) out.push(mLine);
+                        out.push(segUri);
+                        hasEmittedMediaSegment = true;
+                        continue;
+                    }
+                }
+
+                // Bỏ qua #EXT-X-KEY:METHOD=NONE nếu nó nằm ngay sau DISCONTINUITY chuẩn bị vào cụm quảng cáo /v9/
+                if (line === '#EXT-X-KEY:METHOD=NONE') {
+                    let lookahead = i + 1;
+                    let nextUri = '';
+                    while (lookahead < rawLines.length && lookahead <= i + 5) {
+                        const l = rawLines[lookahead].trim();
+                        if (l && !l.startsWith('#')) { nextUri = l; break; }
+                        lookahead++;
+                    }
+                    if (nextUri && isAdSegmentUri(nextUri)) {
+                        continue;
+                    }
+                }
+
+                out.push(line);
+            }
+            return out.join('\n') + '\n';
+        }
+
         class AphimFragLoader extends (Hls.DefaultConfig.loader || class {}) {
             load(context, config, callbacks) {
                 const origSuccess = callbacks.onSuccess;
+                const origError = callbacks.onError;
+                const selfLoader = this;
+
                 callbacks.onSuccess = function(response, stats, context, networkDetails) {
-                    if (response && response.data instanceof ArrayBuffer) {
+                    if (response && typeof response.data === 'string' && response.data.includes('#EXTINF:')) {
+                        response.data = sanitizeAphimHlsPlaylist(response.data);
+                    } else if (response && response.data instanceof ArrayBuffer) {
                         const u8 = new Uint8Array(response.data);
                         // Kiểm tra PNG magic bytes: 0x89, 0x50, 0x4e, 0x47 và sync byte 0x47 tại offset 188
                         if (u8.length >= 189 && u8[0] === 0x89 && u8[1] === 0x50 && u8[2] === 0x4e && u8[3] === 0x47 && u8[188] === 0x47) {
@@ -7500,6 +7610,26 @@ function initializePlayer(episode) {
                         origSuccess(response, stats, context, networkDetails);
                     }
                 };
+
+                // Fallback an toàn: nếu một CDN hiếm nào đó xóa file gốc ngoài thư mục convertv9/, tự động thử lại convertv9/<file>
+                callbacks.onError = function(error, context, networkDetails, stats) {
+                    if (context && context.url && !context._aphimConvertV9Retried && window._aphimConvertV9Fallbacks && window._aphimConvertV9Fallbacks.size > 0) {
+                        const urlNoQuery = context.url.split('?')[0];
+                        const fileName = urlNoQuery.substring(urlNoQuery.lastIndexOf('/') + 1);
+                        if (window._aphimConvertV9Fallbacks.has(fileName) && !context.url.includes('/convertv9/')) {
+                            context._aphimConvertV9Retried = true;
+                            context.url = context.url.replace(/\/([^\/]+\.ts)(\?.*)?$/i, '/convertv9/$1$2');
+                            callbacks.onSuccess = origSuccess;
+                            callbacks.onError = origError;
+                            selfLoader.load(context, config, callbacks);
+                            return;
+                        }
+                    }
+                    if (typeof origError === 'function') {
+                        origError(error, context, networkDetails, stats);
+                    }
+                };
+
                 super.load(context, config, callbacks);
             }
         }
@@ -7508,6 +7638,8 @@ function initializePlayer(episode) {
             debug: false,
             enableWorker: true,
             lowLatencyMode: false,
+            loader: AphimFragLoader,
+            pLoader: AphimFragLoader,
             fLoader: AphimFragLoader,
             // ⚡ BỘ ĐỆM THÍCH ỨNG SIÊU MƯỢT (Chống khựng khi mạng lag / 4G yếu)
             backBufferLength: isMobileDevice ? 20 : 60, // Mobile: 20s RAM, tua lùi mượt không tràn bộ nhớ
@@ -7543,9 +7675,9 @@ function initializePlayer(episode) {
         window.hls = hls;
         window.hlsInstance = hls;
 
-        // ⚡ [Fast-Start Mobile]: Ngay khi phân đoạn đầu tiên tải xong, ép gọi play() tức thì để tránh chờ đợi
+        // ⚡ [Fast-Start Mobile]: Ngay khi phân đoạn đầu tiên tải xong, ép gọi play() tức thì để tránh chờ đợi (CHỈ khi không đang chiếu TVC)
         hls.once(Hls.Events.FRAG_LOADED, () => {
-            if (player && player.paused) {
+            if (player && player.paused && !window._isTvcActive) {
                 player.play().catch(() => {});
             }
         });
@@ -7651,10 +7783,21 @@ function initializePlayer(episode) {
                 player.textTracks.addEventListener('addtrack', player._trackAddedListener);
             }
 
+            const shouldResume = !isTimeRestored && 
+                                 progress && 
+                                 progress.currentTime > 5 && 
+                                 !progress.completed &&
+                                 (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
+
             if (window._isTvcActive) {
+                // Khi TVC đang phát: giữ video chính ở trạng thái PAUSED tại mốc 0s (hoặc mốc resume) để HLS.js nạp sẵn 15-35s vào SourceBuffer.
+                // Không gọi player.play() chạy ngầm từ 0..5s để tránh phải tua ngược currentTime = 0 khi hết TVC gây abort phân đoạn & rè tiếng đầu phim.
                 player.muted = true;
                 player.volume = 0;
-                player.play().catch(e => console.log('Preload buffer play muted:', e));
+                if (shouldResume) {
+                    isTimeRestored = true;
+                    try { player.currentTime = progress.currentTime; } catch (e) {}
+                }
                 return;
             }
 
@@ -7670,12 +7813,6 @@ function initializePlayer(episode) {
                     });
                 }
             };
-
-            const shouldResume = !isTimeRestored && 
-                                 progress && 
-                                 progress.currentTime > 5 && 
-                                 !progress.completed &&
-                                 (!progress.duration || (progress.duration - progress.currentTime > 15 && (progress.currentTime / progress.duration) < 0.95));
 
             if (shouldResume) {
                 isTimeRestored = true;
@@ -7837,9 +7974,12 @@ function initializePlayer(episode) {
             window.hls = null;
         }
 
-        const nativeVideoUrl = (videoUrl.includes('/api/proxy/m3u8') && !videoUrl.includes('native=1'))
-            ? `${videoUrl}&native=1`
-            : videoUrl;
+        let nativeVideoUrl = videoUrl;
+        if (videoUrl.includes('/api/proxy/m3u8')) {
+            if (!videoUrl.includes('native=1')) nativeVideoUrl = `${videoUrl}&native=1`;
+        } else if (/^https?:\/\//i.test(videoUrl) && (videoUrl.includes('kvp726.com') || videoUrl.includes('kkphim'))) {
+            nativeVideoUrl = `/api/proxy/m3u8?url=${encodeURIComponent(videoUrl)}&native=1`;
+        }
         player.src = nativeVideoUrl;
         _isInitializingPlayer = false;
 
@@ -7882,7 +8022,6 @@ function initializePlayer(episode) {
         if (window._isTvcActive) {
             player.muted = true;
             player.volume = 0;
-            player.play().catch(() => {});
         } else {
             // Kích hoạt phát tức thì trong cùng user-gesture context (chống đen màn hình)
             attemptSafariPlayback();
