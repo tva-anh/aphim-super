@@ -107584,4 +107584,24 @@
         <image:image><image:loc>https://phimimg.com/uploads/movies/upload/vod/20241221-1/b4f9221e52e0b863fdcb4075d39d49c7.jpg</image:loc><image:title>Mùa Hè Năm Đó</image:title></image:image>
         <image:image><image:loc>https://phimimg.com/uploads/movies/upload/vod/20241221-1/7dd700787a97dbb03580197cebf6496a.jpg</image:loc><image:title>Mùa Hè Năm Đó - Poster</image:title></image:image>
     </url>
+    <url>
+        <loc>https://aphim.store/phim/vu-tan-cong-cung-tu-phap</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/vu-tan-cong-cung-tu-phap-thumb.webp</image:loc><image:title>Vụ Tấn Công Cung Tư Pháp</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/vu-tan-cong-cung-tu-phap-poster.webp</image:loc><image:title>Vụ Tấn Công Cung Tư Pháp - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/tam-co</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/tam-co-thumb.webp</image:loc><image:title>Tâm Cơ</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/tam-co-poster.webp</image:loc><image:title>Tâm Cơ - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/cau-chuyen-khong-ai-biet</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/cau-chuyen-khong-ai-biet-thumb.webp</image:loc><image:title>Câu Chuyện Không Ai Biết</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/cau-chuyen-khong-ai-biet-poster.webp</image:loc><image:title>Câu Chuyện Không Ai Biết - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/tran-bong-cuoi-cung</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/tran-bong-cuoi-cung-thumb.webp</image:loc><image:title>Trận Bóng Cuối Cùng</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261126/tran-bong-cuoi-cung-poster.webp</image:loc><image:title>Trận Bóng Cuối Cùng - Poster</image:title></image:image>
+    </url>
 </urlset>
