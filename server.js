@@ -2365,11 +2365,13 @@ let cachedDesktopInterestsTime = 0;
 
 let cachedHomepageHtml = null;
 let cachedHomepageTime = 0;
+let cachedHomepageLastModified = null;
 const HOMEPAGE_SSR_CACHE_TTL = 60 * 1000; // 1 phut SSR cache
 
 global.invalidateHomepageCache = function() {
     cachedHomepageHtml = null;
     cachedHomepageTime = 0;
+    cachedHomepageLastModified = null;
 };
 
 global.invalidateInterestsCache = function() {
@@ -2503,10 +2505,21 @@ async function getMobile3DShowcase() {
     return null;
 }
 
-// 1. Homepage Route (SSR Direct Injection for 0ms Instant First Paint)
+// 1. Homepage Route (SSR Direct Injection for 0ms Instant First Paint + Google Freshness Date Signals)
 app.get('/', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     const now = Date.now();
+    const freshness = (typeof global.getLatestSeoFreshnessData === 'function')
+        ? global.getLatestSeoFreshnessData()
+        : {
+            updatedAtMs: now,
+            updatedAtIso: new Date(now + 7 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, '+07:00'),
+            updatedAtHttp: new Date(now).toUTCString(),
+            latestMovies: []
+        };
+
+    res.setHeader('Last-Modified', cachedHomepageLastModified || freshness.updatedAtHttp);
+
     if (cachedHomepageHtml && (now - cachedHomepageTime < HOMEPAGE_SSR_CACHE_TTL)) {
         res.setHeader('X-SSR-Cache', 'HIT');
         return res.send(cachedHomepageHtml);
@@ -2521,11 +2534,52 @@ app.get('/', async (req, res) => {
         ]);
         const { CURATED_REVIEWS } = require('./lib/reels.seeds');
         const homeReels = (CURATED_REVIEWS || []).slice(0, 10);
+        const homeTitle = formatSeoTitle('APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026', 65);
+        const homeDesc = 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.';
+
+        const seoTrendsList = (Array.isArray(freshness.latestMovies) && freshness.latestMovies.length > 0)
+            ? freshness.latestMovies
+            : (Array.isArray(heroSlides) ? heroSlides : []);
+
+        const homeSchemaData = {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebPage",
+                    "@id": "https://aphim.store/#webpage",
+                    "url": "https://aphim.store/",
+                    "name": homeTitle,
+                    "description": homeDesc,
+                    "inLanguage": "vi-VN",
+                    "datePublished": "2024-01-01T00:00:00+07:00",
+                    "dateModified": freshness.updatedAtIso,
+                    "isPartOf": {
+                        "@type": "WebSite",
+                        "name": "APhim Super",
+                        "url": "https://aphim.store/"
+                    }
+                },
+                {
+                    "@type": "ItemList",
+                    "name": "Phim Mới Cập Nhật & Thịnh Hành 24h",
+                    "numberOfItems": Math.min(12, seoTrendsList.length),
+                    "itemListElement": seoTrendsList.slice(0, 12).map((m, idx) => ({
+                        "@type": "ListItem",
+                        "position": idx + 1,
+                        "name": m.name || m.movie_name || m.title || m.slug,
+                        "url": `https://aphim.store/phim/${m.slug || m.movie_slug || ''}`
+                    }))
+                }
+            ]
+        };
 
         res.render('index', {
-            title: formatSeoTitle('APhim - Xem Phim Online Full HD Vietsub Mới Nhất 2026', 65),
-            metaDescription: 'APhim Super - Website xem phim online chất lượng cao, không giật lag. Kho phim lẻ, phim bộ mới nhất 2026, phim Vietsub Thuyết minh Full HD cập nhật liên tục.',
+            title: homeTitle,
+            metaDescription: homeDesc,
             canonicalUrl: 'https://aphim.store/',
+            seoUpdatedIso: freshness.updatedAtIso,
+            seoTrendsList: seoTrendsList,
+            schemaData: homeSchemaData,
             heroSlides: heroSlides || null,
             heroAutoSlide: heroAutoSlide || null,
             desktopInterests: desktopInterests || null,
@@ -2538,6 +2592,7 @@ app.get('/', async (req, res) => {
             }
             cachedHomepageHtml = html;
             cachedHomepageTime = Date.now();
+            cachedHomepageLastModified = freshness.updatedAtHttp;
             res.setHeader('X-SSR-Cache', 'MISS');
             res.send(html);
         });
@@ -3280,6 +3335,8 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         const canonicalUrl = `https://aphim.store/phim/${slug}`;
         const mainCategory = meta.category[0] || 'Phim mới';
         const seoRating = getSeoRating(meta, slug);
+        const pageUpdatedIso = new Date(Date.now() + 7 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, '+07:00');
+        res.setHeader('Last-Modified', new Date().toUTCString());
 
         const schemaData = {
             "@context": "https://schema.org",
@@ -3292,6 +3349,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
                     "image": ogImage,
                     "description": meta.content || metaDescription,
                     "dateCreated": String(meta.year),
+                    "dateModified": pageUpdatedIso,
                     "director": meta.director.map(d => ({ "@type": "Person", "name": d })),
                     "actor": meta.actor.map(a => ({ "@type": "Person", "name": a })),
                     "genre": meta.category,
@@ -3390,6 +3448,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
             ogImage: ogImage,
             ogType: 'website',
             canonicalUrl: canonicalUrl,
+            seoUpdatedIso: pageUpdatedIso,
             schemaData: schemaData
         });
     }
@@ -3928,6 +3987,10 @@ app.get([
 
         // ⚡ IndexNow: Tự động ping Bing, Yandex, Naver lập tức khi có người xem tập phim
         submitUrlsToIndexNow([canonicalUrl]).catch(() => {});
+        const watchUpdatedIso = new Date(Date.now() + 7 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, '+07:00');
+        res.setHeader('Last-Modified', new Date().toUTCString());
+        videoObject.dateModified = watchUpdatedIso;
+        mainSchemaItem.dateModified = watchUpdatedIso;
 
         return res.render('watch', {
             slug: slug,
@@ -3943,6 +4006,7 @@ app.get([
             ogImage: ogImage,
             ogType: isSingleMovie ? 'video.movie' : 'video.tv_show',
             canonicalUrl: canonicalUrl,
+            seoUpdatedIso: watchUpdatedIso,
             schemaData: schemaData
         });
     }

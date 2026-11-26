@@ -905,8 +905,14 @@ async function refreshTrending24hInBackground(force = false) {
                 matchedMovies = deduped;
             } catch (_) {}
 
+            const prevTopSlugs = Array.isArray(trending24hCache) ? trending24hCache.slice(0, 6).map(m => m.slug).join(',') : '';
+            const nextTopSlugs = matchedMovies.slice(0, 6).map(m => m.slug).join(',');
             trending24hCache = matchedMovies;
             trending24hCacheTime = Date.now();
+
+            if (prevTopSlugs !== nextTopSlugs && typeof global.invalidateHomepageCache === 'function') {
+                global.invalidateHomepageCache();
+            }
 
             if (typeof global.warmMovieMetadataSlugs === 'function') {
                 global.warmMovieMetadataSlugs(matchedMovies.slice(0, 12).map(m => m.slug));
@@ -918,6 +924,33 @@ async function refreshTrending24hInBackground(force = false) {
         isRefreshingTrending = false;
     }
 }
+
+function formatVietnamIsoString(ms = Date.now()) {
+    const vnDate = new Date(ms + 7 * 3600 * 1000);
+    return vnDate.toISOString().replace(/\.\d{3}Z$/, '+07:00');
+}
+
+// ⚡ Cung cấp tín hiệu SEO Freshness (dateModified ISO +07:00, Last-Modified HTTP & danh sách phim mới SSR) từ RAM (0ms)
+global.getLatestSeoFreshnessData = function () {
+    const baseMs = trending24hCacheTime || cinemaHotCacheTime || Date.now();
+    let latestMovies = [];
+    if (Array.isArray(trending24hCache) && trending24hCache.length > 0) {
+        latestMovies = trending24hCache.slice(0, 18);
+    } else {
+        try {
+            const stored = trendsControl.getStoredTrends();
+            if (Array.isArray(stored) && stored.length > 0) {
+                latestMovies = stored.slice(0, 18);
+            }
+        } catch (_) {}
+    }
+    return {
+        updatedAtMs: baseMs,
+        updatedAtIso: formatVietnamIsoString(baseMs),
+        updatedAtHttp: new Date(baseMs).toUTCString(),
+        latestMovies
+    };
+};
 
 // Khởi động làm mới cache Google Trends ngay khi server chạy
 setTimeout(() => { refreshTrending24hInBackground(); }, 1500);

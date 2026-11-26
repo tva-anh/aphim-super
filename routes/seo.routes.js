@@ -319,7 +319,8 @@ async function fetchMoviesForSitemap() {
  * Xây dựng nội dung toàn bộ XML Sitemaps
  */
 async function buildSitemapsXml() {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = (typeof global.getLatestSeoFreshnessData === 'function' && global.getLatestSeoFreshnessData()?.updatedAtIso)
+        || new Date(Date.now() + 7 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, '+07:00');
     const movies = await fetchMoviesForSitemap();
 
     const singleMovies = movies.filter(m => m.isSingle);
@@ -904,7 +905,8 @@ function generatePhimNganSitemap() {
         return sitemapCache.phimNgan;
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = (typeof global.getLatestSeoFreshnessData === 'function' && global.getLatestSeoFreshnessData()?.updatedAtIso)
+        || new Date(Date.now() + 7 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, '+07:00');
     let catalog = [];
     try {
         const phimNganService = require('../lib/phimNgan.service');

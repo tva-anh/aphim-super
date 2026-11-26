@@ -1648,12 +1648,12 @@
                     <div class="trending-kw-header">
                         <h2 class="trending-kw-title">TỪ KHÓA XU HƯỚNG</h2>
                         <div class="trending-kw-divider"></div>
-                        <span class="trending-kw-badge">Google Trends 24h</span>
+                        <span class="trending-kw-badge">Google Trends 24h • <time datetime="<%= typeof seoUpdatedIso !== 'undefined' && seoUpdatedIso ? seoUpdatedIso : new Date().toISOString() %>" itemprop="dateModified">Cập nhật liên tục</time></span>
                     </div>
                     <div class="trending-kw-grid">
                         <% seoTrendsList.slice(0, 18).forEach(function(item, idx) {
                             const targetSlug = item.movie_slug || item.slug || '';
-                            const label = item.movie_name || item.title || item.query || '';
+                            const label = item.name || item.movie_name || item.title || item.query || '';
                             const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(label)}`;
                             const hideMobile = idx >= 10 ? 'kw-hide-mobile' : '';
                         %>

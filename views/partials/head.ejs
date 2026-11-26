@@ -155,6 +155,10 @@
 <meta property="og:type" content="<%= typeof ogType !== 'undefined' ? ogType : 'website' %>" />
 <meta property="og:site_name" content="APhim Super" />
 <meta property="og:locale" content="vi_VN" />
+<% const _seoUpdatedIso = (typeof seoUpdatedIso !== 'undefined' && seoUpdatedIso) ? seoUpdatedIso : new Date(Date.now() + 7 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, '+07:00'); %>
+<meta property="og:updated_time" content="<%= _seoUpdatedIso %>" />
+<meta property="article:modified_time" content="<%= _seoUpdatedIso %>" />
+<meta name="lastmod" content="<%= _seoUpdatedIso %>" />
 
 <!-- Twitter Card Tags (X / Twitter) -->
 <meta name="twitter:card" content="summary_large_image" />
@@ -172,6 +176,7 @@
   "@type": "WebSite",
   "name": "APhim Super",
   "url": "https://aphim.store/",
+  "dateModified": "<%= _seoUpdatedIso %>",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
