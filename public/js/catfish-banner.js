@@ -61,7 +61,7 @@
                     label: 'OK9 — Nhà Cái Uy Tín Hàng Đầu'
                 },
                 {
-                    img: '/quangcao/fly88/fly88-300x300.gif',
+                    img: '/quangcao/fly88/FLY88_banner_gif_300x300.gif',
                     url: 'https://fly88a1.site/aphim',
                     label: 'FLY88 — Đỉnh Cao Giải Trí'
                 }
@@ -85,7 +85,7 @@
                     label: 'OK9 — Uy Tín Hàng Đầu'
                 },
                 {
-                    img: '/quangcao/fly88/fly88-728x90.gif',
+                    img: '/quangcao/fly88/FLY88_banner_gif_728x90.gif',
                     url: 'https://fly88a1.site/aphim',
                     label: 'FLY88 — Thưởng Nạp Siêu Khủng'
                 }
@@ -108,7 +108,7 @@
                     label: 'OK9 — Cá Cược Đẳng Cấp'
                 },
                 {
-                    img: '/quangcao/fly88/fly88-728x90.gif',
+                    img: '/quangcao/fly88/FLY88_banner_gif_728x90.gif',
                     url: 'https://fly88a1.site/aphim',
                     label: 'FLY88 — Khuyến Mãi Bùng Nổ'
                 }
