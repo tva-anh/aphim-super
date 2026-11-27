@@ -779,26 +779,75 @@
 
 
         /* ── GIAO DIỆN BÌNH LUẬN TRẢ LỜI ĐẸP & THANH LỊCH NHƯ TIKTOK/YOUTUBE ── */
+        #comments-section {
+            margin-top: 24px !important;
+            margin-bottom: 16px !important;
+            padding-bottom: 0 !important;
+        }
+        @media (min-width: 1024px) {
+            #comments-section {
+                margin-top: 32px !important;
+                margin-bottom: 24px !important;
+                padding-bottom: 0 !important;
+            }
+            /* Căn mép dưới khung bình luận trang /phim thẳng hàng tuyệt đối với mép dưới thẻ #10 bên cột trái */
+            body.page-phim-detail #comments-section {
+                margin-top: 50px !important;
+                margin-bottom: 24px !important;
+                flex: 1 1 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            body.page-phim-detail .ap-cmt-wrapper {
+                flex: 1 1 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+            body.page-phim-detail .ap-cmt-list {
+                flex: 1 1 auto !important;
+            }
+            body.page-phim-detail .ap-cmt-empty-msg {
+                flex: 1 1 auto !important;
+            }
+        }
+        .ap-cmt-wrapper {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding: 0 !important;
+        }
+        .ap-cmt-input-container {
+            margin-bottom: 16px !important;
+        }
+        .ap-cmt-textarea {
+            min-height: 82px !important;
+            padding: 12px 16px !important;
+            padding-right: 65px !important;
+            font-size: 14.5px !important;
+            line-height: 1.55 !important;
+        }
         .ap-cmt-list { 
-            display: flex; flex-direction: column; text-align: left; gap: 8px;
+            display: flex; flex-direction: column; text-align: left; gap: 12px !important;
             width: 100% !important;
             max-width: 100% !important;
-            min-height: 80px;
+            min-height: 0 !important;
             max-height: none !important;
             overflow: visible !important;
             overflow-y: visible !important;
-            padding: 6px 2px 18px 2px !important;
-            background: transparent !important;
-            border: none !important;
-            border-radius: 0 !important;
+            padding: 16px 18px !important;
+            background: rgba(24, 26, 36, 0.45) !important;
+            border: 1.5px dashed rgba(255, 255, 255, 0.15) !important;
+            border-radius: 16px !important;
             box-shadow: none !important;
+            box-sizing: border-box !important;
             touch-action: pan-y !important;
             overscroll-behavior: auto !important;
         }
         html.light-mode .ap-cmt-list, body.light-mode .ap-cmt-list {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
+            background: rgba(255, 255, 255, 0.62) !important;
+            border: 1.5px dashed #d6cebf !important;
+            border-radius: 16px !important;
+            box-shadow: 0 2px 12px rgba(78, 64, 45, 0.03) !important;
             max-height: none !important;
             overflow: visible !important;
             overflow-y: visible !important;
@@ -807,14 +856,190 @@
         .ap-cmt-list::-webkit-scrollbar-track { display: none !important; background: transparent !important; }
         .ap-cmt-list::-webkit-scrollbar-thumb { display: none !important; background: transparent !important; }
         .ap-cmt-item { 
-            display: flex; flex-direction: column; gap: 3px; padding: 3px 0 !important; 
+            display: flex; flex-direction: column; gap: 3px !important; padding: 4px 0 !important; 
             margin: 0 !important;
-            background: transparent;
-            border: none; border-radius: 0;
+            background: transparent !important;
+            border: none !important; border-radius: 0 !important;
             position:relative; align-items: flex-start; text-align: left;
             overflow: visible !important;
             width: 100%;
             box-sizing: border-box;
+        }
+
+        /* ── INLINE 3D ANIMATED EMOJI TRONG BÌNH LUẬN & NÚT ── */
+        img.ap-inline-emoji {
+            width: 22px !important;
+            height: 22px !important;
+            display: inline-block !important;
+            vertical-align: -5px !important;
+            margin: 0 2px !important;
+            object-fit: contain !important;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+        .ap-chip-emoji-img {
+            width: 19px !important;
+            height: 19px !important;
+            display: inline-block !important;
+            object-fit: contain !important;
+            flex-shrink: 0 !important;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.18));
+        }
+
+        /* ── EMPTY STATE KHI CHƯA CÓ BÌNH LUẬN (NẰM TRONG KHUNG NÉT ĐỨT .ap-cmt-list) ── */
+        .ap-cmt-empty-msg {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 12px 10px !important;
+            margin: 0 auto !important;
+            border-radius: 12px !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            gap: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+        html.light-mode .ap-cmt-empty-msg,
+        body.light-mode .ap-cmt-empty-msg {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .ap-cmt-empty-hero {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 64px;
+            min-width: 130px;
+            margin-bottom: 2px;
+            user-select: none;
+        }
+        .ap-empty-hero-glow {
+            position: absolute;
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(252, 213, 118, 0.26) 0%, rgba(245, 158, 11, 0.06) 55%, transparent 75%);
+            pointer-events: none;
+        }
+        html.light-mode .ap-empty-hero-glow {
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.06) 55%, transparent 75%) !important;
+        }
+        .ap-empty-emoji-center {
+            width: 50px !important;
+            height: 50px !important;
+            object-fit: contain !important;
+            position: relative;
+            z-index: 3;
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.28));
+            animation: apEmptyFloatCenter 2.8s ease-in-out infinite;
+        }
+        .ap-empty-emoji-side {
+            width: 30px !important;
+            height: 30px !important;
+            object-fit: contain !important;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.22));
+        }
+        .ap-empty-emoji-side.left {
+            margin-right: -8px;
+            transform: rotate(-14deg) translateY(6px);
+            animation: apEmptyFloatLeft 3.1s ease-in-out infinite;
+        }
+        .ap-empty-emoji-side.right {
+            margin-left: -8px;
+            transform: rotate(14deg) translateY(6px);
+            animation: apEmptyFloatRight 3.3s ease-in-out infinite;
+        }
+        @keyframes apEmptyFloatCenter {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.05); }
+        }
+        @keyframes apEmptyFloatLeft {
+            0%, 100% { transform: rotate(-14deg) translateY(6px); }
+            50% { transform: rotate(-20deg) translateY(1px); }
+        }
+        @keyframes apEmptyFloatRight {
+            0%, 100% { transform: rotate(14deg) translateY(6px); }
+            50% { transform: rotate(20deg) translateY(1px); }
+        }
+        .ap-cmt-empty-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #f8fafc;
+            margin: 0;
+            line-height: 1.35;
+            letter-spacing: -0.2px;
+        }
+        html.light-mode .ap-cmt-empty-title,
+        body.light-mode .ap-cmt-empty-title {
+            color: #1c1917 !important;
+        }
+        .ap-cmt-empty-sub {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin: 0;
+            max-width: 420px;
+            line-height: 1.45;
+        }
+        html.light-mode .ap-cmt-empty-sub,
+        body.light-mode .ap-cmt-empty-sub {
+            color: #78716c !important;
+        }
+        .ap-cmt-empty-chips {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .ap-cmt-quick-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px;
+            border-radius: 9999px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+        }
+        .ap-cmt-quick-chip:hover {
+            background: rgba(252, 213, 118, 0.16);
+            border-color: rgba(252, 213, 118, 0.5);
+            color: #fcd576;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(252, 213, 118, 0.12);
+        }
+        .ap-cmt-quick-chip:active {
+            transform: scale(0.96);
+        }
+        html.light-mode .ap-cmt-quick-chip,
+        body.light-mode .ap-cmt-quick-chip {
+            background: #ffffff !important;
+            border: 1px solid #dfd7c8 !important;
+            color: #292524 !important;
+            box-shadow: 0 2px 6px rgba(78, 64, 45, 0.06) !important;
+        }
+        html.light-mode .ap-cmt-quick-chip:hover,
+        body.light-mode .ap-cmt-quick-chip:hover {
+            background: #fef3c7 !important;
+            border-color: #f59e0b !important;
+            color: #b45309 !important;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.16) !important;
         }
         
         .ap-cmt-main-row {
@@ -1297,8 +1522,8 @@
         /* ── DESKTOP ONLY TWEAKS (>= 768px) ── */
         @media (min-width: 768px) {
             .ap-cmt-avatar.shop-frame-wrap.size-sm { width: 34px; height: 34px; }
-            .ap-cmt-list { max-width: 100%; gap: 8px; padding: 6px 0 18px 0 !important; }
-            .ap-cmt-item { border-bottom: none !important; padding: 3px 0 !important; margin: 0 !important; transition: none; background: transparent !important; }
+            .ap-cmt-list { max-width: 100%; gap: 12px !important; padding: 16px 18px !important; }
+            .ap-cmt-item { border-bottom: none !important; padding: 4px 0 !important; margin: 0 !important; transition: none; background: transparent !important; }
             .ap-cmt-item:last-child { border-bottom: none !important; }
             .ap-cmt-item:hover { background: transparent !important; border-bottom-color: transparent !important; box-shadow: none !important; }
             
@@ -1723,8 +1948,8 @@
             }
 
             .ap-cmt-wrapper {
-                padding: 0 4px 50px 4px !important;
-                margin-bottom: 30px !important;
+                padding: 0 2px 4px 2px !important;
+                margin-bottom: 0 !important;
                 overflow: visible !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
@@ -1736,22 +1961,21 @@
                 max-width: 100% !important;
                 box-sizing: border-box !important;
                 overflow: visible !important;
-                margin-bottom: 16px !important;
+                margin-bottom: 14px !important;
                 touch-action: pan-y !important;
             }
 
             .ap-cmt-list {
                 width: 100% !important;
                 max-width: 100% !important;
+                min-height: 0 !important;
                 max-height: none !important;
                 overflow: visible !important;
                 overflow-y: visible !important;
                 box-sizing: border-box !important;
-                padding: 10px 2px 24px 2px !important;
-                background: transparent !important;
-                border: none !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
+                gap: 10px !important;
+                padding: 14px 14px !important;
+                border-radius: 16px !important;
                 scrollbar-width: none !important;
                 -ms-overflow-style: none !important;
                 touch-action: pan-y !important;
@@ -1766,7 +1990,7 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 box-sizing: border-box !important;
-                padding: 3px 0 !important;
+                padding: 4px 0 !important;
                 margin: 0 !important;
                 overflow: visible !important;
             }
@@ -1940,35 +2164,61 @@
 
 
     const MODERN_COMMENT_EMOJIS = [
-        { id: 'smile', file: 'smile.webp', char: '😊', name: 'Vui vẻ' },
-        { id: 'laugh', file: 'laugh.webp', char: '😂', name: 'Cười ra nước mắt' },
-        { id: 'rofl', file: 'rofl.webp', char: '🤣', name: 'Cười vỡ bụng' },
-        { id: 'love', file: 'love.webp', char: '🥰', name: 'Mê mẩn' },
-        { id: 'cry', file: 'cry.webp', char: '😭', name: 'Khóc cảm động' },
-        { id: 'scared', file: 'scared.webp', char: '😱', name: 'Kinh ngạc' },
-        { id: 'mindblown', file: 'mindblown.webp', char: '🤯', name: 'Xoắn não' },
-        { id: 'think', file: 'think.webp', char: '🤔', name: 'Suy ngẫm / Twist' },
-        { id: 'cool', file: 'cool.webp', char: '😎', name: 'Ngầu đét' },
-        { id: 'party', file: 'party.webp', char: '🎉', name: 'Ăn mừng' },
-        { id: 'like', file: 'like.webp', char: '👍', name: 'Tuyệt vời / Thích' },
-        { id: 'dislike', file: 'dislike.webp', char: '👎', name: 'Chưa hay' },
-        { id: 'fire', file: 'fire.webp', char: '🔥', name: 'Siêu phẩm / Cháy' },
-        { id: 'clap', file: 'clap.webp', char: '👏', name: 'Vỗ tay' },
-        { id: 'sparkles', file: 'sparkles.webp', char: '✨', name: 'Lung linh' },
-        { id: 'heart', file: 'heart.webp', char: '❤️', name: 'Trái tim' },
-        { id: 'sparkle_heart', file: 'sparkle_heart.webp', char: '💖', name: 'Yêu thích' },
-        { id: 'pray', file: 'pray.webp', char: '🙏', name: 'Cầu tập mới / Cảm ơn' },
-        { id: 'popcorn', file: 'popcorn.webp', char: '🍿', name: 'Bắp rang / Hóng phim' },
-        { id: 'cinema', file: 'cinema.webp', char: '🎬', name: 'Điện ảnh' },
-        { id: 'hundred', file: 'hundred.webp', char: '💯', name: '100 Điểm' },
-        { id: 'crown', file: 'crown.webp', char: '👑', name: 'Đẳng cấp hoàng gia' },
-        { id: 'lightning', file: 'lightning.webp', char: '⚡', name: 'Cuốn hút' },
-        { id: 'rocket', file: 'rocket.webp', char: '🚀', name: 'Đỉnh nóc' },
-        { id: 'bomb', file: 'bomb.webp', char: '💣', name: 'Bom tấn' },
-        { id: 'trophy', file: 'trophy.webp', char: '🏆', name: 'Tuyệt tác' },
-        { id: 'star', file: 'star.webp', char: '🌟', name: 'Ngôi sao' },
-        { id: 'eyes', file: 'eyes.webp', char: '👀', name: 'Hóng kịch tính' }
+        { id: 'smile', code: '1f60a', file: 'smile.webp', char: '😊', name: 'Vui vẻ' },
+        { id: 'laugh', code: '1f602', file: 'laugh.webp', char: '😂', name: 'Cười ra nước mắt' },
+        { id: 'rofl', code: '1f923', file: 'rofl.webp', char: '🤣', name: 'Cười vỡ bụng' },
+        { id: 'love', code: '1f970', file: 'love.webp', char: '🥰', name: 'Mê mẩn' },
+        { id: 'cry', code: '1f62d', file: 'cry.webp', char: '😭', name: 'Khóc cảm động' },
+        { id: 'scared', code: '1f631', file: 'scared.webp', char: '😱', name: 'Kinh ngạc' },
+        { id: 'mindblown', code: '1f92f', file: 'mindblown.webp', char: '🤯', name: 'Xoắn não' },
+        { id: 'think', code: '1f914', file: 'think.webp', char: '🤔', name: 'Suy ngẫm / Twist' },
+        { id: 'cool', code: '1f60e', file: 'cool.webp', char: '😎', name: 'Ngầu đét' },
+        { id: 'party', code: '1f389', file: 'party.webp', char: '🎉', name: 'Ăn mừng' },
+        { id: 'like', code: '1f44d', file: 'like.webp', char: '👍', name: 'Tuyệt vời / Thích' },
+        { id: 'dislike', code: '1f44e', file: 'dislike.webp', char: '👎', name: 'Chưa hay' },
+        { id: 'fire', code: '1f525', file: 'fire.webp', char: '🔥', name: 'Siêu phẩm / Cháy' },
+        { id: 'clap', code: '1f44f', file: 'clap.webp', char: '👏', name: 'Vỗ tay' },
+        { id: 'sparkles', code: '2728', file: 'sparkles.webp', char: '✨', name: 'Lung linh' },
+        { id: 'heart', code: '2764_fe0f', file: 'heart.webp', char: '❤️', name: 'Trái tim' },
+        { id: 'sparkle_heart', code: '1f496', file: 'sparkle_heart.webp', char: '💖', name: 'Yêu thích' },
+        { id: 'pray', code: '1f64f', file: 'pray.webp', char: '🙏', name: 'Cầu tập mới / Cảm ơn' },
+        { id: 'popcorn', code: '1f37f', file: 'popcorn.webp', char: '🍿', name: 'Bắp rang / Hóng phim' },
+        { id: 'cinema', code: '1f3ac', file: 'cinema.webp', char: '🎬', name: 'Điện ảnh' },
+        { id: 'hundred', code: '1f4af', file: 'hundred.webp', char: '💯', name: '100 Điểm' },
+        { id: 'crown', code: '1f451', file: 'crown.webp', char: '👑', name: 'Đẳng cấp hoàng gia' },
+        { id: 'lightning', code: '26a1', file: 'lightning.webp', char: '⚡', name: 'Cuốn hút' },
+        { id: 'rocket', code: '1f680', file: 'rocket.webp', char: '🚀', name: 'Đỉnh nóc' },
+        { id: 'bomb', code: '1f4a3', file: 'bomb.webp', char: '💣', name: 'Bom tấn' },
+        { id: 'trophy', code: '1f3c6', file: 'trophy.webp', char: '🏆', name: 'Tuyệt tác' },
+        { id: 'star', code: '1f929', file: 'star.webp', char: '🤩', name: 'Mê ly / Tuyệt đỉnh' },
+        { id: 'eyes', code: '1f440', file: 'eyes.webp', char: '👀', name: 'Hóng kịch tính' }
     ];
+
+    // Map thêm các emoji phổ biến user thường gõ tay (😍, 💗, 💕, 🥺, 😘, 🥳, 😡, 🌟, ❤) sang ảnh 3D động
+    const EXTRA_INLINE_EMOJI_MAP = {
+        '😍': { code: '1f60d', file: 'love.webp', name: 'Đáng yêu' },
+        '🥺': { code: '1f97a', file: 'cry.webp', name: 'Xúc động' },
+        '😘': { code: '1f618', file: 'love.webp', name: 'Hôn gió' },
+        '🥳': { code: '1f973', file: 'party.webp', name: 'Tuyệt vời' },
+        '😡': { code: '1f621', file: 'fire.webp', name: 'Tức giận' },
+        '🌟': { code: '1f31f', file: 'star.webp', name: 'Ngôi sao' },
+        '❤':  { code: '2764_fe0f', file: 'heart.webp', name: 'Trái tim' },
+        '💗': { code: '1f497', file: 'sparkle_heart.webp', name: 'Trái tim lớn' },
+        '💓': { code: '1f493', file: 'sparkle_heart.webp', name: 'Tim đập' },
+        '💕': { code: '1f495', file: 'sparkle_heart.webp', name: 'Yêu thương' },
+        '💘': { code: '1f498', file: 'sparkle_heart.webp', name: 'Trúng tim' },
+        '💝': { code: '1f49d', file: 'sparkle_heart.webp', name: 'Quà tim' }
+    };
+
+    const INLINE_EMOJI_LOOKUP = {};
+    MODERN_COMMENT_EMOJIS.forEach(e => {
+        INLINE_EMOJI_LOOKUP[e.char] = { code: e.code, file: e.file, name: e.name };
+    });
+    Object.assign(INLINE_EMOJI_LOOKUP, EXTRA_INLINE_EMOJI_MAP);
+
+    function getAnimatedEmojiUrl(code) {
+        return `https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@emojis/${code}.webp`;
+    }
 
     const TRENDING_COMMENT_GIFS = [
         { name: 'Ăn bắp hóng phim', url: 'https://media.giphy.com/media/t3sZxY5zS5B0z5zMIz/giphy.gif' },
@@ -1984,7 +2234,7 @@
     function renderEmojiPickerHtml(pid) {
         let emojisGrid = MODERN_COMMENT_EMOJIS.map(item => `
             <button type="button" class="ap-emoji-item" title="${item.name}" onclick="window.insertCommentEmoji('${item.char}', '${pid}', event)">
-                <img src="/images/emojis/${item.file}" alt="${item.name}" width="28" height="28" loading="lazy">
+                <img src="${getAnimatedEmojiUrl(item.code)}" onerror="this.onerror=null;this.src='/images/emojis/${item.file}';" alt="${item.name}" width="30" height="30" loading="lazy">
             </button>
         `).join('');
 
@@ -1998,20 +2248,27 @@
         <div class="ap-emoji-inner-container">
             <!-- Emoji View -->
             <div id="ap-emoji-view-${pid}">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding:0 4px 6px 4px; border-bottom:1px solid rgba(148,163,184,0.16);">
+                    <span style="font-size:12px; font-weight:800; color:#d97706; display:inline-flex; align-items:center; gap:5px;">
+                        <img src="${getAnimatedEmojiUrl('2728')}" onerror="this.onerror=null;this.src='/images/emojis/sparkles.webp';" width="16" height="16" style="width:16px;height:16px;object-fit:contain;">
+                        Biểu cảm 3D Động
+                    </span>
+                    <span style="font-size:11px; color:#94a3b8; font-weight:600;">Chạm để chèn</span>
+                </div>
                 <div class="ap-emoji-grid">
                     ${emojisGrid}
                 </div>
                 <button type="button" class="ap-gif-btn" onclick="window.toggleGifView('${pid}', true, event)">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9.5H8.5v1h1.5v1H7V9h3v3.5zm3 2.5h-1V9h1v6zm4.5-4h-2v1h1.5v1H16v2h-1V9h2.5v1z"/></svg>
-                    <span>GIF</span>
+                    <img src="${getAnimatedEmojiUrl('1f3ac')}" onerror="this.onerror=null;this.src='/images/emojis/cinema.webp';" width="18" height="18" style="width:18px;height:18px;object-fit:contain;margin-right:4px;">
+                    <span>Kho Ảnh Động GIF</span>
                 </button>
             </div>
 
             <!-- GIF View -->
             <div id="ap-gif-view-${pid}" style="display:none;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                    <button type="button" style="background:none; border:none; color:#fcd576; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;" onclick="window.toggleGifView('${pid}', false, event)">
-                        <span>⬅ Quay lại</span>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(148,163,184,0.16);">
+                    <button type="button" style="background:none; border:none; color:#d97706; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;" onclick="window.toggleGifView('${pid}', false, event)">
+                        <span>⬅ Biểu cảm 3D</span>
                     </button>
                     <span style="font-size:11.5px; color:#94a3b8; font-weight:600;">GIF Xu hướng</span>
                 </div>
@@ -2023,6 +2280,14 @@
         `;
     }
 
+    const INLINE_EMOJI_REGEX = new RegExp(
+        Object.keys(INLINE_EMOJI_LOOKUP)
+            .sort((a, b) => b.length - a.length)
+            .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|'),
+        'g'
+    );
+
     function formatCommentText(rawText) {
         if (!rawText) return '';
         let formatted = sanitize(rawText);
@@ -2030,6 +2295,13 @@
         // Render [gif:https://...]
         formatted = formatted.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, (match, url) => {
             return `<div class="ap-cmt-gif-wrap" style="margin: 8px 0 4px 0; max-width: 260px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 4px 16px rgba(0,0,0,0.35);"><img src="${url}" loading="lazy" style="width: 100%; height: auto; display: block; object-fit: cover;" alt="GIF"></div>`;
+        });
+
+        // Upgrade inline Unicode emojis to 3D Animated Emoji images
+        formatted = formatted.replace(INLINE_EMOJI_REGEX, (matchedChar) => {
+            const info = INLINE_EMOJI_LOOKUP[matchedChar];
+            if (!info) return matchedChar;
+            return `<img class="ap-inline-emoji" src="${getAnimatedEmojiUrl(info.code)}" onerror="this.onerror=null;this.src='/images/emojis/${info.file}';" alt="${matchedChar}" title="${info.name}" loading="lazy">`;
         });
 
         formatted = formatted.replace(/\n/g, '<br>');
@@ -2128,10 +2400,10 @@
                             <span class="ap-spoiler-label">Tiết lộ?</span>
                         </label>
 
-                        <!-- Modern Emoji & GIF Button (Matching User Photo Reference) -->
+                        <!-- Modern Emoji & GIF Button (3D Animated Icon) -->
                         <div class="ap-emoji-select" id="ap-emoji-select-${pid}">
                             <button type="button" class="ap-btn-emoji-trigger" onclick="window.toggleEmojiPopover('${pid}', event)">
-                                <span style="font-size: 17px; line-height: 1;">😊</span>
+                                <img src="${getAnimatedEmojiUrl('1f929')}" onerror="this.onerror=null;this.src='/images/emojis/smile.webp';" width="20" height="20" alt="Biểu cảm" style="width:20px;height:20px;object-fit:contain;display:block;flex-shrink:0;">
                                 <span>Biểu cảm</span>
                             </button>
                             <div class="ap-emoji-popover" id="ap-emoji-drop-${pid}">
@@ -3017,10 +3289,52 @@
         section.style.border = 'none';
         section.style.boxShadow = 'none';
         section.style.padding = '0';
-        section.style.margin = '0';
 
         injectStyles();
         window._apInitComment = initCommentUI;
+
+        window.fillQuickComment = function(sampleText) {
+            const input = document.getElementById('ap-input-main');
+            if (!input) return;
+            input.value = sampleText;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.focus();
+            try {
+                input.setSelectionRange(sampleText.length, sampleText.length);
+            } catch (_) {}
+        };
+
+        function renderEmptyCommentsState() {
+            return `
+            <div class="ap-cmt-empty-msg">
+                <div class="ap-cmt-empty-hero">
+                    <span class="ap-empty-hero-glow"></span>
+                    <img class="ap-empty-emoji-side left" src="${getAnimatedEmojiUrl('1f525')}" onerror="this.onerror=null;this.src='/images/emojis/fire.webp';" alt="Fire" width="30" height="30">
+                    <img class="ap-empty-emoji-center" src="${getAnimatedEmojiUrl('1f37f')}" onerror="this.onerror=null;this.src='/images/emojis/popcorn.webp';" alt="Popcorn" width="50" height="50">
+                    <img class="ap-empty-emoji-side right" src="${getAnimatedEmojiUrl('1f929')}" onerror="this.onerror=null;this.src='/images/emojis/star.webp';" alt="Star" width="30" height="30">
+                </div>
+                <p class="ap-cmt-empty-title">Chưa có bình luận nào cho phim này</p>
+                <p class="ap-cmt-empty-sub">Hãy là người đầu tiên mở màn thảo luận hoặc chọn nhanh cảm nhận bên dưới:</p>
+                <div class="ap-cmt-empty-chips">
+                    <button type="button" class="ap-cmt-quick-chip" onclick="window.fillQuickComment && window.fillQuickComment('🔥 Phim cuốn quá, đáng xem nha mọi người!')">
+                        <img class="ap-chip-emoji-img" src="${getAnimatedEmojiUrl('1f525')}" onerror="this.onerror=null;this.src='/images/emojis/fire.webp';" alt="🔥">
+                        <span>Phim cuốn quá!</span>
+                    </button>
+                    <button type="button" class="ap-cmt-quick-chip" onclick="window.fillQuickComment && window.fillQuickComment('💯 Cốt truyện đỉnh, diễn xuất quá xuất sắc!')">
+                        <img class="ap-chip-emoji-img" src="${getAnimatedEmojiUrl('1f4af')}" onerror="this.onerror=null;this.src='/images/emojis/hundred.webp';" alt="💯">
+                        <span>Cốt truyện đỉnh</span>
+                    </button>
+                    <button type="button" class="ap-cmt-quick-chip" onclick="window.fillQuickComment && window.fillQuickComment('🍿 Đang xem hay quá, hóng tập tiếp theo!')">
+                        <img class="ap-chip-emoji-img" src="${getAnimatedEmojiUrl('1f37f')}" onerror="this.onerror=null;this.src='/images/emojis/popcorn.webp';" alt="🍿">
+                        <span>Hóng tập mới</span>
+                    </button>
+                    <button type="button" class="ap-cmt-quick-chip" onclick="window.fillQuickComment && window.fillQuickComment('🤩 Siêu phẩm 10 điểm không có nhưng!')">
+                        <img class="ap-chip-emoji-img" src="${getAnimatedEmojiUrl('1f929')}" onerror="this.onerror=null;this.src='/images/emojis/star.webp';" alt="🤩">
+                        <span>Siêu phẩm 10đ</span>
+                    </button>
+                </div>
+            </div>`;
+        }
 
         // Wipe any legacy/static HTML inside #comments-section completely
         section.innerHTML = '';
@@ -3028,7 +3342,7 @@
         // 1. Header Bar
         const headerWrap = document.createElement('div');
         headerWrap.className = 'ap-cmt-header-wrap';
-        headerWrap.style.cssText = 'display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: none !important; padding-bottom: 0 !important; width: 100%;';
+        headerWrap.style.cssText = 'display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; border-bottom: none !important; padding-bottom: 0 !important; width: 100%;';
         headerWrap.innerHTML = `
             <div style="display: flex; align-items: center; gap: 8px;">
                 <svg class="ap-cmt-icon" style="width: 22px; height: 22px; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 12c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm6 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm6 0c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"/></svg>
@@ -3057,7 +3371,7 @@
         // 4. Comments List Box at Bottom
         const listEl = document.createElement('div');
         listEl.className = 'ap-cmt-list';
-        listEl.innerHTML = '<div style="text-align:center;color:#6b7280;padding:20px;width:100%;">⏳ Đang tải bình luận...</div>';
+        listEl.innerHTML = '<div style="text-align:center;color:#6b7280;padding:16px;width:100%;">⏳ Đang tải bình luận...</div>';
         wrapper.appendChild(listEl);
 
         const user = getCurrentUser();
@@ -3069,7 +3383,7 @@
                 if (countSpan) countSpan.textContent = `(${count})`;
 
                 const newHtml = comments.length === 0 
-                    ? '<div class="ap-cmt-empty-msg" style="text-align:center;color:#78716c;padding:32px 20px;width:100%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:600;">💬 Hãy là người đầu tiên bình luận!</div>'
+                    ? renderEmptyCommentsState()
                     : comments.map(c => generateHtml(c, userEmail, false)).join('');
 
                 if (listEl.dataset.lastHtml !== newHtml) {

@@ -28,7 +28,7 @@
                 <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=29">
                 <link rel="stylesheet" href="/css/hero-banner.css?v=195">
                 <link rel="stylesheet" href="/css/interests-section.css?v=171">
-                <link rel="stylesheet" href="/css/home-layout.css?v=2">
+                <link rel="stylesheet" href="/css/home-layout.css?v=20261127">
                 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap"
                     rel="stylesheet" media="print" onload="this.media='all'">
                 <noscript>
@@ -3687,7 +3687,7 @@
                         // ==========================================
                         // 💬 HOMEPAGE COMMUNITY COMMENTS SHOWCASE (0ms Instant Cache + SWR)
                         // ==========================================
-                        const HOME_COMMENTS_CACHE_KEY = 'aphim_home_comments_cache_v7';
+                        const HOME_COMMENTS_CACHE_KEY = 'aphim_home_comments_cache_v9';
                         try {
                             localStorage.removeItem('aphim_home_comments_cache_v6');
                             localStorage.removeItem('aphim_home_comments_cache_v5');
@@ -3749,18 +3749,85 @@
                             renderHomeComments();
                         };
 
+                        const HOME_EMOJI_3D_MAP = {
+                            '😊': { code: '1f60a', file: 'smile.webp', name: 'Vui vẻ' },
+                            '😂': { code: '1f602', file: 'laugh.webp', name: 'Cười ra nước mắt' },
+                            '🤣': { code: '1f923', file: 'rofl.webp', name: 'Cười vỡ bụng' },
+                            '🥰': { code: '1f970', file: 'love.webp', name: 'Mê mẩn' },
+                            '😍': { code: '1f60d', file: 'love.webp', name: 'Đáng yêu' },
+                            '🤩': { code: '1f929', file: 'star.webp', name: 'Mê ly' },
+                            '😘': { code: '1f618', file: 'love.webp', name: 'Hôn gió' },
+                            '🥺': { code: '1f97a', file: 'cry.webp', name: 'Xúc động' },
+                            '😭': { code: '1f62d', file: 'cry.webp', name: 'Khóc cảm động' },
+                            '😱': { code: '1f631', file: 'scared.webp', name: 'Kinh ngạc' },
+                            '🤯': { code: '1f92f', file: 'mindblown.webp', name: 'Xoắn não' },
+                            '🤔': { code: '1f914', file: 'think.webp', name: 'Suy ngẫm' },
+                            '😎': { code: '1f60e', file: 'cool.webp', name: 'Ngầu đét' },
+                            '🥳': { code: '1f973', file: 'party.webp', name: 'Ăn mừng' },
+                            '🎉': { code: '1f389', file: 'party.webp', name: 'Ăn mừng' },
+                            '👍': { code: '1f44d', file: 'like.webp', name: 'Thích' },
+                            '👎': { code: '1f44e', file: 'dislike.webp', name: 'Chưa hay' },
+                            '🔥': { code: '1f525', file: 'fire.webp', name: 'Siêu phẩm' },
+                            '😡': { code: '1f621', file: 'fire.webp', name: 'Tức giận' },
+                            '👏': { code: '1f44f', file: 'clap.webp', name: 'Vỗ tay' },
+                            '✨': { code: '2728', file: 'sparkles.webp', name: 'Lung linh' },
+                            '❤️': { code: '2764_fe0f', file: 'heart.webp', name: 'Trái tim' },
+                            '❤':  { code: '2764_fe0f', file: 'heart.webp', name: 'Trái tim' },
+                            '💖': { code: '1f496', file: 'sparkle_heart.webp', name: 'Yêu thích' },
+                            '💗': { code: '1f497', file: 'sparkle_heart.webp', name: 'Trái tim lớn' },
+                            '💓': { code: '1f493', file: 'sparkle_heart.webp', name: 'Tim đập' },
+                            '💕': { code: '1f495', file: 'sparkle_heart.webp', name: 'Yêu thương' },
+                            '💘': { code: '1f498', file: 'sparkle_heart.webp', name: 'Trúng tim' },
+                            '💝': { code: '1f49d', file: 'sparkle_heart.webp', name: 'Quà tim' },
+                            '🙏': { code: '1f64f', file: 'pray.webp', name: 'Cảm ơn' },
+                            '🍿': { code: '1f37f', file: 'popcorn.webp', name: 'Hóng phim' },
+                            '🎬': { code: '1f3ac', file: 'cinema.webp', name: 'Điện ảnh' },
+                            '💯': { code: '1f4af', file: 'hundred.webp', name: '100 Điểm' },
+                            '👑': { code: '1f451', file: 'crown.webp', name: 'Hoàng gia' },
+                            '⚡': { code: '26a1', file: 'lightning.webp', name: 'Cuốn hút' },
+                            '🚀': { code: '1f680', file: 'rocket.webp', name: 'Đỉnh nóc' },
+                            '💣': { code: '1f4a3', file: 'bomb.webp', name: 'Bom tấn' },
+                            '🏆': { code: '1f3c6', file: 'trophy.webp', name: 'Tuyệt tác' },
+                            '🌟': { code: '1f31f', file: 'star.webp', name: 'Ngôi sao' },
+                            '👀': { code: '1f440', file: 'eyes.webp', name: 'Hóng kịch tính' }
+                        };
+                        const HOME_EMOJI_3D_REGEX = new RegExp(
+                            Object.keys(HOME_EMOJI_3D_MAP)
+                                .sort((a, b) => b.length - a.length)
+                                .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                                .join('|'),
+                            'g'
+                        );
+
+                        function escapeHomeHtml(str) {
+                            return String(str || '')
+                                .replace(/&/g, '&amp;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;')
+                                .replace(/'/g, '&#39;');
+                        }
+
                         function formatHomeCardContent(raw) {
-                            if (!raw || typeof raw !== 'string') return { text: '', gifUrl: null };
-                            let text = raw;
+                            if (!raw || typeof raw !== 'string') return { text: '', plainText: '', gifUrl: null };
+                            let plainText = raw;
                             let gifUrl = null;
                             try {
                                 const gifMatch = raw.match(/\[gif:(https?:\/\/[^\]\s]+)\]/i);
                                 if (gifMatch) {
                                     gifUrl = gifMatch[1];
-                                    text = raw.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, '').trim();
+                                    plainText = raw.replace(/\[gif:(https?:\/\/[^\]\s]+)\]/gi, '').trim();
                                 }
                             } catch (e) { }
-                            return { text, gifUrl };
+
+                            let htmlText = escapeHomeHtml(plainText);
+                            htmlText = htmlText.replace(HOME_EMOJI_3D_REGEX, (ch) => {
+                                const info = HOME_EMOJI_3D_MAP[ch];
+                                if (!info) return ch;
+                                return `<img class="ap-inline-emoji" src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@emojis/${info.code}.webp" onerror="this.onerror=null;this.src='/images/emojis/${info.file}';" alt="${ch}" title="${info.name}" loading="lazy">`;
+                            });
+
+                            return { text: htmlText, plainText, gifUrl };
                         }
 
                         function renderHomeComments() {
@@ -3821,12 +3888,12 @@
                                             : '';
 
                                     const badgeHtml = c.badge ? (typeof renderUserBadgeHtml === 'function' ? renderUserBadgeHtml(c.badge) : `<span class="home-card-badge">${c.badge}</span>`) : '';
-                                    const { text: cleanText, gifUrl } = formatHomeCardContent(c.content);
+                                    const { text: cleanText, plainText, gifUrl } = formatHomeCardContent(c.content);
                                     const gifHtml = gifUrl
                                         ? `<div class="home-card-gif-preview"><img src="${gifUrl}" loading="lazy" alt="GIF"></div>`
                                         : '';
                                     const textHtml = cleanText ? `<div class="home-card-text">${cleanText}</div>` : '';
-                                    const titleTooltip = cleanText || (gifUrl ? 'Đã gửi một GIF' : '');
+                                    const titleTooltip = escapeHomeHtml(plainText || (gifUrl ? 'Đã gửi một GIF' : ''));
                                     const nameColorCls = c.nameColor && c.nameColor !== 'color_default' ? `ap-nc-${c.nameColor} has-custom-name-color` : '';
                                     const mSlug = c.movieSlug || 'phim';
                                     const mName = c.movieName || 'Xem phim';

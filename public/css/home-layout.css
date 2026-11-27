@@ -2442,6 +2442,18 @@
                             text-overflow: ellipsis;
                         }
 
+                        .home-card-text img.ap-inline-emoji,
+                        img.ap-inline-emoji {
+                            width: 19px !important;
+                            height: 19px !important;
+                            display: inline-block !important;
+                            vertical-align: -4px !important;
+                            margin: 0 2px !important;
+                            object-fit: contain !important;
+                            pointer-events: none;
+                            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.14));
+                        }
+
                         .home-card-gif-preview {
                             margin-top: 6px;
                             border-radius: 8px;

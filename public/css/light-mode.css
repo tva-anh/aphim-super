@@ -3802,12 +3802,27 @@ html.light-mode .ap-char-count {
     z-index: 5 !important;
 }
 
-html.light-mode .ap-cmt-list,
 .ap-cmt-list {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
+    border: 1.5px dashed rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px !important;
+    background: rgba(24, 26, 36, 0.45) !important;
+    padding: 16px 18px !important;
+}
+
+html.light-mode .ap-cmt-list {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    border: 1.5px dashed #d6cebf !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.62) !important;
+    box-shadow: 0 2px 12px rgba(78, 64, 45, 0.03) !important;
+    padding: 16px 18px !important;
 }
 
 html.light-mode .ap-cmt-empty-msg,
@@ -3815,10 +3830,14 @@ html.light-mode .ap-cmt-empty-msg,
     width: 100% !important;
     text-align: center !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 32px 20px !important;
+    padding: 12px 10px !important;
     margin: 0 auto !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     color: #78716c !important;
     font-weight: 600 !important;
 }
@@ -4897,7 +4916,6 @@ html.light-mode .ap-cmt-header-wrap h3 {
     color: #1c1917 !important;
 }
 
-html.light-mode #comments-section svg:not(.tiktok-heart-icon):not(.tiktok-dislike-icon):not(.tiktok-chevron-icon),
 html.light-mode .ap-cmt-header-wrap svg {
     fill: #1c1917 !important;
     color: #1c1917 !important;

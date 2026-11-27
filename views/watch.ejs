@@ -3,7 +3,7 @@
 
 <head>
     <%- include('partials/head') %>
-        <link rel="stylesheet" href="/css/watch-page.css?v=20261125b" />
+        <link rel="stylesheet" href="/css/watch-page.css?v=20261127b" />
         <style>
             /* Tên phim trong Card bên phải: Vàng amber sắc nét, tương phản cao, không bị lợt trên nền kem */
             html.light-mode #sidebar-movie-name,
@@ -1083,8 +1083,7 @@
                         </div>
                     </div>
 
-                    <div id="comments-section" class="w-full text-left space-y-4 mb-20 pb-12 lg:mb-24 lg:pb-16"
-                        style="margin-top: 28px !important; margin-bottom: 80px !important;">
+                    <div id="comments-section" class="w-full text-left space-y-4 mt-6 mb-4 lg:mt-8 lg:mb-6">
                         <div class="ap-cmt-header-wrap flex items-center justify-between gap-4 flex-wrap mb-4">
                             <div class="flex items-center gap-2.5">
                                 <svg style="width: 22px; height: 22px; fill: #ffffff; flex-shrink: 0;"
@@ -1158,7 +1157,7 @@
                                                 <button type="button" class="ap-btn-emoji-trigger"
                                                     style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; color: #fcd576; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;"
                                                     onclick="window.toggleEmojiPopover && window.toggleEmojiPopover('main', event)">
-                                                    <span style="font-size: 17px; line-height: 1;">😊</span>
+                                                    <img src="https://cdn.jsdelivr.net/gh/AlanTran-IT/static-assets@emojis/1f929.webp" onerror="this.onerror=null;this.src='/images/emojis/smile.webp';" width="20" height="20" alt="Biểu cảm" style="width:20px;height:20px;object-fit:contain;display:block;flex-shrink:0;">
                                                     <span style="color: #fcd576;">Biểu cảm</span>
                                                 </button>
                                                 <div class="ap-emoji-popover" id="ap-emoji-drop-main"></div>
@@ -1188,7 +1187,7 @@
                 </div>
 
                 <aside id="sidebar-col" style="will-change: transform; transform: translateZ(0);"
-                    class="lg:col-span-4 space-y-6 lg:space-y-8 sticky top-20">
+                    class="hidden lg:block lg:col-span-4 space-y-6 lg:space-y-8 sticky top-20">
 
                     <div id="desktop-movie-info-slot" class="w-full">
                         <div id="main-movie-info-card"
@@ -1443,7 +1442,7 @@
                     <% } %>
                 </nav>
             <% } %>
-            <div style="height: 120px; width: 100%; clear: both; display: block;" class="w-full"></div>
+            <div style="height: 8px; width: 100%; clear: both; display: block;" class="w-full"></div>
         </main>
 
         <%- include('partials/footer') %>
@@ -1509,7 +1508,7 @@
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script src="/js/top-weekly-sidebar.js?v=105" defer></script>
             <script src="/js/watch.js?v=20261126" defer></script>
-            <script src="/js/firebase-comments.js?v=20261125" defer></script>
+            <script src="/js/firebase-comments.js?v=20261127e" defer></script>
             <script src="/js/watch-ui-init.js?v=219" defer></script>
             <script src="/js/watch-server-ping.js?v=20261125" defer></script>
 
