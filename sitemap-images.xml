@@ -107629,4 +107629,14 @@
         <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/dem-ngay-tho-thumb.webp</image:loc><image:title>Đêm Ngây Thơ</image:title></image:image>
         <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/dem-ngay-tho-poster.webp</image:loc><image:title>Đêm Ngây Thơ - Poster</image:title></image:image>
     </url>
+    <url>
+        <loc>https://aphim.store/phim/phong-sinh-thuy-khoi</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/phong-sinh-thuy-khoi-thumb.webp</image:loc><image:title>Phong Sinh Thuỷ Khởi</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/phong-sinh-thuy-khoi-poster.webp</image:loc><image:title>Phong Sinh Thuỷ Khởi - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/vu-trom-the-ky-2025</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/vu-trom-the-ky-2025-thumb.webp</image:loc><image:title>Vụ Trộm Thế Kỷ</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/vu-trom-the-ky-2025-poster.webp</image:loc><image:title>Vụ Trộm Thế Kỷ - Poster</image:title></image:image>
+    </url>
 </urlset>
