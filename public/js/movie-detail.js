@@ -894,9 +894,9 @@ function renderMovieDetail(movie) {
             var currentSrc = heroBackdrop.getAttribute('src') || heroBackdrop.src || '';
             var currentFile = currentSrc.split('?')[0].split('/').pop();
             var newFile = (result.backdrop || '').split('?')[0].split('/').pop();
-            if (currentSrc.includes('image.tmdb.org') || (currentFile && newFile && currentFile === newFile)) {
+            if (currentFile && newFile && currentFile === newFile) {
                 try {
-                    localStorage.setItem('tmdb_hero_v4_' + movie.slug, JSON.stringify(result));
+                    localStorage.setItem('tmdb_hero_v6_' + movie.slug, JSON.stringify(result));
                 } catch(e) {}
                 return;
             }
@@ -917,7 +917,7 @@ function renderMovieDetail(movie) {
                 heroBackdrop.src = result.backdrop;
 
                 try {
-                    localStorage.setItem('tmdb_hero_v4_' + movie.slug, JSON.stringify(result));
+                    localStorage.setItem('tmdb_hero_v6_' + movie.slug, JSON.stringify(result));
                 } catch(e) {}
             };
             probe.src = result.backdrop;

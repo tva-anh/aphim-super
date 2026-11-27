@@ -382,63 +382,110 @@ function isVietnameseMovie(movie) {
     return false;
 }
 
-// 🛡️ Strict validation guard for TMDB search results to prevent mismatching (e.g. Vietnamese movie matching Turkish Hamlet)
-function isValidTMDBResult(cand, movie, isVN) {
+function cleanAlphaClient(str) {
+    return removeVietnameseAccents(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function isCountryCompatibleClient(cand, movie, isVN) {
+    if (!cand || !movie) return true;
+    const candLang = String(cand.original_language || '').toLowerCase();
+    const candCountries = Array.isArray(cand.origin_country)
+        ? cand.origin_country.map(c => String(c).toUpperCase())
+        : (Array.isArray(cand.production_countries) ? cand.production_countries.map(c => String(c.iso_3166_1 || '').toUpperCase()) : []);
+
+    if (isVN) {
+        return candLang === 'vi' || candCountries.includes('VN');
+    }
+
+    const mCountries = (Array.isArray(movie.country) ? movie.country : [movie.country || ''])
+        .map(c => removeVietnameseAccents(typeof c === 'object' ? (c.name || c.slug || '') : String(c)).toLowerCase())
+        .filter(Boolean);
+    if (mCountries.length === 0 || (!candLang && candCountries.length === 0)) return true;
+
+    const isKR = mCountries.some(c => c.includes('han quoc') || c === 'kr');
+    const isCN = mCountries.some(c => c.includes('trung quoc') || c.includes('hong kong') || c.includes('dai loan') || c === 'cn' || c === 'hk' || c === 'tw');
+    const isJP = mCountries.some(c => c.includes('nhat ban') || c === 'jp');
+    const isTH = mCountries.some(c => c.includes('thai lan') || c === 'th');
+
+    if (isKR && !isCN && !isJP) {
+        if (candLang && candLang !== 'ko') return false;
+        if (candCountries.length > 0 && !candCountries.includes('KR')) return false;
+    } else if (isCN && !isKR && !isJP) {
+        if (candLang && !['zh', 'cn', 'yue', 'bo'].includes(candLang)) return false;
+        if (candCountries.length > 0 && !candCountries.some(code => ['CN', 'HK', 'TW', 'SG'].includes(code))) return false;
+    } else if (isJP && !isKR && !isCN) {
+        if (candLang && candLang !== 'ja') return false;
+        if (candCountries.length > 0 && !candCountries.includes('JP')) return false;
+    } else if (isTH) {
+        if (candLang && candLang !== 'th') return false;
+        if (candCountries.length > 0 && !candCountries.includes('TH')) return false;
+    }
+    return true;
+}
+
+// 🛡️ Strict validation guard for TMDB search results to prevent mismatching (e.g. Korean Family Matters matching US Mathis Family Matters)
+function isValidTMDBResult(cand, movie, isVN, isDirectId = false) {
     if (!cand) return false;
     if (!cand.backdrop_path && !cand.poster_path) return false;
 
-    const candTitle = (cand.title || cand.name || cand.original_title || cand.original_name || '').toLowerCase().trim();
-    const candNorm = removeVietnameseAccents(candTitle);
-    const movieNameNorm = removeVietnameseAccents((movie.name || '').toLowerCase().trim());
-    const movieOriginNorm = removeVietnameseAccents((movie.origin_name || '').toLowerCase().trim());
-
-    if (isVN) {
-        // Phim Việt Nam: BẮT BUỘC có original_language là 'vi' HOẶC origin_country chứa 'VN'
-        const isVnLang = cand.original_language === 'vi';
-        const isVnCountry = Array.isArray(cand.origin_country) && cand.origin_country.includes('VN');
-        if (!isVnLang && !isVnCountry) {
-            // TUYỆT ĐỐI KHÔNG nhận phim nước ngoài cho phim Việt Nam!
-            return false;
-        }
-
-        // Tên ứng viên phải tương đồng với tên tiếng Việt của phim
-        const matchName = candNorm === movieNameNorm ||
-            (candNorm.length >= 3 && movieNameNorm.includes(candNorm)) ||
-            (movieNameNorm.length >= 3 && candNorm.includes(movieNameNorm));
-        if (!matchName) return false;
-
-        return true;
+    if (!isCountryCompatibleClient(cand, movie, isVN)) {
+        return false;
     }
 
-    // Đối với phim quốc tế:
     if (movie.year) {
         const dateStr = cand.release_date || cand.first_air_date || '';
         if (dateStr && dateStr.length >= 4) {
             const candYear = parseInt(dateStr.substring(0, 4), 10);
             const mYear = parseInt(movie.year, 10);
             if (!isNaN(candYear) && !isNaN(mYear)) {
-                if (Math.abs(candYear - mYear) > 2) {
-                    const exactMatch = (candNorm === movieOriginNorm || candNorm === movieNameNorm);
-                    if (!exactMatch) return false;
-                }
+                const maxDiff = isDirectId ? 3 : 2;
+                if (Math.abs(candYear - mYear) > maxDiff) return false;
             }
         }
     }
 
-    return true;
+    if (isDirectId) {
+        return true;
+    }
+
+    const cTitleClean = cleanAlphaClient(cand.title || cand.name || '');
+    const cOrigClean = cleanAlphaClient(cand.original_title || cand.original_name || '');
+    const mNameClean = cleanAlphaClient(movie.name || '');
+    const mOrigClean = cleanAlphaClient(movie.origin_name || '');
+
+    const isExactOrSeasonSuffix = (candStr, targetStr) => {
+        if (!candStr || !targetStr) return false;
+        if (candStr === targetStr) return true;
+        if (targetStr.length >= 8 && candStr.startsWith(targetStr)) {
+            const suffix = candStr.slice(targetStr.length);
+            if (/^(season\d*|part\d*|phan\d*|ss\d*|\d+)$/.test(suffix)) return true;
+        }
+        if (candStr.length >= 8 && targetStr.startsWith(candStr)) {
+            const suffix = targetStr.slice(candStr.length);
+            if (/^(season\d*|part\d*|phan\d*|ss\d*|\d+)$/.test(suffix)) return true;
+        }
+        return false;
+    };
+
+    return (
+        isExactOrSeasonSuffix(cTitleClean, mNameClean) ||
+        isExactOrSeasonSuffix(cOrigClean, mNameClean) ||
+        isExactOrSeasonSuffix(cTitleClean, mOrigClean) ||
+        isExactOrSeasonSuffix(cOrigClean, mOrigClean)
+    );
 }
 
 // --- HERO BANNER IMAGE FETCHING ---
 async function getHeroImagesFromTMDB(movie) {
     if (!movie) return null;
 
-    // Dùng v4 cache key để xóa sạch các cache cũ bị load nhầm trước đây
-    const cacheKey = `tmdb_hero_v5_${movie.slug}`;
+    // Dùng v6 cache key để xóa sạch toàn bộ cache cũ bị load nhầm trước đây
+    const cacheKey = `tmdb_hero_v6_${movie.slug}`;
     try {
-        sessionStorage.removeItem(`tmdb_hero_${movie.slug}`);
-        sessionStorage.removeItem(`tmdb_hero_v2_${movie.slug}`);
-        sessionStorage.removeItem(`tmdb_hero_v3_${movie.slug}`);
-        sessionStorage.removeItem(`tmdb_hero_v4_${movie.slug}`);
+        ['', '_v2', '_v3', '_v4', '_v5'].forEach(ver => {
+            sessionStorage.removeItem(`tmdb_hero${ver}_${movie.slug}`);
+            localStorage.removeItem(`tmdb_hero${ver}_${movie.slug}`);
+        });
     } catch (e) {}
 
     const cached = sessionStorage.getItem(cacheKey);
@@ -451,18 +498,16 @@ async function getHeroImagesFromTMDB(movie) {
     try {
         let tmdbMovie = null;
 
-        // (Đã chuyển tra cứu backdrop sang Server-Side và TMDB Proxy để không bị chặn CORS)
-
-        // 1. Exact ID match (nếu Ophim cung cấp tmdb.id)
+        // 1. Exact ID match (nếu PhimAPI/Ophim cung cấp tmdb.id)
         if (movie.tmdb && movie.tmdb.id && String(movie.tmdb.id).trim() !== '') {
             try {
-                const tmdbType = movie.tmdb.type === 'tv' ? 'tv' : 'movie';
+                const tmdbType = movie.tmdb.type === 'tv' ? 'tv' : (movie.type === 'series' ? 'tv' : 'movie');
                 const tmdbId = movie.tmdb.id;
                 const detailUrl = `${TMDB_PROXY_BASE}/${tmdbType}/${tmdbId}?language=vi-VN`;
                 const response = await fetchWithProxy(detailUrl);
                 if (response.ok) {
                     const detailData = await response.json();
-                    if (isValidTMDBResult(detailData, movie, isVN)) {
+                    if (isValidTMDBResult(detailData, movie, isVN, true)) {
                         tmdbMovie = detailData;
                     }
                 }
@@ -473,19 +518,18 @@ async function getHeroImagesFromTMDB(movie) {
         if (!tmdbMovie) {
             let searchStrategies = [];
             if (isVN) {
-                // Phim Việt Nam: TUYỆT ĐỐI KHÔNG tìm origin_name do Google dịch tiếng Anh (ví dụ 'Hamlet')
                 searchStrategies = [
-                    { query: movie.name, year: movie.year },
-                    { query: movie.name, year: null },
-                    { query: removeVietnameseAccents(movie.name), year: movie.year },
-                    { query: removeVietnameseAccents(movie.name), year: null }
+                    { query: movie.name, year: movie.year, lang: 'vi-VN' },
+                    { query: movie.name, year: null, lang: 'vi-VN' },
+                    { query: removeVietnameseAccents(movie.name), year: movie.year, lang: 'vi-VN' },
+                    { query: removeVietnameseAccents(movie.name), year: null, lang: 'vi-VN' }
                 ];
             } else {
                 searchStrategies = [
-                    { query: movie.origin_name, year: movie.year },
-                    { query: movie.name, year: movie.year },
-                    { query: movie.origin_name, year: null },
-                    { query: movie.name, year: null }
+                    { query: movie.origin_name, year: movie.year, lang: 'en-US' },
+                    { query: movie.name, year: movie.year, lang: 'vi-VN' },
+                    { query: movie.origin_name, year: null, lang: 'en-US' },
+                    { query: movie.name, year: null, lang: 'vi-VN' }
                 ];
             }
 
@@ -493,15 +537,15 @@ async function getHeroImagesFromTMDB(movie) {
                 if (!strategy.query || strategy.query.trim().length === 0) continue;
                 const query = encodeURIComponent(strategy.query.trim());
                 const yearParam = strategy.year ? `&year=${strategy.year}` : '';
-                const searchUrl = `${TMDB_PROXY_BASE}/search/multi?query=${query}${yearParam}&language=vi-VN`;
+                const langParam = strategy.lang || 'vi-VN';
+                const searchUrl = `${TMDB_PROXY_BASE}/search/multi?query=${query}${yearParam}&language=${langParam}`;
 
                 try {
                     const res = await fetchWithProxy(searchUrl);
                     if (res.ok) {
                         const data = await res.json();
                         if (data.results && data.results.length > 0) {
-                            // Lọc qua các ứng viên theo guard an toàn
-                            const matched = data.results.find(cand => isValidTMDBResult(cand, movie, isVN));
+                            const matched = data.results.find(cand => isValidTMDBResult(cand, movie, isVN, false));
                             if (matched) {
                                 tmdbMovie = matched;
                                 break;

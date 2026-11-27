@@ -1164,8 +1164,14 @@
                     try {
                         var slug = '<%= slug %>';
                         var el = document.getElementById('movieHeroBackdrop');
+                        try {
+                            localStorage.removeItem('tmdb_hero_v4_' + slug);
+                            localStorage.removeItem('tmdb_hero_v5_' + slug);
+                            sessionStorage.removeItem('tmdb_hero_v4_' + slug);
+                            sessionStorage.removeItem('tmdb_hero_v5_' + slug);
+                        } catch (_) {}
                         if (el && el.src && el.src.indexOf('image.tmdb.org') !== -1) return;
-                        var c = sessionStorage.getItem('tmdb_hero_v5_' + slug) || localStorage.getItem('tmdb_hero_v5_' + slug);
+                        var c = sessionStorage.getItem('tmdb_hero_v6_' + slug) || localStorage.getItem('tmdb_hero_v6_' + slug);
                         if (c) {
                             var d = JSON.parse(c);
                             if (d && d.backdrop && el) {
@@ -2029,14 +2035,14 @@
             <script src="/js/premium-ad-blocker.js?v=99" defer></script>
             <script src="/js/user.js?v=99" defer></script>
             <script src="/js/rating.js?v=99" defer></script>
-            <script src="/js/tmdb-api.js?v=101" defer></script>
+            <script src="/js/tmdb-api.js?v=102" defer></script>
             <script src="/js/playlist-service.js?v=215" defer></script>
             <script src="/js/playlist-modal.js?v=215" defer></script>
             <script>
                 window.initialMovie = <%- JSON.stringify(typeof movie !== 'undefined' && movie ? movie : null) %>;
                 window.initialEpisodes = <%- JSON.stringify(typeof episodes !== 'undefined' && episodes ? episodes : (typeof movie !== 'undefined' && movie && movie.episodes ? movie.episodes : [])) %>;
             </script>
-            <script src="/js/movie-detail.js?v=20261125" defer></script>
+            <script src="/js/movie-detail.js?v=20261127" defer></script>
 
             <script>
                 (function () {

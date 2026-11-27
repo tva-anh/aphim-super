@@ -2746,7 +2746,47 @@ function isVietnameseMovie(movie) {
     return false;
 }
 
-function isValidTMDBMatch(cand, movie, isVN) {
+function isCountryCompatibleWithTMDB(cand, movie, isVN) {
+    if (!cand || !movie) return true;
+    const candLang = String(cand.original_language || '').toLowerCase();
+    const candCountries = Array.isArray(cand.origin_country)
+        ? cand.origin_country.map(c => String(c).toUpperCase())
+        : (Array.isArray(cand.production_countries) ? cand.production_countries.map(c => String(c.iso_3166_1 || '').toUpperCase()) : []);
+
+    if (isVN) {
+        const isVnLang = candLang === 'vi';
+        const isVnCountry = candCountries.includes('VN');
+        return isVnLang || isVnCountry;
+    }
+
+    const mCountries = (Array.isArray(movie.country) ? movie.country : [movie.country || ''])
+        .map(c => removeVietnameseAccents(typeof c === 'object' ? (c.name || c.slug || '') : String(c)))
+        .filter(Boolean);
+    if (mCountries.length === 0 || (!candLang && candCountries.length === 0)) return true;
+
+    // Nếu phim thuộc một quốc gia châu Á rõ ràng (Hàn, Trung/HK/Đài, Nhật, Thái), cấm tuyệt đối việc khớp nhầm sang phim Âu/Mỹ
+    const isKR = mCountries.some(c => c.includes('han quoc') || c === 'kr');
+    const isCN = mCountries.some(c => c.includes('trung quoc') || c.includes('hong kong') || c.includes('dai loan') || c === 'cn' || c === 'hk' || c === 'tw');
+    const isJP = mCountries.some(c => c.includes('nhat ban') || c === 'jp');
+    const isTH = mCountries.some(c => c.includes('thai lan') || c === 'th');
+
+    if (isKR && !isCN && !isJP) {
+        if (candLang && candLang !== 'ko') return false;
+        if (candCountries.length > 0 && !candCountries.includes('KR')) return false;
+    } else if (isCN && !isKR && !isJP) {
+        if (candLang && !['zh', 'cn', 'yue', 'bo'].includes(candLang)) return false;
+        if (candCountries.length > 0 && !candCountries.some(code => ['CN', 'HK', 'TW', 'SG'].includes(code))) return false;
+    } else if (isJP && !isKR && !isCN) {
+        if (candLang && candLang !== 'ja') return false;
+        if (candCountries.length > 0 && !candCountries.includes('JP')) return false;
+    } else if (isTH) {
+        if (candLang && candLang !== 'th') return false;
+        if (candCountries.length > 0 && !candCountries.includes('TH')) return false;
+    }
+    return true;
+}
+
+function isValidTMDBMatch(cand, movie, isVN, isDirectId = false) {
     if (!cand || !cand.backdrop_path) return false;
     const candTitle = cand.title || cand.name || '';
     const candOrig = cand.original_title || cand.original_name || '';
@@ -2755,28 +2795,60 @@ function isValidTMDBMatch(cand, movie, isVN) {
     const mNameClean = cleanAlpha(movie.name);
     const mOrigClean = cleanAlpha(movie.origin_name);
 
-    // 1. Kiểm tra năm sản xuất: lệch tối đa <= 2 năm
+    // 1. Kiểm tra tương thích quốc gia & ngôn ngữ gốc (chặn phim Hàn/Trung/Việt bị khớp nhầm sang show Mỹ/Âu)
+    if (!isCountryCompatibleWithTMDB(cand, movie, isVN)) {
+        return false;
+    }
+
+    // 2. Kiểm tra năm sản xuất: cho phép lệch <= 3 năm khi tra trực tiếp bằng tmdb.id, hoặc <= 2 năm khi tìm kiếm
     if (movie.year) {
         const dStr = cand.release_date || cand.first_air_date || '';
         const cYear = parseInt(dStr.substring(0, 4), 10);
         const mYear = parseInt(movie.year, 10);
         if (!isNaN(cYear) && !isNaN(mYear)) {
-            if (Math.abs(cYear - mYear) > 2) return false;
+            const maxDiff = isDirectId ? 3 : 2;
+            if (Math.abs(cYear - mYear) > maxDiff) return false;
         }
     }
 
-    // 2. Rào chắn phim Việt Nam: Bắt buộc là phim Việt Nam (ngôn ngữ 'vi' hoặc quốc gia 'VN') hoặc tên phim tiếng Việt khớp tuyệt đối
-    if (isVN) {
-        const isVnLang = cand.original_language === 'vi';
-        const isVnCountry = Array.isArray(cand.origin_country) && cand.origin_country.includes('VN');
-        const matchVnName = (cTitleClean && mNameClean && (cTitleClean === mNameClean || (mNameClean.length >= 6 && cTitleClean.includes(mNameClean))));
-        if (!isVnLang && !isVnCountry && !matchVnName) return false;
+    // 3. Nếu đã có sẵn tmdb.id chính chủ từ PhimAPI/OPhim và đã vượt qua rào chắn Năm + Quốc gia ở trên:
+    // Tin cậy tmdb.id chính chủ (vì tên dịch tiếng Việt trên TMDB như "Vấn Đề Gia Đình" có thể khác với "Chuyện Gia Đình", và original_name là chữ Hàn/Trung "가족계획")
+    if (isDirectId) {
+        if (isVN) {
+            const matchVnName = (cTitleClean && mNameClean && (cTitleClean === mNameClean || cOrigClean === mNameClean));
+            if (!isCountryCompatibleWithTMDB(cand, movie, true) && !matchVnName) return false;
+        }
+        return true;
     }
 
-    // 3. Khớp tên phim
-    const titleMatches = (
-        (mNameClean && (cTitleClean === mNameClean || cOrigClean === mNameClean || (mNameClean.length >= 6 && (cTitleClean.includes(mNameClean) || cOrigClean.includes(mNameClean))))) ||
-        (mOrigClean && (cTitleClean === mOrigClean || cOrigClean === mOrigClean || (mOrigClean.length >= 6 && (cTitleClean.includes(mOrigClean) || cOrigClean.includes(mOrigClean)))))
+    // 4. Khi tìm kiếm bằng từ khóa (Fallback Search): kiểm tra tên nghiêm ngặt, KHÔNG dùng includes() lỏng lẻo kiểu "mathisfamilymatters".includes("familymatters")
+    // Collect thêm các tiêu đề dịch nếu có trong translations / alternative_titles
+    const extraTitles = [];
+    if (cand.translations && Array.isArray(cand.translations.translations)) {
+        for (const tr of cand.translations.translations) {
+            const tName = tr?.data?.title || tr?.data?.name;
+            if (tName) extraTitles.push(cleanAlpha(tName));
+        }
+    }
+    const allCandTitles = [cTitleClean, cOrigClean, ...extraTitles].filter(Boolean);
+
+    const isExactOrCleanPrefixMatch = (candStr, targetStr) => {
+        if (!candStr || !targetStr) return false;
+        if (candStr === targetStr) return true;
+        // Chỉ cho phép khớp phần đầu khi chênh lệch là hậu tố phần/mùa (season/part/phan) chứ không bao giờ cho phép tiền tố lạ ở đằng trước (như "mathis" + "familymatters")
+        if (targetStr.length >= 8 && candStr.startsWith(targetStr)) {
+            const suffix = candStr.slice(targetStr.length);
+            if (/^(season\d*|part\d*|phan\d*|ss\d*|\d+)$/.test(suffix)) return true;
+        }
+        if (candStr.length >= 8 && targetStr.startsWith(candStr)) {
+            const suffix = targetStr.slice(candStr.length);
+            if (/^(season\d*|part\d*|phan\d*|ss\d*|\d+)$/.test(suffix)) return true;
+        }
+        return false;
+    };
+
+    const titleMatches = allCandTitles.some(ct =>
+        isExactOrCleanPrefixMatch(ct, mNameClean) || isExactOrCleanPrefixMatch(ct, mOrigClean)
     );
     if (!titleMatches) return false;
 
@@ -2794,14 +2866,14 @@ async function enrichMovieBackdrop(movie) {
         let tmdbId = movie.tmdb?.id;
         let tmdbType = movie.tmdb?.type === 'tv' ? 'tv' : (movie.type === 'series' ? 'tv' : 'movie');
 
-        // 1. Nếu có sẵn tmdb.id từ API PhimAPI/Ophim -> gọi trực tiếp chi tiết TMDB và kiểm tra an toàn
+        // 1. Nếu có sẵn tmdb.id từ API PhimAPI/Ophim -> gọi trực tiếp chi tiết TMDB và kiểm tra an toàn (isDirectId = true)
         if (tmdbId && String(tmdbId).trim() !== '') {
             try {
                 const res = await axios.get(`${TMDB_BASE_URL}/${tmdbType}/${tmdbId}`, {
                     params: { api_key: TMDB_API_KEY, language: 'vi-VN' },
                     timeout: 2000
                 });
-                if (res.data?.backdrop_path && isValidTMDBMatch(res.data, movie, isVN)) {
+                if (res.data?.backdrop_path && isValidTMDBMatch(res.data, movie, isVN, true)) {
                     movie.backdrop_url = `https://image.tmdb.org/t/p/original${res.data.backdrop_path}`;
                     movie._backdropVerified = true;
                     return;
@@ -2814,7 +2886,7 @@ async function enrichMovieBackdrop(movie) {
                             params: { api_key: TMDB_API_KEY, language: 'vi-VN' },
                             timeout: 1500
                         });
-                        if (altRes.data?.backdrop_path && isValidTMDBMatch(altRes.data, movie, isVN)) {
+                        if (altRes.data?.backdrop_path && isValidTMDBMatch(altRes.data, movie, isVN, true)) {
                             movie.backdrop_url = `https://image.tmdb.org/t/p/original${altRes.data.backdrop_path}`;
                             movie._backdropVerified = true;
                             return;
@@ -2825,18 +2897,25 @@ async function enrichMovieBackdrop(movie) {
         }
 
         // 2. Tra cứu bằng tên với rào chắn ngôn ngữ, quốc gia và năm phát hành chuẩn xác
+        // Lưu ý quan trọng: Khi tìm bằng origin_name (thường là tên tiếng Anh quốc tế như "Family Matters"), phải truyền language='en-US'
+        // để TMDB trả về trường name bằng tiếng Anh giúp đối chiếu khớp 100%, không bị ẩn sau bản dịch tiếng Việt khác tên!
         let searchQueries = [];
         if (isVN) {
-            searchQueries = [movie.name, removeVietnameseAccents(movie.name)].filter(Boolean);
+            if (movie.name) searchQueries.push({ q: movie.name, lang: 'vi-VN' });
+            const noAcc = removeVietnameseAccents(movie.name);
+            if (noAcc && noAcc !== movie.name) searchQueries.push({ q: noAcc, lang: 'vi-VN' });
         } else {
-            searchQueries = [movie.origin_name, movie.name].filter(Boolean);
+            if (movie.origin_name) searchQueries.push({ q: movie.origin_name, lang: 'en-US' });
+            if (movie.name) searchQueries.push({ q: movie.name, lang: 'vi-VN' });
         }
 
         const isSeries = movie.type === 'series';
         const searchEndpoint = isSeries ? '/search/tv' : '/search/movie';
         const yearParam = isSeries ? 'first_air_date_year' : 'primary_release_year';
 
-        for (const q of searchQueries) {
+        for (const item of searchQueries) {
+            const q = item.q;
+            const qLang = item.lang;
             // Lần 1: Tra cứu chính xác với năm sản xuất
             if (movie.year) {
                 try {
@@ -2845,12 +2924,12 @@ async function enrichMovieBackdrop(movie) {
                             api_key: TMDB_API_KEY,
                             query: q,
                             [yearParam]: movie.year,
-                            language: 'vi-VN'
+                            language: qLang
                         },
                         timeout: 1800
                     });
                     if (sRes.data?.results && sRes.data.results.length > 0) {
-                        const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN));
+                        const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN, false));
                         if (match && match.backdrop_path) {
                             movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
                             if (!movie.tmdb) movie.tmdb = { id: match.id, type: isSeries ? 'tv' : 'movie' };
@@ -2861,18 +2940,18 @@ async function enrichMovieBackdrop(movie) {
                 } catch (_) {}
             }
 
-            // Lần 2: Tra cứu không có năm (fallback cho phim mới hoặc lệch 1 năm)
+            // Lần 2: Tra cứu không có năm (vẫn giữ kiểm tra lệch <= 2 năm + đúng quốc gia + khớp tên chính xác trong isValidTMDBMatch)
             try {
                 const sRes = await axios.get(`${TMDB_BASE_URL}${searchEndpoint}`, {
                     params: {
                         api_key: TMDB_API_KEY,
                         query: q,
-                        language: 'vi-VN'
+                        language: qLang
                     },
                     timeout: 1800
                 });
                 if (sRes.data?.results && sRes.data.results.length > 0) {
-                    const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN));
+                    const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN, false));
                     if (match && match.backdrop_path) {
                         movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
                         if (!movie.tmdb) movie.tmdb = { id: match.id, type: isSeries ? 'tv' : 'movie' };
@@ -2888,12 +2967,12 @@ async function enrichMovieBackdrop(movie) {
                     params: {
                         api_key: TMDB_API_KEY,
                         query: q,
-                        language: 'vi-VN'
+                        language: qLang
                     },
                     timeout: 1800
                 });
                 if (sRes.data?.results && sRes.data.results.length > 0) {
-                    const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN));
+                    const match = sRes.data.results.find(r => isValidTMDBMatch(r, movie, isVN, false));
                     if (match && match.backdrop_path) {
                         movie.backdrop_url = `https://image.tmdb.org/t/p/original${match.backdrop_path}`;
                         if (!movie.tmdb) movie.tmdb = { id: match.id, type: match.media_type };
