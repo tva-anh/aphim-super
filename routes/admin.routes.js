@@ -5,7 +5,7 @@
 const express = require('express');
 const router  = express.Router();
 const axios   = require('axios');
-const { requireAdmin } = require('../middleware/adminAuth.middleware');
+const { requireAdmin, signAdminSessionToken } = require('../middleware/adminAuth.middleware');
 const { supabase, supabaseAdmin } = require('../lib/supabase');
 const Gamification = require('../models/Gamification');
 const AdminLog     = require('../models/AdminLog');
@@ -433,9 +433,9 @@ router.post('/login', async (req, res) => {
             password
         });
 
-        // 6. Dự phòng mật khẩu quản trị từ .env hoặc master key
+        // 6. Dự phòng mật khẩu quản trị từ .env (Đã loại bỏ mật khẩu hardcode trong mã nguồn)
         const envPassword = process.env.ADMIN_PASSWORD;
-        const masterPasswords = [envPassword, '#Anh0937010123'].filter(Boolean);
+        const masterPasswords = [envPassword].filter(Boolean);
 
         if (error && masterPasswords.includes(password)) {
             try {
@@ -543,15 +543,26 @@ router.post('/login', async (req, res) => {
         };
 
         // Ghi cookie phiên đăng nhập an toàn (SameSite=Lax, hỗ trợ cả client guard và server auth)
+        const isSecureReq = process.env.NODE_ENV === 'production' || req.secure || req.headers['x-forwarded-proto'] === 'https';
         if (token && token.length < 3800) {
             res.cookie('aphim_admin_token', token, {
                 path: '/',
                 maxAge: 7 * 24 * 60 * 60 * 1000,
                 httpOnly: false,
                 sameSite: 'Lax',
-                secure: process.env.NODE_ENV === 'production' || req.secure || req.headers['x-forwarded-proto'] === 'https'
+                secure: isSecureReq
             });
         }
+        try {
+            const signedSession = signAdminSessionToken({ id: data.user.id, email: data.user.email });
+            res.cookie('aphim_admin_session', signedSession, {
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                sameSite: 'Lax',
+                secure: isSecureReq
+            });
+        } catch (_) {}
 
         // Xóa cookie CSRF đăng nhập tạm sau khi xác thực thành công
         res.clearCookie('aphim_csrf_login', { path: '/' });
@@ -591,6 +602,7 @@ router.post('/login', async (req, res) => {
 // ── POST /api/admin/logout ────────────────────────────────────────────────────
 router.post('/logout', (req, res) => {
     res.clearCookie('aphim_admin_token', { path: '/' });
+    res.clearCookie('aphim_admin_session', { path: '/' });
     res.clearCookie('cinestream_admin_token', { path: '/' });
     return res.json({ success: true, message: 'Đã đăng xuất phiên làm việc admin.' });
 });

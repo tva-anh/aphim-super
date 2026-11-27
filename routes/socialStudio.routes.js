@@ -13,14 +13,9 @@ const socialStudioService = require('../lib/socialStudio.service');
 const customStreams = require('../lib/customStreams');
 const movieRoutes = require('./movie.routes');
 
-// Optional Admin Auth middleware
-let requireAdmin = (req, res, next) => next();
-try {
-    const authMw = require('../middleware/adminAuth.middleware');
-    if (authMw && authMw.requireAdmin) {
-        requireAdmin = authMw.requireAdmin;
-    }
-} catch (e) {}
+// Enforce Admin Auth middleware across all Social Studio Admin APIs
+const { requireAdmin } = require('../middleware/adminAuth.middleware');
+router.use(requireAdmin);
 
 /**
  * 1. GET /api/admin/social-studio/trends — Real-time Google Trends VN

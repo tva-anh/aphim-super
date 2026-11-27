@@ -2,7 +2,45 @@
  * middleware/adminAuth.middleware.js
  * Bảo vệ các route admin — chỉ cho phép role 'admin'
  */
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const { supabaseAdmin } = require('../lib/supabase');
+
+const ADMIN_SESSION_SECRET = crypto
+    .createHash('sha256')
+    .update(String(process.env.JWT_SECRET || process.env.SUPABASE_SERVICE_KEY || 'aphim-admin-fallback-secret') + ':aphim-admin-session-v2')
+    .digest('hex');
+
+function signAdminSessionToken(payload) {
+    return jwt.sign(
+        {
+            sub: payload.id || payload.sub,
+            email: payload.email || '',
+            role: 'admin',
+            typ: 'aphim_admin_session'
+        },
+        ADMIN_SESSION_SECRET,
+        { algorithm: 'HS256', expiresIn: '7d' }
+    );
+}
+
+function verifyAdminSessionToken(token) {
+    if (!token || typeof token !== 'string') return null;
+    try {
+        const decoded = jwt.verify(token, ADMIN_SESSION_SECRET, { algorithms: ['HS256'] });
+        if (decoded && decoded.typ === 'aphim_admin_session' && decoded.sub) {
+            return decoded;
+        }
+    } catch (_) {}
+    return null;
+}
+
+function extractCookieValue(cookieHeader, name) {
+    if (!cookieHeader || typeof cookieHeader !== 'string') return null;
+    const regex = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`);
+    const match = cookieHeader.match(regex);
+    return match ? decodeURIComponent(match[1]) : null;
+}
 
 async function requireAdmin(req, res, next) {
     try {
@@ -29,6 +67,8 @@ async function requireAdmin(req, res, next) {
 
         let user = null;
         let userId = null;
+        const cookieHeader = req.headers.cookie || '';
+        const sessionCookie = (req.cookies && req.cookies.aphim_admin_session) || extractCookieValue(cookieHeader, 'aphim_admin_session');
 
         try {
             const { data: authData, error } = await supabaseAdmin.auth.getUser(token);
@@ -38,20 +78,13 @@ async function requireAdmin(req, res, next) {
             }
         } catch (e) {}
 
-        // Fallback an toàn: Phục hồi userId từ JWT payload nếu Supabase Auth token tạm hết hạn 1h
+        // 🛡️ Xác thực phiên làm việc 7 ngày bằng chữ ký HMAC-SHA256 của Server (Tuyệt đối không chấp nhận JWT không chữ ký)
         if (!userId) {
-            try {
-                const parts = token.split('.');
-                if (parts.length === 3) {
-                    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-                    const padded = b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '=');
-                    const payload = JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
-                    if (payload && (payload.sub || payload.id)) {
-                        userId = payload.sub || payload.id;
-                        user = { id: userId, email: payload.email || '' };
-                    }
-                }
-            } catch (jwtErr) {}
+            const verifiedSession = verifyAdminSessionToken(sessionCookie) || verifyAdminSessionToken(token);
+            if (verifiedSession && verifiedSession.sub) {
+                userId = verifiedSession.sub;
+                user = { id: userId, email: verifiedSession.email || '' };
+            }
         }
 
         if (!userId) {
@@ -98,6 +131,20 @@ async function requireAdmin(req, res, next) {
             return res.status(403).json({ success: false, message: 'Tài khoản admin đã bị khóa.' });
         }
 
+        // Tự động cấp cookie phiên ký số chuẩn nếu admin đang có Supabase token sống nhưng chưa có session cookie
+        if (!sessionCookie && userId) {
+            try {
+                const signedSession = signAdminSessionToken({ id: userId, email: profile.email || user?.email || '' });
+                res.cookie('aphim_admin_session', signedSession, {
+                    path: '/',
+                    maxAge: 7 * 24 * 60 * 60 * 1000,
+                    httpOnly: true,
+                    sameSite: 'Lax',
+                    secure: process.env.NODE_ENV === 'production' || req.secure || req.headers['x-forwarded-proto'] === 'https'
+                });
+            } catch (_) {}
+        }
+
         req.admin = { ...user, profile };
         next();
 
@@ -107,4 +154,4 @@ async function requireAdmin(req, res, next) {
     }
 }
 
-module.exports = { requireAdmin };
+module.exports = { requireAdmin, signAdminSessionToken, verifyAdminSessionToken };

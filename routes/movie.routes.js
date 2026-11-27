@@ -7,6 +7,7 @@ try { dns.setDefaultResultOrder('ipv4first'); } catch (e) {}
 const express = require('express');
 const router  = express.Router();
 const { requireAdmin } = require('../middleware/adminAuth.middleware');
+const { validateSafeUpstreamUrl } = require('../lib/securityShield');
 const MovieOverride = require('../models/MovieOverride');
 const AdminLog      = require('../models/AdminLog');
 const trendsControl = require('../lib/trendsControl');
@@ -45,6 +46,12 @@ router.get('/ping-server', async (req, res) => {
         return res.status(400).json({ success: false, message: 'URL không hợp lệ' });
     }
 
+    const urlCheck = await validateSafeUpstreamUrl(targetUrl);
+    if (!urlCheck.safe) {
+        return res.status(403).json({ success: false, latency: -1, message: 'Nguồn đích không nằm trong danh sách CDN hợp lệ' });
+    }
+    targetUrl = urlCheck.url;
+
     const startTime = Date.now();
     try {
         const controller = new AbortController();
@@ -69,6 +76,7 @@ router.get('/ping-server', async (req, res) => {
 
         let response = await fetch(targetUrl, {
             method: 'HEAD',
+            redirect: 'manual',
             signal: controller.signal,
             headers: reqHeaders
         });
@@ -78,6 +86,7 @@ router.get('/ping-server', async (req, res) => {
             reqHeaders['Range'] = 'bytes=0-10';
             response = await fetch(targetUrl, {
                 method: 'GET',
+                redirect: 'manual',
                 signal: controller.signal,
                 headers: reqHeaders
             });
@@ -163,8 +172,10 @@ const PROXY_CACHE_TTL = 3 * 60 * 1000; // 3 phút RAM cache
 
 router.get('/phimapi-proxy', async (req, res) => {
     try {
-        const rawPath = req.query.path || '';
-        if (!rawPath) return res.status(400).json({ status: false, message: 'Thiếu tham số path' });
+        const rawPath = String(req.query.path || '').trim();
+        if (!rawPath || rawPath.includes('..') || rawPath.includes('//') || rawPath.includes('@') || rawPath.includes('\\')) {
+            return res.status(400).json({ status: false, message: 'Thiếu hoặc sai định dạng tham số path' });
+        }
         const cleanPath = rawPath.startsWith('/') ? rawPath : '/' + rawPath;
 
         // 🌟 Intercept phim-song-ngu (Nguồn nội bộ song ngữ từ ChoPhim + R2)

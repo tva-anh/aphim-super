@@ -37,10 +37,19 @@ const phimNganRoutes = require('./routes/phimNgan.routes');
 const streamRoutes = require('./routes/stream.routes');
 const { submitUrlsToIndexNow, autoSubmitRecentMovies } = require('./lib/indexnow.service');
 const { requireAdmin } = require('./middleware/adminAuth.middleware');
+const {
+    signProxyUrl,
+    trustUpstreamHost,
+    validateSafeUpstreamUrl,
+    originIpShieldMiddleware
+} = require('./lib/securityShield');
 
 const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3005;
+
+// 🛡️ LÁ CHẮN CHỐNG QUÉT TRỰC TIẾP IP VPS (Shodan / Censys / FOFA / Bot DDoS)
+app.use(originIpShieldMiddleware);
 
 // Socket.IO Setup
 const http = require('http');
@@ -153,8 +162,10 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // ⚡ Smart Poster Proxy: Chặn đứng lỗi 404 cho các đường dẫn poster narto dạng /assets/poster/:file
 app.get(['/assets/poster/:file', '/poster/:file'], async (req, res) => {
     const file = req.params.file;
-    if (!file) return res.sendFile(path.join(__dirname, 'public', 'images', 'avatar-default.png'));
-    const cdnUrl = `https://img.nartodrama-api.online/poster/${file}`;
+    if (!file || !/^[a-zA-Z0-9._-]+$/.test(file)) {
+        return res.sendFile(path.join(__dirname, 'public', 'images', 'avatar-default.png'));
+    }
+    const cdnUrl = `https://img.nartodrama-api.online/poster/${encodeURIComponent(file)}`;
     try {
         const upstream = await axios.get(cdnUrl, {
             responseType: 'stream',
@@ -1426,10 +1437,16 @@ function decryptVicdnAesGcm(txt) {
 }
 
 app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
-    const targetUrl = req.query.url;
-    if (!targetUrl || !targetUrl.startsWith('http')) {
+    const rawTargetUrl = req.query.url;
+    if (!rawTargetUrl || typeof rawTargetUrl !== 'string' || !rawTargetUrl.startsWith('http')) {
         return res.status(400).send('Invalid url');
     }
+    const urlCheck = await validateSafeUpstreamUrl(rawTargetUrl, { sig: req.query.sig });
+    if (!urlCheck.safe) {
+        logger.warn(`[SSRF Shield] Blocked /api/proxy/m3u8 target: ${rawTargetUrl} (${urlCheck.reason})`, { ip: req.ip });
+        return res.status(403).send('Forbidden upstream target');
+    }
+    const targetUrl = urlCheck.url;
     try {
         const ua = String(req.headers['user-agent'] || '');
         const isAppleNative = req.query.native === '1' ||
@@ -1466,6 +1483,7 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
 
         const response = await axios.get(targetUrl, {
             timeout: 12000,
+            maxRedirects: 3,
             responseType: 'text',
             headers
         });
@@ -1584,17 +1602,19 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                         line = line.replace(/URI="([^"]+)"/g, (match, uri) => {
                             let absUri;
                             try { absUri = new URL(uri, base).href; } catch (e) { absUri = uri; }
+                            trustUpstreamHost(absUri);
+                            const sigParam = `&sig=${signProxyUrl(absUri)}`;
                             const isPlaylist = absUri.includes('.m3u8') || absUri.includes('format=m3u8') || absUri.includes('media=');
                             // 🛡️ Với #EXT-X-MAP (fMP4 init segment của vicdn.cc ngụy trang đuôi .png + image/png):
                             // LUÔN bọc qua /api/proxy/media/init.mp4 để trả về Content-Type: video/mp4 chuẩn cho iPhone/Safari & mọi trình phát
                             if (isMapTag && !isPlaylist) {
-                                return `URI="/api/proxy/media/init.mp4?url=${encodeURIComponent(absUri)}"`;
+                                return `URI="/api/proxy/media/init.mp4?url=${encodeURIComponent(absUri)}${sigParam}"`;
                             }
                             if (!isPlaylist && ((absUri.includes('vicdn.cc') && !isAppleNative) || absUri.includes('kvp726.com') || absUri.includes('kkphim'))) {
                                 return `URI="${absUri}"`;
                             }
                             const endpoint = isPlaylist ? '/api/proxy/m3u8' : (absUri.includes('vicdn.cc') ? '/api/proxy/media/seg.m4s' : '/api/proxy/media');
-                            return `URI="${endpoint}?url=${encodeURIComponent(absUri)}"`;
+                            return `URI="${endpoint}?url=${encodeURIComponent(absUri)}${sigParam}"`;
                         });
                     }
                     rewritten.push(line);
@@ -1604,6 +1624,8 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                 // 🛡️ Bọc phân đoạn video .ts / .m4s, variant playlist
                 let absUrl;
                 try { absUrl = new URL(trimmed, base).href; } catch (e) { absUrl = trimmed; }
+                trustUpstreamHost(absUrl);
+                const sigParam = `&sig=${signProxyUrl(absUrl)}`;
 
                 const isPlaylist = absUrl.includes('.m3u8') || absUrl.includes('format=m3u8') || absUrl.includes('media=');
                 // ⚡ Desktop & Android (hls.js): tải trực tiếp từ CDN vicdn.cc; Riêng iPhone/Safari (isAppleNative): đi qua /api/proxy/media/seg.m4s để đổi image/png -> video/mp4
@@ -1613,7 +1635,7 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
                 }
                 const endpoint = isPlaylist ? '/api/proxy/m3u8' : (absUrl.includes('vicdn.cc') ? '/api/proxy/media/seg.m4s' : '/api/proxy/media');
                 const nativeSuffix = (isPlaylist && isAppleNative) ? '&native=1' : '';
-                rewritten.push(`${endpoint}?url=${encodeURIComponent(absUrl)}${nativeSuffix}`);
+                rewritten.push(`${endpoint}?url=${encodeURIComponent(absUrl)}${nativeSuffix}${sigParam}`);
             }
             m3u8Content = rewritten.join('\n');
         }
@@ -1632,10 +1654,16 @@ app.get(['/api/proxy/m3u8', '/api/bilingual/stream'], async (req, res) => {
 
 // ⚡ Proxy cho từng phân đoạn video .ts, .png, .m4s và phụ đề .vtt vượt tường lửa Anti-Leech 100%
 app.get(['/api/proxy/media', '/api/proxy/media/:filename', '/api/bilingual/media'], async (req, res) => {
-    const targetUrl = req.query.url;
-    if (!targetUrl || !targetUrl.startsWith('http')) {
+    const rawTargetUrl = req.query.url;
+    if (!rawTargetUrl || typeof rawTargetUrl !== 'string' || !rawTargetUrl.startsWith('http')) {
         return res.status(400).send('Invalid url');
     }
+    const urlCheck = await validateSafeUpstreamUrl(rawTargetUrl, { sig: req.query.sig });
+    if (!urlCheck.safe) {
+        logger.warn(`[SSRF Shield] Blocked /api/proxy/media target: ${rawTargetUrl} (${urlCheck.reason})`, { ip: req.ip });
+        return res.status(403).send('Forbidden upstream target');
+    }
+    const targetUrl = urlCheck.url;
     try {
         const isAntiLeech = targetUrl.includes('oncdn.vip') || targetUrl.includes('tophim.vip');
         const isVicdn = targetUrl.includes('vicdn.cc');
@@ -1750,10 +1778,16 @@ if (!fs.existsSync(VTT_CACHE_DIR)) {
 
 app.get(['/api/proxy/vtt', '/api/bilingual/vtt'], async (req, res) => {
     let targetUrl = req.query.url;
-    if (!targetUrl) return res.status(400).send('Invalid url');
+    if (!targetUrl || typeof targetUrl !== 'string') return res.status(400).send('Invalid url');
     if (!targetUrl.startsWith('http')) {
         targetUrl = 'https://chophim.cc' + (targetUrl.startsWith('/') ? '' : '/') + targetUrl;
     }
+    const urlCheck = await validateSafeUpstreamUrl(targetUrl, { sig: req.query.sig });
+    if (!urlCheck.safe) {
+        logger.warn(`[SSRF Shield] Blocked /api/proxy/vtt target: ${targetUrl} (${urlCheck.reason})`, { ip: req.ip });
+        return res.status(403).send('Forbidden upstream target');
+    }
+    targetUrl = urlCheck.url;
 
     const nodeCrypto = require('crypto');
     const urlHash = nodeCrypto.createHash('md5').update(targetUrl).digest('hex');
@@ -1931,6 +1965,7 @@ async function vidsrcResolve(tmdb, season, episode) {
     if (!token || token.includes('<')) throw new Error('generate.php failed');
 
     const result = { masterUrl, token };
+    trustUpstreamHost(masterUrl);
     vidsrcResolveCache.set(key, { data: result, ts: Date.now() });
     return result;
 }
@@ -1941,7 +1976,9 @@ function vidsrcRewritePlaylist(text, baseUrl, token) {
         if (!t || t.startsWith('#')) return line;
         let abs;
         try { abs = new URL(t, baseUrl).href; } catch (e) { return line; }
-        const proxied = `/api/vidsrc/hls?url=${encodeURIComponent(abs)}&token=${encodeURIComponent(token)}`;
+        trustUpstreamHost(abs);
+        const sig = signProxyUrl(abs);
+        const proxied = `/api/vidsrc/hls?url=${encodeURIComponent(abs)}&token=${encodeURIComponent(token)}&sig=${sig}`;
         return proxied;
     }).join('\n');
 }
@@ -1972,7 +2009,13 @@ app.get('/api/vidsrc/master', async (req, res) => {
 app.get('/api/vidsrc/hls', async (req, res) => {
     let target = req.query.url;
     const token = req.query.token;
-    if (!target || !target.startsWith('http')) return res.status(400).send('Invalid url');
+    if (!target || typeof target !== 'string' || !target.startsWith('http')) return res.status(400).send('Invalid url');
+    const urlCheck = await validateSafeUpstreamUrl(target, { sig: req.query.sig });
+    if (!urlCheck.safe) {
+        logger.warn(`[SSRF Shield] Blocked /api/vidsrc/hls target: ${target} (${urlCheck.reason})`, { ip: req.ip });
+        return res.status(403).send('Forbidden upstream target');
+    }
+    target = urlCheck.url;
     try {
         const sep = target.includes('?') ? '&' : '?';
         const fetchUrl = token ? target + sep + 'token=' + encodeURIComponent(token) : target;
@@ -2011,13 +2054,19 @@ app.get('/api/bilingual/merged-vtt', async (req, res) => {
 
     try {
         const fetchVtt = async (u) => {
-            if (!u) return '';
+            if (!u || typeof u !== 'string') return '';
             let target = u;
             if (target.startsWith('/api/proxy/vtt?url=')) {
-                target = decodeURIComponent(target.replace('/api/proxy/vtt?url=', ''));
+                target = decodeURIComponent(target.replace('/api/proxy/vtt?url=', '').split('&')[0]);
             }
-            const r = await axios.get(target, {
+            const urlCheck = await validateSafeUpstreamUrl(target);
+            if (!urlCheck.safe) {
+                logger.warn(`[SSRF Shield] Blocked /api/bilingual/merged-vtt target: ${target} (${urlCheck.reason})`, { ip: req.ip });
+                return '';
+            }
+            const r = await axios.get(urlCheck.url, {
                 timeout: 8000,
+                maxRedirects: 3,
                 responseType: 'text',
                 headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
             });
@@ -4737,8 +4786,8 @@ app.post('/api/feedback', async (req, res) => {
     }
 });
 
-// Xem danh sách phản hồi và báo lỗi đã thu thập trên server
-app.get('/api/feedbacks', (req, res) => {
+// Xem danh sách phản hồi và báo lỗi đã thu thập trên server (Chỉ Admin)
+app.get('/api/feedbacks', requireAdmin, (req, res) => {
     try {
         const fs = require('fs');
         const path = require('path');
@@ -4753,14 +4802,14 @@ app.get('/api/feedbacks', (req, res) => {
     }
 });
 
-app.post('/api/admin/set-google-sheet-url', (req, res) => {
+app.post('/api/admin/set-google-sheet-url', requireAdmin, (req, res) => {
     const { url } = req.body || {};
-    if (url) {
+    if (url && typeof url === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/i.test(url.trim())) {
         GOOGLE_SHEET_WEBAPP_URL = url.trim();
         console.log('✅ Đã cập nhật GOOGLE_SHEET_WEBAPP_URL:', GOOGLE_SHEET_WEBAPP_URL);
         return res.json({ success: true, url: GOOGLE_SHEET_WEBAPP_URL });
     }
-    return res.status(400).json({ success: false, message: 'URL không hợp lệ' });
+    return res.status(400).json({ success: false, message: 'URL Google Apps Script không hợp lệ' });
 });
 
 

@@ -612,6 +612,8 @@ function extractDirectMediaUrl(url) {
 }
 
 // 6b. Ultra-fast HLS Reverse Proxy (Fixes CORS on cdn.vietshort.com and other CDNs)
+const { signProxyUrl, trustUpstreamHost, validateSafeUpstreamUrl } = require('../lib/securityShield');
+
 router.get('/proxy-hls', async (req, res) => {
     const rawUrl = req.query.url;
     if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.startsWith('http')) {
@@ -628,9 +630,19 @@ router.get('/proxy-hls', async (req, res) => {
 
         // ⚡ Narto Direct CDN Extractor: Nếu link qua narto-drama.com/e/, tự động bóc tách link gốc từ JWT
         // để tránh lỗi token hết hạn (403/502) và bỏ qua trạm trung gian, tăng tốc độ phát lên tối đa!
-        targetUrl = extractDirectMediaUrl(targetUrl);
+        const extractedUrl = extractDirectMediaUrl(targetUrl);
+        if (extractedUrl !== targetUrl) {
+            trustUpstreamHost(extractedUrl);
+            targetUrl = extractedUrl;
+        }
 
-        const parsedTarget = new URL(targetUrl);
+        const urlCheck = await validateSafeUpstreamUrl(targetUrl, { sig: req.query.sig });
+        if (!urlCheck.safe) {
+            return res.status(403).send('Forbidden upstream target');
+        }
+        targetUrl = urlCheck.url;
+
+        const parsedTarget = urlCheck.parsed || new URL(targetUrl);
         const isM3u8 = targetUrl.includes('.m3u8') || targetUrl.endsWith('.m3u8') || targetUrl.includes('/e/m/');
 
         const requestHeaders = {
@@ -649,6 +661,7 @@ router.get('/proxy-hls', async (req, res) => {
                 headers: requestHeaders,
                 responseType: 'text',
                 timeout: 10000,
+                maxRedirects: 3,
                 validateStatus: status => status >= 200 && status < 400
             });
 
@@ -668,7 +681,9 @@ router.get('/proxy-hls', async (req, res) => {
                     return trimmed.replace(/URI=["']([^"']+)["']/gi, (match, tagUri) => {
                         try {
                             const resolvedUri = new URL(tagUri, targetUrl).href;
-                            return `URI="/phim-ngan/proxy-hls?url=${encodeURIComponent(resolvedUri)}"`;
+                            trustUpstreamHost(resolvedUri);
+                            const sig = signProxyUrl(resolvedUri);
+                            return `URI="/phim-ngan/proxy-hls?url=${encodeURIComponent(resolvedUri)}&sig=${sig}"`;
                         } catch (e) {
                             return match;
                         }
@@ -681,7 +696,9 @@ router.get('/proxy-hls', async (req, res) => {
                 // Media segment or sub-playlist URL
                 try {
                     const resolved = new URL(trimmed, targetUrl).href;
-                    return `/phim-ngan/proxy-hls?url=${encodeURIComponent(resolved)}`;
+                    trustUpstreamHost(resolved);
+                    const sig = signProxyUrl(resolved);
+                    return `/phim-ngan/proxy-hls?url=${encodeURIComponent(resolved)}&sig=${sig}`;
                 } catch (e) {
                     return line;
                 }
@@ -694,6 +711,7 @@ router.get('/proxy-hls', async (req, res) => {
                 headers: requestHeaders,
                 responseType: 'stream',
                 timeout: 15000,
+                maxRedirects: 3,
                 validateStatus: status => status >= 200 && status < 400
             });
 
@@ -727,8 +745,10 @@ router.get('/proxy-hls', async (req, res) => {
 // 6c. Smart Poster Proxy (Khử sạch lỗi 404 poster khi gặp relative path /assets/poster/ hoặc thiếu ảnh)
 router.get(['/assets/poster/:file', '/poster/:file'], async (req, res) => {
     const file = req.params.file;
-    if (!file) return res.sendFile(path.join(__dirname, '..', 'public', 'images', 'avatar-default.png'));
-    const cdnUrl = `https://img.nartodrama-api.online/poster/${file}`;
+    if (!file || !/^[a-zA-Z0-9._-]+$/.test(file)) {
+        return res.sendFile(path.join(__dirname, '..', 'public', 'images', 'avatar-default.png'));
+    }
+    const cdnUrl = `https://img.nartodrama-api.online/poster/${encodeURIComponent(file)}`;
     try {
         const upstream = await axios.get(cdnUrl, {
             responseType: 'stream',
