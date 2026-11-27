@@ -13505,10 +13505,13 @@
 
                             <!-- Left Info & Controls -->
                             <div class="as-hero-left">
+                                <% if (typeof pnView === 'undefined' || pnView === 'home' || pnView === 'search' || pnView === 'library') { %>
+                                    <h1 class="sr-only"><%= typeof pageTitle !== 'undefined' && pageTitle ? pageTitle : 'Phim Ngắn Hay Mới Nhất 2026 - Tuyển Tập Phim Ngắn Kịch Tính Vietsub Trọn Bộ | APhim' %></h1>
+                                <% } %>
                                 <span class="as-tag-spotlight">Nổi bật</span>
-                                <h1 class="as-hero-title" id="asHeroTitle">
+                                <h2 class="as-hero-title" id="asHeroTitle">
                                     <%= primaryHero.title %>
-                                </h1>
+                                </h2>
                                 <div class="as-hero-meta" id="asHeroMeta">
                                     <span>
                                         <%= primaryHero.genre || 'Ngọt sủng, Cưới trước yêu sau' %>
@@ -14383,10 +14386,15 @@
                                 </span>
                                 <span class="as-rec-badge full">Full</span>
                             </div>
-                            <h1 class="as-rec-title" id="asRecTitle">
-                                <%= (typeof recDrama !=='undefined' && recDrama && recDrama.title) ? recDrama.title
-                                    : 'Đêm Kinh Thành Cám Dỗ Ôn Trĩ' %>
-                            </h1>
+                            <% if (typeof pnView !== 'undefined' && pnView === 'recommend') { %>
+                                <h1 class="as-rec-title" id="asRecTitle">
+                                    <%= (typeof recDrama !=='undefined' && recDrama && recDrama.title) ? recDrama.title : 'Bảng Xếp Hạng & Đề Xuất Phim Ngắn Hot Nhất 2026' %>
+                                </h1>
+                            <% } else { %>
+                                <h2 class="as-rec-title" id="asRecTitle">
+                                    <%= (typeof recDrama !=='undefined' && recDrama && recDrama.title) ? recDrama.title : 'Đề Xuất Phim Ngắn Hot' %>
+                                </h2>
+                            <% } %>
                             <p class="as-rec-genres" id="asRecGenres">
                                 <%= (typeof recDrama !=='undefined' && recDrama && recDrama.genre) ? recDrama.genre
                                     : 'Ngọt sủng · Gia đình & Tình thân · Danh tính bí ẩn' %>
@@ -15046,7 +15054,11 @@
                             <div class="as-detail-mobile-gradient"></div>
                         </div>
                         <div class="as-detail-info">
-                            <h1 id="asDetailTitle" class="as-detail-title"><%= (typeof initialDrama !== 'undefined' && initialDrama && initialDrama.title) ? initialDrama.title : 'Tên Phim' %></h1>
+                            <% if (typeof pnView !== 'undefined' && (pnView === 'detail' || pnView === 'watch')) { %>
+                                <h1 id="asDetailTitle" class="as-detail-title"><%= (typeof initialDrama !== 'undefined' && initialDrama && initialDrama.title) ? initialDrama.title : 'Phim Ngắn Chọn Lọc' %></h1>
+                            <% } else { %>
+                                <h2 id="asDetailTitle" class="as-detail-title"><%= (typeof initialDrama !== 'undefined' && initialDrama && initialDrama.title) ? initialDrama.title : 'Chi Tiết Phim Ngắn' %></h2>
+                            <% } %>
                             <div id="asDetailGenres" class="as-detail-genres"><%= (typeof initialDrama !== 'undefined' && initialDrama && initialDrama.genre) ? initialDrama.genre : 'Thể loại phim' %></div>
                             <div id="asDetailMeta" class="as-detail-meta"><%= (typeof initialDrama !== 'undefined' && initialDrama) ? (((initialDrama.episodes ? initialDrama.episodes.length : (initialDrama.totalEpisodes || 0))) + ' tập • Hoàn thành • ' + (initialDrama.play_count || '1.2K') + ' lượt xem') : '0 tập • Hoàn thành • 0 lượt xem' %></div>
                             <div id="asDetailSynopsis" class="as-detail-synopsis"><%= (typeof initialDrama !== 'undefined' && initialDrama && initialDrama.intro) ? initialDrama.intro : 'Tóm tắt nội dung phim...' %></div>

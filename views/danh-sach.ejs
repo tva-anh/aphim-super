@@ -72,11 +72,26 @@
 
         <!-- Movie Grid Container (Image 1 & 2: 8 Columns Grid) -->
         <div id="movieGrid" class="grid-8-cols mt-6 sm:mt-8 min-h-[400px]">
-            <!-- Skeleton Loader -->
-            <div class="col-span-full py-16 flex flex-col items-center justify-center text-gray-400">
-                <div class="w-10 h-10 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
-                <span class="mt-3 text-sm font-medium text-gray-300">Đang tải danh sách phim...</span>
-            </div>
+            <% if (typeof ssrMovies !== 'undefined' && Array.isArray(ssrMovies) && ssrMovies.length > 0) { %>
+                <% ssrMovies.forEach(function(m) { %>
+                    <a href="/phim/<%= m.slug %>" title="Xem phim <%= m.name %> Full HD Vietsub" class="group block rounded-xl overflow-hidden bg-[#20222d] border border-white/5 hover:border-[#fcd576]/40 transition-all">
+                        <div class="relative aspect-[2/3] w-full overflow-hidden bg-[#181a23]">
+                            <% if (m.poster_url) { %>
+                                <img src="<%= m.poster_url %>" alt="Phim <%= m.name %>" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <% } %>
+                        </div>
+                        <div class="p-2">
+                            <h2 class="text-xs sm:text-sm font-bold text-white truncate"><%= m.name %></h2>
+                        </div>
+                    </a>
+                <% }); %>
+            <% } else { %>
+                <!-- Skeleton Loader -->
+                <div class="col-span-full py-16 flex flex-col items-center justify-center text-gray-400">
+                    <div class="w-10 h-10 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin"></div>
+                    <span class="mt-3 text-sm font-medium text-gray-300">Đang tải danh sách phim...</span>
+                </div>
+            <% } %>
         </div>
 
         <!-- Pagination Section (Refined: Spaced out circular arrow buttons with compact sleek icons) -->
@@ -111,6 +126,8 @@
     (function() {
         const titleMap = {
             'phim-moi-cap-nhat': 'Phim Mới Cập Nhật',
+            'phim-moi': 'Phim Mới Cập Nhật',
+            'phim-hot': 'Phim Hot Thịnh Hành',
             'phim-song-ngu': 'Phim Song Ngữ Chất Lượng Cao',
             'phim-bo': 'Phim Bộ',
             'phim-le': 'Phim Lẻ',

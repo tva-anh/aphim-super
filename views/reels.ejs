@@ -2438,31 +2438,22 @@
     </noscript>
     <% } %>
 
-    <article class="sr-only" itemscope itemtype="https://schema.org/VideoObject">
-        <h1 itemprop="name"><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
-        <p itemprop="description"><%= typeof metaDescription !== 'undefined' ? metaDescription : 'Xem video review phim ngắn và trích đoạn phim hot tại APhim Super.' %></p>
+    <article class="sr-only">
+        <h1><%= typeof title !== 'undefined' ? title : 'Reels & Review Phim APhim Super' %></h1>
+        <p><%= typeof metaDescription !== 'undefined' ? metaDescription : 'Xem video review phim ngắn và trích đoạn phim hot tại APhim Super.' %></p>
         
         <% if (typeof initialReels !== 'undefined' && initialReels && initialReels.length > 0) { 
             const feat = initialReels[0];
             const mTitle = feat.movieTitle || feat.title || 'Review Phim';
             const mSlug = feat.slug || '';
-            const mThumb = feat.poster || feat.thumb || (feat.yt ? `https://i.ytimg.com/vi/${feat.yt}/hqdefault.jpg` : 'https://aphim.store/android-chrome-512x512.png');
         %>
-        <meta itemprop="thumbnailUrl" content="<%= mThumb %>">
-        <meta itemprop="uploadDate" content="<%= feat.publishedAt || new Date().toISOString() %>">
-        <% if (feat.yt) { %>
-        <meta itemprop="embedUrl" content="https://www.youtube-nocookie.com/embed/<%= feat.yt %>">
-        <% } %>
-        <meta itemprop="duration" content="PT20M">
-
         <section>
             <h2>Video Nổi Bật: Review Phim <%= mTitle %> (<%= feat.year || '2026' %>)</h2>
             <p><%= feat.desc || feat.description || `Tóm tắt nội dung phim ${mTitle}, phân tích tình tiết kịch tính và đánh giá chi tiết.` %></p>
-            <p>Đánh giá: <%= feat.rating || '9.5' %>/10 sao (<%= feat.likes || '4500' %> lượt thích, <%= feat.views || '120.000' %> lượt xem).</p>
+            <p>Đánh giá: <%= feat.rating10 || '9.5' %>/10 sao (<%= feat.likes || '4500' %> lượt thích, <%= feat.views || '120.000' %> lượt xem).</p>
             <% if (mSlug) { %>
             <nav aria-label="Liên kết phim">
                 <a href="/phim/<%= mSlug %>">Thông tin chi tiết phim <%= mTitle %></a>
-                <a href="/xem-phim/<%= mSlug %>/tap-1">Xem trọn bộ phim <%= mTitle %> Full HD Vietsub</a>
                 <a href="/reels/review/<%= mSlug %>">Xem video review chuyên sâu <%= mTitle %></a>
             </nav>
             <% } %>
@@ -2481,7 +2472,7 @@
             </div>
             <div>
                 <h3>Phim <%= mTitle %> được đánh giá bao nhiêu điểm?</h3>
-                <p>Phim <%= mTitle %> hiện đang nhận được đánh giá <%= feat.rating || '9.5' %>/10 điểm từ cộng đồng người xem điện ảnh.</p>
+                <p>Phim <%= mTitle %> hiện đang nhận được đánh giá <%= feat.rating10 || '9.5' %>/10 điểm từ cộng đồng người xem điện ảnh.</p>
             </div>
         </section>
 
@@ -2512,7 +2503,7 @@
                 <a href="/reels/chu-de/hanh-dong">Review Phim Hành Động</a>
                 <a href="/reels/chu-de/co-trang">Review Phim Cổ Trang</a>
                 <a href="/reels/chu-de/kinh-di">Review Phim Kinh Dị</a>
-                <a href="/reels/chu-de/anime">Review Phim Anime</a>
+                <a href="/reels/chu-de/hoat-hinh">Review Phim Hoạt Hình Anime</a>
                 <a href="/reels/chu-de/tinh-cam">Review Phim Tình Cảm</a>
                 <a href="/reels/chu-de/vien-tuong">Review Phim Viễn Tưởng</a>
             </nav>
@@ -2794,35 +2785,35 @@
                 <div class="sidebar-nav-section">
                     <div class="sidebar-section-title">THỂ LOẠI HOT</div>
                     <div class="sidebar-tags-grid">
-                        <a href="/reels?genre=hanh-dong" class="sidebar-tag-item tag-action <%= (searchKeyword === 'hanh-dong' || searchKeyword === 'hành động') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/hanh-dong" class="sidebar-tag-item tag-action <%= (searchKeyword === 'hanh-dong' || searchKeyword === 'hành động') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Hành động</span>
                         </a>
-                        <a href="/reels?genre=tinh-cam" class="sidebar-tag-item tag-romance <%= (searchKeyword === 'tinh-cam' || searchKeyword === 'tình cảm') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/tinh-cam" class="sidebar-tag-item tag-romance <%= (searchKeyword === 'tinh-cam' || searchKeyword === 'tình cảm') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Tình cảm</span>
                         </a>
-                        <a href="/reels?genre=co-trang" class="sidebar-tag-item tag-historical <%= (searchKeyword === 'co-trang' || searchKeyword === 'cổ trang') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/co-trang" class="sidebar-tag-item tag-historical <%= (searchKeyword === 'co-trang' || searchKeyword === 'cổ trang') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Cổ trang</span>
                         </a>
-                        <a href="/reels?genre=kinh-di" class="sidebar-tag-item tag-horror <%= (searchKeyword === 'kinh-di' || searchKeyword === 'kinh dị') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/kinh-di" class="sidebar-tag-item tag-horror <%= (searchKeyword === 'kinh-di' || searchKeyword === 'kinh dị') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Kinh dị</span>
                         </a>
-                        <a href="/reels?genre=hai-huoc" class="sidebar-tag-item tag-comedy <%= (searchKeyword === 'hai-huoc' || searchKeyword === 'hài hước') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/hai-huoc" class="sidebar-tag-item tag-comedy <%= (searchKeyword === 'hai-huoc' || searchKeyword === 'hài hước') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Hài hước</span>
                         </a>
-                        <a href="/reels?genre=vien-tuong" class="sidebar-tag-item tag-scifi <%= (searchKeyword === 'vien-tuong' || searchKeyword === 'viễn tưởng') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/vien-tuong" class="sidebar-tag-item tag-scifi <%= (searchKeyword === 'vien-tuong' || searchKeyword === 'viễn tưởng') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Viễn tưởng</span>
                         </a>
-                        <a href="/reels?genre=tam-ly" class="sidebar-tag-item tag-psychological <%= (searchKeyword === 'tam-ly' || searchKeyword === 'tâm lý') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/tam-ly" class="sidebar-tag-item tag-psychological <%= (searchKeyword === 'tam-ly' || searchKeyword === 'tâm lý') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Tâm lý</span>
                         </a>
-                        <a href="/reels?genre=vo-thuat" class="sidebar-tag-item tag-martial <%= (searchKeyword === 'vo-thuat' || searchKeyword === 'võ thuật') ? 'active' : '' %>">
+                        <a href="/reels/chu-de/vo-thuat" class="sidebar-tag-item tag-martial <%= (searchKeyword === 'vo-thuat' || searchKeyword === 'võ thuật') ? 'active' : '' %>">
                             <span class="tag-dot"></span>
                             <span class="tag-name">Võ thuật</span>
                         </a>
@@ -2833,27 +2824,27 @@
                 <div class="sidebar-nav-section">
                     <div class="sidebar-section-title">QUỐC GIA</div>
                     <div class="sidebar-countries-grid">
-                        <a href="/reels?genre=han-quoc" class="sidebar-country-pill">
+                        <a href="/reels/quoc-gia/han-quoc" class="sidebar-country-pill">
                             <span class="country-code code-kr">KR</span>
                             <span class="country-name">Hàn Quốc</span>
                         </a>
-                        <a href="/reels?genre=trung-quoc" class="sidebar-country-pill">
+                        <a href="/reels/quoc-gia/trung-quoc" class="sidebar-country-pill">
                             <span class="country-code code-cn">CN</span>
                             <span class="country-name">Trung Quốc</span>
                         </a>
-                        <a href="/reels?genre=au-my" class="sidebar-country-pill">
+                        <a href="/reels/quoc-gia/au-my" class="sidebar-country-pill">
                             <span class="country-code code-us">US</span>
                             <span class="country-name">Âu Mỹ</span>
                         </a>
-                        <a href="/reels?genre=thai-lan" class="sidebar-country-pill">
+                        <a href="/reels/quoc-gia/thai-lan" class="sidebar-country-pill">
                             <span class="country-code code-th">TH</span>
                             <span class="country-name">Thái Lan</span>
                         </a>
-                        <a href="/reels?genre=nhat-ban" class="sidebar-country-pill">
+                        <a href="/reels/quoc-gia/nhat-ban" class="sidebar-country-pill">
                             <span class="country-code code-jp">JP</span>
                             <span class="country-name">Nhật Bản</span>
                         </a>
-                        <a href="/reels?genre=viet-nam" class="sidebar-country-pill">
+                        <a href="/reels/quoc-gia/viet-nam" class="sidebar-country-pill">
                             <span class="country-code code-vn">VN</span>
                             <span class="country-name">Việt Nam</span>
                         </a>

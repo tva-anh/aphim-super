@@ -3339,6 +3339,140 @@ function getSeoRating(meta, slug) {
     return { ratingValue, ratingCount };
 }
 
+// ==========================================
+// 🚀 BỘ ĐỆM CATALOG SEO TRONG RAM (0ms Internal Linking, Related Movies & Anti-Soft-404 Fallback)
+// ==========================================
+const seoCatalogMap = new Map();
+const seoCatalogList = [];
+try {
+    const catalogFile = path.join(__dirname, 'data', 'sitemap-catalog.json');
+    if (fs.existsSync(catalogFile)) {
+        const rawCat = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
+        if (Array.isArray(rawCat)) {
+            for (const item of rawCat) {
+                if (item && item.slug) {
+                    seoCatalogMap.set(item.slug, item);
+                    seoCatalogList.push(item);
+                }
+            }
+        }
+    }
+    try {
+        const { getBilingualSitemapEntries } = require('./lib/bilingual-sitemap');
+        for (const bItem of getBilingualSitemapEntries()) {
+            if (bItem && bItem.slug && !seoCatalogMap.has(bItem.slug)) {
+                const mapped = {
+                    slug: bItem.slug,
+                    name: bItem.name || bItem.slug,
+                    poster_url: bItem.poster_url || bItem.thumb_url || '',
+                    thumb_url: bItem.thumb_url || bItem.poster_url || '',
+                    isSingle: bItem.isSingle
+                };
+                seoCatalogMap.set(bItem.slug, mapped);
+                seoCatalogList.push(mapped);
+            }
+        }
+    } catch (_e) {}
+    console.log(`📚 [SEO Catalog RAM] Đã nạp ${seoCatalogList.length} phim phục vụ SSR Internal Linking & Anti-Soft-404`);
+} catch (e) {
+    console.warn('[SEO Catalog RAM] Không thể nạp sitemap-catalog.json:', e.message);
+}
+
+function getRelatedSeoMovies(currentSlug, count = 12) {
+    const result = [];
+    const seen = new Set([String(currentSlug || '').toLowerCase()]);
+    const freshness = (typeof global.getLatestSeoFreshnessData === 'function') ? global.getLatestSeoFreshnessData() : null;
+    const latest = Array.isArray(freshness?.latestMovies) ? freshness.latestMovies : [];
+
+    // 1. Lấy 4 phim mới cập nhật đầu tiên để luôn truyền PageRank cho phim mới
+    for (let i = 0; i < latest.length && result.length < 4; i++) {
+        const m = latest[i];
+        const s = String(m?.slug || m?.movie_slug || '').toLowerCase();
+        if (s && !seen.has(s)) {
+            seen.add(s);
+            result.push({
+                slug: s,
+                name: m.name || m.movie_name || m.title || s,
+                poster_url: m.poster_url || m.thumb_url || '',
+                year: m.year || 2026
+            });
+        }
+    }
+
+    // 2. Lấy 8 phim phân bổ đều khắp kho 25.990 phim theo hash(currentSlug) để 100% phim trong sitemap đều có internal link trỏ tới (0 Orphan Pages)
+    if (seoCatalogList.length > 0) {
+        let hash = 0;
+        const str = String(currentSlug || 'aphim');
+        for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i) | 0;
+        const startIdx = Math.abs(hash) % seoCatalogList.length;
+        const step = 173; // Số nguyên tố giúp trải đều toàn bộ 25.990 phim
+        for (let k = 0; k < seoCatalogList.length && result.length < count; k++) {
+            const item = seoCatalogList[(startIdx + k * step) % seoCatalogList.length];
+            if (item && item.slug && !seen.has(item.slug)) {
+                seen.add(item.slug);
+                result.push({
+                    slug: item.slug,
+                    name: item.name || item.slug,
+                    poster_url: item.poster_url || item.thumb_url || '',
+                    year: item.year || 2026
+                });
+            }
+        }
+    }
+    return result;
+}
+
+const ssrListingCache = new Map();
+const SSR_LISTING_CACHE_TTL = 15 * 60 * 1000; // 15 phút
+
+async function getSsrListingMovies({ listType = '', category = '', country = '', limit = 24 } = {}) {
+    const cacheKey = `${listType}|${category}|${country}`;
+    const cached = ssrListingCache.get(cacheKey);
+    if (cached && (Date.now() - cached.time < SSR_LISTING_CACHE_TTL) && cached.items.length > 0) {
+        return cached.items.slice(0, limit);
+    }
+
+    let apiUrl = 'https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1';
+    if (category) {
+        apiUrl = `https://phimapi.com/v1/api/the-loai/${encodeURIComponent(category)}?page=1&limit=${limit}`;
+    } else if (country) {
+        apiUrl = `https://phimapi.com/v1/api/quoc-gia/${encodeURIComponent(country)}?page=1&limit=${limit}`;
+    } else if (listType && ['phim-bo', 'phim-le', 'hoat-hinh', 'tv-shows'].includes(listType)) {
+        apiUrl = `https://phimapi.com/v1/api/danh-sach/${encodeURIComponent(listType)}?page=1&limit=${limit}`;
+    }
+
+    try {
+        const resp = await axios.get(apiUrl, {
+            timeout: 1800,
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; APhim-SSR-Engine/3.0)' }
+        });
+        const rawItems = resp.data?.data?.items || resp.data?.items || [];
+        if (Array.isArray(rawItems) && rawItems.length > 0) {
+            const normalized = rawItems.slice(0, limit).map(m => {
+                let poster = m.poster_url || m.thumb_url || '';
+                if (poster && !poster.startsWith('http')) poster = `https://phimimg.com/${poster.replace(/^\/+/, '')}`;
+                return {
+                    slug: m.slug,
+                    name: m.name || m.origin_name || m.slug,
+                    origin_name: m.origin_name || '',
+                    poster_url: poster,
+                    year: m.year || 2026,
+                    quality: m.quality || 'FHD',
+                    lang: m.lang || 'Vietsub',
+                    episode_current: m.episode_current || 'Full'
+                };
+            }).filter(m => m.slug);
+            if (normalized.length > 0) {
+                ssrListingCache.set(cacheKey, { time: Date.now(), items: normalized });
+                return normalized;
+            }
+        }
+    } catch (_e) {}
+
+    // Fallback 0ms từ RAM nếu API chậm/timeout để Googlebot luôn nhận đủ 24 thẻ <a href="/phim/...">
+    return getRelatedSeoMovies(cacheKey, limit);
+}
+
 // 2. Movie Detail Showcase Route: /phim/:slug
 app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
@@ -3357,9 +3491,38 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
         }
     } catch (_e) {}
 
-    const meta = await fetchMovieMetadata(slug);
+    let meta = await fetchMovieMetadata(slug);
+    let isCatalogFallbackMeta = false;
+    if (!meta && seoCatalogMap.has(slug)) {
+        const catItem = seoCatalogMap.get(slug);
+        isCatalogFallbackMeta = true;
+        meta = {
+            slug: slug,
+            name: catItem.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+            origin_name: catItem.name || '',
+            year: 2026,
+            quality: 'FHD',
+            lang: 'Vietsub',
+            time: 'Full HD',
+            episode_current: catItem.isSingle ? 'Full' : 'Tập 1',
+            episode_total: catItem.isSingle ? '1' : '',
+            type: catItem.isSingle ? 'single' : 'series',
+            poster_url: catItem.poster_url || catItem.thumb_url || '',
+            thumb_url: catItem.thumb_url || catItem.poster_url || '',
+            content: `Xem phim ${catItem.name || slug} chất lượng cao Full HD Vietsub Thuyết minh miễn phí tại APhim Super.`,
+            category: ['Phim Mới'],
+            country: ['Quốc Tế'],
+            actor: [],
+            director: [],
+            episodes: []
+        };
+    }
 
     if (meta) {
+        if (isCatalogFallbackMeta) {
+            // Không cho Cloudflare cache bản fallback tạm thời khi API upstream chậm
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        }
         const isSeries = meta.type === 'series';
 
         // 1. Chuẩn hóa Title chuẩn SEO (<= 65 ký tự, không bị cắt dấu ...)
@@ -3421,7 +3584,7 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
                     "url": canonicalUrl,
                     "image": ogImage,
                     "description": meta.content || metaDescription,
-                    "dateCreated": String(meta.year),
+                    "dateCreated": `${meta.year || 2026}-01-01`,
                     "dateModified": pageUpdatedIso,
                     "director": meta.director.map(d => ({ "@type": "Person", "name": d })),
                     "actor": meta.actor.map(a => ({ "@type": "Person", "name": a })),
@@ -3522,15 +3685,22 @@ app.get('/phim/:slug', checkBlockedSlug, async (req, res) => {
             ogType: 'website',
             canonicalUrl: canonicalUrl,
             seoUpdatedIso: pageUpdatedIso,
+            seoRating: seoRating,
+            relatedMovies: getRelatedSeoMovies(slug, 12),
             schemaData: schemaData
         });
     }
 
+    // Slug không tồn tại trong cả API lẫn kho 25.990 phim -> Trả mã 404 + noindex để chống lỗi Soft-404 trên Google Search Console
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.status(404);
     const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
     res.render('phim', {
         slug: slug,
         movie: null,
         episodes: [],
+        noindex: true,
+        relatedMovies: getRelatedSeoMovies(slug, 12),
         title: formatSeoTitle(`Phim ${formattedName} Full HD Vietsub - APhim`, 65),
         metaDescription: `Xem thông tin, lịch chiếu, danh sách tập phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
         metaKeywords: `${formattedName}, xem phim ${formattedName}, phim mới vietsub, aphim, aphim store`,
@@ -3731,7 +3901,32 @@ app.get([
         }
     } catch (_e) {}
 
-    const meta = await fetchMovieMetadata(slug);
+    let meta = await fetchMovieMetadata(slug);
+    let isWatchCatalogFallback = false;
+    if (!meta && seoCatalogMap.has(slug)) {
+        const catItem = seoCatalogMap.get(slug);
+        isWatchCatalogFallback = true;
+        meta = {
+            slug: slug,
+            name: catItem.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+            origin_name: catItem.name || '',
+            year: 2026,
+            quality: 'FHD',
+            lang: 'Vietsub',
+            time: 'Full HD',
+            episode_current: catItem.isSingle ? 'Full' : 'Tập 1',
+            episode_total: catItem.isSingle ? '1' : '',
+            type: catItem.isSingle ? 'single' : 'series',
+            poster_url: catItem.poster_url || catItem.thumb_url || '',
+            thumb_url: catItem.thumb_url || catItem.poster_url || '',
+            content: `Xem phim ${catItem.name || slug} chất lượng cao Full HD Vietsub Thuyết minh miễn phí tại APhim Super.`,
+            category: ['Phim Mới'],
+            country: ['Quốc Tế'],
+            actor: [],
+            director: [],
+            episodes: []
+        };
+    }
     const movieEpisodes = meta?.episodes || [];
 
     const rawType = String(meta?.type || '').trim().toLowerCase();
@@ -3877,11 +4072,15 @@ app.get([
             'aphim store'
         ].filter(Boolean).join(', ');
 
-        // Smart Canonical URL: Tuyệt đối chính xác theo Phim Lẻ (/full) vs Phim Bộ (/tap-:ep)
+        if (isWatchCatalogFallback) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        }
+        // Smart Canonical URL: Tuyệt đối chính xác theo Phim Lẻ (/full) vs Phim Bộ (/tap-:ep, chuẩn hóa bỏ số 0 ở đầu tap-01 -> tap-1)
         let canonicalUrl = `https://aphim.store/xem-phim/${slug}/full${variantSuffix}`;
         if (!isSingleMovie) {
-            const seriesEp = cleanEp || '1';
-            canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${seriesEp}${variantSuffix}`;
+            const rawSeriesEp = cleanEp || '1';
+            const normalizedSeriesEp = /^\d+$/.test(rawSeriesEp) ? String(parseInt(rawSeriesEp, 10)) : rawSeriesEp;
+            canonicalUrl = `https://aphim.store/xem-phim/${slug}/tap-${normalizedSeriesEp}${variantSuffix}`;
         }
 
         const mainCategory = isSingleMovie ? 'Phim Lẻ' : ((Array.isArray(meta.category) && meta.category[0]) || 'Phim Bộ');
@@ -3925,7 +4124,6 @@ app.get([
             "description": metaDescription,
             "thumbnailUrl": videoThumbnails,
             "uploadDate": uploadDate,
-            "contentUrl": canonicalUrl,
             "embedUrl": canonicalUrl,
             "inLanguage": "vi"
         };
@@ -4080,10 +4278,13 @@ app.get([
             ogType: isSingleMovie ? 'video.movie' : 'video.tv_show',
             canonicalUrl: canonicalUrl,
             seoUpdatedIso: watchUpdatedIso,
+            relatedMovies: getRelatedSeoMovies(slug, 12),
             schemaData: schemaData
         });
     }
 
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.status(404);
     const formattedName = slug ? slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
     const fallbackIsSingle = true;
     res.render('watch', {
@@ -4093,6 +4294,8 @@ app.get([
         requestedServerIndex: serverIndex,
         movie: null,
         episodes: [],
+        noindex: true,
+        relatedMovies: getRelatedSeoMovies(slug, 12),
         isSingleMovie: fallbackIsSingle,
         title: formatSeoTitle(`Xem Phim ${formattedName} Bản Full HD - APhim`, 65),
         metaDescription: `Xem phim ${formattedName} vietsub thuyết minh mới nhất full HD mượt mà trên APhim Super.`,
@@ -4117,35 +4320,68 @@ const COUNTRY_NAMES_MAP = {
 };
 
 // 3. Category / List Clean Route: /danh-sach & /tat-ca
-app.get(['/danh-sach', '/tat-ca'], (req, res) => {
+app.get(['/danh-sach', '/tat-ca'], async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const listType = req.query.list || req.query.type || '';
     let listTitle = 'Tất Cả Phim Mới Cập Nhật';
     if (listType === 'phim-bo') listTitle = 'Phim Bộ Mới Nhất 2026';
     else if (listType === 'phim-le') listTitle = 'Phim Lẻ Chiếu Rạp Mới Nhất 2026';
     else if (listType === 'hoat-hinh') listTitle = 'Phim Hoạt Hình Anime Mới Nhất';
+    else if (listType === 'tv-shows') listTitle = 'TV Shows & Chương Trình Truyền Hình';
+    else if (listType === 'phim-chieu-rap') listTitle = 'Phim Chiếu Rạp Full HD Mới Nhất 2026';
+    else if (listType === 'phim-thuyet-minh') listTitle = 'Phim Thuyết Minh Tiếng Việt Hay Nhất';
+    else if (listType === 'phim-vietsub') listTitle = 'Phim Vietsub Full HD Mới Nhất 2026';
+    else if (listType === 'phim-hot') listTitle = 'Phim Hot Thịnh Hành Nhất 2026';
     else if (listType === 'phim-song-ngu') listTitle = 'Phim Song Ngữ Chất Lượng Cao';
 
+    const canonicalUrl = req.path === '/tat-ca' && !listType
+        ? 'https://aphim.store/tat-ca'
+        : `https://aphim.store/danh-sach${listType ? '?list=' + encodeURIComponent(listType) : ''}`;
+    const ssrMovies = await getSsrListingMovies({ listType: listType || 'phim-moi-cap-nhat', limit: 24 });
+    const pageTitle = formatSeoTitle(`${listTitle} Full HD Vietsub - APhim`, 65);
+    const pageDesc = `Danh sách ${listTitle.toLowerCase()} vietsub thuyết minh chất lượng cao, cập nhật liên tục 24/7 xem nhanh không giật lag tại APhim Super.`;
+
     res.render('danh-sach', {
-        title: formatSeoTitle(`${listTitle} Full HD Vietsub - APhim`, 65),
-        metaDescription: `Danh sách ${listTitle.toLowerCase()} vietsub thuyết minh chất lượng cao, cập nhật liên tục 24/7 xem nhanh không giật lag tại APhim Super.`,
-        canonicalUrl: `https://aphim.store/danh-sach${listType ? '?list=' + listType : ''}`,
+        title: pageTitle,
+        metaDescription: pageDesc,
+        canonicalUrl: canonicalUrl,
         listTitle: listTitle,
-        listType: listType || 'phim-moi-cap-nhat'
+        listType: listType || 'phim-moi-cap-nhat',
+        ssrMovies: ssrMovies,
+        schemaData: {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": pageTitle,
+            "description": pageDesc,
+            "url": canonicalUrl,
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": ssrMovies.length,
+                "itemListElement": ssrMovies.slice(0, 24).map((m, idx) => ({
+                    "@type": "ListItem",
+                    "position": idx + 1,
+                    "name": m.name,
+                    "url": `https://aphim.store/phim/${m.slug}`
+                }))
+            }
+        }
     });
 });
 
 // 3.1 Phim Song Ngữ Dedicated Page: /phim-song-ngu (Đúng giao diện Image 2)
-app.get('/phim-song-ngu', (req, res) => {
+app.get('/phim-song-ngu', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const page = parseInt(req.query.page) || 1;
+    const ssrMovies = await getSsrListingMovies({ listType: 'phim-song-ngu', limit: 24 });
+    const canonicalUrl = `https://aphim.store/phim-song-ngu${page > 1 ? '?page=' + page : ''}`;
     res.render('danh-sach', {
         title: formatSeoTitle('Phim Song Ngữ Chất Lượng Cao Full HD - APhim Super', 65),
         metaDescription: 'Danh sách phim song ngữ Anh - Việt, Hàn - Việt, Trung - Việt chất lượng cao full HD có phụ đề kép vietsub thuyết minh mới nhất, cập nhật liên tục 24/7 xem nhanh không giật lag tại APhim Super.',
-        canonicalUrl: `https://aphim.store/phim-song-ngu${page > 1 ? '?page=' + page : ''}`,
+        canonicalUrl: canonicalUrl,
         activePage: 'phim-song-ngu',
         listType: 'phim-song-ngu',
-        listTitle: 'Phim Song Ngữ Chất Lượng Cao'
+        listTitle: 'Phim Song Ngữ Chất Lượng Cao',
+        ssrMovies: ssrMovies
     });
 });
 
@@ -4173,6 +4409,8 @@ app.get(['/profile', '/tai-khoan', '/tai-khoan/:tab'], (req, res) => {
     res.render('profile', {
         title: formatSeoTitle('Quản Lý Tài Khoản - APhim', 65),
         metaDescription: 'Quản lý thông tin cá nhân, danh sách yêu thích, lịch sử xem phim tại APhim Super.',
+        canonicalUrl: 'https://aphim.store/profile',
+        noindex: true,
         activeTab: tab,
         pageType: 'profile',
         activePage: 'profile',
@@ -4186,50 +4424,101 @@ app.get('/tim-kiem', (req, res) => {
     res.redirect(301, `/search${qStr}`);
 });
 
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
     const keyword = (req.query.keyword || req.query.q || '').trim();
     const titleText = keyword ? `Tìm Kiếm: ${keyword}` : 'Tìm Kiếm Phim Online';
+    const ssrMovies = await getSsrListingMovies({ limit: 16 });
     res.render('search', {
         keyword: keyword,
+        noindex: Boolean(keyword),
+        ssrMovies: ssrMovies,
         title: formatSeoTitle(`${titleText} - APhim`, 65),
         metaDescription: `Kết quả tìm kiếm phim ${keyword || 'mới'} vietsub thuyết minh chất lượng full HD, xem trực tuyến mượt mà tại APhim Super.`,
-        canonicalUrl: `https://aphim.store/search${keyword ? '?keyword=' + encodeURIComponent(keyword) : ''}`
+        canonicalUrl: 'https://aphim.store/search'
     });
 });
 
 // 5. Category filter Clean Route: /categories
-app.get('/categories', (req, res) => {
+app.get('/categories', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const catSlug = req.query.category || '';
     const catName = CATEGORY_NAMES_MAP[catSlug] || (catSlug ? catSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '');
     const titleText = catName ? `Phim ${catName} Hay Nhất 2026` : 'Khám Phá Thể Loại Phim';
+    const canonicalUrl = `https://aphim.store/categories${catSlug ? '?category=' + encodeURIComponent(catSlug) : ''}`;
+    const ssrMovies = await getSsrListingMovies({ category: catSlug, limit: 24 });
+    const pageTitle = formatSeoTitle(`${titleText} - APhim`, 65);
+    const pageDesc = `Tổng hợp kho phim ${catName || 'các thể loại'} hay mới nhất 2026 vietsub thuyết minh độ phân giải Full HD cực mượt tại APhim Super.`;
 
     res.render('categories', {
-        title: formatSeoTitle(`${titleText} - APhim`, 65),
-        metaDescription: `Tổng hợp kho phim ${catName || 'các thể loại'} hay mới nhất 2026 vietsub thuyết minh độ phân giải Full HD cực mượt tại APhim Super.`,
-        canonicalUrl: `https://aphim.store/categories${catSlug ? '?category=' + catSlug : ''}`
+        title: pageTitle,
+        metaDescription: pageDesc,
+        canonicalUrl: canonicalUrl,
+        categoryHeading: titleText,
+        ssrMovies: ssrMovies,
+        schemaData: {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": pageTitle,
+            "description": pageDesc,
+            "url": canonicalUrl,
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": ssrMovies.length,
+                "itemListElement": ssrMovies.slice(0, 24).map((m, idx) => ({
+                    "@type": "ListItem",
+                    "position": idx + 1,
+                    "name": m.name,
+                    "url": `https://aphim.store/phim/${m.slug}`
+                }))
+            }
+        }
     });
 });
 
 // 6. Country Clean Route: /phim-theo-quoc-gia
-app.get('/phim-theo-quoc-gia', (req, res) => {
+app.get('/phim-theo-quoc-gia', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
     const countrySlug = req.query.country || '';
     const countryName = COUNTRY_NAMES_MAP[countrySlug] || (countrySlug ? countrySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '');
     const titleText = countryName ? `Phim ${countryName} Mới Nhất 2026` : 'Phim Theo Quốc Gia';
+    const canonicalUrl = `https://aphim.store/phim-theo-quoc-gia${countrySlug ? '?country=' + encodeURIComponent(countrySlug) : ''}`;
+    const ssrMovies = await getSsrListingMovies({ country: countrySlug, limit: 24 });
+    const pageTitle = formatSeoTitle(`${titleText} - APhim`, 65);
+    const pageDesc = `Kho phim ${countryName || 'Châu Á, Âu Mỹ'} mới nhất 2026 vietsub thuyết minh mượt mà không quảng cáo trên APhim Super.`;
 
     res.render('phim-theo-quoc-gia', {
-        title: formatSeoTitle(`${titleText} - APhim`, 65),
-        metaDescription: `Kho phim ${countryName || 'Châu Á, Âu Mỹ'} mới nhất 2026 vietsub thuyết minh mượt mà không quảng cáo trên APhim Super.`,
-        canonicalUrl: `https://aphim.store/phim-theo-quoc-gia${countrySlug ? '?country=' + countrySlug : ''}`
+        title: pageTitle,
+        metaDescription: pageDesc,
+        canonicalUrl: canonicalUrl,
+        countryHeading: titleText,
+        ssrMovies: ssrMovies,
+        schemaData: {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": pageTitle,
+            "description": pageDesc,
+            "url": canonicalUrl,
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": ssrMovies.length,
+                "itemListElement": ssrMovies.slice(0, 24).map((m, idx) => ({
+                    "@type": "ListItem",
+                    "position": idx + 1,
+                    "name": m.name,
+                    "url": `https://aphim.store/phim/${m.slug}`
+                }))
+            }
+        }
     });
 });
 
 // 7. Hỏi - Đáp Route: /hoi-dap
 app.get(['/hoi-dap', '/faq'], (req, res) => {
+    if (req.path === '/faq') return res.redirect(301, '/hoi-dap');
     res.render('hoi-dap', {
-        title: formatSeoTitle('Hỏi Đáp & Hướng Dẫn - APhim', 65),
-        metaDescription: 'Giải đáp các thắc mắc thường gặp khi xem phim online tại APhim Super.'
+        title: formatSeoTitle('Hỏi Đáp & Hướng Dẫn Xem Phim - APhim', 65),
+        metaDescription: 'Giải đáp các thắc mắc thường gặp khi xem phim online Full HD Vietsub Thuyết minh tại APhim Super.',
+        canonicalUrl: 'https://aphim.store/hoi-dap'
     });
 });
 
@@ -4237,7 +4526,8 @@ app.get(['/hoi-dap', '/faq'], (req, res) => {
 app.get('/chinh-sach-bao-mat', (req, res) => {
     res.render('chinh-sach-bao-mat', {
         title: formatSeoTitle('Chính Sách Bảo Mật - APhim', 65),
-        metaDescription: 'Cam kết bảo mật thông tin cá nhân và quyền riêng tư người dùng tại APhim Super.'
+        metaDescription: 'Cam kết bảo mật thông tin cá nhân và quyền riêng tư người dùng tại APhim Super.',
+        canonicalUrl: 'https://aphim.store/chinh-sach-bao-mat'
     });
 });
 
@@ -4245,15 +4535,17 @@ app.get('/chinh-sach-bao-mat', (req, res) => {
 app.get('/dieu-khoan-su-dung', (req, res) => {
     res.render('dieu-khoan-su-dung', {
         title: formatSeoTitle('Điều Khoản Sử Dụng - APhim', 65),
-        metaDescription: 'Quy định và thỏa thuận sử dụng dịch vụ xem phim trực tuyến tại APhim Super.'
+        metaDescription: 'Quy định và thỏa thuận sử dụng dịch vụ xem phim trực tuyến tại APhim Super.',
+        canonicalUrl: 'https://aphim.store/dieu-khoan-su-dung'
     });
 });
 
 // 10. Giới Thiệu Route: /gioi-thieu
 app.get('/gioi-thieu', (req, res) => {
     res.render('gioi-thieu', {
-        title: formatSeoTitle('Giới Thiệu Về APhim', 65),
-        metaDescription: 'Khám phá về APhim Super - Trang xem phim online miễn phí chất lượng cao.'
+        title: formatSeoTitle('Giới Thiệu Về APhim Super', 65),
+        metaDescription: 'Khám phá về APhim Super - Trang xem phim online miễn phí chất lượng cao Full HD Vietsub Thuyết minh.',
+        canonicalUrl: 'https://aphim.store/gioi-thieu'
     });
 });
 
@@ -4261,7 +4553,8 @@ app.get('/gioi-thieu', (req, res) => {
 app.get('/lien-he', (req, res) => {
     res.render('lien-he', {
         title: formatSeoTitle('Liên Hệ & Hỗ Trợ - APhim', 65),
-        metaDescription: 'Liên hệ hỗ trợ 24/7, báo lỗi phim và hợp tác quảng cáo với APhim Super.'
+        metaDescription: 'Liên hệ hỗ trợ 24/7, báo lỗi phim và hợp tác quảng cáo với APhim Super.',
+        canonicalUrl: 'https://aphim.store/lien-he'
     });
 });
 
@@ -4269,7 +4562,9 @@ app.get('/lien-he', (req, res) => {
 app.get('/reset-password', (req, res) => {
     res.render('reset-password', {
         title: formatSeoTitle('Đặt Lại Mật Khẩu - APhim', 65),
-        metaDescription: 'Khôi phục và tạo mới mật khẩu tài khoản APhim Super.'
+        metaDescription: 'Khôi phục và tạo mới mật khẩu tài khoản APhim Super.',
+        canonicalUrl: 'https://aphim.store/reset-password',
+        noindex: true
     });
 });
 

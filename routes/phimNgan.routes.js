@@ -98,9 +98,10 @@ function buildPhimNganSEO(type, params = {}) {
                     'inLanguage': 'vi',
                     'aggregateRating': {
                         '@type': 'AggregateRating',
-                        'ratingValue': drama.rating || '9.6',
+                        'ratingValue': String(drama.rating || '9.6'),
                         'bestRating': '10',
-                        'ratingCount': drama.play_count || 1280
+                        'worstRating': '1',
+                        'ratingCount': parseInt(String(drama.play_count || '1280').replace(/\D/g, ''), 10) || 1280
                     }
                 }
             ]
@@ -125,7 +126,7 @@ function buildPhimNganSEO(type, params = {}) {
         const title = `Xem Phim ${titleText} Tập ${epNo} Full HD Vietsub | APhim Phim Ngắn`;
         const metaDescription = `Xem phim ngắn ${titleText} tập ${epNo}/${totalEp} Full HD Vietsub Thuyết minh nhanh không giật lag. ${drama.intro ? drama.intro.slice(0, 130) : ''}. Xem trọn bộ phim ngắn tại APhim.`;
         const metaKeywords = `${titleText} tap ${epNo}, xem phim ${titleText} tap ${epNo}, ${titleText} vietsub, phim ngan ${titleText}, xem phim ngan ${titleText}, aphim`;
-        const canonicalUrl = `${SITE_CANONICAL}/phim-ngan/xem/${drama.id || ''}?ep=${epNo}`;
+        const canonicalUrl = `${SITE_CANONICAL}/phim-ngan/xem/${drama.id || ''}${Number(epNo) > 1 ? '?ep=' + epNo : ''}`;
         const ogImage = drama.cover || drama.thumb_url || DEFAULT_OG_IMAGE;
         const schemaData = {
             '@context': 'https://schema.org',
@@ -146,7 +147,12 @@ function buildPhimNganSEO(type, params = {}) {
                     'description': metaDescription,
                     'image': ogImage,
                     'url': canonicalUrl,
-                    'inLanguage': 'vi'
+                    'inLanguage': 'vi',
+                    'partOfSeries': {
+                        '@type': 'TVSeries',
+                        'name': titleText,
+                        'url': `${SITE_CANONICAL}/phim-ngan/thong-tin/${drama.id || ''}`
+                    }
                 }
             ]
         };
@@ -208,12 +214,15 @@ function buildPhimNganSEO(type, params = {}) {
             title = 'Lịch Sử Xem Phim Ngắn Gần Đây | APhim';
             metaDescription = 'Lịch sử các tập phim ngắn bạn đã xem gần đây trên APhim, tiếp tục xem dễ dàng chỉ với một chạm.';
         }
+        const subRouteMap = { fav: 'yeu-thich', playlist: 'danh-sach-phat', recent: 'da-xem' };
+        const subSlug = params.hasExplicitSubRoute ? (subRouteMap[sub] || '') : '';
         return {
             title,
             pageTitle: title,
             metaDescription,
             metaKeywords: 'thu vien phim ngan, phim ngan yeu thich, lich su xem phim ngan, danh sach phat phim ngan',
-            canonicalUrl: `${SITE_CANONICAL}/phim-ngan/thu-vien${sub ? '/' + sub : ''}`,
+            canonicalUrl: `${SITE_CANONICAL}/phim-ngan/thu-vien${subSlug ? '/' + subSlug : ''}`,
+            noindex: true,
             ogImage: DEFAULT_OG_IMAGE,
             ogType: 'website'
         };
@@ -339,7 +348,8 @@ router.get(['/thu-vien', '/thu-vien/da-xem', '/thu-vien/yeu-thich', '/thu-vien/d
                 console.error('[PhimNgan Route] Error reading MongoDB for thu-vien:', dbErr);
             }
         }
-        const seo = buildPhimNganSEO('library', { sub: initialTab });
+        const hasExplicitSubRoute = req.path.endsWith('/yeu-thich') || req.path.endsWith('/danh-sach-phat') || req.path.endsWith('/da-xem');
+        const seo = buildPhimNganSEO('library', { sub: initialTab, hasExplicitSubRoute });
         res.render('phim-ngan', Object.assign(homeData, seo, {
             pnView: 'library',
             initialLibraryTab: initialTab,
@@ -376,6 +386,9 @@ router.get(['/xem/:dramaId', '/phim/:dramaId', '/thong-tin/:dramaId'], async (re
         const dramaId = String(req.params.dramaId || '').trim();
         const episodeNo = parseInt(req.query.ep, 10) || 1;
         const isDetailView = req.path.includes('/thong-tin/');
+        if (req.path.includes('/phim/')) {
+            return res.redirect(301, `/phim-ngan/xem/${encodeURIComponent(dramaId)}${episodeNo > 1 ? '?ep=' + episodeNo : ''}`);
+        }
 
         // If legacy ID, redirect cleanly to mapped real drama ID so URLs are always consistent
         const knownSeed = phimNganService.findSeedDrama(dramaId);
@@ -383,8 +396,8 @@ router.get(['/xem/:dramaId', '/phim/:dramaId', '/thong-tin/:dramaId'], async (re
             const seeds = phimNganService.loadLocalSeeds();
             const realId = (seeds.legacyMap && seeds.legacyMap[dramaId]) || (/^\d{15,22}$/.test(dramaId) ? '64361' : null);
             if (realId && realId !== dramaId) {
-                const targetPath = isDetailView ? `/phim-ngan/thong-tin/${realId}` : `/phim-ngan/xem/${realId}?ep=${episodeNo}`;
-                return res.redirect(302, targetPath);
+                const targetPath = isDetailView ? `/phim-ngan/thong-tin/${realId}` : `/phim-ngan/xem/${realId}${episodeNo > 1 ? '?ep=' + episodeNo : ''}`;
+                return res.redirect(301, targetPath);
             }
         }
 

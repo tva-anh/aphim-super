@@ -1651,7 +1651,7 @@
                         <span class="trending-kw-badge">Google Trends 24h • <time datetime="<%= typeof seoUpdatedIso !== 'undefined' && seoUpdatedIso ? seoUpdatedIso : new Date().toISOString() %>" itemprop="dateModified">Cập nhật liên tục</time></span>
                     </div>
                     <div class="trending-kw-grid">
-                        <% seoTrendsList.slice(0, 18).forEach(function(item, idx) {
+                        <% seoTrendsList.slice(0, 32).forEach(function(item, idx) {
                             const targetSlug = item.movie_slug || item.slug || '';
                             const label = item.name || item.movie_name || item.title || item.query || '';
                             const targetUrl = targetSlug ? `/phim/${targetSlug}` : `/search?keyword=${encodeURIComponent(label)}`;
@@ -1662,6 +1662,17 @@
                         <a href="/danh-sach?list=phim-moi-cap-nhat" title="Phim mới cập nhật hôm nay" class="trending-kw-tag">Phim mới cập nhật</a>
                         <a href="/danh-sach?list=phim-chieu-rap" title="Phim chiếu rạp Full HD" class="trending-kw-tag kw-hide-mobile">Phim chiếu rạp 2026</a>
                         <a href="/danh-sach?list=phim-bo" title="Phim bộ trọn bộ hay" class="trending-kw-tag kw-hide-mobile">Phim bộ hot Vietsub</a>
+                        <a href="/danh-sach?list=phim-le" title="Phim lẻ hay mới nhất" class="trending-kw-tag kw-hide-mobile">Phim lẻ mới 2026</a>
+                        <a href="/danh-sach?list=hoat-hinh" title="Phim hoạt hình anime mới nhất" class="trending-kw-tag kw-hide-mobile">Hoạt hình Anime</a>
+                        <a href="/phim-song-ngu" title="Phim Song Ngữ Anh Việt" class="trending-kw-tag kw-hide-mobile">Phim Song Ngữ</a>
+                        <a href="/categories?category=hanh-dong" title="Phim hành động hay nhất" class="trending-kw-tag kw-hide-mobile">Phim Hành Động</a>
+                        <a href="/categories?category=tinh-cam" title="Phim tình cảm lãng mạn" class="trending-kw-tag kw-hide-mobile">Phim Tình Cảm</a>
+                        <a href="/categories?category=co-trang" title="Phim cổ trang kiếm hiệp" class="trending-kw-tag kw-hide-mobile">Phim Cổ Trang</a>
+                        <a href="/categories?category=kinh-di" title="Phim kinh dị gay cấn" class="trending-kw-tag kw-hide-mobile">Phim Kinh Dị</a>
+                        <a href="/phim-theo-quoc-gia?country=han-quoc" title="Phim Hàn Quốc mới nhất" class="trending-kw-tag kw-hide-mobile">Phim Hàn Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=trung-quoc" title="Phim Trung Quốc mới nhất" class="trending-kw-tag kw-hide-mobile">Phim Trung Quốc</a>
+                        <a href="/phim-theo-quoc-gia?country=au-my" title="Phim Âu Mỹ chiếu rạp" class="trending-kw-tag kw-hide-mobile">Phim Âu Mỹ</a>
+                        <a href="/phim-theo-quoc-gia?country=viet-nam" title="Phim Việt Nam chiếu rạp" class="trending-kw-tag kw-hide-mobile">Phim Việt Nam</a>
                     </div>
                 </section>
                 <% } %>

@@ -174,7 +174,6 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
             "thumbnailUrl": uniqueThumbnails,
             "uploadDate": uploadDate,
             "duration": isoDuration,
-            "contentUrl": canonicalUrl,
             "embedUrl": rawYt ? `https://www.youtube-nocookie.com/embed/${rawYt}` : canonicalUrl,
             "inLanguage": "vi",
             "isFamilyFriendly": true,
@@ -189,7 +188,7 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
             ],
             "aggregateRating": {
                 "@type": "AggregateRating",
-                "ratingValue": String(featuredItem.rating || "9.5"),
+                "ratingValue": String(featuredItem.rating10 || "9.5"),
                 "bestRating": "10",
                 "worstRating": "1",
                 "ratingCount": parseInt(String(featuredItem.likes || '4500').replace(/[^0-9]/g, ''), 10) || 4500
@@ -203,14 +202,15 @@ function buildReelsSeoSchema({ title, description, canonicalUrl, featuredItem, i
                 },
                 {
                     "@type": "WatchAction",
-                    "target": featuredItem.watchUrl || `https://aphim.store/xem-phim/${featuredItem.slug || 'phim'}/tap-1`
+                    "target": `https://aphim.store/phim/${featuredItem.slug || 'phim'}`
                 }
             ],
             "about": {
                 "@type": "Movie",
                 "name": mTitle,
                 "alternateName": origTitle || undefined,
-                "dateCreated": year,
+                "image": uniqueThumbnails,
+                "dateCreated": `${year}-01-01`,
                 "genre": Array.isArray(featuredItem.categories) ? featuredItem.categories : ['Phim Hay'],
                 "url": `https://aphim.store/phim/${featuredItem.slug || ''}`
             },

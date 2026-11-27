@@ -62,6 +62,18 @@ async function processInBatches(items, batchSize, fn) {
     }
 }
 
+function inferIsSingle(m, listType = '') {
+    if (typeof m?.isSingle === 'boolean') return m.isSingle;
+    if (listType === 'phim-le') return true;
+    if (listType === 'phim-bo' || listType === 'tv-shows') return false;
+    const rawType = String(m?.type || '').trim().toLowerCase();
+    const epTotal = String(m?.episode_total || '').trim().toLowerCase();
+    const epCur = String(m?.episode_current || '').trim().toLowerCase();
+    if (rawType === 'series' || rawType === 'tvshows' || /tập\s*\d+/i.test(epCur)) return false;
+    if (rawType === 'single' || rawType === 'movie' || m?.chieu_rap === true || epTotal === '1' || epTotal === '01' || epCur.includes('full')) return true;
+    return undefined;
+}
+
 // 🛡️ CƠ CHẾ TÍCH LŨY DỮ LIỆU VĨNH VIỄN — TUYỆT ĐỐI KHÔNG BAO GIỜ BỊ TỤT SITEMAP
 function loadBaseCatalog(uniqueMoviesMap) {
     const catalogPath = path.join(__dirname, 'data', 'sitemap-catalog.json');
@@ -72,13 +84,15 @@ function loadBaseCatalog(uniqueMoviesMap) {
                 list.forEach(m => {
                     const slug = (m?.slug || '').trim().toLowerCase();
                     if (slug && !BLOCKED_SLUGS.includes(slug)) {
-                        uniqueMoviesMap.set(slug, {
+                        const entry = {
                             slug,
                             name: m.name || '',
                             poster_url: m.poster_url || m.thumb_url || '',
                             thumb_url: m.thumb_url || m.poster_url || '',
                             updated_at: m.updated_at || TODAY
-                        });
+                        };
+                        if (typeof m.isSingle === 'boolean') entry.isSingle = m.isSingle;
+                        uniqueMoviesMap.set(slug, entry);
                     }
                 });
                 console.log(`📦 Đã nạp thành công ${uniqueMoviesMap.size} phim từ kho lưu trữ tích lũy (data/sitemap-catalog.json).`);
@@ -91,13 +105,17 @@ function loadBaseCatalog(uniqueMoviesMap) {
 
 function saveBaseCatalog(uniqueMoviesMap) {
     const catalogPath = path.join(__dirname, 'data', 'sitemap-catalog.json');
-    const arr = Array.from(uniqueMoviesMap.values()).map(m => ({
-        slug: m.slug,
-        name: m.name || '',
-        poster_url: m.poster_url || '',
-        thumb_url: m.thumb_url || '',
-        updated_at: m.updated_at || TODAY
-    }));
+    const arr = Array.from(uniqueMoviesMap.values()).map(m => {
+        const item = {
+            slug: m.slug,
+            name: m.name || '',
+            poster_url: m.poster_url || '',
+            thumb_url: m.thumb_url || '',
+            updated_at: m.updated_at || TODAY
+        };
+        if (typeof m.isSingle === 'boolean') item.isSingle = m.isSingle;
+        return item;
+    });
     fs.writeFileSync(catalogPath, JSON.stringify(arr), 'utf8');
     console.log(`💾 Đã lưu tích lũy vĩnh viễn ${arr.length} phim vào kho (data/sitemap-catalog.json).`);
 }
@@ -121,6 +139,7 @@ function saveBaseCatalog(uniqueMoviesMap) {
         for (let p = 1; p <= l.pages; p++) {
             targets.push({
                 url: `https://phimapi.com/v1/api/danh-sach/${l.type}?page=${p}`,
+                listType: l.type,
                 extractor: data => data?.data?.items || data?.items || []
             });
         }
@@ -163,43 +182,54 @@ function saveBaseCatalog(uniqueMoviesMap) {
         });
     }
 
-    console.log(`📋 Tổng số API endpoints đang chờ quét: ${targets.length}`);
-    let completed = 0;
-    const startTime = Date.now();
+    const isOfflineBuild = process.argv.includes('--offline') || process.argv.includes('--from-catalog');
+    if (!isOfflineBuild) {
+        console.log(`📋 Tổng số API endpoints đang chờ quét: ${targets.length}`);
+        let completed = 0;
+        const startTime = Date.now();
 
-    await processInBatches(targets, 25, async (target) => {
-        try {
-            const data = await fetchJsonWithRetry(target.url);
-            if (data) {
-                const items = target.extractor(data);
-                if (Array.isArray(items)) {
-                    items.forEach(m => {
-                        const slug = (m?.slug || '').trim().toLowerCase();
-                        if (slug && !BLOCKED_SLUGS.includes(slug)) {
-                            if (!uniqueMoviesMap.has(slug)) {
-                                uniqueMoviesMap.set(slug, {
-                                    slug: slug,
-                                    name: m.name || m.title || '',
-                                    poster_url: m.poster_url || m.thumb_url || '',
-                                    thumb_url: m.thumb_url || m.poster_url || '',
-                                    updated_at: m.modified?.time ? new Date(m.modified.time).toISOString().split('T')[0] : TODAY
-                                });
-                            } else {
-                                const existing = uniqueMoviesMap.get(slug);
-                                if (!existing.poster_url && m.poster_url) existing.poster_url = m.poster_url;
-                                if (!existing.thumb_url && m.thumb_url) existing.thumb_url = m.thumb_url;
+        await processInBatches(targets, 25, async (target) => {
+            try {
+                const data = await fetchJsonWithRetry(target.url);
+                if (data) {
+                    const items = target.extractor(data);
+                    if (Array.isArray(items)) {
+                        items.forEach(m => {
+                            const slug = (m?.slug || '').trim().toLowerCase();
+                            if (slug && !BLOCKED_SLUGS.includes(slug)) {
+                                const detectedSingle = inferIsSingle(m, target.listType);
+                                if (!uniqueMoviesMap.has(slug)) {
+                                    const entry = {
+                                        slug: slug,
+                                        name: m.name || m.title || '',
+                                        poster_url: m.poster_url || m.thumb_url || '',
+                                        thumb_url: m.thumb_url || m.poster_url || '',
+                                        updated_at: m.modified?.time ? new Date(m.modified.time).toISOString().split('T')[0] : TODAY
+                                    };
+                                    if (typeof detectedSingle === 'boolean') entry.isSingle = detectedSingle;
+                                    uniqueMoviesMap.set(slug, entry);
+                                } else {
+                                    const existing = uniqueMoviesMap.get(slug);
+                                    if (!existing.poster_url && m.poster_url) existing.poster_url = m.poster_url;
+                                    if (!existing.thumb_url && m.thumb_url) existing.thumb_url = m.thumb_url;
+                                    if (typeof existing.isSingle !== 'boolean' && typeof detectedSingle === 'boolean') {
+                                        existing.isSingle = detectedSingle;
+                                    }
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
+            } catch (e) {}
+            completed++;
+            if (completed % 400 === 0 || completed === targets.length) {
+                const elapsed = Math.round((Date.now() - startTime) / 1000);
+                console.log(`⏳ Đã quét: ${completed}/${targets.length} endpoints | Số phim độc nhất: ${uniqueMoviesMap.size} | Thời gian: ${elapsed}s`);
             }
-        } catch (e) {}
-        completed++;
-        if (completed % 400 === 0 || completed === targets.length) {
-            const elapsed = Math.round((Date.now() - startTime) / 1000);
-            console.log(`⏳ Đã quét: ${completed}/${targets.length} endpoints | Số phim độc nhất: ${uniqueMoviesMap.size} | Thời gian: ${elapsed}s`);
-        }
-    });
+        });
+    } else {
+        console.log(`⚡ Chế độ --offline: Dựng nhanh sitemap chuẩn SEO từ kho tích lũy (${uniqueMoviesMap.size} phim)...`);
+    }
 
     // 4. HỢP NHẤT KHO PHIM SONG NGỮ (catalog cục bộ — không phụ thuộc PhimAPI/NguonC)
     const bilingualEntries = getBilingualSitemapEntries();
@@ -254,11 +284,9 @@ function saveBaseCatalog(uniqueMoviesMap) {
         fs.mkdirSync(publicDir, { recursive: true });
     }
 
-    const bilingualExtraUrls = movies.reduce((sum, m) => {
-        if (!m.isBilingual) return sum;
-        return sum + (m.isSingle ? 1 : Math.max(1, Math.min(m.episodeCount || 1, 250)));
-    }, 0);
-    const totalSitemapUrls = movies.length * 2 + staticPages.length + bilingualExtraUrls;
+    // 🛡️ GIỚI HẠN CỨNG GOOGLE XML SITEMAP: Tối đa 50.000 URL/file (Giữ mức an toàn <= 45.000 URL và 100% mã HTTP 200 OK)
+    // Tuyệt đối KHÔNG ghi URL trần /xem-phim/:slug vì sẽ bị 301 Redirect sang /full hoặc /tap-1 làm hao hụt Crawl Budget!
+    const MAX_SAFE_URLS_PER_SITEMAP = 45000;
 
     const outFiles = [
         {
@@ -275,9 +303,13 @@ function saveBaseCatalog(uniqueMoviesMap) {
         const sitemapStream = fs.createWriteStream(sitemapPath, { encoding: 'utf-8' });
         sitemapStream.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n');
 
-        // Ghi các trang tĩnh
+        let writtenUrlCount = 0;
+
+        // Ghi các trang tĩnh (100% HTTP 200 OK)
         staticPages.forEach(p => {
+            if (writtenUrlCount >= MAX_SAFE_URLS_PER_SITEMAP) return;
             sitemapStream.write(`    <url>\n        <loc>${BASE_URL}${p}</loc>\n        <lastmod>${TODAY}</lastmod>\n        <changefreq>${p === '/' ? 'daily' : 'weekly'}</changefreq>\n        <priority>${p === '/' ? '1.0' : '0.8'}</priority>\n    </url>\n`);
+            writtenUrlCount++;
         });
 
         const imagesStream = fs.createWriteStream(imagesPath, { encoding: 'utf-8' });
@@ -285,27 +317,15 @@ function saveBaseCatalog(uniqueMoviesMap) {
 
         let imageCount = 0;
 
-        // Ghi từng bộ phim (gồm 2 link sạch: /phim/:slug và /xem-phim/:slug)
+        // 1. Ưu tiên ghi toàn bộ URL trang thông tin phim /phim/:slug (100% HTTP 200 OK Canonical, không bao giờ 301)
         movies.forEach(movie => {
+            if (writtenUrlCount >= MAX_SAFE_URLS_PER_SITEMAP) return;
             const slug = movie.slug;
             const name = escapeXml(movie.name);
             const detailUrl = `${BASE_URL}/phim/${slug}`;
-            const watchUrl = `${BASE_URL}/xem-phim/${slug}`;
 
-            sitemapStream.write(`    <url>\n        <loc>${detailUrl}</loc>\n        <lastmod>${movie.updated_at || TODAY}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.9</priority>\n    </url>\n    <url>\n        <loc>${watchUrl}</loc>\n        <lastmod>${movie.updated_at || TODAY}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.8</priority>\n    </url>\n`);
-
-            // Biến thể Song Ngữ: phim lẻ dùng /full-song-ngu, phim bộ dùng /tap-N-song-ngu
-            if (movie.isBilingual) {
-                const bilingualLastmod = movie.updated_at || TODAY;
-                if (movie.isSingle) {
-                    sitemapStream.write(`    <url>\n        <loc>${BASE_URL}/xem-phim/${slug}/full-song-ngu</loc>\n        <lastmod>${bilingualLastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.8</priority>\n    </url>\n`);
-                } else {
-                    const maxEp = Math.max(1, Math.min(movie.episodeCount || 1, 250));
-                    for (let ep = 1; ep <= maxEp; ep++) {
-                        sitemapStream.write(`    <url>\n        <loc>${BASE_URL}/xem-phim/${slug}/tap-${ep}-song-ngu</loc>\n        <lastmod>${bilingualLastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>${ep === 1 ? '0.85' : '0.75'}</priority>\n    </url>\n`);
-                    }
-                }
-            }
+            sitemapStream.write(`    <url>\n        <loc>${detailUrl}</loc>\n        <lastmod>${movie.updated_at || TODAY}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.9</priority>\n    </url>\n`);
+            writtenUrlCount++;
 
             const thumb = getCleanImageUrl(movie.thumb_url);
             const poster = getCleanImageUrl(movie.poster_url);
@@ -318,9 +338,41 @@ function saveBaseCatalog(uniqueMoviesMap) {
                 imgs += `\n        <image:image><image:loc>${escapeXml(poster)}</image:loc><image:title>${name} - Poster</image:title></image:image>`;
             }
 
-            if (imgs) {
+            if (imgs && imageCount < MAX_SAFE_URLS_PER_SITEMAP) {
                 imageCount++;
                 imagesStream.write(`    <url>\n        <loc>${detailUrl}</loc>${imgs}\n    </url>\n`);
+            }
+        });
+
+        // 2. Ghi các URL xem phim trực tiếp ĐÃ XÁC ĐỊNH RÕ ĐỊNH DẠNG CANONICAL 200 OK (/full, /tap-1, /full-song-ngu, /tap-N-song-ngu)
+        movies.forEach(movie => {
+            if (writtenUrlCount >= MAX_SAFE_URLS_PER_SITEMAP) return;
+            const slug = movie.slug;
+            const lastmod = movie.updated_at || TODAY;
+
+            if (typeof movie.isSingle === 'boolean' && writtenUrlCount < MAX_SAFE_URLS_PER_SITEMAP) {
+                const canonicalWatchUrl = movie.isSingle
+                    ? `${BASE_URL}/xem-phim/${slug}/full`
+                    : `${BASE_URL}/xem-phim/${slug}/tap-1`;
+                sitemapStream.write(`    <url>\n        <loc>${canonicalWatchUrl}</loc>\n        <lastmod>${lastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.85</priority>\n    </url>\n`);
+                writtenUrlCount++;
+            }
+
+            // Biến thể Song Ngữ: phim lẻ dùng /full-song-ngu, phim bộ dùng /tap-N-song-ngu (100% HTTP 200 OK)
+            if (movie.isBilingual) {
+                if (movie.isSingle) {
+                    if (writtenUrlCount < MAX_SAFE_URLS_PER_SITEMAP) {
+                        sitemapStream.write(`    <url>\n        <loc>${BASE_URL}/xem-phim/${slug}/full-song-ngu</loc>\n        <lastmod>${lastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>0.85</priority>\n    </url>\n`);
+                        writtenUrlCount++;
+                    }
+                } else {
+                    const maxEp = Math.max(1, Math.min(movie.episodeCount || 1, 250));
+                    for (let ep = 1; ep <= maxEp; ep++) {
+                        if (writtenUrlCount >= MAX_SAFE_URLS_PER_SITEMAP) break;
+                        sitemapStream.write(`    <url>\n        <loc>${BASE_URL}/xem-phim/${slug}/tap-${ep}-song-ngu</loc>\n        <lastmod>${lastmod}</lastmod>\n        <changefreq>daily</changefreq>\n        <priority>${ep === 1 ? '0.85' : '0.75'}</priority>\n    </url>\n`);
+                        writtenUrlCount++;
+                    }
+                }
             }
         });
 
@@ -330,25 +382,29 @@ function saveBaseCatalog(uniqueMoviesMap) {
         imagesStream.write('</urlset>');
         imagesStream.end();
 
-        console.log(`📄 Đã tạo file: ${sitemapPath} (Tổng ${totalSitemapUrls} URLs)`);
+        console.log(`📄 Đã tạo file: ${sitemapPath} (Tổng ${writtenUrlCount} URLs chuẩn HTTP 200 OK — dưới ngưỡng 50.000 của Google)`);
         console.log(`🖼️ Đã tạo file: ${imagesPath} (Tổng ${imageCount} ảnh)`);
     });
 
-    // 4. KÍCH HOẠT INDEXNOW PROTOCOL TRỰC TIẾP CHO TOP 500 PHIM MỚI NHẤT
-    try {
-        const topMovies = movies.slice(0, 500);
-        const indexNowUrls = [
-            `${BASE_URL}/`,
-            `${BASE_URL}/danh-sach`,
-            `${BASE_URL}/categories`,
-            `${BASE_URL}/reels`,
-            `${BASE_URL}/sitemap.xml`,
-            `${BASE_URL}/sitemap-images.xml`
-        ];
-        topMovies.forEach(m => {
-            indexNowUrls.push(`${BASE_URL}/phim/${m.slug}`);
-            indexNowUrls.push(`${BASE_URL}/xem-phim/${m.slug}`);
-        });
+    // 4. KÍCH HOẠT INDEXNOW PROTOCOL TRỰC TIẾP CHO TOP 500 PHIM MỚI NHẤT (Chỉ gửi URL 200 OK, không gửi link 301)
+    if (!isOfflineBuild) {
+        try {
+            const topMovies = movies.slice(0, 500);
+            const indexNowUrls = [
+                `${BASE_URL}/`,
+                `${BASE_URL}/danh-sach`,
+                `${BASE_URL}/categories`,
+                `${BASE_URL}/reels`,
+                `${BASE_URL}/sitemap.xml`,
+                `${BASE_URL}/sitemap-index.xml`,
+                `${BASE_URL}/sitemap-images.xml`
+            ];
+            topMovies.forEach(m => {
+                indexNowUrls.push(`${BASE_URL}/phim/${m.slug}`);
+                if (typeof m.isSingle === 'boolean') {
+                    indexNowUrls.push(m.isSingle ? `${BASE_URL}/xem-phim/${m.slug}/full` : `${BASE_URL}/xem-phim/${m.slug}/tap-1`);
+                }
+            });
 
         console.log(`\n⚡ Đang gửi ${indexNowUrls.length} URLs mới nhất tới IndexNow (Bing, Yandex, Seznam, Naver)...`);
         const indexNowPayload = {
@@ -363,9 +419,10 @@ function saveBaseCatalog(uniqueMoviesMap) {
             timeout: 15000
         }).catch(err => ({ status: err?.response?.status || 500 }));
 
-        console.log(`✅ IndexNow phản hồi: Status ${inRes.status || 200} (Đã thông báo bot cào tức thì)`);
-    } catch (inErr) {
-        console.warn('IndexNow notice:', inErr.message);
+            console.log(`✅ IndexNow phản hồi: Status ${inRes.status || 200} (Đã thông báo bot cào tức thì)`);
+        } catch (inErr) {
+            console.warn('IndexNow notice:', inErr.message);
+        }
     }
 
     console.log(`\n✨ TOÀN BỘ SITEMAP CHO APHIM SUPER ĐÃ HOÀN TẤT THÀNH CÔNG!`);

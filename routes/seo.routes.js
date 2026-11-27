@@ -1035,9 +1035,8 @@ Disallow: /reset-password
 Disallow: /*?*keyword=
 
 # Search Engines Master Sitemaps (Tối ưu tránh crawl trùng lặp 100% URLs)
-Sitemap: ${BASE_URL}/sitemap.xml
 Sitemap: ${BASE_URL}/sitemap-index.xml
-Sitemap: ${BASE_URL}/sitemap-movies.xml
+Sitemap: ${BASE_URL}/sitemap.xml
 `);
 });
 
