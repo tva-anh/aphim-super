@@ -107639,4 +107639,23 @@
         <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/vu-trom-the-ky-2025-thumb.webp</image:loc><image:title>Vụ Trộm Thế Kỷ</image:title></image:image>
         <image:image><image:loc>https://phimimg.com/uploads/movies/20261127/vu-trom-the-ky-2025-poster.webp</image:loc><image:title>Vụ Trộm Thế Kỷ - Poster</image:title></image:image>
     </url>
+    <url>
+        <loc>https://aphim.store/phim/thang-gu-linh-hon-cua-paris</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/thang-gu-linh-hon-cua-paris-thumb.webp</image:loc><image:title>Thằng Gù, Linh Hồn Của Paris</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/thang-gu-linh-hon-cua-paris-poster.webp</image:loc><image:title>Thằng Gù, Linh Hồn Của Paris - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/tyson-fury</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/tyson-fury-thumb.webp</image:loc><image:title>Tyson Fury</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/tyson-fury-poster.webp</image:loc><image:title>Tyson Fury - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/dua-tre</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/dua-tre-thumb.webp</image:loc><image:title>Đứa Trẻ</image:title></image:image>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/dua-tre-poster.webp</image:loc><image:title>Đứa Trẻ - Poster</image:title></image:image>
+    </url>
+    <url>
+        <loc>https://aphim.store/phim/co-dau-ma</loc>
+        <image:image><image:loc>https://phimimg.com/uploads/movies/20261128/co-dau-ma-poster.webp</image:loc><image:title>Cô Dâu Ma</image:title></image:image>
+    </url>
 </urlset>
