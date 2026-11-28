@@ -1,3 +1,4 @@
+<%- include('splash-screen') %>
 <style>
     /* Marker đo ngưỡng cuộn 24px cho IntersectionObserver trên cả Desktop & Mobile (0ms Main-Thread overhead) */
     .site-header-scroll-marker,
@@ -3081,8 +3082,6 @@
     }
 </style>
 
-<%- include('splash-screen') %>
-
 <span id="site-header-scroll-marker" class="site-header-scroll-marker" aria-hidden="true"></span>
 
 <header id="sofa-header" class="<%= (typeof activePage !== 'undefined' && activePage === 'phim-ngan') ? 'is-phim-ngan' : '' %>">
@@ -4023,16 +4022,16 @@
             window.addEventListener('scroll', onScroll, { passive: true });
         }
 
-        // Run immediately
-        forceHeaderTopState();
-
-        window.addEventListener('load', forceHeaderTopState);
-        window.addEventListener('pageshow', forceHeaderTopState);
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', forceHeaderTopState);
-        } else {
-            forceHeaderTopState();
+        // Tránh Forced Synchronous Reflow tại DOMContentLoaded khi IntersectionObserver đã hoạt động
+        if (!observerActive) {
+            requestAnimationFrame(forceHeaderTopState);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () { requestAnimationFrame(forceHeaderTopState); });
+            }
         }
+        window.addEventListener('pageshow', function (e) {
+            if (e && e.persisted) requestAnimationFrame(forceHeaderTopState);
+        });
     })();
 </script>
 

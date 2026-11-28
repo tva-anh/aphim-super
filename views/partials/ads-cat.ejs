@@ -142,32 +142,35 @@
             </svg>
         </button>
 
-        <!-- 📺 Banner đáy: 3 Banner VSBet, ColaTV, ColaScore -->
+        <!-- 📺 Banner đáy: 3 Banner VSBet, ColaTV, ColaScore (Trì hoãn nạp sau Splash để giữ 60fps mượt) -->
         <div class="aphim-catfish-grid">
             <a href="http://178.128.49.112/vsthethao.html" target="_blank" rel="noopener noreferrer nofollow" title="VSBet - Đăng ký nạp 1X thưởng 10X" class="aphim-catfish-link">
                 <img 
-                    src="/images/ads/vsbet.gif" 
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                    data-ad-src="/images/ads/vsbet.gif" 
                     alt="VSBet" 
                     class="aphim-catfish-img"
-                    loading="eager"
+                    decoding="async"
                 />
             </a>
 
             <a href="http://178.128.49.112/colatv.html" target="_blank" rel="noopener noreferrer nofollow" title="ColaTV - Trực tiếp bóng đá" class="aphim-catfish-link">
                 <img 
-                    src="/images/ads/colatv.gif" 
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                    data-ad-src="/images/ads/colatv.gif" 
                     alt="ColaTV" 
                     class="aphim-catfish-img"
-                    loading="eager"
+                    decoding="async"
                 />
             </a>
 
             <a href="http://178.128.49.112/colaball.html" target="_blank" rel="noopener noreferrer nofollow" title="ColaScore - Tỷ số bóng đá trực tiếp" class="aphim-catfish-link">
                 <img 
-                    src="/images/ads/ColaScore.gif?v=4" 
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                    data-ad-src="/images/ads/ColaScore.gif?v=4" 
                     alt="ColaScore" 
                     class="aphim-catfish-img"
-                    loading="eager"
+                    decoding="async"
                 />
             </a>
         </div>
@@ -238,6 +241,24 @@
 
             // Ngược lại, nếu chưa ấn đóng đủ 3 lần hoặc user không ấn tắt mà chuyển trang:
             // Banner luôn luôn xuất hiện lại ở trang mới!
+        }
+
+        function hydrateCatfishAdImages() {
+            var imgs = catEl.querySelectorAll('img[data-ad-src]');
+            for (var i = 0; i < imgs.length; i++) {
+                var u = imgs[i].getAttribute('data-ad-src');
+                if (u) {
+                    imgs[i].src = u;
+                    imgs[i].removeAttribute('data-ad-src');
+                }
+            }
+        }
+        if (typeof window.__afterAphimSplash === 'function') {
+            window.__afterAphimSplash(function () {
+                setTimeout(hydrateCatfishAdImages, 80);
+            });
+        } else {
+            hydrateCatfishAdImages();
         }
 
         window.closeAphimCatfishAd = function(e) {

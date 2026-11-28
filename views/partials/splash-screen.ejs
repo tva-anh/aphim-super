@@ -31,8 +31,19 @@
         } catch (e) {}
 
         var root = document.documentElement;
+        window.__AP_SPLASH_DONE__ = false;
+        window.__AP_AFTER_SPLASH_Q__ = window.__AP_AFTER_SPLASH_Q__ || [];
+        window.__afterAphimSplash = function (fn) {
+            if (typeof fn !== 'function') return;
+            if (window.__AP_SPLASH_DONE__) {
+                fn();
+            } else {
+                window.__AP_AFTER_SPLASH_Q__.push(fn);
+            }
+        };
         if (suppressSplash) {
             root.classList.add('aphim-suppress-splash');
+            window.__AP_SPLASH_DONE__ = true;
         } else {
             root.classList.remove('aphim-enter');
             root.classList.add('aphim-splash-active');
@@ -51,6 +62,7 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
+        contain: layout style paint;
         animation: aphimBodyLoadEffect 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         will-change: opacity;
         transform: translate3d(0, 0, 0);
@@ -165,9 +177,8 @@
     <div class="aphim-splash-inner">
         <div class="aphim-splash-logo-box">
             <picture>
-                <source srcset="/logo-aphim-splash.webp" type="image/webp">
                 <source srcset="/logo-aphim1.webp" type="image/webp">
-                <img src="/logo-aphim1.png" alt="APhim" class="aphim-splash-logo" width="480" height="200" fetchpriority="high" decoding="async">
+                <img src="/logo-aphim1.png" alt="APhim" class="aphim-splash-logo" width="480" height="200" fetchpriority="high" decoding="sync">
             </picture>
         </div>
         <div class="aphim-splash-text">
@@ -183,23 +194,56 @@
         if (!splash) return;
 
         var root = document.documentElement;
+        var flushed = false;
+
+        function activateDeferredCssBatch() {
+            try {
+                var links = document.querySelectorAll('link[data-defer-css]');
+                for (var i = 0; i < links.length; i++) {
+                    if (links[i].media !== 'all') links[i].media = 'all';
+                }
+            } catch (e) {}
+        }
+
+        function flushAfterSplash() {
+            if (flushed) return;
+            flushed = true;
+            window.__AP_SPLASH_DONE__ = true;
+            activateDeferredCssBatch();
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', activateDeferredCssBatch, { once: true });
+            }
+            var q = window.__AP_AFTER_SPLASH_Q__ || [];
+            window.__AP_AFTER_SPLASH_Q__ = [];
+            for (var i = 0; i < q.length; i++) {
+                try { q[i](); } catch (err) {}
+            }
+        }
 
         function hideSplashCleanly() {
             if (!splash) return;
             splash.classList.add('is-suppressed');
             splash.style.setProperty('display', 'none', 'important');
             root.classList.remove('aphim-splash-active');
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(flushAfterSplash);
+            } else {
+                setTimeout(flushAfterSplash, 0);
+            }
         }
 
         if (root.classList.contains('aphim-suppress-splash')) {
-            hideSplashCleanly();
+            splash.classList.add('is-suppressed');
+            splash.style.setProperty('display', 'none', 'important');
+            root.classList.remove('aphim-splash-active');
+            flushAfterSplash();
         } else {
             splash.addEventListener('animationend', function (e) {
                 if (e.target === splash) {
                     hideSplashCleanly();
                 }
             });
-            setTimeout(hideSplashCleanly, 760);
+            setTimeout(hideSplashCleanly, 750);
         }
 
         // Khi người dùng bấm nút Back hoặc khôi phục từ bfcache: tắt ngay 0ms

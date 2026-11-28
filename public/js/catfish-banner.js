@@ -116,18 +116,21 @@
         }
     };
 
-    // ⚡ Preload 3 ảnh GIF popup CHỈ KHI popup chưa bị đóng trong phiên hiện tại (tiết kiệm 7.5MB băng thông khi chuyển trang)
-    try {
-        if (CONFIG.popup && CONFIG.popup.enabled && !sessionStorage.getItem(CONFIG.popup.sessionKey)) {
-            var _pb = CONFIG.popup.banners || [];
-            for (var _pi = 0; _pi < _pb.length; _pi++) {
-                if (_pb[_pi] && _pb[_pi].img) {
-                    var _pImg = new Image();
-                    _pImg.src = _pb[_pi].img;
+    // ⚡ Preload 3 ảnh GIF popup CHỈ chạy SAU KHI màn hình chờ kết thúc để không cướp băng thông & làm khựng Splash
+    function preloadPopupBanners() {
+        try {
+            if (CONFIG.popup && CONFIG.popup.enabled && !sessionStorage.getItem(CONFIG.popup.sessionKey)) {
+                var _pb = CONFIG.popup.banners || [];
+                for (var _pi = 0; _pi < _pb.length; _pi++) {
+                    if (_pb[_pi] && _pb[_pi].img) {
+                        var _pImg = new Image();
+                        _pImg.decoding = 'async';
+                        _pImg.src = _pb[_pi].img;
+                    }
                 }
             }
-        }
-    } catch (e) {}
+        } catch (e) {}
+    }
 
     /* ─────────────────────────────────────────────────────────
        HELPERS
@@ -138,7 +141,7 @@
         if (item.isVideo || (item.img && item.img.toLowerCase().indexOf('.mp4') !== -1)) {
             return '<video src="' + item.img + '" autoplay loop muted playsinline disablePictureInPicture' + cls + ' style="width:100%; height:100%; object-fit:fill; display:block; pointer-events:none;"></video>';
         }
-        return '<img src="' + item.img + '" alt="' + (item.label || '') + '"' + cls + ' loading="eager">';
+        return '<img src="' + item.img + '" alt="' + (item.label || '') + '"' + cls + ' loading="lazy" decoding="async">';
     }
 
     function getSession(key) {
@@ -492,13 +495,23 @@
     }
 
     /* ─────────────────────────────────────────────────────────
-       BOOTSTRAP
+       BOOTSTRAP (Đợi màn hình chờ 0.72s xong mới tải ~10.5MB GIF ads)
     ───────────────────────────────────────────────────────── */
     function boot() {
-        initCatfish();
-        initCatfishTop();
-        initPopup();
-        initUnderAds();
+        var startAds = function () {
+            preloadPopupBanners();
+            initCatfish();
+            initCatfishTop();
+            initPopup();
+            initUnderAds();
+        };
+        if (typeof window.__afterAphimSplash === 'function') {
+            window.__afterAphimSplash(function () {
+                setTimeout(startAds, 120);
+            });
+        } else {
+            startAds();
+        }
     }
 
     if (document.readyState === 'loading') {

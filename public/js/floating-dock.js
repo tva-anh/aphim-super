@@ -25,9 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const savedTheme = getSavedTheme();
     const isLightMode = savedTheme !== 'dark';
-    if (isLightMode) {
+    const hasLightClass = document.documentElement.classList.contains('light-mode');
+    if (isLightMode && !hasLightClass) {
         document.documentElement.classList.add('light-mode');
-    } else {
+    } else if (!isLightMode && hasLightClass) {
         document.documentElement.classList.remove('light-mode');
     }
 
@@ -216,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollTicking = true;
             }
         }, { passive: true });
-        updateScrollTopVisibility();
+        requestAnimationFrame(updateScrollTopVisibility);
 
         btnTop.addEventListener('click', (e) => {
             e.preventDefault();

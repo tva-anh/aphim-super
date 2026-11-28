@@ -25,12 +25,13 @@
             <link rel="preload" as="image" href="<%= _mobLastPoster %>" media="(max-width: 1023px)">
             <% } %>
                 <link rel="preconnect" href="https://static-cgv.vncdn.vn" crossorigin>
-                <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=29">
-                <link rel="stylesheet" href="/css/hero-banner.css?v=195">
+                <style>@media (min-width: 769px){#mobile3DShowcaseSection{display:none!important}} @media (max-width: 1023px){#desktopHeroShowcase{display:none!important}}</style>
+                <link rel="stylesheet" href="/css/mobile-3d-showcase.css?v=29" media="(max-width: 768px)">
+                <link rel="stylesheet" href="/css/hero-banner.css?v=195" media="(min-width: 1024px)">
                 <link rel="stylesheet" href="/css/interests-section.css?v=171">
                 <link rel="stylesheet" href="/css/home-layout.css?v=20261127">
                 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap"
-                    rel="stylesheet" media="print" onload="this.media='all'">
+                    rel="stylesheet" media="print" data-defer-css="1">
                 <noscript>
                     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
                 </noscript>
@@ -39,7 +40,7 @@
 <body class="bg-[#1f2331] text-white antialiased has-desktop-hero">
     <%- include('partials/header') %>
 
-        <!-- Runtime Desktop Hero Transparent Header Initialization -->
+        <!-- Runtime Desktop Hero Transparent Header Initialization (No Forced Reflow at DCL) -->
         <script>
             (function () {
                 function enforceDesktopHeroHeader() {
@@ -55,12 +56,9 @@
                         header.setAttribute('data-scrolled', 'true');
                     }
                 }
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', enforceDesktopHeroHeader);
-                } else {
-                    enforceDesktopHeroHeader();
-                }
-                window.addEventListener('load', enforceDesktopHeroHeader);
+                window.addEventListener('pageshow', function (e) {
+                    if (e && e.persisted) requestAnimationFrame(enforceDesktopHeroHeader);
+                });
             })();
         </script>
 
@@ -3668,20 +3666,29 @@
                             });
                         };
 
-                        // ⚡ Nạp cả Desktop lẫn Mobile, trễ nhẹ để ưu tiên Hero + hàng Đề Cử
+                        // ⚡ Giãn nhịp tải các hàng below-the-fold SAU KHI màn hình chờ kết thúc để không gây LongTask/429
                         const snRowsLoaded = new Set();
                         function loadSnCountryRows() {
-                            SN_COUNTRY_ROWS.forEach(function (row) {
+                            SN_COUNTRY_ROWS.forEach(function (row, idx) {
                                 if (snRowsLoaded.has(row.key)) return;
                                 snRowsLoaded.add(row.key);
-                                loadSnCountryRow(row);
+                                setTimeout(function () { loadSnCountryRow(row); }, idx * 180);
                             });
                         }
-                        setTimeout(loadSnCountryRows, 320);
 
-                        // ⚡ NẠP NGAY LẬP TỨC 0MS KHÔNG CHỜ DOMCONTENTLOADED
-                        loadDeCuSlider();
-                        loadCinemaHotSlider();
+                        var runAfterSplash = function (fn) {
+                            if (typeof window.__afterAphimSplash === 'function') {
+                                window.__afterAphimSplash(fn);
+                            } else {
+                                fn();
+                            }
+                        };
+
+                        runAfterSplash(function () {
+                            setTimeout(loadDeCuSlider, 40);
+                            setTimeout(loadCinemaHotSlider, 180);
+                            setTimeout(loadSnCountryRows, 380);
+                        });
 
 
                         // ==========================================
@@ -4334,12 +4341,7 @@
                             });
                         }
 
-                        // ⚡ Kích hoạt Mobile 3D Showcase ngay lập tức 0ms không chờ DOMContentLoaded
-                        if (window.innerWidth < 1024) {
-                            loadMobile3DShowcase();
-                        }
-
-                        // Load the first row immediately; defer lower rows until the user is approaching them.
+                        // Load the first row immediately after Splash; defer lower rows until the user is approaching them.
                         document.addEventListener('DOMContentLoaded', function () {
                             try {
                                 Object.keys(sessionStorage).forEach(k => {
@@ -4352,18 +4354,30 @@
                                 });
                             } catch (e) { }
 
-                            if (window.innerWidth >= 1024) {
-                                if (typeof loadHeroBanner === 'function') loadHeroBanner();
-                            } else {
-                                loadMobile3DShowcase();
-                            }
+                            var scheduleInit = function (fn) {
+                                if (typeof window.__afterAphimSplash === 'function') {
+                                    window.__afterAphimSplash(fn);
+                                } else {
+                                    fn();
+                                }
+                            };
 
-                            loadHomeCommentsShowcase();
+                            scheduleInit(function () {
+                                if (window.innerWidth >= 1024) {
+                                    if (typeof loadHeroBanner === 'function') loadHeroBanner();
+                                } else {
+                                    loadMobile3DShowcase();
+                                }
 
-                            // ✅ Các section dưới màn dùng IntersectionObserver + hard-timeout 4s
-                            loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
-                            loadWhenNearViewport('grid-top-10', loadTop10Section);
-                            loadWhenNearViewport('rapShowcase', loadRapShowcase);
+                                setTimeout(loadHomeCommentsShowcase, 140);
+
+                                // ✅ Các section dưới màn dùng IntersectionObserver + hard-timeout
+                                setTimeout(function () {
+                                    loadWhenNearViewport('grid-phim-bo', () => loadUnifiedSection('list', 'phim-bo', 'grid-phim-bo', 12));
+                                    loadWhenNearViewport('grid-top-10', loadTop10Section);
+                                    loadWhenNearViewport('rapShowcase', loadRapShowcase);
+                                }, 260);
+                            });
                         });
                     })();
                 </script>

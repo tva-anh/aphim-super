@@ -441,7 +441,8 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') aphimCloseGuide(); });
 </script>
 
-<link rel="stylesheet" href="/css/floating-dock.css?v=20261026b" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="/css/floating-dock.css?v=20261026b" media="print" data-defer-css="1">
+<noscript><link rel="stylesheet" href="/css/floating-dock.css?v=20261026b"></noscript>
 
 <div class="floating-dock-container" id="floatingDockContainer">
     <button type="button" id="fdBtnTop" class="fd-btn-top" title="Cuộn lên đầu trang" aria-label="Cuộn lên đầu trang">
@@ -469,7 +470,7 @@
     </button>
 </div>
 
-<script src="/js/floating-dock.js?v=208" defer></script>
+<script src="/js/floating-dock.js?v=209" defer></script>
 <script src="/js/section-swipe.js?v=100018" defer></script>
 <script src="/js/bottom-nav.js?v=20261018d" defer></script>
 <script src="/js/auth.js?v=222" defer></script>
@@ -479,5 +480,5 @@
 <script src="/js/gamification-core.js?v=108" defer></script>
 <script src="/js/smooth-scroll.js?v=102" defer></script>
 <script src="/js/mobile-interaction-pro.js?v=20269" defer></script>
-<link rel="stylesheet" href="/css/catfish-banner.css?v=44">
-<script src="/js/catfish-banner.js?v=45" defer></script>
+<link rel="stylesheet" href="/css/catfish-banner.css?v=44" media="print" data-defer-css="1">
+<script src="/js/catfish-banner.js?v=46" defer></script>
